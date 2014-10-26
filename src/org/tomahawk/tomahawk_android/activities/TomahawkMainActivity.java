@@ -78,6 +78,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.net.ConnectivityManager;
@@ -850,6 +851,11 @@ public class TomahawkMainActivity extends ActionBarActivity
                 contextMenu.setVisibility(View.GONE);
                 mSlidingUpPanelLayout.findViewById(R.id.view_album_button).setVisibility(View.GONE);
                 mPlaybackPanel.findViewById(R.id.textview_container).setVisibility(View.VISIBLE);
+                View artistTextViewButton = mPlaybackPanel.findViewById(R.id.artist_name_button);
+                TransitionDrawable drawable =
+                        (TransitionDrawable) artistTextViewButton.getBackground();
+                drawable.reverseTransition(200);
+                artistTextViewButton.setClickable(false);
             } else {
                 mSlidingUpPanelLayout.collapsePanel();
             }

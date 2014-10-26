@@ -40,6 +40,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -135,8 +136,12 @@ public class PlaybackFragment extends TomahawkFragment {
                 if (contextMenu.getVisibility() == View.VISIBLE) {
                     contextMenu.setVisibility(View.GONE);
                     getView().findViewById(R.id.view_album_button).setVisibility(View.GONE);
-                    ((TomahawkMainActivity) getActivity()).getPlaybackPanel()
-                            .findViewById(R.id.textview_container).setVisibility(View.VISIBLE);
+                    View artistTextViewButton = ((TomahawkMainActivity) getActivity())
+                            .getPlaybackPanel().findViewById(R.id.artist_name_button);
+                    TransitionDrawable drawable =
+                            (TransitionDrawable) artistTextViewButton.getBackground();
+                    drawable.reverseTransition(200);
+                    artistTextViewButton.setClickable(false);
                 } else {
                     SlidingUpPanelLayout slidingLayout =
                             (SlidingUpPanelLayout) getActivity().findViewById(R.id.sliding_layout);
@@ -181,6 +186,12 @@ public class PlaybackFragment extends TomahawkFragment {
             public boolean onLongClick(View v) {
                 getView().findViewById(R.id.context_menu_framelayout)
                         .setVisibility(View.VISIBLE);
+                View artistTextViewButton = ((TomahawkMainActivity) getActivity())
+                        .getPlaybackPanel().findViewById(R.id.artist_name_button);
+                TransitionDrawable drawable =
+                        (TransitionDrawable) artistTextViewButton.getBackground();
+                drawable.startTransition(200);
+                artistTextViewButton.setClickable(true);
                 getView().findViewById(R.id.view_album_button).setVisibility(View.VISIBLE);
                 if (getResources().getBoolean(R.bool.is_landscape)) {
                     ((TomahawkMainActivity) getActivity()).getPlaybackPanel()
@@ -484,6 +495,12 @@ public class PlaybackFragment extends TomahawkFragment {
                                         .setVisibility(View.GONE);
                                 activity.getPlaybackPanel().findViewById(R.id.textview_container)
                                         .setVisibility(View.VISIBLE);
+                                View artistTextViewButton = activity.getPlaybackPanel()
+                                        .findViewById(R.id.artist_name_button);
+                                TransitionDrawable drawable
+                                        = (TransitionDrawable) artistTextViewButton.getBackground();
+                                drawable.reverseTransition(200);
+                                artistTextViewButton.setClickable(false);
                             }
                         });
             } else {

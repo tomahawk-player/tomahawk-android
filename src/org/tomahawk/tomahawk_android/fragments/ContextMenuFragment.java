@@ -257,18 +257,7 @@ public class ContextMenuFragment extends Fragment {
             itemTextView.setVisibility(View.VISIBLE);
             itemTextView.setText(mTomahawkListItem.getName());
         }
-        View artistNameButton = getView().findViewById(R.id.artist_name_button);
-        artistNameButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getActivity().getSupportFragmentManager().popBackStack();
-                FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                        getActivity().getSupportFragmentManager(), ArtistPagerFragment.class,
-                        mTomahawkListItem.getArtist().getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
-            }
-        });
-        TextView artistTextView = (TextView) artistNameButton.findViewById(R.id.artist_name);
+        TextView artistTextView = (TextView) getView().findViewById(R.id.artist_name);
         artistTextView.setText(mTomahawkListItem.getArtist().getName());
 
         //Set up album image and stuff
@@ -389,6 +378,23 @@ public class ContextMenuFragment extends Fragment {
                             TomahawkFragment.TOMAHAWK_ALBUM_KEY, collection);
                 }
             });
+        }
+        View.OnClickListener artistNameButtonListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                actionOnDone.run();
+                FragmentUtils.replace(activity, activity.getSupportFragmentManager(),
+                        ArtistPagerFragment.class, item.getArtist().getCacheKey(),
+                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, collection);
+            }
+        };
+        View artistNameButton = activity.getPlaybackPanel().findViewById(R.id.artist_name_button);
+        if (artistNameButton != null) {
+            artistNameButton.setOnClickListener(artistNameButtonListener);
+        }
+        artistNameButton = view.findViewById(R.id.artist_name_button);
+        if (artistNameButton != null) {
+            artistNameButton.setOnClickListener(artistNameButtonListener);
         }
     }
 

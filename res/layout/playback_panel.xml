@@ -93,14 +93,24 @@
                   android:textSize="@dimen/text_size_micro"
                   android:textColor="@color/primary_textcolor_inverted"/>
 
-        <TextView android:id="@+id/artist_textview"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_gravity="center_vertical"
-                  android:text="Beat the drum slowly"
-                  android:singleLine="true"
-                  android:textSize="@dimen/text_size_micro"
-                  android:textColor="@color/primary_textcolor_inverted"/>
+        <FrameLayout android:id="@+id/artist_name_button"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_gravity="center"
+                     android:padding="@dimen/padding_small"
+                     android:background="@drawable/selectable_background_button_white_transition"
+                     android:clickable="false">
+
+            <TextView android:id="@+id/artist_textview"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:text="Beat the drum slowly"
+                      android:singleLine="true"
+                      android:textSize="@dimen/text_size_micro"
+                      android:textColor="@color/primary_textcolor_inverted"/>
+
+        </FrameLayout>
 
     </LinearLayout>
 
