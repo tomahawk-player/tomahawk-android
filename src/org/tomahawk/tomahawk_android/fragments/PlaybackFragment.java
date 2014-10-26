@@ -189,20 +189,50 @@ public class PlaybackFragment extends TomahawkFragment {
                 mViewPager, new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                AnimationUtils.fade(getView().findViewById(R.id.context_menu_framelayout),
-                        AnimationUtils.DURATION_CONTEXTMENU, true);
-                AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
-                        AnimationUtils.DURATION_CONTEXTMENU, true);
-                View artistTextViewButton = ((TomahawkMainActivity) getActivity())
-                        .getPlaybackPanel().findViewById(R.id.artist_name_button);
-                artistTextViewButton.setClickable(true);
-                TransitionDrawable drawable =
-                        (TransitionDrawable) artistTextViewButton.getBackground();
-                drawable.startTransition(AnimationUtils.DURATION_CONTEXTMENU);
-                if (getResources().getBoolean(R.bool.is_landscape)) {
-                    AnimationUtils.fade(((TomahawkMainActivity) getActivity()).getPlaybackPanel()
-                                    .findViewById(R.id.textview_container),
-                            AnimationUtils.DURATION_CONTEXTMENU, false);
+                PlaybackService playbackService =
+                        ((TomahawkMainActivity) getActivity()).getPlaybackService();
+                if (playbackService != null && playbackService.getCurrentQuery() != null) {
+                    ContextMenuFragment.setupClickListeners((TomahawkMainActivity) getActivity(),
+                            getView(), playbackService.getCurrentQuery(), null, true,
+                            new ContextMenuFragment.Action() {
+                                @Override
+                                public void run() {
+                                    AnimationUtils.fade(getView().findViewById(
+                                                    R.id.context_menu_framelayout),
+                                            AnimationUtils.DURATION_CONTEXTMENU, false);
+                                    AnimationUtils
+                                            .fade(getView().findViewById(R.id.view_album_button),
+                                                    AnimationUtils.DURATION_CONTEXTMENU, false);
+                                    TomahawkMainActivity activity
+                                            = ((TomahawkMainActivity) getActivity());
+                                    AnimationUtils.fade(activity.getPlaybackPanel().findViewById(
+                                                    R.id.textview_container),
+                                            AnimationUtils.DURATION_CONTEXTMENU, true);
+                                    View artistTextViewButton = activity.getPlaybackPanel()
+                                            .findViewById(R.id.artist_name_button);
+                                    artistTextViewButton.setClickable(false);
+                                    TransitionDrawable drawable
+                                            = (TransitionDrawable) artistTextViewButton
+                                            .getBackground();
+                                    drawable.reverseTransition(AnimationUtils.DURATION_CONTEXTMENU);
+                                }
+                            });
+                    AnimationUtils.fade(getView().findViewById(R.id.context_menu_framelayout),
+                            AnimationUtils.DURATION_CONTEXTMENU, true);
+                    AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
+                            AnimationUtils.DURATION_CONTEXTMENU, true);
+                    View artistTextViewButton = ((TomahawkMainActivity) getActivity())
+                            .getPlaybackPanel().findViewById(R.id.artist_name_button);
+                    artistTextViewButton.setClickable(true);
+                    TransitionDrawable drawable =
+                            (TransitionDrawable) artistTextViewButton.getBackground();
+                    drawable.startTransition(AnimationUtils.DURATION_CONTEXTMENU);
+                    if (getResources().getBoolean(R.bool.is_landscape)) {
+                        AnimationUtils
+                                .fade(((TomahawkMainActivity) getActivity()).getPlaybackPanel()
+                                                .findViewById(R.id.textview_container),
+                                        AnimationUtils.DURATION_CONTEXTMENU, false);
+                    }
                 }
                 return true;
             }
@@ -491,27 +521,6 @@ public class PlaybackFragment extends TomahawkFragment {
                 TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(), bgImageView,
                         playbackService.getCurrentQuery().getImage(),
                         Image.getSmallImageSize(), R.drawable.album_placeholder_grid);
-
-                ContextMenuFragment.setupClickListeners((TomahawkMainActivity) getActivity(),
-                        getView(), query, null, new ContextMenuFragment.Action() {
-                            @Override
-                            public void run() {
-                                AnimationUtils.fade(getView().findViewById(
-                                                R.id.context_menu_framelayout),
-                                        AnimationUtils.DURATION_CONTEXTMENU, false);
-                                AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
-                                        AnimationUtils.DURATION_CONTEXTMENU, false);
-                                AnimationUtils.fade(activity.getPlaybackPanel().findViewById(
-                                                R.id.textview_container),
-                                        AnimationUtils.DURATION_CONTEXTMENU, true);
-                                View artistTextViewButton = activity.getPlaybackPanel()
-                                        .findViewById(R.id.artist_name_button);
-                                artistTextViewButton.setClickable(false);
-                                TransitionDrawable drawable
-                                        = (TransitionDrawable) artistTextViewButton.getBackground();
-                                drawable.reverseTransition(AnimationUtils.DURATION_CONTEXTMENU);
-                            }
-                        });
             } else {
                 // Make all buttons not clickable
                 getView().findViewById(R.id.imageButton_shuffle).setClickable(false);

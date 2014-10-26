@@ -229,7 +229,7 @@ public class ContextMenuFragment extends Fragment {
         closeButtonText.setText(getString(R.string.button_close).toUpperCase());
 
         setupClickListeners((TomahawkMainActivity) getActivity(), getView(), mTomahawkListItem,
-                mCollection, new Action() {
+                mCollection, false, new Action() {
                     @Override
                     public void run() {
                         getActivity().getSupportFragmentManager().popBackStack();
@@ -290,7 +290,8 @@ public class ContextMenuFragment extends Fragment {
     }
 
     public static void setupClickListeners(final TomahawkMainActivity activity, View view,
-            final TomahawkListItem item, final Collection collection, final Action actionOnDone) {
+            final TomahawkListItem item, final Collection collection,
+            final boolean isPlaybackContextMenu, final Action actionOnDone) {
         if (item instanceof Album) {
             View addToCollectionButton = view.findViewById(R.id.addtocollection_button);
             addToCollectionButton.setVisibility(View.VISIBLE);
@@ -388,11 +389,12 @@ public class ContextMenuFragment extends Fragment {
                         TomahawkFragment.TOMAHAWK_ARTIST_KEY, collection);
             }
         };
-        View artistNameButton = activity.getPlaybackPanel().findViewById(R.id.artist_name_button);
-        if (artistNameButton != null) {
-            artistNameButton.setOnClickListener(artistNameButtonListener);
+        View artistNameButton;
+        if (isPlaybackContextMenu) {
+            artistNameButton = activity.getPlaybackPanel().findViewById(R.id.artist_name_button);
+        } else {
+            artistNameButton = view.findViewById(R.id.artist_name_button);
         }
-        artistNameButton = view.findViewById(R.id.artist_name_button);
         if (artistNameButton != null) {
             artistNameButton.setOnClickListener(artistNameButtonListener);
         }
