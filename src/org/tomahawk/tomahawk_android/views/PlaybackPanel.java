@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.views;
 
+import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.PropertyValuesHolder;
 import com.nineoldandroids.animation.ValueAnimator;
@@ -38,7 +39,6 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewTreeObserver;
-import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -323,41 +323,51 @@ public class PlaybackPanel extends FrameLayout {
 
     public void onPanelSlide(final View view, float f) {
         if (f > 0.15f) {
-            AnimationUtils.fade(view.findViewById(R.id.top_buttonpanel), 0f, 1f, 200, true,
-                    new Animation.AnimationListener() {
+            AnimationUtils.fade(view.findViewById(R.id.top_buttonpanel), 0f, 1f,
+                    AnimationUtils.DURATION_PLAYBACKTOPPANEL, true,
+                    new Animator.AnimatorListener() {
                         @Override
-                        public void onAnimationStart(Animation animation) {
+                        public void onAnimationStart(Animator animation) {
                             view.findViewById(R.id.imageButton_repeat).setVisibility(View.VISIBLE);
                             view.findViewById(R.id.close_button).setVisibility(View.VISIBLE);
                             view.findViewById(R.id.imageButton_shuffle).setVisibility(View.VISIBLE);
+                            animation.removeListener(this);
                         }
 
                         @Override
-                        public void onAnimationEnd(Animation animation) {
+                        public void onAnimationEnd(Animator animation) {
                         }
 
                         @Override
-                        public void onAnimationRepeat(Animation animation) {
+                        public void onAnimationCancel(Animator animation) {
+                        }
 
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
                         }
                     });
         } else if (f < 0.15f) {
-            AnimationUtils.fade(view.findViewById(R.id.top_buttonpanel), 1f, 0f, 200, false,
-                    new Animation.AnimationListener() {
+            AnimationUtils.fade(view.findViewById(R.id.top_buttonpanel), 1f, 0f,
+                    AnimationUtils.DURATION_PLAYBACKTOPPANEL, false,
+                    new Animator.AnimatorListener() {
                         @Override
-                        public void onAnimationStart(Animation animation) {
+                        public void onAnimationStart(Animator animation) {
                         }
 
                         @Override
-                        public void onAnimationEnd(Animation animation) {
+                        public void onAnimationEnd(Animator animation) {
                             view.findViewById(R.id.imageButton_repeat).setVisibility(View.GONE);
                             view.findViewById(R.id.close_button).setVisibility(View.GONE);
                             view.findViewById(R.id.imageButton_shuffle).setVisibility(View.GONE);
+                            animation.removeListener(this);
                         }
 
                         @Override
-                        public void onAnimationRepeat(Animation animation) {
+                        public void onAnimationCancel(Animator animation) {
+                        }
 
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
                         }
                     });
         }

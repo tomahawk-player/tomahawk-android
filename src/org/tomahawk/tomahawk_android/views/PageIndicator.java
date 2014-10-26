@@ -21,6 +21,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 import org.tomahawk.tomahawk_android.fragments.PagerFragment;
+import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
 import android.content.Context;
@@ -167,7 +168,7 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
                     Animation.RELATIVE_TO_SELF, 0.5f,
                     Animation.RELATIVE_TO_SELF, 0.5f);
         }
-        rotate.setDuration(200);
+        rotate.setDuration(AnimationUtils.DURATION_ARROWROTATE);
         arrow.startAnimation(rotate);
         rotate.setFillAfter(true);
     }

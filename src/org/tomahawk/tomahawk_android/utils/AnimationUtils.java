@@ -17,25 +17,63 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.ObjectAnimator;
+import com.nineoldandroids.animation.ValueAnimator;
+
 import org.tomahawk.tomahawk_android.R;
 
 import android.view.View;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
 
 public class AnimationUtils {
 
+    public static final int DURATION_CONTEXTMENU = 120;
+
+    public static final int DURATION_PLAYBACKTOPPANEL = 200;
+
+    public static final int DURATION_ARROWROTATE = 200;
+
+    public static void fade(final View view, int duration, final boolean isFadeIn) {
+        float from = isFadeIn ? 0f : 1f;
+        float to = isFadeIn ? 1f : 0f;
+        fade(view, from, to, duration, isFadeIn, new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                if (isFadeIn) {
+                    view.setVisibility(View.VISIBLE);
+                    animation.removeListener(this);
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (!isFadeIn) {
+                    view.setVisibility(View.GONE);
+                    animation.removeListener(this);
+                }
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+            }
+        });
+    }
+
     public static void fade(final View view, float from, float to, int duration,
-            final boolean isFadeIn, Animation.AnimationListener listener) {
+            final boolean isFadeIn, Animator.AnimatorListener listener) {
         if (view != null) {
+            view.setVisibility(View.VISIBLE);
             if (!(view.getTag(R.id.animation_type_fade) instanceof Boolean)
                     || (Boolean) view.getTag(R.id.animation_type_fade) != isFadeIn) {
                 view.setTag(R.id.animation_type_fade, isFadeIn);
-                AlphaAnimation animation = new AlphaAnimation(from, to);
-                animation.setDuration(duration);
-                view.startAnimation(animation);
-                animation.setFillAfter(true);
-                animation.setAnimationListener(listener);
+                ValueAnimator animator = ObjectAnimator.ofFloat(view, "alpha", from, to);
+                animator.setDuration(duration);
+                animator.addListener(listener);
+                animator.start();
             }
         }
     }

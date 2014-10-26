@@ -63,6 +63,7 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 import org.tomahawk.tomahawk_android.services.RemoteControllerService;
+import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
@@ -846,16 +847,19 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onBackPressed() {
         if (mSlidingUpPanelLayout.isEnabled() && (mSlidingUpPanelLayout.isPanelExpanded()
                 || mSlidingUpPanelLayout.isPanelAnchored())) {
-            View contextMenu = mSlidingUpPanelLayout.findViewById(R.id.context_menu_framelayout);
+            final View contextMenu = mSlidingUpPanelLayout
+                    .findViewById(R.id.context_menu_framelayout);
             if (contextMenu.getVisibility() == View.VISIBLE) {
-                contextMenu.setVisibility(View.GONE);
-                mSlidingUpPanelLayout.findViewById(R.id.view_album_button).setVisibility(View.GONE);
-                mPlaybackPanel.findViewById(R.id.textview_container).setVisibility(View.VISIBLE);
+                AnimationUtils.fade(contextMenu, AnimationUtils.DURATION_CONTEXTMENU, false);
+                AnimationUtils.fade(mSlidingUpPanelLayout.findViewById(R.id.view_album_button),
+                        AnimationUtils.DURATION_CONTEXTMENU, false);
+                AnimationUtils.fade(mPlaybackPanel.findViewById(R.id.textview_container),
+                        AnimationUtils.DURATION_CONTEXTMENU, true);
                 View artistTextViewButton = mPlaybackPanel.findViewById(R.id.artist_name_button);
+                artistTextViewButton.setClickable(false);
                 TransitionDrawable drawable =
                         (TransitionDrawable) artistTextViewButton.getBackground();
-                drawable.reverseTransition(200);
-                artistTextViewButton.setClickable(false);
+                drawable.reverseTransition(AnimationUtils.DURATION_CONTEXTMENU);
             } else {
                 mSlidingUpPanelLayout.collapsePanel();
             }

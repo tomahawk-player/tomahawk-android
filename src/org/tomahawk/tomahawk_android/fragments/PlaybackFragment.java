@@ -31,6 +31,7 @@ import org.tomahawk.tomahawk_android.adapters.PlaybackPagerAdapter;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
@@ -134,14 +135,18 @@ public class PlaybackFragment extends TomahawkFragment {
             public void onClick(View v) {
                 View contextMenu = getView().findViewById(R.id.context_menu_framelayout);
                 if (contextMenu.getVisibility() == View.VISIBLE) {
-                    contextMenu.setVisibility(View.GONE);
-                    getView().findViewById(R.id.view_album_button).setVisibility(View.GONE);
+                    AnimationUtils.fade(contextMenu, AnimationUtils.DURATION_CONTEXTMENU, false);
+                    AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
+                            AnimationUtils.DURATION_CONTEXTMENU, false);
+                    AnimationUtils.fade(((TomahawkMainActivity) getActivity()).getPlaybackPanel()
+                                    .findViewById(R.id.textview_container),
+                            AnimationUtils.DURATION_CONTEXTMENU, true);
                     View artistTextViewButton = ((TomahawkMainActivity) getActivity())
                             .getPlaybackPanel().findViewById(R.id.artist_name_button);
+                    artistTextViewButton.setClickable(false);
                     TransitionDrawable drawable =
                             (TransitionDrawable) artistTextViewButton.getBackground();
-                    drawable.reverseTransition(200);
-                    artistTextViewButton.setClickable(false);
+                    drawable.reverseTransition(AnimationUtils.DURATION_CONTEXTMENU);
                 } else {
                     SlidingUpPanelLayout slidingLayout =
                             (SlidingUpPanelLayout) getActivity().findViewById(R.id.sliding_layout);
@@ -184,18 +189,20 @@ public class PlaybackFragment extends TomahawkFragment {
                 mViewPager, new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                getView().findViewById(R.id.context_menu_framelayout)
-                        .setVisibility(View.VISIBLE);
+                AnimationUtils.fade(getView().findViewById(R.id.context_menu_framelayout),
+                        AnimationUtils.DURATION_CONTEXTMENU, true);
+                AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
+                        AnimationUtils.DURATION_CONTEXTMENU, true);
                 View artistTextViewButton = ((TomahawkMainActivity) getActivity())
                         .getPlaybackPanel().findViewById(R.id.artist_name_button);
+                artistTextViewButton.setClickable(true);
                 TransitionDrawable drawable =
                         (TransitionDrawable) artistTextViewButton.getBackground();
-                drawable.startTransition(200);
-                artistTextViewButton.setClickable(true);
-                getView().findViewById(R.id.view_album_button).setVisibility(View.VISIBLE);
+                drawable.startTransition(AnimationUtils.DURATION_CONTEXTMENU);
                 if (getResources().getBoolean(R.bool.is_landscape)) {
-                    ((TomahawkMainActivity) getActivity()).getPlaybackPanel()
-                            .findViewById(R.id.textview_container).setVisibility(View.GONE);
+                    AnimationUtils.fade(((TomahawkMainActivity) getActivity()).getPlaybackPanel()
+                                    .findViewById(R.id.textview_container),
+                            AnimationUtils.DURATION_CONTEXTMENU, false);
                 }
                 return true;
             }
@@ -489,18 +496,20 @@ public class PlaybackFragment extends TomahawkFragment {
                         getView(), query, null, new ContextMenuFragment.Action() {
                             @Override
                             public void run() {
-                                getView().findViewById(R.id.context_menu_framelayout)
-                                        .setVisibility(View.GONE);
-                                getView().findViewById(R.id.view_album_button)
-                                        .setVisibility(View.GONE);
-                                activity.getPlaybackPanel().findViewById(R.id.textview_container)
-                                        .setVisibility(View.VISIBLE);
+                                AnimationUtils.fade(getView().findViewById(
+                                                R.id.context_menu_framelayout),
+                                        AnimationUtils.DURATION_CONTEXTMENU, false);
+                                AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
+                                        AnimationUtils.DURATION_CONTEXTMENU, false);
+                                AnimationUtils.fade(activity.getPlaybackPanel().findViewById(
+                                                R.id.textview_container),
+                                        AnimationUtils.DURATION_CONTEXTMENU, true);
                                 View artistTextViewButton = activity.getPlaybackPanel()
                                         .findViewById(R.id.artist_name_button);
+                                artistTextViewButton.setClickable(false);
                                 TransitionDrawable drawable
                                         = (TransitionDrawable) artistTextViewButton.getBackground();
-                                drawable.reverseTransition(200);
-                                artistTextViewButton.setClickable(false);
+                                drawable.reverseTransition(AnimationUtils.DURATION_CONTEXTMENU);
                             }
                         });
             } else {
