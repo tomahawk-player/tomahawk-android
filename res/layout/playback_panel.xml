@@ -73,8 +73,10 @@
                android:src="@drawable/ic_spotify"/>
 
     <LinearLayout android:id="@+id/textview_container"
-                  android:layout_width="@dimen/playback_panel_textviews_maxwidth"
-                  android:layout_height="wrap_content">
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_marginRight="@dimen/playback_panel_height"
+                  android:layout_toRightOf="@id/resolver_imageview">
 
         <TextView android:id="@+id/track_textview"
                   android:layout_width="wrap_content"
@@ -115,13 +117,11 @@
     </LinearLayout>
 
     <TextView android:id="@+id/completiontime_textview"
-              android:layout_width="wrap_content"
+              android:layout_width="@dimen/playback_panel_height"
               android:layout_height="@dimen/playback_panel_height"
               android:layout_alignParentBottom="true"
               android:layout_alignParentRight="true"
-              android:gravity="center_vertical"
-              android:paddingRight="@dimen/padding_large"
-              android:paddingLeft="@dimen/padding_small"
+              android:gravity="center"
               android:text="6:32"
               android:textSize="@dimen/text_size_micro"
               android:textColor="@color/primary_textcolor_inverted"/>
