@@ -44,6 +44,7 @@ import android.content.res.Configuration;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -219,8 +220,11 @@ public class PlaybackFragment extends TomahawkFragment {
                             });
                     AnimationUtils.fade(getView().findViewById(R.id.context_menu_framelayout),
                             AnimationUtils.DURATION_CONTEXTMENU, true);
-                    AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
-                            AnimationUtils.DURATION_CONTEXTMENU, true);
+                    if (!TextUtils
+                            .isEmpty(playbackService.getCurrentQuery().getAlbum().getName())) {
+                        AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
+                                AnimationUtils.DURATION_CONTEXTMENU, true);
+                    }
                     View artistTextViewButton = ((TomahawkMainActivity) getActivity())
                             .getPlaybackPanel().findViewById(R.id.artist_name_button);
                     artistTextViewButton.setClickable(true);
