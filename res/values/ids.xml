@@ -6,6 +6,7 @@
     <item name="scriptresolver_resolver_get_config_ui" type="id"/>
     <item name="scriptresolver_resolver_collection" type="id"/>
 
-    <item name="animation_type_fade" type="id"/>
+    <item name="animation_fade_state" type="id"/>
+    <item name="animation_fade_animator" type="id"/>
 
 </resources>
