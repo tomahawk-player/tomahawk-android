@@ -33,7 +33,16 @@ public class AnimationUtils {
 
     public static final int DURATION_ARROWROTATE = 200;
 
+    public static final int DURATION_PLAYBACKSEEKMODE = 200;
+
+    public static final int DURATION_PLAYBACKSEEKMODE_ABORT = 100;
+
     public static void fade(final View view, int duration, final boolean isFadeIn) {
+        fade(view, duration, isFadeIn, false);
+    }
+
+    public static void fade(final View view, int duration, final boolean isFadeIn,
+            final boolean onlyInvisible) {
         float from = isFadeIn ? 0f : 1f;
         float to = isFadeIn ? 1f : 0f;
         fade(view, from, to, duration, isFadeIn, new Animator.AnimatorListener() {
@@ -48,7 +57,7 @@ public class AnimationUtils {
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (!isFadeIn) {
-                    view.setVisibility(View.GONE);
+                    view.setVisibility(onlyInvisible ? View.INVISIBLE : View.GONE);
                     animation.removeListener(this);
                 }
             }
