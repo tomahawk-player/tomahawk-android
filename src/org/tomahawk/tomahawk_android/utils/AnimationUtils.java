@@ -76,10 +76,16 @@ public class AnimationUtils {
             final boolean isFadeIn, Animator.AnimatorListener listener) {
         if (view != null) {
             view.setVisibility(View.VISIBLE);
-            if (!(view.getTag(R.id.animation_type_fade) instanceof Boolean)
-                    || (Boolean) view.getTag(R.id.animation_type_fade) != isFadeIn) {
-                view.setTag(R.id.animation_type_fade, isFadeIn);
+            if (!(view.getTag(R.id.animation_fade_state) instanceof Boolean)
+                    || (Boolean) view.getTag(R.id.animation_fade_state) != isFadeIn) {
+                view.setTag(R.id.animation_fade_state, isFadeIn);
                 ValueAnimator animator = ObjectAnimator.ofFloat(view, "alpha", from, to);
+                if (view.getTag(R.id.animation_fade_animator) instanceof ValueAnimator) {
+                    ValueAnimator previousAnimator =
+                            (ValueAnimator) view.getTag(R.id.animation_fade_animator);
+                    previousAnimator.cancel();
+                }
+                view.setTag(R.id.animation_fade_animator, animator);
                 animator.setDuration(duration);
                 animator.addListener(listener);
                 animator.start();
