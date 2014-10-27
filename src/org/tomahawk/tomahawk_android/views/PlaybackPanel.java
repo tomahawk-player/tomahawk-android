@@ -22,6 +22,7 @@ import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.PropertyValuesHolder;
 import com.nineoldandroids.animation.ValueAnimator;
 import com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -43,6 +44,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class PlaybackPanel extends FrameLayout {
@@ -53,7 +55,7 @@ public class PlaybackPanel extends FrameLayout {
 
     private boolean mIsSeeking;
 
-    private View mSlidingUpPanelView;
+    private SlidingUpPanelLayout mSlidingUpPanelView;
 
     private LinearLayout mTextViewContainer;
 
@@ -67,11 +69,25 @@ public class PlaybackPanel extends FrameLayout {
 
     private TextView mCompletionTimeTextView;
 
+    private TextView mCurrentTimeTextView;
+
+    private TextView mSeekTimeTextView;
+
     private ImageView mResolverImageView;
 
     private ImageView mPlayButton;
 
     private ImageView mPauseButton;
+
+    private ProgressBar mProgressBar;
+
+    private View mProgressBarThumb;
+
+    private float mLastThumbPosition = -1f;
+
+    private boolean mAbortSeeking;
+
+    private FrameLayout mCircularProgressBarContainer;
 
     private HoloCircularProgressBar mCircularProgressBar;
 
@@ -122,7 +138,7 @@ public class PlaybackPanel extends FrameLayout {
         return false;
     }
 
-    public void setup(View slidingUpPanelView) {
+    public void setup(SlidingUpPanelLayout slidingUpPanelView) {
         mInitialized = true;
         mSlidingUpPanelView = slidingUpPanelView;
 
@@ -130,10 +146,17 @@ public class PlaybackPanel extends FrameLayout {
         mArtistTextView = (TextView) mTextViewContainer.findViewById(R.id.artist_textview);
         mTrackTextView = (TextView) mTextViewContainer.findViewById(R.id.track_textview);
         mCompletionTimeTextView = (TextView) findViewById(R.id.completiontime_textview);
+        mCurrentTimeTextView = (TextView) findViewById(R.id.currenttime_textview);
+        mSeekTimeTextView = (TextView) findViewById(R.id.seektime_textview);
         mResolverImageView = (ImageView) findViewById(R.id.resolver_imageview);
         mPlayButton = (ImageView) findViewById(R.id.play_button);
         mPauseButton = (ImageView) findViewById(R.id.pause_button);
-        mCircularProgressBar = (HoloCircularProgressBar) findViewById(R.id.circularprogressbar);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
+        mProgressBarThumb = findViewById(R.id.progressbar_thumb);
+        mCircularProgressBarContainer =
+                (FrameLayout) findViewById(R.id.circularprogressbar_container);
+        mCircularProgressBar = (HoloCircularProgressBar)
+                mCircularProgressBarContainer.findViewById(R.id.circularprogressbar);
 
         mCircularProgressBar.setOnClickListener(new OnClickListener() {
             @Override
@@ -141,6 +164,98 @@ public class PlaybackPanel extends FrameLayout {
                 if (mPlaybackService != null) {
                     mPlaybackService.playPause(true);
                 }
+            }
+        });
+
+        mCircularProgressBar.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                mIsSeeking = true;
+                if (!mSlidingUpPanelView.isPanelExpanded()
+                        || getResources().getBoolean(R.bool.is_landscape)) {
+                    AnimationUtils.fade(mTextViewContainer,
+                            AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
+                }
+                AnimationUtils.fade(mCircularProgressBarContainer,
+                        AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
+                AnimationUtils.fade(mResolverImageView,
+                        AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
+                AnimationUtils.fade(mCompletionTimeTextView,
+                        AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
+                AnimationUtils.fade(mProgressBarThumb,
+                        AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
+                AnimationUtils.fade(mCurrentTimeTextView,
+                        AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
+                AnimationUtils.fade(mSeekTimeTextView,
+                        AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
+                AnimationUtils.fade(mProgressBar,
+                        AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
+
+                mCircularProgressBar.setOnTouchListener(new OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        if (event.getAction() == MotionEvent.ACTION_UP) {
+                            mIsSeeking = false;
+                            if (!mSlidingUpPanelView.isPanelExpanded()
+                                    || getResources().getBoolean(R.bool.is_landscape)) {
+                                AnimationUtils.fade(mTextViewContainer,
+                                        AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
+                            }
+                            AnimationUtils.fade(mCircularProgressBarContainer,
+                                    AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
+                            AnimationUtils.fade(mResolverImageView,
+                                    AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
+                            AnimationUtils.fade(mCompletionTimeTextView,
+                                    AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
+                            AnimationUtils.fade(mProgressBarThumb,
+                                    AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
+                            AnimationUtils.fade(mCurrentTimeTextView,
+                                    AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
+                            AnimationUtils.fade(mSeekTimeTextView,
+                                    AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
+                            AnimationUtils.fade(mProgressBar,
+                                    AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
+                            mCircularProgressBar.setOnTouchListener(null);
+                            if (!mAbortSeeking) {
+                                int seekTime = (int) ((mLastThumbPosition - mProgressBar.getX())
+                                        / mProgressBar.getWidth()
+                                        * mPlaybackService.getCurrentTrack().getDuration());
+                                mPlaybackService.seekTo(seekTime);
+                            }
+                        } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                            float eventX = event.getX();
+                            float progressBarX = mProgressBar.getX();
+                            float finalX;
+                            if (eventX > mProgressBar.getWidth() + progressBarX) {
+                                mAbortSeeking = true;
+                                finalX = mProgressBar.getWidth() + progressBarX;
+                            } else if (eventX < progressBarX) {
+                                mAbortSeeking = false;
+                                finalX = progressBarX;
+                            } else {
+                                mAbortSeeking = false;
+                                finalX = eventX;
+                            }
+                            if (mAbortSeeking) {
+                                AnimationUtils.fade(mProgressBarThumb,
+                                        AnimationUtils.DURATION_PLAYBACKSEEKMODE_ABORT, false,
+                                        true);
+                            } else {
+                                AnimationUtils.fade(mProgressBarThumb,
+                                        AnimationUtils.DURATION_PLAYBACKSEEKMODE_ABORT, true,
+                                        true);
+                            }
+                            mLastThumbPosition = finalX;
+                            mProgressBarThumb.setX(finalX);
+                            int seekTime = (int)
+                                    ((finalX - mProgressBar.getX()) / mProgressBar.getWidth()
+                                            * mPlaybackService.getCurrentTrack().getDuration());
+                            mSeekTimeTextView.setText(TomahawkUtils.durationToString(seekTime));
+                        }
+                        return false;
+                    }
+                });
+                return true;
             }
         });
     }
@@ -227,40 +342,25 @@ public class PlaybackPanel extends FrameLayout {
      * Updates the position on seekbar and the related textviews
      */
     public void updateSeekBarPosition() {
-        if (mInitialized && !mIsSeeking) {
-            if (mPlaybackService != null && mPlaybackService.getCurrentTrack() != null
-                    && mPlaybackService.getCurrentTrack().getDuration() != 0) {
-                mProgressHandler.removeMessages(MSG_UPDATE_PROGRESS);
-                mProgressHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 500);
-                mCircularProgressBar.setProgress((float) mPlaybackService.getPosition()
-                        / mPlaybackService.getCurrentTrack().getDuration());
-                updateTextViewCurrentTime(mPlaybackService.getPosition());
-            } else {
-                mCircularProgressBar.setProgress(0);
-                updateTextViewCurrentTime(0);
-            }
+        if (mPlaybackService != null && mPlaybackService.getCurrentTrack() != null
+                && mPlaybackService.getCurrentTrack().getDuration() != 0) {
+            mProgressHandler.removeMessages(MSG_UPDATE_PROGRESS);
+            mProgressHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 500);
+            mCircularProgressBar.setProgress((float) mPlaybackService.getPosition()
+                    / mPlaybackService.getCurrentTrack().getDuration());
+            mProgressBar.setProgress((int) ((float) mPlaybackService.getPosition()
+                    / mPlaybackService.getCurrentTrack().getDuration() * 10000));
+            mCurrentTimeTextView
+                    .setText(TomahawkUtils.durationToString(mPlaybackService.getPosition()));
+        } else {
+            mProgressBar.setProgress(0);
+            mCircularProgressBar.setProgress(0);
+            mCurrentTimeTextView.setText(TomahawkUtils.durationToString(0));
         }
     }
 
     public void stopUpdates() {
         mProgressHandler.removeMessages(MSG_UPDATE_PROGRESS);
-    }
-
-    /**
-     * Updates the textview that shows the current time the track is at
-     */
-    private void updateTextViewCurrentTime(int position) {
-        /*if (mTextViewCurrentTime != null) {
-            if (mPlaybackService != null && !isIsSeeking()
-                    && mPlaybackService.getPlaylist().size() > 0) {
-                mTextViewCurrentTime.setText(TomahawkUtils.durationToString(position));
-            } else if (mPlaybackService != null
-                    && mPlaybackService.getPlaylist().size() > 0) {
-                mTextViewCurrentTime.setText(TomahawkUtils.durationToString(getProgress()));
-            } else {
-                mTextViewCurrentTime.setText(TomahawkUtils.durationToString(0));
-            }
-        }*/
     }
 
     private void updateResolverIconImageView() {

@@ -35,6 +35,15 @@
         <item name="android:minHeight">16dip</item>
         <item name="android:maxHeight">16dip</item>
     </style>
+    <style name="ProgressBarWhiteTomahawk" parent="android:Widget.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/tomahawk_progress_horizontal_white
+        </item>
+        <item name="android:indeterminateDrawable">
+            @drawable/tomahawk_progress_indeterminate_horizontal_holo_light
+        </item>
+        <item name="android:minHeight">16dip</item>
+        <item name="android:maxHeight">16dip</item>
+    </style>
 
     <style name="ListViewTomahawk" parent="android:Widget.ListView">
         <item name="android:listSelector">@drawable/tomahawk_list_selector_holo_light</item>

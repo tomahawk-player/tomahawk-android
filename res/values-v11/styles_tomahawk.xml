@@ -22,4 +22,12 @@
         </item>
     </style>
 
+    <style name="ProgressBarWhiteTomahawk" parent="android:Widget.Holo.Light.ProgressBar.Horizontal">
+        <item name="android:progressDrawable">@drawable/tomahawk_progress_horizontal_white
+        </item>
+        <item name="android:indeterminateDrawable">
+            @drawable/tomahawk_progress_indeterminate_horizontal_holo_light
+        </item>
+    </style>
+
 </resources>
