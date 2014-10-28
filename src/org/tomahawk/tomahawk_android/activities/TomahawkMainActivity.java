@@ -517,17 +517,12 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onResume() {
         super.onResume();
 
-        if (mSlidingUpPanelLayout.isPanelHidden()) {
-            mPlaybackPanel.setVisibility(View.GONE);
+        mPlaybackPanel.setup(mSlidingUpPanelLayout);
+        mPlaybackPanel.update(mPlaybackService);
+        if (mSlidingUpPanelLayout.isPanelExpanded()) {
+            onPanelSlide(mSlidingUpPanelLayout, 1f);
         } else {
-            mPlaybackPanel.setup(mSlidingUpPanelLayout);
-            mPlaybackPanel.update(mPlaybackService);
-            mPlaybackPanel.setVisibility(View.VISIBLE);
-            if (mSlidingUpPanelLayout.isPanelExpanded()) {
-                onPanelSlide(mSlidingUpPanelLayout, 1f);
-            } else {
-                onPanelSlide(mSlidingUpPanelLayout, 0f);
-            }
+            onPanelSlide(mSlidingUpPanelLayout, 0f);
         }
 
         updateDrawer();
