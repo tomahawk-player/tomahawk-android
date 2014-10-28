@@ -82,8 +82,10 @@
         <TextView android:id="@+id/track_textview"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
+                  android:layout_weight="1"
                   android:layout_gravity="center_vertical"
                   android:text="Timber Timbre"
+                  android:singleLine="true"
                   android:textSize="@dimen/text_size_small"
                   android:textColor="@color/primary_textcolor_inverted"/>
 
@@ -99,6 +101,7 @@
         <FrameLayout android:id="@+id/artist_name_button"
                      android:layout_width="wrap_content"
                      android:layout_height="wrap_content"
+                     android:layout_weight="1"
                      android:layout_gravity="center"
                      android:padding="@dimen/padding_small"
                      android:background="@drawable/selectable_background_button_white_transition"
