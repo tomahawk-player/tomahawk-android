@@ -183,6 +183,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static boolean sIsConnectedToWifi;
 
+    private Bundle mSavedInstanceState;
+
     // Used to display an animated progress drawable
     private Runnable mAnimationRunnable = new Runnable() {
         @Override
@@ -378,24 +380,10 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        PipeLine.getInstance().ensureInit();
-        InfoSystem.getInstance().ensureInit();
-        AuthenticatorManager.getInstance().ensureInit();
-        CollectionManager.getInstance().ensureInit();
-
-        //Setup UserVoice
-        Config config = new Config("tomahawk.uservoice.com");
-        config.setForumId(224204);
-        config.setTopicId(62613);
-        UserVoice.init(config, this);
-
-        //Setup our services
-        Intent intent = new Intent(this, PlaybackService.class);
-        startService(intent);
-        bindService(intent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
+        mSavedInstanceState = savedInstanceState;
 
         setContentView(R.layout.tomahawk_main_activity);
 
@@ -441,19 +429,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
-
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().add(R.id.playback_fragment_frame,
-                    Fragment.instantiate(this, PlaybackFragment.class.getName(), null),
-                    null).commit();
-            FragmentUtils.addRootFragment(TomahawkMainActivity.this, getSupportFragmentManager());
-        } else {
-            boolean actionBarHidden = savedInstanceState
-                    .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
-            if (actionBarHidden) {
-                getSupportActionBar().hide();
-            }
-        }
 
         // Set default preferences
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -580,6 +555,45 @@ public class TomahawkMainActivity extends ActionBarActivity
                 new IntentFilter(PipeLine.PIPELINE_URLLOOKUPFINISHED));
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(CollectionManager.COLLECTION_ADDED));
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        PipeLine.getInstance().ensureInit();
+        InfoSystem.getInstance().ensureInit();
+        AuthenticatorManager.getInstance().ensureInit();
+        CollectionManager.getInstance().ensureInit();
+
+        //Setup UserVoice
+        Config config = new Config("tomahawk.uservoice.com");
+        config.setForumId(224204);
+        config.setTopicId(62613);
+        UserVoice.init(config, TomahawkMainActivity.this);
+
+        //Setup our services
+        Intent intent = new Intent(TomahawkMainActivity.this,
+                PlaybackService.class);
+        startService(intent);
+        bindService(intent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
+
+        if (mSavedInstanceState == null) {
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.playback_fragment_frame,
+                            Fragment.instantiate(TomahawkMainActivity.this,
+                                    PlaybackFragment.class.getName(), null),
+                            null)
+                    .commit();
+            FragmentUtils.addRootFragment(TomahawkMainActivity.this,
+                    getSupportFragmentManager());
+        } else {
+            boolean actionBarHidden = mSavedInstanceState
+                    .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
+            if (actionBarHidden) {
+                getSupportActionBar().hide();
+            }
+        }
+
+        findViewById(R.id.splash_imageview).setVisibility(View.GONE);
     }
 
     @Override

@@ -18,53 +18,65 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
 
-<android.support.v4.widget.DrawerLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/drawer_layout"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/primary_background">
-
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="match_parent">
-
-        <com.sothree.slidinguppanel.SlidingUpPanelLayout
-                xmlns:sothree="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/sliding_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="bottom"
-                sothree:panelHeight="@dimen/playback_panel_height"
-                sothree:shadowHeight="4dp">
-
-            <FrameLayout android:id="@+id/content_viewer_frame"
-                         android:layout_width="match_parent"
-                         android:layout_height="match_parent"/>
-
-            <FrameLayout android:id="@+id/playback_fragment_frame"
-                         android:layout_width="match_parent"
-                         android:layout_height="match_parent"/>
-
-        </com.sothree.slidinguppanel.SlidingUpPanelLayout>
-
-        <org.tomahawk.tomahawk_android.views.PlaybackPanel
-                android:id="@+id/playback_panel"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"/>
-
-    </FrameLayout>
-
-    <!-- The navigation drawer -->
-    <se.emilsjolander.stickylistheaders.StickyListHeadersListView
-            android:id="@+id/left_drawer"
-            android:layout_width="304dp"
+    <android.support.v4.widget.DrawerLayout
+            android:id="@+id/drawer_layout"
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="?attr/actionBarSize"
-            android:layout_gravity="start"
-            android:choiceMode="singleChoice"
-            android:dividerHeight="0px"
-            android:background="@color/navdrawer_background"/>
+            android:background="@color/primary_background">
 
-</android.support.v4.widget.DrawerLayout>
+        <FrameLayout android:layout_width="match_parent"
+                     android:layout_height="match_parent">
+
+            <com.sothree.slidinguppanel.SlidingUpPanelLayout
+                    xmlns:sothree="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/sliding_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="bottom"
+                    sothree:panelHeight="@dimen/playback_panel_height"
+                    sothree:shadowHeight="4dp">
+
+                <FrameLayout android:id="@+id/content_viewer_frame"
+                             android:layout_width="match_parent"
+                             android:layout_height="match_parent"/>
+
+                <FrameLayout android:id="@+id/playback_fragment_frame"
+                             android:layout_width="match_parent"
+                             android:layout_height="match_parent"/>
+
+            </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+
+            <org.tomahawk.tomahawk_android.views.PlaybackPanel
+                    android:id="@+id/playback_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"/>
+
+        </FrameLayout>
+
+        <!-- The navigation drawer -->
+        <se.emilsjolander.stickylistheaders.StickyListHeadersListView
+                android:id="@+id/left_drawer"
+                android:layout_width="304dp"
+                android:layout_height="match_parent"
+                android:paddingTop="?attr/actionBarSize"
+                android:layout_gravity="start"
+                android:choiceMode="singleChoice"
+                android:dividerHeight="0px"
+                android:background="@color/navdrawer_background"/>
+
+    </android.support.v4.widget.DrawerLayout>
+
+    <ImageView android:id="@+id/splash_imageview"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:layout_gravity="center"
+               android:scaleType="center"
+               android:src="@drawable/splash"
+               android:background="@color/primary_background"/>
+
+</FrameLayout>
