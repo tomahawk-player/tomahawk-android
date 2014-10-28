@@ -185,6 +185,10 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private Bundle mSavedInstanceState;
 
+    private boolean mRootViewsInitialized;
+
+    private Runnable mRunAfterInit;
+
     // Used to display an animated progress drawable
     private Runnable mAnimationRunnable = new Runnable() {
         @Override
@@ -439,7 +443,12 @@ public class TomahawkMainActivity extends ActionBarActivity
                     .commit();
         }
 
-        handleIntent(getIntent());
+        mRunAfterInit = new Runnable() {
+            @Override
+            public void run() {
+                handleIntent(getIntent());
+            }
+        };
     }
 
     @Override
@@ -453,10 +462,15 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
+    protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
 
-        handleIntent(intent);
+        mRunAfterInit = new Runnable() {
+            @Override
+            public void run() {
+                handleIntent(intent);
+            }
+        };
     }
 
     private void handleIntent(Intent intent) {
@@ -570,30 +584,37 @@ public class TomahawkMainActivity extends ActionBarActivity
         config.setTopicId(62613);
         UserVoice.init(config, TomahawkMainActivity.this);
 
-        //Setup our services
-        Intent intent = new Intent(TomahawkMainActivity.this,
-                PlaybackService.class);
-        startService(intent);
-        bindService(intent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
+        if (!mRootViewsInitialized) {
+            mRootViewsInitialized = true;
 
-        if (mSavedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.playback_fragment_frame,
-                            Fragment.instantiate(TomahawkMainActivity.this,
-                                    PlaybackFragment.class.getName(), null),
-                            null)
-                    .commit();
-            FragmentUtils.addRootFragment(TomahawkMainActivity.this,
-                    getSupportFragmentManager());
-        } else {
-            boolean actionBarHidden = mSavedInstanceState
-                    .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
-            if (actionBarHidden) {
-                getSupportActionBar().hide();
+            //Setup our services
+            Intent intent = new Intent(TomahawkMainActivity.this,
+                    PlaybackService.class);
+            startService(intent);
+            bindService(intent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
+
+            if (mSavedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.playback_fragment_frame,
+                                Fragment.instantiate(TomahawkMainActivity.this,
+                                        PlaybackFragment.class.getName(), null),
+                                null)
+                        .commit();
+                FragmentUtils.addRootFragment(TomahawkMainActivity.this,
+                        getSupportFragmentManager());
+            } else {
+                boolean actionBarHidden = mSavedInstanceState
+                        .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
+                if (actionBarHidden) {
+                    getSupportActionBar().hide();
+                }
             }
         }
 
         findViewById(R.id.splash_imageview).setVisibility(View.GONE);
+        if (mRunAfterInit != null) {
+            mRunAfterInit.run();
+        }
     }
 
     @Override
