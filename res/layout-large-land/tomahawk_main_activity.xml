@@ -18,57 +18,70 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent">
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:baselineAligned="false"
+                  android:orientation="horizontal"
+                  android:background="@color/primary_background">
+
+        <!-- The navigation drawer -->
+        <se.emilsjolander.stickylistheaders.StickyListHeadersListView
+                android:id="@+id/left_drawer"
+                android:layout_width="240dp"
+                android:layout_height="match_parent"
+                android:paddingTop="?attr/actionBarSize"
+                android:layout_gravity="start"
+                android:choiceMode="singleChoice"
+                android:dividerHeight="0px"
+                android:background="@color/navdrawer_background"/>
+
+        <View android:layout_width="@dimen/divider_height_thin"
               android:layout_height="match_parent"
-              android:baselineAligned="false"
-              android:orientation="horizontal"
-              android:background="@color/primary_background">
+              android:background="@color/divider"/>
 
-    <!-- The navigation drawer -->
-    <se.emilsjolander.stickylistheaders.StickyListHeadersListView
-            android:id="@+id/left_drawer"
-            android:layout_width="240dp"
-            android:layout_height="match_parent"
-            android:paddingTop="?attr/actionBarSize"
-            android:layout_gravity="start"
-            android:choiceMode="singleChoice"
-            android:dividerHeight="0px"
-            android:background="@color/navdrawer_background"/>
+        <!-- The main content view -->
+        <FrameLayout android:layout_width="match_parent"
+                     android:layout_height="match_parent">
 
-    <View android:layout_width="@dimen/divider_height_thin"
-          android:layout_height="match_parent"
-          android:background="@color/divider"/>
+            <com.sothree.slidinguppanel.SlidingUpPanelLayout
+                    xmlns:sothree="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/sliding_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="bottom"
+                    sothree:panelHeight="@dimen/playback_panel_height"
+                    sothree:shadowHeight="4dp">
 
-    <!-- The main content view -->
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="match_parent">
+                <FrameLayout android:id="@+id/content_viewer_frame"
+                             android:layout_width="match_parent"
+                             android:layout_height="match_parent"/>
 
-        <com.sothree.slidinguppanel.SlidingUpPanelLayout
-                xmlns:sothree="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/sliding_layout"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="bottom"
-                sothree:panelHeight="@dimen/playback_panel_height"
-                sothree:shadowHeight="4dp">
+                <FrameLayout android:id="@+id/playback_fragment_frame"
+                             android:layout_width="match_parent"
+                             android:layout_height="match_parent"/>
 
-            <FrameLayout android:id="@+id/content_viewer_frame"
-                         android:layout_width="match_parent"
-                         android:layout_height="match_parent"/>
+            </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
-            <FrameLayout android:id="@+id/playback_fragment_frame"
-                         android:layout_width="match_parent"
-                         android:layout_height="match_parent"/>
+            <org.tomahawk.tomahawk_android.views.PlaybackPanel
+                    android:id="@+id/playback_panel"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:visibility="gone"/>
 
-        </com.sothree.slidinguppanel.SlidingUpPanelLayout>
+        </FrameLayout>
 
-        <org.tomahawk.tomahawk_android.views.PlaybackPanel
-                android:id="@+id/playback_panel"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone"/>
+    </LinearLayout>
 
-    </FrameLayout>
+    <ImageView android:id="@+id/splash_imageview"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:layout_gravity="center"
+               android:scaleType="center"
+               android:src="@drawable/splash"
+               android:background="@color/primary_background"/>
 
-</LinearLayout>
+</FrameLayout>
