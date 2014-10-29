@@ -62,8 +62,8 @@ android {
         targetSdkVersion 21
         renderscriptTargetApi 21
         renderscriptSupportMode true
-        versionName '0.60'
-        versionCode 600
+        versionName '0.70'
+        versionCode 700
         ndk {
             moduleName "libspotifywrapper"
             stl "stlport_static"
