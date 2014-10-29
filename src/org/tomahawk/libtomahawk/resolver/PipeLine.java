@@ -52,7 +52,7 @@ public class PipeLine {
 
     private final static String TAG = PipeLine.class.getSimpleName();
 
-    private static PipeLine instance;
+    private static PipeLine instance = new PipeLine();
 
     public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
 
@@ -116,19 +116,8 @@ public class PipeLine {
     }
 
     public static PipeLine getInstance() {
-        if (instance == null) {
-            synchronized (PipeLine.class) {
-                if (instance == null) {
-                    instance = new PipeLine();
-                }
-            }
-        }
-        return instance;
-    }
-
-    public void ensureInit() {
-        if (!mInitialized) {
-            mInitialized = true;
+        if (!instance.mInitialized) {
+            instance.mInitialized = true;
             try {
                 String[] plugins = TomahawkApp.getContext().getAssets().list("js/resolvers");
                 for (String plugin : plugins) {
@@ -140,7 +129,7 @@ public class PipeLine {
                         ScriptResolverMetaData metaData = InfoSystemUtils.getObjectMapper()
                                 .readValue(rawJsonString, ScriptResolverMetaData.class);
                         ScriptResolver scriptResolver = new ScriptResolver(metaData, path);
-                        mResolvers.add(scriptResolver);
+                        instance.mResolvers.add(scriptResolver);
                     } catch (FileNotFoundException e) {
                         Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
                     } catch (JsonMappingException e) {
@@ -154,12 +143,13 @@ public class PipeLine {
             } catch (IOException e) {
                 Log.e(TAG, "ensureInit: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
-            mResolvers.add(new DataBaseResolver(
+            instance.mResolvers.add(new DataBaseResolver(
                     TomahawkApp.getContext().getString(R.string.local_collection_pretty_name)));
             SpotifyResolver spotifyResolver = new SpotifyResolver();
-            mResolvers.add(spotifyResolver);
-            setAllResolversAdded(true);
+            instance.mResolvers.add(spotifyResolver);
+            instance.setAllResolversAdded(true);
         }
+        return instance;
     }
 
     /**

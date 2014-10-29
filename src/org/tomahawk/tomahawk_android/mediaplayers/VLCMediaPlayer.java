@@ -45,7 +45,9 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
     private static String TAG = VLCMediaPlayer.class.getSimpleName();
 
-    private static VLCMediaPlayer instance;
+    private boolean mInitialized;
+
+    private static VLCMediaPlayer instance = new VLCMediaPlayer();
 
     private MediaPlayer.OnPreparedListener mOnPreparedListener;
 
@@ -59,7 +61,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
     private LibVLC mLibVLC;
 
-    private VLCMediaPlayerReceiver mVLCMediaPlayerReceiver;
+    private VLCMediaPlayerReceiver mVLCMediaPlayerReceiver = new VLCMediaPlayerReceiver();
 
     private ConcurrentHashMap<Result, String> mTranslatedUrls
             = new ConcurrentHashMap<Result, String>();
@@ -86,28 +88,22 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
     }
 
     private VLCMediaPlayer() {
-        // Initialize and register Receiver
-        if (mVLCMediaPlayerReceiver == null) {
-            mVLCMediaPlayerReceiver = new VLCMediaPlayerReceiver();
-            IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_STREAMURLREPORTED);
-            TomahawkApp.getContext().registerReceiver(mVLCMediaPlayerReceiver, intentFilter);
-        }
-
-        try {
-            mLibVLC = LibVLC.getInstance();
-            mLibVLC.setHttpReconnect(true);
-            mLibVLC.init(TomahawkApp.getContext());
-        } catch (LibVlcException e) {
-            Log.e(TAG, "<init>: Failed to initialize LibVLC: " + e.getLocalizedMessage());
-        }
     }
 
     public static VLCMediaPlayer getInstance() {
-        if (instance == null) {
-            synchronized (VLCMediaPlayer.class) {
-                if (instance == null) {
-                    instance = new VLCMediaPlayer();
-                }
+        if (!instance.mInitialized) {
+            instance.mInitialized = true;
+            // Initialize and register Receiver
+            IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_STREAMURLREPORTED);
+            TomahawkApp.getContext()
+                    .registerReceiver(instance.mVLCMediaPlayerReceiver, intentFilter);
+
+            try {
+                instance.mLibVLC = LibVLC.getInstance();
+                instance.mLibVLC.setHttpReconnect(true);
+                instance.mLibVLC.init(TomahawkApp.getContext());
+            } catch (LibVlcException e) {
+                Log.e(TAG, "<init>: Failed to initialize LibVLC: " + e.getLocalizedMessage());
             }
         }
         return instance;

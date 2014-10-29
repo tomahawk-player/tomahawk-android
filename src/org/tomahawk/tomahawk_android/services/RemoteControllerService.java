@@ -18,8 +18,6 @@
 package org.tomahawk.tomahawk_android.services;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
-import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.AskAccessActivity;
 
@@ -65,8 +63,6 @@ public class RemoteControllerService extends NotificationListenerService
     public IBinder onBind(Intent intent) {
         if ("android.service.notification.NotificationListenerService".equals(intent.getAction())) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                InfoSystem.getInstance().ensureInit();
-                AuthenticatorManager.getInstance().ensureInit();
                 setRemoteControllerEnabled();
             }
         }

@@ -24,7 +24,6 @@ import com.squareup.picasso.Target;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -40,19 +39,19 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
-import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
+import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
 import org.tomahawk.tomahawk_android.utils.MediaButtonHelper;
 import org.tomahawk.tomahawk_android.utils.MediaButtonReceiver;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.tomahawk.tomahawk_android.utils.MusicFocusable;
-import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.RemoteControlClientCompat;
 import org.tomahawk.tomahawk_android.utils.RemoteControlHelper;
-import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
-import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.videolan.libvlc.EventHandler;
 
 import android.annotation.TargetApi;
@@ -450,11 +449,6 @@ public class PlaybackService extends Service
     @Override
     public void onCreate() {
         super.onCreate();
-
-        PipeLine.getInstance().ensureInit();
-        InfoSystem.getInstance().ensureInit();
-        AuthenticatorManager.getInstance().ensureInit();
-        CollectionManager.getInstance().ensureInit();
 
         mMediaPlayers.add(VLCMediaPlayer.getInstance());
         mMediaPlayers.add(DeezerMediaPlayer.getInstance());
