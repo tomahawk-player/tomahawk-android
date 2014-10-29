@@ -60,7 +60,7 @@ android {
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 21
-        renderscriptTargetApi 19
+        renderscriptTargetApi 21
         renderscriptSupportMode true
         versionName '0.60'
         versionCode 600
