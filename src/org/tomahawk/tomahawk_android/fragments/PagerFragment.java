@@ -261,7 +261,8 @@ public abstract class PagerFragment extends ContentHeaderFragment {
             View.OnClickListener followButtonListener) {
         super.showContentHeader(
                 (FrameLayout) getView().findViewById(R.id.content_header_image_frame_pager),
-                (FrameLayout) getView().findViewById(R.id.content_header_frame_pager), item,
+                (FrameLayout) getView().findViewById(R.id.content_header_frame_pager),
+                getView().findViewById(R.id.action_bar_background_gradient_pager), item,
                 mHasScrollableHeader, headerHeightResId, followButtonListener);
     }
 
