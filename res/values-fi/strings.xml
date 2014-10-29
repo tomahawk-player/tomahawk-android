@@ -1,24 +1,111 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ok">OK</string>
+  <string name="login">Kirjaudu</string>
+  <string name="logout">Kirjaudu ulos</string>
+  <string name="register">Rekisteröity</string>
+  <string name="playlist_details">Soittolistan tiedot</string>
+  <string name="album_details">Albumin tiedot</string>
+  <string name="playlist">Soittolista</string>
+  <string name="shuffle_on_label">Sekoitus käytössä</string>
+  <string name="shuffle_off_label">Sekoitus ei käytössä</string>
+  <string name="repeat_on_label">Toisto käytössä</string>
+  <string name="repeat_off_label">Toisto ei käytössä</string>
+  <string name="unknown">tuntematon</string>
+  <string name="no_track">ei kappaletta</string>
+  <string name="save_playlist">Tallenna nykyinen soittolista</string>
+  <string name="create_playlist">Luo uusi soittolista</string>
+  <string name="name_playlist">Nimi</string>
+  <string name="login_name_label">Sähköposti/käyttäjätunnus</string>
+  <string name="login_username">Käyttäjätunnus</string>
+  <string name="login_password">Salasana</string>
+  <string name="login_password_confirmation">Salasanan vahvistus</string>
+  <string name="account_email_label">Sähköposti (valinnainen)</string>
+  <string name="error_field_required">Tämä kenttä on pakollinen</string>
+  <string name="error_passwords_dont_match">Salasanat eivät täsmää</string>
+  <string name="error_invalid_credentials">Käyttäjätunnus tai salasana virheellinen.</string>
+  <string name="error_invalid_account">Palvelin hylkäsi tilin.</string>
+  <string name="error_communication">Tunnistautuminen epäonnistui. Tarkista yhteytesi.</string>
+  <string name="error_simultaneous_streams">Toimintoa ei sallita; tili on käytössä muualla.</string>
+  <string name="error_account_expired">Tilisi on vanhentunut.</string>
+  <string name="local_collection_pretty_name">Paikallinen kokoelma</string>
+  <string name="preferences_plug_and_play_text">Alkaa soittaa musiikkia heti, kun kuulokkeet on kytketty.</string>
+  <string name="preferences_audio_quality">Haluttu äänenlaatu</string>
+  <string name="preferences_audio_quality_text">Haluttu äänenlaatu, jos ei olla WiFi-yhteydessä.</string>
+  <string name="crash_dialog_title">Tomahawk on kaatunut</string>
+  <string name="crash_dialog_ok_toast">Kiitos!</string>
+  <string name="context_menu_play">Soita</string>
+  <string name="context_menu_add_to_queue">Lisää jonoon</string>
+  <string name="context_menu_add_to_playlist">Lisää soittolistaan</string>
+  <string name="context_menu_delete">Poista</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">Poista kokoelmasta</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">Lisää kokoelmaan</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">Tykkää</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_share">Jaa</string>
+  <string name="context_menu_gotoartist">Siirry artistiin</string>
+  <string name="menu_item_save_playlist">Tallenna soittolista</string>
+  <string name="menu_item_go_to_artist">Siirry artistiin</string>
+  <string name="menu_item_go_to_album">Siirry albumiin</string>
+  <string name="menu_item_share">Jaa</string>
+  <string name="drawer_title_feed">Syöte</string>
+  <string name="drawer_title_collection">Kokoelma</string>
+  <string name="drawer_title_playlists">Soittolistat</string>
+  <string name="drawer_title_lovedtracks">Suosikit</string>
+  <string name="drawer_title_settings">Asetukset</string>
+  <string name="drawer_header_cloudcollections">Pilvikokoelmat</string>
+  <string name="collection_dropdown_recently_added">Viimeksi lisätyt</string>
+  <string name="collection_dropdown_artist">Artisti</string>
+  <string name="history">Historia</string>
+  <string name="preferences_bitrate_low">Tavallinen</string>
+  <string name="preferences_bitrate_medium">Hyvä</string>
+  <string name="preferences_bitrate_high">Paras</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">Seuraamassa</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Seuraa</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">seuraa nyt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
+  <string name="socialaction_type_love_track_single">tykkäsi kappaleesta</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
+  <string name="socialaction_type_love_track_multiple">tykkäsi %1$d kappaleesta</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
+  <string name="socialaction_type_collected_track_single">keräsi kappaleen</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
+  <string name="socialaction_type_collected_track_multiple">keräsi %1$d kappaletta</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
+  <string name="socialaction_type_collected_album_single">keräsi albumin</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
+  <string name="socialaction_type_collected_album_multiple">keräsi %1$d albumia</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">kommentoi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
+  <string name="socialaction_type_createplaylist_single">loi soittolistan</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
+  <string name="socialaction_type_createplaylist_multiple">loi %1$d soittolistaa</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s artistilta %2$s</string>
+  <string name="time_afewseconds">muutama sekunti sitten</string>
+  <string name="time_aminute">minuutti sitten</string>
+  <string name="time_anhour">tunti sitten</string>
+  <string name="time_aday">päivä sitten</string>
+  <string name="time_minutes">%1$d minuuttia sitten</string>
+  <string name="time_hours">%1$d tuntia sitten</string>
+  <string name="time_days">%1$d päivää sitten</string>
+  <string name="music">Musiikki</string>
+  <string name="biography">Biografia</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
+  <string name="ask_access_activity_header">Haluatko tallentaa kaikkien kuuntelemiesi kappaleiden tiedot automaattisesti Hatchetiin?</string>
+  <string name="ask_access_activity_text2">(Voit poistaa tämän käytöstä Tomahawkin asetuksista milloin haluat)</string>
+  <string name="ask_access_activity_button_text">Siirry asetuksiin</string>
+  <string name="button_open_queue_text">Jono</string>
+  <string name="button_close">Sulje</string>
+  <string name="view_album">Näytä albumi</string>
 </resources>
