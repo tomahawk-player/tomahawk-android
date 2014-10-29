@@ -90,8 +90,11 @@ public abstract class ContentHeaderFragment extends Fragment {
      *             show in the header view
      */
     protected void showContentHeader(FrameLayout imageFrame, FrameLayout headerFrame,
-            final Object item, boolean dynamic, int headerHeightResid,
+            View actionBarGradient, final Object item, boolean dynamic, int headerHeightResid,
             View.OnClickListener followListener) {
+        if (actionBarGradient != null) {
+            actionBarGradient.setVisibility(View.VISIBLE);
+        }
         //Inflate views and add them into our frames
         LayoutInflater inflater = (LayoutInflater)
                 TomahawkApp.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);

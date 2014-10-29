@@ -42,4 +42,10 @@
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>
 
+    <View android:id="@+id/action_bar_background_gradient"
+          android:layout_width="match_parent"
+          android:layout_height="?attr/actionBarSize"
+          android:background="@drawable/below_shadow"
+          android:visibility="gone"/>
+
 </FrameLayout>
