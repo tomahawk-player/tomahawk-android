@@ -28,7 +28,9 @@ import java.util.concurrent.TimeUnit;
 
 public class ThreadManager {
 
-    private static ThreadManager instance;
+    private boolean mInitialized;
+
+    private static ThreadManager instance = new ThreadManager();
 
     /*
      * Gets the number of available cores
@@ -49,20 +51,16 @@ public class ThreadManager {
     private Multimap<Query, Runnable> mQueryRunnableMap;
 
     private ThreadManager() {
-        mQueryRunnableMap = HashMultimap.create();
-        mThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
-                KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
-        mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT,
-                new PriorityBlockingQueue<Runnable>());
     }
 
     public static ThreadManager getInstance() {
-        if (instance == null) {
-            synchronized (ThreadManager.class) {
-                if (instance == null) {
-                    instance = new ThreadManager();
-                }
-            }
+        if (!instance.mInitialized) {
+            instance.mInitialized = true;
+            instance.mQueryRunnableMap = HashMultimap.create();
+            instance.mThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
+                    KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
+            instance.mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME,
+                    KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
         }
         return instance;
     }

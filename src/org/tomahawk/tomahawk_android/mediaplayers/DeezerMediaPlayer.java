@@ -44,7 +44,9 @@ public class DeezerMediaPlayer
 
     private static String TAG = DeezerMediaPlayer.class.getSimpleName();
 
-    private static DeezerMediaPlayer instance;
+    private boolean mInitialized;
+
+    private static DeezerMediaPlayer instance = new DeezerMediaPlayer();
 
     private MediaPlayer.OnPreparedListener mOnPreparedListener;
 
@@ -58,7 +60,7 @@ public class DeezerMediaPlayer
 
     private TrackPlayer mPlayer;
 
-    private PlayerHandler mPlayerHandler;
+    private PlayerHandler mPlayerHandler = new PlayerHandler();
 
     private class PlayerHandler implements OnPlayerStateChangeListener, OnPlayerErrorListener,
             OnBufferErrorListener {
@@ -101,17 +103,9 @@ public class DeezerMediaPlayer
     }
 
     private DeezerMediaPlayer() {
-        mPlayerHandler = new PlayerHandler();
     }
 
     public static DeezerMediaPlayer getInstance() {
-        if (instance == null) {
-            synchronized (DeezerMediaPlayer.class) {
-                if (instance == null) {
-                    instance = new DeezerMediaPlayer();
-                }
-            }
-        }
         return instance;
     }
 

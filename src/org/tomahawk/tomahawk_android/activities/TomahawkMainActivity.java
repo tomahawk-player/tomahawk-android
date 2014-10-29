@@ -544,8 +544,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             }
         }
 
-        updateDrawer();
-
         mAnimationHandler = new Handler();
         mShouldShowAnimationHandler = new Handler();
         mShouldShowAnimationHandler.post(mShouldShowAnimationRunnable);
@@ -573,11 +571,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
-        PipeLine.getInstance().ensureInit();
-        InfoSystem.getInstance().ensureInit();
-        AuthenticatorManager.getInstance().ensureInit();
-        CollectionManager.getInstance().ensureInit();
-
         //Setup UserVoice
         Config config = new Config("tomahawk.uservoice.com");
         config.setForumId(224204);
@@ -586,6 +579,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         if (!mRootViewsInitialized) {
             mRootViewsInitialized = true;
+
+            updateDrawer();
 
             //Setup our services
             Intent intent = new Intent(TomahawkMainActivity.this,

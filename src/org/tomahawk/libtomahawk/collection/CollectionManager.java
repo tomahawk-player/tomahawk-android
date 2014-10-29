@@ -63,7 +63,7 @@ public class CollectionManager {
 
     private boolean mInitialized;
 
-    private static CollectionManager instance;
+    private static CollectionManager instance = new CollectionManager();
 
     private ConcurrentHashMap<String, Collection> mCollections
             = new ConcurrentHashMap<String, Collection>();
@@ -72,6 +72,9 @@ public class CollectionManager {
             = new ConcurrentHashMap<String, Playlist>();
 
     private HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
+
+
+    private CollectionManagerReceiver mCollectionManagerReceiver = new CollectionManagerReceiver();
 
     /**
      * Handles incoming broadcasts.
@@ -136,38 +139,26 @@ public class CollectionManager {
     }
 
     public static CollectionManager getInstance() {
-        if (instance == null) {
-            synchronized (CollectionManager.class) {
-                if (instance == null) {
-                    instance = new CollectionManager();
-                }
-            }
-        }
-        return instance;
-    }
+        if (!instance.mInitialized) {
+            instance.mInitialized = true;
+            instance.addCollection(new UserCollection());
+            instance.addCollection(new HatchetCollection());
 
-    public void ensureInit() {
-        if (!mInitialized) {
-            mInitialized = true;
+            instance.ensureLovedItemsPlaylist();
+            instance.updatePlaylists();
+            instance.fetchPlaylists();
+            instance.fetchLovedItemsPlaylist();
+            instance.fetchStarredAlbums();
+            instance.fetchStarredArtists();
 
-            addCollection(new UserCollection());
-            addCollection(new HatchetCollection());
-
-            ensureLovedItemsPlaylist();
-            updatePlaylists();
-            fetchPlaylists();
-            fetchLovedItemsPlaylist();
-            fetchStarredAlbums();
-            fetchStarredArtists();
-
-            CollectionManagerReceiver collectionManagerReceiver = new CollectionManagerReceiver();
-            TomahawkApp.getContext().registerReceiver(collectionManagerReceiver,
+            TomahawkApp.getContext().registerReceiver(instance.mCollectionManagerReceiver,
                     new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
-            TomahawkApp.getContext().registerReceiver(collectionManagerReceiver,
+            TomahawkApp.getContext().registerReceiver(instance.mCollectionManagerReceiver,
                     new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
-            TomahawkApp.getContext().registerReceiver(collectionManagerReceiver,
+            TomahawkApp.getContext().registerReceiver(instance.mCollectionManagerReceiver,
                     new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED));
         }
+        return instance;
     }
 
     public void addCollection(Collection collection) {

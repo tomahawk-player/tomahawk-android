@@ -61,7 +61,7 @@ public class InfoSystem {
 
     private static final String TAG = InfoSystem.class.getSimpleName();
 
-    private static InfoSystem instance;
+    private static InfoSystem instance = new InfoSystem();
 
     public static final String INFOSYSTEM_RESULTSREPORTED = "infosystem_resultsreported";
 
@@ -108,21 +108,11 @@ public class InfoSystem {
     }
 
     public static InfoSystem getInstance() {
-        if (instance == null) {
-            synchronized (InfoSystem.class) {
-                if (instance == null) {
-                    instance = new InfoSystem();
-                }
-            }
+        if (!instance.mInitialized) {
+            instance.mInitialized = true;
+            instance.mInfoPlugins.add(new HatchetInfoPlugin());
         }
         return instance;
-    }
-
-    public void ensureInit() {
-        if (!mInitialized) {
-            mInitialized = true;
-            mInfoPlugins.add(new HatchetInfoPlugin());
-        }
     }
 
     /**
