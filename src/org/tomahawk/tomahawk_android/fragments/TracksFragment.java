@@ -131,7 +131,7 @@ public class TracksFragment extends TomahawkFragment {
                     tomahawkListAdapter.setShowDuration(true);
                 }
                 tomahawkListAdapter.setShowNumeration(true);
-                tomahawkListAdapter.setShowContentHeaderSpacer(
+                tomahawkListAdapter.setShowContentHeaderSpacerResId(
                         R.dimen.header_clear_space_scrollable, getListView());
                 setListAdapter(tomahawkListAdapter);
             } else {
@@ -145,7 +145,7 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowDuration(true);
-                tomahawkListAdapter.setShowContentHeaderSpacer(
+                tomahawkListAdapter.setShowContentHeaderSpacerResId(
                         R.dimen.header_clear_space_scrollable, getListView());
                 setListAdapter(tomahawkListAdapter);
             } else {
@@ -159,7 +159,7 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowDuration(true);
-                tomahawkListAdapter.setShowContentHeaderSpacer(
+                tomahawkListAdapter.setShowContentHeaderSpacerResId(
                         R.dimen.header_clear_space_scrollable, getListView());
                 setListAdapter(tomahawkListAdapter);
             } else {

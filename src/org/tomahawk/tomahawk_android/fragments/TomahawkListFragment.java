@@ -148,12 +148,12 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         listFrame.setLayoutParams(params);
     }
 
-    protected void showContentHeader(int drawableResid) {
+    protected void showContentHeader(int drawableResid, int headerHeightResid) {
         super.showContentHeader(
                 (FrameLayout) getView().findViewById(R.id.content_header_image_frame),
                 (FrameLayout) getView().findViewById(R.id.content_header_frame),
                 getView().findViewById(R.id.action_bar_background_gradient), drawableResid,
-                true, 0, null);
+                false, headerHeightResid, null);
 
         //Add a spacer to the top of the listview
         FrameLayout listFrame = (FrameLayout) getView().findViewById(

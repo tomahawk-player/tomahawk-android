@@ -140,7 +140,7 @@ public abstract class ContentHeaderFragment extends Fragment {
             imageFrame.addView(headerImage);
         }
         final View finalHeaderImage = headerImage;
-        if (finalHeaderImage != null && dynamic) {
+        if (finalHeaderImage != null) {
             headerImage.getViewTreeObserver().addOnGlobalLayoutListener(
                     new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
@@ -272,6 +272,9 @@ public abstract class ContentHeaderFragment extends Fragment {
             View imageView = view.findViewById(R.id.content_header_imagesingle);
             if (imageView == null) {
                 imageView = view.findViewById(R.id.content_header_imagegrid);
+            }
+            if (imageView == null) {
+                imageView = view.findViewById(R.id.content_header_imagesingle_static);
             }
             if (imageView != null) {
                 mImageViewAnim = ObjectAnimator.ofFloat(imageView, "y", view.getHeight() / -3)

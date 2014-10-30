@@ -58,7 +58,8 @@ public class CollectionFragment extends TomahawkFragment {
         }
 
         if (!mDontShowHeader) {
-            showContentHeader(R.drawable.collection_header);
+            showContentHeader(R.drawable.collection_header,
+                    R.dimen.header_clear_space_nonscrollable_static);
         }
     }
 
@@ -150,8 +151,12 @@ public class CollectionFragment extends TomahawkFragment {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                     layoutInflater, segments, this);
             if (!mDontShowHeader) {
-                tomahawkListAdapter.setShowContentHeaderSpacer(
-                        R.dimen.header_clear_space_scrollable_small, getListView());
+                int actionBarHeight = getResources().getDimensionPixelSize(
+                        R.dimen.abc_action_bar_default_height_material);
+                int headerHeight = getResources().getDimensionPixelSize(
+                        R.dimen.header_clear_space_nonscrollable_static);
+                tomahawkListAdapter.setShowContentHeaderSpacer(headerHeight - actionBarHeight,
+                        getListView());
             }
             setListAdapter(tomahawkListAdapter);
         } else {

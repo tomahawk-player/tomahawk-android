@@ -21,6 +21,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 public interface ContentHeaderAdapter {
 
-    public void setShowContentHeaderSpacer(int headerSpacerHeightResId, StickyListHeadersListView listView);
+    public void setShowContentHeaderSpacerResId(int headerSpacerHeightResId,
+            StickyListHeadersListView listView);
 
 }

@@ -18,16 +18,17 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/content_header_imagesingle_static"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/content_header_imagesingle_static"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
 
     <ImageView android:id="@+id/imageview1"
                android:layout_width="match_parent"
                android:layout_height="match_parent"
                android:scaleType="centerCrop"
+               android:adjustViewBounds="true"
                android:src="@drawable/album_placeholder_grid"/>
 
-</org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
+</LinearLayout>

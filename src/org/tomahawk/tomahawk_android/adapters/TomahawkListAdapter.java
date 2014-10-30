@@ -155,10 +155,16 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
         setSegments(segments, listView);
     }
 
-    public void setShowContentHeaderSpacer(int headerSpacerHeightResId,
+    public void setShowContentHeaderSpacerResId(int headerSpacerHeightResId,
             StickyListHeadersListView listView) {
         mHeaderSpacerHeight = TomahawkApp.getContext().getResources()
                 .getDimensionPixelSize(headerSpacerHeightResId);
+        updateFooterSpacerHeight(listView);
+    }
+
+    public void setShowContentHeaderSpacer(int headerSpacerHeight,
+            StickyListHeadersListView listView) {
+        mHeaderSpacerHeight = headerSpacerHeight;
         updateFooterSpacerHeight(listView);
     }
 
