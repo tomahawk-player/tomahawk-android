@@ -1,6 +1,7 @@
 ## tomahawk-android
 
-Music is everywhere, now you don’t have to be. Tomahawk, the critically acclaimed multi-source music player, is now available on Android. Given the name of an artist, album or song Tomahawk will find the best available source and play it - whether that be from Spotify, Soundcloud, Official.fm, Ex.fm, Jamendo or your phone’s local storage. Tomahawk for Android also syncs your history, your loved tracks and your playlists to/from the desktop versions of Tomahawk via our new music community, Hatchet. On Hatchet you can hear your friends' favorite tracks and see what they're currently listening to.
+Music is everywhere, now you don’t have to be. Tomahawk, the critically acclaimed multi-source music player, is now available on Android. Given the name of an artist, album or song Tomahawk will find the best available source and play it - whether that be from Spotify, Beats Music, Rdio, Deezer, GMusic, Grooveshark, Soundcloud, Official.fm, Jamendo, Beets, Ampache, Subsonic or your phone’s local storage.
+Tomahawk for Android also syncs your history, your loved tracks, artists, albums and your playlists to/from the desktop version of Tomahawk via our new music community, Hatchet. On Hatchet you can hear your friends' favorite tracks and see what they're currently listening to.
 
 ## Beta and Nightly
 
@@ -44,15 +45,7 @@ Setup using Android Studio and gradle (highly recommended):
 Setup using other IDEs without gradle:
 
 - Import tomahawk-android into the IDE of your choice
-- tomahawk-android depends on the following jar libraries:
-    - acra-4.5.0.jar (https://github.com/ACRA/acra)
-    - android.support.v4.jar
-    - Google Guava Libraries (https://code.google.com/p/guava-libraries/)
-    - Jackson JSON Processor (https://github.com/FasterXML/jackson)
-    - Picasso (http://square.github.io/picasso/)
-- In addition tomahawk-android uses these library projects:
-    - Android Support v7 appcompat library
-    - StickyListHeaders (https://github.com/emilsjolander/StickyListHeaders)
+- tomahawk-android depends on the several 3rd party libraries. You can look up a list of those in ./build.gradle under dependencies{...}
 - Make sure you setup the support libraries correctly (http://developer.android.com/tools/support-library/setup.html)
 - Add all dependencies to your tomahawk-android project
 - Since libspotify is only available as a c-library, we have to use the NDK
