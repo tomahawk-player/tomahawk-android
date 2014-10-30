@@ -37,6 +37,10 @@
     public static <fields>;
 }
 
+-keep class se.emilsjolander.stickylistheaders.** {
+    *;
+}
+
 ######################
 #LibSpotify specifics#
 ######################
