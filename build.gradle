@@ -58,7 +58,7 @@ android {
     buildToolsVersion "21.0.1"
 
     defaultConfig {
-        minSdkVersion 10
+        minSdkVersion 11
         targetSdkVersion 21
         renderscriptTargetApi 21
         renderscriptSupportMode true
