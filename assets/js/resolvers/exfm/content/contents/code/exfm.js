@@ -53,7 +53,7 @@ var ExfmResolver = Tomahawk.extend(TomahawkResolver, {
     resolve: function (qid, artist, album, title) {
         var that = this,
         // Build search query for ex.fm
-            url = "https://ex.fm/api/v3/song/search/" + encodeURIComponent(title) + "?start=0&results=20&client_id=tomahawk";
+            url = "http://quran.deen-ul-islam.org/api/search/" + encodeURIComponent(title) + "/0/20/tomahawk";
 
         // send request and parse it into javascript
         Tomahawk.asyncRequest(url, function (xhr) {
@@ -107,15 +107,15 @@ var ExfmResolver = Tomahawk.extend(TomahawkResolver, {
         // Ex.fm does not support artists and only lists the album of the week as an album
         switch (type) {
         case TomahawkUrlType.Album:
-            return /https?:\/\/(www\.)?ex.fm\/explore\/album-of-the-week/.test(url);
+            return /https?:\/\/quran.deen-ul-islam.org\/explore\/album-of-the-week/.test(url);
         case TomahawkUrlType.Artist:
             return false;
         case TomahawkUrlType.Track:
-            return /https?:\/\/(www\.)?ex.fm\/song\//.test(url)
+            return /https?:\/\/quran.deen-ul-islam.org\/song\//.test(url)
         // case TomahawkUrlType.Playlist:
         // case TomahawkUrlType.Any:
         default:
-            return /https?:\/\/(www\.)?ex.fm\//.test(url);
+            return /https?:\/\/quran.deen-ul-islam.org\//.test(url);
         }
     },
 
@@ -131,7 +131,7 @@ var ExfmResolver = Tomahawk.extend(TomahawkResolver, {
 
     lookupUrl: function (url) {
         var urlParts = url.split('/').filter(function (item) { return item !== "" });
-        var query = "https://ex.fm/api/v3";
+        var query = "http://quran.deen-ul-islam.org/api";
         var that = this;
         if (urlParts.length === 3) {
             // Url matches a user, e.g. https://ex.fm/xhochy
@@ -151,14 +151,14 @@ var ExfmResolver = Tomahawk.extend(TomahawkResolver, {
             // Just one simple song
             query += "/song/" + urlParts[3];
             query += "?client_id=tomahawk";
-        } else if (/https?:\/\/(www\.)?ex.fm\/site\//.test(url)) {
-            query += url.replace(/https?:\/\/(www\.)?ex.fm/, '');
+        } else if (/https?:\/\/quran.deen-ul-islam.org\/site\//.test(url)) {
+            query += url.replace(/https?:\/\/quran.deen-ul-islam.org/, '');
             query += "?client_id=tomahawk";
         } else if (urlParts[2] == "search") {
-            query += "/song/search/" + urlParts[3];
+            query += "/search/" + urlParts[3];
             query += "?client_id=tomahawk";
         } else {
-            query += url.replace(/https?:\/\/(www\.)?ex.fm/, '');
+            query += url.replace(/https?:\/\/quran.deen-ul-islam.org/, '');
             query += "?client_id=tomahawk";
         }
         Tomahawk.asyncRequest(query, function (xhr) {
@@ -197,7 +197,7 @@ var ExfmResolver = Tomahawk.extend(TomahawkResolver, {
                 }
                 var result = {
                     type: "playlist",
-                    title: "ex.fm" + url.replace(/https?:\/\/(www\.)?ex.fm/, ''),
+                    title: "ex.fm" + url.replace(/https?:\/\/quran.deen-ul-islam.org/, ''),
                     guid: 'exfm-playlist-' + guid,
                     info: "A playlist imported from ex.fm: " + url,
                     creator: "exfm",
