@@ -53,7 +53,8 @@ public class ArtistsFragment extends TomahawkFragment {
         if (mCollection != null) {
             getActivity().setTitle(mCollection.getName());
             if (!mDontShowHeader) {
-                showContentHeader(R.drawable.collection_header);
+                showContentHeader(R.drawable.collection_header,
+                        R.dimen.header_clear_space_nonscrollable_static);
             }
         }
         updateAdapter();
@@ -120,8 +121,12 @@ public class ArtistsFragment extends TomahawkFragment {
                 TomahawkListAdapter tomahawkListAdapter =
                         new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
                                 layoutInflater, new Segment(artists), this);
-                tomahawkListAdapter.setShowContentHeaderSpacer(
-                        R.dimen.header_clear_space_scrollable_small, getListView());
+                int actionBarHeight = getResources().getDimensionPixelSize(
+                        R.dimen.abc_action_bar_default_height_material);
+                int headerHeight = getResources().getDimensionPixelSize(
+                        R.dimen.header_clear_space_nonscrollable_static);
+                tomahawkListAdapter.setShowContentHeaderSpacer(headerHeight - actionBarHeight,
+                        getListView());
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(new Segment(artists), getListView());

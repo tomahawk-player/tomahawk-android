@@ -137,7 +137,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                             segment, this);
                     tomahawkListAdapter.setShowNumeration(true);
                     if (!mDontShowHeader) {
-                        tomahawkListAdapter.setShowContentHeaderSpacer(
+                        tomahawkListAdapter.setShowContentHeaderSpacerResId(
                                 R.dimen.header_clear_space_scrollable, getListView());
                     }
                     setListAdapter(tomahawkListAdapter);
