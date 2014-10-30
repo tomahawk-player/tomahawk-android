@@ -127,6 +127,7 @@ android {
             }
         }
         debug {
+            versionNameSuffix "_debug"
             zipAlign true
         }
     }
