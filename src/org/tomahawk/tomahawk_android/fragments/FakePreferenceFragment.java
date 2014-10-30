@@ -162,7 +162,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING,
                 FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING,
                 getString(R.string.preferences_playback_data),
-                getString(R.string.preferences_playback_data_text)));
+                getString(R.string.preferences_playback_data_text,
+                        HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME)));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER,
                 FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE,
