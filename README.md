@@ -10,7 +10,7 @@ https://plus.google.com/u/0/communities/107064391247577662665
 Nightly builds are available here:
 http://download.tomahawk-player.org/nightly/android/
 
-## Setup
+## Development Setup
 
 #### Prerequisites:
 
