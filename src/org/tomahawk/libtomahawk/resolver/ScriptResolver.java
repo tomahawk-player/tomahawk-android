@@ -145,8 +145,9 @@ public class ScriptResolver extends Resolver {
      * @param metaData this resolver's metadata (parsed from metadata.json)
      * @param path     {@link String} containing the path to this js resolver's "content"-folder
      */
-    public ScriptResolver(ScriptResolverMetaData metaData, String path) {
-        super(metaData.name);
+    public ScriptResolver(ScriptResolverMetaData metaData, String path,
+            OnResolverReadyListener onResolverReadyListener) {
+        super(metaData.name, onResolverReadyListener);
 
         mObjectMapper = InfoSystemUtils.getObjectMapper();
         mSharedPreferences = PreferenceManager
@@ -276,7 +277,7 @@ public class ScriptResolver extends Resolver {
     public void onWebViewClientReady() {
         resolverInit();
         mReady = true;
-        PipeLine.getInstance().onResolverReady();
+        onResolverReady();
     }
 
     /**

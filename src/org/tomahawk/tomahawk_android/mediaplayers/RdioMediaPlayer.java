@@ -38,7 +38,11 @@ public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPrep
 
     private static String TAG = RdioMediaPlayer.class.getSimpleName();
 
-    private static RdioMediaPlayer instance = new RdioMediaPlayer();
+    private static class Holder {
+
+        private static final RdioMediaPlayer instance = new RdioMediaPlayer();
+
+    }
 
     private MediaPlayer.OnPreparedListener mOnPreparedListener;
 
@@ -56,7 +60,7 @@ public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPrep
     }
 
     public static RdioMediaPlayer getInstance() {
-        return instance;
+        return Holder.instance;
     }
 
     @Override

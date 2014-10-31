@@ -61,8 +61,6 @@ public class InfoSystem {
 
     private static final String TAG = InfoSystem.class.getSimpleName();
 
-    private static InfoSystem instance = new InfoSystem();
-
     public static final String INFOSYSTEM_RESULTSREPORTED = "infosystem_resultsreported";
 
     public static final String INFOSYSTEM_RESULTSREPORTED_REQUESTID
@@ -78,7 +76,11 @@ public class InfoSystem {
     public static final String INFOSYSTEM_OPLOGISEMPTIED_REQUESTTYPES
             = "infosystem_oplogisempty_requesttype";
 
-    private boolean mInitialized;
+    private static class Holder {
+
+        private static final InfoSystem instance = new InfoSystem();
+
+    }
 
     private ArrayList<InfoPlugin> mInfoPlugins = new ArrayList<InfoPlugin>();
 
@@ -105,14 +107,11 @@ public class InfoSystem {
     private Query mNowPlaying = null;
 
     private InfoSystem() {
+        mInfoPlugins.add(new HatchetInfoPlugin());
     }
 
     public static InfoSystem getInstance() {
-        if (!instance.mInitialized) {
-            instance.mInitialized = true;
-            instance.mInfoPlugins.add(new HatchetInfoPlugin());
-        }
-        return instance;
+        return Holder.instance;
     }
 
     /**

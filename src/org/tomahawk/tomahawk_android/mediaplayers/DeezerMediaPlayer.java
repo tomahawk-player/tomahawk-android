@@ -44,9 +44,11 @@ public class DeezerMediaPlayer
 
     private static String TAG = DeezerMediaPlayer.class.getSimpleName();
 
-    private boolean mInitialized;
+    private static class Holder {
 
-    private static DeezerMediaPlayer instance = new DeezerMediaPlayer();
+        private static final DeezerMediaPlayer instance = new DeezerMediaPlayer();
+
+    }
 
     private MediaPlayer.OnPreparedListener mOnPreparedListener;
 
@@ -106,7 +108,7 @@ public class DeezerMediaPlayer
     }
 
     public static DeezerMediaPlayer getInstance() {
-        return instance;
+        return Holder.instance;
     }
 
     @Override
