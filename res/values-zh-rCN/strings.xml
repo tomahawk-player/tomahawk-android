@@ -1,0 +1,151 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="ok">确定</string>
+  <string name="cancel">取消</string>
+  <string name="login">登录</string>
+  <string name="logout">注销</string>
+  <string name="register">注册</string>
+  <string name="tracks">曲目</string>
+  <string name="albums">专辑</string>
+  <string name="artists">艺术家</string>
+  <string name="users">用户</string>
+  <string name="top_hits">热单</string>
+  <string name="top_albums">热门专辑</string>
+  <string name="playlist_details">播放列表详情</string>
+  <string name="album_details">专辑详情</string>
+  <string name="search">搜索</string>
+  <string name="playlist">播放列表</string>
+  <string name="shuffle_on_label">随机开</string>
+  <string name="shuffle_off_label">随机关</string>
+  <string name="repeat_on_label">重复开</string>
+  <string name="repeat_off_label">重复关</string>
+  <string name="unknown">未知</string>
+  <string name="no_track">无曲目</string>
+  <string name="save_playlist">保存当前播放列表</string>
+  <string name="create_playlist">创建新播放列表</string>
+  <string name="name_playlist">名称</string>
+  <string name="login_name_label">邮箱/用户名</string>
+  <string name="login_username">用户名</string>
+  <string name="login_password">密码</string>
+  <string name="login_password_confirmation">密码确认</string>
+  <string name="account_email_label">邮箱（可选）</string>
+  <string name="error_field_required">此项必填</string>
+  <string name="error_passwords_dont_match">密码不匹配</string>
+  <string name="error_invalid_credentials">用户名或密码不正确</string>
+  <string name="error_invalid_account">账户被服务器拒绝</string>
+  <string name="error_communication">无法认证。请检查您的连接</string>
+  <string name="error_simultaneous_streams">操作不允许，账户已在别处使用</string>
+  <string name="error_account_expired">您的账户已过期</string>
+  <string name="auth_logged_in">登录到</string>
+  <string name="auth_logged_out">注销</string>
+  <string name="local_collection_pretty_name">本地收藏</string>
+  <string name="preferences_services">服务</string>
+  <string name="preferences_hatchet_text">使用 %1$s 同步数据</string>
+  <string name="preferences_spotify_text">从 %1$s 播放音乐。需要 Premium 账号</string>
+  <string name="preferences_playback">回放</string>
+  <string name="preferences_playback_data">收藏所有内容</string>
+  <string name="preferences_playback_data_text">将手机中所有音乐播放软件的曲目收藏到 %1$s</string>
+  <string name="preferences_plug_and_play">即插即播</string>
+  <string name="preferences_plug_and_play_text">只要插入耳机就开始播放音乐</string>
+  <string name="preferences_audio_quality">优先采用音质</string>
+  <string name="preferences_audio_quality_text">如果未连接到 WiFi 优先使用的音质</string>
+  <string name="preferences_info">信息</string>
+  <string name="preferences_app_version">软件版本</string>
+  <string name="preferences_app_uservoice">反馈</string>
+  <string name="preferences_app_uservoice_text">分享您的想法或获取帮助</string>
+  <string name="crash_dialog_title">Tomahawk 已崩溃</string>
+  <string name="crash_dialog_text">因为不可意料的错误导致程序停止运行。请通过发送错误信息帮助我们修复此问题，您只需点击确定即可</string>
+  <string name="crash_dialog_comment_prompt">你可以在下面添加关于问题的描述：</string>
+  <string name="crash_dialog_ok_toast">感谢您！</string>
+  <string name="context_menu_play">播放</string>
+  <string name="context_menu_add_to_queue">添加到队列</string>
+  <string name="context_menu_add_to_playlist">添加到播放列表</string>
+  <string name="context_menu_delete">删除</string>
+  <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">从收藏中移除</string>
+  <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">添加到收藏</string>
+  <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">喜欢</string>
+  <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">不喜欢</string>
+  <string name="context_menu_share">分享</string>
+  <string name="context_menu_gotoartist">转到艺术家</string>
+  <string name="menu_item_save_playlist">保存列表</string>
+  <string name="menu_item_go_to_artist">转到艺术家</string>
+  <string name="menu_item_go_to_album">转到专辑</string>
+  <string name="menu_item_share">分享</string>
+  <string name="menu_item_playshuffled">随机播放</string>
+  <string name="drawer_title_feed">订阅</string>
+  <string name="drawer_title_collection">收藏</string>
+  <string name="drawer_title_playlists">播放列表</string>
+  <string name="drawer_title_lovedtracks">喜欢的</string>
+  <string name="drawer_title_settings">设置</string>
+  <string name="drawer_header_cloudcollections">云收藏</string>
+  <string name="collection_dropdown_recently_added">最近添加</string>
+  <string name="collection_dropdown_artist">艺术家</string>
+  <string name="collection_dropdown_play_count">播发统计</string>
+  <string name="history">历史</string>
+  <string name="preferences_bitrate_low">正常</string>
+  <string name="preferences_bitrate_medium">好</string>
+  <string name="preferences_bitrate_high">最佳</string>
+  <string name="drawer_open">打开导航抽屉</string>
+  <string name="drawer_close">关闭导航抽屉</string>
+  <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">正在关注</string>
+  <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">关注</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">正在关注</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
+  <string name="socialaction_type_love_track_single">喜欢了一个曲目</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
+  <string name="socialaction_type_love_track_multiple">喜欢了 %1$d 个曲目</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
+  <string name="socialaction_type_collected_track_single">收藏了一个曲目</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
+  <string name="socialaction_type_collected_track_multiple">收藏了 %1$d 个曲目</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
+  <string name="socialaction_type_collected_album_single">收藏了一张专辑</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
+  <string name="socialaction_type_collected_album_multiple">收藏了%1$d 张专辑</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">评论</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
+  <string name="socialaction_type_latchon_single">跟随收听一个好友</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
+  <string name="socialaction_type_latchon_multiple">跟随收听 %1$d 个好友</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
+  <string name="socialaction_type_createplaylist_single">创建了一个播放列表</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
+  <string name="socialaction_type_createplaylist_multiple">创建了 %1$d 个播放列表</string>
+  <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s - %2$s</string>
+  <string name="time_afewseconds">几秒前</string>
+  <string name="time_aminute">一分钟前</string>
+  <string name="time_anhour">一小时前</string>
+  <string name="time_aday">一天前</string>
+  <string name="time_minutes">%1$d 分钟前</string>
+  <string name="time_hours">%1$d 小时前</string>
+  <string name="time_days">%1$d 天前</string>
+  <string name="users_playbacklog_suffix">最近播放的</string>
+  <string name="users_favorites_suffix">喜欢的</string>
+  <string name="music">音乐</string>
+  <string name="biography">简介</string>
+  <string name="similar">类似的</string>
+  <string name="songs">歌曲</string>
+  <string name="activity">活动</string>
+  <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
+  <string name="followers">跟随者</string>
+  <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
+  <string name="following">在关注</string>
+  <string name="resolver_config_redirect_button_text_log_into">登录到</string>
+  <string name="resolver_config_redirect_button_text_log_out_of">注销</string>
+  <string name="ask_access_activity_header">自动保存您在 Hatchet 上播放的曲目的数据？</string>
+  <string name="ask_access_activity_text1">只需要在系统设置中启用此服务</string>
+  <string name="ask_access_activity_text2">（你可以随时在 Tomahawk 设置中禁用此服务）</string>
+  <string name="ask_access_activity_button_text">前往设置</string>
+  <string name="button_open_queue_text">队列</string>
+  <string name="button_close">关闭</string>
+  <string name="view_album">查看专辑</string>
+</resources>
