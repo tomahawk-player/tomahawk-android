@@ -185,3 +185,9 @@
 -keep public class org.acra.ErrorReporter {
     public void handleSilentException(java.lang.Throwable);
 }
+
+##################
+#Deezer specifics#
+##################
+-keep class com.deezer.** { *; }
+
