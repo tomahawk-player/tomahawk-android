@@ -48,11 +48,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * Resolver}s are stored and invoked here. Callbacks which report the found {@link Result}s are also
  * included in this class.
  */
-public class PipeLine {
+public class PipeLine implements Resolver.OnResolverReadyListener {
 
     private final static String TAG = PipeLine.class.getSimpleName();
-
-    private static PipeLine instance = new PipeLine();
 
     public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
 
@@ -94,7 +92,11 @@ public class PipeLine {
 
     private static final float MINSCORE = 0.5F;
 
-    private boolean mInitialized;
+    private static class Holder {
+
+        private static final PipeLine instance = new PipeLine();
+
+    }
 
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 
@@ -113,43 +115,40 @@ public class PipeLine {
             = new ConcurrentHashMap<String, ScriptResolverUrlResult>();
 
     private PipeLine() {
+        try {
+            String[] plugins = TomahawkApp.getContext().getAssets().list("js/resolvers");
+            for (String plugin : plugins) {
+                String path = "js/resolvers/" + plugin + "/content";
+                try {
+                    String rawJsonString = TomahawkUtils
+                            .inputStreamToString(TomahawkApp.getContext()
+                                    .getAssets().open(path + "/metadata.json"));
+                    ScriptResolverMetaData metaData = InfoSystemUtils.getObjectMapper()
+                            .readValue(rawJsonString, ScriptResolverMetaData.class);
+                    ScriptResolver scriptResolver = new ScriptResolver(metaData, path, this);
+                    mResolvers.add(scriptResolver);
+                } catch (FileNotFoundException e) {
+                    Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
+                } catch (JsonMappingException e) {
+                    Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
+                } catch (JsonParseException e) {
+                    Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
+                } catch (IOException e) {
+                    Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "ensureInit: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+        mResolvers.add(new DataBaseResolver(
+                TomahawkApp.getContext().getString(R.string.local_collection_pretty_name), this));
+        SpotifyResolver spotifyResolver = new SpotifyResolver(this);
+        mResolvers.add(spotifyResolver);
+        setAllResolversAdded(true);
     }
 
     public static PipeLine getInstance() {
-        if (!instance.mInitialized) {
-            instance.mInitialized = true;
-            try {
-                String[] plugins = TomahawkApp.getContext().getAssets().list("js/resolvers");
-                for (String plugin : plugins) {
-                    String path = "js/resolvers/" + plugin + "/content";
-                    try {
-                        String rawJsonString = TomahawkUtils
-                                .inputStreamToString(TomahawkApp.getContext()
-                                        .getAssets().open(path + "/metadata.json"));
-                        ScriptResolverMetaData metaData = InfoSystemUtils.getObjectMapper()
-                                .readValue(rawJsonString, ScriptResolverMetaData.class);
-                        ScriptResolver scriptResolver = new ScriptResolver(metaData, path);
-                        instance.mResolvers.add(scriptResolver);
-                    } catch (FileNotFoundException e) {
-                        Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    } catch (JsonMappingException e) {
-                        Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    } catch (JsonParseException e) {
-                        Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    } catch (IOException e) {
-                        Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    }
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "ensureInit: " + e.getClass() + ": " + e.getLocalizedMessage());
-            }
-            instance.mResolvers.add(new DataBaseResolver(
-                    TomahawkApp.getContext().getString(R.string.local_collection_pretty_name)));
-            SpotifyResolver spotifyResolver = new SpotifyResolver();
-            instance.mResolvers.add(spotifyResolver);
-            instance.setAllResolversAdded(true);
-        }
-        return instance;
+        return Holder.instance;
     }
 
     /**
@@ -457,7 +456,8 @@ public class PipeLine {
     /**
      * Callback method, which is being called by Resolvers as soon as they are ready
      */
-    public void onResolverReady() {
+    @Override
+    public void onResolverReady(Resolver resolver) {
         if (isEveryResolverReady()) {
             for (Query query : mWaitingQueries.values()) {
                 mWaitingQueries.remove(query.getCacheKey());

@@ -65,33 +65,32 @@ public class AuthenticatorManager {
 
     public final static String CONFIG_TEST_RESULT_BUNDLE = "config_test_result_bundle";
 
-    private static AuthenticatorManager instance = new AuthenticatorManager();
+    private static class Holder {
 
-    private boolean mInitialized;
+        private static final AuthenticatorManager instance = new AuthenticatorManager();
+
+    }
 
     private HashMap<String, AuthenticatorUtils> mAuthenticatorUtils
             = new HashMap<String, AuthenticatorUtils>();
 
     private AuthenticatorManager() {
+        SpotifyAuthenticatorUtils spotifyAuthenticatorUtils = new SpotifyAuthenticatorUtils();
+        mAuthenticatorUtils.put(spotifyAuthenticatorUtils.getId(),
+                spotifyAuthenticatorUtils);
+        HatchetAuthenticatorUtils hatchetAuthenticatorUtils = new HatchetAuthenticatorUtils();
+        mAuthenticatorUtils.put(hatchetAuthenticatorUtils.getId(),
+                hatchetAuthenticatorUtils);
+        RdioAuthenticatorUtils rdioAuthenticatorUtils = new RdioAuthenticatorUtils();
+        mAuthenticatorUtils.put(rdioAuthenticatorUtils.getId(),
+                rdioAuthenticatorUtils);
+        DeezerAuthenticatorUtils deezerAuthenticatorUtils = new DeezerAuthenticatorUtils();
+        mAuthenticatorUtils.put(deezerAuthenticatorUtils.getId(),
+                deezerAuthenticatorUtils);
     }
 
     public static AuthenticatorManager getInstance() {
-        if (!instance.mInitialized) {
-            instance.mInitialized = true;
-            SpotifyAuthenticatorUtils spotifyAuthenticatorUtils = new SpotifyAuthenticatorUtils();
-            instance.mAuthenticatorUtils.put(spotifyAuthenticatorUtils.getId(),
-                    spotifyAuthenticatorUtils);
-            HatchetAuthenticatorUtils hatchetAuthenticatorUtils = new HatchetAuthenticatorUtils();
-            instance.mAuthenticatorUtils.put(hatchetAuthenticatorUtils.getId(),
-                    hatchetAuthenticatorUtils);
-            RdioAuthenticatorUtils rdioAuthenticatorUtils = new RdioAuthenticatorUtils();
-            instance.mAuthenticatorUtils.put(rdioAuthenticatorUtils.getId(),
-                    rdioAuthenticatorUtils);
-            DeezerAuthenticatorUtils deezerAuthenticatorUtils = new DeezerAuthenticatorUtils();
-            instance.mAuthenticatorUtils.put(deezerAuthenticatorUtils.getId(),
-                    deezerAuthenticatorUtils);
-        }
-        return instance;
+        return Holder.instance;
     }
 
     public AuthenticatorUtils getAuthenticatorUtils(String authenticatorId) {

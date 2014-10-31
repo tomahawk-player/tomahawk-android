@@ -103,12 +103,12 @@ public class SpotifyResolver extends Resolver {
     /**
      * Construct a new {@link SpotifyResolver}
      */
-    public SpotifyResolver() {
-        super(SpotifyAuthenticatorUtils.SPOTIFY_PRETTY_NAME);
+    public SpotifyResolver(OnResolverReadyListener onResolverReadyListener) {
+        super(SpotifyAuthenticatorUtils.SPOTIFY_PRETTY_NAME, onResolverReadyListener);
 
         mId = TomahawkApp.PLUGINNAME_SPOTIFY;
         mIconResId = R.drawable.ic_spotify;
-        PipeLine.getInstance().onResolverReady();
+        onResolverReady();
     }
 
     public void setToSpotifyMessenger(Messenger toSpotifyMessenger) {

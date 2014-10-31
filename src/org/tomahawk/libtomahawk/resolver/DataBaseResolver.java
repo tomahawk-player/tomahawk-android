@@ -54,8 +54,8 @@ public class DataBaseResolver extends Resolver {
     /**
      * Construct this {@link DataBaseResolver}
      */
-    public DataBaseResolver(String prettyName) {
-        super(prettyName);
+    public DataBaseResolver(String prettyName, OnResolverReadyListener onResolverReadyListener) {
+        super(prettyName, onResolverReadyListener);
 
         mId = TomahawkApp.PLUGINNAME_USERCOLLECTION;
         mWeight = 100;
@@ -63,7 +63,7 @@ public class DataBaseResolver extends Resolver {
         mStopped = true;
         mIconResId = R.drawable.ic_action_sd_storage;
         mReady = true;
-        PipeLine.getInstance().onResolverReady();
+        onResolverReady();
     }
 
     /**
