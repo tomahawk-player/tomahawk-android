@@ -131,7 +131,7 @@ public class ScriptResolver extends Resolver {
 
     // Handler which sets the mStopped bool to true after the timeout has occured.
     // Meaning this resolver is no longer being shown as resolving.
-    private final Handler mTimeOutHandler = new Handler() {
+    private final Handler mTimeOutHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
             removeMessages(msg.what);
@@ -163,20 +163,6 @@ public class ScriptResolver extends Resolver {
         mPath = path;
         mReady = false;
         mStopped = true;
-        mWebView = new WebView(TomahawkApp.getContext());
-        WebSettings settings = mWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        settings.setDatabaseEnabled(true);
-        settings.setDatabasePath(
-                TomahawkApp.getContext().getDir("databases", Context.MODE_PRIVATE).getPath());
-        settings.setDomStorageEnabled(true);
-        mWebView.setWebChromeClient(new TomahawkWebChromeClient());
-        mWebView.setWebViewClient(new ScriptWebViewClient(this));
-        final ScriptInterface scriptInterface = new ScriptInterface(this);
-        mWebView.addJavascriptInterface(scriptInterface, SCRIPT_INTERFACE_NAME);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
-        }
         mId = mMetaData.pluginName;
         mIconPath = "file:///android_asset/" + path + "/" + mMetaData.manifest.icon;
         if (getConfig().get(ENABLED_KEY) != null) {
@@ -200,7 +186,28 @@ public class ScriptResolver extends Resolver {
             Log.d(TAG, "Didn't find a fuzzy index");
         }
 
-        init();
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                mWebView = new WebView(TomahawkApp.getContext());
+                WebSettings settings = mWebView.getSettings();
+                settings.setJavaScriptEnabled(true);
+                settings.setDatabaseEnabled(true);
+                settings.setDatabasePath(
+                        TomahawkApp.getContext().getDir("databases", Context.MODE_PRIVATE)
+                                .getPath());
+                settings.setDomStorageEnabled(true);
+                mWebView.setWebChromeClient(new TomahawkWebChromeClient());
+                mWebView.setWebViewClient(new ScriptWebViewClient(ScriptResolver.this));
+                final ScriptInterface scriptInterface = new ScriptInterface(ScriptResolver.this);
+                mWebView.addJavascriptInterface(scriptInterface, SCRIPT_INTERFACE_NAME);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
+                }
+
+                init();
+            }
+        });
     }
 
     /**
