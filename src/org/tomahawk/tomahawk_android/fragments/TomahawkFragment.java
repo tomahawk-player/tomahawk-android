@@ -259,6 +259,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
                 if (mAlbum == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 } else {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mAlbum));
                 }
@@ -269,6 +270,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                         .getPlaylistById(getArguments().getString(TOMAHAWK_PLAYLIST_KEY));
                 if (mPlaylist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 } else {
                     refreshCurrentPlaylist();
                 }
@@ -278,6 +280,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
                 if (mArtist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 } else {
                     ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
                     for (String requestId : requestIds) {
@@ -290,6 +293,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 mUser = User.getUserById(getArguments().getString(TOMAHAWK_USER_ID));
                 if (mUser == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 } else {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
@@ -303,6 +307,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 mQuery = Query.getQueryByKey(getArguments().getString(TOMAHAWK_QUERY_KEY));
                 if (mQuery == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 } else {
                     ArrayList<String> requestIds =
                             InfoSystem.getInstance().resolve(mQuery.getArtist(), true);

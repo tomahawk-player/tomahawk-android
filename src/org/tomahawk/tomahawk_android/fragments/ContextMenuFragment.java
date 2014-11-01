@@ -130,18 +130,21 @@ public class ContextMenuFragment extends Fragment {
                         getArguments().getString(TomahawkFragment.TOMAHAWK_ALBUM_KEY));
                 if (mAlbum == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 }
             } else if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY)) {
                 mPlaylist = Playlist.getPlaylistById(getArguments()
                         .getString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY));
                 if (mPlaylist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 }
             } else if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_ARTIST_KEY)) {
                 mArtist = Artist.getArtistByKey(
                         getArguments().getString(TomahawkFragment.TOMAHAWK_ARTIST_KEY));
                 if (mArtist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 }
             }
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_SHOWDELETE_KEY)) {
@@ -176,6 +179,7 @@ public class ContextMenuFragment extends Fragment {
                 }
                 if (mTomahawkListItem == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 }
             }
             if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {

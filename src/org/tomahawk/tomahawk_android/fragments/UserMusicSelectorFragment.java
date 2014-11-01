@@ -52,6 +52,7 @@ public class UserMusicSelectorFragment extends SelectorFragment {
                         .getUserById(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID));
                 if (mUser == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 } else {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
