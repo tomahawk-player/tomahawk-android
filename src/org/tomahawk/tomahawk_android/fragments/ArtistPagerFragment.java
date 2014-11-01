@@ -64,6 +64,7 @@ public class ArtistPagerFragment extends PagerFragment {
                         getArguments().getString(TomahawkFragment.TOMAHAWK_ARTIST_KEY));
                 if (mArtist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 } else {
                     ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
                     for (String requestId : requestIds) {
