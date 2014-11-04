@@ -21,8 +21,8 @@
   <string name="repeat_off_label">Wiederholen ist aus</string>
   <string name="unknown">unbekannt</string>
   <string name="no_track">kein Lied</string>
-  <string name="save_playlist">Aktuelle Playlist speichern</string>
-  <string name="create_playlist">Eine neue Playlist erstellen</string>
+  <string name="save_playlist">Aktuelle Wiedergabeliste speichern</string>
+  <string name="create_playlist">Eine neue Wiedergabeliste erstellen</string>
   <string name="name_playlist">Name</string>
   <string name="login_name_label">E-Mail/Benutzername</string>
   <string name="login_username">Benutzername</string>
@@ -47,19 +47,21 @@
   <string name="preferences_playback_data_text">Scrobble jedes Lied von allen deiner Musik-Apps auf deinem Smartphone zu %1$s.</string>
   <string name="preferences_plug_and_play">Abspielen beim Anschließen</string>
   <string name="preferences_plug_and_play_text">Spielt Musik ab, sobald ein Headset angeschlossen ist.</string>
-  <string name="preferences_audio_quality">Bevorzugte Audio-Qualität</string>
+  <string name="preferences_audio_quality">Bevorzugte Audioqualität</string>
   <string name="preferences_audio_quality_text">Die bevorzugte Audio-Qualität, wenn keine WLAN-Verbindung besteht.</string>
   <string name="preferences_info">Info</string>
   <string name="preferences_app_version">App-Version</string>
-  <string name="preferences_app_uservoice">Feedback</string>
+  <string name="preferences_app_uservoice">Rückmeldung</string>
   <string name="preferences_app_uservoice_text">Teile deine Ideen oder frag nach Hilfe.</string>
+  <string name="preferences_app_sendlog">Protokoll senden</string>
+  <string name="preferences_app_sendlog_text">Senden Sie Ihre Protokolldatei für Debugzwecke</string>
   <string name="crash_dialog_title">Tomahawk ist abgestürzt</string>
   <string name="crash_dialog_text">Ein unerwarteter Fehler ist aufgetreten und hat die Anwendung beendet. Bitte hilf uns den Fehler zu beheben, indem du uns den Absturzbericht durch einen Klick auf OK zusendest.</string>
   <string name="crash_dialog_comment_prompt">Wenn du möchtest, kannst du einen Kommentar zu diesem Problem hinzufügen:</string>
   <string name="crash_dialog_ok_toast">Vielen Dank!</string>
   <string name="context_menu_play">Abspielen</string>
   <string name="context_menu_add_to_queue">Zur Warteschlange hinzufügen</string>
-  <string name="context_menu_add_to_playlist">Zur Playlist hinzufügen</string>
+  <string name="context_menu_add_to_playlist">Zur Wiedergabeliste hinzufügen</string>
   <string name="context_menu_delete">Löschen</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <string name="context_menu_removefromcollection">Aus der Sammlung entfernen</string>
@@ -71,14 +73,14 @@
   <string name="context_menu_unlove">Aus den Lieblingsliedern entfernen</string>
   <string name="context_menu_share">Teilen</string>
   <string name="context_menu_gotoartist">Gehe zum Künstler</string>
-  <string name="menu_item_save_playlist">Playlist speichern</string>
+  <string name="menu_item_save_playlist">Wiedergabeliste speichern</string>
   <string name="menu_item_go_to_artist">Gehe zum Künstler</string>
   <string name="menu_item_go_to_album">Gehe zum Album</string>
   <string name="menu_item_share">Teilen</string>
   <string name="menu_item_playshuffled">Zufällig wiedergeben</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Sammlung</string>
-  <string name="drawer_title_playlists">Playlisten</string>
+  <string name="drawer_title_playlists">Wiedergabelisten</string>
   <string name="drawer_title_lovedtracks">Lieblingslieder</string>
   <string name="drawer_title_settings">Einstellungen</string>
   <string name="drawer_header_cloudcollections">Cloud Sammlungen</string>
@@ -89,8 +91,8 @@
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Gut</string>
   <string name="preferences_bitrate_high">Beste</string>
-  <string name="drawer_open">Öffne Navigations-Menü</string>
-  <string name="drawer_close">Schließe Navigations-Menü</string>
+  <string name="drawer_open">Navigationsmenü öffnen</string>
+  <string name="drawer_close">Navigationsmenü schließen</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Folge ich</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
@@ -116,9 +118,9 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <string name="socialaction_type_latchon_multiple">hat %1$d Freunden zugehört</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">hat eine Playlist erstellt</string>
+  <string name="socialaction_type_createplaylist_single">hat eine Wiedergabeliste erstellt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">hat %1$d Playlists erstellt</string>
+  <string name="socialaction_type_createplaylist_multiple">hat %1$d Wiedergabelisten erstellt</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s von %2$s</string>
   <string name="time_afewseconds">vor ein paar Sekunden</string>
