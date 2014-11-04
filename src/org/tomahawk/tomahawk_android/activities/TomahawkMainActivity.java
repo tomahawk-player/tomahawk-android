@@ -289,7 +289,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                         }
                         queries.add(query);
                     }
-                    Playlist playlist = Playlist.fromQueryList(result.guid, queries);
+                    Playlist playlist = Playlist.fromQueryList(result.title, queries);
+                    playlist.setFilled(true);
                     FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
                             PlaylistEntriesFragment.class, playlist.getId(),
                             TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
