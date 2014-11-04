@@ -1,6 +1,7 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
  *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,7 +18,6 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import org.acra.ACRA;
 import org.acra.ReportField;
 import org.acra.collector.CrashReportData;
 import org.acra.sender.ReportSender;
@@ -30,11 +30,8 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.services.PlaybackService;
 
-import android.annotation.TargetApi;
-import android.os.Debug;
-import android.os.StrictMode;
+import android.content.Intent;
 import android.util.Log;
 
 import java.io.IOException;
@@ -42,7 +39,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class uploads a Tomahawk Exception Report to oops.tomahawk-player.org.
+ * This class uploads a Tomahawk Exception Report to oops.tomahawk-player.org or sends it as a TEXT
+ * intent, if IS_SILENT is true
  */
 public class TomahawkExceptionReporter implements ReportSender {
 
@@ -50,33 +48,16 @@ public class TomahawkExceptionReporter implements ReportSender {
 
     /**
      * Construct a new TomahawkExceptionReporter
-     *
-     * Use init() to create a TomahawkExceptionReporter publicly.
      */
-    private TomahawkExceptionReporter() {
-    }
-
-    /**
-     * Initialize the TomahawkExceptionReporter.
-     */
-    public static void init(TomahawkApp app) {
-        if (!Debug.isDebuggerConnected()) {
-            ACRA.init(app);
-            TomahawkExceptionReporter reporter = new TomahawkExceptionReporter();
-            ACRA.getErrorReporter().setReportSender(reporter);
-        }
-        initStrictMode();
+    public TomahawkExceptionReporter() {
     }
 
     /**
      * Pull information from the given {@link CrashReportData} and send it via HTTP to
-     * oops.tomahawk-player.org
+     * oops.tomahawk-player.org or sends it as a TEXT intent, if IS_SILENT is true
      */
     @Override
     public void send(CrashReportData data) throws ReportSenderException {
-        HttpClient httpclient = new DefaultHttpClient();
-        HttpPost httppost = new HttpPost("http://oops.tomahawk-player.org/addreport.php");
-
         StringBuilder body = new StringBuilder();
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
@@ -164,44 +145,24 @@ public class TomahawkExceptionReporter implements ReportSender {
         body.append(data.getProperty(ReportField.LOGCAT));
         body.append("\r\n--thkboundary--\r\n");
 
-        httppost.setHeader("Content-type", "multipart/form-data; boundary=thkboundary");
-
-        try {
-
-            httppost.setEntity(new StringEntity(body.toString()));
-            httpclient.execute(httppost);
-
-        } catch (ClientProtocolException e) {
-            Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (IOException e) {
-            Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-    }
-
-    /**
-     * Use strict mode to determine app bottlenecks.
-     *
-     * Does nothing if api version is less than 11.
-     */
-    @TargetApi(11)
-    private static void initStrictMode() {
-
-        if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.HONEYCOMB) {
-            return;
-        }
-
-        StrictMode.setThreadPolicy(
-                new StrictMode.ThreadPolicy.Builder().detectCustomSlowCalls().detectDiskReads()
-                        .detectDiskWrites().detectNetwork().penaltyLog().penaltyFlashScreen()
-                        .build());
-
-        try {
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects()
-                    .detectLeakedClosableObjects()
-                    .setClassInstanceLimit(Class.forName(PlaybackService.class.getName()), 1)
-                    .penaltyLog().build());
-        } catch (ClassNotFoundException e) {
-            Log.e(TAG, e.toString());
+        if ("true".equals(data.getProperty(ReportField.IS_SILENT))) {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, body.toString());
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            TomahawkApp.getContext().startActivity(intent);
+        } else {
+            HttpClient httpclient = new DefaultHttpClient();
+            HttpPost httppost = new HttpPost("http://oops.tomahawk-player.org/addreport.php");
+            httppost.setHeader("Content-type", "multipart/form-data; boundary=thkboundary");
+            try {
+                httppost.setEntity(new StringEntity(body.toString()));
+                httpclient.execute(httppost);
+            } catch (ClientProtocolException e) {
+                Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
+            } catch (IOException e) {
+                Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
         }
     }
 }

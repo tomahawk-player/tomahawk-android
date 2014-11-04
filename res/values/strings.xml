@@ -53,6 +53,8 @@
   <string name="preferences_app_version">App-Version</string>
   <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Share your ideas or ask for support.</string>
+  <string name="preferences_app_sendlog">Send Log</string>
+  <string name="preferences_app_sendlog_text">Send your log file for debug purposes</string>
   <string name="crash_dialog_title">Tomahawk has crashed</string>
   <string name="crash_dialog_text">An unexpected error occurred forcing the application to stop. Please help us fix this by sending us error data, all you have to do is click OK.</string>
   <string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>

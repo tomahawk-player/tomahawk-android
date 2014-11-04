@@ -18,15 +18,20 @@
  */
 package org.tomahawk.tomahawk_android;
 
+import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Debug;
+import android.os.StrictMode;
+import android.util.Log;
 
 /**
- * This class contains represents the Application core.
+ * This class represents the Application core.
  */
 @ReportsCrashes(formKey = "",
         mode = ReportingInteractionMode.DIALOG,
@@ -36,6 +41,8 @@ import android.content.Context;
         resDialogCommentPrompt = R.string.crash_dialog_comment_prompt,
         resDialogOkToast = R.string.crash_dialog_ok_toast)
 public class TomahawkApp extends Application {
+
+    private static final String TAG = TomahawkApp.class.getSimpleName();
 
     public final static String PLUGINNAME_HATCHET = "hatchet";
 
@@ -59,7 +66,23 @@ public class TomahawkApp extends Application {
 
     @Override
     public void onCreate() {
-        TomahawkExceptionReporter.init(this);
+        if (!Debug.isDebuggerConnected()) {
+            ACRA.init(this);
+            ACRA.getErrorReporter().setReportSender(new TomahawkExceptionReporter());
+        }
+        StrictMode.setThreadPolicy(
+                new StrictMode.ThreadPolicy.Builder().detectCustomSlowCalls().detectDiskReads()
+                        .detectDiskWrites().detectNetwork().penaltyLog().penaltyFlashScreen()
+                        .build());
+        try {
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .setClassInstanceLimit(Class.forName(PlaybackService.class.getName()), 1)
+                    .penaltyLog().build());
+        } catch (ClassNotFoundException e) {
+            Log.e(TAG, e.toString());
+        }
+
         super.onCreate();
 
         sApplicationContext = getApplicationContext();
