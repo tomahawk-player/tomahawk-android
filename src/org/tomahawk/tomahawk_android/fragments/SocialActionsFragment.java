@@ -98,6 +98,13 @@ public class SocialActionsFragment extends TomahawkFragment implements
         updateAdapter();
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        mResolvingPages.clear();
+    }
+
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *

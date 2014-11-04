@@ -57,13 +57,11 @@ public class FragmentUtils {
         HatchetAuthenticatorUtils hatchetAuthUtils =
                 (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                         .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        String mUserId = hatchetAuthUtils.getUserId();
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        if (mUserId != null) {
-            String userName = hatchetAuthUtils.getUserName();
-            User loggedInUser = User.get(mUserId, userName);
+        if (hatchetAuthUtils.isLoggedIn()) {
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, loggedInUser.getCacheKey());
+            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+                    hatchetAuthUtils.getLoggedInUser().getId());
             bundle.putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_DASHBOARD);
             ft.add(R.id.content_viewer_frame,
                     Fragment.instantiate(activity, SocialActionsFragment.class.getName(), bundle),

@@ -20,11 +20,13 @@ package org.tomahawk.libtomahawk.authentication;
 
 import org.tomahawk.libtomahawk.authentication.models.HatchetAuthResponse;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.JacksonConverter;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.infosystem.hatchet.Hatchet;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUserInfo;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUsers;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -84,8 +86,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private static final int EXPIRING_LIMIT = 300;
 
-    private User mLoggedInUser;
-
     private HatchetAuth mHatchetAuth;
 
     public HatchetAuthenticatorUtils() {
@@ -125,8 +125,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         CollectionManager.getInstance().fetchLovedItemsPlaylist();
         CollectionManager.getInstance().fetchStarredArtists();
         CollectionManager.getInstance().fetchStarredAlbums();
-        InfoSystem.getInstance().resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF,
-                null);
+        InfoSystem.getInstance().resolve(getLoggedInUser());
         AuthenticatorManager.broadcastConfigTestResult(getId(),
                 AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
                 AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
@@ -240,7 +239,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         if (am != null && getAccount() != null) {
             am.removeAccount(getAccount(), null, null);
         }
-        mLoggedInUser = null;
         onLogout();
     }
 
@@ -257,17 +255,36 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         return null;
     }
 
-    public void storeUserId(String userId) {
+    private String getUserId() {
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         if (am != null && getAccount() != null) {
-            am.setUserData(getAccount(), USER_ID_HATCHET, userId);
+            if (am.getUserData(getAccount(), USER_ID_HATCHET) != null) {
+                return am.getUserData(getAccount(), USER_ID_HATCHET);
+            } else {
+                RestAdapter restAdapter = new RestAdapter.Builder()
+                        .setLogLevel(RestAdapter.LogLevel.BASIC)
+                        .setEndpoint("https://api.hatchet.is/v1")
+                        .setConverter(new JacksonConverter(InfoSystemUtils.getObjectMapper()))
+                        .build();
+                Hatchet hatchet = restAdapter.create(Hatchet.class);
+                HatchetUsers users = hatchet.getUsers(null, getUserName(), null, null);
+                if (users != null) {
+                    HatchetUserInfo user = TomahawkUtils.carelessGet(users.users, 0);
+                    if (user != null) {
+                        am.setUserData(getAccount(), USER_ID_HATCHET, user.id);
+                        return user.id;
+                    }
+                }
+            }
         }
+        return null;
     }
 
-    public String getUserId() {
-        AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        if (am != null && getAccount() != null) {
-            return am.getUserData(getAccount(), USER_ID_HATCHET);
+    public User getLoggedInUser() {
+        if (getUserId() != null) {
+            User user = User.get(getUserId());
+            user.setName(getUserName());
+            return user;
         }
         return null;
     }
@@ -376,14 +393,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             }
         }
         return accessToken;
-    }
-
-    public User getLoggedInUser() {
-        return mLoggedInUser;
-    }
-
-    public void setLoggedInUser(User loggedInUser) {
-        mLoggedInUser = loggedInUser;
     }
 
     /**
