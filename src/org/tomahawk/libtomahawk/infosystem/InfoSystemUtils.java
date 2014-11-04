@@ -239,7 +239,8 @@ public class InfoSystemUtils {
      */
     public static User convertToUser(HatchetUserInfo userInfo, HatchetTrackInfo track,
             HatchetArtistInfo artist, HatchetImage image) {
-        User user = User.get(userInfo.id, userInfo.name);
+        User user = User.get(userInfo.id);
+        user.setName(userInfo.name);
         fillUser(user, userInfo, track, artist, image);
         return user;
     }

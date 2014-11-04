@@ -48,12 +48,8 @@ public class UserMusicSelectorFragment extends SelectorFragment {
             }
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_USER_ID) && !TextUtils
                     .isEmpty(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID))) {
-                mUser = User
-                        .getUserById(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID));
-                if (mUser == null) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                    return;
-                } else {
+                mUser = User.get(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID));
+                if (mUser.getName() == null) {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
             }

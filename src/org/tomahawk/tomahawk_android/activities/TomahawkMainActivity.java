@@ -37,7 +37,6 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
@@ -240,12 +239,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 if (mCurrentRequestIds.contains(requestId)) {
                     InfoRequestData data = InfoSystem.getInstance().getInfoRequestById(requestId);
                     if (data != null
-                            && data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
-                        User user = data.getResult(User.class);
-                        HatchetAuthenticatorUtils authenticatorUtils
-                                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                        authenticatorUtils.setLoggedInUser(user);
+                            && data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
                         updateDrawer();
                     }
                 }
@@ -806,16 +800,16 @@ public class TomahawkMainActivity extends ActionBarActivity
         HatchetAuthenticatorUtils authenticatorUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        if (authenticatorUtils.getLoggedInUser() == null) {
-            mCurrentRequestIds.add(InfoSystem.getInstance()
-                    .resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF, null));
-        }
         // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
         mDrawerList = (StickyListHeadersListView) findViewById(R.id.left_drawer);
         ArrayList<TomahawkMenuAdapter.ResourceHolder> holders =
                 new ArrayList<TomahawkMenuAdapter.ResourceHolder>();
         TomahawkMenuAdapter.ResourceHolder holder = new TomahawkMenuAdapter.ResourceHolder();
         if (authenticatorUtils.getLoggedInUser() != null) {
+            if (authenticatorUtils.getLoggedInUser().getImage() == null) {
+                mCurrentRequestIds.add(
+                        InfoSystem.getInstance().resolve(authenticatorUtils.getLoggedInUser()));
+            }
             holder.id = HUB_ID_USERPAGE;
             holder.title = authenticatorUtils.getLoggedInUser().getName();
             holder.image = authenticatorUtils.getLoggedInUser().getImage();

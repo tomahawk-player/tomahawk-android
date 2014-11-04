@@ -261,14 +261,15 @@ public class CollectionManager {
      * the API.
      */
     public void fetchLovedItemsPlaylist() {
+        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching loved tracks");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(
-                    InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, null));
+            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFavorites(
+                    hatchetAuthUtils.getLoggedInUser()));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching loved tracks");
-            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
@@ -333,13 +334,15 @@ public class CollectionManager {
      * Fetch the Playlists from the Hatchet API and store it in the local db.
      */
     public void fetchPlaylists() {
+        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching playlists");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolvePlaylists(null));
+            mCorrespondingRequestIds.add(InfoSystem.getInstance()
+                    .resolvePlaylists(hatchetAuthUtils.getLoggedInUser()));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching playlists");
-            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
