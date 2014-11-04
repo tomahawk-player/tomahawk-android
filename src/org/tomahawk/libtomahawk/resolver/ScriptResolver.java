@@ -189,23 +189,8 @@ public class ScriptResolver extends Resolver {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                mWebView = new WebView(TomahawkApp.getContext());
-                WebSettings settings = mWebView.getSettings();
-                settings.setJavaScriptEnabled(true);
-                settings.setDatabaseEnabled(true);
-                settings.setDatabasePath(
-                        TomahawkApp.getContext().getDir("databases", Context.MODE_PRIVATE)
-                                .getPath());
-                settings.setDomStorageEnabled(true);
-                mWebView.setWebChromeClient(new TomahawkWebChromeClient());
-                mWebView.setWebViewClient(new ScriptWebViewClient(ScriptResolver.this));
-                final ScriptInterface scriptInterface = new ScriptInterface(ScriptResolver.this);
-                mWebView.addJavascriptInterface(scriptInterface, SCRIPT_INTERFACE_NAME);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
-                }
-
-                init();
+                //pre-initalize WebView
+                getWebView();
             }
         });
     }
@@ -237,44 +222,65 @@ public class ScriptResolver extends Resolver {
     }
 
     /**
-     * Initialize this {@link ScriptResolver}. Loads the .js script from the given path and sets the
-     * appropriate base URL.
+     * Initialize the WebView. Loads the .js script from the given path and sets the appropriate
+     * base URL.
+     *
+     * @return the initialized WebView
      */
-    private void init() {
-        final String baseurl = "file:///android_asset/test.html";
-        String data = "<!DOCTYPE html>" + "<html><body>"
-                + "<script src=\"file:///android_asset/js/cryptojs-core.js"
-                + "\" type=\"text/javascript\"></script>";
-        for (String scriptPath : mMetaData.manifest.scripts) {
-            data += "<script src=\"file:///android_asset/" + mPath + "/" + scriptPath
+    private synchronized WebView getWebView() {
+        if (mWebView == null) {
+            mWebView = new WebView(TomahawkApp.getContext());
+            WebSettings settings = mWebView.getSettings();
+            settings.setJavaScriptEnabled(true);
+            settings.setDatabaseEnabled(true);
+            settings.setDatabasePath(
+                    TomahawkApp.getContext().getDir("databases", Context.MODE_PRIVATE)
+                            .getPath());
+            settings.setDomStorageEnabled(true);
+            mWebView.setWebChromeClient(new TomahawkWebChromeClient());
+            mWebView.setWebViewClient(new ScriptWebViewClient(ScriptResolver.this));
+            final ScriptInterface scriptInterface = new ScriptInterface(
+                    ScriptResolver.this);
+            mWebView.addJavascriptInterface(scriptInterface, SCRIPT_INTERFACE_NAME);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
+            }
+
+            final String baseurl = "file:///android_asset/test.html";
+            String data = "<!DOCTYPE html>" + "<html><body>"
+                    + "<script src=\"file:///android_asset/js/cryptojs-core.js"
                     + "\" type=\"text/javascript\"></script>";
-        }
-        try {
-            String[] cryptoJsScripts =
-                    TomahawkApp.getContext().getAssets().list("js/cryptojs");
-            for (String scriptPath : cryptoJsScripts) {
-                data += "<script src=\"file:///android_asset/js/cryptojs/" + scriptPath
+            for (String scriptPath : mMetaData.manifest.scripts) {
+                data += "<script src=\"file:///android_asset/" + mPath + "/"
+                        + scriptPath
                         + "\" type=\"text/javascript\"></script>";
             }
-        } catch (IOException e) {
-            Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-        data += "<script src=\"file:///android_asset/js/tomahawk_android_pre.js"
-                + "\" type=\"text/javascript\"></script>"
-                + "<script src=\"file:///android_asset/js/tomahawk.js"
-                + "\" type=\"text/javascript\"></script>"
-                + "<script src=\"file:///android_asset/js/tomahawk_android_post.js"
-                + "\" type=\"text/javascript\"></script>"
-                + "<script src=\"file:///android_asset/" + mPath + "/"
-                + mMetaData.manifest.main + "\" type=\"text/javascript\"></script>"
-                + "</body></html>";
-        final String finalData = data;
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                mWebView.loadDataWithBaseURL(baseurl, finalData, "text/html", null, null);
+            try {
+                String[] cryptoJsScripts =
+                        TomahawkApp.getContext().getAssets().list("js/cryptojs");
+                for (String scriptPath : cryptoJsScripts) {
+                    data += "<script src=\"file:///android_asset/js/cryptojs/"
+                            + scriptPath
+                            + "\" type=\"text/javascript\"></script>";
+                }
+            } catch (IOException e) {
+                Log.e(TAG,
+                        "ScriptResolver: " + e.getClass() + ": " + e
+                                .getLocalizedMessage());
             }
-        });
+            data += "<script src=\"file:///android_asset/js/tomahawk_android_pre.js"
+                    + "\" type=\"text/javascript\"></script>"
+                    + "<script src=\"file:///android_asset/js/tomahawk.js"
+                    + "\" type=\"text/javascript\"></script>"
+                    + "<script src=\"file:///android_asset/js/tomahawk_android_post.js"
+                    + "\" type=\"text/javascript\"></script>"
+                    + "<script src=\"file:///android_asset/" + mPath + "/"
+                    + mMetaData.manifest.main + "\" type=\"text/javascript\"></script>"
+                    + "</body></html>";
+            final String finalData = data;
+            mWebView.loadDataWithBaseURL(baseurl, finalData, "text/html", null, null);
+        }
+        return mWebView;
     }
 
     /**
@@ -570,7 +576,7 @@ public class ScriptResolver extends Resolver {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                mWebView.loadUrl(url);
+                getWebView().loadUrl(url);
             }
         });
     }
