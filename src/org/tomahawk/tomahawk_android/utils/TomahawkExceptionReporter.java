@@ -148,7 +148,10 @@ public class TomahawkExceptionReporter implements ReportSender {
         if ("true".equals(data.getProperty(ReportField.IS_SILENT))) {
             Intent intent = new Intent(Intent.ACTION_SEND);
             intent.setType("text/plain");
+            body.insert(0, "Please tell us why you're sending us this log:\n\n\n\n\n");
             intent.putExtra(Intent.EXTRA_TEXT, body.toString());
+            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@tomahawk-player.org"});
+            intent.putExtra(Intent.EXTRA_SUBJECT, "Tomahawk Android Log");
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             TomahawkApp.getContext().startActivity(intent);
         } else {
