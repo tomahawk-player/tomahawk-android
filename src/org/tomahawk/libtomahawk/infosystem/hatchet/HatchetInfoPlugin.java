@@ -218,8 +218,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 if (playlistEntries != null) {
                     Playlist playlistToBeFilled =
                             (Playlist) mItemsToBeFilled.get(infoRequestData.getRequestId());
-                    playlistToBeFilled = InfoSystemUtils
-                            .fillPlaylist(playlistToBeFilled, playlistEntries, false);
+                    playlistToBeFilled =
+                            InfoSystemUtils.fillPlaylist(playlistToBeFilled, playlistEntries);
                     playlistToBeFilled
                             .setCurrentRevision(playlistEntries.playlists.get(0).currentrevision);
                     infoRequestData.setResult(playlistToBeFilled);
@@ -230,28 +230,15 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
                 User userToBeFilled =
                         (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
-                if (userToBeFilled != null) {
-                    HatchetPlaylistEntries playlistEntries =
-                            mHatchet.getUsersLovedItems(userToBeFilled.getId());
-                    if (playlistEntries != null) {
-                        if (playlistEntries.playlistEntries.size() > 0) {
-                            InfoSystemUtils
-                                    .fillPlaylist(userToBeFilled.getFavorites(), playlistEntries,
-                                            false);
-                        }
-                        infoRequestData.setResult(userToBeFilled);
-                        return true;
+                HatchetPlaylistEntries playlistEntries =
+                        mHatchet.getUsersLovedItems(userToBeFilled.getId());
+                if (playlistEntries != null) {
+                    if (playlistEntries.playlistEntries.size() > 0) {
+                        InfoSystemUtils
+                                .fillPlaylist(userToBeFilled.getFavorites(), playlistEntries);
                     }
-                } else {
-                    HatchetPlaylistEntries playlistEntries =
-                            mHatchet.getUsersLovedItems(params.userid);
-                    if (playlistEntries != null) {
-                        Playlist playlist = InfoSystemUtils
-                                .convertToPlaylist(playlistEntries.playlist);
-                        playlist = InfoSystemUtils.fillPlaylist(playlist, playlistEntries, true);
-                        infoRequestData.setResult(playlist);
-                        return true;
-                    }
+                    infoRequestData.setResult(userToBeFilled.getFavorites());
+                    return true;
                 }
 
             } else if (infoRequestData.getType()
