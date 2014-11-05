@@ -71,11 +71,6 @@
   <string name="context_menu_unlove">Supprimer des favoris</string>
   <string name="context_menu_share">Partager</string>
   <string name="context_menu_gotoartist">Aller à l\'artiste</string>
-  <string name="menu_item_save_playlist">Sauvegarder la playlist</string>
-  <string name="menu_item_go_to_artist">Aller à l\'artiste</string>
-  <string name="menu_item_go_to_album">Aller à l\'album</string>
-  <string name="menu_item_share">Partager</string>
-  <string name="menu_item_playshuffled">Lecture aléatoire</string>
   <string name="drawer_title_feed">Flux</string>
   <string name="drawer_title_collection">Collection</string>
   <string name="drawer_title_playlists">Playlists</string>

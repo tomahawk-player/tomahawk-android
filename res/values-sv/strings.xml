@@ -64,11 +64,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Dela</string>
   <string name="context_menu_gotoartist">Gå till Artist</string>
-  <string name="menu_item_save_playlist">Spara spellista</string>
-  <string name="menu_item_go_to_artist">Gå till Artist</string>
-  <string name="menu_item_go_to_album">Gå till Album</string>
-  <string name="menu_item_share">Dela</string>
-  <string name="menu_item_playshuffled">Spela slumpvis</string>
   <string name="drawer_title_feed">Flöde</string>
   <string name="drawer_title_collection">Samling</string>
   <string name="drawer_title_playlists">Spellista</string>

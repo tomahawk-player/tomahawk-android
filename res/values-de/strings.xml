@@ -73,11 +73,6 @@
   <string name="context_menu_unlove">Aus den Lieblingsliedern entfernen</string>
   <string name="context_menu_share">Teilen</string>
   <string name="context_menu_gotoartist">Gehe zum Künstler</string>
-  <string name="menu_item_save_playlist">Playlist speichern</string>
-  <string name="menu_item_go_to_artist">Gehe zum Künstler</string>
-  <string name="menu_item_go_to_album">Gehe zum Album</string>
-  <string name="menu_item_share">Teilen</string>
-  <string name="menu_item_playshuffled">Zufällig wiedergeben</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Sammlung</string>
   <string name="drawer_title_playlists">Playlists</string>
