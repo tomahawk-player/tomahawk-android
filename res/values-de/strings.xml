@@ -21,8 +21,8 @@
   <string name="repeat_off_label">Wiederholen ist aus</string>
   <string name="unknown">unbekannt</string>
   <string name="no_track">kein Lied</string>
-  <string name="save_playlist">Aktuelle Wiedergabeliste speichern</string>
-  <string name="create_playlist">Eine neue Wiedergabeliste erstellen</string>
+  <string name="save_playlist">Aktuelle Playlist speichern</string>
+  <string name="create_playlist">Eine neue Playlist erstellen</string>
   <string name="name_playlist">Name</string>
   <string name="login_name_label">E-Mail/Benutzername</string>
   <string name="login_username">Benutzername</string>
@@ -48,20 +48,20 @@
   <string name="preferences_plug_and_play">Abspielen beim Anschließen</string>
   <string name="preferences_plug_and_play_text">Spielt Musik ab, sobald ein Headset angeschlossen ist.</string>
   <string name="preferences_audio_quality">Bevorzugte Audioqualität</string>
-  <string name="preferences_audio_quality_text">Die bevorzugte Audio-Qualität, wenn keine WLAN-Verbindung besteht.</string>
+  <string name="preferences_audio_quality_text">Die bevorzugte Audioqualität, wenn keine WLAN-Verbindung besteht.</string>
   <string name="preferences_info">Info</string>
   <string name="preferences_app_version">App-Version</string>
-  <string name="preferences_app_uservoice">Rückmeldung</string>
+  <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Teile deine Ideen oder frag nach Hilfe.</string>
   <string name="preferences_app_sendlog">Protokoll senden</string>
-  <string name="preferences_app_sendlog_text">Senden Sie Ihre Protokolldatei für Debugzwecke</string>
+  <string name="preferences_app_sendlog_text">Versende die Protokolldatei zu Debugzwecken</string>
   <string name="crash_dialog_title">Tomahawk ist abgestürzt</string>
   <string name="crash_dialog_text">Ein unerwarteter Fehler ist aufgetreten und hat die Anwendung beendet. Bitte hilf uns den Fehler zu beheben, indem du uns den Absturzbericht durch einen Klick auf OK zusendest.</string>
   <string name="crash_dialog_comment_prompt">Wenn du möchtest, kannst du einen Kommentar zu diesem Problem hinzufügen:</string>
   <string name="crash_dialog_ok_toast">Vielen Dank!</string>
   <string name="context_menu_play">Abspielen</string>
   <string name="context_menu_add_to_queue">Zur Warteschlange hinzufügen</string>
-  <string name="context_menu_add_to_playlist">Zur Wiedergabeliste hinzufügen</string>
+  <string name="context_menu_add_to_playlist">Zu Playlist hinzufügen</string>
   <string name="context_menu_delete">Löschen</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <string name="context_menu_removefromcollection">Aus der Sammlung entfernen</string>
@@ -73,14 +73,14 @@
   <string name="context_menu_unlove">Aus den Lieblingsliedern entfernen</string>
   <string name="context_menu_share">Teilen</string>
   <string name="context_menu_gotoartist">Gehe zum Künstler</string>
-  <string name="menu_item_save_playlist">Wiedergabeliste speichern</string>
+  <string name="menu_item_save_playlist">Playlist speichern</string>
   <string name="menu_item_go_to_artist">Gehe zum Künstler</string>
   <string name="menu_item_go_to_album">Gehe zum Album</string>
   <string name="menu_item_share">Teilen</string>
   <string name="menu_item_playshuffled">Zufällig wiedergeben</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Sammlung</string>
-  <string name="drawer_title_playlists">Wiedergabelisten</string>
+  <string name="drawer_title_playlists">Playlists</string>
   <string name="drawer_title_lovedtracks">Lieblingslieder</string>
   <string name="drawer_title_settings">Einstellungen</string>
   <string name="drawer_header_cloudcollections">Cloud Sammlungen</string>
@@ -100,27 +100,27 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">folgt nun</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
-  <string name="socialaction_type_love_track_single">hat ein Lied zu seinen Lieblingsliedern hinzugefügt</string>
+  <string name="socialaction_type_love_track_single">hat ein Lied zu den Lieblingsliedern hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
-  <string name="socialaction_type_love_track_multiple">hat %1$d Lieder zu seinen Lieblingsliedern hinzugefügt</string>
+  <string name="socialaction_type_love_track_multiple">hat %1$d Lieder zu den Lieblingsliedern hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
-  <string name="socialaction_type_collected_track_single">hat ein Lied zu seiner Sammlung hinzugefügt</string>
+  <string name="socialaction_type_collected_track_single">hat ein Lied zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
-  <string name="socialaction_type_collected_track_multiple">hat %1$d Lieder zu seiner Sammlung hinzugefügt</string>
+  <string name="socialaction_type_collected_track_multiple">hat %1$d Lieder zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
-  <string name="socialaction_type_collected_album_single">hat ein Album zu seiner Sammlung hinzugefügt</string>
+  <string name="socialaction_type_collected_album_single">hat ein Album zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
-  <string name="socialaction_type_collected_album_multiple">hat %1$d Alben zu seiner Sammlung hinzugefügt</string>
+  <string name="socialaction_type_collected_album_multiple">hat %1$d Alben zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
-  <string name="socialaction_type_createcomment">kommentierte</string>
+  <string name="socialaction_type_createcomment">hat kommentiert</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <string name="socialaction_type_latchon_single">hat einem Freund zugehört</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <string name="socialaction_type_latchon_multiple">hat %1$d Freunden zugehört</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">hat eine Wiedergabeliste erstellt</string>
+  <string name="socialaction_type_createplaylist_single">hat eine Playlist erstellt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">hat %1$d Wiedergabelisten erstellt</string>
+  <string name="socialaction_type_createplaylist_multiple">hat %1$d Playlists erstellt</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s von %2$s</string>
   <string name="time_afewseconds">vor ein paar Sekunden</string>
