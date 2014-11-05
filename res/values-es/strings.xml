@@ -42,10 +42,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Compartir</string>
   <string name="context_menu_gotoartist">Ir al artista</string>
-  <string name="menu_item_save_playlist">Guardar lista de reproducción</string>
-  <string name="menu_item_go_to_artist">Ir al artista</string>
-  <string name="menu_item_go_to_album">Ir al álbum</string>
-  <string name="menu_item_share">Compartir</string>
   <string name="drawer_title_feed">Noticias</string>
   <string name="drawer_title_collection">Colección</string>
   <string name="drawer_title_playlists">Listas de reproducción</string>

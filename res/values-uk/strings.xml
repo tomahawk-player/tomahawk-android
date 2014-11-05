@@ -62,11 +62,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Поділитися</string>
   <string name="context_menu_gotoartist">Перейти до Виконавця</string>
-  <string name="menu_item_save_playlist">Зберегти Список відтворення</string>
-  <string name="menu_item_go_to_artist">Перейти до Виконавця</string>
-  <string name="menu_item_go_to_album">Перейти до Альбому</string>
-  <string name="menu_item_share">Поділитися</string>
-  <string name="menu_item_playshuffled">Відтворювати у Випадковому порядку</string>
   <string name="drawer_title_feed">Фід</string>
   <string name="drawer_title_collection">Колекція</string>
   <string name="drawer_title_playlists">Списки відтворення</string>

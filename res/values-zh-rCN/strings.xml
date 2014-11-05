@@ -73,11 +73,6 @@
   <string name="context_menu_unlove">不喜欢</string>
   <string name="context_menu_share">分享</string>
   <string name="context_menu_gotoartist">转到艺术家</string>
-  <string name="menu_item_save_playlist">保存列表</string>
-  <string name="menu_item_go_to_artist">转到艺术家</string>
-  <string name="menu_item_go_to_album">转到专辑</string>
-  <string name="menu_item_share">分享</string>
-  <string name="menu_item_playshuffled">随机播放</string>
   <string name="drawer_title_feed">订阅</string>
   <string name="drawer_title_collection">收藏</string>
   <string name="drawer_title_playlists">播放列表</string>

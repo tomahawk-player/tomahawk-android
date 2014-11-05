@@ -72,11 +72,6 @@
   <string name="context_menu_unlove">Zrušit oblibu skladby</string>
   <string name="context_menu_share">Sdílet</string>
   <string name="context_menu_gotoartist">Jít na umělce</string>
-  <string name="menu_item_save_playlist">Uložit seznam skladeb</string>
-  <string name="menu_item_go_to_artist">Jít na umělce</string>
-  <string name="menu_item_go_to_album">Jít na album</string>
-  <string name="menu_item_share">Sdílet</string>
-  <string name="menu_item_playshuffled">Přehrávat zamíchané</string>
   <string name="drawer_title_feed">Kanál</string>
   <string name="drawer_title_collection">Sbírka</string>
   <string name="drawer_title_playlists">Seznamy skladeb</string>
