@@ -437,7 +437,7 @@ public class CollectionManager {
                 fetchedList.setId(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
                 Log.d(TAG, "Hatchet sync - received list of loved tracks, count: "
                         + fetchedList.getEntries().size());
-                DatabaseHelper.getInstance().storePlaylist(fetchedList);
+                DatabaseHelper.getInstance().storePlaylist(fetchedList, true);
             }
         } else if (data.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
