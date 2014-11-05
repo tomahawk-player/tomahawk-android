@@ -280,13 +280,15 @@ public class CollectionManager {
      * API.
      */
     public void fetchStarredArtists() {
+        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching starred artists");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveStarredArtists(null));
+            mCorrespondingRequestIds.add(InfoSystem.getInstance().
+                    resolveStarredArtists(hatchetAuthUtils.getLoggedInUser()));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching starred artists");
-            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
@@ -297,13 +299,15 @@ public class CollectionManager {
      * API.
      */
     public void fetchStarredAlbums() {
+        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching starred albums");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(null));
+            mCorrespondingRequestIds.add(InfoSystem.getInstance()
+                    .resolveStarredAlbums(hatchetAuthUtils.getLoggedInUser()));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching starred albums");
-            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
