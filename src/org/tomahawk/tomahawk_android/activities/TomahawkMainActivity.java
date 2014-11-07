@@ -863,7 +863,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     public void closeDrawer() {
-        if (mDrawerLayout != null) {
+        if (mDrawerLayout != null && mDrawerList != null) {
             mDrawerLayout.closeDrawer(mDrawerList);
         }
     }
