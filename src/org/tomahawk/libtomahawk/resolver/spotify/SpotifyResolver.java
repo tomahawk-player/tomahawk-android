@@ -37,6 +37,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.util.Log;
@@ -54,7 +55,8 @@ public class SpotifyResolver extends Resolver {
 
     private Messenger mToSpotifyMessenger = null;
 
-    private final Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
+    private final Messenger mFromSpotifyMessenger =
+            new Messenger(new FromSpotifyHandler(Looper.getMainLooper()));
 
     private String mId;
 
@@ -73,6 +75,10 @@ public class SpotifyResolver extends Resolver {
      * Handler of incoming messages from the SpotifyService's messenger.
      */
     private class FromSpotifyHandler extends Handler {
+
+        private FromSpotifyHandler(Looper looper) {
+            super(looper);
+        }
 
         @Override
         public void handleMessage(Message msg) {
@@ -103,12 +109,12 @@ public class SpotifyResolver extends Resolver {
     /**
      * Construct a new {@link SpotifyResolver}
      */
-    public SpotifyResolver() {
-        super(SpotifyAuthenticatorUtils.SPOTIFY_PRETTY_NAME);
+    public SpotifyResolver(OnResolverReadyListener onResolverReadyListener) {
+        super(SpotifyAuthenticatorUtils.SPOTIFY_PRETTY_NAME, onResolverReadyListener);
 
         mId = TomahawkApp.PLUGINNAME_SPOTIFY;
         mIconResId = R.drawable.ic_spotify;
-        PipeLine.getInstance().onResolverReady();
+        onResolverReady();
     }
 
     public void setToSpotifyMessenger(Messenger toSpotifyMessenger) {

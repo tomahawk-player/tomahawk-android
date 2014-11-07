@@ -61,18 +61,12 @@ public class InfoSystemUtils {
      * @param playlistEntries Object containing info about each entry of the playlist
      * @return the filled Playlist object
      */
-    public static Playlist fillPlaylist(Playlist playlist, HatchetPlaylistEntries playlistEntries,
-            boolean reverseEntries) {
+    public static Playlist fillPlaylist(Playlist playlist, HatchetPlaylistEntries playlistEntries) {
         if (playlist != null && playlistEntries != null) {
             ArrayList<PlaylistEntry> entries = new ArrayList<PlaylistEntry>();
             List<HatchetPlaylistEntryInfo> entryInfos = playlistEntries.playlistEntries;
             for (int i = 0; i < entryInfos.size(); i++) {
-                HatchetPlaylistEntryInfo entryInfo;
-                if (reverseEntries) {
-                    entryInfo = entryInfos.get(entryInfos.size() - 1 - i);
-                } else {
-                    entryInfo = entryInfos.get(i);
-                }
+                HatchetPlaylistEntryInfo entryInfo = entryInfos.get(i);
                 HatchetTrackInfo trackInfo = playlistEntries.tracks.get(entryInfo.track);
                 if (trackInfo != null) {
                     HatchetArtistInfo artistInfo = playlistEntries.artists.get(trackInfo.artist);
@@ -239,7 +233,8 @@ public class InfoSystemUtils {
      */
     public static User convertToUser(HatchetUserInfo userInfo, HatchetTrackInfo track,
             HatchetArtistInfo artist, HatchetImage image) {
-        User user = User.get(userInfo.id, userInfo.name);
+        User user = User.get(userInfo.id);
+        user.setName(userInfo.name);
         fillUser(user, userInfo, track, artist, image);
         return user;
     }

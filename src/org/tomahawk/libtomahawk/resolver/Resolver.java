@@ -22,10 +22,22 @@ package org.tomahawk.libtomahawk.resolver;
  */
 public abstract class Resolver {
 
+    public interface OnResolverReadyListener {
+
+        public void onResolverReady(Resolver resolver);
+    }
+
     private String mPrettyName;
 
-    public Resolver(String prettyName){
+    private OnResolverReadyListener mOnResolverReadyListener;
+
+    public Resolver(String prettyName, OnResolverReadyListener onResolverReadyListener) {
         mPrettyName = prettyName;
+        mOnResolverReadyListener = onResolverReadyListener;
+    }
+
+    protected void onResolverReady() {
+        mOnResolverReadyListener.onResolverReady(this);
     }
 
     /**
@@ -51,7 +63,7 @@ public abstract class Resolver {
     /**
      * @return the pretty name of this resolver
      */
-    public String getPrettyName(){
+    public String getPrettyName() {
         return mPrettyName;
     }
 

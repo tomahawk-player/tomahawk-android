@@ -92,17 +92,12 @@ public class UserPagerFragment extends PagerFragment {
             }
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_USER_ID) && !TextUtils
                     .isEmpty(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID))) {
-                mUser = User
-                        .getUserById(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID));
-                if (mUser == null) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                } else {
+                mUser = User.get(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID));
+                if (mUser.getName() == null) {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
-                    HatchetAuthenticatorUtils hatchetAuthUtils =
-                            (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveFollowings(
-                            hatchetAuthUtils.getLoggedInUser()));
+                }
+                if (mUser.getFollowings() == null) {
+                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveFollowings(mUser));
                 }
             }
         }

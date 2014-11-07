@@ -39,7 +39,11 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
 
     private static String TAG = SpotifyMediaPlayer.class.getSimpleName();
 
-    private static SpotifyMediaPlayer instance = new SpotifyMediaPlayer();
+    private static class Holder {
+
+        private static final SpotifyMediaPlayer instance = new SpotifyMediaPlayer();
+
+    }
 
     private MediaPlayer.OnPreparedListener mOnPreparedListener;
 
@@ -65,7 +69,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
     }
 
     public static SpotifyMediaPlayer getInstance() {
-        return instance;
+        return Holder.instance;
     }
 
     /**

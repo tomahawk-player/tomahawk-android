@@ -61,9 +61,11 @@ public class CollectionManager {
 
     public static final String COLLECTION_ID = "org.tomahawk.tomahawk_android.collection_id";
 
-    private boolean mInitialized;
+    private static class Holder {
 
-    private static CollectionManager instance = new CollectionManager();
+        private static final CollectionManager instance = new CollectionManager();
+
+    }
 
     private ConcurrentHashMap<String, Collection> mCollections
             = new ConcurrentHashMap<String, Collection>();
@@ -136,29 +138,26 @@ public class CollectionManager {
     }
 
     private CollectionManager() {
+        addCollection(new UserCollection());
+        addCollection(new HatchetCollection());
+
+        ensureLovedItemsPlaylist();
+        updatePlaylists();
+        fetchPlaylists();
+        fetchLovedItemsPlaylist();
+        fetchStarredAlbums();
+        fetchStarredArtists();
+
+        TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
+                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
+        TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
+                new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
+        TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
+                new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED));
     }
 
     public static CollectionManager getInstance() {
-        if (!instance.mInitialized) {
-            instance.mInitialized = true;
-            instance.addCollection(new UserCollection());
-            instance.addCollection(new HatchetCollection());
-
-            instance.ensureLovedItemsPlaylist();
-            instance.updatePlaylists();
-            instance.fetchPlaylists();
-            instance.fetchLovedItemsPlaylist();
-            instance.fetchStarredAlbums();
-            instance.fetchStarredArtists();
-
-            TomahawkApp.getContext().registerReceiver(instance.mCollectionManagerReceiver,
-                    new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
-            TomahawkApp.getContext().registerReceiver(instance.mCollectionManagerReceiver,
-                    new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
-            TomahawkApp.getContext().registerReceiver(instance.mCollectionManagerReceiver,
-                    new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED));
-        }
-        return instance;
+        return Holder.instance;
     }
 
     public void addCollection(Collection collection) {
@@ -262,14 +261,15 @@ public class CollectionManager {
      * the API.
      */
     public void fetchLovedItemsPlaylist() {
+        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching loved tracks");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(
-                    InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, null));
+            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFavorites(
+                    hatchetAuthUtils.getLoggedInUser()));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching loved tracks");
-            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
@@ -280,13 +280,15 @@ public class CollectionManager {
      * API.
      */
     public void fetchStarredArtists() {
+        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching starred artists");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveStarredArtists(null));
+            mCorrespondingRequestIds.add(InfoSystem.getInstance().
+                    resolveStarredArtists(hatchetAuthUtils.getLoggedInUser()));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching starred artists");
-            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
@@ -297,13 +299,15 @@ public class CollectionManager {
      * API.
      */
     public void fetchStarredAlbums() {
+        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching starred albums");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(null));
+            mCorrespondingRequestIds.add(InfoSystem.getInstance()
+                    .resolveStarredAlbums(hatchetAuthUtils.getLoggedInUser()));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching starred albums");
-            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
@@ -334,13 +338,15 @@ public class CollectionManager {
      * Fetch the Playlists from the Hatchet API and store it in the local db.
      */
     public void fetchPlaylists() {
+        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching playlists");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolvePlaylists(null));
+            mCorrespondingRequestIds.add(InfoSystem.getInstance()
+                    .resolvePlaylists(hatchetAuthUtils.getLoggedInUser()));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching playlists");
-            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
@@ -431,7 +437,7 @@ public class CollectionManager {
                 fetchedList.setId(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
                 Log.d(TAG, "Hatchet sync - received list of loved tracks, count: "
                         + fetchedList.getEntries().size());
-                DatabaseHelper.getInstance().storePlaylist(fetchedList);
+                DatabaseHelper.getInstance().storePlaylist(fetchedList, true);
             }
         } else if (data.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {

@@ -71,11 +71,6 @@
   <string name="context_menu_unlove">Uit favorieten verwijderen</string>
   <string name="context_menu_share">Delen</string>
   <string name="context_menu_gotoartist">Naar artiest gaan</string>
-  <string name="menu_item_save_playlist">Afspeellijst opslaan</string>
-  <string name="menu_item_go_to_artist">Naar artiest gaan</string>
-  <string name="menu_item_go_to_album">Naar album gaan</string>
-  <string name="menu_item_share">Delen</string>
-  <string name="menu_item_playshuffled">In willekeurige volgorde afspelen</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Collectie</string>
   <string name="drawer_title_playlists">Afspeellijsten</string>

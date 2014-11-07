@@ -259,6 +259,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 mAlbum = Album.getAlbumByKey(getArguments().getString(TOMAHAWK_ALBUM_KEY));
                 if (mAlbum == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 } else {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mAlbum));
                 }
@@ -269,6 +270,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                         .getPlaylistById(getArguments().getString(TOMAHAWK_PLAYLIST_KEY));
                 if (mPlaylist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 } else {
                     refreshCurrentPlaylist();
                 }
@@ -278,6 +280,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 mArtist = Artist.getArtistByKey(getArguments().getString(TOMAHAWK_ARTIST_KEY));
                 if (mArtist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 } else {
                     ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
                     for (String requestId : requestIds) {
@@ -287,10 +290,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
             if (getArguments().containsKey(TOMAHAWK_USER_ID) && !TextUtils
                     .isEmpty(getArguments().getString(TOMAHAWK_USER_ID))) {
-                mUser = User.getUserById(getArguments().getString(TOMAHAWK_USER_ID));
-                if (mUser == null) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                } else {
+                mUser = User.get(getArguments().getString(TOMAHAWK_USER_ID));
+                if (mUser.getName() == null) {
                     mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
             }
@@ -303,6 +304,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 mQuery = Query.getQueryByKey(getArguments().getString(TOMAHAWK_QUERY_KEY));
                 if (mQuery == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    return;
                 } else {
                     ArrayList<String> requestIds =
                             InfoSystem.getInstance().resolve(mQuery.getArtist(), true);
@@ -327,10 +329,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             if (getArguments().containsKey(TOMAHAWK_USERARRAY_ID)) {
                 mSearchUsers = new ArrayList<User>();
                 for (String userId : getArguments().getStringArrayList(TOMAHAWK_USERARRAY_ID)) {
-                    User user = User.getUserById(userId);
-                    if (user != null) {
-                        mSearchUsers.add(user);
-                    }
+                    mSearchUsers.add(User.get(userId));
                 }
             }
             if (getArguments().containsKey(TOMAHAWK_ARTISTARRAY_KEY)) {

@@ -83,13 +83,10 @@ public class User implements TomahawkListItem {
     /**
      * Construct a new {@link User} with the given id
      */
-    private User(String id, String name) {
+    private User(String id) {
         mId = id;
-        mName = name;
-        mPlaybackLog = Playlist.get(id + User.PLAYLIST_PLAYBACKLOG_ID,
-                name + TomahawkApp.getContext().getString(R.string.users_playbacklog_suffix), "");
-        mFavorites = Playlist.get(id + User.PLAYLIST_FAVORTIES_ID,
-                name + TomahawkApp.getContext().getString(R.string.users_favorites_suffix), "");
+        mPlaybackLog = Playlist.get(id + User.PLAYLIST_PLAYBACKLOG_ID, "", "");
+        mFavorites = Playlist.get(id + User.PLAYLIST_FAVORTIES_ID, "", "");
     }
 
     /**
@@ -98,19 +95,12 @@ public class User implements TomahawkListItem {
      *
      * @return {@link User} with the given id
      */
-    public static User get(String id, String name) {
-        User user = new User(id, name);
+    public static User get(String id) {
+        User user = new User(id);
         if (!sUsers.containsKey(user.getId())) {
             sUsers.put(user.getId(), user);
         }
         return sUsers.get(user.getId());
-    }
-
-    /**
-     * Get a User by providing its id
-     */
-    public static User getUserById(String id) {
-        return sUsers.get(id);
     }
 
     /**
@@ -142,6 +132,14 @@ public class User implements TomahawkListItem {
     @Override
     public String getName() {
         return mName;
+    }
+
+    public void setName(String name) {
+        mName = name;
+        mPlaybackLog.setName(
+                name + TomahawkApp.getContext().getString(R.string.users_playbacklog_suffix));
+        mFavorites.setName(
+                name + TomahawkApp.getContext().getString(R.string.users_favorites_suffix));
     }
 
     @Override

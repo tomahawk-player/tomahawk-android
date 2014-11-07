@@ -20,7 +20,6 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 import com.google.common.base.Charsets;
 
 import org.apache.http.client.ClientProtocolException;
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
@@ -64,7 +63,6 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
-import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.IOException;
@@ -127,8 +125,6 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     private HatchetAuthenticatorUtils mHatchetAuthenticatorUtils;
 
-    private static String mUserId = null;
-
     private ConcurrentHashMap<String, TomahawkListItem> mItemsToBeFilled
             = new ConcurrentHashMap<String, TomahawkListItem>();
 
@@ -178,20 +174,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
 
         try {
-            if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS
-                    || infoRequestData.getType()
-                    == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
-                HatchetUsers users;
-                if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
-                    if (TextUtils.isEmpty(mUserId)) {
-                        return false;
-                    }
-                    users = mHatchet
-                            .getUsers(TomahawkUtils.constructArrayList(mUserId), null, null, null);
-                } else {
-                    users = mHatchet.getUsers(params.ids, params.name, null, null);
-                }
-                User user = (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
+            if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
+                HatchetUsers users = mHatchet.getUsers(params.ids, params.name, null, null);
                 if (users != null) {
                     HatchetUserInfo userInfo = TomahawkUtils.carelessGet(users.users, 0);
                     if (userInfo != null) {
@@ -203,12 +187,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         }
                         String imageId = TomahawkUtils.carelessGet(userInfo.images, 0);
                         HatchetImage image = TomahawkUtils.carelessGet(users.images, imageId);
-                        if (infoRequestData.getType()
-                                == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SELF) {
-                            user = InfoSystemUtils.convertToUser(userInfo, track, artist, image);
-                        } else {
-                            user = InfoSystemUtils.fillUser(user, userInfo, track, artist, image);
-                        }
+                        User user = InfoSystemUtils.convertToUser(userInfo, track, artist, image);
                         infoRequestData.setResult(user);
                         return true;
                     }
@@ -216,11 +195,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
-                String userId = params.userid == null ? mUserId : params.userid;
-                if (TextUtils.isEmpty(userId)) {
-                    return false;
-                }
-                HatchetPlaylistEntries entries = mHatchet.getUsersPlaylists(userId);
+                HatchetPlaylistEntries entries = mHatchet.getUsersPlaylists(params.userid);
                 if (entries != null) {
                     List<Playlist> playlists = new ArrayList<Playlist>();
                     for (HatchetPlaylistInfo playlistInfo : entries.playlists) {
@@ -243,8 +218,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 if (playlistEntries != null) {
                     Playlist playlistToBeFilled =
                             (Playlist) mItemsToBeFilled.get(infoRequestData.getRequestId());
-                    playlistToBeFilled = InfoSystemUtils
-                            .fillPlaylist(playlistToBeFilled, playlistEntries, false);
+                    playlistToBeFilled =
+                            InfoSystemUtils.fillPlaylist(playlistToBeFilled, playlistEntries);
                     playlistToBeFilled
                             .setCurrentRevision(playlistEntries.playlists.get(0).currentrevision);
                     infoRequestData.setResult(playlistToBeFilled);
@@ -255,30 +230,15 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
                 User userToBeFilled =
                         (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
-                if (userToBeFilled != null) {
-                    HatchetPlaylistEntries playlistEntries =
-                            mHatchet.getUsersLovedItems(userToBeFilled.getId());
-                    if (playlistEntries != null) {
-                        if (playlistEntries.playlistEntries.size() > 0) {
-                            InfoSystemUtils
-                                    .fillPlaylist(userToBeFilled.getFavorites(), playlistEntries,
-                                            false);
-                        }
-                        infoRequestData.setResult(userToBeFilled);
-                        return true;
+                HatchetPlaylistEntries playlistEntries =
+                        mHatchet.getUsersLovedItems(userToBeFilled.getId());
+                if (playlistEntries != null) {
+                    if (playlistEntries.playlistEntries.size() > 0) {
+                        InfoSystemUtils
+                                .fillPlaylist(userToBeFilled.getFavorites(), playlistEntries);
                     }
-                } else {
-                    if (TextUtils.isEmpty(mUserId)) {
-                        return false;
-                    }
-                    HatchetPlaylistEntries playlistEntries = mHatchet.getUsersLovedItems(mUserId);
-                    if (playlistEntries != null) {
-                        Playlist playlist = InfoSystemUtils
-                                .convertToPlaylist(playlistEntries.playlist);
-                        playlist = InfoSystemUtils.fillPlaylist(playlist, playlistEntries, true);
-                        infoRequestData.setResult(playlist);
-                        return true;
-                    }
+                    infoRequestData.setResult(userToBeFilled.getFavorites());
+                    return true;
                 }
 
             } else if (infoRequestData.getType()
@@ -587,12 +547,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS
                     || infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
-                String userId = params.userid == null ? mUserId : params.userid;
-                if (TextUtils.isEmpty(userId)) {
-                    return false;
-                }
                 HatchetRelationshipsStruct relationShips = mHatchet.getRelationships(params.ids,
-                        userId, params.targettype, params.targetuserid, null, null, null,
+                        params.userid, params.targettype, params.targetuserid, null, null, null,
                         params.type);
                 if (relationShips != null) {
                     List<Album> convertedAlbums = new ArrayList<Album>();
@@ -642,28 +598,6 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     + ": " + e.getLocalizedMessage());
         }
         return false;
-    }
-
-    /**
-     * Get the user id of the currently logged in Hatchet user
-     */
-    private void getUserid() throws IOException, NoSuchAlgorithmException, KeyManagementException {
-        HatchetAuthenticatorUtils hatchetAuthUtils =
-                (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        mUserId = hatchetAuthUtils.getUserId();
-        String userName = hatchetAuthUtils.getUserName();
-        if (mUserId == null && userName != null) {
-            // If we couldn't fetch the user's id from the account's userData, get it from the API.
-            HatchetUsers users = mHatchet.getUsers(null, userName, null, null);
-            if (users != null) {
-                HatchetUserInfo user = TomahawkUtils.carelessGet(users.users, 0);
-                if (user != null) {
-                    mUserId = user.id;
-                    hatchetAuthUtils.storeUserId(mUserId);
-                }
-            }
-        }
     }
 
     /**
@@ -780,9 +714,6 @@ public class HatchetInfoPlugin extends InfoPlugin {
             public void run() {
                 ArrayList<String> doneRequestsIds = new ArrayList<String>();
                 try {
-                    // Before we do anything, fetch the mUserId corresponding to the currently logged in
-                    // user's username
-                    getUserid();
                     if (getParseConvert(infoRequestData)) {
                         doneRequestsIds.add(infoRequestData.getRequestId());
                         InfoSystem.getInstance().reportResults(doneRequestsIds);

@@ -48,10 +48,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Jaa</string>
   <string name="context_menu_gotoartist">Siirry artistiin</string>
-  <string name="menu_item_save_playlist">Tallenna soittolista</string>
-  <string name="menu_item_go_to_artist">Siirry artistiin</string>
-  <string name="menu_item_go_to_album">Siirry albumiin</string>
-  <string name="menu_item_share">Jaa</string>
   <string name="drawer_title_feed">Syöte</string>
   <string name="drawer_title_collection">Kokoelma</string>
   <string name="drawer_title_playlists">Soittolistat</string>

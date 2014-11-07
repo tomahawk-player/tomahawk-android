@@ -28,10 +28,6 @@ import java.util.concurrent.TimeUnit;
 
 public class ThreadManager {
 
-    private boolean mInitialized;
-
-    private static ThreadManager instance = new ThreadManager();
-
     /*
      * Gets the number of available cores
      * (not always the same as the maximum number of cores)
@@ -44,6 +40,12 @@ public class ThreadManager {
     // Sets the Time Unit to seconds
     private static final TimeUnit KEEP_ALIVE_TIME_UNIT = TimeUnit.SECONDS;
 
+    private static class Holder {
+
+        private static final ThreadManager instance = new ThreadManager();
+
+    }
+
     private ThreadPoolExecutor mThreadPool;
 
     private ThreadPoolExecutor mPlaybackThreadPool;
@@ -51,18 +53,15 @@ public class ThreadManager {
     private Multimap<Query, Runnable> mQueryRunnableMap;
 
     private ThreadManager() {
+        mQueryRunnableMap = HashMultimap.create();
+        mThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
+                KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
+        mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME,
+                KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
     }
 
     public static ThreadManager getInstance() {
-        if (!instance.mInitialized) {
-            instance.mInitialized = true;
-            instance.mQueryRunnableMap = HashMultimap.create();
-            instance.mThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
-                    KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
-            instance.mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME,
-                    KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
-        }
-        return instance;
+        return Holder.instance;
     }
 
     public void execute(Runnable r) {

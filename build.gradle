@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.13.2'
+        classpath 'com.android.tools.build:gradle:0.14.0'
     }
 }
 
@@ -55,15 +55,15 @@ def getNewVersionName = { ->
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.0.1"
+    buildToolsVersion "21.1.0"
 
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 21
         renderscriptTargetApi 21
-        renderscriptSupportMode true
-        versionName '0.71'
-        versionCode 710
+        renderscriptSupportModeEnabled true
+        versionName '0.74'
+        versionCode 740
         ndk {
             moduleName "libspotifywrapper"
             stl "stlport_static"

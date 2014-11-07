@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import com.uservoice.uservoicesdk.UserVoice;
 
+import org.acra.ACRA;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
@@ -75,6 +76,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     public static final String FAKEPREFERENCEFRAGMENT_ID_USERVOICE = "uservoice";
 
+    public static final String FAKEPREFERENCEFRAGMENT_ID_SENDLOG = "sendlog";
+
     public static final String FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE
             = "org.tomahawk.tomahawk_android.prefbitrate";
 
@@ -89,6 +92,9 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
     public static final String FAKEPREFERENCEFRAGMENT_KEY_USERVOICE
             = "org.tomahawk.tomahawk_android.uservoice";
+
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_SENDLOG
+            = "org.tomahawk.tomahawk_android.sendlog";
 
     private SharedPreferences mSharedPreferences;
 
@@ -178,6 +184,12 @@ public class FakePreferenceFragment extends TomahawkListFragment
                 FAKEPREFERENCEFRAGMENT_KEY_USERVOICE,
                 getString(R.string.preferences_app_uservoice),
                 getString(R.string.preferences_app_uservoice_text)));
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
+                FAKEPREFERENCEFRAGMENT_ID_SENDLOG,
+                FAKEPREFERENCEFRAGMENT_KEY_SENDLOG,
+                getString(R.string.preferences_app_sendlog),
+                getString(R.string.preferences_app_sendlog_text)));
         String versionName = "";
         try {
             if (getActivity().getPackageManager() != null) {
@@ -280,6 +292,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
             dialog.show(getFragmentManager(), null);
         } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_USERVOICE)) {
             UserVoice.launchUserVoice(getActivity());
+        } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_SENDLOG)) {
+            ACRA.getErrorReporter().handleSilentException(null);
         }
     }
 

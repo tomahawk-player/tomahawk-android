@@ -49,8 +49,6 @@ public class DatabaseHelper {
 
     private static final String TAG = DatabaseHelper.class.getSimpleName();
 
-    private static DatabaseHelper instance = new DatabaseHelper();
-
     public static final String PLAYLISTSDATASOURCE_RESULTSREPORTED
             = "org.tomahawk.tomahawk_android.playlistsdatasource_resultsreported";
 
@@ -73,22 +71,23 @@ public class DatabaseHelper {
 
     public static final int TRUE = 1;
 
-    private boolean mInitialized;
+    private static class Holder {
+
+        private static final DatabaseHelper instance = new DatabaseHelper();
+
+    }
 
     // Database fields
     private SQLiteDatabase mDatabase;
 
     private DatabaseHelper() {
+        TomahawkSQLiteHelper dbHelper = new TomahawkSQLiteHelper(TomahawkApp.getContext());
+        dbHelper.close();
+        mDatabase = dbHelper.getWritableDatabase();
     }
 
     public static DatabaseHelper getInstance() {
-        if (!instance.mInitialized) {
-            instance.mInitialized = true;
-            TomahawkSQLiteHelper dbHelper = new TomahawkSQLiteHelper(TomahawkApp.getContext());
-            dbHelper.close();
-            instance.mDatabase = dbHelper.getWritableDatabase();
-        }
-        return instance;
+        return Holder.instance;
     }
 
     /**
@@ -97,6 +96,17 @@ public class DatabaseHelper {
      * @param playlist the given {@link Playlist}
      */
     public void storePlaylist(final Playlist playlist) {
+        storePlaylist(playlist, false);
+    }
+
+    /**
+     * Store the given {@link Playlist}
+     *
+     * @param playlist       the given {@link Playlist}
+     * @param reverseEntries set to true, if the order of the entries should be reversed before
+     *                       storing in the database
+     */
+    public void storePlaylist(final Playlist playlist, final boolean reverseEntries) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -122,7 +132,12 @@ public class DatabaseHelper {
                     // by storing the playlists's id with it
                     ArrayList<PlaylistEntry> entries = playlist.getEntries();
                     for (int i = 0; i < entries.size(); i++) {
-                        PlaylistEntry entry = entries.get(i);
+                        PlaylistEntry entry;
+                        if (reverseEntries) {
+                            entry = entries.get(entries.size() - 1 - i);
+                        } else {
+                            entry = entries.get(i);
+                        }
                         values.clear();
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID, playlist.getId());
                         values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,

@@ -71,11 +71,6 @@
   <string name="context_menu_unlove">เลิกชอบ</string>
   <string name="context_menu_share">แชร์</string>
   <string name="context_menu_gotoartist">ไปสู่ศิลปิน</string>
-  <string name="menu_item_save_playlist">บันทึกบัญชีการเล่น</string>
-  <string name="menu_item_go_to_artist">ไปสู่ศิลปิน</string>
-  <string name="menu_item_go_to_album">ไปสู่อัลบั้ม</string>
-  <string name="menu_item_share">แชร์</string>
-  <string name="menu_item_playshuffled">เล่นโดยสุ่ม</string>
   <string name="drawer_title_feed">ฟีด</string>
   <string name="drawer_title_collection">การสะสม</string>
   <string name="drawer_title_playlists">บัญชีการเล่น</string>
