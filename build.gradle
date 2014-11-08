@@ -150,9 +150,9 @@ android {
 // example: ANDROID_NDK_HOME /home/maffen/SDKs/android-ndk-r8e
 task ndkBuild(type: Exec) {
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-        commandLine new File((String) System.env.ANDROID_NDK_HOME, 'ndk-build.cmd')
+        commandLine new File((String) '/Users/ashrafali/android-ndk-r10c/ndk-build.cmd')
     } else {
-        commandLine new File((String) System.env.ANDROID_NDK_HOME, 'ndk-build')
+        commandLine new File((String) '/Users/ashrafali/android-ndk-r10c/ndk-build')
     }
 }
 

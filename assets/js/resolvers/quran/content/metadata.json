@@ -1,0 +1,19 @@
+{
+    "name": "Quran Mp3",
+    "pluginName": "quran",
+    "author": "Deen ul Islam",
+    "email": "info@deen-ul-islam.org",
+    "version": "1.0.0",
+    "website": "http://gettomahawk.com",
+    "description": "Get audio via Quran mp3 API",
+    "type": "resolver/javascript",
+    "manifest": {
+        "main": "contents/code/quran-mp3.js",
+    	"scripts": [
+        ],
+	"icon": "contents/images/icon.png",
+	"resources": [
+        "contents/code/quran-mp3-icon.png"
+	]
+    }
+}
