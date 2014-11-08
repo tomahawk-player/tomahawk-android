@@ -1,11 +1,67 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ok">Ok</string>
+  <string name="cancel">Cancelar</string>
+  <string name="login">Entrar</string>
+  <string name="logout">Sair</string>
+  <string name="register">Registrar</string>
+  <string name="tracks">Faixas</string>
+  <string name="albums">Álbuns</string>
+  <string name="artists">Artistas</string>
+  <string name="users">Usuários</string>
+  <string name="top_hits">Top Hits</string>
+  <string name="top_albums">Top Álbuns</string>
+  <string name="playlist_details">Detalhes da Playlist</string>
+  <string name="album_details">Detalhes dos Álbuns</string>
+  <string name="search">Pesquisar</string>
+  <string name="playlist">Playlist</string>
+  <string name="unknown">desconhecido</string>
+  <string name="no_track">sem faixa</string>
+  <string name="save_playlist">Salvar a playlist atual</string>
+  <string name="create_playlist">Criar uma nova playlist</string>
+  <string name="name_playlist">Nome</string>
+  <string name="login_name_label">E-Mail/Nome de usuário</string>
+  <string name="login_username">Nome de usuári</string>
+  <string name="login_password">Senha</string>
+  <string name="login_password_confirmation">Confirmação da senha</string>
+  <string name="account_email_label">E-Mail (opcional)</string>
+  <string name="error_passwords_dont_match">Senhas não combinam</string>
+  <string name="error_invalid_credentials">Nome de usuário ou senha incorreto</string>
+  <string name="error_invalid_account">Conta rejeitada pelo servidor</string>
+  <string name="local_collection_pretty_name">Coleção Local</string>
+  <string name="preferences_services">Serviços</string>
+  <string name="preferences_hatchet_text">Sincronizar seus dados com %1$s.</string>
+  <string name="preferences_info">Informação</string>
+  <string name="preferences_app_version">Versão-do-Aplicativo</string>
+  <string name="preferences_app_uservoice_text">Compartilhe suas ideias ou pergunte para o suporte</string>
+  <string name="crash_dialog_ok_toast">Obrigado !</string>
+  <string name="context_menu_play">Reproduzir</string>
+  <string name="context_menu_add_to_queue">Adicionar a Fileira</string>
+  <string name="context_menu_add_to_playlist">Adicionar a Playlist</string>
+  <string name="context_menu_delete">Deletar</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">Remover da Coleção</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">Adicionar a Coleção</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_share">Compartilhar</string>
+  <string name="context_menu_gotoartist">Ir ao Artista</string>
+  <string name="drawer_title_collection">Coleçã</string>
+  <string name="drawer_title_playlists">Playlists</string>
+  <string name="drawer_title_lovedtracks">Favoritos</string>
+  <string name="drawer_title_settings">Configurações</string>
+  <string name="drawer_header_cloudcollections">Coleções em Nuvem</string>
+  <string name="collection_dropdown_recently_added">Recentemente Adicionado</string>
+  <string name="collection_dropdown_artist">Artista</string>
+  <string name="history">Histórico</string>
+  <string name="preferences_bitrate_low">Normal</string>
+  <string name="preferences_bitrate_medium">Bom</string>
+  <string name="preferences_bitrate_high">Ótimo</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">Seguindo</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Seguir</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
