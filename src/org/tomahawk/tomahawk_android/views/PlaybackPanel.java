@@ -428,9 +428,18 @@ public class PlaybackPanel extends FrameLayout {
                     new Animator.AnimatorListener() {
                         @Override
                         public void onAnimationStart(Animator animation) {
-                            view.findViewById(R.id.imageButton_repeat).setVisibility(View.VISIBLE);
-                            view.findViewById(R.id.close_button).setVisibility(View.VISIBLE);
-                            view.findViewById(R.id.imageButton_shuffle).setVisibility(View.VISIBLE);
+                            if (view.findViewById(R.id.imageButton_repeat) != null) {
+                                view.findViewById(R.id.imageButton_repeat)
+                                        .setVisibility(View.VISIBLE);
+                            }
+                            if (view.findViewById(R.id.close_button) != null) {
+                                view.findViewById(R.id.close_button)
+                                        .setVisibility(View.VISIBLE);
+                            }
+                            if (view.findViewById(R.id.imageButton_shuffle) != null) {
+                                view.findViewById(R.id.imageButton_shuffle)
+                                        .setVisibility(View.VISIBLE);
+                            }
                             animation.removeListener(this);
                         }
 
@@ -456,9 +465,18 @@ public class PlaybackPanel extends FrameLayout {
 
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            view.findViewById(R.id.imageButton_repeat).setVisibility(View.GONE);
-                            view.findViewById(R.id.close_button).setVisibility(View.GONE);
-                            view.findViewById(R.id.imageButton_shuffle).setVisibility(View.GONE);
+                            if (view.findViewById(R.id.imageButton_repeat) != null) {
+                                view.findViewById(R.id.imageButton_repeat)
+                                        .setVisibility(View.GONE);
+                            }
+                            if (view.findViewById(R.id.close_button) != null) {
+                                view.findViewById(R.id.close_button)
+                                        .setVisibility(View.GONE);
+                            }
+                            if (view.findViewById(R.id.imageButton_shuffle) != null) {
+                                view.findViewById(R.id.imageButton_shuffle)
+                                        .setVisibility(View.GONE);
+                            }
                             animation.removeListener(this);
                         }
 
