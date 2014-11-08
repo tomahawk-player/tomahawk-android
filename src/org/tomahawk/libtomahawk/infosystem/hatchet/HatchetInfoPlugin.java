@@ -343,7 +343,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
                 HatchetArtists artists = mHatchet.getArtists(params.ids, params.name);
-                if (artists != null) {
+                if (artists != null && artists.artists != null) {
                     List<Object> convertedAlbums = new ArrayList<Object>();
                     HatchetArtistInfo artist =
                             TomahawkUtils.carelessGetFirst(artists.artists.values());
