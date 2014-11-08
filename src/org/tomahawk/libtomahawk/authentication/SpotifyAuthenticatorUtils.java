@@ -31,6 +31,7 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.preference.PreferenceManager;
@@ -62,7 +63,8 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
 
     private Messenger mToSpotifyMessenger = null;
 
-    private final Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
+    private final Messenger mFromSpotifyMessenger =
+            new Messenger(new FromSpotifyHandler(Looper.getMainLooper()));
 
     private boolean mInitialized;
 
@@ -83,6 +85,10 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
      * Handler of incoming messages from the SpotifyService's messenger.
      */
     private class FromSpotifyHandler extends Handler {
+
+        private FromSpotifyHandler(Looper looper) {
+            super(looper);
+        }
 
         @Override
         public void handleMessage(Message msg) {
