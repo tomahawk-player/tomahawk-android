@@ -24,14 +24,15 @@
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingLeft="@dimen/padding_superlarge"
-        android:paddingTop="@dimen/padding_small"
         android:paddingRight="@dimen/padding_superlarge"
         android:background="@color/primary_background">
 
     <Spinner android:id="@+id/spinner1"
              android:layout_width="wrap_content"
              android:layout_height="wrap_content"
-             android:paddingBottom="@dimen/padding_small"/>
+             android:paddingTop="@dimen/padding_small"
+             android:paddingBottom="@dimen/padding_small"
+             style="@style/PopupMenu.Tomahawk"/>
 
     <View android:layout_width="match_parent"
           android:layout_height="1px"
