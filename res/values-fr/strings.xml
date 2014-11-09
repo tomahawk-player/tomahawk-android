@@ -53,6 +53,8 @@
   <string name="preferences_app_version">Version de l\'application</string>
   <string name="preferences_app_uservoice">Retours</string>
   <string name="preferences_app_uservoice_text">Donnez-nous vos idées ou demandez de l\'aide.</string>
+  <string name="preferences_app_sendlog">Envoyer les logs</string>
+  <string name="preferences_app_sendlog_text">Envoyer le fichier de logs pour aider à corriger le problème</string>
   <string name="crash_dialog_title">Tomahawk a planté</string>
   <string name="crash_dialog_text">Une erreur inattendue a entraîné l\'arrêt de l\'application. Aidez-nous à corriger le problème en nous envoyant un rapport d\'erreur, vous avez juste à cliquer sur OK.</string>
   <string name="crash_dialog_comment_prompt">Vous pouvez ajouter vos commentaire concernant le problème ici :</string>

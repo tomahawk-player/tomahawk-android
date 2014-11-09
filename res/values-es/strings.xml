@@ -5,11 +5,18 @@
   <string name="login">Acceder</string>
   <string name="logout">Salir</string>
   <string name="register">Registrarse</string>
+  <string name="tracks">Canciones</string>
   <string name="albums">Álbumes</string>
   <string name="artists">Artistas</string>
   <string name="users">Usuarios</string>
+  <string name="playlist_details">Detalles de la lista de reproducción</string>
+  <string name="album_details">Detalles del Álbum</string>
   <string name="search">Buscar</string>
   <string name="playlist">Lista de reproducción</string>
+  <string name="shuffle_on_label">El modo aleatorio está prendido</string>
+  <string name="shuffle_off_label">El modo aleatorio está apagado</string>
+  <string name="repeat_on_label">Repetición activada</string>
+  <string name="repeat_off_label">Repetición desactivada</string>
   <string name="save_playlist">Guardar la lista actual</string>
   <string name="create_playlist">Crear una lista nueva</string>
   <string name="name_playlist">Nombre</string>
@@ -25,9 +32,18 @@
   <string name="error_communication">Falló la autenticación. Compruebe la conexión.</string>
   <string name="error_account_expired">La cuenta ha caducado.</string>
   <string name="local_collection_pretty_name">Colección local</string>
+  <string name="preferences_services">Servicios</string>
+  <string name="preferences_spotify_text">Reproducir música desde %1$s. Se requiere una cuenta Premium</string>
   <string name="preferences_playback">Reproducción</string>
+  <string name="preferences_plug_and_play">Conectar para reproducir</string>
+  <string name="preferences_plug_and_play_text">Comienza a reproducir la música en cuanto se conectan los auriculares.</string>
   <string name="preferences_audio_quality">Calidad de sonido preferida</string>
+  <string name="preferences_info">Información</string>
   <string name="preferences_app_version">Versión de la aplicación</string>
+  <string name="preferences_app_uservoice">Retroalimentación</string>
+  <string name="preferences_app_uservoice_text">Comparte tus ideas o pide ayuda</string>
+  <string name="preferences_app_sendlog">Enviar registros</string>
+  <string name="preferences_app_sendlog_text">Envía tu archivo de registros, con el fin de ayudar a corregir errores</string>
   <string name="crash_dialog_title">Tomahawk se cerró inesperadamente</string>
   <string name="crash_dialog_text">Se produjo un error inesperado que provocó el cierre de la aplicación. Para ayudarnos a corregirlo, envíenos los datos del error: todo lo que tiene que hacer es pulsar en Aceptar.</string>
   <string name="crash_dialog_comment_prompt">Puede añadir sus comentarios sobre el problema a continuación (en inglés):</string>
@@ -47,7 +63,9 @@
   <string name="drawer_title_playlists">Listas de reproducción</string>
   <string name="drawer_title_lovedtracks">Favoritos</string>
   <string name="drawer_title_settings">Ajustes</string>
+  <string name="collection_dropdown_recently_added">Añadidos recientemente</string>
   <string name="collection_dropdown_artist">Artistas</string>
+  <string name="collection_dropdown_play_count">N° de reproducciones</string>
   <string name="history">Historial</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Buena</string>
@@ -65,11 +83,22 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">comentó en</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
+  <string name="socialaction_type_createplaylist_single">creó una lista de reproducción</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
+  <string name="socialaction_type_createplaylist_multiple">creó %1$d listas de reproducción</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s de %2$s</string>
+  <string name="time_afewseconds">hace unos segundos</string>
+  <string name="time_aminute">hace un minuto</string>
+  <string name="time_anhour">hace una hora</string>
+  <string name="time_aday">hace un día</string>
+  <string name="time_minutes">hace %1$d minutos</string>
+  <string name="time_hours">hace %1$d horas</string>
+  <string name="time_days">hace %1$d días</string>
   <string name="music">Música</string>
   <string name="biography">Biografía</string>
   <string name="similar">Similares</string>
@@ -81,5 +110,9 @@
   <string name="following">Siguiendo</string>
   <string name="resolver_config_redirect_button_text_log_into">Acceder a</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Salir de</string>
+  <string name="ask_access_activity_header">¿Te gustaría guardar automáticamente datos sobre las canciones que reproduzcas en Hatchet?</string>
+  <string name="ask_access_activity_text2">(Puedes deshabilitar esto cuando quieras en los ajustes de Tomahawk)</string>
   <string name="ask_access_activity_button_text">Ir a los ajustes</string>
+  <string name="button_close">Cerrar</string>
+  <string name="view_album">Ver Álbum</string>
 </resources>

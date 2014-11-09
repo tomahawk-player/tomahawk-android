@@ -53,6 +53,8 @@
   <string name="preferences_app_version">App-versie.</string>
   <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Ideeen met ons delen or om ondersteuning vragen.</string>
+  <string name="preferences_app_sendlog">Log versturen</string>
+  <string name="preferences_app_sendlog_text">Verstuur uw logbestand voor foutopsporingsdoeleinden</string>
   <string name="crash_dialog_title">Tomahawk is vastgelopen.</string>
   <string name="crash_dialog_text">Er is een onverwachte fout opgetreden waardoor de toepassing niet meer werkt. Help ons dit op te lossen door de foutgegevens naar ons te versturen. Klik daarvoor op OK.</string>
   <string name="crash_dialog_comment_prompt">U kunt opmerkingen over het probleem hieronder plaatsen:</string>
@@ -89,6 +91,7 @@
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Volgt</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Volgen</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">volgt nu</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
@@ -140,4 +143,6 @@
   <string name="ask_access_activity_text2">(U kunt dit ook op elk moment weer uitschakelen in de instellingen van Tomahawk)</string>
   <string name="ask_access_activity_button_text">Naar instellingen gaan</string>
   <string name="button_open_queue_text">Wachtrij</string>
+  <string name="button_close">Sluiten</string>
+  <string name="view_album">Album weergeven</string>
 </resources>
