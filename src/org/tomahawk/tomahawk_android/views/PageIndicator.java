@@ -185,10 +185,10 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
                 arrow.clearColorFilter();
             } else {
                 textView.setTextColor(
-                        getResources().getColor(R.color.secondary_textcolor_inverted));
+                        getResources().getColor(R.color.tertiary_textcolor_inverted));
                 ColorFilter grayOutFilter = new PorterDuffColorFilter(
                         TomahawkApp.getContext().getResources()
-                                .getColor(R.color.secondary_textcolor_inverted),
+                                .getColor(R.color.tertiary_textcolor_inverted),
                         PorterDuff.Mode.MULTIPLY);
                 imageView.setColorFilter(grayOutFilter);
                 arrow.setColorFilter(grayOutFilter);
