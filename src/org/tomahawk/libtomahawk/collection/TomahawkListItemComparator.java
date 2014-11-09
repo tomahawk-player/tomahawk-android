@@ -65,8 +65,8 @@ public class TomahawkListItemComparator
             case COMPARE_RECENTLY_ADDED:
                 Collection userColl = CollectionManager.getInstance().getCollection(
                         TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                int a1TimeStamp = userColl.getAddedTimestamp((Album) a1);
-                int a2TimeStamp = userColl.getAddedTimestamp((Album) a2);
+                int a1TimeStamp = userColl.getAddedTimeStamp(a1);
+                int a2TimeStamp = userColl.getAddedTimeStamp(a2);
                 if (a1TimeStamp > a2TimeStamp) {
                     return -1;
                 } else if (a1TimeStamp < a2TimeStamp) {

@@ -18,12 +18,15 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -31,10 +34,14 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -42,6 +49,9 @@ import java.util.List;
  * se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class AlbumsFragment extends TomahawkFragment {
+
+    public static final String COLLECTION_ALBUMS_SPINNER_POSITION
+            = "org.tomahawk.tomahawk_android.collection_albums_spinner_position";
 
     public static final int SHOW_MODE_STARREDALBUMS = 1;
 
@@ -164,8 +174,51 @@ public class AlbumsFragment extends TomahawkFragment {
             }
         } else {
             ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
-            items.addAll(mCollection.getAlbums());
-            segments.add(new Segment(items, R.integer.grid_column_count, R.dimen.padding_superlarge,
+            items.addAll(CollectionManager.getInstance()
+                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbums());
+            for (Album album : DatabaseHelper.getInstance().getStarredAlbums()) {
+                if (!items.contains(album)) {
+                    items.add(album);
+                }
+            }
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+            List<Integer> dropDownItems = new ArrayList<Integer>();
+            dropDownItems.add(R.string.collection_dropdown_recently_added);
+            dropDownItems.add(R.string.collection_dropdown_alphabetical);
+            dropDownItems.add(R.string.collection_dropdown_artist);
+            AdapterView.OnItemSelectedListener spinnerClickListener
+                    = new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position,
+                        long id) {
+                    SharedPreferences preferences =
+                            PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+                    int initialPos = preferences.getInt(COLLECTION_ALBUMS_SPINNER_POSITION, 0);
+                    if (initialPos != position) {
+                        preferences.edit().putInt(COLLECTION_ALBUMS_SPINNER_POSITION, position)
+                                .commit();
+                        updateAdapter();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            };
+            int initialPos = preferences.getInt(COLLECTION_ALBUMS_SPINNER_POSITION, 0);
+            if (initialPos == 0) {
+                Collections.sort(items, new TomahawkListItemComparator(
+                        TomahawkListItemComparator.COMPARE_RECENTLY_ADDED));
+            } else if (initialPos == 1) {
+                Collections.sort(items, new TomahawkListItemComparator(
+                        TomahawkListItemComparator.COMPARE_ALPHA));
+            } else if (initialPos == 2){
+                Collections.sort(items, new TomahawkListItemComparator(
+                        TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
+            }
+            segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, items,
+                    R.integer.grid_column_count, R.dimen.padding_superlarge,
                     R.dimen.padding_superlarge));
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,

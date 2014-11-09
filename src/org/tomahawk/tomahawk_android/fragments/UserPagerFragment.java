@@ -120,7 +120,7 @@ public class UserPagerFragment extends PagerFragment {
 
         fragmentInfoList = new FragmentInfoList();
         fragmentInfo = new FragmentInfo();
-        fragmentInfo.mClass = CollectionFragment.class;
+        fragmentInfo.mClass = UserCollectionFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_collection);
         fragmentInfo.mBundle = new Bundle();
         fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);

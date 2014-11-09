@@ -31,7 +31,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
+import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContextMenuFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
@@ -67,8 +67,11 @@ public class FragmentUtils {
                     Fragment.instantiate(activity, SocialActionsFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
         } else {
+            Bundle bundle = new Bundle();
+            bundle.putString(CollectionManager.COLLECTION_ID,
+                    TomahawkApp.PLUGINNAME_USERCOLLECTION);
             ft.add(R.id.content_viewer_frame,
-                    Fragment.instantiate(activity, CollectionFragment.class.getName()),
+                    Fragment.instantiate(activity, CollectionPagerFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
         }
         ft.commit();

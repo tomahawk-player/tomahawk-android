@@ -47,8 +47,8 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
-import org.tomahawk.tomahawk_android.fragments.ArtistsFragment;
-import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
+import org.tomahawk.tomahawk_android.fragments.CloudCollectionFragment;
+import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
@@ -333,7 +333,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             if (holder.isCloudCollection) {
                 bundle.putString(CollectionManager.COLLECTION_ID, holder.id);
                 FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        ArtistsFragment.class, bundle);
+                        CloudCollectionFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_USERPAGE)) {
                 if (authenticatorUtils.getLoggedInUser() == null) {
                     return;
@@ -350,8 +350,10 @@ public class TomahawkMainActivity extends ActionBarActivity
                         TomahawkFragment.TOMAHAWK_USER_ID,
                         SocialActionsFragment.SHOW_MODE_DASHBOARD);
             } else if (holder.id.equals(HUB_ID_COLLECTION)) {
+                bundle.putString(CollectionManager.COLLECTION_ID,
+                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
                 FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        CollectionFragment.class);
+                        CollectionPagerFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_LOVEDTRACKS)) {
                 bundle.putString(PlaylistsFragment.TOMAHAWK_PLAYLIST_KEY,
                         DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
