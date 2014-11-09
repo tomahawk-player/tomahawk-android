@@ -34,7 +34,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -192,6 +194,16 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                     }
                 }
             } else if (viewHolder.mLayoutId == R.layout.fake_preferences_spinner) {
+                ArrayList<CharSequence> list = new ArrayList<CharSequence>();
+                for (String headerString : TomahawkApp.getContext().getResources()
+                        .getStringArray(R.array.fake_preferences_items_bitrate)) {
+                    list.add(headerString.toUpperCase());
+                }
+                ArrayAdapter<CharSequence> adapter =
+                        new ArrayAdapter<CharSequence>(TomahawkApp.getContext(),
+                                R.layout.spinner_textview, list);
+                adapter.setDropDownViewResource(R.layout.spinner_dropdown_textview);
+                viewHolder.mSpinner1.setAdapter(adapter);
                 String key = item.getStorageKey();
                 viewHolder.mSpinner1.setSelection(mSharedPreferences
                         .getInt(key, SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
