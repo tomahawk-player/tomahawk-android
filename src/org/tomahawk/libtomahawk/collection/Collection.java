@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.collection;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.Intent;
 import android.text.TextUtils;
@@ -53,8 +54,8 @@ public class Collection {
     protected ConcurrentHashMap<Artist, Map<String, Album>> mArtistAlbums
             = new ConcurrentHashMap<Artist, Map<String, Album>>();
 
-    protected ConcurrentHashMap<Album, Integer> mAddedTimestamp
-            = new ConcurrentHashMap<Album, Integer>();
+    protected ConcurrentHashMap<TomahawkListItem, Integer> mAddedTimeStamps
+            = new ConcurrentHashMap<TomahawkListItem, Integer>();
 
     protected Collection(String id, String name, boolean isLocal) {
         mId = id;
@@ -93,9 +94,16 @@ public class Collection {
         if (!TextUtils.isEmpty(query.getName()) && !mQueries.containsKey(query.getCacheKey())) {
             mQueries.put(query.getCacheKey(), query);
         }
-        if (addedTimeStamp > 0 && (mAddedTimestamp.get(query.getAlbum()) == null
-                || mAddedTimestamp.get(query.getAlbum()) < addedTimeStamp)) {
-            mAddedTimestamp.put(query.getAlbum(), addedTimeStamp);
+        if (addedTimeStamp > 0) {
+            if (mAddedTimeStamps.get(query.getAlbum()) == null
+                    || mAddedTimeStamps.get(query.getAlbum()) < addedTimeStamp) {
+                mAddedTimeStamps.put(query.getAlbum(), addedTimeStamp);
+            }
+            if (mAddedTimeStamps.get(query.getArtist()) == null
+                    || mAddedTimeStamps.get(query.getArtist()) < addedTimeStamp) {
+                mAddedTimeStamps.put(query.getArtist(), addedTimeStamp);
+            }
+            mAddedTimeStamps.put(query, addedTimeStamp);
         }
     }
 
@@ -232,8 +240,8 @@ public class Collection {
         return queries;
     }
 
-    public int getAddedTimestamp(Album album) {
-        Integer timestamp = mAddedTimestamp.get(album);
+    public int getAddedTimeStamp(TomahawkListItem item) {
+        Integer timestamp = mAddedTimeStamps.get(item);
         if (timestamp == null) {
             return Integer.MAX_VALUE;
         } else {

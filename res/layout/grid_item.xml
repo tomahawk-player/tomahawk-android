@@ -51,7 +51,7 @@
                   android:ellipsize="marquee"
                   android:singleLine="true"
                   android:textColor="@color/primary_textcolor"
-                  android:textSize="@dimen/text_size_medium"
+                  android:textSize="@dimen/text_size_small"
                   android:textStyle="bold"/>
 
         <TextView android:id="@+id/textview2"

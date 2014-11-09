@@ -82,6 +82,7 @@
   <string name="collection_dropdown_recently_added">Recently Added</string>
   <string name="collection_dropdown_artist">Artist</string>
   <string name="collection_dropdown_play_count">Play Count</string>
+  <string name="collection_dropdown_alphabetical">Alphabetical</string>
   <string name="history">History</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Good</string>
