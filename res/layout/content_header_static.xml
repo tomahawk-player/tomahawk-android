@@ -28,7 +28,8 @@
                   android:layout_height="@dimen/pager_indicator_height"
                   android:layout_gravity="bottom"
                   android:orientation="vertical"
-                  android:visibility="gone">
+                  android:visibility="gone"
+                  android:background="@drawable/above_shadow_page_indicator">
 
         <org.tomahawk.tomahawk_android.views.PageIndicator
                 android:id="@+id/page_indicator"
@@ -37,10 +38,6 @@
                 android:layout_weight="1"
                 android:paddingLeft="@dimen/padding_superlarge"
                 android:paddingRight="@dimen/padding_superlarge"/>
-
-        <View android:layout_width="match_parent"
-              android:layout_height="@dimen/divider_height_thick"
-              android:background="@drawable/above_shadow"/>
 
     </LinearLayout>
 
