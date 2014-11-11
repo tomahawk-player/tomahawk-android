@@ -61,10 +61,12 @@ public class Selector extends FrameLayout {
 
     public Selector(Context context) {
         super(context);
+        inflate(getContext(), R.layout.selector, this);
     }
 
     public Selector(Context context, AttributeSet attrs) {
         super(context, attrs);
+        inflate(getContext(), R.layout.selector, this);
     }
 
     public void setup(List<FragmentInfo> selectorItems,
@@ -73,12 +75,6 @@ public class Selector extends FrameLayout {
         mSelectorListener = selectorListener;
         mRootView = rootView;
         mSelectorPosStorageKey = selectorPosStorageKey;
-        if (findViewById(R.id.selector_root) == null) {
-            LayoutInflater inflater =
-                    (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View selector = inflater.inflate(R.layout.selector, this, false);
-            addView(selector);
-        }
     }
 
     public void showSelectorList() {
