@@ -25,18 +25,28 @@
   <string name="login_password">Senha</string>
   <string name="login_password_confirmation">Confirmação da senha</string>
   <string name="account_email_label">E-Mail (opcional)</string>
+  <string name="error_field_required">Este campo é obrigatório</string>
   <string name="error_passwords_dont_match">Senhas não combinam</string>
   <string name="error_invalid_credentials">Nome de usuário ou senha incorreto</string>
   <string name="error_invalid_account">Conta rejeitada pelo servidor</string>
+  <string name="error_communication">Não foi possível a autenticação. Por favor, verifique a sua conexão.</string>
+  <string name="error_simultaneous_streams">Ação não permitida, a conta está ativa em outro lugar.</string>
+  <string name="error_account_expired">A sua conta expirou.</string>
   <string name="local_collection_pretty_name">Coleção Local</string>
   <string name="preferences_services">Serviços</string>
   <string name="preferences_hatchet_text">Sincronizar seus dados com %1$s.</string>
+  <string name="preferences_spotify_text">Toque sua música de %1$s. É necessária uma Conta Premium.</string>
+  <string name="preferences_plug_and_play_text">Iniciar música assim que o fone de ouvido é conectado.</string>
+  <string name="preferences_audio_quality">Qualidade Preferencial do Áudio </string>
+  <string name="preferences_audio_quality_text">A qualidade preferencial do áudio se não estiver conectado ao WiFi.</string>
   <string name="preferences_info">Informação</string>
   <string name="preferences_app_version">Versão-do-Aplicativo</string>
   <string name="preferences_app_uservoice_text">Compartilhe suas ideias ou pergunte para o suporte</string>
+  <string name="crash_dialog_text">Um erro inesperado ocorreu, forçando a interrupção da aplicação. Por favor, nos ajude a arrumar isso enviando os dados do erro. Tudo que você precisa fazer é clicar em OK.</string>
+  <string name="crash_dialog_comment_prompt">Abaixo, você pode fazer comentários sobre o problema :</string>
   <string name="crash_dialog_ok_toast">Obrigado !</string>
   <string name="context_menu_play">Reproduzir</string>
-  <string name="context_menu_add_to_queue">Adicionar a Fileira</string>
+  <string name="context_menu_add_to_queue">Adicionar à Fileira</string>
   <string name="context_menu_add_to_playlist">Adicionar a Playlist</string>
   <string name="context_menu_delete">Deletar</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
@@ -47,22 +57,25 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Compartilhar</string>
   <string name="context_menu_gotoartist">Ir ao Artista</string>
-  <string name="drawer_title_collection">Coleçã</string>
+  <string name="drawer_title_collection">Coleção</string>
   <string name="drawer_title_playlists">Playlists</string>
   <string name="drawer_title_lovedtracks">Favoritos</string>
   <string name="drawer_title_settings">Configurações</string>
-  <string name="drawer_header_cloudcollections">Coleções em Nuvem</string>
+  <string name="drawer_header_cloudcollections">Coleções na Nuvem</string>
   <string name="collection_dropdown_recently_added">Recentemente Adicionado</string>
   <string name="collection_dropdown_artist">Artista</string>
   <string name="history">Histórico</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Bom</string>
   <string name="preferences_bitrate_high">Ótimo</string>
+  <string name="drawer_open">Abrir Gaveta de Navegação</string>
+  <string name="drawer_close">Fechar Gaveta de Navegação</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Seguindo</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Seguir</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">está agora seguindo</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
@@ -70,11 +83,33 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">comentou em </string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
+  <string name="socialaction_type_createplaylist_single">criou uma playlist</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="time_afewseconds">há poucos segundos</string>
+  <string name="time_aminute">há um minuto</string>
+  <string name="time_anhour">há uma hora</string>
+  <string name="time_aday">há um dia</string>
+  <string name="time_minutes">%1$d minutos atrás</string>
+  <string name="time_hours">%1$d horas atrás</string>
+  <string name="time_days">%1$d dias atrás</string>
+  <string name="music">Música</string>
+  <string name="biography">Biografia</string>
+  <string name="similar">Similar</string>
+  <string name="songs">Músicas</string>
+  <string name="activity">Atividade</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
+  <string name="followers">Seguidores</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
+  <string name="following">Seguindo</string>
+  <string name="ask_access_activity_header">Você quer salvar automaticamente dados sobre todas as faixas que você toca no Hatchet?</string>
+  <string name="ask_access_activity_text1">Faremos isso para você! Por favor, habilite nosso serviço nos ajustes do seu sistema.</string>
+  <string name="ask_access_activity_text2">(Você pode desabilitar isso nos ajustes do Tomahawk quando desejar)</string>
+  <string name="ask_access_activity_button_text">Ir para Ajustes</string>
+  <string name="button_close">Fechar</string>
+  <string name="view_album">Visualizar Álbum</string>
 </resources>
