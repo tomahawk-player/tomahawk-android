@@ -32,6 +32,7 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -132,6 +133,7 @@ public class TracksFragment extends TomahawkFragment {
             } else {
                 segment = new Segment(R.string.album_details, queries);
             }
+            showContentHeader(mAlbum, R.dimen.header_clear_space_nonscrollable);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
@@ -143,24 +145,31 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter.setShowContentHeaderSpacerResId(
                         R.dimen.header_clear_space_scrollable, getListView());
                 setListAdapter(tomahawkListAdapter);
+                final List<Collection> collections =
+                        CollectionManager.getInstance().getAvailableCollections(mAlbum);
+                int initialSelection = 0;
+                for (int i = 0; i < collections.size(); i++) {
+                    if (collections.get(i) == mCollection) {
+                        initialSelection = i;
+                        break;
+                    }
+                }
+                showFancyDropDown(mAlbum, initialSelection,
+                        FancyDropDown.convertToDropDownItemInfo(collections),
+                        new FancyDropDown.DropDownListener() {
+                            @Override
+                            public void onDropDownItemSelected(int position) {
+                                mCollection = collections.get(position);
+                                updateAdapter();
+                            }
+
+                            @Override
+                            public void onCancel() {
+                            }
+                        });
             } else {
                 getListAdapter().setSegments(segment, getListView());
             }
-            showContentHeader(mAlbum, R.dimen.header_clear_space_nonscrollable);
-        } else if (mArtist != null) {
-            queries.addAll(CollectionUtils.getArtistTracks(mArtist, mCollection));
-            Segment segment = new Segment(queries);
-            if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
-                        this);
-                tomahawkListAdapter.setShowDuration(true);
-                tomahawkListAdapter.setShowContentHeaderSpacerResId(
-                        R.dimen.header_clear_space_scrollable, getListView());
-                setListAdapter(tomahawkListAdapter);
-            } else {
-                getListAdapter().setSegments(segment, getListView());
-            }
-            showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable);
         } else if (mQuery != null) {
             queries.add(mQuery);
             Segment segment = new Segment(queries);
@@ -175,6 +184,7 @@ public class TracksFragment extends TomahawkFragment {
                 getListAdapter().setSegments(segment, getListView());
             }
             showContentHeader(mQuery, R.dimen.header_clear_space_nonscrollable);
+            showFancyDropDown(mQuery);
         } else if (mSearchSongs != null) {
             queries.addAll(mSearchSongs);
             if (getListAdapter() == null) {

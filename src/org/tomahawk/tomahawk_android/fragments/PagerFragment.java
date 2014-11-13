@@ -25,6 +25,8 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PageIndicator;
 import org.tomahawk.tomahawk_android.views.Selector;
 import org.tomahawk.tomahawk_android.views.TomahawkScrollView;
@@ -256,6 +258,21 @@ public abstract class PagerFragment extends ContentHeaderFragment {
     protected abstract void onPipeLineResultsReported(String key);
 
     protected abstract void onInfoSystemResultsReported(String requestId);
+
+    protected void showFancyDropDown(TomahawkListItem item) {
+        super.showFancyDropDown(
+                (FrameLayout) getView().findViewById(R.id.content_header_frame_pager),
+                item.getName().toUpperCase());
+    }
+
+    protected void showFancyDropDown(TomahawkListItem item, int initialSelection,
+            List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
+            FancyDropDown.DropDownListener dropDownListener) {
+        super.showFancyDropDown(
+                (FrameLayout) getView().findViewById(R.id.content_header_frame_pager),
+                initialSelection, item.getName().toUpperCase(), dropDownItemInfos,
+                dropDownListener);
+    }
 
     protected void showContentHeader(Object item, int headerHeightResId,
             View.OnClickListener followButtonListener) {

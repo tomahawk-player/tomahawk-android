@@ -514,4 +514,26 @@ public class CollectionManager {
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.getInstance().deletePlaylistEntry(hatchetAuthUtils, playlistId, entryId);
     }
+
+    public List<Collection> getAvailableCollections(Album album) {
+        List<Collection> collections = new ArrayList<Collection>();
+        for (Collection collection : mCollections.values()) {
+            if (TomahawkApp.PLUGINNAME_HATCHET.equals(collection.getId())
+                    || collection.getAlbumTracks(album, false).size() > 0) {
+                collections.add(collection);
+            }
+        }
+        return collections;
+    }
+
+    public List<Collection> getAvailableCollections(Artist artist) {
+        List<Collection> collections = new ArrayList<Collection>();
+        for (Collection collection : mCollections.values()) {
+            if (TomahawkApp.PLUGINNAME_HATCHET.equals(collection.getId())
+                    || collection.getArtistAlbums(artist, false).size() > 0) {
+                collections.add(collection);
+            }
+        }
+        return collections;
+    }
 }

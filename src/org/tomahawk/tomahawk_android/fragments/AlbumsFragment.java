@@ -35,6 +35,7 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -99,9 +100,15 @@ public class AlbumsFragment extends TomahawkFragment {
                 }
             }
         } else if (item instanceof Album) {
-            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                    TracksFragment.class, item.getCacheKey(),
-                    TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
+            Bundle bundle = new Bundle();
+            bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, item.getCacheKey());
+            if (mCollection != null && mCollection.getAlbumTracks((Album) item, false).size() > 0) {
+                bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+            } else {
+                bundle.putString(CollectionManager.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
+            }
+            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                    getActivity().getSupportFragmentManager(), TracksFragment.class, bundle);
         }
     }
 
@@ -213,7 +220,7 @@ public class AlbumsFragment extends TomahawkFragment {
             } else if (initialPos == 1) {
                 Collections.sort(items, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_ALPHA));
-            } else if (initialPos == 2){
+            } else if (initialPos == 2) {
                 Collections.sort(items, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
             }
