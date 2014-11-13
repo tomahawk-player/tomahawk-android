@@ -19,10 +19,8 @@ package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Intent;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
@@ -73,12 +71,6 @@ public class Collection {
 
     public boolean isLocal() {
         return mIsLocal;
-    }
-
-    protected void sendCollectionUpdatedBroadcast() {
-        Intent intent = new Intent(CollectionManager.COLLECTION_UPDATED);
-        intent.putExtra(CollectionManager.COLLECTION_ID, getId());
-        TomahawkApp.getContext().sendBroadcast(intent);
     }
 
     public void wipe() {
