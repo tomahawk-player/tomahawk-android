@@ -18,10 +18,12 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
+import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -52,7 +54,10 @@ public class ArtistPagerFragment extends PagerFragment {
         super.onViewCreated(view, savedInstanceState);
 
         getActivity().setTitle("");
+        updatePager();
+    }
 
+    private void updatePager() {
         int initialPage = -1;
         if (getArguments() != null) {
             if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
@@ -75,7 +80,30 @@ public class ArtistPagerFragment extends PagerFragment {
         }
 
         showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable_static, null);
+        final List<Collection> collections =
+                CollectionManager.getInstance().getAvailableCollections(mArtist);
+        int initialSelection = 0;
+        for (int i = 0; i < collections.size(); i++) {
+            if (collections.get(i).getId().equals(
+                    getArguments().getString(CollectionManager.COLLECTION_ID))) {
+                initialSelection = i;
+                break;
+            }
+        }
+        showFancyDropDown(mArtist, initialSelection,
+                FancyDropDown.convertToDropDownItemInfo(collections),
+                new FancyDropDown.DropDownListener() {
+                    @Override
+                    public void onDropDownItemSelected(int position) {
+                        getArguments().putString(CollectionManager.COLLECTION_ID,
+                                collections.get(position).getId());
+                        updatePager();
+                    }
 
+                    @Override
+                    public void onCancel() {
+                    }
+                });
         List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();
         FragmentInfo fragmentInfo = new FragmentInfo();

@@ -31,6 +31,7 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -72,9 +73,16 @@ public class ArtistsFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, TomahawkListItem item) {
         if (item instanceof Artist) {
+            Bundle bundle = new Bundle();
+            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, item.getCacheKey());
+            if (mCollection != null
+                    && mCollection.getArtistAlbums((Artist) item, false).size() > 0) {
+                bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+            } else {
+                bundle.putString(CollectionManager.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
+            }
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                    getActivity().getSupportFragmentManager(), ArtistPagerFragment.class,
-                    item.getCacheKey(), TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
+                    getActivity().getSupportFragmentManager(), ArtistPagerFragment.class, bundle);
         }
     }
 

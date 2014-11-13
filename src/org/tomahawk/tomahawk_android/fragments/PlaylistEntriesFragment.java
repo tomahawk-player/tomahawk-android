@@ -146,6 +146,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 }
                 if (!mDontShowHeader) {
                     showContentHeader(mPlaylist, R.dimen.header_clear_space_nonscrollable);
+                    showFancyDropDown(mPlaylist);
                 }
             }
         }

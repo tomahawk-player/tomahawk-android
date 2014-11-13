@@ -39,6 +39,8 @@
   <string name="auth_logged_in">Logged into</string>
   <string name="auth_logged_out">Logged out of</string>
   <string name="local_collection_pretty_name">Local Collection</string>
+  <string name="local">Local</string>
+  <string name="global">Global</string>
   <string name="preferences_services">Services</string>
   <string name="preferences_hatchet_text">Sync your data with %1$s.</string>
   <string name="preferences_spotify_text">Play your music from %1$s. Requires a Premium account.</string>
