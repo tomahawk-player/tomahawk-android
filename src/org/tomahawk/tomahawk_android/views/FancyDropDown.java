@@ -60,8 +60,6 @@ public class FancyDropDown extends FrameLayout {
 
     private int mItemHeight;
 
-    private LinearLayout mItemsContainer;
-
     private SparseArray<FrameLayout> mItemFrames;
 
     public String mText;
@@ -73,6 +71,14 @@ public class FancyDropDown extends FrameLayout {
         public int mIconResId = -1;
 
         public String mIconResPath;
+
+        public boolean equals(DropDownItemInfo itemInfo) {
+            return (mText != null && mText.equals(itemInfo.mText))
+                    || (mText == null && itemInfo.mText == null)
+                    && mIconResId == itemInfo.mIconResId
+                    && (mIconResPath != null && mIconResPath.equals(itemInfo.mIconResPath))
+                    || (mIconResPath == null && itemInfo.mIconResPath == null);
+        }
     }
 
     public interface DropDownListener {
@@ -98,65 +104,77 @@ public class FancyDropDown extends FrameLayout {
 
     public void setup(int initialSelection, String selectedText,
             List<DropDownItemInfo> dropDownItemInfos, DropDownListener dropDownListener) {
-        mItemFrames = new SparseArray<FrameLayout>();
-        mItemInfos = dropDownItemInfos;
         mListener = dropDownListener;
         mText = selectedText;
-        updateSelectedItem(initialSelection);
-        LayoutInflater inflater =
-                (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mItemsContainer = (LinearLayout) findViewById(R.id.dropdown_items_container);
-        mItemsContainer.removeAllViews();
-        if (mItemInfos != null && mItemInfos.size() > 0) {
-            for (int i = 0; i < mItemInfos.size(); i++) {
-                final LinearLayout item =
-                        (LinearLayout) inflater.inflate(R.layout.fancydropdown_item, this, false);
-                final TextView textView = (TextView) item.findViewById(R.id.textview);
-                textView.setText(mItemInfos.get(i).mText.toUpperCase());
-                ImageView imageView = (ImageView) item.findViewById(R.id.imageview);
-                if (mItemInfos.get(i).mIconResPath != null) {
-                    TomahawkUtils.loadDrawableIntoImageView(getContext(), imageView,
-                            mItemInfos.get(i).mIconResPath);
-                } else if (mItemInfos.get(i).mIconResId > 0) {
-                    imageView.setImageResource(mItemInfos.get(i).mIconResId);
-                }
 
-                final int position = i;
-                item.setOnClickListener(new OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        hideDropDownList(position);
-                        if (mListener != null) {
-                            mListener.onDropDownItemSelected(position);
-                        }
-                    }
-                });
-                // We need a FrameLayout to hide the item when it's out of the FrameLayout's bounds
-                FrameLayout frameLayout = new FrameLayout(getContext());
-                frameLayout.setLayoutParams(
-                        new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                ViewGroup.LayoutParams.WRAP_CONTENT));
-                frameLayout.addView(item);
-                mItemsContainer.addView(frameLayout);
-                mItemFrames.put(position, frameLayout);
+        if (dropDownItemInfos != null && dropDownItemInfos.size() > 0) {
+            // Do we really need to update? Do the new infos differ from the old ones?
+            boolean differingInfos = mItemInfos == null
+                    || mItemInfos.size() != dropDownItemInfos.size();
+            for (int i = 0; !differingInfos && i < mItemInfos.size(); i++) {
+                if (!mItemInfos.get(i).equals(dropDownItemInfos.get(i))) {
+                    differingInfos = true;
+                }
             }
-            mItemFrames.get(0).getViewTreeObserver()
-                    .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            if (differingInfos) {
+                mItemInfos = dropDownItemInfos;
+                mItemFrames = new SparseArray<FrameLayout>();
+                LinearLayout itemsContainer =
+                        (LinearLayout) findViewById(R.id.dropdown_items_container);
+                itemsContainer.removeAllViews();
+                updateSelectedItem(initialSelection);
+                LayoutInflater inflater = (LayoutInflater) getContext()
+                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                for (int i = 0; i < mItemInfos.size(); i++) {
+                    final LinearLayout item = (LinearLayout) inflater
+                            .inflate(R.layout.fancydropdown_item, this, false);
+                    final TextView textView = (TextView) item.findViewById(R.id.textview);
+                    textView.setText(mItemInfos.get(i).mText.toUpperCase());
+                    ImageView imageView = (ImageView) item.findViewById(R.id.imageview);
+                    if (mItemInfos.get(i).mIconResPath != null) {
+                        TomahawkUtils.loadDrawableIntoImageView(getContext(), imageView,
+                                mItemInfos.get(i).mIconResPath);
+                    } else if (mItemInfos.get(i).mIconResId > 0) {
+                        imageView.setImageResource(mItemInfos.get(i).mIconResId);
+                    }
+
+                    final int position = i;
+                    item.setOnClickListener(new OnClickListener() {
                         @Override
-                        public void onGlobalLayout() {
-                            mItemHeight = mItemFrames.get(0).getHeight();
-                            for (int i = 0; i < mItemFrames.size(); i++) {
-                                mItemFrames.get(i).getChildAt(0).setY(mItemHeight * -1);
-                            }
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                mItemFrames.get(0).getViewTreeObserver()
-                                        .removeOnGlobalLayoutListener(this);
-                            } else {
-                                mItemFrames.get(0).getViewTreeObserver()
-                                        .removeGlobalOnLayoutListener(this);
+                        public void onClick(View v) {
+                            hideDropDownList(position);
+                            if (mListener != null) {
+                                mListener.onDropDownItemSelected(position);
                             }
                         }
                     });
+                    // We need a FrameLayout to hide the item when it's out of the FrameLayout's bounds
+                    FrameLayout frameLayout = new FrameLayout(getContext());
+                    frameLayout.setLayoutParams(
+                            new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                    ViewGroup.LayoutParams.WRAP_CONTENT));
+                    frameLayout.addView(item);
+                    itemsContainer.addView(frameLayout);
+                    mItemFrames.put(position, frameLayout);
+                }
+                mItemFrames.get(0).getViewTreeObserver()
+                        .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                mItemHeight = mItemFrames.get(0).getHeight();
+                                for (int i = 0; i < mItemFrames.size(); i++) {
+                                    mItemFrames.get(i).getChildAt(0).setY(mItemHeight * -1);
+                                }
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    mItemFrames.get(0).getViewTreeObserver()
+                                            .removeOnGlobalLayoutListener(this);
+                                } else {
+                                    mItemFrames.get(0).getViewTreeObserver()
+                                            .removeGlobalOnLayoutListener(this);
+                                }
+                            }
+                        });
+            }
         }
         findViewById(R.id.selected_item_container).setOnClickListener(new OnClickListener() {
             @Override
