@@ -92,5 +92,6 @@ public class CloudCollectionFragment extends TomahawkFragment {
                 getListAdapter().setSegments(new Segment(artists), getListView());
             }
         }
+        forceAutoResolve();
     }
 }

@@ -240,5 +240,6 @@ public class AlbumsFragment extends TomahawkFragment {
         }
 
         updateShowPlaystate();
+        forceAutoResolve();
     }
 }

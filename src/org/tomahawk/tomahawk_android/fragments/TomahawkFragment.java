@@ -176,7 +176,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected Query mQuery;
 
-    private int mFirstVisibleItemLastTime = 0;
+    private int mFirstVisibleItemLastTime = -1;
 
     private int mVisibleItemCount = 0;
 
@@ -562,6 +562,12 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             mResolveQueriesHandler.sendEmptyMessageDelayed(RESOLVE_QUERIES_REPORTER_MSG,
                     RESOLVE_QUERIES_REPORTER_DELAY);
         }
+    }
+
+    protected void forceAutoResolve(){
+        mResolveQueriesHandler.removeCallbacksAndMessages(null);
+        mResolveQueriesHandler.sendEmptyMessageDelayed(RESOLVE_QUERIES_REPORTER_MSG,
+                RESOLVE_QUERIES_REPORTER_DELAY);
     }
 
     private void resolveVisibleItems() {

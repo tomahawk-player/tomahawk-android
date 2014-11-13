@@ -271,6 +271,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
             }
 
             updateShowPlaystate();
+            forceAutoResolve();
         }
     }
 
