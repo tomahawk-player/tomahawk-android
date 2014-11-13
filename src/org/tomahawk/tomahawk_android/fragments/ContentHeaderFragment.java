@@ -188,7 +188,8 @@ public abstract class ContentHeaderFragment extends Fragment {
             View header = inflater.inflate(layoutId, headerFrame, false);
             headerFrame.addView(header);
             if (dynamic) {
-                setupTextViewContainerAnimation(header);
+                positionFancyDropDown(header);
+                setupFancyDropDownAnimation(header);
                 setupButtonAnimation(header);
                 setupPageIndicatorAnimation(header);
 
@@ -247,7 +248,32 @@ public abstract class ContentHeaderFragment extends Fragment {
         }
     }
 
-    private void setupTextViewContainerAnimation(View view) {
+    private void positionFancyDropDown(final View view) {
+        if (view != null) {
+            final View fancyDropDown = view.findViewById(R.id.fancydropdown);
+            if (fancyDropDown != null) {
+                view.getViewTreeObserver().addOnGlobalLayoutListener(
+                        new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                int visibleHeight = TomahawkApp.getContext().getResources()
+                                        .getDimensionPixelSize(
+                                                R.dimen.show_context_menu_icon_height);
+                                fancyDropDown.setY(view.getHeight() / 2 - visibleHeight / 2);
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    view.getViewTreeObserver()
+                                            .removeOnGlobalLayoutListener(this);
+                                } else {
+                                    view.getViewTreeObserver()
+                                            .removeGlobalOnLayoutListener(this);
+                                }
+                            }
+                        });
+            }
+        }
+    }
+
+    private void setupFancyDropDownAnimation(View view) {
         if (view != null) {
             View fancyDropDown = view.findViewById(R.id.fancydropdown);
             if (fancyDropDown != null) {
