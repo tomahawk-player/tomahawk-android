@@ -62,7 +62,7 @@ public class ScriptResolverCollection extends Collection {
             addQuery(query, 0);
         }
         addAlbumTracks(album, queries);
-        sendCollectionUpdatedBroadcast();
+        CollectionManager.sendCollectionUpdatedBroadcast(this, album);
     }
 
     public void addArtistResults(List<Artist> artists) {
@@ -78,7 +78,7 @@ public class ScriptResolverCollection extends Collection {
             if (!TextUtils.isEmpty(album.getName())) {
                 addAlbum(album);
                 addArtistAlbum(album.getArtist(), album);
-                sendCollectionUpdatedBroadcast();
+                CollectionManager.sendCollectionUpdatedBroadcast(this, album.getArtist());
             }
         }
     }

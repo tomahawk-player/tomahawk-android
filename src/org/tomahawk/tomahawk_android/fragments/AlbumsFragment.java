@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
 import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -102,7 +103,9 @@ public class AlbumsFragment extends TomahawkFragment {
         } else if (item instanceof Album) {
             Bundle bundle = new Bundle();
             bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, item.getCacheKey());
-            if (mCollection != null && mCollection.getAlbumTracks((Album) item, false).size() > 0) {
+            if (mCollection != null
+                    && (mCollection instanceof ScriptResolverCollection
+                    || mCollection.getAlbumTracks((Album) item, false).size() > 0)) {
                 bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
             } else {
                 bundle.putString(CollectionManager.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);

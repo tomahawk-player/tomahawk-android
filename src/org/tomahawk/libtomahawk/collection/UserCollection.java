@@ -165,6 +165,6 @@ public class UserCollection extends Collection {
      */
     public void update() {
         initializeCollection();
-        sendCollectionUpdatedBroadcast();
+        CollectionManager.sendCollectionUpdatedBroadcast(null, null);
     }
 }
