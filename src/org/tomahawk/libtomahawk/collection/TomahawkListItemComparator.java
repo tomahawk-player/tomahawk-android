@@ -59,9 +59,9 @@ public class TomahawkListItemComparator
     public int compare(TomahawkListItem a1, TomahawkListItem a2) {
         switch (mFlag) {
             case COMPARE_ALPHA:
-                return a1.getName().compareTo(a2.getName());
+                return a1.getName().compareToIgnoreCase(a2.getName());
             case COMPARE_ARTIST_ALPHA:
-                return a1.getArtist().getName().compareTo(a2.getArtist().getName());
+                return a1.getArtist().getName().compareToIgnoreCase(a2.getArtist().getName());
             case COMPARE_RECENTLY_ADDED:
                 Collection userColl = CollectionManager.getInstance().getCollection(
                         TomahawkApp.PLUGINNAME_USERCOLLECTION);
