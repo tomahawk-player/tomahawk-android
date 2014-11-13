@@ -179,5 +179,6 @@ public class ArtistsFragment extends TomahawkFragment {
                 getListAdapter().setSegments(segments, getListView());
             }
         }
+        forceAutoResolve();
     }
 }

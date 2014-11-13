@@ -166,5 +166,6 @@ public class PlaylistsFragment extends TomahawkFragment {
         } else {
             getListAdapter().setSegments(segment, getListView());
         }
+        forceAutoResolve();
     }
 }

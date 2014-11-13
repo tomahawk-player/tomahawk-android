@@ -169,5 +169,6 @@ public class UserCollectionFragment extends TomahawkFragment {
         if (!getResources().getBoolean(R.bool.is_landscape)) {
             getListView().setAreHeadersSticky(true);
         }
+        forceAutoResolve();
     }
 }

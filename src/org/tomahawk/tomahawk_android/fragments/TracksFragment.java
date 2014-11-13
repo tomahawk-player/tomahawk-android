@@ -272,6 +272,7 @@ public class TracksFragment extends TomahawkFragment {
         }
 
         updateShowPlaystate();
+        forceAutoResolve();
     }
 
     private void setupFancyDropDown() {
