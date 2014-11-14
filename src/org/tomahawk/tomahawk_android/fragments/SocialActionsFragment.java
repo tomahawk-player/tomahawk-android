@@ -203,7 +203,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
                             || HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW.equals(type)
                             || (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE.equals(type)
                             && action && (socialAction.getTargetObject() instanceof Query
-                            || socialAction.getTargetObject() instanceof Album))) {
+                            || socialAction.getTargetObject() instanceof Album
+                            || socialAction.getTargetObject() instanceof Artist))) {
                         List<TomahawkListItem> mergedActions = new ArrayList<TomahawkListItem>();
                         mergedActions.add(socialAction);
                         if (socialAction.getTargetObject() instanceof Query) {
@@ -248,7 +249,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
             for (List<TomahawkListItem> mergedActions : mergedActionsList) {
                 SocialAction first = (SocialAction) mergedActions.get(0);
                 if (first.getTargetObject() instanceof Album
-                        || first.getTargetObject() instanceof User) {
+                        || first.getTargetObject() instanceof User
+                        || first.getTargetObject() instanceof Artist) {
                     segments.add(new Segment(mergedActions, R.integer.grid_column_count_feed,
                             R.dimen.padding_superlarge, R.dimen.padding_small));
                 } else {

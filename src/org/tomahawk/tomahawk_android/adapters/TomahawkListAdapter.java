@@ -543,6 +543,13 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                                         segment.segmentSize())
                                 : resources.getString(
                                         R.string.socialaction_type_collected_album_single);
+                    }else if (targetObject instanceof Artist) {
+                        phrase = segment.segmentSize() > 1 ?
+                                resources.getString(
+                                        R.string.socialaction_type_collected_artist_multiple,
+                                        segment.segmentSize())
+                                : resources.getString(
+                                        R.string.socialaction_type_collected_artist_single);
                     }
                 } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW
                         .equals(socialAction.getType())) {
