@@ -106,6 +106,7 @@ public class FancyDropDown extends FrameLayout {
             List<DropDownItemInfo> dropDownItemInfos, DropDownListener dropDownListener) {
         mListener = dropDownListener;
         mText = selectedText;
+        ((TextView) findViewById(R.id.textview_selected)).setText(mText);
 
         if (dropDownItemInfos != null && dropDownItemInfos.size() > 0) {
             // Do we really need to update? Do the new infos differ from the old ones?
@@ -179,7 +180,7 @@ public class FancyDropDown extends FrameLayout {
         findViewById(R.id.selected_item_container).setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mItemFrames.size() > 1) {
+                if (mItemFrames != null && mItemFrames.size() > 1) {
                     if (mShowing) {
                         mListener.onCancel();
                         hideDropDownList(mSelection);
@@ -193,8 +194,6 @@ public class FancyDropDown extends FrameLayout {
 
     private void updateSelectedItem(int newSelection) {
         mSelection = newSelection;
-        final TextView textView = (TextView) findViewById(R.id.textview_selected);
-        textView.setText(mText);
         ImageView imageView = (ImageView) findViewById(R.id.imageview_selected);
         if (mItemInfos != null) {
             if (mItemInfos.get(mSelection).mIconResPath != null) {
