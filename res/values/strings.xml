@@ -109,6 +109,10 @@
   <string name="socialaction_type_collected_album_single">collected an album</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums) -->
   <string name="socialaction_type_collected_album_multiple">collected %1$d albums</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist) -->
+  <string name="socialaction_type_collected_artist_single">collected an artist</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists) -->
+  <string name="socialaction_type_collected_artist_multiple">collected %1$d artists</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen") -->
   <string name="socialaction_type_createcomment">commented on</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user) -->
