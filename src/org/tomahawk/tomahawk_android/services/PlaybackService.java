@@ -865,12 +865,15 @@ public class PlaybackService extends Service
         ArrayList<PlaylistEntry> entries = mPlaylist.getEntries();
         Map<Artist, List<PlaylistEntry>> artistMap = new HashMap<Artist, List<PlaylistEntry>>();
         for (PlaylistEntry entry : entries) {
-            if (artistMap.get(entry.getArtist()) == null) {
-                artistMap.put(entry.getArtist(), new ArrayList<PlaylistEntry>());
+            if (entry != mCurrentEntry) {
+                if (artistMap.get(entry.getArtist()) == null) {
+                    artistMap.put(entry.getArtist(), new ArrayList<PlaylistEntry>());
+                }
+                artistMap.get(entry.getArtist()).add(entry);
             }
-            artistMap.get(entry.getArtist()).add(entry);
         }
         ArrayList<PlaylistEntry> shuffledEntries = new ArrayList<PlaylistEntry>();
+        shuffledEntries.add(mCurrentEntry);
         for (int i = entries.size(); i >= 0; i--) {
             int pos = (int) (Math.random() * i);
             for (Artist key : artistMap.keySet()) {
