@@ -128,7 +128,8 @@ public class AlbumsFragment extends TomahawkFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         List<Segment> segments = new ArrayList<Segment>();
         if (mArtist != null) {
-            if (mCollection != null) {
+            if (mCollection != null
+                    && !TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
                 ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
                 items.addAll(mCollection.getArtistAlbums(mArtist, true));
                 segments.add(new Segment(mCollection.getName() + " " + getString(R.string.albums),
