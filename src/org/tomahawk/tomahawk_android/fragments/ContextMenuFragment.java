@@ -296,10 +296,13 @@ public class ContextMenuFragment extends Fragment {
     public static void setupClickListeners(final TomahawkMainActivity activity, View view,
             final TomahawkListItem item, final Collection collection,
             final boolean isPlaybackContextMenu, final Action actionOnDone) {
-        if (item instanceof Album) {
+        if (item instanceof Album || item instanceof Artist) {
             View addToCollectionButton = view.findViewById(R.id.addtocollection_button);
             addToCollectionButton.setVisibility(View.VISIBLE);
-            if (DatabaseHelper.getInstance().isItemLoved((Album) item)) {
+            if ((item instanceof Album
+                    && DatabaseHelper.getInstance().isItemLoved((Album) item))
+                    || (item instanceof Artist
+                    && DatabaseHelper.getInstance().isItemLoved((Artist) item))) {
                 addToCollectionButton.findViewById(R.id.addtocollection_button_underline)
                         .setVisibility(View.VISIBLE);
                 TextView textView = (TextView) addToCollectionButton
@@ -310,7 +313,11 @@ public class ContextMenuFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     actionOnDone.run();
-                    CollectionManager.getInstance().toggleLovedItem((Album) item);
+                    if (item instanceof Album) {
+                        CollectionManager.getInstance().toggleLovedItem((Album) item);
+                    } else {
+                        CollectionManager.getInstance().toggleLovedItem((Artist) item);
+                    }
                 }
             });
         }
