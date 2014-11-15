@@ -39,6 +39,8 @@
   <string name="auth_logged_in">Angemeldet bei</string>
   <string name="auth_logged_out">Abgemeldet von</string>
   <string name="local_collection_pretty_name">Lokale Sammlung</string>
+  <string name="local">Lokal</string>
+  <string name="global">Global</string>
   <string name="preferences_services">Dienste</string>
   <string name="preferences_hatchet_text">Synchronisiere deine Daten mit %1$s.</string>
   <string name="preferences_spotify_text">Spiele deine Musik von %1$s. Benötigt ein Premium-Konto.</string>
@@ -82,6 +84,7 @@
   <string name="collection_dropdown_recently_added">Kürzlich hinzugefügt</string>
   <string name="collection_dropdown_artist">Künstler</string>
   <string name="collection_dropdown_play_count">Wiedergabeanzahl</string>
+  <string name="collection_dropdown_alphabetical">Alphabetisch</string>
   <string name="history">Chronik</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Gut</string>
@@ -106,6 +109,10 @@
   <string name="socialaction_type_collected_album_single">hat ein Album zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">hat %1$d Alben zur Sammlung hinzugefügt</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">hat einen Interpreten zur Sammlung hinzugefügt</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">hat %1$d Interpreten zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">hat kommentiert</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
