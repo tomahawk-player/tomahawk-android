@@ -88,13 +88,14 @@ public class TomahawkScrollView extends ScrollView {
 
     private boolean isListViewScrolledUp() {
         if (findViewById(R.id.fragmentpager) != null) {
-            ViewPager viewPager = (ViewPager)findViewById(R.id.fragmentpager);
+            ViewPager viewPager = (ViewPager) findViewById(R.id.fragmentpager);
             View view = viewPager.findViewWithTag(viewPager.getCurrentItem());
             if (view instanceof StickyListHeadersListView) {
                 StickyListHeadersListView listView = (StickyListHeadersListView) view;
                 //TODO fix np if listchild null
                 return listView.getFirstVisiblePosition() == 0
-                        && listView.getListChildAt(0).getTop() >= 0;
+                        && (listView.getListChildAt(0) == null
+                        || listView.getListChildAt(0).getTop() >= 0);
             }
         }
         return false;
