@@ -40,8 +40,7 @@
                 android:layout_marginRight="@dimen/padding_large"
                 android:layout_marginBottom="@dimen/padding_large"
                 android:clickable="true"
-                android:background="@drawable/selectable_circle"
-                android:visibility="gone">
+                android:background="@drawable/selectable_circle">
 
             <ImageView android:layout_width="@dimen/show_context_menu_icon_height_more"
                        android:layout_height="@dimen/show_context_menu_icon_height_more"
