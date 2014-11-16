@@ -71,7 +71,7 @@ public class TracksFragment extends TomahawkFragment {
                     if (mAlbum != null
                             && intent.getStringExtra(TomahawkFragment.TOMAHAWK_ALBUM_KEY).equals(
                             mAlbum.getCacheKey())) {
-                        setupFancyDropDown();
+                        showAlbumFancyDropDown();
                     }
                 }
             }
@@ -175,7 +175,6 @@ public class TracksFragment extends TomahawkFragment {
             } else {
                 segment = new Segment(R.string.album_details, queries);
             }
-            showContentHeader(mAlbum, R.dimen.header_clear_space_nonscrollable);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
@@ -187,10 +186,11 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter.setShowContentHeaderSpacerResId(
                         R.dimen.header_clear_space_scrollable, getListView());
                 setListAdapter(tomahawkListAdapter);
-                setupFancyDropDown();
             } else {
                 getListAdapter().setSegments(segment, getListView());
             }
+            showContentHeader(mAlbum, R.dimen.header_clear_space_nonscrollable);
+            showAlbumFancyDropDown();
         } else if (mQuery != null) {
             queries.add(mQuery);
             Segment segment = new Segment(queries);
@@ -205,7 +205,7 @@ public class TracksFragment extends TomahawkFragment {
                 getListAdapter().setSegments(segment, getListView());
             }
             showContentHeader(mQuery, R.dimen.header_clear_space_nonscrollable);
-            setupFancyDropDown();
+            showFancyDropDown(mQuery);
         } else if (mSearchSongs != null) {
             queries.addAll(mSearchSongs);
             if (getListAdapter() == null) {
@@ -275,7 +275,7 @@ public class TracksFragment extends TomahawkFragment {
         forceAutoResolve();
     }
 
-    private void setupFancyDropDown() {
+    private void showAlbumFancyDropDown() {
         if (mAlbum != null) {
             final List<Collection> collections =
                     CollectionManager.getInstance().getAvailableCollections(mAlbum);
@@ -299,8 +299,6 @@ public class TracksFragment extends TomahawkFragment {
                         public void onCancel() {
                         }
                     });
-        } else if (mQuery != null) {
-            showFancyDropDown(mQuery);
         }
     }
 }
