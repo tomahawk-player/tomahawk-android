@@ -110,9 +110,9 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">hat %1$d Alben zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
-  <string name="socialaction_type_collected_artist_single">hat einen Interpreten zur Sammlung hinzugefügt</string>
+  <string name="socialaction_type_collected_artist_single">hat einen Künstler zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
-  <string name="socialaction_type_collected_artist_multiple">hat %1$d Interpreten zur Sammlung hinzugefügt</string>
+  <string name="socialaction_type_collected_artist_multiple">hat %1$d Künstler zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">hat kommentiert</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
