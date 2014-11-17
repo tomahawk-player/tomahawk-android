@@ -240,4 +240,8 @@ public class Collection {
             return timestamp;
         }
     }
+
+    public ConcurrentHashMap<TomahawkListItem, Integer> getAddedTimeStamps() {
+        return mAddedTimeStamps;
+    }
 }

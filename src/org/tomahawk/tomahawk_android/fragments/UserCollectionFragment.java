@@ -139,12 +139,15 @@ public class UserCollectionFragment extends TomahawkFragment {
         };
         int initialPos = preferences.getInt(USER_COLLECTION_SPINNER_POSITION, 0);
         if (initialPos == 0) {
+            Collection userColl = CollectionManager.getInstance().getCollection(
+                    TomahawkApp.PLUGINNAME_USERCOLLECTION);
             Collections.sort(items, new TomahawkListItemComparator(
-                    TomahawkListItemComparator.COMPARE_RECENTLY_ADDED));
+                    TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
+                    userColl.getAddedTimeStamps()));
         } else if (initialPos == 1) {
             Collections.sort(items, new TomahawkListItemComparator(
                     TomahawkListItemComparator.COMPARE_ALPHA));
-        } else if (initialPos == 2){
+        } else if (initialPos == 2) {
             Collections.sort(items, new TomahawkListItemComparator(
                     TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
         }
