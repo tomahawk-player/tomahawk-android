@@ -82,9 +82,10 @@
   <string name="drawer_title_settings">Einstellungen</string>
   <string name="drawer_header_cloudcollections">Cloud Sammlungen</string>
   <string name="collection_dropdown_recently_added">Kürzlich hinzugefügt</string>
-  <string name="collection_dropdown_artist">Interpret A-Z</string>
+  <string name="collection_dropdown_alpha_artists">Künstler A-Z</string>
   <string name="collection_dropdown_play_count">Wiedergabeanzahl</string>
-  <string name="collection_dropdown_alphabetical">Album A-Z</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Chronik</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Gut</string>
