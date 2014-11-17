@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -219,8 +220,11 @@ public class AlbumsFragment extends TomahawkFragment {
             };
             int initialPos = preferences.getInt(COLLECTION_ALBUMS_SPINNER_POSITION, 0);
             if (initialPos == 0) {
+                Collection userColl = CollectionManager.getInstance().getCollection(
+                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
                 Collections.sort(items, new TomahawkListItemComparator(
-                        TomahawkListItemComparator.COMPARE_RECENTLY_ADDED));
+                        TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
+                        userColl.getAddedTimeStamps()));
             } else if (initialPos == 1) {
                 Collections.sort(items, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_ALPHA));

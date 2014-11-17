@@ -17,10 +17,11 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is used to compare two {@link TomahawkListItem}s.
@@ -38,6 +39,8 @@ public class TomahawkListItemComparator
     //Flag containing the current mode to be used
     private static int mFlag = COMPARE_ALPHA;
 
+    private HashMap<TomahawkListItem, Integer> mTimeStampMap;
+
     /**
      * Construct this {@link TomahawkListItemComparator}
      *
@@ -47,6 +50,21 @@ public class TomahawkListItemComparator
     public TomahawkListItemComparator(int flag) {
         super();
         mFlag = flag;
+    }
+
+    /**
+     * Construct this {@link TomahawkListItemComparator}
+     *
+     * @param flag         The mode which determines with which method {@link TomahawkListItem}s are
+     *                     compared
+     * @param timeStampMap the ConcurrentHashMap used to determine the timeStamps of the
+     *                     TomahawkListItems which will be sorted
+     */
+    public TomahawkListItemComparator(int flag,
+            ConcurrentHashMap<TomahawkListItem, Integer> timeStampMap) {
+        super();
+        mFlag = flag;
+        mTimeStampMap = new HashMap<TomahawkListItem, Integer>(timeStampMap);
     }
 
     /**
@@ -63,13 +81,15 @@ public class TomahawkListItemComparator
             case COMPARE_ARTIST_ALPHA:
                 return a1.getArtist().getName().compareToIgnoreCase(a2.getArtist().getName());
             case COMPARE_RECENTLY_ADDED:
-                Collection userColl = CollectionManager.getInstance().getCollection(
-                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                int a1TimeStamp = userColl.getAddedTimeStamp(a1);
-                int a2TimeStamp = userColl.getAddedTimeStamp(a2);
-                if (a1TimeStamp > a2TimeStamp) {
+                Integer a1TimeStamp = mTimeStampMap.get(a1);
+                Integer a2TimeStamp = mTimeStampMap.get(a2);
+                if (a1TimeStamp == null && a2TimeStamp == null) {
+                    return 0;
+                } else if (a1TimeStamp == null
+                        || (a2TimeStamp != null && a1TimeStamp > a2TimeStamp)) {
                     return -1;
-                } else if (a1TimeStamp < a2TimeStamp) {
+                } else if (a2TimeStamp == null
+                        || a1TimeStamp < a2TimeStamp) {
                     return 1;
                 } else {
                     return 0;
