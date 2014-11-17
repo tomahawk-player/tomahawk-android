@@ -109,7 +109,7 @@ public class UserCollection extends Collection {
             Artist artist = Artist.get(cursor.getString(6));
 
             Album album = Album.get(cursor.getString(8), artist);
-            String albumsel = MediaStore.Audio.Albums._ID + " == " + Long.toString(
+            String albumsel = MediaStore.Audio.Albums._ID + " == " + String.valueOf(
                     cursor.getLong(7));
             String[] albumproj = {MediaStore.Audio.Albums.ALBUM_ART,
                     MediaStore.Audio.Albums.FIRST_YEAR, MediaStore.Audio.Albums.LAST_YEAR};
