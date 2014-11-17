@@ -40,7 +40,6 @@
   <string name="auth_logged_out">Abgemeldet von</string>
   <string name="local_collection_pretty_name">Lokale Sammlung</string>
   <string name="local">Lokal</string>
-  <string name="global">Global</string>
   <string name="preferences_services">Dienste</string>
   <string name="preferences_hatchet_text">Synchronisiere deine Daten mit %1$s.</string>
   <string name="preferences_spotify_text">Spiele deine Musik von %1$s. Benötigt ein Premium-Konto.</string>
@@ -82,9 +81,7 @@
   <string name="drawer_title_settings">Einstellungen</string>
   <string name="drawer_header_cloudcollections">Cloud Sammlungen</string>
   <string name="collection_dropdown_recently_added">Kürzlich hinzugefügt</string>
-  <string name="collection_dropdown_artist">Künstler</string>
   <string name="collection_dropdown_play_count">Wiedergabeanzahl</string>
-  <string name="collection_dropdown_alphabetical">Alphabetisch</string>
   <string name="history">Chronik</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Gut</string>

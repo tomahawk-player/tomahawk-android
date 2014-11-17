@@ -64,7 +64,6 @@
   <string name="drawer_title_lovedtracks">Favoritos</string>
   <string name="drawer_title_settings">Ajustes</string>
   <string name="collection_dropdown_recently_added">Añadidos recientemente</string>
-  <string name="collection_dropdown_artist">Artistas</string>
   <string name="collection_dropdown_play_count">N° de reproducciones</string>
   <string name="history">Historial</string>
   <string name="preferences_bitrate_low">Normal</string>

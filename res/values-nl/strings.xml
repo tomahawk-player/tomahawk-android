@@ -80,7 +80,6 @@
   <string name="drawer_title_settings">Instellingen</string>
   <string name="drawer_header_cloudcollections">Cloud-verzamelingen</string>
   <string name="collection_dropdown_recently_added">Recent toegevoegd</string>
-  <string name="collection_dropdown_artist">Artiest</string>
   <string name="collection_dropdown_play_count">Aantal keer afgespeeld</string>
   <string name="history">Geschiedenis</string>
   <string name="preferences_bitrate_low">Normaal</string>

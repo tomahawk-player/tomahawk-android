@@ -55,7 +55,6 @@
   <string name="drawer_title_settings">Asetukset</string>
   <string name="drawer_header_cloudcollections">Pilvikokoelmat</string>
   <string name="collection_dropdown_recently_added">Viimeksi lisätyt</string>
-  <string name="collection_dropdown_artist">Artisti</string>
   <string name="history">Historia</string>
   <string name="preferences_bitrate_low">Tavallinen</string>
   <string name="preferences_bitrate_medium">Hyvä</string>
