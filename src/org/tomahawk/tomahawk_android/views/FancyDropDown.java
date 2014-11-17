@@ -304,7 +304,7 @@ public class FancyDropDown extends FrameLayout {
             FancyDropDown.DropDownItemInfo dropDownItemInfo =
                     new FancyDropDown.DropDownItemInfo();
             if (TomahawkApp.PLUGINNAME_HATCHET.equals(collection.getId())) {
-                dropDownItemInfo.mText = TomahawkApp.getContext().getString(R.string.global);
+                dropDownItemInfo.mText = TomahawkApp.getContext().getString(R.string.all);
             } else if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(collection.getId())) {
                 dropDownItemInfo.mText = TomahawkApp.getContext().getString(R.string.local);
                 dropDownItemInfo.mIconResId = R.drawable.ic_action_sd_storage_light;
