@@ -80,7 +80,6 @@
   <string name="drawer_title_settings">设置</string>
   <string name="drawer_header_cloudcollections">云收藏</string>
   <string name="collection_dropdown_recently_added">最近添加</string>
-  <string name="collection_dropdown_artist">艺术家</string>
   <string name="collection_dropdown_play_count">播发统计</string>
   <string name="history">历史</string>
   <string name="preferences_bitrate_low">正常</string>

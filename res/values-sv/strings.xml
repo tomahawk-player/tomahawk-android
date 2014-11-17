@@ -77,7 +77,6 @@
   <string name="drawer_title_lovedtracks">Favoriter</string>
   <string name="drawer_title_settings">Inställningar</string>
   <string name="collection_dropdown_recently_added">Nyligen tillagda</string>
-  <string name="collection_dropdown_artist">Artist</string>
   <string name="collection_dropdown_play_count">Antal spelningar</string>
   <string name="history">Historik</string>
   <string name="preferences_bitrate_low">Normal</string>

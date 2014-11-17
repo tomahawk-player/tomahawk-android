@@ -79,7 +79,6 @@
   <string name="drawer_title_settings">Nastavení</string>
   <string name="drawer_header_cloudcollections">Sbírky na serveru</string>
   <string name="collection_dropdown_recently_added">Nedávno přidáno</string>
-  <string name="collection_dropdown_artist">Umělec</string>
   <string name="collection_dropdown_play_count">Počet přehrání</string>
   <string name="history">Historie</string>
   <string name="preferences_bitrate_low">Normální</string>

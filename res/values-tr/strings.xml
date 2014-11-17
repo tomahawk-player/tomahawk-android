@@ -66,7 +66,6 @@
   <string name="drawer_title_lovedtracks">Favoriler</string>
   <string name="drawer_title_settings">Ayarlar</string>
   <string name="collection_dropdown_recently_added">Son Eklenenler</string>
-  <string name="collection_dropdown_artist">Sanatçı</string>
   <string name="collection_dropdown_play_count">Çalma Sayısı</string>
   <string name="history">Geçmiş</string>
   <string name="preferences_bitrate_low">Normal</string>

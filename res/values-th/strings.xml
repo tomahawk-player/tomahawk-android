@@ -77,7 +77,6 @@
   <string name="drawer_title_lovedtracks">รายการโปรด</string>
   <string name="drawer_title_settings">การตั้งค่า</string>
   <string name="collection_dropdown_recently_added">ถูกเพิ่มเมื่อเร็วๆนี้</string>
-  <string name="collection_dropdown_artist">ศิลปิน</string>
   <string name="collection_dropdown_play_count">จำนวนที่เล่น</string>
   <string name="history">ประวัติ</string>
   <string name="preferences_bitrate_low">ปกติ</string>

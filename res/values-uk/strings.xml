@@ -68,7 +68,6 @@
   <string name="drawer_title_lovedtracks">Вибрані</string>
   <string name="drawer_title_settings">Параметри</string>
   <string name="collection_dropdown_recently_added">Нещодавно Додані</string>
-  <string name="collection_dropdown_artist">Виконавець</string>
   <string name="collection_dropdown_play_count">Лічильник Відтворень</string>
   <string name="history">Історія</string>
   <string name="preferences_bitrate_low">Нормально</string>

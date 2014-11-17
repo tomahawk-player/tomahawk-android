@@ -80,7 +80,6 @@
   <string name="drawer_title_settings">Paramètres</string>
   <string name="drawer_header_cloudcollections">Collections du cloud</string>
   <string name="collection_dropdown_recently_added">Ajouté récemment</string>
-  <string name="collection_dropdown_artist">Artiste</string>
   <string name="collection_dropdown_play_count">Nombre de lectures</string>
   <string name="history">Historique</string>
   <string name="preferences_bitrate_low">Normal</string>

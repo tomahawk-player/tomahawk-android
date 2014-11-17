@@ -63,7 +63,6 @@
   <string name="drawer_title_settings">Configurações</string>
   <string name="drawer_header_cloudcollections">Coleções na Nuvem</string>
   <string name="collection_dropdown_recently_added">Recentemente Adicionado</string>
-  <string name="collection_dropdown_artist">Artista</string>
   <string name="history">Histórico</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Bom</string>
