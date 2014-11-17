@@ -40,6 +40,7 @@
   <string name="auth_logged_out">Abgemeldet von</string>
   <string name="local_collection_pretty_name">Lokale Sammlung</string>
   <string name="local">Lokal</string>
+  <string name="all">Alle</string>
   <string name="preferences_services">Dienste</string>
   <string name="preferences_hatchet_text">Synchronisiere deine Daten mit %1$s.</string>
   <string name="preferences_spotify_text">Spiele deine Musik von %1$s. Benötigt ein Premium-Konto.</string>
