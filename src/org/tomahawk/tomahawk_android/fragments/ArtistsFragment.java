@@ -139,7 +139,7 @@ public class ArtistsFragment extends TomahawkFragment {
                     PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
             List<Integer> dropDownItems = new ArrayList<Integer>();
             dropDownItems.add(R.string.collection_dropdown_recently_added);
-            dropDownItems.add(R.string.collection_dropdown_alphabetical);
+            dropDownItems.add(R.string.collection_dropdown_alpha);
             AdapterView.OnItemSelectedListener spinnerClickListener
                     = new AdapterView.OnItemSelectedListener() {
                 @Override

@@ -118,8 +118,8 @@ public class UserCollectionFragment extends TomahawkFragment {
                 PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
         List<Integer> dropDownItems = new ArrayList<Integer>();
         dropDownItems.add(R.string.collection_dropdown_recently_added);
-        dropDownItems.add(R.string.collection_dropdown_alphabetical);
-        dropDownItems.add(R.string.collection_dropdown_artist);
+        dropDownItems.add(R.string.collection_dropdown_alpha_albums);
+        dropDownItems.add(R.string.collection_dropdown_alpha_artists);
         AdapterView.OnItemSelectedListener spinnerClickListener
                 = new AdapterView.OnItemSelectedListener() {
             @Override
