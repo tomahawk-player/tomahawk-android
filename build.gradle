@@ -27,6 +27,7 @@ dependencies {
     compile "com.google.guava:guava:18.0"
     compile "com.squareup.picasso:picasso:2.3.3"
     compile "com.github.castorflex.verticalviewpager:library:19.0.0"
+    compile "com.github.castorflex.smoothprogressbar:library:1.0.0"
     compile "de.mrmaffen:vlc-android-sdk:1.0.3"
     compile "de.mrmaffen:rdio-android-sdk:1.0.0"
     compile "de.mrmaffen:deezer-android-sdk:1.0.0"
