@@ -77,7 +77,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
@@ -107,6 +106,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
@@ -172,9 +172,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private TomahawkMainReceiver mTomahawkMainReceiver;
 
-    private Drawable mProgressDrawable;
-
-    private Handler mAnimationHandler;
+    private SmoothProgressBar mSmoothProgressBar;
 
     private SlidingUpPanelLayout mSlidingUpPanelLayout;
 
@@ -188,27 +186,16 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private Runnable mRunAfterInit;
 
-    // Used to display an animated progress drawable
-    private Runnable mAnimationRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 400);
-            getSupportActionBar().setLogo(mProgressDrawable);
-            mAnimationHandler.postDelayed(mAnimationRunnable, 50);
-        }
-    };
-
     private Handler mShouldShowAnimationHandler;
 
     private Runnable mShouldShowAnimationRunnable = new Runnable() {
         @Override
         public void run() {
-            mAnimationHandler.removeCallbacks(mAnimationRunnable);
             if (ThreadManager.getInstance().isActive()
                     || (mPlaybackService != null && mPlaybackService.isPreparing())) {
-                mAnimationHandler.post(mAnimationRunnable);
+                mSmoothProgressBar.setVisibility(View.VISIBLE);
             } else {
-                getSupportActionBar().setLogo(R.drawable.ic_launcher);
+                mSmoothProgressBar.setVisibility(View.GONE);
             }
             mShouldShowAnimationHandler.postDelayed(mShouldShowAnimationRunnable, 500);
         }
@@ -390,8 +377,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        mProgressDrawable = getResources()
-                .getDrawable(R.drawable.tomahawk_progress_indeterminate_circular_holo_light);
+        mSmoothProgressBar = (SmoothProgressBar) findViewById(R.id.smoothprogressbar);
 
         mTitle = mDrawerTitle = getTitle().toString().toUpperCase();
         getSupportActionBar().setTitle("");
@@ -541,7 +527,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             }
         }
 
-        mAnimationHandler = new Handler();
         mShouldShowAnimationHandler = new Handler();
         mShouldShowAnimationHandler.post(mShouldShowAnimationRunnable);
 
@@ -613,9 +598,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onPause() {
         super.onPause();
 
-        mAnimationHandler.removeCallbacks(mAnimationRunnable);
         mShouldShowAnimationHandler.removeCallbacks(mShouldShowAnimationRunnable);
-        mAnimationHandler = null;
         mShouldShowAnimationHandler = null;
 
         if (mTomahawkMainReceiver != null) {
