@@ -83,7 +83,7 @@
             android:layout_height="wrap_content"
             android:indeterminate="true"
             app:spb_sections_count="4"
-            app:spb_color="@color/tomahawk_red_dark"
+            app:spb_color="@color/tomahawk_red"
             app:spb_interpolator="spb_interpolator_accelerate"
             app:spb_speed="1.0"
             app:spb_stroke_width="4dp"
