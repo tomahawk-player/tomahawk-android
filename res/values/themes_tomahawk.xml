@@ -32,7 +32,7 @@
 
         <item name="colorPrimary">@color/tomahawk_red</item>
 
-        <item name="colorPrimaryDark">@color/tomahawk_red_dark</item>
+        <item name="colorPrimaryDark">@color/tomahawk_red</item>
 
         <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
 
