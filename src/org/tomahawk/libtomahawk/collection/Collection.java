@@ -52,8 +52,14 @@ public class Collection {
     protected ConcurrentHashMap<Artist, Map<String, Album>> mArtistAlbums
             = new ConcurrentHashMap<Artist, Map<String, Album>>();
 
-    protected ConcurrentHashMap<TomahawkListItem, Integer> mAddedTimeStamps
-            = new ConcurrentHashMap<TomahawkListItem, Integer>();
+    protected ConcurrentHashMap<TomahawkListItem, Long> mTrackAddedTimeStamps
+            = new ConcurrentHashMap<TomahawkListItem, Long>();
+
+    protected ConcurrentHashMap<String, Long> mArtistAddedTimeStamps
+            = new ConcurrentHashMap<String, Long>();
+
+    protected ConcurrentHashMap<String, Long> mAlbumAddedTimeStamps
+            = new ConcurrentHashMap<String, Long>();
 
     protected Collection(String id, String name, boolean isLocal) {
         mId = id;
@@ -82,20 +88,23 @@ public class Collection {
         mArtistAlbums = new ConcurrentHashMap<Artist, Map<String, Album>>();
     }
 
-    public void addQuery(Query query, int addedTimeStamp) {
+    public void addQuery(Query query, long addedTimeStamp) {
         if (!TextUtils.isEmpty(query.getName()) && !mQueries.containsKey(query.getCacheKey())) {
             mQueries.put(query.getCacheKey(), query);
         }
         if (addedTimeStamp > 0) {
-            if (mAddedTimeStamps.get(query.getAlbum()) == null
-                    || mAddedTimeStamps.get(query.getAlbum()) < addedTimeStamp) {
-                mAddedTimeStamps.put(query.getAlbum(), addedTimeStamp);
+            if (mAlbumAddedTimeStamps.get(query.getAlbum().getName().toLowerCase()) == null
+                    || mAlbumAddedTimeStamps.get(query.getAlbum().getName().toLowerCase())
+                    < addedTimeStamp) {
+                mAlbumAddedTimeStamps.put(query.getAlbum().getName().toLowerCase(), addedTimeStamp);
             }
-            if (mAddedTimeStamps.get(query.getArtist()) == null
-                    || mAddedTimeStamps.get(query.getArtist()) < addedTimeStamp) {
-                mAddedTimeStamps.put(query.getArtist(), addedTimeStamp);
+            if (mArtistAddedTimeStamps.get(query.getArtist().getName().toLowerCase()) == null
+                    || mArtistAddedTimeStamps.get(query.getArtist().getName().toLowerCase())
+                    < addedTimeStamp) {
+                mArtistAddedTimeStamps
+                        .put(query.getArtist().getName().toLowerCase(), addedTimeStamp);
             }
-            mAddedTimeStamps.put(query, addedTimeStamp);
+            mTrackAddedTimeStamps.put(query, addedTimeStamp);
         }
     }
 
@@ -232,16 +241,15 @@ public class Collection {
         return queries;
     }
 
-    public int getAddedTimeStamp(TomahawkListItem item) {
-        Integer timestamp = mAddedTimeStamps.get(item);
-        if (timestamp == null) {
-            return Integer.MAX_VALUE;
-        } else {
-            return timestamp;
-        }
+    public ConcurrentHashMap<TomahawkListItem, Long> getTrackAddedTimeStamps() {
+        return mTrackAddedTimeStamps;
     }
 
-    public ConcurrentHashMap<TomahawkListItem, Integer> getAddedTimeStamps() {
-        return mAddedTimeStamps;
+    public ConcurrentHashMap<String, Long> getArtistAddedTimeStamps() {
+        return mArtistAddedTimeStamps;
+    }
+
+    public ConcurrentHashMap<String, Long> getAlbumAddedTimeStamps() {
+        return mAlbumAddedTimeStamps;
     }
 }

@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.Comparator;
@@ -39,7 +40,7 @@ public class TomahawkListItemComparator
     //Flag containing the current mode to be used
     private static int mFlag = COMPARE_ALPHA;
 
-    private HashMap<TomahawkListItem, Integer> mTimeStampMap;
+    private HashMap mTimeStampMap;
 
     /**
      * Construct this {@link TomahawkListItemComparator}
@@ -60,11 +61,10 @@ public class TomahawkListItemComparator
      * @param timeStampMap the ConcurrentHashMap used to determine the timeStamps of the
      *                     TomahawkListItems which will be sorted
      */
-    public TomahawkListItemComparator(int flag,
-            ConcurrentHashMap<TomahawkListItem, Integer> timeStampMap) {
+    public TomahawkListItemComparator(int flag, ConcurrentHashMap timeStampMap) {
         super();
         mFlag = flag;
-        mTimeStampMap = new HashMap<TomahawkListItem, Integer>(timeStampMap);
+        mTimeStampMap = new HashMap(timeStampMap);
     }
 
     /**
@@ -81,8 +81,19 @@ public class TomahawkListItemComparator
             case COMPARE_ARTIST_ALPHA:
                 return a1.getArtist().getName().compareToIgnoreCase(a2.getArtist().getName());
             case COMPARE_RECENTLY_ADDED:
-                Integer a1TimeStamp = mTimeStampMap.get(a1);
-                Integer a2TimeStamp = mTimeStampMap.get(a2);
+                Long a1TimeStamp;
+                if (a1 instanceof Query) {
+                    a1TimeStamp = (Long) mTimeStampMap.get(a1);
+                } else {
+                    a1TimeStamp = (Long) mTimeStampMap.get(a1.getName().toLowerCase());
+                }
+                Long a2TimeStamp;
+                if (a1 instanceof Query) {
+                    a2TimeStamp = (Long) mTimeStampMap.get(a2);
+                } else {
+                    a2TimeStamp = (Long) mTimeStampMap.get(a2.getName().toLowerCase());
+                }
+
                 if (a1TimeStamp == null && a2TimeStamp == null) {
                     return 0;
                 } else if (a1TimeStamp == null

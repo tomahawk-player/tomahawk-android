@@ -30,16 +30,27 @@ import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.MediaWithDate;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteFullException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 /**
  * This class provides a way of storing user created {@link org.tomahawk.libtomahawk.collection.Playlist}s
@@ -70,6 +81,8 @@ public class DatabaseHelper {
     public static final int FALSE = 0;
 
     public static final int TRUE = 1;
+
+    public static final int CHUNK_SIZE = 50;
 
     private static class Holder {
 
@@ -871,5 +884,304 @@ public class DatabaseHelper {
             reportIntent.putExtra(PLAYLISTSDATASOURCE_RESULTSREPORTED_PLAYLISTID, playlistId);
         }
         TomahawkApp.getContext().sendBroadcast(reportIntent);
+    }
+
+    /**
+     * Add a new media to the database. The picture can only added by update.
+     *
+     * @param media which you like to add to the database
+     */
+    public synchronized void addMedia(MediaWithDate media) {
+        ContentValues values = new ContentValues();
+
+        values.put(TomahawkSQLiteHelper.MEDIA_LOCATION, media.getLocation());
+        values.put(TomahawkSQLiteHelper.MEDIA_TIME, media.getTime());
+        values.put(TomahawkSQLiteHelper.MEDIA_LENGTH, media.getLength());
+        values.put(TomahawkSQLiteHelper.MEDIA_TYPE, media.getType());
+        values.put(TomahawkSQLiteHelper.MEDIA_TITLE, media.getTitle());
+        values.put(TomahawkSQLiteHelper.MEDIA_ARTIST, media.getArtist());
+        values.put(TomahawkSQLiteHelper.MEDIA_GENRE, media.getGenre());
+        values.put(TomahawkSQLiteHelper.MEDIA_ALBUM, media.getAlbum());
+        values.put(TomahawkSQLiteHelper.MEDIA_WIDTH, media.getWidth());
+        values.put(TomahawkSQLiteHelper.MEDIA_HEIGHT, media.getHeight());
+        values.put(TomahawkSQLiteHelper.MEDIA_ARTWORKURL, media.getArtworkURL());
+        values.put(TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, media.getAudioTrack());
+        values.put(TomahawkSQLiteHelper.MEDIA_SPUTRACK, media.getSpuTrack());
+        values.put(TomahawkSQLiteHelper.MEDIA_DATEADDED, media.getDateAdded());
+
+        mDatabase.beginTransaction();
+        mDatabase.replace(TomahawkSQLiteHelper.TABLE_MEDIA, "NULL", values);
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+
+    }
+
+    /**
+     * Check if the item is already in the database
+     *
+     * @param location of the item (primary key)
+     * @return True if the item exists, false if it does not
+     */
+    public synchronized boolean mediaItemExists(String location) {
+        try {
+            Cursor cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIA,
+                    new String[]{TomahawkSQLiteHelper.MEDIA_LOCATION},
+                    TomahawkSQLiteHelper.MEDIA_LOCATION + "=?",
+                    new String[]{location},
+                    null, null, null);
+            boolean exists = cursor.moveToFirst();
+            cursor.close();
+            return exists;
+        } catch (Exception e) {
+            Log.e(TAG, "Query failed");
+            return false;
+        }
+    }
+
+    /**
+     * Get all paths from the items in the database
+     *
+     * @return list of File
+     */
+    @SuppressWarnings("unused")
+    private synchronized HashSet<File> getMediaFiles() {
+        HashSet<File> files = new HashSet<File>();
+        Cursor cursor;
+
+        cursor = mDatabase.query(
+                TomahawkSQLiteHelper.TABLE_MEDIA,
+                new String[]{TomahawkSQLiteHelper.MEDIA_LOCATION},
+                null, null, null, null, null);
+        cursor.moveToFirst();
+        if (!cursor.isAfterLast()) {
+            do {
+                File file = new File(cursor.getString(0));
+                files.add(file);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+
+        return files;
+    }
+
+    public synchronized HashMap<String, MediaWithDate> getMedias() {
+        Cursor cursor;
+        HashMap<String, MediaWithDate> medias = new HashMap<String, MediaWithDate>();
+        int chunk_count = 0;
+        int count = 0;
+
+        do {
+            count = 0;
+            cursor = mDatabase.rawQuery(String.format(Locale.US,
+                    "SELECT %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s FROM %s LIMIT %d OFFSET %d",
+                    TomahawkSQLiteHelper.MEDIA_TIME, //0 long
+                    TomahawkSQLiteHelper.MEDIA_LENGTH, //1 long
+                    TomahawkSQLiteHelper.MEDIA_TYPE, //2 int
+                    TomahawkSQLiteHelper.MEDIA_TITLE, //3 string
+                    TomahawkSQLiteHelper.MEDIA_ARTIST, //4 string
+                    TomahawkSQLiteHelper.MEDIA_GENRE, //5 string
+                    TomahawkSQLiteHelper.MEDIA_ALBUM, //6 string
+                    TomahawkSQLiteHelper.MEDIA_WIDTH, //7 int
+                    TomahawkSQLiteHelper.MEDIA_HEIGHT, //8 int
+                    TomahawkSQLiteHelper.MEDIA_ARTWORKURL, //9 string
+                    TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, //10 string
+                    TomahawkSQLiteHelper.MEDIA_SPUTRACK, //11 string
+                    TomahawkSQLiteHelper.MEDIA_LOCATION, //12 string
+                    TomahawkSQLiteHelper.MEDIA_DATEADDED, //13 long
+                    TomahawkSQLiteHelper.TABLE_MEDIA,
+                    CHUNK_SIZE,
+                    chunk_count * CHUNK_SIZE), null);
+
+            if (cursor.moveToFirst()) {
+                do {
+                    String location = cursor.getString(12);
+                    MediaWithDate media = new MediaWithDate(location,
+                            cursor.getLong(0),      // MEDIA_TIME
+                            cursor.getLong(1),      // MEDIA_LENGTH
+                            cursor.getInt(2),       // MEDIA_TYPE
+                            null,                   // MEDIA_PICTURE
+                            cursor.getString(3),    // MEDIA_TITLE
+                            cursor.getString(4),    // MEDIA_ARTIST
+                            cursor.getString(5),    // MEDIA_GENRE
+                            cursor.getString(6),    // MEDIA_ALBUM
+                            cursor.getInt(7),       // MEDIA_WIDTH
+                            cursor.getInt(8),       // MEDIA_HEIGHT
+                            cursor.getString(9),    // MEDIA_ARTWORKURL
+                            cursor.getInt(10),      // MEDIA_AUDIOTRACK
+                            cursor.getInt(11),      // MEDIA_SPUTRACK
+                            cursor.getLong(13));    // MEDIA_DATEADDED
+                    medias.put(media.getLocation(), media);
+
+                    count++;
+                } while (cursor.moveToNext());
+            }
+
+            cursor.close();
+            chunk_count++;
+        } while (count == CHUNK_SIZE);
+
+        return medias;
+    }
+
+    public synchronized MediaWithDate getMedia(String location) {
+        Cursor cursor;
+        MediaWithDate media = null;
+
+        try {
+            cursor = mDatabase.query(
+                    TomahawkSQLiteHelper.TABLE_MEDIA,
+                    new String[]{
+                            TomahawkSQLiteHelper.MEDIA_TIME, //0 long
+                            TomahawkSQLiteHelper.MEDIA_LENGTH, //1 long
+                            TomahawkSQLiteHelper.MEDIA_TYPE, //2 int
+                            TomahawkSQLiteHelper.MEDIA_TITLE, //3 string
+                            TomahawkSQLiteHelper.MEDIA_ARTIST, //4 string
+                            TomahawkSQLiteHelper.MEDIA_GENRE, //5 string
+                            TomahawkSQLiteHelper.MEDIA_ALBUM, //6 string
+                            TomahawkSQLiteHelper.MEDIA_WIDTH, //7 int
+                            TomahawkSQLiteHelper.MEDIA_HEIGHT, //8 int
+                            TomahawkSQLiteHelper.MEDIA_ARTWORKURL, //9 string
+                            TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, //10 string
+                            TomahawkSQLiteHelper.MEDIA_SPUTRACK, //11 string
+                            TomahawkSQLiteHelper.MEDIA_DATEADDED, //12 long
+                    },
+                    TomahawkSQLiteHelper.MEDIA_LOCATION + "=?",
+                    new String[]{location},
+                    null, null, null);
+        } catch (IllegalArgumentException e) {
+            // java.lang.IllegalArgumentException: the bind value at index 1 is null
+            return null;
+        }
+        if (cursor.moveToFirst()) {
+            media = new MediaWithDate(location,
+                    cursor.getLong(0),
+                    cursor.getLong(1),
+                    cursor.getInt(2),
+                    null, // lazy loading, see getPicture()
+                    cursor.getString(3),
+                    cursor.getString(4),
+                    cursor.getString(5),
+                    cursor.getString(6),
+                    cursor.getInt(7),
+                    cursor.getInt(8),
+                    cursor.getString(9),
+                    cursor.getInt(10),
+                    cursor.getInt(11),
+                    cursor.getLong(12));
+        }
+        cursor.close();
+        return media;
+    }
+
+    public synchronized Bitmap getPicture(Context context, String location) {
+        /* Used for the lazy loading */
+        Cursor cursor;
+        Bitmap picture = null;
+        byte[] blob;
+
+        cursor = mDatabase.query(
+                TomahawkSQLiteHelper.TABLE_MEDIA,
+                new String[]{TomahawkSQLiteHelper.MEDIA_PICTURE},
+                TomahawkSQLiteHelper.MEDIA_LOCATION + "=?",
+                new String[]{location},
+                null, null, null);
+        if (cursor.moveToFirst()) {
+            blob = cursor.getBlob(0);
+            if (blob != null && blob.length > 1 && blob.length < 500000) {
+                try {
+                    picture = BitmapFactory.decodeByteArray(blob, 0, blob.length);
+                } catch (OutOfMemoryError e) {
+                    picture = null;
+                } finally {
+                    blob = null;
+                }
+            }
+        }
+        cursor.close();
+        return picture;
+    }
+
+    public synchronized void removeMedia(String location) {
+        mDatabase.beginTransaction();
+        mDatabase.delete(TomahawkSQLiteHelper.TABLE_MEDIA,
+                TomahawkSQLiteHelper.MEDIA_LOCATION + "=?",
+                new String[]{location});
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+    }
+
+    public void removeMedias(Set<String> locations) {
+        mDatabase.beginTransaction();
+        try {
+            for (String location : locations) {
+                mDatabase.delete(TomahawkSQLiteHelper.TABLE_MEDIA,
+                        TomahawkSQLiteHelper.MEDIA_LOCATION + "=?", new String[]{location});
+            }
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            mDatabase.endTransaction();
+        }
+    }
+
+    public synchronized void updateMedia(String location, TomahawkSQLiteHelper.mediaColumn col,
+            Object object) {
+
+        if (location == null) {
+            return;
+        }
+
+        ContentValues values = new ContentValues();
+        switch (col) {
+            case MEDIA_PICTURE:
+                if (object != null) {
+                    Bitmap picture = (Bitmap) object;
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    picture.compress(Bitmap.CompressFormat.JPEG, 90, out);
+                    values.put(TomahawkSQLiteHelper.MEDIA_PICTURE, out.toByteArray());
+                } else {
+                    values.put(TomahawkSQLiteHelper.MEDIA_PICTURE, new byte[1]);
+                }
+                break;
+            case MEDIA_TIME:
+                if (object != null) {
+                    values.put(TomahawkSQLiteHelper.MEDIA_TIME, (Long) object);
+                }
+                break;
+            case MEDIA_AUDIOTRACK:
+                if (object != null) {
+                    values.put(TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, (Integer) object);
+                }
+                break;
+            case MEDIA_SPUTRACK:
+                if (object != null) {
+                    values.put(TomahawkSQLiteHelper.MEDIA_SPUTRACK, (Integer) object);
+                }
+                break;
+            case MEDIA_LENGTH:
+                if (object != null) {
+                    values.put(TomahawkSQLiteHelper.MEDIA_LENGTH, (Long) object);
+                }
+                break;
+            default:
+                return;
+        }
+        mDatabase.beginTransaction();
+        mDatabase.update(TomahawkSQLiteHelper.TABLE_MEDIA, values,
+                TomahawkSQLiteHelper.MEDIA_LOCATION + "=?", new String[]{location});
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+    }
+
+    public static void setPicture(MediaWithDate m, Bitmap p) {
+        Log.d(TAG, "Setting new picture for " + m.getTitle());
+        try {
+            getInstance().updateMedia(
+                    m.getLocation(),
+                    TomahawkSQLiteHelper.mediaColumn.MEDIA_PICTURE,
+                    p);
+        } catch (SQLiteFullException e) {
+            Log.d(TAG, "SQLiteFullException while setting picture");
+        }
+        m.setPictureParsed(true);
     }
 }
