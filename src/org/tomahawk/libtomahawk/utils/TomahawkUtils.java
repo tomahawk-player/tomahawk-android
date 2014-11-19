@@ -197,7 +197,7 @@ public class TomahawkUtils {
         return date;
     }
 
-    private static String getCacheKey(String... strings) {
+    public static String getCacheKey(String... strings) {
         String result = "";
         for (String s : strings) {
             result += "\t\t" + s.toLowerCase();
@@ -799,7 +799,7 @@ public class TomahawkUtils {
         if (TextUtils.isEmpty(path) || path.contains("https://") || path.contains("http://")) {
             return path;
         }
-        return "file:" + path;
+        return path.startsWith("file:") ? path : "file:" + path;
     }
 
     private static String buildImagePath(Context context, Image image, int width) {

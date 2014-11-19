@@ -143,7 +143,7 @@ public class UserCollectionFragment extends TomahawkFragment {
                     TomahawkApp.PLUGINNAME_USERCOLLECTION);
             Collections.sort(items, new TomahawkListItemComparator(
                     TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
-                    userColl.getAddedTimeStamps()));
+                    userColl.getAlbumAddedTimeStamps()));
         } else if (initialPos == 1) {
             Collections.sort(items, new TomahawkListItemComparator(
                     TomahawkListItemComparator.COMPARE_ALPHA));

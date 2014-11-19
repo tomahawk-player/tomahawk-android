@@ -250,7 +250,7 @@ public class TracksFragment extends TomahawkFragment {
                         TomahawkApp.PLUGINNAME_USERCOLLECTION);
                 Collections.sort(queries, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
-                        userColl.getAddedTimeStamps()));
+                        userColl.getTrackAddedTimeStamps()));
             } else if (initialPos == 1) {
                 Collections.sort(queries, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_ALPHA));

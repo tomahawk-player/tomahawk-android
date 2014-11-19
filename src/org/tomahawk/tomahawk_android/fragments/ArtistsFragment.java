@@ -165,7 +165,7 @@ public class ArtistsFragment extends TomahawkFragment {
                         TomahawkApp.PLUGINNAME_USERCOLLECTION);
                 Collections.sort(artists, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
-                        userColl.getAddedTimeStamps()));
+                        userColl.getArtistAddedTimeStamps()));
             } else if (initialPos == 1) {
                 Collections.sort(artists, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_ALPHA));

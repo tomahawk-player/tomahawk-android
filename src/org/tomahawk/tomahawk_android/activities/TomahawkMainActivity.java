@@ -33,6 +33,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -192,7 +193,9 @@ public class TomahawkMainActivity extends ActionBarActivity
         @Override
         public void run() {
             if (ThreadManager.getInstance().isActive()
-                    || (mPlaybackService != null && mPlaybackService.isPreparing())) {
+                    || (mPlaybackService != null && mPlaybackService.isPreparing())
+                    || ((UserCollection) CollectionManager.getInstance()
+                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION)).isWorking()) {
                 mSmoothProgressBar.setVisibility(View.VISIBLE);
             } else {
                 mSmoothProgressBar.setVisibility(View.GONE);
@@ -513,6 +516,10 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onResume() {
         super.onResume();
+
+        UserCollection userCollection = (UserCollection) CollectionManager.getInstance()
+                .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        userCollection.loadMediaItems(true);
 
         if (mSlidingUpPanelLayout.isPanelHidden()) {
             mPlaybackPanel.setVisibility(View.GONE);
