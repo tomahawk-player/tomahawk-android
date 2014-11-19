@@ -148,6 +148,7 @@ public class FragmentUtils {
                 Fragment.instantiate(activity, clss.getName(), bundle),
                 FRAGMENT_TAG);
         ft.addToBackStack(FRAGMENT_TAG);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commit();
         activity.collapsePanel();
     }
