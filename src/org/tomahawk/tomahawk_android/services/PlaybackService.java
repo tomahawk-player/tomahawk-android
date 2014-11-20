@@ -711,7 +711,7 @@ public class PlaybackService extends Service
         handlePlayState();
 
         mShowingNotification = true;
-        updateNotificationPlayState();
+        updateNotification();
         tryToGetAudioFocus();
         updateLockscreenPlayState();
     }
