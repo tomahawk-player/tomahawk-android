@@ -56,6 +56,7 @@ import org.videolan.libvlc.EventHandler;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -559,7 +560,8 @@ public class PlaybackService extends Service
 
     @Override
     public void onDestroy() {
-        giveUpAudioFocus();
+        super.onDestroy();
+
         pause(true);
         saveState();
         unregisterReceiver(mPlaybackServiceBroadcastReceiver);
@@ -578,7 +580,6 @@ public class PlaybackService extends Service
         mKillTimerHandler.removeCallbacksAndMessages(null);
         mKillTimerHandler = null;
 
-        super.onDestroy();
         Log.d(TAG, "PlaybackService has been destroyed");
     }
 
@@ -736,6 +737,9 @@ public class PlaybackService extends Service
             mShowingNotification = false;
             stopForeground(true);
             giveUpAudioFocus();
+            NotificationManager notificationManager = (NotificationManager) TomahawkApp.getContext()
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
         } else {
             updateNotificationPlayState();
         }
