@@ -1476,8 +1476,9 @@ public class PlaybackService extends Service
             updateNotification();
             updateLockscreenControls();
             sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
-            if (mCurrentMediaPlayer == null || !mCurrentMediaPlayer.isPrepared(getCurrentQuery())
-                    || !mCurrentMediaPlayer.isPreparing(getCurrentQuery())) {
+            if (mCurrentMediaPlayer == null
+                    || !(mCurrentMediaPlayer.isPrepared(getCurrentQuery())
+                    || mCurrentMediaPlayer.isPreparing(getCurrentQuery()))) {
                 prepareCurrentQuery();
             }
         }
