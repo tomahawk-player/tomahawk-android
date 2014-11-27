@@ -39,6 +39,8 @@
   <string name="auth_logged_in">Aangemeld bij</string>
   <string name="auth_logged_out">Afgemeld bij</string>
   <string name="local_collection_pretty_name">Lokale verzameling</string>
+  <string name="local">Lokaal</string>
+  <string name="all">Alles</string>
   <string name="preferences_services">Diensten</string>
   <string name="preferences_hatchet_text">Synchroniseer uw gegevens met %1$s.</string>
   <string name="preferences_spotify_text">Speel uw muziek af van %1$s. Hiervoor is een Premium-account nodig.</string>
@@ -80,7 +82,10 @@
   <string name="drawer_title_settings">Instellingen</string>
   <string name="drawer_header_cloudcollections">Cloud-verzamelingen</string>
   <string name="collection_dropdown_recently_added">Recent toegevoegd</string>
+  <string name="collection_dropdown_alpha_artists">Artiest A-Z</string>
   <string name="collection_dropdown_play_count">Aantal keer afgespeeld</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Geschiedenis</string>
   <string name="preferences_bitrate_low">Normaal</string>
   <string name="preferences_bitrate_medium">Goed</string>
@@ -106,7 +111,9 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">verzamelde %1$d albums</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">verzamelde een artiest</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">verzamelde %1$d artiesten</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">heeft gereageerd op</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
