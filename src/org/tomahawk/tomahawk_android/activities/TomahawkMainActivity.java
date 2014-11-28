@@ -374,6 +374,10 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        UserCollection userCollection = (UserCollection) CollectionManager.getInstance()
+                .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        userCollection.loadMediaItems(true);
+
         mSavedInstanceState = savedInstanceState;
 
         setContentView(R.layout.tomahawk_main_activity);
@@ -516,10 +520,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onResume() {
         super.onResume();
-
-        UserCollection userCollection = (UserCollection) CollectionManager.getInstance()
-                .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        userCollection.loadMediaItems(true);
 
         if (mSlidingUpPanelLayout.isPanelHidden()) {
             mPlaybackPanel.setVisibility(View.GONE);

@@ -18,6 +18,10 @@
         <item name="android:button">@drawable/tomahawk_btn_check_holo_light</item>
     </style>
 
+    <style name="CheckBoxTomahawkFakeDisabled" parent="android:Widget.CompoundButton.CheckBox">
+        <item name="android:button">@drawable/tomahawk_btn_check_holo_light_fakedisabled</item>
+    </style>
+
     <style name="ProgressBarTomahawk" parent="android:Widget.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/tomahawk_progress_horizontal_holo_light
         </item>

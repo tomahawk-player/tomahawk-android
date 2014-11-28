@@ -96,7 +96,7 @@ public class RedirectConfigDialog extends ConfigDialog {
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View buttonLayout = inflater.inflate(R.layout.config_redirect_button, null);
-        addViewToFrame(buttonLayout);
+        addScrollingViewToFrame(buttonLayout);
         ScriptResolver scriptResolver = (ScriptResolver) PipeLine.getInstance()
                 .getResolver(mResolverId);
         AuthenticatorUtils utils = AuthenticatorManager.getInstance()

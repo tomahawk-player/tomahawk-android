@@ -83,7 +83,7 @@ public class RegisterConfigDialog extends ConfigDialog {
         mUsernameEditText = (ConfigEdittext) usernameLayout.findViewById(R.id.config_edittext);
         mUsernameEditText.setHint(mAuthenticatorUtils.getUserIdEditTextHintResId());
         mUsernameEditText.setText(username);
-        addViewToFrame(usernameLayout);
+        addScrollingViewToFrame(usernameLayout);
         LinearLayout passwordLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
         mPasswordEditText = (ConfigEdittext) passwordLayout.findViewById(R.id.config_edittext);
         mPasswordEditText.setHint(R.string.login_password);
@@ -91,7 +91,7 @@ public class RegisterConfigDialog extends ConfigDialog {
         mPasswordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setText(password);
-        addViewToFrame(passwordLayout);
+        addScrollingViewToFrame(passwordLayout);
         LinearLayout passwordConfirmationLayout =
                 (LinearLayout) inflater.inflate(R.layout.config_text, null);
         mPasswordConfirmationEditText =
@@ -100,12 +100,12 @@ public class RegisterConfigDialog extends ConfigDialog {
                 R.string.login_password_confirmation);
         mPasswordConfirmationEditText.setTypeface(Typeface.DEFAULT);
         mPasswordConfirmationEditText.setTransformationMethod(new PasswordTransformationMethod());
-        addViewToFrame(passwordConfirmationLayout);
+        addScrollingViewToFrame(passwordConfirmationLayout);
         LinearLayout emailLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
         mMailEditText = (ConfigEdittext) emailLayout.findViewById(R.id.config_edittext);
         mMailEditText.setHint(R.string.account_email_label);
         mMailEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
-        addViewToFrame(emailLayout);
+        addScrollingViewToFrame(emailLayout);
 
         showSoftKeyboard(mUsernameEditText);
 

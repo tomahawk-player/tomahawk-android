@@ -5,6 +5,8 @@
   <string name="login">Login</string>
   <string name="logout">Logout</string>
   <string name="register">Register</string>
+  <string name="rescan">Rescan now</string>
+  <string name="internal_storage">Internal Storage</string>
   <string name="tracks">Tracks</string>
   <string name="albums">Albums</string>
   <string name="artists">Artists</string>
@@ -42,6 +44,7 @@
   <string name="local">Local</string>
   <string name="all">All</string>
   <string name="preferences_services">Services</string>
+  <string name="preferences_local_collection_text">Choose the directories which should be scanned for local media.</string>
   <string name="preferences_hatchet_text">Sync your data with %1$s.</string>
   <string name="preferences_spotify_text">Play your music from %1$s. Requires a Premium account.</string>
   <string name="preferences_playback">Playback</string>

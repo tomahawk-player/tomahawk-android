@@ -145,12 +145,18 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         MEDIA_DATEADDED
     }
 
+    public static final String TABLE_MEDIADIRS = "mediadirs";
+
+    public static final String MEDIADIRS_PATH = "path";
+
+    public static final String MEDIADIRS_BLACKLISTED = "blacklisted";
+
 
     public static final String TABLE_ALBUMS = "albums"; //Legacy
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 12;
+    private static final int DATABASE_VERSION = 13;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_PLAYLISTS =
@@ -220,6 +226,12 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             + MEDIA_DATEADDED + " INTEGER"
             + ");";
 
+    private static final String CREATE_TABLE_MEDIADIRS = "CREATE TABLE "
+            + TABLE_MEDIADIRS + " ("
+            + MEDIADIRS_PATH + " TEXT PRIMARY KEY NOT NULL, "
+            + MEDIADIRS_BLACKLISTED + " INTEGER "
+            + ");";
+
     public TomahawkSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -236,6 +248,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_TABLE_LOVED_ALBUMS);
         database.execSQL(CREATE_TABLE_LOVED_ARTISTS);
         database.execSQL(CREATE_TABLE_MEDIA);
+        database.execSQL(CREATE_TABLE_MEDIADIRS);
     }
 
     @Override
@@ -296,11 +309,16 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_PLAYLISTS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIADIRS + "`;");
             db.execSQL(CREATE_TABLE_PLAYLISTS);
             db.execSQL(CREATE_TABLE_TRACKS);
             db.execSQL(CREATE_TABLE_MEDIA);
-        } else if (oldVersion == 11) {
-            db.execSQL(CREATE_TABLE_MEDIA);
+            db.execSQL(CREATE_TABLE_MEDIADIRS);
+        } else if (oldVersion == 11 || oldVersion == 12) {
+            if (oldVersion == 11) {
+                db.execSQL(CREATE_TABLE_MEDIA);
+            }
+            db.execSQL(CREATE_TABLE_MEDIADIRS);
         } else {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
@@ -310,6 +328,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_LOVED_ALBUMS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_LOVED_ARTISTS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIADIRS + "`;");
             onCreate(db);
         }
     }

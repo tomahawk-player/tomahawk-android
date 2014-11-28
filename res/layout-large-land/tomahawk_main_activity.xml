@@ -39,7 +39,7 @@
                 android:dividerHeight="0px"
                 android:background="@color/navdrawer_background"/>
 
-        <View android:layout_width="@dimen/divider_height_thin"
+        <View android:layout_width="1px"
               android:layout_height="match_parent"
               android:background="@color/divider"/>
 

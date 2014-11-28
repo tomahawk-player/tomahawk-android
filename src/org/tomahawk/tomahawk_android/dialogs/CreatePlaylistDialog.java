@@ -62,7 +62,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
         mNameEditText = (ConfigEdittext) textLayout.findViewById(R.id.config_edittext);
         mNameEditText.setHint(R.string.name_playlist);
         mNameEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
-        addViewToFrame(textLayout);
+        addScrollingViewToFrame(textLayout);
 
         showSoftKeyboard(mNameEditText);
 

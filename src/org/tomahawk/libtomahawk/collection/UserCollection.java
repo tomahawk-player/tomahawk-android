@@ -42,7 +42,6 @@ import android.util.Log;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileFilter;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -53,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -64,6 +64,9 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class UserCollection extends Collection {
 
     private static final String TAG = UserCollection.class.getSimpleName();
+
+    private static final String HAS_SET_DEFAULTDIRS
+            = "org.tomahawk.tomahawk_android.has_set_defaultdirs";
 
     private static final int MODE_ARTIST = 0;
 
@@ -392,12 +395,21 @@ public class UserCollection extends Collection {
 
         @Override
         public void run() {
-            // Use all available storage directories as our default
-            ArrayList<String> storageDirs = new ArrayList<String>();
-            storageDirs.addAll(Arrays.asList(getStorageDirectories()));
-            storageDirs.addAll(Arrays.asList(getCustomDirectories()));
+            SharedPreferences preferences = PreferenceManager
+                    .getDefaultSharedPreferences(TomahawkApp.getContext());
+            Set<String> setDefaultDirs =
+                    preferences.getStringSet(HAS_SET_DEFAULTDIRS, new HashSet<String>());
+            for (String defaultDir : getStorageDirectories()) {
+                if (!setDefaultDirs.contains(defaultDir)) {
+                    DatabaseHelper.getInstance().addMediaDir(defaultDir);
+                    setDefaultDirs.add(defaultDir);
+                }
+            }
+            preferences.edit().putStringSet(HAS_SET_DEFAULTDIRS, setDefaultDirs).commit();
+
+            List<String> mediaDirPaths = DatabaseHelper.getInstance().getMediaDirs(false);
             List<File> mediaDirs = new ArrayList<File>();
-            for (String dir : storageDirs) {
+            for (String dir : mediaDirPaths) {
                 File f = new File(dir);
                 if (f.exists()) {
                     mediaDirs.add(f);
@@ -417,7 +429,8 @@ public class UserCollection extends Collection {
             mItemList.clear();
             mItemListLock.writeLock().unlock();
 
-            MediaItemFilter mediaFileFilter = new MediaItemFilter();
+            MediaItemFilter mediaFileFilter =
+                    new MediaItemFilter(DatabaseHelper.getInstance().getMediaDirs(true));
 
             ArrayList<File> mediaToScan = new ArrayList<File>();
             try {
@@ -531,7 +544,7 @@ public class UserCollection extends Collection {
         public RestartHandler(UserCollection owner) {
             super(Looper.getMainLooper());
 
-            mOwner = new WeakReference<UserCollection>(owner);
+            mOwner = new WeakReference<>(owner);
         }
 
         @Override
@@ -548,21 +561,31 @@ public class UserCollection extends Collection {
      */
     private static class MediaItemFilter implements FileFilter {
 
+        List<String> blacklist;
+
+        public MediaItemFilter(List<String> blacklist) {
+            this.blacklist = blacklist;
+        }
+
         @Override
         public boolean accept(File f) {
             boolean accepted = false;
             if (!f.isHidden()) {
-                if (f.isDirectory() && !Media.FOLDER_BLACKLIST.contains(f.getPath().toLowerCase(
-                        Locale.ENGLISH))) {
-                    accepted = true;
-                } else {
-                    String fileName = f.getName().toLowerCase(Locale.ENGLISH);
-                    int dotIndex = fileName.lastIndexOf(".");
-                    if (dotIndex != -1) {
-                        String fileExt = fileName.substring(dotIndex);
-                        accepted = Media.AUDIO_EXTENSIONS.contains(fileExt) ||
-                                Media.VIDEO_EXTENSIONS.contains(fileExt);
+                try {
+                    if (f.isDirectory() && !Media.FOLDER_BLACKLIST.contains(f.getPath().toLowerCase(
+                            Locale.ENGLISH)) && !blacklist.contains(f.getCanonicalPath())) {
+                        accepted = true;
+                    } else {
+                        String fileName = f.getName().toLowerCase(Locale.ENGLISH);
+                        int dotIndex = fileName.lastIndexOf(".");
+                        if (dotIndex != -1) {
+                            String fileExt = fileName.substring(dotIndex);
+                            accepted = Media.AUDIO_EXTENSIONS.contains(fileExt) ||
+                                    Media.VIDEO_EXTENSIONS.contains(fileExt);
+                        }
                     }
+                } catch (IOException e) {
+                    Log.e(TAG, "accept: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
             }
             return accepted;
@@ -618,8 +641,6 @@ public class UserCollection extends Collection {
             for (int i = 0; i < list.size(); i++) {
                 dirs[i] = list.get(i);
             }
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "getStorageDirectories: " + e.getClass() + ": " + e.getLocalizedMessage());
         } catch (IOException e) {
             Log.e(TAG, "getStorageDirectories: " + e.getClass() + ": " + e.getLocalizedMessage());
         } finally {
@@ -642,61 +663,5 @@ public class UserCollection extends Collection {
             }
         }
         return false;
-    }
-
-    public static void addCustomDirectory(String path) {
-        SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(TomahawkApp.getContext());
-
-        ArrayList<String> dirs = new ArrayList<String>(
-                Arrays.asList(getCustomDirectories()));
-        dirs.add(path);
-        StringBuilder builder = new StringBuilder();
-        builder.append(dirs.remove(0));
-        for (String s : dirs) {
-            builder.append(":");
-            builder.append(s);
-        }
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("custom_paths", builder.toString());
-        editor.commit();
-    }
-
-    public static void removeCustomDirectory(String path) {
-        SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(TomahawkApp.getContext());
-        if (!preferences.getString("custom_paths", "").contains(path)) {
-            return;
-        }
-        ArrayList<String> dirs = new ArrayList<String>(
-                Arrays.asList(preferences.getString("custom_paths", "").split(
-                        ":")));
-        dirs.remove(path);
-        String custom_path;
-        if (dirs.size() > 0) {
-            StringBuilder builder = new StringBuilder();
-            builder.append(dirs.remove(0));
-            for (String s : dirs) {
-                builder.append(":");
-                builder.append(s);
-            }
-            custom_path = builder.toString();
-        } else { // don't do unneeded extra work
-            custom_path = "";
-        }
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("custom_paths", custom_path);
-        editor.commit();
-    }
-
-    public static String[] getCustomDirectories() {
-        SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(TomahawkApp.getContext());
-        final String custom_paths = preferences.getString("custom_paths", "");
-        if (custom_paths.equals("")) {
-            return new String[0];
-        } else {
-            return custom_paths.split(":");
-        }
     }
 }

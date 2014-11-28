@@ -1184,4 +1184,129 @@ public class DatabaseHelper {
         }
         m.setPictureParsed(true);
     }
+
+    public boolean isMediaDirComplete(String path) {
+        Cursor cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
+                new String[]{TomahawkSQLiteHelper.MEDIADIRS_PATH},
+                TomahawkSQLiteHelper.MEDIADIRS_PATH + " LIKE ? || '_%'",
+                new String[]{path}, null, null, null);
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        return !exists;
+    }
+
+    public boolean isMediaDirWhiteListed(String path) {
+        Cursor cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
+                new String[]{TomahawkSQLiteHelper.MEDIADIRS_PATH},
+                TomahawkSQLiteHelper.MEDIADIRS_PATH + "= ? AND "
+                        + TomahawkSQLiteHelper.MEDIADIRS_BLACKLISTED + "= ?",
+                new String[]{path, String.valueOf(FALSE)}, null, null, null);
+        boolean isWhitelisted = cursor.moveToFirst();
+        cursor.close();
+        if (!isWhitelisted) {
+            cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
+                    new String[]{TomahawkSQLiteHelper.MEDIADIRS_PATH},
+                    "? LIKE " + TomahawkSQLiteHelper.MEDIADIRS_PATH + " || '%' AND "
+                            + TomahawkSQLiteHelper.MEDIADIRS_BLACKLISTED + "= ?",
+                    new String[]{path, String.valueOf(FALSE)}, null, null, null);
+            isWhitelisted = cursor.moveToFirst();
+            if (isWhitelisted) {
+                List<String> paths = new ArrayList<>();
+                while (!cursor.isAfterLast()) {
+                    paths.add(cursor.getString(0));
+                    cursor.moveToNext();
+                }
+                cursor.close();
+                int wlDrillDownLevel = getMaxBackslashCount(paths);
+                cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
+                        new String[]{TomahawkSQLiteHelper.MEDIADIRS_PATH},
+                        "? LIKE " + TomahawkSQLiteHelper.MEDIADIRS_PATH + " || '%' AND "
+                                + TomahawkSQLiteHelper.MEDIADIRS_BLACKLISTED + "= ?",
+                        new String[]{path, String.valueOf(TRUE)}, null, null, null);
+                if (!cursor.moveToFirst()) {
+                    isWhitelisted = true;
+                } else {
+                    paths = new ArrayList<>();
+                    while (!cursor.isAfterLast()) {
+                        paths.add(cursor.getString(0));
+                        cursor.moveToNext();
+                    }
+                    cursor.close();
+                    int blDrillDownLevel = getMaxBackslashCount(paths);
+                    isWhitelisted = wlDrillDownLevel > blDrillDownLevel;
+                }
+            }
+            cursor.close();
+        }
+        return isWhitelisted;
+    }
+
+    private static int getBackslashCount(String string) {
+        int count = 0;
+        char[] pathChars = string.toCharArray();
+        for (int i = 0; i < pathChars.length; i++) {
+            if (pathChars[i] == '/') {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static int getMaxBackslashCount(List<String> strings) {
+        int maxCount = 0;
+        for (int i = 0; i < strings.size(); i++) {
+            maxCount = Math.max(maxCount, getBackslashCount(strings.get(i)));
+        }
+        return maxCount;
+    }
+
+    public void addMediaDir(String path) {
+        Log.d(TAG, "Adding mediaDir: " + path);
+        mDatabase.beginTransaction();
+        mDatabase.delete(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
+                TomahawkSQLiteHelper.MEDIADIRS_PATH + " LIKE ? || '%'", new String[]{path});
+        Log.d(TAG, "Removed mediaDir from white/blacklist: " + path);
+        if (!isMediaDirWhiteListed(path)) {
+            ContentValues values = new ContentValues();
+            values.put(TomahawkSQLiteHelper.MEDIADIRS_PATH, path);
+            values.put(TomahawkSQLiteHelper.MEDIADIRS_BLACKLISTED, FALSE);
+            mDatabase.insert(TomahawkSQLiteHelper.TABLE_MEDIADIRS, null, values);
+            Log.d(TAG, "Added mediaDir to whitelist: " + path);
+        }
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+    }
+
+    public void removeMediaDir(String path) {
+        Log.d(TAG, "Removing mediaDir: " + path);
+        mDatabase.beginTransaction();
+        mDatabase.delete(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
+                TomahawkSQLiteHelper.MEDIADIRS_PATH + " LIKE ? || '%'", new String[]{path});
+        Log.d(TAG, "Removed mediaDir from white/blacklist: " + path);
+        if (isMediaDirWhiteListed(path)) {
+            ContentValues values = new ContentValues();
+            values.put(TomahawkSQLiteHelper.MEDIADIRS_PATH, path);
+            values.put(TomahawkSQLiteHelper.MEDIADIRS_BLACKLISTED, TRUE);
+            mDatabase.insert(TomahawkSQLiteHelper.TABLE_MEDIADIRS, null, values);
+            Log.d(TAG, "Added mediaDir to blacklist: " + path);
+        }
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+    }
+
+    public List<String> getMediaDirs(boolean blacklisted) {
+        Cursor cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
+                new String[]{TomahawkSQLiteHelper.MEDIADIRS_PATH},
+                TomahawkSQLiteHelper.MEDIADIRS_BLACKLISTED + "= ?",
+                new String[]{String.valueOf(blacklisted ? TRUE : FALSE)},
+                null, null, null);
+        cursor.moveToFirst();
+        ArrayList<String> dirs = new ArrayList<String>();
+        while (!cursor.isAfterLast()) {
+            dirs.add(cursor.getString(0));
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return dirs;
+    }
 }

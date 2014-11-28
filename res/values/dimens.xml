@@ -34,7 +34,6 @@
     <dimen name="header_roundedimage_height">48dp</dimen>
     <dimen name="header_following_height">32dp</dimen>
 
-    <dimen name="divider_height_thin">1dp</dimen>
     <dimen name="divider_height_thick">2dp</dimen>
 
     <dimen name="text_size_micro">12sp</dimen>
