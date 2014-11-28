@@ -64,6 +64,8 @@ public class ViewHolder {
 
     CheckBox mCheckBox1;
 
+    CheckBox mCheckBox2;
+
     Spinner mSpinner1;
 
     FancyDropDown mFancyDropDown;
@@ -120,6 +122,13 @@ public class ViewHolder {
                     .findViewById(R.id.clickarea1);
             mProgressBarContainer = (FrameLayout) rootView
                     .findViewById(R.id.progressbar_container);
+        } else if (layoutId == R.layout.list_item_folder) {
+            mTextView1 = (TextView) rootView
+                    .findViewById(R.id.textview1);
+            mCheckBox1 = (CheckBox) rootView
+                    .findViewById(R.id.checkbox1);
+            mCheckBox2 = (CheckBox) rootView
+                    .findViewById(R.id.checkbox2);
         } else if (layoutId == R.layout.single_line_list_header) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.textview1);

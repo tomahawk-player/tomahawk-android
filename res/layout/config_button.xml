@@ -24,19 +24,18 @@
              android:orientation="vertical">
 
     <LinearLayout
-            android:id="@+id/config_register_button"
+            android:id="@+id/config_button"
             android:layout_width="match_parent"
             android:layout_height="@dimen/row_height_large"
             android:orientation="vertical"
             android:background="@drawable/selectable_background_tomahawk">
 
-        <View
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/divider_height_thin"
-                android:background="@color/divider"/>
+        <View android:layout_width="match_parent"
+              android:layout_height="1px"
+              android:background="@color/divider"/>
 
         <TextView
-                android:id="@+id/config_register_button_text"
+                android:id="@+id/config_button_text"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:layout_weight="1"
@@ -44,8 +43,7 @@
                 android:gravity="center"
                 android:padding="@dimen/padding_medium"
                 android:textSize="@dimen/text_size_small"
-                android:textColor="@color/primary_textcolor"
-                android:text="@string/register"/>
+                android:textColor="@color/primary_textcolor"/>
 
     </LinearLayout>
 

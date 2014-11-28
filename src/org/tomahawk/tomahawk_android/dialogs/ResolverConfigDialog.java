@@ -44,8 +44,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * A {@link android.support.v4.app.DialogFragment} which shows checkboxes and edittexts depending on
- * the given ScriptResolver's config. Enables the user to configure a certain ScriptResolver.
+ * A {@link android.support.v4.app.DialogFragment} which shows checkboxes and edittexts depending
+ * on the given ScriptResolver's config. Enables the user to configure a certain ScriptResolver.
  */
 public class ResolverConfigDialog extends ConfigDialog {
 
@@ -93,7 +93,7 @@ public class ResolverConfigDialog extends ConfigDialog {
                     if (config.get(field.name) != null) {
                         checkBox.setChecked((Boolean) config.get(field.name));
                     }
-                    addViewToFrame(checkboxLayout);
+                    addScrollingViewToFrame(checkboxLayout);
                 } else if (PROPERTY_TEXT.equals(field.property)) {
                     LinearLayout textLayout = (LinearLayout) inflater
                             .inflate(R.layout.config_text, null);
@@ -109,7 +109,7 @@ public class ResolverConfigDialog extends ConfigDialog {
                         editText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
                         editText.setTransformationMethod(new PasswordTransformationMethod());
                     }
-                    addViewToFrame(textLayout);
+                    addScrollingViewToFrame(textLayout);
                     if (showKeyboardEditText == null) {
                         showKeyboardEditText = editText;
                     }
@@ -128,7 +128,7 @@ public class ResolverConfigDialog extends ConfigDialog {
                     if (config.get(field.name) != null) {
                         editText.setText(String.valueOf(config.get(field.name)));
                     }
-                    addViewToFrame(numberpickerLayout);
+                    addScrollingViewToFrame(numberpickerLayout);
                     if (showKeyboardEditText == null) {
                         showKeyboardEditText = editText;
                     }

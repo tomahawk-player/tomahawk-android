@@ -20,12 +20,14 @@ package org.tomahawk.tomahawk_android.dialogs;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.ui.widgets.BoundedLinearLayout;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -33,6 +35,7 @@ import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.CheckBox;
@@ -58,7 +61,9 @@ public abstract class ConfigDialog extends DialogFragment {
 
     private TextView mTitleTextView;
 
-    private LinearLayout mDialogFrame;
+    protected LinearLayout mScrollingDialogFrame;
+
+    protected BoundedLinearLayout mDialogFrame;
 
     private TextView mPositiveButton;
 
@@ -156,7 +161,10 @@ public abstract class ConfigDialog extends DialogFragment {
         mEnabledCheckbox.setOnCheckedChangeListener(mEnabledCheckboxListener);
         mTitleTextView = (TextView) mDialogView
                 .findViewById(R.id.config_dialog_title_textview);
-        mDialogFrame = (LinearLayout) mDialogView.findViewById(R.id.config_dialog_frame);
+        mDialogFrame = (BoundedLinearLayout) mDialogView
+                .findViewById(R.id.config_dialog_frame);
+        mScrollingDialogFrame = (LinearLayout) mDialogView
+                .findViewById(R.id.scrolling_config_dialog_frame);
         mPositiveButton = (TextView) mDialogView
                 .findViewById(R.id.config_dialog_positive_button);
         mPositiveButton.setOnClickListener(mPositiveButtonListener);
@@ -197,8 +205,15 @@ public abstract class ConfigDialog extends DialogFragment {
         return mDialogView;
     }
 
+    protected void addScrollingViewToFrame(View view) {
+        mScrollingDialogFrame.addView(view);
+        updateContainerHeight();
+    }
+
     protected void addViewToFrame(View view) {
         mDialogFrame.addView(view);
+        mDialogFrame.setVisibility(View.VISIBLE);
+        updateContainerHeight();
     }
 
     protected abstract void onEnabledCheckedChange(boolean checked);
@@ -297,6 +312,58 @@ public abstract class ConfigDialog extends DialogFragment {
         } else {
             TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
                     mStatusImageResId, !loggedIn);
+        }
+    }
+
+    private void updateContainerHeight() {
+        final int buttonPanelHeight =
+                getResources().getDimensionPixelSize(R.dimen.row_height_large);
+        final int topPanelheight =
+                getResources().getDimensionPixelSize(R.dimen.row_height_verylarge);
+        final int dividerThick =
+                getResources().getDimensionPixelSize(R.dimen.divider_height_thick);
+        if (getDialogView().getHeight() > 0) {
+            // we subtract 1 here because of the divider line which is 1px thick
+            setContainerHeight(getDialogView().getHeight() - buttonPanelHeight - topPanelheight
+                    - dividerThick - 1);
+        } else {
+            getDialogView().getViewTreeObserver().addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            // we subtract 1 here because of the divider line which is 1px thick
+                            setContainerHeight(getDialogView().getHeight() - buttonPanelHeight
+                                    - topPanelheight - dividerThick - 1);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                getDialogView().getViewTreeObserver()
+                                        .removeOnGlobalLayoutListener(this);
+                            } else {
+                                getDialogView().getViewTreeObserver()
+                                        .removeGlobalOnLayoutListener(this);
+                            }
+                        }
+                    });
+        }
+    }
+
+    private void setContainerHeight(final int height) {
+        if (mDialogFrame.getHeight() > 0) {
+            mDialogFrame.setMaxHeight(height);
+        } else {
+            mDialogFrame.getViewTreeObserver().addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            mDialogFrame.setMaxHeight(height);
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                getDialogView().getViewTreeObserver()
+                                        .removeOnGlobalLayoutListener(this);
+                            } else {
+                                getDialogView().getViewTreeObserver()
+                                        .removeGlobalOnLayoutListener(this);
+                            }
+                        }
+                    });
         }
     }
 }
