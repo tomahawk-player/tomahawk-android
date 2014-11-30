@@ -5,6 +5,8 @@
   <string name="login">Inloggen</string>
   <string name="logout">Uitloggen</string>
   <string name="register">Registreren</string>
+  <string name="rescan">Nu opnieuw scannen</string>
+  <string name="internal_storage">Interne opslag</string>
   <string name="tracks">Nummers</string>
   <string name="albums">Albums</string>
   <string name="artists">Artiesten</string>
@@ -42,6 +44,7 @@
   <string name="local">Lokaal</string>
   <string name="all">Alles</string>
   <string name="preferences_services">Diensten</string>
+  <string name="preferences_local_collection_text">Kies de mappen die moeten worden gescand op lokale mediabestanden.</string>
   <string name="preferences_hatchet_text">Synchroniseer uw gegevens met %1$s.</string>
   <string name="preferences_spotify_text">Speel uw muziek af van %1$s. Hiervoor is een Premium-account nodig.</string>
   <string name="preferences_playback">Afspelen</string>
