@@ -5,6 +5,8 @@
   <string name="login">Giriş</string>
   <string name="logout">Çıkış</string>
   <string name="register">Kayıt</string>
+  <string name="rescan">Yeniden Tara</string>
+  <string name="internal_storage">Dahili Depolama</string>
   <string name="tracks">Parçalar</string>
   <string name="albums">Albümler</string>
   <string name="artists">Sanatçılar</string>
@@ -42,6 +44,7 @@
   <string name="local">Yerel</string>
   <string name="all">Tümü</string>
   <string name="preferences_services">Servisler</string>
+  <string name="preferences_local_collection_text">Yerel medya için taranması gereken dizinleri seçin.</string>
   <string name="preferences_hatchet_text">Verilerinizi %1$s ile senkronize edin.</string>
   <string name="preferences_spotify_text">Müziklerinizi %1$s üzerinden dinleyin. Premium hesap gerektirir.</string>
   <string name="preferences_playback">Oynatma</string>

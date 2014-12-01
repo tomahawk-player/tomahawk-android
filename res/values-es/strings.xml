@@ -5,18 +5,21 @@
   <string name="login">Acceder</string>
   <string name="logout">Salir</string>
   <string name="register">Registrarse</string>
+  <string name="rescan">Reanalizar ahora</string>
+  <string name="internal_storage">Almacenaje interno</string>
   <string name="tracks">Canciones</string>
   <string name="albums">Álbumes</string>
   <string name="artists">Artistas</string>
   <string name="users">Usuarios</string>
-  <string name="playlist_details">Detalles de la lista de reproducción</string>
-  <string name="album_details">Detalles del Álbum</string>
+  <string name="playlist_details">Detalles de la lista</string>
+  <string name="album_details">Detalles del álbum</string>
   <string name="search">Buscar</string>
   <string name="playlist">Lista de reproducción</string>
-  <string name="shuffle_on_label">El modo aleatorio está prendido</string>
-  <string name="shuffle_off_label">El modo aleatorio está apagado</string>
+  <string name="shuffle_on_label">Modo aleatorio activado</string>
+  <string name="shuffle_off_label">Modo aleatorio desactivado</string>
   <string name="repeat_on_label">Repetición activada</string>
   <string name="repeat_off_label">Repetición desactivada</string>
+  <string name="unknown">desconocido</string>
   <string name="save_playlist">Guardar la lista actual</string>
   <string name="create_playlist">Crear una lista nueva</string>
   <string name="name_playlist">Nombre</string>
@@ -30,8 +33,11 @@
   <string name="error_invalid_credentials">El nombre de usuario o la contraseña son incorrectos.</string>
   <string name="error_invalid_account">El servidor rechazó la cuenta.</string>
   <string name="error_communication">Falló la autenticación. Compruebe la conexión.</string>
+  <string name="error_simultaneous_streams">Acción no permitida: la cuenta se está utilizando en otro sitio.</string>
   <string name="error_account_expired">La cuenta ha caducado.</string>
   <string name="local_collection_pretty_name">Colección local</string>
+  <string name="local">Local</string>
+  <string name="all">Toda</string>
   <string name="preferences_services">Servicios</string>
   <string name="preferences_spotify_text">Reproducir música desde %1$s. Se requiere una cuenta Premium</string>
   <string name="preferences_playback">Reproducción</string>
@@ -40,7 +46,7 @@
   <string name="preferences_audio_quality">Calidad de sonido preferida</string>
   <string name="preferences_info">Información</string>
   <string name="preferences_app_version">Versión de la aplicación</string>
-  <string name="preferences_app_uservoice">Retroalimentación</string>
+  <string name="preferences_app_uservoice">Comentarios</string>
   <string name="preferences_app_uservoice_text">Comparte tus ideas o pide ayuda</string>
   <string name="preferences_app_sendlog">Enviar registros</string>
   <string name="preferences_app_sendlog_text">Envía tu archivo de registros, con el fin de ayudar a corregir errores</string>
@@ -64,7 +70,8 @@
   <string name="drawer_title_lovedtracks">Favoritos</string>
   <string name="drawer_title_settings">Ajustes</string>
   <string name="collection_dropdown_recently_added">Añadidos recientemente</string>
-  <string name="collection_dropdown_play_count">N° de reproducciones</string>
+  <string name="collection_dropdown_play_count">N.º de reproducciones</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Historial</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Buena</string>
@@ -74,6 +81,7 @@
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Siguiendo</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Seguir</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
@@ -114,6 +122,7 @@
   <string name="ask_access_activity_header">¿Te gustaría guardar automáticamente datos sobre las canciones que reproduzcas en Hatchet?</string>
   <string name="ask_access_activity_text2">(Puedes deshabilitar esto cuando quieras en los ajustes de Tomahawk)</string>
   <string name="ask_access_activity_button_text">Ir a los ajustes</string>
+  <string name="button_open_queue_text">Añadir a la cola</string>
   <string name="button_close">Cerrar</string>
-  <string name="view_album">Ver Álbum</string>
+  <string name="view_album">Ver álbum</string>
 </resources>
