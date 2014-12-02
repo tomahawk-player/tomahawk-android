@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
@@ -53,15 +51,11 @@ public class FragmentUtils {
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
     public static void addRootFragment(TomahawkMainActivity activity,
-            FragmentManager fragmentManager) {
-        HatchetAuthenticatorUtils hatchetAuthUtils =
-                (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+            FragmentManager fragmentManager, User loggedInUser) {
         FragmentTransaction ft = fragmentManager.beginTransaction();
-        if (hatchetAuthUtils.isLoggedIn()) {
+        if (loggedInUser != null) {
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
-                    hatchetAuthUtils.getLoggedInUser().getId());
+            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, loggedInUser.getId());
             bundle.putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_DASHBOARD);
             ft.add(R.id.content_viewer_frame,
                     Fragment.instantiate(activity, SocialActionsFragment.class.getName(), bundle),

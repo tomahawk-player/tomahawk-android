@@ -138,6 +138,12 @@ public class CollectionManager {
             } else if (DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
                 CollectionManager.this.updatePlaylists();
+            } else if (HatchetAuthenticatorUtils.STORED_USER_ID.equals(intent.getAction())) {
+                HatchetAuthenticatorUtils hatchetAuthUtils =
+                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                InfoSystem.getInstance().resolvePlaybackLog(hatchetAuthUtils.getLoggedInUser());
+                fetchAll();
             }
         }
     }
@@ -148,10 +154,7 @@ public class CollectionManager {
 
         ensureLovedItemsPlaylist();
         updatePlaylists();
-        fetchPlaylists();
-        fetchLovedItemsPlaylist();
-        fetchStarredAlbums();
-        fetchStarredArtists();
+        fetchAll();
 
         TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
                 new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
@@ -159,6 +162,13 @@ public class CollectionManager {
                 new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
         TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
                 new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED));
+    }
+
+    public void fetchAll() {
+        fetchPlaylists();
+        fetchLovedItemsPlaylist();
+        fetchStarredAlbums();
+        fetchStarredArtists();
     }
 
     public static CollectionManager getInstance() {

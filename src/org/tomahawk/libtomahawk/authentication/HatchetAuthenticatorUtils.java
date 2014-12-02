@@ -20,13 +20,11 @@ package org.tomahawk.libtomahawk.authentication;
 
 import org.tomahawk.libtomahawk.authentication.models.HatchetAuthResponse;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.JacksonConverter;
 import org.tomahawk.libtomahawk.infosystem.User;
-import org.tomahawk.libtomahawk.infosystem.hatchet.Hatchet;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUserInfo;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUsers;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -36,9 +34,15 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+
+import java.util.HashSet;
 
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
@@ -46,6 +50,8 @@ import retrofit.RetrofitError;
 public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private static final String TAG = HatchetAuthenticatorUtils.class.getSimpleName();
+
+    public static final String STORED_USER_ID = "hatchetauthenticatorutils.stored_user_id";
 
     public static final String HATCHET_PRETTY_NAME = "Hatchet";
 
@@ -88,6 +94,31 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private HatchetAuth mHatchetAuth;
 
+    private HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
+
+    private HatchetAuthUtilsReceiver mHatchetAuthUtilsReceiver = new HatchetAuthUtilsReceiver();
+
+    /**
+     * Handles incoming broadcasts.
+     */
+    private class HatchetAuthUtilsReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String requestId = intent.getStringExtra(
+                    InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
+            if (mCorrespondingRequestIds.contains(requestId)) {
+                InfoRequestData data = InfoSystem.getInstance().getInfoRequestById(requestId);
+                if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
+                    User user = data.getResult(User.class);
+                    if (user != null) {
+                        storeUserId(user.getId());
+                    }
+                }
+            }
+        }
+    }
+
     public HatchetAuthenticatorUtils() {
         super(TomahawkApp.PLUGINNAME_HATCHET, HATCHET_PRETTY_NAME);
 
@@ -99,6 +130,9 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 .setConverter(new JacksonConverter(InfoSystemUtils.getObjectMapper()))
                 .build();
         mHatchetAuth = restAdapter.create(HatchetAuth.class);
+
+        TomahawkApp.getContext().registerReceiver(mHatchetAuthUtilsReceiver,
+                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
     }
 
     public void onLogin(String username, String refreshToken,
@@ -121,11 +155,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 ensureAccessTokens();
             }
         }
-        CollectionManager.getInstance().fetchPlaylists();
-        CollectionManager.getInstance().fetchLovedItemsPlaylist();
-        CollectionManager.getInstance().fetchStarredArtists();
-        CollectionManager.getInstance().fetchStarredAlbums();
-        InfoSystem.getInstance().resolve(getLoggedInUser());
+        CollectionManager.getInstance().fetchAll();
         AuthenticatorManager.broadcastConfigTestResult(getId(),
                 AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
                 AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
@@ -261,20 +291,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             if (am.getUserData(getAccount(), USER_ID_HATCHET) != null) {
                 return am.getUserData(getAccount(), USER_ID_HATCHET);
             } else {
-                RestAdapter restAdapter = new RestAdapter.Builder()
-                        .setLogLevel(RestAdapter.LogLevel.BASIC)
-                        .setEndpoint("https://api.hatchet.is/v1")
-                        .setConverter(new JacksonConverter(InfoSystemUtils.getObjectMapper()))
-                        .build();
-                Hatchet hatchet = restAdapter.create(Hatchet.class);
-                HatchetUsers users = hatchet.getUsers(null, getUserName(), null, null);
-                if (users != null) {
-                    HatchetUserInfo user = TomahawkUtils.carelessGet(users.users, 0);
-                    if (user != null) {
-                        am.setUserData(getAccount(), USER_ID_HATCHET, user.id);
-                        return user.id;
-                    }
-                }
+                mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveUserId(getUserName()));
             }
         }
         return null;
@@ -409,6 +426,12 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             }
         }
         return null;
+    }
+
+    public static void storeUserId(String userId) {
+        AccountManager am = AccountManager.get(TomahawkApp.getContext());
+        am.setUserData(getAccount(), USER_ID_HATCHET, userId);
+        TomahawkApp.getContext().sendBroadcast(new Intent(STORED_USER_ID));
     }
 }
 

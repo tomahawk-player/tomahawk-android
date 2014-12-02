@@ -297,6 +297,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                     mPlaybackPanel.stopUpdates();
                     mPlaybackPanel.updatePlayPauseState(false);
                 }
+            } else if (HatchetAuthenticatorUtils.STORED_USER_ID.equals(intent.getAction())) {
+                updateDrawer();
             }
         }
     }
@@ -556,6 +558,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 new IntentFilter(PipeLine.PIPELINE_URLLOOKUPFINISHED));
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(CollectionManager.COLLECTION_ADDED));
+        registerReceiver(mTomahawkMainReceiver,
+                new IntentFilter(HatchetAuthenticatorUtils.STORED_USER_ID));
     }
 
     @Override
@@ -584,8 +588,11 @@ public class TomahawkMainActivity extends ActionBarActivity
                                         PlaybackFragment.class.getName(), null),
                                 null)
                         .commit();
+                HatchetAuthenticatorUtils hatchetAuthUtils =
+                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                 FragmentUtils.addRootFragment(TomahawkMainActivity.this,
-                        getSupportFragmentManager());
+                        getSupportFragmentManager(), hatchetAuthUtils.getLoggedInUser());
             } else {
                 boolean actionBarHidden = mSavedInstanceState
                         .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
@@ -799,10 +806,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                 new ArrayList<TomahawkMenuAdapter.ResourceHolder>();
         TomahawkMenuAdapter.ResourceHolder holder = new TomahawkMenuAdapter.ResourceHolder();
         if (authenticatorUtils.getLoggedInUser() != null) {
-            if (authenticatorUtils.getLoggedInUser().getImage() == null) {
-                mCurrentRequestIds.add(
-                        InfoSystem.getInstance().resolve(authenticatorUtils.getLoggedInUser()));
-            }
             holder.id = HUB_ID_USERPAGE;
             holder.title = authenticatorUtils.getLoggedInUser().getName();
             holder.image = authenticatorUtils.getLoggedInUser().getImage();
