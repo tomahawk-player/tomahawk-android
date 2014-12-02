@@ -70,7 +70,8 @@
             android:id="@+id/config_dialog_frame"
             android:layout_width="match_parent"
             android:layout_height="10000dp"
-            android:orientation="vertical"/>
+            android:orientation="vertical"
+            android:visibility="gone"/>
 
     <View android:layout_width="match_parent"
           android:layout_height="1px"
