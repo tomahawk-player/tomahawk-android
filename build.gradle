@@ -17,8 +17,8 @@ repositories {
 }
 
 dependencies {
-    compile "com.android.support:appcompat-v7:21.0.0"
-    compile "com.android.support:support-v4:21.0.0"
+    compile "com.android.support:appcompat-v7:21.0.2"
+    compile "com.android.support:support-v4:21.0.2"
     compile "se.emilsjolander:stickylistheaders:2.4.1"
     compile("ch.acra:acra:4.5.0") {
         transitive = false
@@ -56,7 +56,7 @@ def getNewVersionName = { ->
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.0"
+    buildToolsVersion "21.1.1"
 
     defaultConfig {
         minSdkVersion 11
