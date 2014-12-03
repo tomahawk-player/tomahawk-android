@@ -138,11 +138,13 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String MEDIA_DATEADDED = "date_added";
 
+    public static final String MEDIA_TRACKNUMBER = "track_number";
+
     public enum mediaColumn {
         MEDIA_TABLE_NAME, MEDIA_PATH, MEDIA_TIME, MEDIA_LENGTH,
         MEDIA_TYPE, MEDIA_PICTURE, MEDIA_TITLE, MEDIA_ARTIST, MEDIA_GENRE, MEDIA_ALBUM,
         MEDIA_WIDTH, MEDIA_HEIGHT, MEDIA_ARTWORKURL, MEDIA_AUDIOTRACK, MEDIA_SPUTRACK,
-        MEDIA_DATEADDED
+        MEDIA_DATEADDED, MEDIA_TRACKNUMBER
     }
 
     public static final String TABLE_MEDIADIRS = "mediadirs";
@@ -156,7 +158,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 13;
+    private static final int DATABASE_VERSION = 14;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_PLAYLISTS =
@@ -223,7 +225,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             + MEDIA_ARTWORKURL + " VARCHAR(256), "
             + MEDIA_AUDIOTRACK + " INTEGER, "
             + MEDIA_SPUTRACK + " INTEGER, "
-            + MEDIA_DATEADDED + " INTEGER"
+            + MEDIA_DATEADDED + " INTEGER, "
+            + MEDIA_TRACKNUMBER + " INTEGER"
             + ");";
 
     private static final String CREATE_TABLE_MEDIADIRS = "CREATE TABLE "
@@ -319,6 +322,9 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                 db.execSQL(CREATE_TABLE_MEDIA);
             }
             db.execSQL(CREATE_TABLE_MEDIADIRS);
+        } else if (oldVersion == 13) {
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
+            db.execSQL(CREATE_TABLE_MEDIA);
         } else {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");

@@ -112,9 +112,7 @@ public class UserCollection extends Collection {
             }
             Track track = Track.get(media.getTitle(), album, artist);
             track.setDuration(media.getLength());
-            if (media.getTrackNumber() != null) {
-                track.setAlbumPos(Integer.valueOf(media.getTrackNumber()));
-            }
+            track.setAlbumPos(media.getTrackNumber());
             Query query = Query.get(media.getTitle(), media.getAlbum(), media.getArtist(), true);
             Result result = Result.get(media.getLocation(), track, userCollectionResolver,
                     query.getCacheKey());
@@ -235,9 +233,7 @@ public class UserCollection extends Collection {
             }
             Track track = Track.get(media.getTitle(), album, artist);
             track.setDuration(media.getLength());
-            if (media.getTrackNumber() != null) {
-                track.setAlbumPos(Integer.valueOf(media.getTrackNumber()));
-            }
+            track.setAlbumPos(media.getTrackNumber());
             Query query = Query.get(media.getTitle(), media.getAlbum(), media.getArtist(), true);
             Result result = Result.get(media.getLocation(), track, userCollectionResolver,
                     query.getCacheKey());
@@ -267,9 +263,7 @@ public class UserCollection extends Collection {
             Artist artist = Artist.get(media.getArtist());
             Track track = Track.get(media.getTitle(), album, artist);
             track.setDuration(media.getLength());
-            if (media.getTrackNumber() != null) {
-                track.setAlbumPos(Integer.valueOf(media.getTrackNumber()));
-            }
+            track.setAlbumPos(media.getTrackNumber());
             Query query = Query.get(media.getTitle(), media.getAlbum(), media.getArtist(), true);
             Result result = Result.get(media.getLocation(), track, userCollectionResolver,
                     query.getCacheKey());
