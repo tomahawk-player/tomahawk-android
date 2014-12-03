@@ -158,7 +158,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 14;
+    private static final int DATABASE_VERSION = 15;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_PLAYLISTS =
@@ -317,12 +317,14 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             db.execSQL(CREATE_TABLE_TRACKS);
             db.execSQL(CREATE_TABLE_MEDIA);
             db.execSQL(CREATE_TABLE_MEDIADIRS);
-        } else if (oldVersion == 11 || oldVersion == 12) {
-            if (oldVersion == 11) {
-                db.execSQL(CREATE_TABLE_MEDIA);
-            }
+        } else if (oldVersion == 11) {
+            db.execSQL(CREATE_TABLE_MEDIA);
             db.execSQL(CREATE_TABLE_MEDIADIRS);
-        } else if (oldVersion == 13) {
+        } else if (oldVersion == 12) {
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
+            db.execSQL(CREATE_TABLE_MEDIA);
+            db.execSQL(CREATE_TABLE_MEDIADIRS);
+        } else if (oldVersion == 13 || oldVersion == 14) {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
             db.execSQL(CREATE_TABLE_MEDIA);
         } else {
