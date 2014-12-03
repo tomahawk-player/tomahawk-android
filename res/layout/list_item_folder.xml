@@ -20,17 +20,30 @@
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
+              android:layout_height="@dimen/list_item_track_height"
               android:baselineAligned="false"
               android:orientation="horizontal"
               android:descendantFocusability="afterDescendants"
               android:background="@drawable/selectable_background_tomahawk">
 
+    <FrameLayout android:layout_width="@dimen/directory_chooser_arrow_size"
+                 android:layout_height="@dimen/directory_chooser_arrow_size"
+                 android:layout_gravity="center"
+                 android:layout_marginRight="@dimen/padding_medium"
+                 android:layout_marginLeft="@dimen/padding_small">
+
+        <ImageView android:id="@+id/browsable_indicator"
+                   android:layout_width="@dimen/directory_chooser_arrow_size"
+                   android:layout_height="@dimen/directory_chooser_arrow_size"
+                   android:src="@drawable/ic_player_next"
+                   android:visibility="gone"/>
+
+    </FrameLayout>
+
     <TextView android:id="@+id/textview1"
               android:layout_width="0dp"
-              android:layout_height="wrap_content"
+              android:layout_height="match_parent"
               android:layout_weight="1"
-              android:paddingLeft="@dimen/padding_superlarge"
               android:paddingTop="@dimen/padding_medium"
               android:paddingBottom="@dimen/padding_medium"
               android:gravity="center_vertical"

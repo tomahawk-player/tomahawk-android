@@ -140,12 +140,14 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
         // Init textviews and main click listener
         viewHolder.mTextView1.setText(getVisibleName(dir.file));
         viewHolder.mTextView1.setTypeface(null, Typeface.NORMAL);
+        view.findViewById(R.id.browsable_indicator).setVisibility(View.GONE);
         view.setOnClickListener(null);
         if (dir.file.listFiles() != null
                 && dir.file.listFiles().length > 0) {
             for (File file : dir.file.listFiles()) {
                 if (file.isDirectory()) {
                     viewHolder.mTextView1.setTypeface(null, Typeface.BOLD);
+                    view.findViewById(R.id.browsable_indicator).setVisibility(View.VISIBLE);
                     view.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
