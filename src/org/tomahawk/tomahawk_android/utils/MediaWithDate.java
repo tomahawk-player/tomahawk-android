@@ -33,9 +33,9 @@ public class MediaWithDate extends Media {
     public MediaWithDate(java.lang.String location, long time, long length, int type,
             android.graphics.Bitmap picture, java.lang.String title, java.lang.String artist,
             java.lang.String genre, java.lang.String album, int width, int height,
-            java.lang.String artworkURL, int audio, int spu, long dateAdded) {
+            java.lang.String artworkURL, int audio, int spu, long dateAdded, int trackNumber) {
         super(location, time, length, type, picture, title, artist, genre, album, width, height,
-                artworkURL, audio, spu);
+                artworkURL, audio, spu, trackNumber);
 
         mDateAdded = dateAdded;
     }

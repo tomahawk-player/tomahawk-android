@@ -47,7 +47,7 @@ public class CollectionUtils {
 
     public static ArrayList<Query> getAlbumTracks(Album album, Collection collection) {
         if (collection != null) {
-            return collection.getAlbumTracks(album, false);
+            return collection.getAlbumTracks(album, true);
         } else {
             HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
                     .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
