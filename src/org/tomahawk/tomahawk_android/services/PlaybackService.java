@@ -1395,12 +1395,14 @@ public class PlaybackService extends Service
                         getCurrentQuery().getArtist().getName())
                         .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
                                 getCurrentQuery().getArtist().getName())
-                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
-                                getCurrentQuery().getAlbum().getName())
                         .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
                                 getCurrentQuery().getName())
                         .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
                                 getCurrentQuery().getPreferredTrack().getDuration());
+                if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getName())) {
+                    editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                            getCurrentQuery().getAlbum().getName());
+                }
                 editor.apply();
                 Log.d(TAG, "Setting lockscreen metadata to: "
                         + getCurrentQuery().getArtist().getName() + ", "
