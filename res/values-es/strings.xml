@@ -70,7 +70,9 @@
   <string name="drawer_title_lovedtracks">Favoritos</string>
   <string name="drawer_title_settings">Ajustes</string>
   <string name="collection_dropdown_recently_added">Añadidos recientemente</string>
+  <string name="collection_dropdown_alpha_artists">Artista A-Z</string>
   <string name="collection_dropdown_play_count">N.º de reproducciones</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Z</string>
   <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Historial</string>
   <string name="preferences_bitrate_low">Normal</string>
@@ -94,6 +96,7 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">comentó en</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
+  <string name="socialaction_type_latchon_single">escuchando junto a un amigo</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
   <string name="socialaction_type_createplaylist_single">creó una lista de reproducción</string>
@@ -120,6 +123,7 @@
   <string name="resolver_config_redirect_button_text_log_into">Acceder a</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Salir de</string>
   <string name="ask_access_activity_header">¿Te gustaría guardar automáticamente datos sobre las canciones que reproduzcas en Hatchet?</string>
+  <string name="ask_access_activity_text1">Haremos eso para usted! Por favor, activa nuestro servicio en la configuración del sistema.</string>
   <string name="ask_access_activity_text2">(Puedes deshabilitar esto cuando quieras en los ajustes de Tomahawk)</string>
   <string name="ask_access_activity_button_text">Ir a los ajustes</string>
   <string name="button_open_queue_text">Añadir a la cola</string>
