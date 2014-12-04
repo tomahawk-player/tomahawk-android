@@ -1395,6 +1395,8 @@ public class PlaybackService extends Service
                         getCurrentQuery().getArtist().getName())
                         .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
                                 getCurrentQuery().getArtist().getName())
+                        .putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                                getCurrentQuery().getAlbum().getName())
                         .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
                                 getCurrentQuery().getName())
                         .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
