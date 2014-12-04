@@ -168,13 +168,7 @@ public class TracksFragment extends TomahawkFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         if (mAlbum != null) {
             queries.addAll(CollectionUtils.getAlbumTracks(mAlbum, mCollection));
-            Segment segment;
-            if (mCollection != null) {
-                segment = new Segment(mCollection.getName() + " " + getString(R.string.tracks),
-                        queries);
-            } else {
-                segment = new Segment(R.string.album_details, queries);
-            }
+            Segment segment = new Segment(mAlbum.getArtist().getName(), queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
