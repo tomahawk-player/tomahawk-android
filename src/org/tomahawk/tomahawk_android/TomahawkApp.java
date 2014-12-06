@@ -24,10 +24,10 @@ import org.acra.annotation.ReportsCrashes;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 
-import android.app.Application;
 import android.content.Context;
 import android.os.Debug;
 import android.os.StrictMode;
+import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 /**
@@ -40,7 +40,7 @@ import android.util.Log;
         resDialogTitle = R.string.crash_dialog_title,
         resDialogCommentPrompt = R.string.crash_dialog_comment_prompt,
         resDialogOkToast = R.string.crash_dialog_ok_toast)
-public class TomahawkApp extends Application {
+public class TomahawkApp extends MultiDexApplication {
 
     private static final String TAG = TomahawkApp.class.getSimpleName();
 
