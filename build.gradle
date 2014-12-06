@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0-rc1'
+        classpath 'com.android.tools.build:gradle:1.0.0-rc4'
     }
 }
 
@@ -17,6 +17,8 @@ repositories {
 }
 
 dependencies {
+    compile files("libs/RemoteMetadataProvider.jar")
+    compile 'com.android.support:multidex:1.0.0'
     compile "com.android.support:appcompat-v7:21.0.2"
     compile "com.android.support:support-v4:21.0.2"
     compile "se.emilsjolander:stickylistheaders:2.4.1"
@@ -32,7 +34,6 @@ dependencies {
     compile "de.mrmaffen:rdio-android-sdk:1.0.0"
     compile "de.mrmaffen:deezer-android-sdk:1.0.0"
     compile "de.mrmaffen:holocircularprogressbar:1.0.1"
-    compile files("libs/RemoteMetadataProvider.jar")
     compile "org.apache.lucene:lucene-core:4.7.2"
     compile "org.apache.lucene:lucene-analyzers-common:4.7.2"
     compile "org.apache.lucene:lucene-queryparser:4.7.2"
@@ -65,6 +66,7 @@ android {
         renderscriptSupportModeEnabled true
         versionName '0.76'
         versionCode 760
+        multiDexEnabled true
         ndk {
             moduleName "libspotifywrapper"
             stl "stlport_static"
@@ -80,6 +82,7 @@ android {
 
     dexOptions {
         jumboMode = true
+        javaMaxHeapSize "2g"
     }
 
     packagingOptions {
