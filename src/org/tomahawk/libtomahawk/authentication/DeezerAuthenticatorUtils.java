@@ -179,9 +179,7 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
 
         @Override
         public void onCancel() {
-            Log.d(TAG, "Deezer authentication cancelled");
-            onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                    "Deezer authentication cancelled.");
+            Log.d(TAG, "Deezer authentication cancelled (may be a faulty message though)");
         }
 
         @Override
