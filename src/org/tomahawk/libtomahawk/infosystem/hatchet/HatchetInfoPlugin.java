@@ -19,6 +19,9 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 
 import com.google.common.base.Charsets;
 
+import com.squareup.okhttp.Cache;
+import com.squareup.okhttp.OkHttpClient;
+
 import org.apache.http.client.ClientProtocolException;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
@@ -65,6 +68,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
@@ -75,8 +79,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
+import retrofit.client.OkClient;
 import retrofit.mime.TypedByteArray;
 
 /**
@@ -131,10 +137,27 @@ public class HatchetInfoPlugin extends InfoPlugin {
     private Hatchet mHatchet;
 
     public HatchetInfoPlugin() {
+        RequestInterceptor requestInterceptor = new RequestInterceptor() {
+            @Override
+            public void intercept(RequestFacade request) {
+                int maxStale = 60 * 60 * 24 * 7 * 54; // tolerate 1-year stale
+                request.addHeader("Cache-Control", "public, max-stale=" + maxStale);
+            }
+        };
+        OkHttpClient okHttpClient = new OkHttpClient();
+        File cacheDir = new File(TomahawkApp.getContext().getCacheDir(), "responseCache");
+        try {
+            Cache cache = new Cache(cacheDir, 1024 * 1024 * 20);
+            okHttpClient.setCache(cache);
+        } catch (IOException e) {
+            Log.e(TAG, "<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setEndpoint(HATCHET_BASE_URL)
                 .setConverter(new JacksonConverter(InfoSystemUtils.getObjectMapper()))
+                .setRequestInterceptor(requestInterceptor)
+                .setClient(new OkClient(okHttpClient))
                 .build();
         mHatchet = restAdapter.create(Hatchet.class);
     }
