@@ -771,14 +771,10 @@ public class TomahawkUtils {
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(context, image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
-                    .placeholder(placeHolder)
-                    .error(placeHolder)
                     .resize(width, width)
                     .into(remoteViews, viewId, notificationId, notification);
         } else {
             Picasso.with(context).load(placeHolder)
-                    .placeholder(placeHolder)
-                    .error(placeHolder)
                     .resize(width, width)
                     .into(remoteViews, viewId, notificationId, notification);
         }
