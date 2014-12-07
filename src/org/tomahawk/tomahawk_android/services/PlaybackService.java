@@ -592,7 +592,7 @@ public class PlaybackService extends Service
                 + getCurrentQuery().getName() + "' by '"
                 + getCurrentQuery().getArtist().getName()
                 + "' resolved by Resolver " + getCurrentQuery()
-                .getPreferredTrackResult().getResolvedBy());
+                .getPreferredTrackResult().getResolvedBy().getId());
         boolean allPlayersReleased = true;
         for (MediaPlayerInterface mediaPlayer : mMediaPlayers) {
             if (!mediaPlayer.isPrepared(getCurrentQuery())) {
