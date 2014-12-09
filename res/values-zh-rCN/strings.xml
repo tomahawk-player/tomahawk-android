@@ -5,6 +5,8 @@
   <string name="login">登录</string>
   <string name="logout">注销</string>
   <string name="register">注册</string>
+  <string name="rescan">立刻重新扫描</string>
+  <string name="internal_storage">内部存储</string>
   <string name="tracks">曲目</string>
   <string name="albums">专辑</string>
   <string name="artists">艺术家</string>
@@ -42,6 +44,7 @@
   <string name="local">本地</string>
   <string name="all">所有</string>
   <string name="preferences_services">服务</string>
+  <string name="preferences_local_collection_text">请选择需要扫描的本地文件夹</string>
   <string name="preferences_hatchet_text">使用 %1$s 同步数据</string>
   <string name="preferences_spotify_text">从 %1$s 播放音乐。需要 Premium 账号</string>
   <string name="preferences_playback">回放</string>
