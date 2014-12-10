@@ -31,13 +31,13 @@
                   android:padding="@dimen/padding_medium">
 
         <View android:layout_width="match_parent"
-              android:layout_height="@dimen/divider_height_thin"
+              android:layout_height="1px"
               android:background="@color/divider"/>
 
         <LinearLayout android:layout_width="wrap_content"
                       android:layout_height="wrap_content">
 
-            <View android:layout_width="@dimen/divider_height_thin"
+            <View android:layout_width="1px"
                   android:layout_height="match_parent"
                   android:background="@color/divider"/>
 
@@ -70,14 +70,14 @@
 
             </LinearLayout>
 
-            <View android:layout_width="@dimen/divider_height_thin"
+            <View android:layout_width="1px"
                   android:layout_height="match_parent"
                   android:background="@color/divider"/>
 
         </LinearLayout>
 
         <View android:layout_width="match_parent"
-              android:layout_height="@dimen/divider_height_thin"
+              android:layout_height="1px"
               android:background="@color/divider"/>
 
     </LinearLayout>

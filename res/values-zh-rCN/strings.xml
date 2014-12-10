@@ -5,6 +5,8 @@
   <string name="login">登录</string>
   <string name="logout">注销</string>
   <string name="register">注册</string>
+  <string name="rescan">立刻重新扫描</string>
+  <string name="internal_storage">内部存储</string>
   <string name="tracks">曲目</string>
   <string name="albums">专辑</string>
   <string name="artists">艺术家</string>
@@ -39,7 +41,10 @@
   <string name="auth_logged_in">登录到</string>
   <string name="auth_logged_out">注销</string>
   <string name="local_collection_pretty_name">本地收藏</string>
+  <string name="local">本地</string>
+  <string name="all">所有</string>
   <string name="preferences_services">服务</string>
+  <string name="preferences_local_collection_text">请选择需要扫描的本地文件夹</string>
   <string name="preferences_hatchet_text">使用 %1$s 同步数据</string>
   <string name="preferences_spotify_text">从 %1$s 播放音乐。需要 Premium 账号</string>
   <string name="preferences_playback">回放</string>
@@ -80,8 +85,10 @@
   <string name="drawer_title_settings">设置</string>
   <string name="drawer_header_cloudcollections">云收藏</string>
   <string name="collection_dropdown_recently_added">最近添加</string>
-  <string name="collection_dropdown_artist">艺术家</string>
+  <string name="collection_dropdown_alpha_artists">艺术家 A-Z</string>
   <string name="collection_dropdown_play_count">播发统计</string>
+  <string name="collection_dropdown_alpha_albums">专辑 A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">历史</string>
   <string name="preferences_bitrate_low">正常</string>
   <string name="preferences_bitrate_medium">好</string>
@@ -106,6 +113,10 @@
   <string name="socialaction_type_collected_album_single">收藏了一张专辑</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">收藏了%1$d 张专辑</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">收藏了一位艺术家</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">收藏了%1$d 个艺术家</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">评论</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->

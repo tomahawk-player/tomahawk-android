@@ -3,7 +3,11 @@ buildscript {
         mavenCentral()
     }
     dependencies {
+<<<<<<< HEAD
         classpath 'com.android.tools.build:gradle:0.14.0'
+=======
+        classpath 'com.android.tools.build:gradle:1.0.0-rc1'
+>>>>>>> upstream/master
     }
 }
 
@@ -17,8 +21,8 @@ repositories {
 }
 
 dependencies {
-    compile "com.android.support:appcompat-v7:21.0.0"
-    compile "com.android.support:support-v4:21.0.0"
+    compile "com.android.support:appcompat-v7:21.0.2"
+    compile "com.android.support:support-v4:21.0.2"
     compile "se.emilsjolander:stickylistheaders:2.4.1"
     compile("ch.acra:acra:4.5.0") {
         transitive = false
@@ -27,7 +31,8 @@ dependencies {
     compile "com.google.guava:guava:18.0"
     compile "com.squareup.picasso:picasso:2.3.3"
     compile "com.github.castorflex.verticalviewpager:library:19.0.0"
-    compile "de.mrmaffen:vlc-android-sdk:1.0.3"
+    compile "com.github.castorflex.smoothprogressbar:library:1.0.0"
+    compile "de.mrmaffen:vlc-android-sdk:1.0.4"
     compile "de.mrmaffen:rdio-android-sdk:1.0.0"
     compile "de.mrmaffen:deezer-android-sdk:1.0.0"
     compile "de.mrmaffen:holocircularprogressbar:1.0.1"
@@ -55,15 +60,24 @@ def getNewVersionName = { ->
 
 android {
     compileSdkVersion 21
+<<<<<<< HEAD
     buildToolsVersion "21.1.0"
+=======
+    buildToolsVersion "21.1.1"
+>>>>>>> upstream/master
 
     defaultConfig {
         minSdkVersion 11
         targetSdkVersion 21
         renderscriptTargetApi 21
         renderscriptSupportModeEnabled true
+<<<<<<< HEAD
         versionName '0.74'
         versionCode 740
+=======
+        versionName '0.76'
+        versionCode 760
+>>>>>>> upstream/master
         ndk {
             moduleName "libspotifywrapper"
             stl "stlport_static"
@@ -115,20 +129,25 @@ android {
         release.setRoot('build-types/release')
     }
 
+    applicationVariants.all { variant ->
+        variant.outputs.each { output ->
+            def outputFile = output.outputFile
+            if (outputFile != null && outputFile.name.endsWith('.apk')) {
+                def fileName = outputFile.name.replace(".apk", "-" + getNewVersionName() + ".apk")
+                output.outputFile = new File(outputFile.parent, fileName)
+            }
+        }
+    }
+
     buildTypes {
         release {
-            zipAlign true
-            runProguard true
+            zipAlignEnabled true
+            minifyEnabled true
             proguardFile 'proguard-android.txt'
-            applicationVariants.all { variant ->
-                def file = variant.outputFile
-                variant.outputFile = new File((String) file.parent,
-                        file.name.replace(".apk", "-" + getNewVersionName() + ".apk"))
-            }
         }
         debug {
             versionNameSuffix "_debug"
-            zipAlign true
+            zipAlignEnabled true
         }
     }
 

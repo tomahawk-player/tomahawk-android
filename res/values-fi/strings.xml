@@ -55,7 +55,6 @@
   <string name="drawer_title_settings">Asetukset</string>
   <string name="drawer_header_cloudcollections">Pilvikokoelmat</string>
   <string name="collection_dropdown_recently_added">Viimeksi lisätyt</string>
-  <string name="collection_dropdown_artist">Artisti</string>
   <string name="history">Historia</string>
   <string name="preferences_bitrate_low">Tavallinen</string>
   <string name="preferences_bitrate_medium">Hyvä</string>
@@ -78,6 +77,8 @@
   <string name="socialaction_type_collected_album_single">keräsi albumin</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">keräsi %1$d albumia</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">kommentoi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->

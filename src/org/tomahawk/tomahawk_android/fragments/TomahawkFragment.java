@@ -176,7 +176,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected Query mQuery;
 
-    private int mFirstVisibleItemLastTime = 0;
+    private int mFirstVisibleItemLastTime = -1;
 
     private int mVisibleItemCount = 0;
 
@@ -216,7 +216,33 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         @Override
         public void onReceive(Context context, Intent intent) {
             if (CollectionManager.COLLECTION_UPDATED.equals(intent.getAction())) {
-                onCollectionUpdated();
+                if (intent.getStringExtra(TOMAHAWK_PLAYLIST_KEY) != null) {
+                    if (mPlaylist != null
+                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY).equals(
+                            mPlaylist.getCacheKey())) {
+                        updateAdapter();
+                    }
+                } else if (intent.getStringExtra(TOMAHAWK_ALBUM_KEY) != null) {
+                    if (mAlbum != null
+                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_ALBUM_KEY).equals(
+                            mAlbum.getCacheKey())) {
+                        updateAdapter();
+                    }
+                } else if (intent.getStringExtra(TOMAHAWK_ARTIST_KEY) != null) {
+                    if (mArtist != null
+                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_ARTIST_KEY).equals(
+                            mArtist.getCacheKey())) {
+                        updateAdapter();
+                    }
+                } else if (intent.getStringExtra(TOMAHAWK_QUERY_KEY) != null) {
+                    if (mQuery != null
+                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_QUERY_KEY).equals(
+                            mQuery.getCacheKey())) {
+                        updateAdapter();
+                    }
+                } else {
+                    updateAdapter();
+                }
             } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
                 String queryKey = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
                 synchronized (TomahawkFragment.this) {
@@ -321,6 +347,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     mContainerFragmentClass = SearchPagerFragment.class;
                 } else if (fragmentName.equals(UserPagerFragment.class.getName())) {
                     mContainerFragmentClass = UserPagerFragment.class;
+                } else if (fragmentName.equals(CollectionPagerFragment.class.getName())) {
+                    mContainerFragmentClass = CollectionPagerFragment.class;
                 }
             }
             if (getArguments().containsKey(CONTAINER_FRAGMENT_PAGE)) {
@@ -517,15 +545,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    /**
-     * Called when a Collection has been updated.
-     */
-    protected void onCollectionUpdated() {
-        updateAdapter();
-        mResolveQueriesHandler.removeCallbacksAndMessages(null);
-        mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
-    }
-
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         super.onScrollStateChanged(view, scrollState);
@@ -543,6 +562,12 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             mResolveQueriesHandler.sendEmptyMessageDelayed(RESOLVE_QUERIES_REPORTER_MSG,
                     RESOLVE_QUERIES_REPORTER_DELAY);
         }
+    }
+
+    protected void forceAutoResolve(){
+        mResolveQueriesHandler.removeCallbacksAndMessages(null);
+        mResolveQueriesHandler.sendEmptyMessageDelayed(RESOLVE_QUERIES_REPORTER_MSG,
+                RESOLVE_QUERIES_REPORTER_DELAY);
     }
 
     private void resolveVisibleItems() {
@@ -616,8 +641,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                                     DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());
                             if (playlist != null) {
                                 mPlaylist = playlist;
-                                TomahawkApp.getContext().sendBroadcast(
-                                        new Intent(CollectionManager.COLLECTION_UPDATED));
+                                CollectionManager.sendCollectionUpdatedBroadcast(null, mPlaylist);
                             }
                         }
                     }

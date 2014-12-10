@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -31,11 +32,21 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Track}s inside its {@link
@@ -43,14 +54,55 @@ import java.util.ArrayList;
  */
 public class TracksFragment extends TomahawkFragment {
 
+    public static final String COLLECTION_TRACKS_SPINNER_POSITION
+            = "org.tomahawk.tomahawk_android.collection_tracks_spinner_position";
+
+    private TracksFragmentReceiver mTracksFragmentReceiver;
+
+    /**
+     * Handles incoming broadcasts.
+     */
+    private class TracksFragmentReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (CollectionManager.COLLECTION_UPDATED.equals(intent.getAction())) {
+                if (intent.getStringExtra(TOMAHAWK_ALBUM_KEY) != null) {
+                    if (mAlbum != null
+                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_ALBUM_KEY).equals(
+                            mAlbum.getCacheKey())) {
+                        showAlbumFancyDropDown();
+                    }
+                }
+            }
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
+
+        // Initialize and register Receiver
+        if (mTracksFragmentReceiver == null) {
+            mTracksFragmentReceiver = new TracksFragmentReceiver();
+            IntentFilter intentFilter = new IntentFilter(CollectionManager.COLLECTION_UPDATED);
+            getActivity().registerReceiver(mTracksFragmentReceiver, intentFilter);
+        }
 
         if (mContainerFragmentClass == null) {
             getActivity().setTitle("");
         }
         updateAdapter();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mTracksFragmentReceiver != null) {
+            getActivity().unregisterReceiver(mTracksFragmentReceiver);
+            mTracksFragmentReceiver = null;
+        }
     }
 
     /**
@@ -116,13 +168,7 @@ public class TracksFragment extends TomahawkFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         if (mAlbum != null) {
             queries.addAll(CollectionUtils.getAlbumTracks(mAlbum, mCollection));
-            Segment segment;
-            if (mCollection != null) {
-                segment = new Segment(mCollection.getName() + " " + getString(R.string.tracks),
-                        queries);
-            } else {
-                segment = new Segment(R.string.album_details, queries);
-            }
+            Segment segment = new Segment(mAlbum.getArtist().getName(), queries);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
@@ -138,20 +184,7 @@ public class TracksFragment extends TomahawkFragment {
                 getListAdapter().setSegments(segment, getListView());
             }
             showContentHeader(mAlbum, R.dimen.header_clear_space_nonscrollable);
-        } else if (mArtist != null) {
-            queries.addAll(CollectionUtils.getArtistTracks(mArtist, mCollection));
-            Segment segment = new Segment(queries);
-            if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
-                        this);
-                tomahawkListAdapter.setShowDuration(true);
-                tomahawkListAdapter.setShowContentHeaderSpacerResId(
-                        R.dimen.header_clear_space_scrollable, getListView());
-                setListAdapter(tomahawkListAdapter);
-            } else {
-                getListAdapter().setSegments(segment, getListView());
-            }
-            showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable);
+            showAlbumFancyDropDown();
         } else if (mQuery != null) {
             queries.add(mQuery);
             Segment segment = new Segment(queries);
@@ -166,6 +199,7 @@ public class TracksFragment extends TomahawkFragment {
                 getListAdapter().setSegments(segment, getListView());
             }
             showContentHeader(mQuery, R.dimen.header_clear_space_nonscrollable);
+            showFancyDropDown(mQuery);
         } else if (mSearchSongs != null) {
             queries.addAll(mSearchSongs);
             if (getListAdapter() == null) {
@@ -177,15 +211,55 @@ public class TracksFragment extends TomahawkFragment {
                 getListAdapter().setSegments(new Segment(queries), getListView());
             }
         } else {
-            queries.addAll(mCollection.getQueries());
-            Segment segment = new Segment(mCollection.getName() + " " + getString(R.string.tracks),
-                    queries);
+            queries.addAll(CollectionManager.getInstance()
+                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getQueries());
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+            List<Integer> dropDownItems = new ArrayList<Integer>();
+            dropDownItems.add(R.string.collection_dropdown_recently_added);
+            dropDownItems.add(R.string.collection_dropdown_alpha);
+            dropDownItems.add(R.string.collection_dropdown_alpha_artists);
+            AdapterView.OnItemSelectedListener spinnerClickListener
+                    = new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parent, View view, int position,
+                        long id) {
+                    SharedPreferences preferences =
+                            PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+                    int initialPos = preferences.getInt(COLLECTION_TRACKS_SPINNER_POSITION, 0);
+                    if (initialPos != position) {
+                        preferences.edit().putInt(COLLECTION_TRACKS_SPINNER_POSITION, position)
+                                .commit();
+                        updateAdapter();
+                    }
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parent) {
+                }
+            };
+            int initialPos = preferences.getInt(COLLECTION_TRACKS_SPINNER_POSITION, 0);
+            if (initialPos == 0) {
+                Collection userColl = CollectionManager.getInstance().getCollection(
+                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
+                Collections.sort(queries, new TomahawkListItemComparator(
+                        TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
+                        userColl.getTrackAddedTimeStamps()));
+            } else if (initialPos == 1) {
+                Collections.sort(queries, new TomahawkListItemComparator(
+                        TomahawkListItemComparator.COMPARE_ALPHA));
+            } else if (initialPos == 2) {
+                Collections.sort(queries, new TomahawkListItemComparator(
+                        TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
+            }
+            List<Segment> segments = new ArrayList<Segment>();
+            segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, queries));
             if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
+                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segments,
                         this);
                 setListAdapter(tomahawkListAdapter);
             } else {
-                getListAdapter().setSegments(segment, getListView());
+                getListAdapter().setSegments(segments, getListView());
             }
         }
 
@@ -195,5 +269,33 @@ public class TracksFragment extends TomahawkFragment {
         }
 
         updateShowPlaystate();
+        forceAutoResolve();
+    }
+
+    private void showAlbumFancyDropDown() {
+        if (mAlbum != null) {
+            final List<Collection> collections =
+                    CollectionManager.getInstance().getAvailableCollections(mAlbum);
+            int initialSelection = 0;
+            for (int i = 0; i < collections.size(); i++) {
+                if (collections.get(i) == mCollection) {
+                    initialSelection = i;
+                    break;
+                }
+            }
+            showFancyDropDown(mAlbum, initialSelection,
+                    FancyDropDown.convertToDropDownItemInfo(collections),
+                    new FancyDropDown.DropDownListener() {
+                        @Override
+                        public void onDropDownItemSelected(int position) {
+                            mCollection = collections.get(position);
+                            updateAdapter();
+                        }
+
+                        @Override
+                        public void onCancel() {
+                        }
+                    });
+        }
     }
 }

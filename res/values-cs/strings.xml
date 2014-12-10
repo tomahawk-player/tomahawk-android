@@ -79,7 +79,6 @@
   <string name="drawer_title_settings">Nastavení</string>
   <string name="drawer_header_cloudcollections">Sbírky na serveru</string>
   <string name="collection_dropdown_recently_added">Nedávno přidáno</string>
-  <string name="collection_dropdown_artist">Umělec</string>
   <string name="collection_dropdown_play_count">Počet přehrání</string>
   <string name="history">Historie</string>
   <string name="preferences_bitrate_low">Normální</string>
@@ -105,6 +104,8 @@
   <string name="socialaction_type_collected_album_single">sebral album</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">sebral %1$d alb</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">přidal poznámku k</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->

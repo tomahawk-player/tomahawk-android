@@ -5,6 +5,8 @@
   <string name="login">Inloggen</string>
   <string name="logout">Uitloggen</string>
   <string name="register">Registreren</string>
+  <string name="rescan">Nu opnieuw scannen</string>
+  <string name="internal_storage">Interne opslag</string>
   <string name="tracks">Nummers</string>
   <string name="albums">Albums</string>
   <string name="artists">Artiesten</string>
@@ -39,7 +41,10 @@
   <string name="auth_logged_in">Aangemeld bij</string>
   <string name="auth_logged_out">Afgemeld bij</string>
   <string name="local_collection_pretty_name">Lokale verzameling</string>
+  <string name="local">Lokaal</string>
+  <string name="all">Alles</string>
   <string name="preferences_services">Diensten</string>
+  <string name="preferences_local_collection_text">Kies de mappen die moeten worden gescand op lokale mediabestanden.</string>
   <string name="preferences_hatchet_text">Synchroniseer uw gegevens met %1$s.</string>
   <string name="preferences_spotify_text">Speel uw muziek af van %1$s. Hiervoor is een Premium-account nodig.</string>
   <string name="preferences_playback">Afspelen</string>
@@ -53,6 +58,8 @@
   <string name="preferences_app_version">App-versie.</string>
   <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Ideeen met ons delen or om ondersteuning vragen.</string>
+  <string name="preferences_app_sendlog">Log versturen</string>
+  <string name="preferences_app_sendlog_text">Verstuur uw logbestand voor foutopsporingsdoeleinden</string>
   <string name="crash_dialog_title">Tomahawk is vastgelopen.</string>
   <string name="crash_dialog_text">Er is een onverwachte fout opgetreden waardoor de toepassing niet meer werkt. Help ons dit op te lossen door de foutgegevens naar ons te versturen. Klik daarvoor op OK.</string>
   <string name="crash_dialog_comment_prompt">U kunt opmerkingen over het probleem hieronder plaatsen:</string>
@@ -78,8 +85,10 @@
   <string name="drawer_title_settings">Instellingen</string>
   <string name="drawer_header_cloudcollections">Cloud-verzamelingen</string>
   <string name="collection_dropdown_recently_added">Recent toegevoegd</string>
-  <string name="collection_dropdown_artist">Artiest</string>
+  <string name="collection_dropdown_alpha_artists">Artiest A-Z</string>
   <string name="collection_dropdown_play_count">Aantal keer afgespeeld</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Geschiedenis</string>
   <string name="preferences_bitrate_low">Normaal</string>
   <string name="preferences_bitrate_medium">Goed</string>
@@ -89,6 +98,7 @@
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Volgt</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Volgen</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">volgt nu</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
@@ -103,6 +113,10 @@
   <string name="socialaction_type_collected_album_single">verzamelde een album</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">verzamelde %1$d albums</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">verzamelde een artiest</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">verzamelde %1$d artiesten</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">heeft gereageerd op</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
@@ -140,4 +154,6 @@
   <string name="ask_access_activity_text2">(U kunt dit ook op elk moment weer uitschakelen in de instellingen van Tomahawk)</string>
   <string name="ask_access_activity_button_text">Naar instellingen gaan</string>
   <string name="button_open_queue_text">Wachtrij</string>
+  <string name="button_close">Sluiten</string>
+  <string name="view_album">Album weergeven</string>
 </resources>

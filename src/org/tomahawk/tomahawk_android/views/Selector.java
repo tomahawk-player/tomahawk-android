@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.views;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
@@ -30,7 +31,6 @@ import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.ScaleAnimation;
 import android.widget.FrameLayout;
@@ -61,10 +61,12 @@ public class Selector extends FrameLayout {
 
     public Selector(Context context) {
         super(context);
+        inflate(getContext(), R.layout.selector, this);
     }
 
     public Selector(Context context, AttributeSet attrs) {
         super(context, attrs);
+        inflate(getContext(), R.layout.selector, this);
     }
 
     public void setup(List<FragmentInfo> selectorItems,
@@ -73,12 +75,6 @@ public class Selector extends FrameLayout {
         mSelectorListener = selectorListener;
         mRootView = rootView;
         mSelectorPosStorageKey = selectorPosStorageKey;
-        if (findViewById(R.id.selector_root) == null) {
-            LayoutInflater inflater =
-                    (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View selector = inflater.inflate(R.layout.selector, this, false);
-            addView(selector);
-        }
     }
 
     public void showSelectorList() {
@@ -94,8 +90,6 @@ public class Selector extends FrameLayout {
             bm = BlurTransformation.staticTransform(bm, 25f);
             final ImageView bgImageView = (ImageView) findViewById(R.id.background);
             bgImageView.setImageBitmap(bm);
-            animateFade(bgImageView, true);
-            animateFade(findViewById(R.id.darkening_background), true);
 
             final LinearLayout selectorFrame = (LinearLayout) findViewById(R.id.selector_frame);
             selectorFrame.removeAllViews();
@@ -143,6 +137,8 @@ public class Selector extends FrameLayout {
                 }
             });
             selectorFrame.addView(item);
+            AnimationUtils.fade(bgImageView, 120, true);
+            AnimationUtils.fade(findViewById(R.id.darkening_background), 120, true);
             animateScale(selectorFrame, false, null);
         }
     }
@@ -151,8 +147,8 @@ public class Selector extends FrameLayout {
         if (isListShowing()) {
             setClickable(false);
             mListShowing = false;
-            animateFade(findViewById(R.id.darkening_background), false);
-            animateFade(findViewById(R.id.background), false);
+            AnimationUtils.fade(findViewById(R.id.darkening_background), 120, false);
+            AnimationUtils.fade(findViewById(R.id.background), 120, false);
             final LinearLayout selectorFrame = (LinearLayout) findViewById(R.id.selector_frame);
             animateScale(selectorFrame, true, new Animation.AnimationListener() {
                 @Override
@@ -173,18 +169,6 @@ public class Selector extends FrameLayout {
 
     public boolean isListShowing() {
         return mListShowing;
-    }
-
-    private void animateFade(View view, boolean fadeIn) {
-        AlphaAnimation animation;
-        if (fadeIn) {
-            animation = new AlphaAnimation(0f, 1f);
-        } else {
-            animation = new AlphaAnimation(1f, 0f);
-        }
-        animation.setDuration(120);
-        view.startAnimation(animation);
-        animation.setFillAfter(true);
     }
 
     private void animateScale(View view, boolean reverse, Animation.AnimationListener listener) {

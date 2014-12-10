@@ -52,13 +52,14 @@
 
     </LinearLayout>
 
-    <Spinner
-            android:id="@+id/spinner1"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="center"
-            android:paddingLeft="@dimen/padding_medium"
-            android:background="@drawable/tomahawk_spinner_background_holo_light"
-            android:entries="@array/fake_preferences_items_bitrate"/>
+    <Spinner android:id="@+id/spinner1"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center"
+             android:paddingLeft="@dimen/padding_large"
+             android:paddingRight="@dimen/padding_large"
+             android:paddingTop="@dimen/padding_small"
+             android:paddingBottom="@dimen/padding_small"
+             style="@style/PopupMenu.Tomahawk"/>
 
 </LinearLayout>

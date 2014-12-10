@@ -5,6 +5,7 @@
   <string name="login">Logga in</string>
   <string name="logout">Logga ut</string>
   <string name="register">Registrera</string>
+  <string name="tracks">Spår</string>
   <string name="albums">Album</string>
   <string name="artists">Artister</string>
   <string name="users">Användare</string>
@@ -50,6 +51,8 @@
   <string name="preferences_audio_quality_text">Önskad ljudkvalitet när inte uppkopplad på WIFI.</string>
   <string name="preferences_info">Info</string>
   <string name="preferences_app_version">App-Version</string>
+  <string name="preferences_app_uservoice">Återkoppling</string>
+  <string name="preferences_app_sendlog">Skicka logg</string>
   <string name="crash_dialog_title">Tomahawk har kraschat</string>
   <string name="crash_dialog_text">Ett oväntat fel har inträffat och tvingat programmet att avslutas. Hjälp oss fixa det genom att skicka datan om felet, allt du behöver göra är att trycka OK.</string>
   <string name="crash_dialog_comment_prompt">Skriv din kommentar om felet (frivilligt):</string>
@@ -59,9 +62,13 @@
   <string name="context_menu_add_to_playlist">Lägg till i spellistan</string>
   <string name="context_menu_delete">Ta bort</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">Ta bort från samling</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">Lägg till i samling</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">Älska</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">Ogilla</string>
   <string name="context_menu_share">Dela</string>
   <string name="context_menu_gotoartist">Gå till Artist</string>
   <string name="drawer_title_feed">Flöde</string>
@@ -70,7 +77,6 @@
   <string name="drawer_title_lovedtracks">Favoriter</string>
   <string name="drawer_title_settings">Inställningar</string>
   <string name="collection_dropdown_recently_added">Nyligen tillagda</string>
-  <string name="collection_dropdown_artist">Artist</string>
   <string name="collection_dropdown_play_count">Antal spelningar</string>
   <string name="history">Historik</string>
   <string name="preferences_bitrate_low">Normal</string>
@@ -81,6 +87,7 @@
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Följer</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Följ</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
@@ -88,12 +95,16 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">kommenterade</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
+  <string name="socialaction_type_createplaylist_single">skapade en spellista</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
+  <string name="socialaction_type_createplaylist_multiple">skapade %1$d spellistor</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s av %2$s</string>
   <string name="time_afewseconds">några sekunder sedan</string>
@@ -121,4 +132,6 @@
   <string name="ask_access_activity_text2">(Du kan avaktivera det här när du vill i Tomahawks inställningar)</string>
   <string name="ask_access_activity_button_text">Gå till inställningarna</string>
   <string name="button_open_queue_text">Kö</string>
+  <string name="button_close">Stäng</string>
+  <string name="view_album">Se album</string>
 </resources>

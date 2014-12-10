@@ -22,9 +22,10 @@
           android:layout_width="match_parent"
           android:layout_height="wrap_content"
           android:layout_gravity="center_vertical"
-          android:paddingLeft="@dimen/padding_medium"
           android:paddingRight="@dimen/padding_medium"
+          android:paddingTop="@dimen/padding_small"
+          android:paddingBottom="@dimen/padding_small"
           android:ellipsize="marquee"
           android:singleLine="true"
-          android:textColor="@color/secondary_textcolor"
+          android:textColor="@color/primary_textcolor"
           android:textSize="@dimen/text_size_small"/>

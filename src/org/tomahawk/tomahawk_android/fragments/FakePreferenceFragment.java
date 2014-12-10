@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
+import org.tomahawk.tomahawk_android.dialogs.DirectoryChooserConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.LoginConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.RedirectConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
@@ -136,6 +137,12 @@ public class FakePreferenceFragment extends TomahawkListFragment
         mFakePreferenceGroups = new ArrayList<FakePreferenceGroup>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
                 getString(R.string.preferences_services));
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG,
+                TomahawkApp.PLUGINNAME_USERCOLLECTION,
+                getString(R.string.local_collection_pretty_name),
+                getString(R.string.preferences_local_collection_text),
+                R.drawable.ic_action_sd_storage));
         AuthenticatorUtils authUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
@@ -283,6 +290,8 @@ public class FakePreferenceFragment extends TomahawkListFragment
             if (TomahawkApp.PLUGINNAME_RDIO.equals(fakePreference.getKey())
                     || TomahawkApp.PLUGINNAME_DEEZER.equals(fakePreference.getKey())) {
                 dialog = new RedirectConfigDialog();
+            } else if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(fakePreference.getKey())) {
+                dialog = new DirectoryChooserConfigDialog();
             } else {
                 dialog = new ResolverConfigDialog();
             }

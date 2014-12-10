@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
@@ -31,7 +29,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
+import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContextMenuFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
@@ -53,6 +51,7 @@ public class FragmentUtils {
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
     public static void addRootFragment(TomahawkMainActivity activity,
+<<<<<<< HEAD
             FragmentManager fragmentManager) {
         HatchetAuthenticatorUtils hatchetAuthUtils =
                 (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
@@ -62,13 +61,23 @@ public class FragmentUtils {
             Bundle bundle = new Bundle();
             bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
                     hatchetAuthUtils.getLoggedInUser().getId());
+=======
+            FragmentManager fragmentManager, User loggedInUser) {
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        if (loggedInUser != null) {
+            Bundle bundle = new Bundle();
+            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, loggedInUser.getId());
+>>>>>>> upstream/master
             bundle.putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_DASHBOARD);
             ft.add(R.id.content_viewer_frame,
                     Fragment.instantiate(activity, SocialActionsFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
         } else {
+            Bundle bundle = new Bundle();
+            bundle.putString(CollectionManager.COLLECTION_ID,
+                    TomahawkApp.PLUGINNAME_USERCOLLECTION);
             ft.add(R.id.content_viewer_frame,
-                    Fragment.instantiate(activity, CollectionFragment.class.getName()),
+                    Fragment.instantiate(activity, CollectionPagerFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
         }
         ft.commit();
@@ -145,6 +154,7 @@ public class FragmentUtils {
                 Fragment.instantiate(activity, clss.getName(), bundle),
                 FRAGMENT_TAG);
         ft.addToBackStack(FRAGMENT_TAG);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commit();
         activity.collapsePanel();
     }

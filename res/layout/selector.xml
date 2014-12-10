@@ -19,19 +19,20 @@
  */
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/selector_root"
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
     <org.tomahawk.tomahawk_android.views.BottomCropImageView
             android:id="@+id/background"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
+            android:layout_height="match_parent"
+            android:visibility="gone"/>
 
     <View android:id="@+id/darkening_background"
           android:layout_width="match_parent"
           android:layout_height="match_parent"
-          android:background="@color/tertiary_transparent"/>
+          android:background="@color/tertiary_transparent"
+          android:visibility="gone"/>
 
     <LinearLayout android:id="@+id/selector_frame"
                   android:layout_width="wrap_content"

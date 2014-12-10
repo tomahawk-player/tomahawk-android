@@ -35,6 +35,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -48,6 +49,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class ContentHeaderFragment extends Fragment {
 
@@ -77,6 +79,18 @@ public abstract class ContentHeaderFragment extends Fragment {
                 mDontShowHeader = getArguments().getBoolean(DONT_SHOW_HEADER);
             }
         }
+    }
+
+    protected void showFancyDropDown(FrameLayout headerFrame, String text) {
+        ViewHolder viewHolder = new ViewHolder(null, headerFrame, R.layout.content_header);
+        viewHolder.setupFancyDropDown(text);
+    }
+
+    protected void showFancyDropDown(FrameLayout headerFrame, int initialSelection, String text,
+            List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
+            FancyDropDown.DropDownListener dropDownListener) {
+        ViewHolder viewHolder = new ViewHolder(null, headerFrame, R.layout.content_header);
+        viewHolder.setupFancyDropDown(initialSelection, text, dropDownItemInfos, dropDownListener);
     }
 
     /**
@@ -174,7 +188,7 @@ public abstract class ContentHeaderFragment extends Fragment {
             View header = inflater.inflate(layoutId, headerFrame, false);
             headerFrame.addView(header);
             if (dynamic) {
-                setupTextViewAnimation(header);
+                setupFancyDropDownAnimation(header);
                 setupButtonAnimation(header);
                 setupPageIndicatorAnimation(header);
 
@@ -194,7 +208,7 @@ public abstract class ContentHeaderFragment extends Fragment {
         if (item instanceof Integer) {
             viewHolder.fillContentHeader((Integer) item);
         } else if (dynamic) {
-            View.OnClickListener listener = new View.OnClickListener() {
+            View.OnClickListener moreButtonListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(),
@@ -202,9 +216,9 @@ public abstract class ContentHeaderFragment extends Fragment {
                 }
             };
             if (item instanceof Album) {
-                viewHolder.fillContentHeader((Album) item, listener);
+                viewHolder.fillContentHeader((Album) item, moreButtonListener);
             } else if (item instanceof Artist) {
-                viewHolder.fillContentHeader((Artist) item, listener);
+                viewHolder.fillContentHeader((Artist) item, moreButtonListener);
             } else if (item instanceof Playlist) {
                 viewHolder.fillContentHeader((Playlist) item, artistImages);
             } else if (item instanceof Query) {
@@ -233,36 +247,91 @@ public abstract class ContentHeaderFragment extends Fragment {
         }
     }
 
-    private void setupTextViewAnimation(View view) {
+    private void setupFancyDropDownAnimation(final View view) {
         if (view != null) {
-            View textView = view.findViewById(R.id.textview1);
-            if (textView != null) {
-                Resources resources = TomahawkApp.getContext().getResources();
-                int smallPadding = resources.getDimensionPixelSize(R.dimen.padding_small);
-                int x = resources.getDimensionPixelSize(R.dimen.padding_superlarge);
-                int actionBarHeight = resources.getDimensionPixelSize(
-                        R.dimen.abc_action_bar_default_height_material);
-                int y = actionBarHeight + smallPadding;
-                PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("x", x);
-                PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("y", y);
-                mTextViewAnim = ObjectAnimator.ofPropertyValuesHolder(textView, pvhX, pvhY)
-                        .setDuration(10000);
-                mTextViewAnim.setInterpolator(new LinearInterpolator());
+            final View fancyDropDown = view.findViewById(R.id.fancydropdown);
+            if (fancyDropDown != null) {
+                view.getViewTreeObserver().addOnGlobalLayoutListener(
+                        new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                // correctly position fancyDropDown first
+                                int dropDownHeight = TomahawkApp.getContext().getResources()
+                                        .getDimensionPixelSize(
+                                                R.dimen.show_context_menu_icon_height);
+                                fancyDropDown.setY(view.getHeight() / 2 - dropDownHeight / 2);
+
+                                // now calculate the animation goal and instantiate the animation
+                                Resources resources = TomahawkApp.getContext().getResources();
+                                int smallPadding = resources
+                                        .getDimensionPixelSize(R.dimen.padding_small);
+                                int x = resources.getDimensionPixelSize(R.dimen.padding_superlarge);
+                                int actionBarHeight = resources.getDimensionPixelSize(
+                                        R.dimen.abc_action_bar_default_height_material);
+                                int y = actionBarHeight + smallPadding;
+                                PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("x", x);
+                                PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("y", y);
+                                mTextViewAnim = ObjectAnimator
+                                        .ofPropertyValuesHolder(fancyDropDown, pvhX, pvhY)
+                                        .setDuration(10000);
+                                mTextViewAnim.setInterpolator(new LinearInterpolator());
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    view.getViewTreeObserver()
+                                            .removeOnGlobalLayoutListener(this);
+                                } else {
+                                    view.getViewTreeObserver()
+                                            .removeGlobalOnLayoutListener(this);
+                                }
+                            }
+                        });
             }
         }
     }
 
-    private void setupButtonAnimation(View view) {
+    private void setupButtonAnimation(final View view) {
         if (view != null) {
-            View buttonView = view.findViewById(R.id.morebutton1);
+            final View buttonView = view.findViewById(R.id.morebutton1);
             if (buttonView != null) {
-                Resources resources = TomahawkApp.getContext().getResources();
-                int smallPadding = resources.getDimensionPixelSize(R.dimen.padding_small);
-                int actionBarHeight = resources.getDimensionPixelSize(
-                        R.dimen.abc_action_bar_default_height_material);
-                int y = actionBarHeight + smallPadding;
-                mButtonAnim = ObjectAnimator.ofFloat(buttonView, "y", y).setDuration(10000);
-                mButtonAnim.setInterpolator(new LinearInterpolator());
+                view.getViewTreeObserver().addOnGlobalLayoutListener(
+                        new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                // correctly position fancyDropDown first
+                                Resources resources = TomahawkApp.getContext().getResources();
+                                int buttonHeight = TomahawkApp.getContext().getResources()
+                                        .getDimensionPixelSize(
+                                                R.dimen.show_context_menu_icon_height);
+                                int largePadding = TomahawkApp.getContext().getResources()
+                                        .getDimensionPixelSize(R.dimen.padding_large);
+                                int pageIndicatorHeight = 0;
+                                View pageIndicator =
+                                        view.findViewById(R.id.page_indicator_container);
+                                if (pageIndicator != null
+                                        && pageIndicator.getVisibility() == View.VISIBLE) {
+                                    pageIndicatorHeight = TomahawkApp.getContext().getResources()
+                                            .getDimensionPixelSize(R.dimen.pager_indicator_height);
+                                }
+                                buttonView.setY(view.getHeight() - buttonHeight - largePadding
+                                        - pageIndicatorHeight);
+
+                                // now calculate the animation goal and instantiate the animation
+                                int smallPadding = resources
+                                        .getDimensionPixelSize(R.dimen.padding_small);
+                                int actionBarHeight = resources.getDimensionPixelSize(
+                                        R.dimen.abc_action_bar_default_height_material);
+                                int y = actionBarHeight + smallPadding;
+                                mButtonAnim = ObjectAnimator.ofFloat(buttonView, "y", y)
+                                        .setDuration(10000);
+                                mButtonAnim.setInterpolator(new LinearInterpolator());
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    view.getViewTreeObserver()
+                                            .removeOnGlobalLayoutListener(this);
+                                } else {
+                                    view.getViewTreeObserver()
+                                            .removeGlobalOnLayoutListener(this);
+                                }
+                            }
+                        });
             }
         }
     }

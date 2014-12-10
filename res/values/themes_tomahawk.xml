@@ -11,17 +11,12 @@
 
         <item name="android:checkboxStyle">@style/CheckBoxTomahawk</item>
 
-        <item name="android:spinnerStyle">@style/SpinnerTomahawk</item>
-
-        <item name="android:spinnerDropDownItemStyle">@style/SpinnerDropDownItemTomahawk</item>
-
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarTomahawk</item>
 
         <item name="android:listViewStyle">@style/ListViewTomahawk</item>
 
         <item name="android:listViewWhiteStyle">@style/ListViewTomahawk.White</item>
 
-        <item name="android:spinnerItemStyle">@style/SpinnerItemTomahawk</item>
         <item name="actionBarItemBackground">@drawable/selectable_background_tomahawk</item>
         <item name="popupMenuStyle">@style/PopupMenu.Tomahawk</item>
         <item name="dropDownListViewStyle">@style/DropDownListView.Tomahawk</item>
@@ -37,7 +32,7 @@
 
         <item name="colorPrimary">@color/tomahawk_red</item>
 
-        <item name="colorPrimaryDark">@color/tomahawk_red_dark</item>
+        <item name="colorPrimaryDark">@color/tomahawk_red</item>
 
         <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
 

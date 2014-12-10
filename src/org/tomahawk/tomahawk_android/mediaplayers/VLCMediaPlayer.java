@@ -61,8 +61,6 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
     private Query mPreparingQuery;
 
-    private LibVLC mLibVLC;
-
     private VLCMediaPlayerReceiver mVLCMediaPlayerReceiver = new VLCMediaPlayerReceiver();
 
     private ConcurrentHashMap<Result, String> mTranslatedUrls
@@ -93,6 +91,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         // Initialize and register Receiver
         IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_STREAMURLREPORTED);
         TomahawkApp.getContext().registerReceiver(mVLCMediaPlayerReceiver, intentFilter);
+<<<<<<< HEAD
 
         try {
             mLibVLC = LibVLC.getInstance();
@@ -105,13 +104,32 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
     public static VLCMediaPlayer getInstance() {
         return Holder.instance;
+=======
+    }
+
+    public static LibVLC getLibVlcInstance() {
+        LibVLC instance = LibVLC.getExistingInstance();
+        if (instance == null) {
+            try {
+                instance = LibVLC.getInstance();
+                instance.setHttpReconnect(true);
+                instance.init(TomahawkApp.getContext());
+            } catch (LibVlcException e) {
+                Log.e(TAG, "getLibVlcInstance: Failed to initialize LibVLC: " + e
+                        .getLocalizedMessage());
+            }
+        }
+        return instance;
+>>>>>>> upstream/master
+    }
+
+    public static VLCMediaPlayer getInstance() {
+        return Holder.instance;
     }
 
     @Override
     public void setVolume(float leftVolume, float rightVolume) {
-        if (mLibVLC != null) {
-            mLibVLC.setVolume((int) (leftVolume + rightVolume * 50));
-        }
+        getLibVlcInstance().setVolume((int) (leftVolume + rightVolume * 50));
     }
 
     /**
@@ -120,10 +138,8 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
     @Override
     public void start() throws IllegalStateException {
         Log.d(TAG, "start()");
-        if (mLibVLC != null) {
-            if (!mLibVLC.isPlaying()) {
-                mLibVLC.play();
-            }
+        if (!getLibVlcInstance().isPlaying()) {
+            getLibVlcInstance().play();
         }
     }
 
@@ -133,10 +149,8 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
     @Override
     public void pause() throws IllegalStateException {
         Log.d(TAG, "pause()");
-        if (mLibVLC != null) {
-            if (mLibVLC.isPlaying()) {
-                mLibVLC.pause();
-            }
+        if (getLibVlcInstance().isPlaying()) {
+            getLibVlcInstance().pause();
         }
     }
 
@@ -146,10 +160,9 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
     @Override
     public void seekTo(int msec) throws IllegalStateException {
         Log.d(TAG, "seekTo()");
-        if (mLibVLC != null && mPreparedQuery != null
-                && !TomahawkApp.PLUGINNAME_BEATSMUSIC.equals(
+        if (mPreparedQuery != null && !TomahawkApp.PLUGINNAME_BEATSMUSIC.equals(
                 mPreparedQuery.getPreferredTrackResult().getResolvedBy().getId())) {
-            mLibVLC.setTime(msec);
+            getLibVlcInstance().setTime(msec);
         }
     }
 
@@ -160,9 +173,6 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         mPreparedQuery = null;
         mPreparingQuery = query;
         release();
-        if (mLibVLC == null) {
-            return null;
-        }
         Result result = query.getPreferredTrackResult();
         String path;
         if (mTranslatedUrls.get(result) != null) {
@@ -177,7 +187,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
                 path = result.getPath();
             }
         }
-        mLibVLC.playMRL(LibVLC.PathToURI(path));
+        getLibVlcInstance().playMRL(LibVLC.PathToURI(path));
         onPrepared(null);
         return this;
     }
@@ -210,8 +220,8 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
      */
     @Override
     public int getPosition() {
-        if (mLibVLC != null && mPreparedQuery != null) {
-            return (int) mLibVLC.getTime();
+        if (mPreparedQuery != null) {
+            return (int) getLibVlcInstance().getTime();
         } else {
             return 0;
         }
@@ -219,7 +229,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
     @Override
     public boolean isPlaying(Query query) {
-        return mLibVLC != null && isPrepared(query) && mLibVLC.isPlaying();
+        return isPrepared(query) && getLibVlcInstance().isPlaying();
     }
 
     @Override

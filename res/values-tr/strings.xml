@@ -5,6 +5,9 @@
   <string name="login">Giriş</string>
   <string name="logout">Çıkış</string>
   <string name="register">Kayıt</string>
+  <string name="rescan">Yeniden Tara</string>
+  <string name="internal_storage">Dahili Depolama</string>
+  <string name="tracks">Parçalar</string>
   <string name="albums">Albümler</string>
   <string name="artists">Sanatçılar</string>
   <string name="users">Kullanıcılar</string>
@@ -18,6 +21,8 @@
   <string name="shuffle_off_label">Karışık çalma kapalı</string>
   <string name="repeat_on_label">Tekrarlama açık</string>
   <string name="repeat_off_label">Tekrarlama kapalı</string>
+  <string name="unknown">bilinmeyen</string>
+  <string name="no_track">parça yok</string>
   <string name="save_playlist">Mevcut çalma listesini kaydet</string>
   <string name="create_playlist">Yeni bir çalma listesi oluştur</string>
   <string name="name_playlist">İsim</string>
@@ -33,8 +38,13 @@
   <string name="error_communication">Kimlik doğrulanamadı. Lütfen bağlantınızı kontrol edin.</string>
   <string name="error_simultaneous_streams">Eylem gerçekleştirilemedi, hesap başka bir yerde kullanılıyor.</string>
   <string name="error_account_expired">Hesabınızın süresi doldu.</string>
+  <string name="auth_logged_in">Oturum açıldı:</string>
+  <string name="auth_logged_out">Oturum kapatıldı:</string>
   <string name="local_collection_pretty_name">Yerel Koleksiyon</string>
+  <string name="local">Yerel</string>
+  <string name="all">Tümü</string>
   <string name="preferences_services">Servisler</string>
+  <string name="preferences_local_collection_text">Yerel medya için taranması gereken dizinleri seçin.</string>
   <string name="preferences_hatchet_text">Verilerinizi %1$s ile senkronize edin.</string>
   <string name="preferences_spotify_text">Müziklerinizi %1$s üzerinden dinleyin. Premium hesap gerektirir.</string>
   <string name="preferences_playback">Oynatma</string>
@@ -46,6 +56,10 @@
   <string name="preferences_audio_quality_text">WiFi\'ye bağlı olunmadığında tercih edilecek ses kalitesi.</string>
   <string name="preferences_info">Bilgi</string>
   <string name="preferences_app_version">Uygulama Sürümü</string>
+  <string name="preferences_app_uservoice">Geribildirim</string>
+  <string name="preferences_app_uservoice_text">Fikirlerinizi paylaşın veya destek isteyin.</string>
+  <string name="preferences_app_sendlog">Kayıtları Gönder</string>
+  <string name="preferences_app_sendlog_text">Hata ayıklama işlemi için kayıtlarınızı gönderin</string>
   <string name="crash_dialog_title">Tomahawk çöktü</string>
   <string name="crash_dialog_text">Beklenmedik bir hata uygulamanın kapanmasına neden oldu. Lütfen hata verilerini bize göndererek bunu çözmemize yardımcı olun, tek yapmanız gereken Tamam\'a basmak.</string>
   <string name="crash_dialog_comment_prompt">Aşağıya problemle ilgili yorumlarınızı ekleyebilirsiniz:</string>
@@ -55,9 +69,13 @@
   <string name="context_menu_add_to_playlist">Çalma Listesine Ekle</string>
   <string name="context_menu_delete">Sil</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">Koleksiyondan Sil</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">Koleksiyona Ekle</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">Beğen</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">Beğenme</string>
   <string name="context_menu_share">Paylaş</string>
   <string name="context_menu_gotoartist">Sanatçıya Git</string>
   <string name="drawer_title_feed">Besle</string>
@@ -65,9 +83,12 @@
   <string name="drawer_title_playlists">Çalma Listeleri</string>
   <string name="drawer_title_lovedtracks">Favoriler</string>
   <string name="drawer_title_settings">Ayarlar</string>
+  <string name="drawer_header_cloudcollections">Bulut Koleksiyonları</string>
   <string name="collection_dropdown_recently_added">Son Eklenenler</string>
-  <string name="collection_dropdown_artist">Sanatçı</string>
+  <string name="collection_dropdown_alpha_artists">Sanatçı A-Z</string>
   <string name="collection_dropdown_play_count">Çalma Sayısı</string>
+  <string name="collection_dropdown_alpha_albums">Albüm A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Geçmiş</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">İyi</string>
@@ -77,20 +98,37 @@
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Takip ediliyor</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Tekip Et</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">şimdi takip ediliyor</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
+  <string name="socialaction_type_love_track_single">bir parçayı beğendi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
+  <string name="socialaction_type_love_track_multiple">%1$d parçayı beğendi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
+  <string name="socialaction_type_collected_track_single">koleksiyona bir parça ekledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
+  <string name="socialaction_type_collected_track_multiple">koleksiyona %1$d parça ekledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
+  <string name="socialaction_type_collected_album_single">koleksiyona bir albüm ekledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
+  <string name="socialaction_type_collected_album_multiple">koleksiyona %1$d albüm ekledi</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">koleksiyona bir sanatçı ekledi</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">koleksiyona %1$d sanatçı ekledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">yorum yaptı</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
+  <string name="socialaction_type_latchon_single">bir arkadaşıyla birlikte dinledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
+  <string name="socialaction_type_latchon_multiple">%1$d arkadaşıyla birlikte dinledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
+  <string name="socialaction_type_createplaylist_single">bir çalma listesi oluşturdu</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
+  <string name="socialaction_type_createplaylist_multiple">%1$d çalma listesi oluşturdu</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%2$s den %1$s</string>
   <string name="time_afewseconds">birkaç saniye önce</string>
   <string name="time_aminute">bir dakika önce</string>
   <string name="time_anhour">bir saat önce</string>
@@ -99,6 +137,7 @@
   <string name="time_hours">%1$d saat önce</string>
   <string name="time_days">%1$d gün önce</string>
   <string name="users_playbacklog_suffix">tarafından son çalınan</string>
+  <string name="users_favorites_suffix">\'in Favorileri</string>
   <string name="music">Müzik</string>
   <string name="biography">Biyografi</string>
   <string name="similar">Benzer</string>
@@ -108,9 +147,13 @@
   <string name="followers">Takipçiler</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Takip ediliyor</string>
+  <string name="resolver_config_redirect_button_text_log_into">Oturum aç</string>
+  <string name="resolver_config_redirect_button_text_log_out_of">Oturumu kapat</string>
   <string name="ask_access_activity_header">Hatchet\'te çaldığın tüm parça bilgilerinin otomatik olarak kaydedilmesini ister misiniz?</string>
   <string name="ask_access_activity_text1">Bunu sizin için yapacağız! Lütfen sistem ayarlarınızdan bizim servisimizi etkinleştirin.</string>
   <string name="ask_access_activity_text2">(Bunu istediğiniz zaman Tomahawk\'ın ayarlarından devre dışı bırakabilirsiniz)</string>
   <string name="ask_access_activity_button_text">Ayarlara Git</string>
   <string name="button_open_queue_text">Sıra</string>
+  <string name="button_close">Kapat</string>
+  <string name="view_album">Albümü Görüntüle</string>
 </resources>

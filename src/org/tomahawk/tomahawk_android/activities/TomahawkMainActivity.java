@@ -33,6 +33,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -47,8 +48,8 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
-import org.tomahawk.tomahawk_android.fragments.ArtistsFragment;
-import org.tomahawk.tomahawk_android.fragments.CollectionFragment;
+import org.tomahawk.tomahawk_android.fragments.CloudCollectionFragment;
+import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
@@ -77,7 +78,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
@@ -107,6 +107,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
@@ -172,9 +173,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private TomahawkMainReceiver mTomahawkMainReceiver;
 
-    private Drawable mProgressDrawable;
-
-    private Handler mAnimationHandler;
+    private SmoothProgressBar mSmoothProgressBar;
 
     private SlidingUpPanelLayout mSlidingUpPanelLayout;
 
@@ -188,27 +187,18 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private Runnable mRunAfterInit;
 
-    // Used to display an animated progress drawable
-    private Runnable mAnimationRunnable = new Runnable() {
-        @Override
-        public void run() {
-            mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 400);
-            getSupportActionBar().setLogo(mProgressDrawable);
-            mAnimationHandler.postDelayed(mAnimationRunnable, 50);
-        }
-    };
-
     private Handler mShouldShowAnimationHandler;
 
     private Runnable mShouldShowAnimationRunnable = new Runnable() {
         @Override
         public void run() {
-            mAnimationHandler.removeCallbacks(mAnimationRunnable);
             if (ThreadManager.getInstance().isActive()
-                    || (mPlaybackService != null && mPlaybackService.isPreparing())) {
-                mAnimationHandler.post(mAnimationRunnable);
+                    || (mPlaybackService != null && mPlaybackService.isPreparing())
+                    || ((UserCollection) CollectionManager.getInstance()
+                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION)).isWorking()) {
+                mSmoothProgressBar.setVisibility(View.VISIBLE);
             } else {
-                getSupportActionBar().setLogo(R.drawable.ic_launcher);
+                mSmoothProgressBar.setVisibility(View.GONE);
             }
             mShouldShowAnimationHandler.postDelayed(mShouldShowAnimationRunnable, 500);
         }
@@ -307,6 +297,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                     mPlaybackPanel.stopUpdates();
                     mPlaybackPanel.updatePlayPauseState(false);
                 }
+            } else if (HatchetAuthenticatorUtils.STORED_USER_ID.equals(intent.getAction())) {
+                updateDrawer();
             }
         }
     }
@@ -333,7 +325,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             if (holder.isCloudCollection) {
                 bundle.putString(CollectionManager.COLLECTION_ID, holder.id);
                 FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        ArtistsFragment.class, bundle);
+                        CloudCollectionFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_USERPAGE)) {
                 if (authenticatorUtils.getLoggedInUser() == null) {
                     return;
@@ -350,8 +342,10 @@ public class TomahawkMainActivity extends ActionBarActivity
                         TomahawkFragment.TOMAHAWK_USER_ID,
                         SocialActionsFragment.SHOW_MODE_DASHBOARD);
             } else if (holder.id.equals(HUB_ID_COLLECTION)) {
+                bundle.putString(CollectionManager.COLLECTION_ID,
+                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
                 FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        CollectionFragment.class);
+                        CollectionPagerFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_LOVEDTRACKS)) {
                 bundle.putString(PlaylistsFragment.TOMAHAWK_PLAYLIST_KEY,
                         DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
@@ -382,14 +376,17 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        UserCollection userCollection = (UserCollection) CollectionManager.getInstance()
+                .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        userCollection.loadMediaItems(true);
+
         mSavedInstanceState = savedInstanceState;
 
         setContentView(R.layout.tomahawk_main_activity);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        mProgressDrawable = getResources()
-                .getDrawable(R.drawable.tomahawk_progress_indeterminate_circular_holo_light);
+        mSmoothProgressBar = (SmoothProgressBar) findViewById(R.id.smoothprogressbar);
 
         mTitle = mDrawerTitle = getTitle().toString().toUpperCase();
         getSupportActionBar().setTitle("");
@@ -539,7 +536,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             }
         }
 
-        mAnimationHandler = new Handler();
         mShouldShowAnimationHandler = new Handler();
         mShouldShowAnimationHandler.post(mShouldShowAnimationRunnable);
 
@@ -562,6 +558,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 new IntentFilter(PipeLine.PIPELINE_URLLOOKUPFINISHED));
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(CollectionManager.COLLECTION_ADDED));
+        registerReceiver(mTomahawkMainReceiver,
+                new IntentFilter(HatchetAuthenticatorUtils.STORED_USER_ID));
     }
 
     @Override
@@ -590,8 +588,11 @@ public class TomahawkMainActivity extends ActionBarActivity
                                         PlaybackFragment.class.getName(), null),
                                 null)
                         .commit();
+                HatchetAuthenticatorUtils hatchetAuthUtils =
+                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                 FragmentUtils.addRootFragment(TomahawkMainActivity.this,
-                        getSupportFragmentManager());
+                        getSupportFragmentManager(), hatchetAuthUtils.getLoggedInUser());
             } else {
                 boolean actionBarHidden = mSavedInstanceState
                         .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
@@ -611,9 +612,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onPause() {
         super.onPause();
 
-        mAnimationHandler.removeCallbacks(mAnimationRunnable);
         mShouldShowAnimationHandler.removeCallbacks(mShouldShowAnimationRunnable);
-        mAnimationHandler = null;
         mShouldShowAnimationHandler = null;
 
         if (mTomahawkMainReceiver != null) {
@@ -863,7 +862,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     public void closeDrawer() {
-        if (mDrawerLayout != null) {
+        if (mDrawerLayout != null && mDrawerList != null) {
             mDrawerLayout.closeDrawer(mDrawerList);
         }
     }

@@ -56,6 +56,7 @@ import org.videolan.libvlc.EventHandler;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -559,7 +560,8 @@ public class PlaybackService extends Service
 
     @Override
     public void onDestroy() {
-        giveUpAudioFocus();
+        super.onDestroy();
+
         pause(true);
         saveState();
         unregisterReceiver(mPlaybackServiceBroadcastReceiver);
@@ -578,7 +580,6 @@ public class PlaybackService extends Service
         mKillTimerHandler.removeCallbacksAndMessages(null);
         mKillTimerHandler = null;
 
-        super.onDestroy();
         Log.d(TAG, "PlaybackService has been destroyed");
     }
 
@@ -710,7 +711,7 @@ public class PlaybackService extends Service
         handlePlayState();
 
         mShowingNotification = true;
-        updateNotificationPlayState();
+        updateNotification();
         tryToGetAudioFocus();
         updateLockscreenPlayState();
     }
@@ -736,6 +737,9 @@ public class PlaybackService extends Service
             mShowingNotification = false;
             stopForeground(true);
             giveUpAudioFocus();
+            NotificationManager notificationManager = (NotificationManager) TomahawkApp.getContext()
+                    .getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
         } else {
             updateNotificationPlayState();
         }
@@ -865,12 +869,15 @@ public class PlaybackService extends Service
         ArrayList<PlaylistEntry> entries = mPlaylist.getEntries();
         Map<Artist, List<PlaylistEntry>> artistMap = new HashMap<Artist, List<PlaylistEntry>>();
         for (PlaylistEntry entry : entries) {
-            if (artistMap.get(entry.getArtist()) == null) {
-                artistMap.put(entry.getArtist(), new ArrayList<PlaylistEntry>());
+            if (entry != mCurrentEntry) {
+                if (artistMap.get(entry.getArtist()) == null) {
+                    artistMap.put(entry.getArtist(), new ArrayList<PlaylistEntry>());
+                }
+                artistMap.get(entry.getArtist()).add(entry);
             }
-            artistMap.get(entry.getArtist()).add(entry);
         }
         ArrayList<PlaylistEntry> shuffledEntries = new ArrayList<PlaylistEntry>();
+        shuffledEntries.add(mCurrentEntry);
         for (int i = entries.size(); i >= 0; i--) {
             int pos = (int) (Math.random() * i);
             for (Artist key : artistMap.keySet()) {
@@ -1392,6 +1399,10 @@ public class PlaybackService extends Service
                                 getCurrentQuery().getName())
                         .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
                                 getCurrentQuery().getPreferredTrack().getDuration());
+                if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getName())) {
+                    editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
+                            getCurrentQuery().getAlbum().getName());
+                }
                 editor.apply();
                 Log.d(TAG, "Setting lockscreen metadata to: "
                         + getCurrentQuery().getArtist().getName() + ", "
@@ -1469,8 +1480,9 @@ public class PlaybackService extends Service
             updateNotification();
             updateLockscreenControls();
             sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
-            if (mCurrentMediaPlayer == null || !mCurrentMediaPlayer.isPrepared(getCurrentQuery())
-                    || !mCurrentMediaPlayer.isPreparing(getCurrentQuery())) {
+            if (mCurrentMediaPlayer == null
+                    || !(mCurrentMediaPlayer.isPrepared(getCurrentQuery())
+                    || mCurrentMediaPlayer.isPreparing(getCurrentQuery()))) {
                 prepareCurrentQuery();
             }
         }

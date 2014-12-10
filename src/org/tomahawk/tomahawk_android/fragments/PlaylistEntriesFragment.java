@@ -58,7 +58,9 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             } else if (mPlaylist == mUser.getFavorites()) {
                 mCurrentRequestIds.add(InfoSystem.getInstance().resolveFavorites(mUser));
             }
-        } else if (mPlaylist.getId().equals(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID)) {
+        }
+        if (mPlaylist != null
+                && DatabaseHelper.LOVEDITEMS_PLAYLIST_ID.equals(mPlaylist.getId())) {
             CollectionManager.getInstance().fetchLovedItemsPlaylist();
         }
         if (mContainerFragmentClass == null) {
@@ -146,6 +148,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 }
                 if (!mDontShowHeader) {
                     showContentHeader(mPlaylist, R.dimen.header_clear_space_nonscrollable);
+                    showFancyDropDown(mPlaylist);
                 }
             }
         }

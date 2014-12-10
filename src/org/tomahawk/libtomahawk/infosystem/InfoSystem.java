@@ -193,6 +193,21 @@ public class InfoSystem {
     }
 
     /**
+     * Fetch a logged-in user's id and store it
+     *
+     * @param username the username with which to get the corresponding id
+     * @return the created InfoRequestData's requestId
+     */
+    public String resolveUserId(String username) {
+        if (username != null) {
+            QueryParams params = new QueryParams();
+            params.name = username;
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params);
+        }
+        return null;
+    }
+
+    /**
      * Fill up the given user with metadata fetched from all added InfoPlugins
      *
      * @param user the User to enrich with data from the InfoPlugins

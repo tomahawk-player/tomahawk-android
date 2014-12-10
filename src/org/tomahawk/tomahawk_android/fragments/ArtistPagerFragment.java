@@ -18,11 +18,17 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
+import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -33,6 +39,27 @@ import java.util.List;
 public class ArtistPagerFragment extends PagerFragment {
 
     private Artist mArtist;
+
+    private ArtistsPagerFragmentReceiver mArtistsPagerFragmentReceiver;
+
+    /**
+     * Handles incoming broadcasts.
+     */
+    private class ArtistsPagerFragmentReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (CollectionManager.COLLECTION_UPDATED.equals(intent.getAction())) {
+                if (intent.getStringExtra(TomahawkFragment.TOMAHAWK_ARTIST_KEY) != null) {
+                    if (mArtist != null
+                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_ARTIST_KEY).equals(
+                            mArtist.getCacheKey())) {
+                        updatePager();
+                    }
+                }
+            }
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,7 +79,32 @@ public class ArtistPagerFragment extends PagerFragment {
         super.onViewCreated(view, savedInstanceState);
 
         getActivity().setTitle("");
+        updatePager();
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        // Initialize and register Receiver
+        if (mArtistsPagerFragmentReceiver == null) {
+            mArtistsPagerFragmentReceiver = new ArtistsPagerFragmentReceiver();
+            IntentFilter intentFilter = new IntentFilter(CollectionManager.COLLECTION_UPDATED);
+            getActivity().registerReceiver(mArtistsPagerFragmentReceiver, intentFilter);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        if (mArtistsPagerFragmentReceiver != null) {
+            getActivity().unregisterReceiver(mArtistsPagerFragmentReceiver);
+            mArtistsPagerFragmentReceiver = null;
+        }
+    }
+
+    private void updatePager() {
         int initialPage = -1;
         if (getArguments() != null) {
             if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
@@ -75,7 +127,30 @@ public class ArtistPagerFragment extends PagerFragment {
         }
 
         showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable_static, null);
+        final List<Collection> collections =
+                CollectionManager.getInstance().getAvailableCollections(mArtist);
+        int initialSelection = 0;
+        for (int i = 0; i < collections.size(); i++) {
+            if (collections.get(i).getId().equals(
+                    getArguments().getString(CollectionManager.COLLECTION_ID))) {
+                initialSelection = i;
+                break;
+            }
+        }
+        showFancyDropDown(mArtist, initialSelection,
+                FancyDropDown.convertToDropDownItemInfo(collections),
+                new FancyDropDown.DropDownListener() {
+                    @Override
+                    public void onDropDownItemSelected(int position) {
+                        getArguments().putString(CollectionManager.COLLECTION_ID,
+                                collections.get(position).getId());
+                        updatePager();
+                    }
 
+                    @Override
+                    public void onCancel() {
+                    }
+                });
         List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();
         FragmentInfo fragmentInfo = new FragmentInfo();

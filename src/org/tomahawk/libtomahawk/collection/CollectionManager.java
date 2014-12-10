@@ -29,7 +29,9 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.BroadcastReceiver;
@@ -59,12 +61,21 @@ public class CollectionManager {
     public static final String COLLECTION_ADDED
             = "org.tomahawk.tomahawk_android.COLLECTION_ADDED";
 
+    public static final String PLAYLISTS_UPDATED
+            = "org.tomahawk.tomahawk_android.PLAYLISTS_UPDATED";
+
     public static final String COLLECTION_ID = "org.tomahawk.tomahawk_android.collection_id";
 
     private static class Holder {
+<<<<<<< HEAD
 
         private static final CollectionManager instance = new CollectionManager();
 
+=======
+
+        private static final CollectionManager instance = new CollectionManager();
+
+>>>>>>> upstream/master
     }
 
     private ConcurrentHashMap<String, Collection> mCollections
@@ -133,6 +144,12 @@ public class CollectionManager {
             } else if (DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
                 CollectionManager.this.updatePlaylists();
+            } else if (HatchetAuthenticatorUtils.STORED_USER_ID.equals(intent.getAction())) {
+                HatchetAuthenticatorUtils hatchetAuthUtils =
+                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                InfoSystem.getInstance().resolvePlaybackLog(hatchetAuthUtils.getLoggedInUser());
+                fetchAll();
             }
         }
     }
@@ -143,10 +160,14 @@ public class CollectionManager {
 
         ensureLovedItemsPlaylist();
         updatePlaylists();
+<<<<<<< HEAD
         fetchPlaylists();
         fetchLovedItemsPlaylist();
         fetchStarredAlbums();
         fetchStarredArtists();
+=======
+        fetchAll();
+>>>>>>> upstream/master
 
         TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
                 new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
@@ -154,6 +175,16 @@ public class CollectionManager {
                 new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
         TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
                 new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED));
+<<<<<<< HEAD
+=======
+    }
+
+    public void fetchAll() {
+        fetchPlaylists();
+        fetchLovedItemsPlaylist();
+        fetchStarredAlbums();
+        fetchStarredArtists();
+>>>>>>> upstream/master
     }
 
     public static CollectionManager getInstance() {
@@ -208,7 +239,7 @@ public class CollectionManager {
                 + query.getName() + " by " + query.getArtist().getName() + " on "
                 + query.getAlbum().getName());
         DatabaseHelper.getInstance().setLovedItem(query, doSweetSweetLovin);
-        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+        sendCollectionUpdatedBroadcast(null, query);
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, query,
@@ -220,7 +251,7 @@ public class CollectionManager {
         Log.d(TAG, "Hatchet sync - " + (doSweetSweetLovin ? "starred" : "unstarred") + " artist "
                 + artist.getName());
         DatabaseHelper.getInstance().setLovedItem(artist, doSweetSweetLovin);
-        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+        sendCollectionUpdatedBroadcast(null, artist);
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, artist,
@@ -232,7 +263,7 @@ public class CollectionManager {
         Log.d(TAG, "Hatchet sync - " + (doSweetSweetLovin ? "starred" : "unstarred") + " album "
                 + album.getName() + " by " + album.getArtist().getName());
         DatabaseHelper.getInstance().setLovedItem(album, doSweetSweetLovin);
-        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+        sendCollectionUpdatedBroadcast(null, album);
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, album,
@@ -328,7 +359,7 @@ public class CollectionManager {
                     }
                     Log.d(TAG, "Hatchet sync - read playlists from database, count: "
                             + mPlaylists.size());
-                    TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+                    sendPlaylistsUpdatedBroadcast();
                 }
             }
         }).start();
@@ -462,7 +493,7 @@ public class CollectionManager {
             Log.e(TAG, "Hatchet sync - couldn't delete playlist with id: " + playlistId);
         }
         DatabaseHelper.getInstance().deletePlaylist(playlistId);
-        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+        sendCollectionUpdatedBroadcast(null, Playlist.getPlaylistById(playlistId));
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.getInstance().deletePlaylist(hatchetAuthUtils, playlistId);
@@ -472,7 +503,7 @@ public class CollectionManager {
         Log.d(TAG, "Hatchet sync - creating playlist \"" + playlist.getName() + "\", id: "
                 + playlist.getId() + " with " + playlist.getEntries().size() + " entries");
         DatabaseHelper.getInstance().storePlaylist(playlist);
-        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+        CollectionManager.sendCollectionUpdatedBroadcast(null, playlist);
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.getInstance()
@@ -492,7 +523,7 @@ public class CollectionManager {
             Log.e(TAG, "Hatchet sync - couldn't add entries to playlist with id: " + playlistId);
         }
         DatabaseHelper.getInstance().addEntriesToPlaylist(playlistId, entries);
-        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+        sendCollectionUpdatedBroadcast(null, Playlist.getPlaylistById(playlistId));
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         for (PlaylistEntry entry : entries) {
@@ -509,9 +540,57 @@ public class CollectionManager {
             Log.e(TAG, "Hatchet sync - couldn't delete entry in playlist with id: " + playlistId);
         }
         DatabaseHelper.getInstance().deleteEntryInPlaylist(playlistId, entryId);
-        TomahawkApp.getContext().sendBroadcast(new Intent(COLLECTION_UPDATED));
+        sendCollectionUpdatedBroadcast(null, Playlist.getPlaylistById(playlistId));
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.getInstance().deletePlaylistEntry(hatchetAuthUtils, playlistId, entryId);
+    }
+
+    public List<Collection> getAvailableCollections(Album album) {
+        List<Collection> collections = new ArrayList<Collection>();
+        for (Collection collection : mCollections.values()) {
+            if (TomahawkApp.PLUGINNAME_HATCHET.equals(collection.getId())
+                    || collection.getAlbumTracks(album, false).size() > 0) {
+                collections.add(collection);
+            }
+        }
+        return collections;
+    }
+
+    public List<Collection> getAvailableCollections(Artist artist) {
+        List<Collection> collections = new ArrayList<Collection>();
+        for (Collection collection : mCollections.values()) {
+            if (TomahawkApp.PLUGINNAME_HATCHET.equals(collection.getId())
+                    || collection.getArtistAlbums(artist, false).size() > 0) {
+                collections.add(collection);
+            }
+        }
+        return collections;
+    }
+
+    public static void sendCollectionUpdatedBroadcast(Collection collection,
+            TomahawkListItem updatedItem) {
+        Intent intent = new Intent(CollectionManager.COLLECTION_UPDATED);
+        if (collection != null) {
+            intent.putExtra(CollectionManager.COLLECTION_ID, collection.getId());
+        }
+        String key = null;
+        if (updatedItem instanceof Playlist) {
+            key = TomahawkFragment.TOMAHAWK_PLAYLIST_KEY;
+        } else if (updatedItem instanceof Album) {
+            key = TomahawkFragment.TOMAHAWK_ALBUM_KEY;
+        } else if (updatedItem instanceof Artist) {
+            key = TomahawkFragment.TOMAHAWK_ARTIST_KEY;
+        } else if (updatedItem instanceof Query) {
+            key = TomahawkFragment.TOMAHAWK_QUERY_KEY;
+        }
+        if (key != null) {
+            intent.putExtra(key, updatedItem.getCacheKey());
+        }
+        TomahawkApp.getContext().sendBroadcast(intent);
+    }
+
+    public static void sendPlaylistsUpdatedBroadcast() {
+        TomahawkApp.getContext().sendBroadcast(new Intent(CollectionManager.PLAYLISTS_UPDATED));
     }
 }

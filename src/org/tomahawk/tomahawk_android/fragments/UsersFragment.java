@@ -110,5 +110,6 @@ public class UsersFragment extends TomahawkFragment {
         } else {
             getListAdapter().setSegments(segment, getListView());
         }
+        forceAutoResolve();
     }
 }

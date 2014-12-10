@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 
 import android.content.res.Resources;
@@ -36,11 +37,13 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class ViewHolder {
@@ -61,7 +64,13 @@ public class ViewHolder {
 
     CheckBox mCheckBox1;
 
+    CheckBox mCheckBox2;
+
     Spinner mSpinner1;
+
+    FancyDropDown mFancyDropDown;
+
+    LinearLayout mTextViewContainer;
 
     TextView mTextView1;
 
@@ -113,6 +122,13 @@ public class ViewHolder {
                     .findViewById(R.id.clickarea1);
             mProgressBarContainer = (FrameLayout) rootView
                     .findViewById(R.id.progressbar_container);
+        } else if (layoutId == R.layout.list_item_folder) {
+            mTextView1 = (TextView) rootView
+                    .findViewById(R.id.textview1);
+            mCheckBox1 = (CheckBox) rootView
+                    .findViewById(R.id.checkbox1);
+            mCheckBox2 = (CheckBox) rootView
+                    .findViewById(R.id.checkbox2);
         } else if (layoutId == R.layout.single_line_list_header) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.textview1);
@@ -195,19 +211,21 @@ public class ViewHolder {
             mFollowButtonTextView = (TextView) headerFrame
                     .findViewById(R.id.followbutton1_textview);
         } else if (layoutId == R.layout.content_header) {
-            mTextView1 = (TextView) headerFrame
-                    .findViewById(R.id.textview1);
             mMoreButton = (FrameLayout) headerFrame
                     .findViewById(R.id.morebutton1);
+            mFancyDropDown = (FancyDropDown) headerFrame
+                    .findViewById(R.id.fancydropdown);
         }
-        mImageView1 = (ImageView) imageFrame
-                .findViewById(R.id.imageview1);
-        mImageView2 = (ImageView) imageFrame
-                .findViewById(R.id.imageview2);
-        mImageView3 = (ImageView) imageFrame
-                .findViewById(R.id.imageview3);
-        mImageView4 = (ImageView) imageFrame
-                .findViewById(R.id.imageview4);
+        if (imageFrame != null) {
+            mImageView1 = (ImageView) imageFrame
+                    .findViewById(R.id.imageview1);
+            mImageView2 = (ImageView) imageFrame
+                    .findViewById(R.id.imageview2);
+            mImageView3 = (ImageView) imageFrame
+                    .findViewById(R.id.imageview3);
+            mImageView4 = (ImageView) imageFrame
+                    .findViewById(R.id.imageview4);
+        }
         if (mMainClickArea == null) {
             mMainClickArea = headerFrame;
         }
@@ -223,36 +241,33 @@ public class ViewHolder {
         mClickArea1.setOnLongClickListener(listener);
     }
 
-    public void fillContentHeader(final Album album, View.OnClickListener listener) {
-        if (mTextView1 != null) {
-            mTextView1.setVisibility(View.VISIBLE);
-            mTextView1.setText(album.getName().toUpperCase());
-        }
+    public void setupFancyDropDown(String text) {
+        mFancyDropDown.setup(text);
+    }
+
+    public void setupFancyDropDown(int initialSelection, String text,
+            List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
+            FancyDropDown.DropDownListener dropDownListener) {
+        mFancyDropDown.setup(initialSelection, text, dropDownItemInfos, dropDownListener);
+    }
+
+    public void fillContentHeader(final Album album, View.OnClickListener moreButtonListener) {
         mImageView1.setVisibility(View.VISIBLE);
         TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
                 album.getImage(), Image.getLargeImageSize(), false);
         mMoreButton.setVisibility(View.VISIBLE);
-        mMoreButton.setOnClickListener(listener);
+        mMoreButton.setOnClickListener(moreButtonListener);
     }
 
-    public void fillContentHeader(final Artist artist, View.OnClickListener listener) {
-        if (mTextView1 != null) {
-            mTextView1.setVisibility(View.VISIBLE);
-            mTextView1.setText(artist.getName().toUpperCase());
-        }
+    public void fillContentHeader(final Artist artist, View.OnClickListener moreButtonListener) {
         mImageView1.setVisibility(View.VISIBLE);
-        TomahawkUtils
-                .loadImageIntoImageView(TomahawkApp.getContext(), mImageView1, artist.getImage(),
-                        Image.getLargeImageSize(), true);
+        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
+                artist.getImage(), Image.getLargeImageSize(), true);
         mMoreButton.setVisibility(View.VISIBLE);
-        mMoreButton.setOnClickListener(listener);
+        mMoreButton.setOnClickListener(moreButtonListener);
     }
 
     public void fillContentHeader(Playlist playlist, ArrayList<Image> images) {
-        if (mTextView1 != null) {
-            mTextView1.setVisibility(View.VISIBLE);
-            mTextView1.setText(playlist.getName().toUpperCase());
-        }
         if (images.size() > 3) {
             TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
                     images.get(0), Image.getSmallImageSize(), false);
@@ -300,10 +315,6 @@ public class ViewHolder {
     }
 
     public void fillContentHeader(Query query) {
-        if (mTextView1 != null) {
-            mTextView1.setVisibility(View.VISIBLE);
-            mTextView1.setText(query.getName().toUpperCase());
-        }
         mImageView1.setVisibility(View.VISIBLE);
         TomahawkUtils
                 .loadImageIntoImageView(TomahawkApp.getContext(), mImageView1, query.getImage(),

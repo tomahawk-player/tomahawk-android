@@ -5,6 +5,8 @@
   <string name="login">Anmelden</string>
   <string name="logout">Abmelden</string>
   <string name="register">Registrieren</string>
+  <string name="rescan">Jetzt durchsuchen</string>
+  <string name="internal_storage">Interner Speicher</string>
   <string name="tracks">Lieder</string>
   <string name="albums">Alben</string>
   <string name="artists">Künstler</string>
@@ -39,7 +41,10 @@
   <string name="auth_logged_in">Angemeldet bei</string>
   <string name="auth_logged_out">Abgemeldet von</string>
   <string name="local_collection_pretty_name">Lokale Sammlung</string>
+  <string name="local">Lokal</string>
+  <string name="all">Alle</string>
   <string name="preferences_services">Dienste</string>
+  <string name="preferences_local_collection_text">Wähle die Ordner, in denen nach Musik gesucht werden soll.</string>
   <string name="preferences_hatchet_text">Synchronisiere deine Daten mit %1$s.</string>
   <string name="preferences_spotify_text">Spiele deine Musik von %1$s. Benötigt ein Premium-Konto.</string>
   <string name="preferences_playback">Wiedergabe</string>
@@ -68,20 +73,26 @@
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
   <string name="context_menu_addtocollection">Zur Sammlung hinzufügen</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
-  <string name="context_menu_love">Zu den Lieblingsliedern hinzufügen</string>
+  <string name="context_menu_love">Zu den Favoriten hinzufügen</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
-  <string name="context_menu_unlove">Aus den Lieblingsliedern entfernen</string>
+  <string name="context_menu_unlove">Aus den Favoriten entfernen</string>
   <string name="context_menu_share">Teilen</string>
   <string name="context_menu_gotoartist">Gehe zum Künstler</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Sammlung</string>
   <string name="drawer_title_playlists">Playlists</string>
+<<<<<<< HEAD
   <string name="drawer_title_lovedtracks">Lieblingslieder</string>
+=======
+  <string name="drawer_title_lovedtracks">Favoriten</string>
+>>>>>>> upstream/master
   <string name="drawer_title_settings">Einstellungen</string>
   <string name="drawer_header_cloudcollections">Cloud Sammlungen</string>
   <string name="collection_dropdown_recently_added">Kürzlich hinzugefügt</string>
-  <string name="collection_dropdown_artist">Künstler</string>
+  <string name="collection_dropdown_alpha_artists">Künstler A-Z</string>
   <string name="collection_dropdown_play_count">Wiedergabeanzahl</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Chronik</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Gut</string>
@@ -95,9 +106,15 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">folgt nun</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
+<<<<<<< HEAD
   <string name="socialaction_type_love_track_single">hat ein Lied zu den Lieblingsliedern hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
   <string name="socialaction_type_love_track_multiple">hat %1$d Lieder zu den Lieblingsliedern hinzugefügt</string>
+=======
+  <string name="socialaction_type_love_track_single">hat ein Lied zu den Favoriten hinzugefügt</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
+  <string name="socialaction_type_love_track_multiple">hat %1$d Lieder zu den Favoriten hinzugefügt</string>
+>>>>>>> upstream/master
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
   <string name="socialaction_type_collected_track_single">hat ein Lied zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
@@ -106,6 +123,13 @@
   <string name="socialaction_type_collected_album_single">hat ein Album zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">hat %1$d Alben zur Sammlung hinzugefügt</string>
+<<<<<<< HEAD
+=======
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">hat einen Künstler zur Sammlung hinzugefügt</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">hat %1$d Künstler zur Sammlung hinzugefügt</string>
+>>>>>>> upstream/master
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">hat kommentiert</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
@@ -126,7 +150,7 @@
   <string name="time_hours">vor %1$d Stunden</string>
   <string name="time_days">vor %1$d Tagen</string>
   <string name="users_playbacklog_suffix">\'s kürzlich gespielte Lieder</string>
-  <string name="users_favorites_suffix">\'s Lieblingslieder</string>
+  <string name="users_favorites_suffix">\'s Favoriten</string>
   <string name="music">Musik</string>
   <string name="biography">Biografie</string>
   <string name="similar">Ähnliche</string>

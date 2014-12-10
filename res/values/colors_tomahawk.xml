@@ -20,7 +20,6 @@
 --><resources>
 
     <color name="tomahawk_red">#FFff004c</color>
-    <color name="tomahawk_red_dark">#FF99002d</color>
     <color name="tomahawk_red_transparent">#DDff004c</color>
     <color name="divider">#3B3F45</color>
     <color name="primary_background">#FFffffff</color>
@@ -38,7 +37,9 @@
     <color name="secondary_textcolor">#FF777777</color>
     <color name="primary_textcolor_inverted">#FFffffff</color>
     <color name="secondary_textcolor_inverted">#FF777777</color>
-    <color name="list_focused">#FFe8837c</color>
-    <color name="list_pressed">#FFf1f1f1</color>
+    <color name="tertiary_textcolor_inverted">#FFcccccc</color>
+    <color name="list_focused_opaque">#FFe8837c</color>
+    <color name="list_pressed_opaque">#FFf1f1f1</color>
+    <color name="list_pressed_transparent">#88cbcbcb</color>
 
     </resources>

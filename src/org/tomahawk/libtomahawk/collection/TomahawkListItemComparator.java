@@ -17,10 +17,12 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class is used to compare two {@link TomahawkListItem}s.
@@ -38,6 +40,8 @@ public class TomahawkListItemComparator
     //Flag containing the current mode to be used
     private static int mFlag = COMPARE_ALPHA;
 
+    private HashMap mTimeStampMap;
+
     /**
      * Construct this {@link TomahawkListItemComparator}
      *
@@ -50,6 +54,20 @@ public class TomahawkListItemComparator
     }
 
     /**
+     * Construct this {@link TomahawkListItemComparator}
+     *
+     * @param flag         The mode which determines with which method {@link TomahawkListItem}s are
+     *                     compared
+     * @param timeStampMap the ConcurrentHashMap used to determine the timeStamps of the
+     *                     TomahawkListItems which will be sorted
+     */
+    public TomahawkListItemComparator(int flag, ConcurrentHashMap timeStampMap) {
+        super();
+        mFlag = flag;
+        mTimeStampMap = new HashMap(timeStampMap);
+    }
+
+    /**
      * The actual comparison method
      *
      * @param a1 First {@link TomahawkListItem} object
@@ -59,17 +77,30 @@ public class TomahawkListItemComparator
     public int compare(TomahawkListItem a1, TomahawkListItem a2) {
         switch (mFlag) {
             case COMPARE_ALPHA:
-                return a1.getName().compareTo(a2.getName());
+                return a1.getName().compareToIgnoreCase(a2.getName());
             case COMPARE_ARTIST_ALPHA:
-                return a1.getArtist().getName().compareTo(a2.getArtist().getName());
+                return a1.getArtist().getName().compareToIgnoreCase(a2.getArtist().getName());
             case COMPARE_RECENTLY_ADDED:
-                Collection userColl = CollectionManager.getInstance().getCollection(
-                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                int a1TimeStamp = userColl.getAddedTimestamp((Album) a1);
-                int a2TimeStamp = userColl.getAddedTimestamp((Album) a2);
-                if (a1TimeStamp > a2TimeStamp) {
+                Long a1TimeStamp;
+                if (a1 instanceof Query) {
+                    a1TimeStamp = (Long) mTimeStampMap.get(a1);
+                } else {
+                    a1TimeStamp = (Long) mTimeStampMap.get(a1.getName().toLowerCase());
+                }
+                Long a2TimeStamp;
+                if (a1 instanceof Query) {
+                    a2TimeStamp = (Long) mTimeStampMap.get(a2);
+                } else {
+                    a2TimeStamp = (Long) mTimeStampMap.get(a2.getName().toLowerCase());
+                }
+
+                if (a1TimeStamp == null && a2TimeStamp == null) {
+                    return 0;
+                } else if (a1TimeStamp == null
+                        || (a2TimeStamp != null && a1TimeStamp > a2TimeStamp)) {
                     return -1;
-                } else if (a1TimeStamp < a2TimeStamp) {
+                } else if (a2TimeStamp == null
+                        || a1TimeStamp < a2TimeStamp) {
                     return 1;
                 } else {
                     return 0;

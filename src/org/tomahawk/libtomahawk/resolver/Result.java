@@ -23,12 +23,10 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
-import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
-
-import android.text.TextUtils;
+import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -89,7 +87,12 @@ public class Result {
      * Construct a new {@link Result} with the given {@link Track}
      */
     private Result(String url, Track track, Resolver resolvedBy, String queryKey) {
-        setPath(url);
+        if (url == null) {
+            mPath = "";
+        } else {
+            mPath = url;
+            isResolved = true;
+        }
         mResolvedBy = resolvedBy;
         if (TomahawkApp.PLUGINNAME_SPOTIFY.equals(mResolvedBy.getId())) {
             mMediaPlayerInterface = SpotifyMediaPlayer.getInstance();
@@ -276,19 +279,6 @@ public class Result {
      */
     public String getPath() {
         return mPath;
-    }
-
-    /**
-     * Set the filePath/url to this {@link org.tomahawk.libtomahawk.resolver.Result}'s audio data
-     *
-     * @param path the filePath/url to this {@link org.tomahawk.libtomahawk.resolver.Result}'s audio
-     *             data
-     */
-    public void setPath(String path) {
-        mPath = path;
-        if (path != null && !TextUtils.isEmpty(path)) {
-            isResolved = true;
-        }
     }
 
     /**

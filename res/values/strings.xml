@@ -5,6 +5,8 @@
   <string name="login">Login</string>
   <string name="logout">Logout</string>
   <string name="register">Register</string>
+  <string name="rescan">Rescan now</string>
+  <string name="internal_storage">Internal Storage</string>
   <string name="tracks">Tracks</string>
   <string name="albums">Albums</string>
   <string name="artists">Artists</string>
@@ -39,7 +41,10 @@
   <string name="auth_logged_in">Logged into</string>
   <string name="auth_logged_out">Logged out of</string>
   <string name="local_collection_pretty_name">Local Collection</string>
+  <string name="local">Local</string>
+  <string name="all">All</string>
   <string name="preferences_services">Services</string>
+  <string name="preferences_local_collection_text">Choose the directories which should be scanned for local media.</string>
   <string name="preferences_hatchet_text">Sync your data with %1$s.</string>
   <string name="preferences_spotify_text">Play your music from %1$s. Requires a Premium account.</string>
   <string name="preferences_playback">Playback</string>
@@ -80,8 +85,10 @@
   <string name="drawer_title_settings">Settings</string>
   <string name="drawer_header_cloudcollections">Cloud Collections</string>
   <string name="collection_dropdown_recently_added">Recently Added</string>
-  <string name="collection_dropdown_artist">Artist</string>
+  <string name="collection_dropdown_alpha_artists">Artist A-Z</string>
   <string name="collection_dropdown_play_count">Play Count</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">History</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Good</string>
@@ -106,6 +113,10 @@
   <string name="socialaction_type_collected_album_single">collected an album</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums) -->
   <string name="socialaction_type_collected_album_multiple">collected %1$d albums</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist) -->
+  <string name="socialaction_type_collected_artist_single">collected an artist</string>
+  <!-- Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists) -->
+  <string name="socialaction_type_collected_artist_multiple">collected %1$d artists</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen") -->
   <string name="socialaction_type_createcomment">commented on</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user) -->

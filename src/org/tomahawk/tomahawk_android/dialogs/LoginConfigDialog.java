@@ -38,6 +38,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 /**
  * A {@link org.tomahawk.tomahawk_android.dialogs.ConfigDialog} which shows a textfield to enter a
@@ -91,7 +92,7 @@ public class LoginConfigDialog extends ConfigDialog {
         mUsernameEditText = (ConfigEdittext) usernameLayout.findViewById(R.id.config_edittext);
         mUsernameEditText.setHint(mAuthenticatorUtils.getUserIdEditTextHintResId());
         mUsernameEditText.setText(isLoggedIn ? mAuthenticatorUtils.getUserName() : "");
-        addViewToFrame(usernameLayout);
+        addScrollingViewToFrame(usernameLayout);
         LinearLayout passwordLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
         mPasswordEditText = (ConfigEdittext) passwordLayout.findViewById(R.id.config_edittext);
         mPasswordEditText.setHint(R.string.login_password);
@@ -99,14 +100,17 @@ public class LoginConfigDialog extends ConfigDialog {
         mPasswordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
-        addViewToFrame(passwordLayout);
+        addScrollingViewToFrame(passwordLayout);
         if (mAuthenticatorUtils.doesAllowRegistration() && !mAuthenticatorUtils.isLoggedIn()) {
             FrameLayout buttonLayout =
-                    (FrameLayout) inflater.inflate(R.layout.config_register_button, null);
-            addViewToFrame(buttonLayout);
+                    (FrameLayout) inflater.inflate(R.layout.config_button, null);
             LinearLayout button =
-                    (LinearLayout) buttonLayout.findViewById(R.id.config_register_button);
+                    (LinearLayout) buttonLayout.findViewById(R.id.config_button);
             button.setOnClickListener(new RegisterButtonListener());
+            TextView buttonText =
+                    (TextView) buttonLayout.findViewById(R.id.config_button_text);
+            buttonText.setText(R.string.register);
+            addScrollingViewToFrame(buttonLayout);
         }
 
         showSoftKeyboard(mUsernameEditText);

@@ -12,8 +12,6 @@
         <item name="android:listChoiceIndicatorMultiple">@drawable/tomahawk_btn_check_holo_light
         </item>
 
-        <item name="android:dropDownSpinnerStyle">@style/SpinnerTomahawk</item>
-
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarTomahawk</item>
 
         <item name="android:listChoiceBackgroundIndicator">
@@ -28,7 +26,7 @@
 
         <item name="colorPrimary">@color/tomahawk_red</item>
 
-        <item name="colorPrimaryDark">@color/tomahawk_red_dark</item>
+        <item name="colorPrimaryDark">@color/tomahawk_red</item>
 
         <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
 

@@ -53,6 +53,11 @@
   <string name="preferences_app_version">Version de l\'application</string>
   <string name="preferences_app_uservoice">Retours</string>
   <string name="preferences_app_uservoice_text">Donnez-nous vos idées ou demandez de l\'aide.</string>
+<<<<<<< HEAD
+=======
+  <string name="preferences_app_sendlog">Envoyer les logs</string>
+  <string name="preferences_app_sendlog_text">Envoyer le fichier de logs pour aider à corriger le problème</string>
+>>>>>>> upstream/master
   <string name="crash_dialog_title">Tomahawk a planté</string>
   <string name="crash_dialog_text">Une erreur inattendue a entraîné l\'arrêt de l\'application. Aidez-nous à corriger le problème en nous envoyant un rapport d\'erreur, vous avez juste à cliquer sur OK.</string>
   <string name="crash_dialog_comment_prompt">Vous pouvez ajouter vos commentaire concernant le problème ici :</string>
@@ -78,7 +83,10 @@
   <string name="drawer_title_settings">Paramètres</string>
   <string name="drawer_header_cloudcollections">Collections du cloud</string>
   <string name="collection_dropdown_recently_added">Ajouté récemment</string>
+<<<<<<< HEAD
   <string name="collection_dropdown_artist">Artiste</string>
+=======
+>>>>>>> upstream/master
   <string name="collection_dropdown_play_count">Nombre de lectures</string>
   <string name="history">Historique</string>
   <string name="preferences_bitrate_low">Normal</string>
@@ -104,6 +112,11 @@
   <string name="socialaction_type_collected_album_single">a ajouté un album</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">a ajouté %1$d albums</string>
+<<<<<<< HEAD
+=======
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+>>>>>>> upstream/master
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">a ajouté un commentaire sur</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->

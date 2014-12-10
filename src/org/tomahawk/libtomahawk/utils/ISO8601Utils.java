@@ -248,7 +248,7 @@ public class ISO8601Utils {
      * @param length the length of the string we should zero pad
      */
     private static void padInt(StringBuilder buffer, int value, int length) {
-        String strValue = Integer.toString(value);
+        String strValue = String.valueOf(value);
         for (int i = length - strValue.length(); i > 0; i--) {
             buffer.append('0');
         }

@@ -21,7 +21,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="64dp">
+              android:layout_height="64dp"
+              android:background="@color/primary_background_inverted">
     <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"

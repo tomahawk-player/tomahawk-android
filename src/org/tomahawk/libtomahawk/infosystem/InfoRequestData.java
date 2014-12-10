@@ -52,6 +52,8 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG = 806;
 
+    public static final int INFOREQUESTDATA_TYPE_USERS_LOGGEDIN_ID = 807;
+
     public static final int INFOREQUESTDATA_TYPE_RELATIONSHIPS = 900;
 
     public static final int INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWERS = 901;

@@ -41,10 +41,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CollectionFragment extends TomahawkFragment {
+public class UserCollectionFragment extends TomahawkFragment {
 
-    public static final String COLLECTION_SPINNER_POSITION
-            = "org.tomahawk.tomahawk_android.collection_spinner_position";
+    public static final String USER_COLLECTION_SPINNER_POSITION
+            = "org.tomahawk.tomahawk_android.user_collection_spinner_position";
 
     @Override
     public void onResume() {
@@ -118,16 +118,17 @@ public class CollectionFragment extends TomahawkFragment {
                 PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
         List<Integer> dropDownItems = new ArrayList<Integer>();
         dropDownItems.add(R.string.collection_dropdown_recently_added);
-        dropDownItems.add(R.string.collection_dropdown_artist);
+        dropDownItems.add(R.string.collection_dropdown_alpha);
+        dropDownItems.add(R.string.collection_dropdown_alpha_artists);
         AdapterView.OnItemSelectedListener spinnerClickListener
                 = new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 SharedPreferences preferences =
                         PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-                int initialPos = preferences.getInt(COLLECTION_SPINNER_POSITION, 0);
+                int initialPos = preferences.getInt(USER_COLLECTION_SPINNER_POSITION, 0);
                 if (initialPos != position) {
-                    preferences.edit().putInt(COLLECTION_SPINNER_POSITION, position).commit();
+                    preferences.edit().putInt(USER_COLLECTION_SPINNER_POSITION, position).commit();
                     updateAdapter();
                 }
             }
@@ -136,11 +137,17 @@ public class CollectionFragment extends TomahawkFragment {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         };
-        int initialPos = preferences.getInt(COLLECTION_SPINNER_POSITION, 0);
+        int initialPos = preferences.getInt(USER_COLLECTION_SPINNER_POSITION, 0);
         if (initialPos == 0) {
+            Collection userColl = CollectionManager.getInstance().getCollection(
+                    TomahawkApp.PLUGINNAME_USERCOLLECTION);
             Collections.sort(items, new TomahawkListItemComparator(
-                    TomahawkListItemComparator.COMPARE_RECENTLY_ADDED));
+                    TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
+                    userColl.getAlbumAddedTimeStamps()));
         } else if (initialPos == 1) {
+            Collections.sort(items, new TomahawkListItemComparator(
+                    TomahawkListItemComparator.COMPARE_ALPHA));
+        } else if (initialPos == 2) {
             Collections.sort(items, new TomahawkListItemComparator(
                     TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
         }
@@ -165,5 +172,6 @@ public class CollectionFragment extends TomahawkFragment {
         if (!getResources().getBoolean(R.bool.is_landscape)) {
             getListView().setAreHeadersSticky(true);
         }
+        forceAutoResolve();
     }
 }
