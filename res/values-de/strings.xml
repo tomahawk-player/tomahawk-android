@@ -5,6 +5,8 @@
   <string name="login">Anmelden</string>
   <string name="logout">Abmelden</string>
   <string name="register">Registrieren</string>
+  <string name="rescan">Jetzt durchsuchen</string>
+  <string name="internal_storage">Interner Speicher</string>
   <string name="tracks">Lieder</string>
   <string name="albums">Alben</string>
   <string name="artists">Künstler</string>
@@ -42,6 +44,7 @@
   <string name="local">Lokal</string>
   <string name="all">Alle</string>
   <string name="preferences_services">Dienste</string>
+  <string name="preferences_local_collection_text">Wähle die Ordner, in denen nach Musik gesucht werden soll.</string>
   <string name="preferences_hatchet_text">Synchronisiere deine Daten mit %1$s.</string>
   <string name="preferences_spotify_text">Spiele deine Musik von %1$s. Benötigt ein Premium-Konto.</string>
   <string name="preferences_playback">Wiedergabe</string>
