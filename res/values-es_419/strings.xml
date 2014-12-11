@@ -79,6 +79,7 @@
   <string name="context_menu_unlove">Ya no me gusta</string>
   <string name="context_menu_share">Compartir</string>
   <string name="context_menu_gotoartist">Ir al artista</string>
+  <string name="drawer_title_feed">Actividad Reciente</string>
   <string name="drawer_title_collection">Colección</string>
   <string name="drawer_title_playlists">Playlists</string>
   <string name="drawer_title_lovedtracks">Favoritas</string>
@@ -106,11 +107,17 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
   <string name="socialaction_type_love_track_multiple">Le gustó  %1$d Canciones</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
+  <string name="socialaction_type_collected_track_single">agregó una pista</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
+  <string name="socialaction_type_collected_track_multiple">agregó %1$d pistas</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
+  <string name="socialaction_type_collected_album_single">agregó un álbum</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
+  <string name="socialaction_type_collected_album_multiple">agregó %1$d álbumes</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">agregó un artista</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">agregó %1$d artistas</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">Comento en </string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
