@@ -138,18 +138,12 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                             segment, this);
                     tomahawkListAdapter.setShowNumeration(true);
-                    if (!mDontShowHeader) {
-                        tomahawkListAdapter.setShowContentHeaderSpacerResId(
-                                R.dimen.header_clear_space_scrollable, getListView());
-                    }
                     setListAdapter(tomahawkListAdapter);
                 } else {
                     getListAdapter().setSegments(segment, getListView());
                 }
-                if (!mDontShowHeader) {
-                    showContentHeader(mPlaylist, R.dimen.header_clear_space_nonscrollable);
-                    showFancyDropDown(mPlaylist);
-                }
+                showContentHeader(mPlaylist);
+                showFancyDropDown(mPlaylist);
             }
         }
 
@@ -160,7 +154,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             mShownPlaylistEntries.add((PlaylistEntry) playlistEntry);
         }
 
-        updateShowPlaystate();
+        onUpdateAdapterFinished();
     }
 
     private void getPlaylistArtists(Playlist playlist) {

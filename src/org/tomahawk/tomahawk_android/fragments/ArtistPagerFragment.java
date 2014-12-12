@@ -61,15 +61,6 @@ public class ArtistPagerFragment extends PagerFragment {
         }
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mHasScrollableHeader = true;
-        mStaticHeaderHeight = getResources()
-                .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_static);
-    }
-
     /**
      * Called, when this {@link org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment}'s
      * {@link android.view.View} has been created
@@ -126,7 +117,7 @@ public class ArtistPagerFragment extends PagerFragment {
             }
         }
 
-        showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable_static, null);
+        showContentHeader(mArtist);
         final List<Collection> collections =
                 CollectionManager.getInstance().getAvailableCollections(mArtist);
         int initialSelection = 0;
@@ -156,13 +147,8 @@ public class ArtistPagerFragment extends PagerFragment {
         FragmentInfo fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = AlbumsFragment.class;
         fragmentInfo.mTitle = getString(R.string.music);
-        Bundle bundle = new Bundle();
-        bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
-        if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
-            bundle.putString(CollectionManager.COLLECTION_ID,
-                    getArguments().getString(CollectionManager.COLLECTION_ID));
-        }
-        fragmentInfo.mBundle = bundle;
+        fragmentInfo.mBundle = getChildFragmentBundle();
+        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
@@ -170,9 +156,8 @@ public class ArtistPagerFragment extends PagerFragment {
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = BiographyFragment.class;
         fragmentInfo.mTitle = getString(R.string.biography);
-        bundle = new Bundle();
-        bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
-        fragmentInfo.mBundle = bundle;
+        fragmentInfo.mBundle = getChildFragmentBundle();
+        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
@@ -185,6 +170,6 @@ public class ArtistPagerFragment extends PagerFragment {
 
     @Override
     protected void onInfoSystemResultsReported(String requestId) {
-        showContentHeader(mArtist, R.dimen.header_clear_space_nonscrollable_static, null);
+        showContentHeader(mArtist);
     }
 }

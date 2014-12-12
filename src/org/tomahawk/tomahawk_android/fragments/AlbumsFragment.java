@@ -111,8 +111,10 @@ public class AlbumsFragment extends TomahawkFragment {
             } else {
                 bundle.putString(CollectionManager.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
             }
-            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                    getActivity().getSupportFragmentManager(), TracksFragment.class, bundle);
+            bundle.putInt(ContentHeaderFragment.MODE,
+                    ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+            FragmentUtils
+                    .replace((TomahawkMainActivity) getActivity(), TracksFragment.class, bundle);
         }
     }
 
@@ -244,7 +246,6 @@ public class AlbumsFragment extends TomahawkFragment {
             }
         }
 
-        updateShowPlaystate();
-        forceAutoResolve();
+        onUpdateAdapterFinished();
     }
 }

@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -29,19 +30,16 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PageIndicator;
 import org.tomahawk.tomahawk_android.views.Selector;
-import org.tomahawk.tomahawk_android.views.TomahawkScrollView;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
@@ -58,10 +56,6 @@ public abstract class PagerFragment extends ContentHeaderFragment {
             = new ConcurrentSkipListSet<String>();
 
     private PagerFragmentReceiver mPagerFragmentReceiver;
-
-    protected boolean mHasScrollableHeader;
-
-    protected int mStaticHeaderHeight = -1;
 
     public class FragmentInfoList {
 
@@ -171,20 +165,6 @@ public abstract class PagerFragment extends ContentHeaderFragment {
             intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
             getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
         }
-
-        //Add a spacer to the top of the scrollView
-        TomahawkScrollView scrollView =
-                (TomahawkScrollView) view.findViewById(R.id.scrollview);
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) scrollView.getLayoutParams();
-        int offset;
-        if (mHasScrollableHeader) {
-            offset = getResources().getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable)
-                    + getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
-        } else {
-            offset = mStaticHeaderHeight;
-        }
-        params.setMargins(0, offset, 0, 0);
-        scrollView.setLayoutParams(params);
     }
 
     protected void setupPager(List<FragmentInfoList> fragmentInfoLists, int initialPage,
@@ -209,42 +189,6 @@ public abstract class PagerFragment extends ContentHeaderFragment {
         pageIndicator.setup(fragmentPager, fragmentInfoLists,
                 getActivity().findViewById(R.id.sliding_layout),
                 (Selector) getView().findViewById(R.id.selector), selectorPosStorageKey);
-        if (mHasScrollableHeader) {
-            final TomahawkScrollView scrollView =
-                    (TomahawkScrollView) getView().findViewById(R.id.scrollview);
-            View pagerClearSpace = scrollView.findViewById(R.id.pager_clear_space);
-            int height = getResources().getDimensionPixelSize(R.dimen.header_clear_space_scrollable)
-                    - getResources().getDimensionPixelSize(R.dimen.pager_indicator_height);
-            pagerClearSpace.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, height));
-            scrollView.getViewTreeObserver().addOnGlobalLayoutListener(
-                    new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            fragmentPager.setLayoutParams(new LinearLayout.LayoutParams(
-                                    LinearLayout.LayoutParams.MATCH_PARENT,
-                                    scrollView.getHeight()));
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                scrollView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                            } else {
-                                scrollView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                            }
-                        }
-                    });
-            scrollView.getViewTreeObserver()
-                    .addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
-                        @Override
-                        public void onScrollChanged() {
-                            if (getView() != null) {
-                                int offset = getResources().getDimensionPixelSize(
-                                        R.dimen.header_clear_space_scrollable) - getResources()
-                                        .getDimensionPixelSize(R.dimen.pager_indicator_height);
-                                float delta = getView().findViewById(R.id.scrollview).getScrollY();
-                                animateContentHeader((int) (delta / offset * 10000f));
-                            }
-                        }
-                    });
-        }
         if (initialPage >= 0) {
             fragmentPager.setCurrentItem(initialPage);
         }
@@ -259,12 +203,6 @@ public abstract class PagerFragment extends ContentHeaderFragment {
 
     protected abstract void onInfoSystemResultsReported(String requestId);
 
-    protected void showFancyDropDown(TomahawkListItem item) {
-        super.showFancyDropDown(
-                (FrameLayout) getView().findViewById(R.id.content_header_frame_pager),
-                item.getName().toUpperCase());
-    }
-
     protected void showFancyDropDown(TomahawkListItem item, int initialSelection,
             List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
             FancyDropDown.DropDownListener dropDownListener) {
@@ -274,13 +212,10 @@ public abstract class PagerFragment extends ContentHeaderFragment {
                 dropDownListener);
     }
 
-    protected void showContentHeader(Object item, int headerHeightResId,
-            View.OnClickListener followButtonListener) {
+    protected void showContentHeader(Object item) {
         super.showContentHeader(
                 (FrameLayout) getView().findViewById(R.id.content_header_image_frame_pager),
-                (FrameLayout) getView().findViewById(R.id.content_header_frame_pager),
-                getView().findViewById(R.id.action_bar_background_gradient_pager), item,
-                mHasScrollableHeader, headerHeightResId, followButtonListener);
+                (FrameLayout) getView().findViewById(R.id.content_header_frame_pager), item);
     }
 
     private void onSlidingLayoutShown() {
@@ -307,5 +242,17 @@ public abstract class PagerFragment extends ContentHeaderFragment {
                 selector.setLayoutParams(params);
             }
         }
+    }
+
+    protected Bundle getChildFragmentBundle() {
+        Bundle bundle = new Bundle();
+        if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
+            bundle.putString(CollectionManager.COLLECTION_ID,
+                    getArguments().getString(CollectionManager.COLLECTION_ID));
+        }
+        if (getArguments().containsKey(MODE)) {
+            bundle.putInt(MODE, getArguments().getInt(MODE));
+        }
+        return bundle;
     }
 }

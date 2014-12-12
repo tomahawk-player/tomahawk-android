@@ -83,10 +83,6 @@ public class PlaylistsFragment extends TomahawkFragment {
         if (mContainerFragmentClass == null) {
             getActivity().setTitle(getString(R.string.drawer_title_playlists).toUpperCase());
         }
-        if (!mDontShowHeader) {
-            showContentHeader(R.drawable.playlists_header,
-                    R.dimen.header_clear_space_nonscrollable_static);
-        }
         updateAdapter();
     }
 
@@ -114,9 +110,10 @@ public class PlaylistsFragment extends TomahawkFragment {
             if (mUser != null) {
                 bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getId());
             }
+            bundle.putInt(ContentHeaderFragment.MODE,
+                    ContentHeaderFragment.MODE_HEADER_DYNAMIC);
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                    getActivity().getSupportFragmentManager(), PlaylistEntriesFragment.class,
-                    bundle);
+                    PlaylistEntriesFragment.class, bundle);
         } else {
             new CreatePlaylistDialog().show(getFragmentManager(),
                     getString(R.string.create_playlist));
@@ -154,18 +151,12 @@ public class PlaylistsFragment extends TomahawkFragment {
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
                     (TomahawkMainActivity) getActivity(), layoutInflater, segment, this);
-            if (!mDontShowHeader) {
-                int actionBarHeight = getResources().getDimensionPixelSize(
-                        R.dimen.abc_action_bar_default_height_material);
-                int headerHeight = getResources().getDimensionPixelSize(
-                        R.dimen.header_clear_space_nonscrollable_static);
-                tomahawkListAdapter.setShowContentHeaderSpacer(headerHeight - actionBarHeight,
-                        getListView());
-            }
+            showContentHeader(R.drawable.playlists_header);
             setListAdapter(tomahawkListAdapter);
         } else {
             getListAdapter().setSegments(segment, getListView());
         }
-        forceAutoResolve();
+
+        onUpdateAdapterFinished();
     }
 }

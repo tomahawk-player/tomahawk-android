@@ -42,39 +42,6 @@ public class UserPagerFragment extends PagerFragment {
 
     private User mUser;
 
-    private View.OnClickListener mFollowButtonListener = new View.OnClickListener() {
-
-        @Override
-        public void onClick(View v) {
-            HatchetAuthenticatorUtils authUtils =
-                    (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                            .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            if (authUtils.getLoggedInUser().getFollowings().containsKey(mUser)) {
-                String relationshipId =
-                        authUtils.getLoggedInUser().getFollowings().get(mUser);
-                mCurrentRequestIds.add(InfoSystem.getInstance()
-                        .deleteRelationship(authUtils, relationshipId));
-                setShowFakeNotFollowing(true);
-                setShowFakeFollowing(false);
-            } else {
-                mCurrentRequestIds.add(InfoSystem.getInstance()
-                        .sendRelationshipPostStruct(authUtils, mUser));
-                setShowFakeNotFollowing(false);
-                setShowFakeFollowing(true);
-            }
-            showContentHeader(mUser, R.dimen.header_clear_space_nonscrollable_static_user,
-                    mFollowButtonListener);
-        }
-    };
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mStaticHeaderHeight = getResources()
-                .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_static_user);
-    }
-
     /**
      * Called, when this {@link org.tomahawk.tomahawk_android.fragments.UserPagerFragment}'s {@link
      * android.view.View} has been created
@@ -102,15 +69,38 @@ public class UserPagerFragment extends PagerFragment {
             }
         }
 
-        showContentHeader(mUser, R.dimen.header_clear_space_nonscrollable_static_user,
-                mFollowButtonListener);
+        mFollowButtonListener = new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                HatchetAuthenticatorUtils authUtils =
+                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                if (authUtils.getLoggedInUser().getFollowings().containsKey(mUser)) {
+                    String relationshipId =
+                            authUtils.getLoggedInUser().getFollowings().get(mUser);
+                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                            .deleteRelationship(authUtils, relationshipId));
+                    mShowFakeNotFollowing = true;
+                    mShowFakeFollowing = false;
+                } else {
+                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                            .sendRelationshipPostStruct(authUtils, mUser));
+                    mShowFakeNotFollowing = false;
+                    mShowFakeFollowing = true;
+                }
+                showContentHeader(mUser);
+            }
+        };
+
+        showContentHeader(mUser);
 
         List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();
         FragmentInfo fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = SocialActionsFragment.class;
         fragmentInfo.mTitle = getString(R.string.activity);
-        fragmentInfo.mBundle = new Bundle();
+        fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
         fragmentInfo.mBundle
                 .putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
@@ -122,24 +112,21 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = UserCollectionFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_collection);
-        fragmentInfo.mBundle = new Bundle();
-        fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);
+        fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_collection;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = PlaylistsFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_playlists);
-        fragmentInfo.mBundle = new Bundle();
-        fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);
+        fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_playlist;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = PlaylistEntriesFragment.class;
         fragmentInfo.mTitle = getString(R.string.history);
-        fragmentInfo.mBundle = new Bundle();
-        fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);
+        fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
                 mUser.getPlaybackLog().getCacheKey());
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
@@ -148,8 +135,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = PlaylistEntriesFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_lovedtracks);
-        fragmentInfo.mBundle = new Bundle();
-        fragmentInfo.mBundle.putBoolean(ContentHeaderFragment.DONT_SHOW_HEADER, true);
+        fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
                 mUser.getFavorites().getCacheKey());
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
@@ -164,7 +150,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = UsersFragment.class;
         fragmentInfo.mTitle = getString(R.string.followers);
-        fragmentInfo.mBundle = new Bundle();
+        fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
                 UsersFragment.SHOW_MODE_TYPE_FOLLOWERS);
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
@@ -173,7 +159,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = UsersFragment.class;
         fragmentInfo.mTitle = getString(R.string.following);
-        fragmentInfo.mBundle = new Bundle();
+        fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
                 UsersFragment.SHOW_MODE_TYPE_FOLLOWINGS);
         fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
@@ -190,8 +176,7 @@ public class UserPagerFragment extends PagerFragment {
 
     @Override
     protected void onInfoSystemResultsReported(String requestId) {
-        showContentHeader(mUser, R.dimen.header_clear_space_nonscrollable_static_user,
-                mFollowButtonListener);
+        showContentHeader(mUser);
 
         InfoRequestData infoRequestData = InfoSystem.getInstance().getSentLoggedOpById(requestId);
         if (infoRequestData != null && infoRequestData.getType()
@@ -207,8 +192,8 @@ public class UserPagerFragment extends PagerFragment {
         infoRequestData = InfoSystem.getInstance().getInfoRequestById(requestId);
         if (infoRequestData != null && infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS) {
-            setShowFakeFollowing(false);
-            setShowFakeNotFollowing(false);
+            mShowFakeFollowing = false;
+            mShowFakeNotFollowing = false;
         }
     }
 }

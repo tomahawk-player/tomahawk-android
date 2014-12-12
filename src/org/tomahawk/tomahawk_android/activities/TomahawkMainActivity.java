@@ -50,6 +50,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.CloudCollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
+import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
 import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
@@ -149,6 +150,9 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static final String SLIDING_LAYOUT_HIDDEN
             = "org.tomahawk.tomahawk_android.sliding_layout_hidden";
+
+    public static final String SHOW_ACTION_BAR_BG_MODE
+            = "org.tomahawk.tomahawk_android.show_action_bar_bg_mode";
 
     private static long mSessionIdCounter = 0;
 
@@ -255,20 +259,26 @@ public class TomahawkMainActivity extends ActionBarActivity
                 Resolver resolver = PipeLine.getInstance().getResolver(
                         intent.getStringExtra(PipeLine.PIPELINE_URLLOOKUPFINISHED_RESOLVERID));
                 ScriptResolverUrlResult result = PipeLine.getInstance().getUrlResult(url);
+                Bundle bundle = new Bundle();
                 if (result.type.equals(PipeLine.URL_TYPE_ARTIST)) {
-                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                            AlbumsFragment.class, Artist.get(result.name).getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_ARTIST_KEY);
+                    bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY,
+                            Artist.get(result.name).getCacheKey());
+                    bundle.putInt(ContentHeaderFragment.MODE,
+                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                    FragmentUtils.replace(TomahawkMainActivity.this, AlbumsFragment.class, bundle);
                 } else if (result.type.equals(PipeLine.URL_TYPE_ALBUM)) {
                     Artist artist = Artist.get(result.artist);
-                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                            TracksFragment.class, Album.get(result.name, artist).getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_ALBUM_KEY);
+                    bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY,
+                            Album.get(result.name, artist).getCacheKey());
+                    bundle.putInt(ContentHeaderFragment.MODE,
+                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                    FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
                 } else if (result.type.equals(PipeLine.URL_TYPE_TRACK)) {
-                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                            TracksFragment.class,
-                            Query.get(result.title, "", result.artist, false).getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_QUERY_KEY);
+                    bundle.putString(TomahawkFragment.TOMAHAWK_QUERY_KEY,
+                            Query.get(result.title, "", result.artist, false).getCacheKey());
+                    bundle.putInt(ContentHeaderFragment.MODE,
+                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                    FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
                 } else if (result.type.equals(PipeLine.URL_TYPE_PLAYLIST)) {
                     ArrayList<Query> queries = new ArrayList<Query>();
                     for (ScriptResolverUrlResult track : result.tracks) {
@@ -281,9 +291,11 @@ public class TomahawkMainActivity extends ActionBarActivity
                     }
                     Playlist playlist = Playlist.fromQueryList(result.title, queries);
                     playlist.setFilled(true);
-                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                            PlaylistEntriesFragment.class, playlist.getId(),
-                            TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
+                    bundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY, playlist.getId());
+                    bundle.putInt(ContentHeaderFragment.MODE,
+                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                    FragmentUtils.replace(TomahawkMainActivity.this, PlaylistEntriesFragment.class,
+                            bundle);
                 }
             } else if (CollectionManager.COLLECTION_ADDED.equals(intent.getAction())) {
                 updateDrawer();
@@ -324,28 +336,38 @@ public class TomahawkMainActivity extends ActionBarActivity
             Bundle bundle = new Bundle();
             if (holder.isCloudCollection) {
                 bundle.putString(CollectionManager.COLLECTION_ID, holder.id);
-                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        CloudCollectionFragment.class, bundle);
+                bundle.putInt(ContentHeaderFragment.MODE,
+                        ContentHeaderFragment.MODE_HEADER_STATIC);
+                FragmentUtils
+                        .replace(TomahawkMainActivity.this, CloudCollectionFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_USERPAGE)) {
                 if (authenticatorUtils.getLoggedInUser() == null) {
                     return;
                 }
-                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        UserPagerFragment.class, authenticatorUtils.getLoggedInUser().getId(),
-                        TomahawkFragment.TOMAHAWK_USER_ID);
+                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+                        authenticatorUtils.getLoggedInUser().getId());
+                bundle.putInt(ContentHeaderFragment.MODE,
+                        ContentHeaderFragment.MODE_HEADER_STATIC_USER);
+                FragmentUtils.replace(TomahawkMainActivity.this, UserPagerFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_FEED)) {
                 if (authenticatorUtils.getLoggedInUser() == null) {
                     return;
                 }
-                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        SocialActionsFragment.class, authenticatorUtils.getLoggedInUser().getId(),
-                        TomahawkFragment.TOMAHAWK_USER_ID,
+                bundle.putInt(TomahawkFragment.SHOW_MODE,
                         SocialActionsFragment.SHOW_MODE_DASHBOARD);
+                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+                        authenticatorUtils.getLoggedInUser().getId());
+                bundle.putInt(ContentHeaderFragment.MODE,
+                        ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
+                FragmentUtils
+                        .replace(TomahawkMainActivity.this, SocialActionsFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_COLLECTION)) {
                 bundle.putString(CollectionManager.COLLECTION_ID,
                         TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        CollectionPagerFragment.class, bundle);
+                bundle.putInt(ContentHeaderFragment.MODE,
+                        ContentHeaderFragment.MODE_HEADER_STATIC);
+                FragmentUtils
+                        .replace(TomahawkMainActivity.this, CollectionPagerFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_LOVEDTRACKS)) {
                 bundle.putString(PlaylistsFragment.TOMAHAWK_PLAYLIST_KEY,
                         DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
@@ -353,18 +375,21 @@ public class TomahawkMainActivity extends ActionBarActivity
                     bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
                             authenticatorUtils.getLoggedInUser().getId());
                 }
-                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        PlaylistEntriesFragment.class, bundle);
+                bundle.putInt(ContentHeaderFragment.MODE,
+                        ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                FragmentUtils
+                        .replace(TomahawkMainActivity.this, PlaylistEntriesFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_PLAYLISTS)) {
                 if (authenticatorUtils.getLoggedInUser() != null) {
                     bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
                             authenticatorUtils.getLoggedInUser().getId());
                 }
-                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        PlaylistsFragment.class, bundle);
+                FragmentUtils.replace(TomahawkMainActivity.this, PlaylistsFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_SETTINGS)) {
-                FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                        FakePreferenceFragment.class);
+                bundle.putInt(ContentHeaderFragment.MODE,
+                        ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
+                FragmentUtils
+                        .replace(TomahawkMainActivity.this, FakePreferenceFragment.class, bundle);
             }
             if (mDrawerLayout != null) {
                 mDrawerLayout.closeDrawer(mDrawerList);
@@ -473,7 +498,10 @@ public class TomahawkMainActivity extends ActionBarActivity
             }
         }
         if (intent.hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
-            FragmentUtils.replace(this, getSupportFragmentManager(), FakePreferenceFragment.class);
+            Bundle bundle = new Bundle();
+            bundle.putInt(ContentHeaderFragment.MODE,
+                    ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
+            FragmentUtils.replace(this, FakePreferenceFragment.class, bundle);
         }
 
         if (intent.getData() != null) {
@@ -511,9 +539,11 @@ public class TomahawkMainActivity extends ActionBarActivity
                 if (resolver != null) {
                     query.addTrackResult(Result.get(data.toString(), query.getBasicTrack(),
                             resolver, query.getCacheKey()));
-                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                            TracksFragment.class, query.getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_QUERY_KEY);
+                    Bundle bundle = new Bundle();
+                    bundle.putString(TomahawkFragment.TOMAHAWK_QUERY_KEY, query.getCacheKey());
+                    bundle.putInt(ContentHeaderFragment.MODE,
+                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                    FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
                 }
             }
         }
@@ -592,7 +622,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                         (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                 FragmentUtils.addRootFragment(TomahawkMainActivity.this,
-                        getSupportFragmentManager(), hatchetAuthUtils.getLoggedInUser());
+                        hatchetAuthUtils.getLoggedInUser());
             } else {
                 boolean actionBarHidden = mSavedInstanceState
                         .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
@@ -694,8 +724,12 @@ public class TomahawkMainActivity extends ActionBarActivity
             public boolean onQueryTextSubmit(String query) {
                 if (query != null && !TextUtils.isEmpty(query)) {
                     DatabaseHelper.getInstance().addEntryToSearchHistory(query);
-                    FragmentUtils.replace(TomahawkMainActivity.this, getSupportFragmentManager(),
-                            SearchPagerFragment.class, query);
+                    Bundle bundle = new Bundle();
+                    bundle.putString(SearchPagerFragment.SEARCHABLEFRAGMENT_QUERY_STRING, query);
+                    bundle.putInt(ContentHeaderFragment.MODE,
+                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                    FragmentUtils
+                            .replace(TomahawkMainActivity.this, SearchPagerFragment.class, bundle);
                     if (mSearchItem != null) {
                         MenuItemCompat.collapseActionView(mSearchItem);
                     }
@@ -955,5 +989,16 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public SlidingUpPanelLayout getSlidingUpPanelLayout() {
         return mSlidingUpPanelLayout;
+    }
+
+    public void showFilledActionBar() {
+        View actionBarBg = findViewById(R.id.action_bar_background);
+        actionBarBg.setBackgroundColor(
+                getResources().getColor(R.color.primary_background_inverted));
+    }
+
+    public void showGradientActionBar() {
+        View actionBarBg = findViewById(R.id.action_bar_background);
+        actionBarBg.setBackgroundResource(R.drawable.below_shadow);
     }
 }

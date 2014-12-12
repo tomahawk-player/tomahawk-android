@@ -248,10 +248,14 @@ public class ContextMenuFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
+                    Bundle bundle = new Bundle();
+                    bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY,
+                            mTomahawkListItem.getCacheKey());
+                    bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+                    bundle.putInt(ContentHeaderFragment.MODE,
+                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                     FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                            getActivity().getSupportFragmentManager(), TracksFragment.class,
-                            mTomahawkListItem.getCacheKey(), TomahawkFragment.TOMAHAWK_ALBUM_KEY,
-                            mCollection);
+                            TracksFragment.class, bundle);
                 }
             });
             TextView artistTextView = (TextView) albumNameButton.findViewById(R.id.album_name);
@@ -385,9 +389,13 @@ public class ContextMenuFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     actionOnDone.run();
-                    FragmentUtils.replace(activity, activity.getSupportFragmentManager(),
-                            TracksFragment.class, item.getAlbum().getCacheKey(),
-                            TomahawkFragment.TOMAHAWK_ALBUM_KEY, collection);
+                    Bundle bundle = new Bundle();
+                    bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY,
+                            item.getAlbum().getCacheKey());
+                    bundle.putString(CollectionManager.COLLECTION_ID, collection.getId());
+                    bundle.putInt(ContentHeaderFragment.MODE,
+                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                    FragmentUtils.replace(activity, TracksFragment.class, bundle);
                 }
             });
         }
@@ -395,9 +403,15 @@ public class ContextMenuFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 actionOnDone.run();
-                FragmentUtils.replace(activity, activity.getSupportFragmentManager(),
-                        ArtistPagerFragment.class, item.getArtist().getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ARTIST_KEY, collection);
+                Bundle bundle = new Bundle();
+                bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY,
+                        item.getArtist().getCacheKey());
+                if (collection != null) {
+                    bundle.putString(CollectionManager.COLLECTION_ID, collection.getId());
+                }
+                bundle.putInt(ContentHeaderFragment.MODE,
+                        ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+                FragmentUtils.replace(activity, ArtistPagerFragment.class, bundle);
             }
         };
         View artistNameButton;

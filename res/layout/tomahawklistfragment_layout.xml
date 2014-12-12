@@ -24,12 +24,6 @@
              android:layout_height="match_parent"
              android:orientation="vertical">
 
-    <View android:id="@+id/action_bar_background"
-          android:layout_width="match_parent"
-          android:layout_height="?attr/actionBarSize"
-          android:background="@color/primary_background_inverted"
-          android:visibility="gone"/>
-
     <FrameLayout android:id="@+id/content_header_image_frame"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>
@@ -41,11 +35,5 @@
     <FrameLayout android:id="@+id/content_header_frame"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>
-
-    <View android:id="@+id/action_bar_background_gradient"
-          android:layout_width="match_parent"
-          android:layout_height="?attr/actionBarSize"
-          android:background="@drawable/below_shadow"
-          android:visibility="gone"/>
 
 </FrameLayout>

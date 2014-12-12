@@ -17,7 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
@@ -28,14 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CollectionPagerFragment extends PagerFragment {
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mStaticHeaderHeight = getResources()
-                .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_static);
-    }
 
     /**
      * Called, when this {@link org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment}'s
@@ -54,20 +45,14 @@ public class CollectionPagerFragment extends PagerFragment {
             }
         }
 
-        showContentHeader(R.drawable.collection_header,
-                R.dimen.header_clear_space_nonscrollable_static, null);
+        showContentHeader(R.drawable.collection_header);
 
         List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();
         FragmentInfo fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = ArtistsFragment.class;
         fragmentInfo.mTitle = getString(R.string.artists);
-        Bundle bundle = new Bundle();
-        if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
-            bundle.putString(CollectionManager.COLLECTION_ID,
-                    getArguments().getString(CollectionManager.COLLECTION_ID));
-        }
-        fragmentInfo.mBundle = bundle;
+        fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
@@ -75,12 +60,7 @@ public class CollectionPagerFragment extends PagerFragment {
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = AlbumsFragment.class;
         fragmentInfo.mTitle = getString(R.string.albums);
-        bundle = new Bundle();
-        if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
-            bundle.putString(CollectionManager.COLLECTION_ID,
-                    getArguments().getString(CollectionManager.COLLECTION_ID));
-        }
-        fragmentInfo.mBundle = bundle;
+        fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
@@ -88,12 +68,7 @@ public class CollectionPagerFragment extends PagerFragment {
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = TracksFragment.class;
         fragmentInfo.mTitle = getString(R.string.tracks);
-        bundle = new Bundle();
-        if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
-            bundle.putString(CollectionManager.COLLECTION_ID,
-                    getArguments().getString(CollectionManager.COLLECTION_ID));
-        }
-        fragmentInfo.mBundle = bundle;
+        fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
