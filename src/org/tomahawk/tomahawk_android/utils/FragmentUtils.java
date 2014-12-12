@@ -51,11 +51,23 @@ public class FragmentUtils {
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
     public static void addRootFragment(TomahawkMainActivity activity,
+<<<<<<< HEAD
+            FragmentManager fragmentManager) {
+        HatchetAuthenticatorUtils hatchetAuthUtils =
+                (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        FragmentTransaction ft = fragmentManager.beginTransaction();
+        if (hatchetAuthUtils.isLoggedIn()) {
+            Bundle bundle = new Bundle();
+            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+                    hatchetAuthUtils.getLoggedInUser().getId());
+=======
             FragmentManager fragmentManager, User loggedInUser) {
         FragmentTransaction ft = fragmentManager.beginTransaction();
         if (loggedInUser != null) {
             Bundle bundle = new Bundle();
             bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, loggedInUser.getId());
+>>>>>>> upstream/master
             bundle.putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_DASHBOARD);
             ft.add(R.id.content_viewer_frame,
                     Fragment.instantiate(activity, SocialActionsFragment.class.getName(), bundle),

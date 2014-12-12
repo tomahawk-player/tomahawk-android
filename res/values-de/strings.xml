@@ -81,7 +81,11 @@
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Sammlung</string>
   <string name="drawer_title_playlists">Playlists</string>
+<<<<<<< HEAD
+  <string name="drawer_title_lovedtracks">Lieblingslieder</string>
+=======
   <string name="drawer_title_lovedtracks">Favoriten</string>
+>>>>>>> upstream/master
   <string name="drawer_title_settings">Einstellungen</string>
   <string name="drawer_header_cloudcollections">Cloud Sammlungen</string>
   <string name="collection_dropdown_recently_added">Kürzlich hinzugefügt</string>
@@ -102,9 +106,15 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">folgt nun</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
+<<<<<<< HEAD
+  <string name="socialaction_type_love_track_single">hat ein Lied zu den Lieblingsliedern hinzugefügt</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
+  <string name="socialaction_type_love_track_multiple">hat %1$d Lieder zu den Lieblingsliedern hinzugefügt</string>
+=======
   <string name="socialaction_type_love_track_single">hat ein Lied zu den Favoriten hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
   <string name="socialaction_type_love_track_multiple">hat %1$d Lieder zu den Favoriten hinzugefügt</string>
+>>>>>>> upstream/master
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
   <string name="socialaction_type_collected_track_single">hat ein Lied zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
@@ -113,10 +123,13 @@
   <string name="socialaction_type_collected_album_single">hat ein Album zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">hat %1$d Alben zur Sammlung hinzugefügt</string>
+<<<<<<< HEAD
+=======
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
   <string name="socialaction_type_collected_artist_single">hat einen Künstler zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
   <string name="socialaction_type_collected_artist_multiple">hat %1$d Künstler zur Sammlung hinzugefügt</string>
+>>>>>>> upstream/master
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">hat kommentiert</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->

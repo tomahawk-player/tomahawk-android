@@ -91,6 +91,20 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         // Initialize and register Receiver
         IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_STREAMURLREPORTED);
         TomahawkApp.getContext().registerReceiver(mVLCMediaPlayerReceiver, intentFilter);
+<<<<<<< HEAD
+
+        try {
+            mLibVLC = LibVLC.getInstance();
+            mLibVLC.setHttpReconnect(true);
+            mLibVLC.init(TomahawkApp.getContext());
+        } catch (LibVlcException e) {
+            Log.e(TAG, "<init>: Failed to initialize LibVLC: " + e.getLocalizedMessage());
+        }
+    }
+
+    public static VLCMediaPlayer getInstance() {
+        return Holder.instance;
+=======
     }
 
     public static LibVLC getLibVlcInstance() {
@@ -106,6 +120,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
             }
         }
         return instance;
+>>>>>>> upstream/master
     }
 
     public static VLCMediaPlayer getInstance() {

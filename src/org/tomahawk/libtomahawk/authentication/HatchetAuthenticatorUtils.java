@@ -20,11 +20,13 @@ package org.tomahawk.libtomahawk.authentication;
 
 import org.tomahawk.libtomahawk.authentication.models.HatchetAuthResponse;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.JacksonConverter;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.infosystem.hatchet.Hatchet;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUserInfo;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUsers;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -155,7 +157,15 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 ensureAccessTokens();
             }
         }
+<<<<<<< HEAD
+        CollectionManager.getInstance().fetchPlaylists();
+        CollectionManager.getInstance().fetchLovedItemsPlaylist();
+        CollectionManager.getInstance().fetchStarredArtists();
+        CollectionManager.getInstance().fetchStarredAlbums();
+        InfoSystem.getInstance().resolve(getLoggedInUser());
+=======
         CollectionManager.getInstance().fetchAll();
+>>>>>>> upstream/master
         AuthenticatorManager.broadcastConfigTestResult(getId(),
                 AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
                 AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
@@ -291,7 +301,24 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             if (am.getUserData(getAccount(), USER_ID_HATCHET) != null) {
                 return am.getUserData(getAccount(), USER_ID_HATCHET);
             } else {
+<<<<<<< HEAD
+                RestAdapter restAdapter = new RestAdapter.Builder()
+                        .setLogLevel(RestAdapter.LogLevel.BASIC)
+                        .setEndpoint("https://api.hatchet.is/v1")
+                        .setConverter(new JacksonConverter(InfoSystemUtils.getObjectMapper()))
+                        .build();
+                Hatchet hatchet = restAdapter.create(Hatchet.class);
+                HatchetUsers users = hatchet.getUsers(null, getUserName(), null, null);
+                if (users != null) {
+                    HatchetUserInfo user = TomahawkUtils.carelessGet(users.users, 0);
+                    if (user != null) {
+                        am.setUserData(getAccount(), USER_ID_HATCHET, user.id);
+                        return user.id;
+                    }
+                }
+=======
                 mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveUserId(getUserName()));
+>>>>>>> upstream/master
             }
         }
         return null;

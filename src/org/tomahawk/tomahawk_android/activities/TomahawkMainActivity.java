@@ -806,6 +806,10 @@ public class TomahawkMainActivity extends ActionBarActivity
                 new ArrayList<TomahawkMenuAdapter.ResourceHolder>();
         TomahawkMenuAdapter.ResourceHolder holder = new TomahawkMenuAdapter.ResourceHolder();
         if (authenticatorUtils.getLoggedInUser() != null) {
+            if (authenticatorUtils.getLoggedInUser().getImage() == null) {
+                mCurrentRequestIds.add(
+                        InfoSystem.getInstance().resolve(authenticatorUtils.getLoggedInUser()));
+            }
             holder.id = HUB_ID_USERPAGE;
             holder.title = authenticatorUtils.getLoggedInUser().getName();
             holder.image = authenticatorUtils.getLoggedInUser().getImage();

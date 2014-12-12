@@ -82,8 +82,11 @@ public class DatabaseHelper {
 
     public static final int TRUE = 1;
 
+<<<<<<< HEAD
+=======
     public static final int CHUNK_SIZE = 50;
 
+>>>>>>> upstream/master
     private static class Holder {
 
         private static final DatabaseHelper instance = new DatabaseHelper();
