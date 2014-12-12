@@ -154,7 +154,7 @@
   <string name="ask_access_activity_text1">¡Nosotros lo haremos por ti! Por favor habilita nuestro servicio  en la configuración de tu dispositivo</string>
   <string name="ask_access_activity_text2">(Puedes deshabilitar esto cuando quieras en los ajustes de Tomahawk)</string>
   <string name="ask_access_activity_button_text">ir a Ajustes</string>
-  <string name="button_open_queue_text">Cola</string>
+  <string name="button_open_queue_text">Cola de reproducción</string>
   <string name="button_close">Cerrar</string>
   <string name="view_album">Ver Álbum</string>
 </resources>

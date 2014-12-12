@@ -11,7 +11,7 @@
   <string name="albums">Álbumes</string>
   <string name="artists">Artistas</string>
   <string name="users">Usuarios</string>
-  <string name="top_hits">Grandes Éxitos</string>
+  <string name="top_hits">Grandes éxitos</string>
   <string name="top_albums">Mejores álbumes</string>
   <string name="playlist_details">Detalles de la lista</string>
   <string name="album_details">Detalles del álbum</string>
@@ -22,7 +22,7 @@
   <string name="repeat_on_label">Repetición activada</string>
   <string name="repeat_off_label">Repetición desactivada</string>
   <string name="unknown">desconocido</string>
-  <string name="no_track">No hay pistas</string>
+  <string name="no_track">no hay pistas</string>
   <string name="save_playlist">Guardar la lista actual</string>
   <string name="create_playlist">Crear una lista nueva</string>
   <string name="name_playlist">Nombre</string>
@@ -44,16 +44,16 @@
   <string name="local">Local</string>
   <string name="all">Toda</string>
   <string name="preferences_services">Servicios</string>
-  <string name="preferences_local_collection_text">Escoge la ubicación donde deberíamos buscar tú música</string>
+  <string name="preferences_local_collection_text">Elige las carpetas que se explorarán en busca de multimedia local.</string>
   <string name="preferences_hatchet_text">Información sincronizada con %1$s</string>
   <string name="preferences_spotify_text">Reproducir música desde %1$s. Se requiere una cuenta Premium</string>
   <string name="preferences_playback">Reproducción</string>
-  <string name="preferences_playback_data">Hacer Scrobble de todo </string>
+  <string name="preferences_playback_data">Registrar canciones escuchadas en Last.fm</string>
   <string name="preferences_playback_data_text">Hacer scrobbles de cada pista en cada reproductor en el teléfono a %1$s.</string>
   <string name="preferences_plug_and_play">Conectar para reproducir</string>
   <string name="preferences_plug_and_play_text">Comienza a reproducir la música en cuanto se conectan los auriculares.</string>
   <string name="preferences_audio_quality">Calidad de sonido preferida</string>
-  <string name="preferences_audio_quality_text">La calidad de sonido preferida cuando no se esta conectado a una red WiFi.</string>
+  <string name="preferences_audio_quality_text">La calidad de sonido preferida cuando no hay conexión con una red wifi.</string>
   <string name="preferences_info">Información</string>
   <string name="preferences_app_version">Versión de la aplicación</string>
   <string name="preferences_app_uservoice">Comentarios</string>
@@ -69,9 +69,9 @@
   <string name="context_menu_add_to_playlist">Añadir a lista de reproducción</string>
   <string name="context_menu_delete">Eliminar</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
-  <string name="context_menu_removefromcollection">Remover de la colección.</string>
+  <string name="context_menu_removefromcollection">Quitar de la colección</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
-  <string name="context_menu_addtocollection">Agregar a la colección</string>
+  <string name="context_menu_addtocollection">Añadir a la colección</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <string name="context_menu_love">Me gusta</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
@@ -83,7 +83,7 @@
   <string name="drawer_title_playlists">Listas de reproducción</string>
   <string name="drawer_title_lovedtracks">Favoritos</string>
   <string name="drawer_title_settings">Ajustes</string>
-  <string name="drawer_header_cloudcollections">Colección en linea</string>
+  <string name="drawer_header_cloudcollections">Colecciones en línea</string>
   <string name="collection_dropdown_recently_added">Añadidos recientemente</string>
   <string name="collection_dropdown_alpha_artists">Artista A-Z</string>
   <string name="collection_dropdown_play_count">N.º de reproducciones</string>
@@ -100,7 +100,7 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Seguir</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
-  <string name="socialaction_type_follow">Ahora sigue a</string>
+  <string name="socialaction_type_follow">ahora sigue a</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
   <string name="socialaction_type_love_track_single">Le gustó una canción</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
@@ -136,8 +136,7 @@
   <string name="time_minutes">hace %1$d minutos</string>
   <string name="time_hours">hace %1$d horas</string>
   <string name="time_days">hace %1$d días</string>
-  <string name="users_playbacklog_suffix">Escuchó recientemente</string>
-  <string name="users_favorites_suffix">Las favoritas de</string>
+  <string name="users_playbacklog_suffix"> escuchó recientemente</string>
   <string name="music">Música</string>
   <string name="biography">Biografía</string>
   <string name="similar">Similares</string>
