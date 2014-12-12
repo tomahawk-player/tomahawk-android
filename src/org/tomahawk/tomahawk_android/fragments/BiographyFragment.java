@@ -78,5 +78,7 @@ public class BiographyFragment extends TomahawkFragment {
                 getListAdapter().setSegments(new Segment(bioText), getListView());
             }
         }
+
+        onUpdateAdapterFinished();
     }
 }

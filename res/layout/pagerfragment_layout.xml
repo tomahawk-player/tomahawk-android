@@ -27,49 +27,33 @@
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>
 
-    <org.tomahawk.tomahawk_android.views.TomahawkScrollView
-            android:id="@+id/scrollview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true"
-            android:overScrollMode="never">
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="match_parent">
 
-        <FrameLayout android:layout_width="match_parent"
-                     android:layout_height="match_parent">
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical">
 
-            <LinearLayout android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:orientation="vertical">
+            <View android:id="@+id/pager_clear_space"
+                  android:layout_width="match_parent"
+                  android:layout_height="0dp"/>
 
-                <View android:id="@+id/pager_clear_space"
-                      android:layout_width="match_parent"
-                      android:layout_height="0dp"/>
-
-                <android.support.v4.view.ViewPager
-                        android:id="@+id/fragmentpager"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/primary_background"/>
-
-            </LinearLayout>
-
-            <org.tomahawk.tomahawk_android.views.Selector
-                    android:id="@+id/selector"
+            <android.support.v4.view.ViewPager
+                    android:id="@+id/fragmentpager"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
+                    android:layout_height="wrap_content"/>
 
-        </FrameLayout>
+        </LinearLayout>
 
-    </org.tomahawk.tomahawk_android.views.TomahawkScrollView>
+        <org.tomahawk.tomahawk_android.views.Selector
+                android:id="@+id/selector"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+    </FrameLayout>
 
     <FrameLayout android:id="@+id/content_header_frame_pager"
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>
-
-    <View android:id="@+id/action_bar_background_gradient_pager"
-          android:layout_width="match_parent"
-          android:layout_height="?attr/actionBarSize"
-          android:background="@drawable/below_shadow"
-          android:visibility="gone"/>
 
 </FrameLayout>

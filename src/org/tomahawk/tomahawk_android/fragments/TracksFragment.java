@@ -177,13 +177,11 @@ public class TracksFragment extends TomahawkFragment {
                     tomahawkListAdapter.setShowDuration(true);
                 }
                 tomahawkListAdapter.setShowNumeration(true);
-                tomahawkListAdapter.setShowContentHeaderSpacerResId(
-                        R.dimen.header_clear_space_scrollable, getListView());
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment, getListView());
             }
-            showContentHeader(mAlbum, R.dimen.header_clear_space_nonscrollable);
+            showContentHeader(mAlbum);
             showAlbumFancyDropDown();
         } else if (mQuery != null) {
             queries.add(mQuery);
@@ -192,13 +190,11 @@ public class TracksFragment extends TomahawkFragment {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
                 tomahawkListAdapter.setShowDuration(true);
-                tomahawkListAdapter.setShowContentHeaderSpacerResId(
-                        R.dimen.header_clear_space_scrollable, getListView());
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment, getListView());
             }
-            showContentHeader(mQuery, R.dimen.header_clear_space_nonscrollable);
+            showContentHeader(mQuery);
             showFancyDropDown(mQuery);
         } else if (mSearchSongs != null) {
             queries.addAll(mSearchSongs);
@@ -268,8 +264,7 @@ public class TracksFragment extends TomahawkFragment {
             mShownQueries.add((Query) query);
         }
 
-        updateShowPlaystate();
-        forceAutoResolve();
+        onUpdateAdapterFinished();
     }
 
     private void showAlbumFancyDropDown() {

@@ -55,7 +55,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 /**
  * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
-public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHeaderAdapter {
+public class TomahawkListAdapter extends StickyBaseAdapter {
 
     private TomahawkMainActivity mActivity;
 
@@ -153,13 +153,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
         ArrayList<Segment> segments = new ArrayList<Segment>();
         segments.add(segment);
         setSegments(segments, listView);
-    }
-
-    public void setShowContentHeaderSpacerResId(int headerSpacerHeightResId,
-            StickyListHeadersListView listView) {
-        mHeaderSpacerHeight = TomahawkApp.getContext().getResources()
-                .getDimensionPixelSize(headerSpacerHeightResId);
-        updateFooterSpacerHeight(listView);
     }
 
     public void setShowContentHeaderSpacer(int headerSpacerHeight,
@@ -543,7 +536,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements ContentHea
                                         segment.segmentSize())
                                 : resources.getString(
                                         R.string.socialaction_type_collected_album_single);
-                    }else if (targetObject instanceof Artist) {
+                    } else if (targetObject instanceof Artist) {
                         phrase = segment.segmentSize() > 1 ?
                                 resources.getString(
                                         R.string.socialaction_type_collected_artist_multiple,

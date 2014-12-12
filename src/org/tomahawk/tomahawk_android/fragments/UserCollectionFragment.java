@@ -32,6 +32,7 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -50,17 +51,13 @@ public class UserCollectionFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        updateAdapter();
         if (mUser == null) {
             getActivity().setTitle(getString(R.string.drawer_title_collection).toUpperCase());
         } else {
             mCurrentRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(mUser));
         }
 
-        if (!mDontShowHeader) {
-            showContentHeader(R.drawable.collection_header,
-                    R.dimen.header_clear_space_nonscrollable_static);
-        }
+        updateAdapter();
     }
 
     /**
@@ -75,15 +72,20 @@ public class UserCollectionFragment extends TomahawkFragment {
         if (item instanceof Album) {
             Collection userCollection = CollectionManager.getInstance()
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+            Bundle bundle = new Bundle();
             if (userCollection.getAlbumTracks((Album) item, false).size() > 0) {
-                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                        TracksFragment.class, item.getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, userCollection);
+                bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, item.getCacheKey());
+                bundle.putString(CollectionManager.COLLECTION_ID, userCollection.getId());
+                bundle.putInt(ContentHeaderFragment.MODE,
+                        ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                FragmentUtils.replace(activity, TracksFragment.class, bundle);
             } else {
-                FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                        TracksFragment.class, item.getCacheKey(),
-                        TomahawkFragment.TOMAHAWK_ALBUM_KEY, CollectionManager.getInstance()
-                                .getCollection(TomahawkApp.PLUGINNAME_HATCHET));
+                bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, item.getCacheKey());
+                bundle.putString(CollectionManager.COLLECTION_ID, CollectionManager.getInstance()
+                        .getCollection(TomahawkApp.PLUGINNAME_HATCHET).getId());
+                bundle.putInt(ContentHeaderFragment.MODE,
+                        ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                FragmentUtils.replace(activity, TracksFragment.class, bundle);
             }
         }
     }
@@ -157,14 +159,6 @@ public class UserCollectionFragment extends TomahawkFragment {
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                     layoutInflater, segments, this);
-            if (!mDontShowHeader) {
-                int actionBarHeight = getResources().getDimensionPixelSize(
-                        R.dimen.abc_action_bar_default_height_material);
-                int headerHeight = getResources().getDimensionPixelSize(
-                        R.dimen.header_clear_space_nonscrollable_static);
-                tomahawkListAdapter.setShowContentHeaderSpacer(headerHeight - actionBarHeight,
-                        getListView());
-            }
             setListAdapter(tomahawkListAdapter);
         } else {
             getListAdapter().setSegments(segments, getListView());
@@ -172,6 +166,8 @@ public class UserCollectionFragment extends TomahawkFragment {
         if (!getResources().getBoolean(R.bool.is_landscape)) {
             getListView().setAreHeadersSticky(true);
         }
-        forceAutoResolve();
+        showContentHeader(R.drawable.collection_header);
+
+        onUpdateAdapterFinished();
     }
 }

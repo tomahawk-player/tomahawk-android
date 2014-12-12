@@ -134,8 +134,7 @@ public abstract class SelectorFragment extends Fragment {
             final TextView textViewHeader = (TextView) getView().findViewById(R.id.textview_header);
             textViewHeader.setText(initalItem.mTitle);
             textViewHeader.setVisibility(View.GONE);
-            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                    getFragmentManager(), initalItem.mClass,
+            FragmentUtils.replace((TomahawkMainActivity) getActivity(), initalItem.mClass,
                     initalItem.mBundle, R.id.content_frame);
 
             final View selectorHeader = getView().findViewById(R.id.selectorHeader);
@@ -175,8 +174,7 @@ public abstract class SelectorFragment extends Fragment {
                             textViewHeader.setVisibility(View.GONE);
 
                             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                                    getFragmentManager(), selectedItem.mClass,
-                                    selectedItem.mBundle, R.id.content_frame);
+                                    selectedItem.mClass, selectedItem.mBundle, R.id.content_frame);
                         }
 
                         @Override

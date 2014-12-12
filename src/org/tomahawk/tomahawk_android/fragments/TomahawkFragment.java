@@ -182,8 +182,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected int mShowMode;
 
-    protected Class mContainerFragmentClass;
-
     protected final Handler mResolveQueriesHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -457,8 +455,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         } else if (mPlaylist != null) {
             contextItem = mPlaylist;
         }
-        return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(),
-                getActivity().getSupportFragmentManager(), item, contextItem, false);
+        return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
+                contextItem);
     }
 
     /**
@@ -480,6 +478,18 @@ public abstract class TomahawkFragment extends TomahawkListFragment
      * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
      */
     protected abstract void updateAdapter();
+
+    /**
+     * This method _MUST_ be called at the end of updateAdapter (with the exception of
+     * PlaybackFragment)
+     */
+    protected void onUpdateAdapterFinished() {
+        updateShowPlaystate();
+        forceAutoResolve();
+        setupNonScrollableSpacer();
+        setupScrollableSpacer();
+        setupAnimations();
+    }
 
     /**
      * If the PlaybackService signals, that it is ready, this method is being called
@@ -564,7 +574,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void forceAutoResolve(){
+    protected void forceAutoResolve() {
         mResolveQueriesHandler.removeCallbacksAndMessages(null);
         mResolveQueriesHandler.sendEmptyMessageDelayed(RESOLVE_QUERIES_REPORTER_MSG,
                 RESOLVE_QUERIES_REPORTER_DELAY);

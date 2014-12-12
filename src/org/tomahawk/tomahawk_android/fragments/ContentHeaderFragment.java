@@ -32,6 +32,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -40,6 +41,7 @@ import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import android.content.Context;
 import android.content.res.Resources;
 import android.os.Build;
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,10 +53,21 @@ import android.widget.FrameLayout;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ContentHeaderFragment extends Fragment {
+import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
-    public static final String DONT_SHOW_HEADER
-            = "org.tomahawk.tomahawk_android.dont_show_header";
+public class ContentHeaderFragment extends Fragment {
+
+    public static final String MODE = "org.tomahawk.tomahawk_android.mode";
+
+    public static final int MODE_HEADER_DYNAMIC = 0;
+
+    public static final int MODE_HEADER_DYNAMIC_PAGER = 1;
+
+    public static final int MODE_HEADER_STATIC = 2;
+
+    public static final int MODE_HEADER_STATIC_USER = 3;
+
+    public static final int MODE_ACTIONBAR_FILLED = 4;
 
     private ValueAnimator mTextViewAnim;
 
@@ -64,21 +77,70 @@ public abstract class ContentHeaderFragment extends Fragment {
 
     private ValueAnimator mPageIndicatorAnim;
 
-    private boolean mShowFakeFollowing = false;
+    protected boolean mShowFakeFollowing = false;
 
-    private boolean mShowFakeNotFollowing = false;
+    protected boolean mShowFakeNotFollowing = false;
 
-    protected boolean mDontShowHeader = false;
+    private int mHeaderScrollableHeight = 0;
+
+    private int mHeaderNonscrollableHeight = 0;
+
+    protected View.OnClickListener mFollowButtonListener;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        Resources res = getResources();
+        if (getArguments() != null) {
+            switch (getArguments().getInt(MODE, -1)) {
+                case MODE_HEADER_DYNAMIC:
+                    mHeaderScrollableHeight = res.getDimensionPixelSize(
+                            R.dimen.header_clear_space_scrollable);
+                    mHeaderNonscrollableHeight = res.getDimensionPixelSize(
+                            R.dimen.header_clear_space_nonscrollable);
+                    break;
+                case MODE_HEADER_DYNAMIC_PAGER:
+                    mHeaderScrollableHeight = res.getDimensionPixelSize(
+                            R.dimen.header_clear_space_scrollable);
+                    mHeaderNonscrollableHeight =
+                            res.getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable)
+                                    + res.getDimensionPixelSize(R.dimen.pager_indicator_height);
+                    break;
+                case MODE_HEADER_STATIC:
+                    mHeaderNonscrollableHeight = res.getDimensionPixelSize(
+                            R.dimen.header_clear_space_nonscrollable_static);
+                    break;
+                case MODE_HEADER_STATIC_USER:
+                    mHeaderNonscrollableHeight = res.getDimensionPixelSize(
+                            R.dimen.header_clear_space_nonscrollable_static_user);
+                    break;
+                case MODE_ACTIONBAR_FILLED:
+                    mHeaderNonscrollableHeight = res.getDimensionPixelSize(
+                            R.dimen.abc_action_bar_default_height_material);
+                    break;
+                default:
+                    throw new RuntimeException("Missing or invalid ContentHeaderFragment mode");
+            }
+        }
+    }
 
     @Override
     public void onResume() {
         super.onResume();
 
         if (getArguments() != null) {
-            if (getArguments().containsKey(DONT_SHOW_HEADER)) {
-                mDontShowHeader = getArguments().getBoolean(DONT_SHOW_HEADER);
+            if (getArguments().getInt(MODE, -1) == MODE_ACTIONBAR_FILLED) {
+                ((TomahawkMainActivity) getActivity()).showFilledActionBar();
             }
         }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        ((TomahawkMainActivity) getActivity()).showGradientActionBar();
     }
 
     protected void showFancyDropDown(FrameLayout headerFrame, String text) {
@@ -104,11 +166,7 @@ public abstract class ContentHeaderFragment extends Fragment {
      *             show in the header view
      */
     protected void showContentHeader(FrameLayout imageFrame, FrameLayout headerFrame,
-            View actionBarGradient, final Object item, boolean dynamic, int headerHeightResid,
-            View.OnClickListener followListener) {
-        if (actionBarGradient != null) {
-            actionBarGradient.setVisibility(View.VISIBLE);
-        }
+            final Object item) {
         //Inflate views and add them into our frames
         LayoutInflater inflater = (LayoutInflater)
                 TomahawkApp.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -123,11 +181,10 @@ public abstract class ContentHeaderFragment extends Fragment {
                 }
             }
         }
-        View headerImage = null;
         int layoutId;
         int viewId;
         if (artistImages.size() > 3) {
-            if (dynamic) {
+            if (mHeaderScrollableHeight > 0) {
                 layoutId = R.layout.content_header_imagegrid;
                 viewId = R.id.content_header_imagegrid;
             } else {
@@ -135,7 +192,7 @@ public abstract class ContentHeaderFragment extends Fragment {
                 viewId = R.id.content_header_imagegrid_static;
             }
         } else {
-            if (dynamic) {
+            if (mHeaderScrollableHeight > 0) {
                 layoutId = R.layout.content_header_imagesingle;
                 viewId = R.id.content_header_imagesingle;
             } else {
@@ -145,37 +202,19 @@ public abstract class ContentHeaderFragment extends Fragment {
         }
         if (imageFrame.findViewById(viewId) == null) {
             imageFrame.removeAllViews();
-            headerImage = inflater.inflate(layoutId, imageFrame, false);
-            if (!dynamic) {
-                int headerHeight = getResources().getDimensionPixelSize(headerHeightResid);
+            View headerImage = inflater.inflate(layoutId, imageFrame, false);
+            if (mHeaderScrollableHeight <= 0) {
                 headerImage.setLayoutParams(new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, headerHeight));
+                        ViewGroup.LayoutParams.MATCH_PARENT, mHeaderNonscrollableHeight));
             }
             imageFrame.addView(headerImage);
-        }
-        final View finalHeaderImage = headerImage;
-        if (finalHeaderImage != null) {
-            headerImage.getViewTreeObserver().addOnGlobalLayoutListener(
-                    new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            setupImageViewAnimation(finalHeaderImage);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                finalHeaderImage.getViewTreeObserver()
-                                        .removeOnGlobalLayoutListener(this);
-                            } else {
-                                finalHeaderImage.getViewTreeObserver()
-                                        .removeGlobalOnLayoutListener(this);
-                            }
-                        }
-                    });
         }
 
         if (item instanceof User) {
             layoutId = R.layout.content_header_user;
             viewId = R.id.content_header_user;
         } else {
-            if (dynamic) {
+            if (mHeaderScrollableHeight > 0) {
                 layoutId = R.layout.content_header;
                 viewId = R.id.content_header;
             } else {
@@ -187,19 +226,10 @@ public abstract class ContentHeaderFragment extends Fragment {
             headerFrame.removeAllViews();
             View header = inflater.inflate(layoutId, headerFrame, false);
             headerFrame.addView(header);
-            if (dynamic) {
-                setupFancyDropDownAnimation(header);
-                setupButtonAnimation(header);
-                setupPageIndicatorAnimation(header);
-
-                //calculate the needed height for the content header
-                int headerHeight = getResources()
-                        .getDimensionPixelSize(R.dimen.header_clear_space_scrollable)
-                        + getResources()
-                        .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable);
+            if (mHeaderScrollableHeight > 0) {
                 header.setLayoutParams(
                         new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                headerHeight));
+                                mHeaderScrollableHeight + mHeaderNonscrollableHeight));
             }
         }
 
@@ -207,12 +237,12 @@ public abstract class ContentHeaderFragment extends Fragment {
         ViewHolder viewHolder = new ViewHolder(imageFrame, headerFrame, layoutId);
         if (item instanceof Integer) {
             viewHolder.fillContentHeader((Integer) item);
-        } else if (dynamic) {
+        } else if (mHeaderScrollableHeight > 0) {
             View.OnClickListener moreButtonListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(),
-                            getFragmentManager(), (TomahawkListItem) item, null, false);
+                            (TomahawkListItem) item, null);
                 }
             };
             if (item instanceof Album) {
@@ -242,9 +272,37 @@ public abstract class ContentHeaderFragment extends Fragment {
                             && !authUtils.getLoggedInUser().getFollowings().containsKey(item);
                 }
                 viewHolder.fillContentHeader((User) item, showFollowing, showNotFollowing,
-                        followListener);
+                        mFollowButtonListener);
             }
         }
+    }
+
+    protected void setupNonScrollableSpacer(FrameLayout layout) {
+        //Add a non-scrollable spacer to the top of the listview
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) layout.getLayoutParams();
+        params.setMargins(0, mHeaderNonscrollableHeight, 0, 0);
+        layout.setLayoutParams(params);
+    }
+
+    protected void setupScrollableSpacer(TomahawkListAdapter adapter,
+            StickyListHeadersListView listView) {
+        adapter.setShowContentHeaderSpacer(mHeaderScrollableHeight, listView);
+    }
+
+    protected void setupAnimations(FrameLayout imageFrame, FrameLayout headerFrame) {
+        View header = headerFrame.findViewById(R.id.content_header);
+        if (header == null) {
+            header = headerFrame.findViewById(R.id.content_header_user);
+        }
+        setupFancyDropDownAnimation(header);
+        setupButtonAnimation(header);
+        setupPageIndicatorAnimation(header);
+
+        View headerImage = imageFrame.findViewById(R.id.content_header_imagegrid);
+        if (headerImage == null) {
+            headerImage = imageFrame.findViewById(R.id.content_header_imagesingle);
+        }
+        setupImageViewAnimation(headerImage);
     }
 
     private void setupFancyDropDownAnimation(final View view) {
@@ -380,13 +438,5 @@ public abstract class ContentHeaderFragment extends Fragment {
         if (mPageIndicatorAnim != null && position != mPageIndicatorAnim.getCurrentPlayTime()) {
             mPageIndicatorAnim.setCurrentPlayTime(position);
         }
-    }
-
-    public void setShowFakeNotFollowing(boolean showFakeNotFollowing) {
-        mShowFakeNotFollowing = showFakeNotFollowing;
-    }
-
-    public void setShowFakeFollowing(boolean showFakeFollowing) {
-        mShowFakeFollowing = showFakeFollowing;
     }
 }

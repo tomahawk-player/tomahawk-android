@@ -90,8 +90,6 @@ public class SearchPagerFragment extends PagerFragment {
                 && savedInstanceState.getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
             mCurrentQueryString = savedInstanceState.getString(SEARCHABLEFRAGMENT_QUERY_STRING);
         }
-        mStaticHeaderHeight = getResources()
-                .getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable_static);
     }
 
 
@@ -120,8 +118,7 @@ public class SearchPagerFragment extends PagerFragment {
             getActivity().setTitle(mCurrentQueryString);
         }
 
-        showContentHeader(mContentHeaderImage, R.dimen.header_clear_space_nonscrollable_static,
-                null);
+        showContentHeader(mContentHeaderImage);
 
         updatePager(initialPage);
     }
@@ -168,11 +165,11 @@ public class SearchPagerFragment extends PagerFragment {
         FragmentInfo fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = ArtistsFragment.class;
         fragmentInfo.mTitle = getString(R.string.artists);
-        Bundle bundle = new Bundle();
+        fragmentInfo.mBundle = getChildFragmentBundle();
         if (mArtistIds != null) {
-            bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_ARTISTARRAY_KEY, mArtistIds);
+            fragmentInfo.mBundle
+                    .putStringArrayList(TomahawkFragment.TOMAHAWK_ARTISTARRAY_KEY, mArtistIds);
         }
-        fragmentInfo.mBundle = bundle;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
@@ -180,11 +177,11 @@ public class SearchPagerFragment extends PagerFragment {
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = AlbumsFragment.class;
         fragmentInfo.mTitle = getString(R.string.albums);
-        bundle = new Bundle();
+        fragmentInfo.mBundle = getChildFragmentBundle();
         if (mAlbumIds != null) {
-            bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_ALBUMARRAY_KEY, mAlbumIds);
+            fragmentInfo.mBundle
+                    .putStringArrayList(TomahawkFragment.TOMAHAWK_ALBUMARRAY_KEY, mAlbumIds);
         }
-        fragmentInfo.mBundle = bundle;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
@@ -192,11 +189,11 @@ public class SearchPagerFragment extends PagerFragment {
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = TracksFragment.class;
         fragmentInfo.mTitle = getString(R.string.songs);
-        bundle = new Bundle();
+        fragmentInfo.mBundle = getChildFragmentBundle();
         if (mSongIds != null) {
-            bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYARRAY_KEY, mSongIds);
+            fragmentInfo.mBundle
+                    .putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYARRAY_KEY, mSongIds);
         }
-        fragmentInfo.mBundle = bundle;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
@@ -204,11 +201,11 @@ public class SearchPagerFragment extends PagerFragment {
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = UsersFragment.class;
         fragmentInfo.mTitle = getString(R.string.users);
-        bundle = new Bundle();
+        fragmentInfo.mBundle = getChildFragmentBundle();
         if (mUserIds != null) {
-            bundle.putStringArrayList(TomahawkFragment.TOMAHAWK_USERARRAY_ID, mUserIds);
+            fragmentInfo.mBundle
+                    .putStringArrayList(TomahawkFragment.TOMAHAWK_USERARRAY_ID, mUserIds);
         }
-        fragmentInfo.mBundle = bundle;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
@@ -252,24 +249,21 @@ public class SearchPagerFragment extends PagerFragment {
         for (Artist artist : data.getResultList(Artist.class)) {
             if (mContentHeaderImage == null && artist.getImage() != null) {
                 mContentHeaderImage = artist.getImage();
-                showContentHeader(mContentHeaderImage,
-                        R.dimen.header_clear_space_nonscrollable_static, null);
+                showContentHeader(mContentHeaderImage);
             }
             mArtistIds.add(artist.getCacheKey());
         }
         for (Album album : data.getResultList(Album.class)) {
             if (mContentHeaderImage == null && album.getImage() != null) {
                 mContentHeaderImage = album.getImage();
-                showContentHeader(mContentHeaderImage,
-                        R.dimen.header_clear_space_nonscrollable_static, null);
+                showContentHeader(mContentHeaderImage);
             }
             mAlbumIds.add(album.getCacheKey());
         }
         for (User user : data.getResultList(User.class)) {
             if (mContentHeaderImage == null && user.getImage() != null) {
                 mContentHeaderImage = user.getImage();
-                showContentHeader(mContentHeaderImage,
-                        R.dimen.header_clear_space_nonscrollable_static, null);
+                showContentHeader(mContentHeaderImage);
             }
             mUserIds.add(user.getCacheKey());
         }

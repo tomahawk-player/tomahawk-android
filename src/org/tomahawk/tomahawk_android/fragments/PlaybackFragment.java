@@ -323,8 +323,8 @@ public class PlaybackFragment extends TomahawkFragment {
         } else if (mPlaylist != null) {
             contextItem = mPlaylist;
         }
-        return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(),
-                getActivity().getSupportFragmentManager(), item, contextItem, true);
+        return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
+                contextItem, R.id.playback_fragment_frame);
     }
 
     /**

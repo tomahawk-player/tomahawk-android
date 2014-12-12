@@ -82,8 +82,10 @@ public class ArtistsFragment extends TomahawkFragment {
             } else {
                 bundle.putString(CollectionManager.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
             }
-            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                    getActivity().getSupportFragmentManager(), ArtistPagerFragment.class, bundle);
+            bundle.putInt(ContentHeaderFragment.MODE,
+                    ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+            FragmentUtils.replace((TomahawkMainActivity) getActivity(), ArtistPagerFragment.class,
+                    bundle);
         }
     }
 
@@ -183,6 +185,7 @@ public class ArtistsFragment extends TomahawkFragment {
                 getListAdapter().setSegments(segments, getListView());
             }
         }
-        forceAutoResolve();
+
+        onUpdateAdapterFinished();
     }
 }

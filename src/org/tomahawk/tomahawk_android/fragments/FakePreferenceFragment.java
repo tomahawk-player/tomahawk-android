@@ -127,8 +127,6 @@ public class FakePreferenceFragment extends TomahawkListFragment
 
         getActivity().setTitle(getString(R.string.drawer_title_settings).toUpperCase());
 
-        setActionBarOffset();
-
         // Fetch our SharedPreferences from the PreferenceManager
         mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);

@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -38,6 +39,7 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.os.Bundle;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -77,7 +79,6 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         mCurrentRequestIds.add(
                                 InfoSystem.getInstance().resolveFriendsFeed(mUser, i));
                     }
-                    setActionBarOffset();
                 } else {
                     if (mContainerFragmentClass == null) {
                         getActivity().setTitle("");
@@ -115,10 +116,12 @@ public class SocialActionsFragment extends TomahawkFragment implements
     public void onItemClick(View view, TomahawkListItem item) {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
 
+        Bundle bundle = new Bundle();
         if (item instanceof User) {
-            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                    UserPagerFragment.class, ((User) item).getId(),
-                    TomahawkFragment.TOMAHAWK_USER_ID);
+            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, ((User) item).getId());
+            bundle.putInt(ContentHeaderFragment.MODE,
+                    ContentHeaderFragment.MODE_HEADER_STATIC_USER);
+            FragmentUtils.replace(activity, UserPagerFragment.class, bundle);
         } else if (item instanceof Query && ((Query) item).isPlayable()) {
             Query query = (Query) item;
             ArrayList<Query> queries = new ArrayList<Query>();
@@ -138,17 +141,22 @@ public class SocialActionsFragment extends TomahawkFragment implements
                 }
             }
         } else if (item instanceof Album) {
-            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                    TracksFragment.class, item.getCacheKey(),
-                    TomahawkFragment.TOMAHAWK_ALBUM_KEY, mCollection);
+            bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, item.getCacheKey());
+            bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+            bundle.putInt(ContentHeaderFragment.MODE,
+                    ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+            FragmentUtils.replace(activity, TracksFragment.class, bundle);
         } else if (item instanceof Artist) {
-            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                    ArtistPagerFragment.class, item.getCacheKey(),
-                    TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
+            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, item.getCacheKey());
+            bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+            bundle.putInt(ContentHeaderFragment.MODE,
+                    ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+            FragmentUtils.replace(activity, ArtistPagerFragment.class, bundle);
         } else if (item instanceof Playlist) {
-            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                    PlaylistEntriesFragment.class, ((Playlist) item).getId(),
-                    TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
+            bundle.putInt(ContentHeaderFragment.MODE,
+                    ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+            bundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY, ((Playlist) item).getId());
+            FragmentUtils.replace(activity, PlaylistEntriesFragment.class, bundle);
         }
     }
 
@@ -161,9 +169,12 @@ public class SocialActionsFragment extends TomahawkFragment implements
             item = ((List) item).get(0);
         }
         if (item instanceof SocialAction) {
-            FragmentUtils.replace(activity, getActivity().getSupportFragmentManager(),
-                    UserPagerFragment.class, ((SocialAction) item).getUser().getId(),
-                    TomahawkFragment.TOMAHAWK_USER_ID);
+            Bundle bundle = new Bundle();
+            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+                    ((SocialAction) item).getUser().getId());
+            bundle.putInt(ContentHeaderFragment.MODE,
+                    ContentHeaderFragment.MODE_HEADER_STATIC_USER);
+            FragmentUtils.replace(activity, UserPagerFragment.class, bundle);
         }
     }
 
@@ -272,8 +283,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                 getListView().setAreHeadersSticky(true);
             }
 
-            updateShowPlaystate();
-            forceAutoResolve();
+            onUpdateAdapterFinished();
         }
     }
 

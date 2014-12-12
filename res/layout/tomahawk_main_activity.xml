@@ -95,4 +95,9 @@
                android:src="@drawable/splash"
                android:background="@color/primary_background"/>
 
+    <View android:id="@+id/action_bar_background"
+          android:layout_width="match_parent"
+          android:layout_height="?attr/actionBarSize"
+          android:background="@color/primary_background_inverted"/>
+
 </FrameLayout>

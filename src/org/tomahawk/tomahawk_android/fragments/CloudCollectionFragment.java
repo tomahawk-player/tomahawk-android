@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
@@ -25,6 +26,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.os.Bundle;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -39,13 +41,11 @@ public class CloudCollectionFragment extends TomahawkFragment {
     @Override
     public void onResume() {
         super.onResume();
+
         if (mCollection != null) {
             getActivity().setTitle(mCollection.getName());
-            if (!mDontShowHeader) {
-                showContentHeader(R.drawable.collection_header,
-                        R.dimen.header_clear_space_nonscrollable_static);
-            }
         }
+
         updateAdapter();
     }
 
@@ -58,9 +58,13 @@ public class CloudCollectionFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, TomahawkListItem item) {
         if (item instanceof Artist) {
-            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                    getActivity().getSupportFragmentManager(), ArtistPagerFragment.class,
-                    item.getCacheKey(), TomahawkFragment.TOMAHAWK_ARTIST_KEY, mCollection);
+            Bundle bundle = new Bundle();
+            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, item.getCacheKey());
+            bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+            bundle.putInt(ContentHeaderFragment.MODE,
+                    ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+            FragmentUtils.replace((TomahawkMainActivity) getActivity(), ArtistPagerFragment.class,
+                    bundle);
         }
     }
 
@@ -81,17 +85,13 @@ public class CloudCollectionFragment extends TomahawkFragment {
                 TomahawkListAdapter tomahawkListAdapter =
                         new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
                                 getActivity().getLayoutInflater(), new Segment(artists), this);
-                int actionBarHeight = getResources().getDimensionPixelSize(
-                        R.dimen.abc_action_bar_default_height_material);
-                int headerHeight = getResources().getDimensionPixelSize(
-                        R.dimen.header_clear_space_nonscrollable_static);
-                tomahawkListAdapter.setShowContentHeaderSpacer(headerHeight - actionBarHeight,
-                        getListView());
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(new Segment(artists), getListView());
             }
+            showContentHeader(R.drawable.collection_header);
         }
-        forceAutoResolve();
+
+        onUpdateAdapterFinished();
     }
 }
