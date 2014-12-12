@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0-rc4'
+        classpath 'com.android.tools.build:gradle:1.0.0'
     }
 }
 
@@ -19,8 +19,8 @@ repositories {
 dependencies {
     compile files("libs/RemoteMetadataProvider.jar")
     compile 'com.android.support:multidex:1.0.0'
-    compile "com.android.support:appcompat-v7:21.0.2"
-    compile "com.android.support:support-v4:21.0.2"
+    compile "com.android.support:appcompat-v7:21.0.3"
+    compile "com.android.support:support-v4:21.0.3"
     compile "se.emilsjolander:stickylistheaders:2.4.1"
     compile("ch.acra:acra:4.5.0") {
         transitive = false
@@ -59,7 +59,7 @@ def getNewVersionName = { ->
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.1.1"
+    buildToolsVersion "21.1.2"
 
     defaultConfig {
         minSdkVersion 11
