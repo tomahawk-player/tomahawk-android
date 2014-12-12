@@ -11,6 +11,8 @@
   <string name="albums">Álbumes</string>
   <string name="artists">Artistas</string>
   <string name="users">Usuarios</string>
+  <string name="top_hits">Grandes éxitos</string>
+  <string name="top_albums">Mejores álbumes</string>
   <string name="playlist_details">Detalles de la lista</string>
   <string name="album_details">Detalles del álbum</string>
   <string name="search">Buscar</string>
@@ -20,6 +22,7 @@
   <string name="repeat_on_label">Repetición activada</string>
   <string name="repeat_off_label">Repetición desactivada</string>
   <string name="unknown">desconocido</string>
+  <string name="no_track">no hay pistas</string>
   <string name="save_playlist">Guardar la lista actual</string>
   <string name="create_playlist">Crear una lista nueva</string>
   <string name="name_playlist">Nombre</string>
@@ -35,15 +38,22 @@
   <string name="error_communication">Falló la autenticación. Compruebe la conexión.</string>
   <string name="error_simultaneous_streams">Acción no permitida: la cuenta se está utilizando en otro sitio.</string>
   <string name="error_account_expired">La cuenta ha caducado.</string>
+  <string name="auth_logged_in">Inició sesión en </string>
+  <string name="auth_logged_out">Cerro sesión en</string>
   <string name="local_collection_pretty_name">Colección local</string>
   <string name="local">Local</string>
   <string name="all">Toda</string>
   <string name="preferences_services">Servicios</string>
+  <string name="preferences_local_collection_text">Elige las carpetas que se explorarán en busca de multimedia local.</string>
+  <string name="preferences_hatchet_text">Información sincronizada con %1$s</string>
   <string name="preferences_spotify_text">Reproducir música desde %1$s. Se requiere una cuenta Premium</string>
   <string name="preferences_playback">Reproducción</string>
+  <string name="preferences_playback_data">Registrar canciones escuchadas en Last.fm</string>
+  <string name="preferences_playback_data_text">Hacer scrobbles de cada pista en cada reproductor en el teléfono a %1$s.</string>
   <string name="preferences_plug_and_play">Conectar para reproducir</string>
   <string name="preferences_plug_and_play_text">Comienza a reproducir la música en cuanto se conectan los auriculares.</string>
   <string name="preferences_audio_quality">Calidad de sonido preferida</string>
+  <string name="preferences_audio_quality_text">La calidad de sonido preferida cuando no hay conexión con una red wifi.</string>
   <string name="preferences_info">Información</string>
   <string name="preferences_app_version">Versión de la aplicación</string>
   <string name="preferences_app_uservoice">Comentarios</string>
@@ -59,9 +69,13 @@
   <string name="context_menu_add_to_playlist">Añadir a lista de reproducción</string>
   <string name="context_menu_delete">Eliminar</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">Quitar de la colección</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">Añadir a la colección</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">Me gusta</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">Ya no me gusta</string>
   <string name="context_menu_share">Compartir</string>
   <string name="context_menu_gotoartist">Ir al artista</string>
   <string name="drawer_title_feed">Noticias</string>
@@ -69,6 +83,7 @@
   <string name="drawer_title_playlists">Listas de reproducción</string>
   <string name="drawer_title_lovedtracks">Favoritos</string>
   <string name="drawer_title_settings">Ajustes</string>
+  <string name="drawer_header_cloudcollections">Colecciones en línea</string>
   <string name="collection_dropdown_recently_added">Añadidos recientemente</string>
   <string name="collection_dropdown_alpha_artists">Artista A-Z</string>
   <string name="collection_dropdown_play_count">N.º de reproducciones</string>
@@ -85,19 +100,29 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Seguir</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">ahora sigue a</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
+  <string name="socialaction_type_love_track_single">Le gustó una canción</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
+  <string name="socialaction_type_love_track_multiple">Le gustaron %1$d canciones</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
+  <string name="socialaction_type_collected_track_single">Agregó una canción </string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
+  <string name="socialaction_type_collected_track_multiple">Agregó %1$d canciones</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
+  <string name="socialaction_type_collected_album_single">Agregó un álbum</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
+  <string name="socialaction_type_collected_album_multiple">Agregó %1$d álbumes</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">Agregó un artista</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">agregó %1$d artistas</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">comentó en</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <string name="socialaction_type_latchon_single">escuchando junto a un amigo</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
+  <string name="socialaction_type_latchon_multiple">Escuchó junto a %1$d amigos</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
   <string name="socialaction_type_createplaylist_single">creó una lista de reproducción</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
@@ -111,6 +136,7 @@
   <string name="time_minutes">hace %1$d minutos</string>
   <string name="time_hours">hace %1$d horas</string>
   <string name="time_days">hace %1$d días</string>
+  <string name="users_playbacklog_suffix"> escuchó recientemente</string>
   <string name="music">Música</string>
   <string name="biography">Biografía</string>
   <string name="similar">Similares</string>
