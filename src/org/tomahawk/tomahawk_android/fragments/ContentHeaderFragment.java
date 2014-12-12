@@ -87,6 +87,8 @@ public class ContentHeaderFragment extends Fragment {
 
     protected View.OnClickListener mFollowButtonListener;
 
+    private int mLastPlayTime;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -303,6 +305,8 @@ public class ContentHeaderFragment extends Fragment {
             headerImage = imageFrame.findViewById(R.id.content_header_imagesingle);
         }
         setupImageViewAnimation(headerImage);
+
+        animateContentHeader(mLastPlayTime);
     }
 
     private void setupFancyDropDownAnimation(final View view) {
@@ -318,6 +322,8 @@ public class ContentHeaderFragment extends Fragment {
                                         .getDimensionPixelSize(
                                                 R.dimen.show_context_menu_icon_height);
                                 fancyDropDown.setY(view.getHeight() / 2 - dropDownHeight / 2);
+                                fancyDropDown
+                                        .setX(view.getWidth() / 2 - fancyDropDown.getWidth() / 2);
 
                                 // now calculate the animation goal and instantiate the animation
                                 Resources resources = TomahawkApp.getContext().getResources();
@@ -333,6 +339,7 @@ public class ContentHeaderFragment extends Fragment {
                                         .ofPropertyValuesHolder(fancyDropDown, pvhX, pvhY)
                                         .setDuration(10000);
                                 mTextViewAnim.setInterpolator(new LinearInterpolator());
+
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                     view.getViewTreeObserver()
                                             .removeOnGlobalLayoutListener(this);
@@ -354,7 +361,7 @@ public class ContentHeaderFragment extends Fragment {
                         new ViewTreeObserver.OnGlobalLayoutListener() {
                             @Override
                             public void onGlobalLayout() {
-                                // correctly position fancyDropDown first
+                                // correctly position button first
                                 Resources resources = TomahawkApp.getContext().getResources();
                                 int buttonHeight = TomahawkApp.getContext().getResources()
                                         .getDimensionPixelSize(
@@ -381,6 +388,7 @@ public class ContentHeaderFragment extends Fragment {
                                 mButtonAnim = ObjectAnimator.ofFloat(buttonView, "y", y)
                                         .setDuration(10000);
                                 mButtonAnim.setInterpolator(new LinearInterpolator());
+
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                     view.getViewTreeObserver()
                                             .removeOnGlobalLayoutListener(this);
@@ -394,7 +402,7 @@ public class ContentHeaderFragment extends Fragment {
         }
     }
 
-    private void setupImageViewAnimation(View view) {
+    private void setupImageViewAnimation(final View view) {
         if (view != null) {
             View imageView = view.findViewById(R.id.content_header_imagesingle);
             if (imageView == null) {
@@ -404,28 +412,67 @@ public class ContentHeaderFragment extends Fragment {
                 imageView = view.findViewById(R.id.content_header_imagesingle_static);
             }
             if (imageView != null) {
-                mImageViewAnim = ObjectAnimator.ofFloat(imageView, "y", view.getHeight() / -3)
-                        .setDuration(10000);
-                mImageViewAnim.setInterpolator(new LinearInterpolator());
+                final View finalImageView = imageView;
+                view.getViewTreeObserver().addOnGlobalLayoutListener(
+                        new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                // correctly position imageview first
+                                finalImageView.setY(0);
+                                finalImageView.setX(0);
+
+                                // now calculate the animation goal and instantiate the animation
+                                mImageViewAnim = ObjectAnimator
+                                        .ofFloat(finalImageView, "y", view.getHeight() / -3)
+                                        .setDuration(10000);
+                                mImageViewAnim.setInterpolator(new LinearInterpolator());
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    view.getViewTreeObserver()
+                                            .removeOnGlobalLayoutListener(this);
+                                } else {
+                                    view.getViewTreeObserver()
+                                            .removeGlobalOnLayoutListener(this);
+                                }
+                            }
+                        });
             }
         }
     }
 
-    private void setupPageIndicatorAnimation(View view) {
+    private void setupPageIndicatorAnimation(final View view) {
         if (view != null) {
-            View indicatorView = view.findViewById(R.id.page_indicator_container);
+            final View indicatorView = view.findViewById(R.id.page_indicator_container);
             if (indicatorView != null) {
-                Resources resources = TomahawkApp.getContext().getResources();
-                int offset =
-                        resources.getDimensionPixelSize(R.dimen.header_clear_space_nonscrollable);
-                mPageIndicatorAnim = ObjectAnimator.ofFloat(indicatorView, "y", offset)
-                        .setDuration(10000);
-                mPageIndicatorAnim.setInterpolator(new LinearInterpolator());
+                view.getViewTreeObserver().addOnGlobalLayoutListener(
+                        new ViewTreeObserver.OnGlobalLayoutListener() {
+                            @Override
+                            public void onGlobalLayout() {
+                                // correctly position indicator first
+                                indicatorView.setY(view.getHeight() - indicatorView.getHeight());
+
+                                // now calculate the animation goal and instantiate the animation
+                                int y = mHeaderNonscrollableHeight - indicatorView.getHeight();
+                                mPageIndicatorAnim = ObjectAnimator
+                                        .ofFloat(indicatorView, "y", y)
+                                        .setDuration(10000);
+                                mPageIndicatorAnim.setInterpolator(new LinearInterpolator());
+
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    view.getViewTreeObserver()
+                                            .removeOnGlobalLayoutListener(this);
+                                } else {
+                                    view.getViewTreeObserver()
+                                            .removeGlobalOnLayoutListener(this);
+                                }
+                            }
+                        });
             }
         }
     }
 
     public void animateContentHeader(int position) {
+        mLastPlayTime = position;
         if (mTextViewAnim != null && position != mTextViewAnim.getCurrentPlayTime()) {
             mTextViewAnim.setCurrentPlayTime(position);
         }
