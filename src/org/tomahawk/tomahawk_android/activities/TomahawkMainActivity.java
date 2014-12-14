@@ -385,6 +385,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                     bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
                             authenticatorUtils.getLoggedInUser().getId());
                 }
+                bundle.putInt(ContentHeaderFragment.MODE,
+                        ContentHeaderFragment.MODE_HEADER_STATIC);
                 FragmentUtils.replace(TomahawkMainActivity.this, PlaylistsFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_SETTINGS)) {
                 bundle.putInt(ContentHeaderFragment.MODE,

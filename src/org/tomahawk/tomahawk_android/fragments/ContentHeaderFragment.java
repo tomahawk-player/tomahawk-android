@@ -44,6 +44,7 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,6 +58,8 @@ import de.greenrobot.event.EventBus;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 public class ContentHeaderFragment extends Fragment {
+
+    private static final String TAG = ContentHeaderFragment.class.getSimpleName();
 
     public static final String MODE = "org.tomahawk.tomahawk_android.mode";
 
@@ -311,7 +314,12 @@ public class ContentHeaderFragment extends Fragment {
 
     protected void setupScrollableSpacer(TomahawkListAdapter adapter,
             StickyListHeadersListView listView) {
-        adapter.setShowContentHeaderSpacer(mHeaderScrollableHeight, listView);
+        if (adapter != null) {
+            adapter.setShowContentHeaderSpacer(mHeaderScrollableHeight, listView);
+        } else {
+            Log.d(TAG, "setupScrollableSpacer - Can't call setShowContentHeaderSpacer,"
+                    + " Adapter is null");
+        }
     }
 
     protected void setupAnimations(FrameLayout imageFrame, FrameLayout headerFrame) {
