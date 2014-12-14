@@ -259,6 +259,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
     @SuppressWarnings("unused")
     public void onEvent(AnimatePagerEvent event) {
         if (mContainerFragmentId == event.mContainerFragmentId
+                && mViewPager != null
                 && event.mContainerFragmentPage == mViewPager.getCurrentItem()) {
             animate(event.mPlayTime);
         }
