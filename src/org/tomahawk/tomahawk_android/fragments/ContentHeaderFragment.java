@@ -443,6 +443,7 @@ public class ContentHeaderFragment extends Fragment {
                         mImageViewAnim = ObjectAnimator
                                 .ofFloat(getView(), "y", view.getHeight() / -3)
                                 .setDuration(10000);
+                        mImageViewAnim.setInterpolator(new LinearInterpolator());
                     }
                 });
             }
