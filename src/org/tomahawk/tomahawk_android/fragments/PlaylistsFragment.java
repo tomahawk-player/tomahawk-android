@@ -151,11 +151,11 @@ public class PlaylistsFragment extends TomahawkFragment {
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
                     (TomahawkMainActivity) getActivity(), layoutInflater, segment, this);
-            showContentHeader(R.drawable.playlists_header);
             setListAdapter(tomahawkListAdapter);
         } else {
             getListAdapter().setSegments(segment, getListView());
         }
+        showContentHeader(R.drawable.playlists_header);
 
         onUpdateAdapterFinished();
     }
