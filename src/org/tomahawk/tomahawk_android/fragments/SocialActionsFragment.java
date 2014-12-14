@@ -151,6 +151,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
             bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
             bundle.putInt(ContentHeaderFragment.MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+            bundle.putLong(ContentHeaderFragment.CONTAINER_FRAGMENT_ID,
+                    TomahawkMainActivity.getSessionUniqueId());
             FragmentUtils.replace(activity, ArtistPagerFragment.class, bundle);
         } else if (item instanceof Playlist) {
             bundle.putInt(ContentHeaderFragment.MODE,

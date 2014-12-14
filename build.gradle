@@ -46,6 +46,7 @@ dependencies {
     compile('com.uservoice:uservoice-android-sdk:1.1.2') {
         transitive = false
     }
+    compile 'de.greenrobot:eventbus:2.4.0'
 }
 
 /*

@@ -32,22 +32,26 @@ public class TomahawkPagerAdapter extends FragmentStatePagerAdapter {
 
     private Class mContainerFragmentClass;
 
+    private long mContainerFragmentId;
+
     private List<FragmentInfo> mFragmentInfos;
 
     public TomahawkPagerAdapter(FragmentManager fragmentManager, List<FragmentInfo> fragmentInfos,
-            Class containerFragmentClass) {
+            Class containerFragmentClass, long containerFragmentId) {
         super(fragmentManager);
 
         mFragmentInfos = fragmentInfos;
         mContainerFragmentClass = containerFragmentClass;
+        mContainerFragmentId = containerFragmentId;
     }
 
     @Override
     public Fragment getItem(int position) {
         Bundle bundle = mFragmentInfos.get(position).mBundle;
-        bundle.putString(TomahawkFragment.CONTAINER_FRAGMENT_NAME,
+        bundle.putString(TomahawkFragment.CONTAINER_FRAGMENT_CLASSNAME,
                 mContainerFragmentClass.getName());
         bundle.putInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE, position);
+        bundle.putLong(TomahawkFragment.CONTAINER_FRAGMENT_ID, mContainerFragmentId);
         return Fragment.instantiate(TomahawkApp.getContext(),
                 mFragmentInfos.get(position).mClass.getName(), bundle);
     }

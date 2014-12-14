@@ -30,10 +30,12 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import android.app.Notification;
 import android.content.Context;
 import android.content.res.Resources;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
 import android.widget.TextView;
@@ -94,6 +96,19 @@ public class TomahawkUtils {
         public int mStatus;
 
         public String mStatusText;
+    }
+
+    public abstract static class ViewRunnable implements Runnable {
+
+        private View mView;
+
+        public ViewRunnable(View view) {
+            this.mView = view;
+        }
+
+        public View getView() {
+            return mView;
+        }
     }
 
     /**
@@ -860,6 +875,29 @@ public class TomahawkUtils {
             return null;
         } else {
             return map.get(key);
+        }
+    }
+
+    public static void afterViewGlobalLayout(final ViewRunnable viewRunnable) {
+        if (viewRunnable.getView().getHeight() > 0
+                || viewRunnable.getView().getWidth() > 0) {
+            viewRunnable.run();
+        } else {
+            viewRunnable.getView().getViewTreeObserver().addOnGlobalLayoutListener(
+                    new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @Override
+                        public void onGlobalLayout() {
+                            viewRunnable.run();
+
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                viewRunnable.getView().getViewTreeObserver()
+                                        .removeOnGlobalLayoutListener(this);
+                            } else {
+                                viewRunnable.getView().getViewTreeObserver()
+                                        .removeGlobalOnLayoutListener(this);
+                            }
+                        }
+                    });
         }
     }
 }

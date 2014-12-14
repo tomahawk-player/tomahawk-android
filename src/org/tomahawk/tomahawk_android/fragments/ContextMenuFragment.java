@@ -411,6 +411,8 @@ public class ContextMenuFragment extends Fragment {
                 }
                 bundle.putInt(ContentHeaderFragment.MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+                bundle.putLong(ContentHeaderFragment.CONTAINER_FRAGMENT_ID,
+                        TomahawkMainActivity.getSessionUniqueId());
                 FragmentUtils.replace(activity, ArtistPagerFragment.class, bundle);
             }
         };

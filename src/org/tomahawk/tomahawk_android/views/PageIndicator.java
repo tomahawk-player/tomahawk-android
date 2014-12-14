@@ -152,7 +152,6 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
             }
             addView(item);
             mItems.add(item);
-            mViewPager.setOnPageChangeListener(this);
             updateColors(mViewPager.getCurrentItem());
         }
     }
