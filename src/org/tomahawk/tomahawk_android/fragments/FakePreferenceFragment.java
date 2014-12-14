@@ -219,6 +219,7 @@ public class FakePreferenceFragment extends TomahawkListFragment
         setListAdapter(fakePreferencesAdapter);
 
         getListView().setOnItemClickListener(this);
+        setupNonScrollableSpacer();
     }
 
     /**

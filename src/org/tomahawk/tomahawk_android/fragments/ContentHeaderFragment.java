@@ -92,6 +92,8 @@ public class ContentHeaderFragment extends Fragment {
 
     private int mHeaderNonscrollableHeight = 0;
 
+    private int mCurrentMode = -1;
+
     protected View.OnClickListener mFollowButtonListener;
 
     private int mLastPlayTime;
@@ -106,7 +108,9 @@ public class ContentHeaderFragment extends Fragment {
 
         Resources res = getResources();
         if (getArguments() != null) {
-            switch (getArguments().getInt(MODE, -1)) {
+            mCurrentMode = getArguments().getInt(MODE, -1);
+
+            switch (mCurrentMode) {
                 case MODE_HEADER_DYNAMIC:
                     mHeaderScrollableHeight = res.getDimensionPixelSize(
                             R.dimen.header_clear_space_scrollable);
@@ -135,15 +139,21 @@ public class ContentHeaderFragment extends Fragment {
                 default:
                     throw new RuntimeException("Missing or invalid ContentHeaderFragment mode");
             }
-            if (getArguments().getInt(MODE, -1) == MODE_ACTIONBAR_FILLED) {
-                ((TomahawkMainActivity) getActivity()).showFilledActionBar();
-            }
             if (getArguments().containsKey(CONTAINER_FRAGMENT_ID)) {
                 mContainerFragmentId = getArguments().getLong(CONTAINER_FRAGMENT_ID);
             }
             if (getArguments().containsKey(CONTAINER_FRAGMENT_PAGE)) {
                 mContainerFragmentPage = getArguments().getInt(CONTAINER_FRAGMENT_PAGE);
             }
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (mCurrentMode == MODE_ACTIONBAR_FILLED) {
+            ((TomahawkMainActivity) getActivity()).showFilledActionBar();
         }
     }
 
