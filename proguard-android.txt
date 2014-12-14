@@ -129,6 +129,18 @@
 -dontwarn retrofit.**
 
 ##################
+#OkHttp specifics#
+##################
+-dontwarn okio.**
+
+###############################
+#greenrobot EventBus specifics#
+###############################
+-keepclassmembers class ** {
+    public void onEvent*(**);
+}
+
+##################
 #Lucene specifics#
 ##################
 -dontwarn org.apache.regexp.**
