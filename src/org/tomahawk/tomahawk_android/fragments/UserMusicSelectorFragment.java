@@ -22,7 +22,6 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -55,8 +54,6 @@ public class UserMusicSelectorFragment extends SelectorFragment {
                 }
             }
         }
-
-        Resources res = getResources();
 
         List<FragmentInfo> fragmentInfos = new ArrayList<FragmentInfo>();
         FragmentInfo fragmentInfo = new FragmentInfo();

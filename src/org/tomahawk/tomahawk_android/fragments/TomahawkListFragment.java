@@ -22,6 +22,9 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.StickyBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
+import org.tomahawk.tomahawk_android.events.AnimatePagerEvent;
+import org.tomahawk.tomahawk_android.events.PerformSyncEvent;
+import org.tomahawk.tomahawk_android.events.RequestSyncEvent;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
@@ -38,6 +41,7 @@ import android.widget.FrameLayout;
 
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
@@ -48,6 +52,9 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
 
     public static final String TOMAHAWK_LIST_SCROLL_POSITION
             = "org.tomahawk.tomahawk_android.tomahawk_list_scroll_position";
+
+    public static final String CONTAINER_FRAGMENT_CLASSNAME
+            = "org.tomahawk.tomahawk_android.container_fragment_classname";
 
     private StickyBaseAdapter mStickyBaseAdapter;
 
@@ -80,6 +87,23 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
                         TOMAHAWK_LIST_SCROLL_POSITION);
             }
         }
+
+        if (getArguments() != null) {
+            if (getArguments().containsKey(CONTAINER_FRAGMENT_CLASSNAME)) {
+                String fragmentName = getArguments().getString(CONTAINER_FRAGMENT_CLASSNAME);
+                if (fragmentName.equals(ArtistPagerFragment.class.getName())) {
+                    mContainerFragmentClass = ArtistPagerFragment.class;
+                } else if (fragmentName.equals(SearchPagerFragment.class.getName())) {
+                    mContainerFragmentClass = SearchPagerFragment.class;
+                } else if (fragmentName.equals(UserPagerFragment.class.getName())) {
+                    mContainerFragmentClass = UserPagerFragment.class;
+                } else if (fragmentName.equals(CollectionPagerFragment.class.getName())) {
+                    mContainerFragmentClass = CollectionPagerFragment.class;
+                }
+            }
+        }
+
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -95,6 +119,9 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         if (getListView() != null) {
             getListView().setOnScrollListener(this);
             getListView().setAreHeadersSticky(getResources().getBoolean(R.bool.set_headers_sticky));
+            if (mContainerFragmentPage > -1) {
+                getListView().setTag(mContainerFragmentPage);
+            }
         }
     }
 
@@ -130,12 +157,52 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     @Override
     public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount,
             int totalItemCount) {
-        if (firstVisibleItem == 0 && getListView().getListChildAt(0) != null) {
+        updateAnimation();
+    }
+
+    private void updateAnimation() {
+        int playTime;
+        if (getListView().getFirstVisiblePosition() == 0
+                && getListView().getListChildAt(0) != null) {
             float delta = getListView().getListChildAt(0).getBottom() - getListView().getTop();
-            animateContentHeader(
-                    (int) (10000f - delta / getListView().getListChildAt(0).getHeight() * 10000f));
+            playTime = (int)
+                    (10000f - delta / getListView().getListChildAt(0).getHeight() * 10000f);
         } else {
-            animateContentHeader(10000);
+            playTime = 10000;
+        }
+        if (mContainerFragmentId >= 0) {
+            AnimatePagerEvent event = new AnimatePagerEvent();
+            event.mContainerFragmentId = mContainerFragmentId;
+            event.mContainerFragmentPage = mContainerFragmentPage;
+            event.mPlayTime = playTime;
+            EventBus.getDefault().post(event);
+        } else {
+            animate(playTime);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(RequestSyncEvent event) {
+        if (mContainerFragmentId == event.mContainerFragmentId
+                && mContainerFragmentPage == event.mPerformerFragmentPage) {
+            PerformSyncEvent performSyncEvent = new PerformSyncEvent();
+            performSyncEvent.mContainerFragmentId = event.mContainerFragmentId;
+            performSyncEvent.mContainerFragmentPage = event.mReceiverFragmentPage;
+            performSyncEvent.mFirstVisiblePosition = getListView().getFirstVisiblePosition();
+            performSyncEvent.mTop = getListView().getListChildAt(0).getTop();
+            EventBus.getDefault().post(performSyncEvent);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(PerformSyncEvent event) {
+        if (mContainerFragmentId == event.mContainerFragmentId
+                && mContainerFragmentPage == event.mContainerFragmentPage) {
+            if (event.mFirstVisiblePosition == 0) {
+                getListView().setSelectionFromTop(0, event.mTop);
+            } else if (getListView().getFirstVisiblePosition() == 0) {
+                getListView().setSelection(1);
+            }
         }
     }
 
@@ -163,24 +230,13 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     }
 
     protected void setupAnimations() {
-        FrameLayout headerImageFrame;
-        FrameLayout headerFrame;
         if (mContainerFragmentClass == null) {
-            headerImageFrame =
+            FrameLayout headerImageFrame =
                     (FrameLayout) getView().findViewById(R.id.content_header_image_frame);
-            headerFrame =
+            FrameLayout headerFrame =
                     (FrameLayout) getView().findViewById(R.id.content_header_frame);
-        } else {
-            ViewGroup viewParent = (ViewGroup) getView().findViewById(R.id.fragment_layout);
-            while (viewParent.findViewById(R.id.content_header_image_frame_pager) == null) {
-                viewParent = (ViewGroup) viewParent.getParent();
-            }
-            headerImageFrame =
-                    (FrameLayout) viewParent.findViewById(R.id.content_header_image_frame_pager);
-            headerFrame =
-                    (FrameLayout) viewParent.findViewById(R.id.content_header_frame_pager);
+            super.setupAnimations(headerImageFrame, headerFrame);
         }
-        super.setupAnimations(headerImageFrame, headerFrame);
     }
 
     protected void setupNonScrollableSpacer() {

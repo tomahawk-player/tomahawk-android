@@ -125,12 +125,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public static final String SHOW_MODE
             = "org.tomahawk.tomahawk_android.show_mode";
 
-    public static final String CONTAINER_FRAGMENT_PAGE
-            = "org.tomahawk.tomahawk_android.container_fragment_page";
-
-    public static final String CONTAINER_FRAGMENT_NAME
-            = "org.tomahawk.tomahawk_android.container_fragment_name";
-
     protected static final int RESOLVE_QUERIES_REPORTER_MSG = 1336;
 
     protected static final long RESOLVE_QUERIES_REPORTER_DELAY = 100;
@@ -276,7 +270,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public void onResume() {
         super.onResume();
 
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (getArguments() != null) {
             if (getArguments().containsKey(TOMAHAWK_ALBUM_KEY)
                     && !TextUtils.isEmpty(getArguments().getString(TOMAHAWK_ALBUM_KEY))) {
@@ -337,21 +330,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     }
                 }
             }
-            if (getArguments().containsKey(CONTAINER_FRAGMENT_NAME)) {
-                String fragmentName = getArguments().getString(CONTAINER_FRAGMENT_NAME);
-                if (fragmentName.equals(ArtistPagerFragment.class.getName())) {
-                    mContainerFragmentClass = ArtistPagerFragment.class;
-                } else if (fragmentName.equals(SearchPagerFragment.class.getName())) {
-                    mContainerFragmentClass = SearchPagerFragment.class;
-                } else if (fragmentName.equals(UserPagerFragment.class.getName())) {
-                    mContainerFragmentClass = UserPagerFragment.class;
-                } else if (fragmentName.equals(CollectionPagerFragment.class.getName())) {
-                    mContainerFragmentClass = CollectionPagerFragment.class;
-                }
-            }
-            if (getArguments().containsKey(CONTAINER_FRAGMENT_PAGE)) {
-                getListView().setTag(getArguments().getInt(CONTAINER_FRAGMENT_PAGE));
-            }
             if (getArguments().containsKey(TOMAHAWK_USERARRAY_ID)) {
                 mSearchUsers = new ArrayList<User>();
                 for (String userId : getArguments().getStringArrayList(TOMAHAWK_USERARRAY_ID)) {
@@ -387,6 +365,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
         }
 
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         // Initialize and register Receiver
         if (mTomahawkFragmentReceiver == null) {
             mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();

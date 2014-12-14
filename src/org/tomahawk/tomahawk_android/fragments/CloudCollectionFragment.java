@@ -63,6 +63,8 @@ public class CloudCollectionFragment extends TomahawkFragment {
             bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
             bundle.putInt(ContentHeaderFragment.MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+            bundle.putLong(ContentHeaderFragment.CONTAINER_FRAGMENT_ID,
+                    TomahawkMainActivity.getSessionUniqueId());
             FragmentUtils.replace((TomahawkMainActivity) getActivity(), ArtistPagerFragment.class,
                     bundle);
         }

@@ -24,6 +24,8 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
+import org.tomahawk.tomahawk_android.events.AnimatePagerEvent;
+import org.tomahawk.tomahawk_android.events.RequestSyncEvent;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -48,12 +50,25 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-public abstract class PagerFragment extends ContentHeaderFragment {
+import de.greenrobot.event.EventBus;
+
+public abstract class PagerFragment extends ContentHeaderFragment implements
+        ViewPager.OnPageChangeListener {
+
+    private final static String TAG = PagerFragment.class.getSimpleName();
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
     protected ConcurrentSkipListSet<String> mCorrespondingQueryIds
             = new ConcurrentSkipListSet<String>();
+
+    private TomahawkPagerAdapter mPagerAdapter;
+
+    private ViewPager mViewPager;
+
+    private boolean mShouldSyncListStates = true;
+
+    private PageIndicator mPageIndicator;
 
     private PagerFragmentReceiver mPagerFragmentReceiver;
 
@@ -114,6 +129,13 @@ public abstract class PagerFragment extends ContentHeaderFragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
@@ -167,30 +189,106 @@ public abstract class PagerFragment extends ContentHeaderFragment {
         }
     }
 
+    /**
+     * This method will be invoked when the current page is scrolled, either as part of a
+     * programmatically initiated smooth scroll or a user initiated touch scroll.
+     *
+     * @param position             Position index of the first page currently being displayed. Page
+     *                             position+1 will be visible if positionOffset is nonzero.
+     * @param positionOffset       Value from [0, 1) indicating the offset from the page at
+     *                             position.
+     * @param positionOffsetPixels Value in pixels indicating the offset from position.
+     */
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        if (mPageIndicator != null) {
+            mPageIndicator.onPageScrolled(position, positionOffset, positionOffsetPixels);
+        }
+
+        if (mShouldSyncListStates && positionOffset != 0f && isDynamicHeader()) {
+            mShouldSyncListStates = false;
+            RequestSyncEvent event = new RequestSyncEvent();
+            if (mViewPager.getCurrentItem() == position) {
+                // first visible fragment is the current fragment,
+                // so we get the one to the right by asking for the fragment at position + 1
+                event.mReceiverFragmentPage = position + 1;
+            } else {
+                // first visible fragment is the left fragment
+                event.mReceiverFragmentPage = position;
+            }
+            event.mPerformerFragmentPage = mViewPager.getCurrentItem();
+            event.mContainerFragmentId = mContainerFragmentId;
+            EventBus.getDefault().post(event);
+        }
+    }
+
+    /**
+     * This method will be invoked when a new page becomes selected. Animation is not necessarily
+     * complete.
+     *
+     * @param position Position index of the new selected page.
+     */
+    @Override
+    public void onPageSelected(int position) {
+        if (mPageIndicator != null) {
+            mPageIndicator.onPageSelected(position);
+        }
+    }
+
+    /**
+     * Called when the scroll state changes. Useful for discovering when the user begins dragging,
+     * when the pager is automatically settling to the current page, or when it is fully
+     * stopped/idle.
+     *
+     * @param state The new scroll state.
+     * @see ViewPager#SCROLL_STATE_IDLE
+     * @see ViewPager#SCROLL_STATE_DRAGGING
+     * @see ViewPager#SCROLL_STATE_SETTLING
+     */
+    @Override
+    public void onPageScrollStateChanged(int state) {
+        if (mPageIndicator != null) {
+            mPageIndicator.onPageScrollStateChanged(state);
+        }
+
+        if (state == ViewPager.SCROLL_STATE_IDLE) {
+            mShouldSyncListStates = true;
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(AnimatePagerEvent event) {
+        if (mContainerFragmentId == event.mContainerFragmentId
+                && event.mContainerFragmentPage == mViewPager.getCurrentItem()) {
+            animate(event.mPlayTime);
+        }
+    }
+
     protected void setupPager(List<FragmentInfoList> fragmentInfoLists, int initialPage,
             String selectorPosStorageKey) {
         List<FragmentInfo> currentFragmentInfos = new ArrayList<FragmentInfo>();
         for (FragmentInfoList list : fragmentInfoLists) {
             currentFragmentInfos.add(list.getCurrentFragmentInfo());
         }
-        TomahawkPagerAdapter adapter = new TomahawkPagerAdapter(getChildFragmentManager(),
-                currentFragmentInfos, ((Object) this).getClass());
-        final ViewPager fragmentPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
+        mPagerAdapter = new TomahawkPagerAdapter(getChildFragmentManager(),
+                currentFragmentInfos, ((Object) this).getClass(), mContainerFragmentId);
+        mViewPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
+        mViewPager.setOnPageChangeListener(this);
         if (initialPage < 0) {
-            initialPage = fragmentPager.getCurrentItem();
+            initialPage = mViewPager.getCurrentItem();
         }
-        fragmentPager.setAdapter(adapter);
+        mViewPager.setAdapter(mPagerAdapter);
 
         LinearLayout pageIndicatorContainer =
                 (LinearLayout) getView().findViewById(R.id.page_indicator_container);
         pageIndicatorContainer.setVisibility(View.VISIBLE);
-        PageIndicator pageIndicator =
+        mPageIndicator =
                 (PageIndicator) pageIndicatorContainer.findViewById(R.id.page_indicator);
-        pageIndicator.setup(fragmentPager, fragmentInfoLists,
+        mPageIndicator.setup(mViewPager, fragmentInfoLists,
                 getActivity().findViewById(R.id.sliding_layout),
                 (Selector) getView().findViewById(R.id.selector), selectorPosStorageKey);
         if (initialPage >= 0) {
-            fragmentPager.setCurrentItem(initialPage);
+            mViewPager.setCurrentItem(initialPage);
         }
         if (((TomahawkMainActivity) getActivity()).getSlidingUpPanelLayout().isPanelHidden()) {
             onSlidingLayoutHidden();
@@ -213,9 +311,12 @@ public abstract class PagerFragment extends ContentHeaderFragment {
     }
 
     protected void showContentHeader(Object item) {
-        super.showContentHeader(
-                (FrameLayout) getView().findViewById(R.id.content_header_image_frame_pager),
-                (FrameLayout) getView().findViewById(R.id.content_header_frame_pager), item);
+        FrameLayout headerImageFrame = (FrameLayout) getView()
+                .findViewById(R.id.content_header_image_frame_pager);
+        FrameLayout headerFrame = (FrameLayout) getView()
+                .findViewById(R.id.content_header_frame_pager);
+        super.showContentHeader(headerImageFrame, headerFrame, item);
+        super.setupAnimations(headerImageFrame, headerFrame);
     }
 
     private void onSlidingLayoutShown() {
