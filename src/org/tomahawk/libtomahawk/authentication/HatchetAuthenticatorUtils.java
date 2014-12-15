@@ -248,7 +248,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                             Log.d(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
                             HatchetAuthResponse authResponse =
                                     (HatchetAuthResponse) e.getBodyAs(HatchetAuthResponse.class);
-                            if (authResponse.error != null &&
+                            if (authResponse != null && authResponse.error != null &&
                                     authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
                                 onLoginFailed(
                                         AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_INVALIDCREDS,
