@@ -706,14 +706,16 @@ public class PlaybackService extends Service
      */
     public void start() {
         Log.d(TAG, "start");
-        mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
-        sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
-        handlePlayState();
+        if (getCurrentQuery() != null) {
+            mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
+            sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
+            handlePlayState();
 
-        mShowingNotification = true;
-        updateNotification();
-        tryToGetAudioFocus();
-        updateLockscreenPlayState();
+            mShowingNotification = true;
+            updateNotification();
+            tryToGetAudioFocus();
+            updateLockscreenPlayState();
+        }
     }
 
     /**
