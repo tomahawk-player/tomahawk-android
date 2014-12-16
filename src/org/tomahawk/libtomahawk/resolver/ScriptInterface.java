@@ -280,7 +280,7 @@ public class ScriptInterface {
     }
 
     @JavascriptInterface
-    public void setItem(String key, String value) {
+    public void localStorageSetItem(String key, String value) {
         String dirPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
                 + File.separator + "TomahawkWebViewStorage";
         new File(dirPath).mkdirs();
@@ -292,7 +292,7 @@ public class ScriptInterface {
     }
 
     @JavascriptInterface
-    public String getItem(String key) {
+    public String localStorageGetItem(String key) {
         String dirPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
                 + File.separator + "TomahawkWebViewStorage";
         new File(dirPath).mkdirs();
@@ -305,7 +305,7 @@ public class ScriptInterface {
     }
 
     @JavascriptInterface
-    public void removeItem(String key) {
+    public void localStorageRemoveItem(String key) {
         String path = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
                 + File.separator + "TomahawkWebViewStorage" + File.separator + key;
         new File(path).delete();
@@ -327,7 +327,7 @@ public class ScriptInterface {
         String[] keys = keys();
         String[] values = new String[keys.length];
         for (int i = 0; i < keys.length; i++) {
-            values[i] = getItem(keys[i]);
+            values[i] = localStorageGetItem(keys[i]);
         }
         return values;
     }

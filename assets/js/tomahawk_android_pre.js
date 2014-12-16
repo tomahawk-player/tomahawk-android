@@ -96,3 +96,15 @@ Tomahawk.addUrlResult =
     function (url, result) {
         Tomahawk.addUrlResultString(url, JSON.stringify(result));
     };
+
+Tomahawk.localStorage = {
+    setItem: function(key, value) {
+        Tomahawk.localStorageSetItem(key, value);
+    },
+    getItem: function(key) {
+        Tomahawk.localStorageGetItem(key);
+    },
+    removeItem: function(key) {
+        Tomahawk.localStorageRemoveItem(key);
+    },
+};
