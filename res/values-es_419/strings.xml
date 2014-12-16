@@ -133,7 +133,7 @@
   <string name="time_afewseconds">hace algunos segundos</string>
   <string name="time_aminute">un minuto atrás</string>
   <string name="time_anhour">Una hora atrás</string>
-  <string name="time_aday">Un día antes</string>
+  <string name="time_aday">Un día atrás</string>
   <string name="time_minutes">hace %1$d minutos </string>
   <string name="time_hours">Hace %1$d horas atrás</string>
   <string name="time_days">Hace  %1$d día atrás</string>
