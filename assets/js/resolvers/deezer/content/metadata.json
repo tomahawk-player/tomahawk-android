@@ -1,18 +1,20 @@
 {
-	"name": "Deezer",
-	"pluginName": "deezer",
-	"author": "Uwe and Enno",
-	"email": "uwelk@xhochy.com",
-	"version": "0.1.2",
-	"website": "http://gettomahawk.com",
-	"description": "Stream music with Deezer. Premium Deezer account required.",
-	"type": "resolver/javascript",
-	"manifest": {
-		"main": "contents/code/deezer.js",
-		"scripts": [],
-		"icon": "contents/images/icon.png",
-		"resources": [
-			"contents/code/deezer.png"
-		]
-	}
+    "name": "Deezer",
+    "pluginName": "deezer",
+    "author": "Uwe and Enno",
+    "email": "uwelk@xhochy.com",
+    "version": "0.1.2",
+    "website": "http://gettomahawk.com",
+    "description": "Stream music with Deezer. Premium Deezer account required.",
+    "type": "resolver/javascript",
+        "manifest": {
+        "main": "contents/code/deezer.js",
+        "scripts": [],
+        "icon": "contents/images/icon.png",
+        "iconWhite": "contents/images/iconWhite.png",
+        "iconBackground": "contents/images/iconBackground.png",
+        "resources": [
+            "contents/code/deezer.png"
+        ]
+    }
 }
