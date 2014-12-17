@@ -5,11 +5,26 @@
   <string name="login">Login</string>
   <string name="logout">Logout</string>
   <string name="register">Registrati</string>
-  <string name="albums">Albums</string>
+  <string name="rescan">Riscansiona ora</string>
+  <string name="internal_storage">Memoria Interna</string>
+  <string name="tracks">Tracce</string>
+  <string name="albums">Album</string>
   <string name="artists">Artisti</string>
   <string name="users">Utenti</string>
+  <string name="top_hits">Top Hits</string>
+  <string name="top_albums">Top Album</string>
+  <string name="playlist_details">Dettagli Playlist</string>
+  <string name="album_details">Dettagli Album</string>
   <string name="search">Cerca</string>
   <string name="playlist">Playlist</string>
+  <string name="shuffle_on_label">Riproduzione Casuale attivata</string>
+  <string name="shuffle_off_label">Riproduzione Casuale disattivata</string>
+  <string name="repeat_on_label">Ripetizione attivata</string>
+  <string name="repeat_off_label">Ripetizione disattivata</string>
+  <string name="unknown">sconosciuto</string>
+  <string name="no_track">nessuna traccia</string>
+  <string name="save_playlist">Salva la playlist corrente</string>
+  <string name="create_playlist">Crea una nuova playlist</string>
   <string name="name_playlist">Nome</string>
   <string name="login_name_label">Email/Username</string>
   <string name="login_username">Nome utente</string>
@@ -21,23 +36,68 @@
   <string name="error_invalid_credentials">Nome utente o password errati.</string>
   <string name="error_invalid_account">Account rifiutato dal server.</string>
   <string name="error_communication">Impossibile connettersi. Per favore controlla la connessione.</string>
-  <string name="error_simultaneous_streams">Azione non permessa, l\'account è utilizzato altrove.</string>
+  <string name="error_simultaneous_streams">Azione non permessa, l\'account è in uso altrove.</string>
   <string name="error_account_expired">Il tuo account è scaduto.</string>
-  <string name="auth_logged_in">Connesso</string>
-  <string name="auth_logged_out">Sconnesso da</string>
-  <string name="local_collection_pretty_name">Collezione locale</string>
+  <string name="auth_logged_in">Connesso a</string>
+  <string name="auth_logged_out">Disconnesso da</string>
+  <string name="local_collection_pretty_name">Collezione Locale</string>
+  <string name="local">In Locale</string>
+  <string name="all">Tutte</string>
   <string name="preferences_services">Servizi</string>
+  <string name="preferences_local_collection_text">Scegli le cartelle dove effettuare la ricerca per i media in locale.</string>
   <string name="preferences_hatchet_text">Sincronizza i tuoi dati con %1$s.</string>
   <string name="preferences_spotify_text">Ascolta la tua musica da %1$s. Richiede un account premium.</string>
+  <string name="preferences_playback">Riproduzione</string>
   <string name="preferences_playback_data">Scrobbla tutto</string>
   <string name="preferences_playback_data_text">Scrobbla a %1$s tutte le tracce da tutti i lettori musicali sul telefono.</string>
+  <string name="preferences_plug_and_play_text">Inizia a riprodurre musica non appena connetti delle cuffie.</string>
+  <string name="preferences_audio_quality">Qualità Audio Preferita</string>
+  <string name="preferences_audio_quality_text">La qualità audio preferita se non connesso a reti WiFi</string>
+  <string name="preferences_info">Informazioni</string>
+  <string name="preferences_app_version">Versione App</string>
+  <string name="preferences_app_uservoice">Feedback</string>
+  <string name="preferences_app_uservoice_text">Condividi le tue idee e chiedi supporto.</string>
+  <string name="preferences_app_sendlog">Invia Log</string>
+  <string name="preferences_app_sendlog_text">Invia il tuo file di log per scopi di debug</string>
+  <string name="crash_dialog_title">Tomahawk si è chiuso inaspettatamente</string>
+  <string name="crash_dialog_text">Si è verificato un errore inatteso che ha forzato la chiusura dell\'applicazione. Per favore aiutaci a correggerlo inviandoci i dettagli, tutto ciò che devi fare è cliccare su OK.</string>
+  <string name="crash_dialog_comment_prompt">Puoi aggiungere un commento sul problema qui in basso:</string>
+  <string name="crash_dialog_ok_toast">Grazie!</string>
+  <string name="context_menu_play">Riproduci</string>
+  <string name="context_menu_add_to_queue">Metti in Coda</string>
+  <string name="context_menu_add_to_playlist">Aggiungi a Playlist</string>
+  <string name="context_menu_delete">Elimina</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">Rimuovi da Collezione</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">Aggiungi a Collezione</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_share">Condividi</string>
+  <string name="context_menu_gotoartist">Vai a Artista</string>
+  <string name="drawer_title_feed">Feed</string>
+  <string name="drawer_title_collection">Collezione</string>
+  <string name="drawer_title_playlists">Playlist</string>
+  <string name="drawer_title_lovedtracks">Preferiti</string>
+  <string name="drawer_title_settings">Impostazioni</string>
+  <string name="drawer_header_cloudcollections">Collezioni in Cloud</string>
+  <string name="collection_dropdown_recently_added">Aggiunti di Recente</string>
+  <string name="collection_dropdown_alpha_artists">Artista A-Z</string>
+  <string name="collection_dropdown_play_count">Numero di Riproduzioni</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
+  <string name="history">Cronologia</string>
+  <string name="preferences_bitrate_low">Normale</string>
+  <string name="preferences_bitrate_medium">Ottima</string>
+  <string name="preferences_bitrate_high">Migliore</string>
+  <string name="drawer_open">Apri Menu Laterale</string>
+  <string name="drawer_close">Chiudi Menu Laterale</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">Seguito</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Segui</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">sta ora seguendo</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
@@ -47,11 +107,39 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">ha commentato</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
+  <string name="socialaction_type_latchon_single">ha ascoltato assieme a un amico</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
+  <string name="socialaction_type_latchon_multiple">ha ascoltato assieme a %1$d amici</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
+  <string name="socialaction_type_createplaylist_single">ha creato una playlist</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
+  <string name="socialaction_type_createplaylist_multiple">ha creato %1$d playlist</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="time_afewseconds">pochi secondi fa</string>
+  <string name="time_aminute">un minuto fa</string>
+  <string name="time_anhour">un\'ora fa</string>
+  <string name="time_aday">un giorno fa</string>
+  <string name="time_minutes">%1$d minuti fa</string>
+  <string name="time_hours">%1$d ore fa</string>
+  <string name="time_days">%1$d giorni fa</string>
+  <string name="music">Musica</string>
+  <string name="biography">Biografia</string>
+  <string name="similar">Simili</string>
+  <string name="songs">Brani</string>
+  <string name="activity">Attività</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
+  <string name="followers">Seguaci</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
+  <string name="following">Seguiti</string>
+  <string name="resolver_config_redirect_button_text_log_into">Connesso a</string>
+  <string name="resolver_config_redirect_button_text_log_out_of">Disconnesso da</string>
+  <string name="ask_access_activity_header">Vuoi che siano automaticamente salvati su Hatchet i dati di tutti i brani che riproduci?</string>
+  <string name="ask_access_activity_text1">A questo penseremo noi! Per favore abilita il nostro servizio nelle impostazioni di sistema.</string>
+  <string name="ask_access_activity_text2">(Puoi disabilitare questa impostazione in qualsiasi momento dalle impostazioni di Tomahawk)</string>
+  <string name="ask_access_activity_button_text">Vai a Impostazioni</string>
+  <string name="button_open_queue_text">Coda</string>
+  <string name="button_close">Chiudi</string>
+  <string name="view_album">Vedi Album</string>
 </resources>
