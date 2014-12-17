@@ -56,4 +56,6 @@
 
     <dimen name="directory_chooser_arrow_size">16dp</dimen>
 
+    <dimen name="grid_item_resolver_icon_size">48dp</dimen>
+
 </resources>

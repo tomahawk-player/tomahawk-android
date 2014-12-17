@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -52,7 +53,7 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
 
         public int iconResId;
 
-        public String iconPath;
+        public Resolver resolver;
 
         public Image image;
 
@@ -121,8 +122,8 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
                     .findViewById(R.id.single_line_list_menu_textview);
             ImageView imageView = (ImageView) view.findViewById(R.id.icon_menu_imageview);
             textView.setText(holder.title.toUpperCase());
-            if (holder.iconPath != null) {
-                TomahawkUtils.loadDrawableIntoImageView(mActivity, imageView, holder.iconPath);
+            if (holder.resolver != null) {
+                holder.resolver.loadIcon(imageView, false);
             } else {
                 TomahawkUtils.loadDrawableIntoImageView(mActivity, imageView, holder.iconResId);
             }

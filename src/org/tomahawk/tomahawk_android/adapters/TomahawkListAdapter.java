@@ -27,6 +27,7 @@ import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -317,8 +318,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
         // components with the correct data
         for (int i = 0; i < viewHolders.size(); i++) {
             ViewHolder viewHolder = viewHolders.get(i);
-            TomahawkListItem item = o instanceof List ? (TomahawkListItem) ((List) o).get(i)
-                    : (TomahawkListItem) o;
+            Object item = o instanceof List ? ((List) o).get(i) : o;
             // Don't display the socialAction item directly, but rather the item that is its target
             if (item instanceof SocialAction && ((SocialAction) item).getTargetObject() != null) {
                 item = ((SocialAction) item).getTargetObject();
@@ -336,13 +336,15 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                 } else if (item instanceof Artist) {
                     viewHolder.fillView((Artist) item);
                 }
+            } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
+                viewHolder.fillView((Resolver) item);
             } else if (viewHolder.mLayoutId == R.layout.grid_item_user
                     || viewHolder.mLayoutId == R.layout.list_item_user) {
                 viewHolder.fillView((User) item);
             } else if (viewHolder.mLayoutId == R.layout.single_line_list_item) {
-                viewHolder.fillView(item.getName());
+                viewHolder.fillView(((TomahawkListItem) item).getName());
             } else if (viewHolder.mLayoutId == R.layout.list_item_text) {
-                viewHolder.fillView(item.getName());
+                viewHolder.fillView(((TomahawkListItem) item).getName());
             } else if (viewHolder.mLayoutId == R.layout.list_item_track
                     || viewHolder.mLayoutId == R.layout.list_item_track_highlighted) {
                 if (item instanceof Query || item instanceof PlaylistEntry) {
@@ -599,6 +601,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                 }
                 if (firstItem instanceof User) {
                     return R.layout.grid_item_user;
+                } else if (firstItem instanceof Resolver) {
+                    return R.layout.grid_item_resolver;
                 } else {
                     return R.layout.grid_item;
                 }

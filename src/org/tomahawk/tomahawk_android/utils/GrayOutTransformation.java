@@ -41,9 +41,7 @@ public class GrayOutTransformation implements Transformation {
     public Bitmap transform(Bitmap source) {
         Bitmap result = createBitmap(source.getWidth(), source.getHeight(), source.getConfig());
 
-        ColorFilter grayOutFilter = new PorterDuffColorFilter(
-                TomahawkApp.getContext().getResources()
-                        .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
+        ColorFilter grayOutFilter = getColorFilter();
 
         Paint paint = new Paint(ANTI_ALIAS_FLAG);
         paint.setColorFilter(grayOutFilter);
@@ -59,5 +57,11 @@ public class GrayOutTransformation implements Transformation {
     @Override
     public String key() {
         return "GrayscaleTransformation";
+    }
+
+    public static ColorFilter getColorFilter() {
+        return new PorterDuffColorFilter(
+                TomahawkApp.getContext().getResources()
+                        .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
     }
 }

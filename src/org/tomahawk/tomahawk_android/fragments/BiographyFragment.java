@@ -21,7 +21,6 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -45,10 +44,10 @@ public class BiographyFragment extends TomahawkFragment {
      * Called every time an item inside a ListView or GridView is clicked
      *
      * @param view the clicked view
-     * @param item the TomahawkListItem which corresponds to the click
+     * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, TomahawkListItem item) {
+    public void onItemClick(View view, Object item) {
     }
 
     /**
@@ -63,7 +62,7 @@ public class BiographyFragment extends TomahawkFragment {
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        List<TomahawkListItem> bioText = new ArrayList<TomahawkListItem>();
+        List bioText = new ArrayList<Object>();
         if (mArtist != null) {
             if (mArtist.getBio() == null) {
                 InfoSystem.getInstance().resolve(mArtist, false);

@@ -29,7 +29,6 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -69,13 +68,13 @@ public class ArtistsFragment extends TomahawkFragment {
      * Called every time an item inside a ListView or GridView is clicked
      *
      * @param view the clicked view
-     * @param item the TomahawkListItem which corresponds to the click
+     * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, TomahawkListItem item) {
+    public void onItemClick(View view, Object item) {
         if (item instanceof Artist) {
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, item.getCacheKey());
+            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, ((Artist) item).getCacheKey());
             if (mCollection != null
                     && mCollection.getArtistAlbums((Artist) item, false).size() > 0) {
                 bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
@@ -103,7 +102,7 @@ public class ArtistsFragment extends TomahawkFragment {
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        List<TomahawkListItem> artists = new ArrayList<TomahawkListItem>();
+        List artists = new ArrayList<Object>();
         if (mShowMode == SHOW_MODE_STARREDARTISTS) {
             ArrayList<Artist> starredArtists = DatabaseHelper.getInstance().getStarredArtists();
             for (Artist artist : starredArtists) {

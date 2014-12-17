@@ -17,7 +17,8 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
---><resources>
+-->
+<resources>
 
     <color name="tomahawk_red">#FFff004c</color>
     <color name="tomahawk_red_transparent">#DDff004c</color>
@@ -42,4 +43,8 @@
     <color name="list_pressed_opaque">#FFf1f1f1</color>
     <color name="list_pressed_transparent">#88cbcbcb</color>
 
-    </resources>
+    <color name="local_collection_resolver_bg">#3e454b</color>
+    <color name="spotify_resolver_bg">#84bd00</color>
+    <color name="hatchet_resolver_bg">#3892e3</color>
+
+</resources>

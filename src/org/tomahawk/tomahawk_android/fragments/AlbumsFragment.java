@@ -34,7 +34,6 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -77,10 +76,10 @@ public class AlbumsFragment extends TomahawkFragment {
      * Called every time an item inside a ListView or GridView is clicked
      *
      * @param view the clicked view
-     * @param item the TomahawkListItem which corresponds to the click
+     * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, TomahawkListItem item) {
+    public void onItemClick(View view, Object item) {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (item instanceof Query) {
             Query query = ((Query) item);
@@ -103,7 +102,7 @@ public class AlbumsFragment extends TomahawkFragment {
             }
         } else if (item instanceof Album) {
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, item.getCacheKey());
+            bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, ((Album) item).getCacheKey());
             if (mCollection != null
                     && (mCollection instanceof ScriptResolverCollection
                     || mCollection.getAlbumTracks((Album) item, false).size() > 0)) {
@@ -129,23 +128,22 @@ public class AlbumsFragment extends TomahawkFragment {
 
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        List<Segment> segments = new ArrayList<Segment>();
+        List<Segment> segments = new ArrayList<>();
+        ArrayList items = new ArrayList<Object>();
         if (mArtist != null) {
             if (mCollection != null
                     && !TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
-                ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
                 items.addAll(mCollection.getArtistAlbums(mArtist, true));
                 segments.add(new Segment(mCollection.getName() + " " + getString(R.string.albums),
                         items, R.integer.grid_column_count, R.dimen.padding_superlarge,
                         R.dimen.padding_superlarge));
             } else {
-                ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
                 items.addAll(CollectionUtils.getArtistAlbums(mArtist, null));
                 segments.add(new Segment(R.string.top_albums, items,
                         R.integer.grid_column_count, R.dimen.padding_superlarge,
                         R.dimen.padding_superlarge));
                 ArrayList<Query> topHits = CollectionUtils.getArtistTopHits(mArtist);
-                items = new ArrayList<TomahawkListItem>();
+                items = new ArrayList<Object>();
                 items.addAll(topHits);
                 segments.add(new Segment(R.string.top_hits, items));
                 mShownQueries = topHits;
@@ -165,7 +163,6 @@ public class AlbumsFragment extends TomahawkFragment {
             for (Album album : albums) {
                 mCurrentRequestIds.add(InfoSystem.getInstance().resolve(album));
             }
-            ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
             items.addAll(albums);
             segments.add(new Segment(items));
             if (getListAdapter() == null) {
@@ -176,7 +173,6 @@ public class AlbumsFragment extends TomahawkFragment {
                 getListAdapter().setSegments(segments, getListView());
             }
         } else if (mSearchAlbums != null) {
-            ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
             items.addAll(mSearchAlbums);
             segments.add(new Segment(items));
             if (getListAdapter() == null) {
@@ -187,7 +183,6 @@ public class AlbumsFragment extends TomahawkFragment {
                 getListAdapter().setSegments(segments, getListView());
             }
         } else {
-            ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
             items.addAll(CollectionManager.getInstance()
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbums());
             for (Album album : DatabaseHelper.getInstance().getStarredAlbums()) {

@@ -44,8 +44,8 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /**
- * A {@link android.support.v4.app.DialogFragment} which shows checkboxes and edittexts depending
- * on the given ScriptResolver's config. Enables the user to configure a certain ScriptResolver.
+ * A {@link android.support.v4.app.DialogFragment} which shows checkboxes and edittexts depending on
+ * the given ScriptResolver's config. Enables the user to configure a certain ScriptResolver.
  */
 public class ResolverConfigDialog extends ConfigDialog {
 
@@ -149,11 +149,7 @@ public class ResolverConfigDialog extends ConfigDialog {
             setEnabledCheckboxState(mScriptResolver.isEnabled());
         }
 
-        if (mScriptResolver.getIconPath() != null) {
-            setStatusImage(mScriptResolver.getIconPath(), mScriptResolver.isEnabled());
-        } else {
-            setStatusImage(mScriptResolver.getIconResId(), mScriptResolver.isEnabled());
-        }
+        setStatusImage(mScriptResolver);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
@@ -178,11 +174,7 @@ public class ResolverConfigDialog extends ConfigDialog {
         if (mScriptResolver.isEnabled() != checked) {
             mScriptResolver.setEnabled(checked);
 
-            if (mScriptResolver.getIconPath() != null) {
-                setStatusImage(mScriptResolver.getIconPath(), mScriptResolver.isEnabled());
-            } else {
-                setStatusImage(mScriptResolver.getIconResId(), mScriptResolver.isEnabled());
-            }
+            setStatusImage(mScriptResolver);
         }
     }
 

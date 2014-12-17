@@ -417,15 +417,15 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     @Override
-    public abstract void onItemClick(View view, TomahawkListItem item);
+    public abstract void onItemClick(View view, Object item);
 
     /**
      * Called every time an item inside a ListView or GridView is long-clicked
      *
-     * @param item the TomahawkListItem which corresponds to the long-click
+     * @param item the Object which corresponds to the long-click
      */
     @Override
-    public boolean onItemLongClick(View view, TomahawkListItem item) {
+    public boolean onItemLongClick(View view, Object item) {
         TomahawkListItem contextItem = null;
         if (mAlbum != null) {
             contextItem = mAlbum;

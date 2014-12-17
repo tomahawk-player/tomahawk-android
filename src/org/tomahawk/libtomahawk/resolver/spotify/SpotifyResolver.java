@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.resolver.spotify;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -29,18 +30,22 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.spotify.models.SpotifyQuery;
 import org.tomahawk.libtomahawk.resolver.spotify.models.SpotifyResult;
 import org.tomahawk.libtomahawk.resolver.spotify.models.SpotifyResults;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
+import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.util.Log;
+import android.widget.ImageView;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -133,18 +138,31 @@ public class SpotifyResolver extends Resolver {
     }
 
     @Override
-    public String getIconPath() {
-        return null;
+    public void loadIcon(ImageView imageView, boolean grayOut) {
+        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                R.drawable.ic_spotify, grayOut);
+    }
+
+    @Override
+    public void loadIconWhite(ImageView imageView) {
+        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                R.drawable.ic_spotify_white);
+    }
+
+    @Override
+    public void loadIconBackground(ImageView imageView, boolean grayOut) {
+        imageView.setImageDrawable(new ColorDrawable(
+                TomahawkApp.getContext().getResources().getColor(R.color.spotify_resolver_bg)));
+        if (grayOut) {
+            imageView.setColorFilter(GrayOutTransformation.getColorFilter());
+        } else {
+            imageView.clearColorFilter();
+        }
     }
 
     @Override
     public String getCollectionName() {
         return SpotifyAuthenticatorUtils.SPOTIFY_PRETTY_NAME;
-    }
-
-    @Override
-    public int getIconResId() {
-        return mIconResId;
     }
 
     /**
@@ -256,6 +274,7 @@ public class SpotifyResolver extends Resolver {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_SPOTIFY).isLoggedIn();
     }
 }

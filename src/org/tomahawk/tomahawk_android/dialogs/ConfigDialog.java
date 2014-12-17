@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.ui.widgets.BoundedLinearLayout;
@@ -73,9 +74,9 @@ public abstract class ConfigDialog extends DialogFragment {
 
     private ImageView mStatusImageView;
 
-    private int mStatusImageResId;
+    private Resolver mResolver;
 
-    private String mStatusImagePath;
+    private int mStatusImageResId;
 
     private ConfigDialogReceiver mConfigDialogReceiver;
 
@@ -242,10 +243,9 @@ public abstract class ConfigDialog extends DialogFragment {
                 statusImageResId, !enabled);
     }
 
-    protected void setStatusImage(String path, boolean enabled) {
-        mStatusImagePath = path;
-        TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
-                mStatusImagePath, !enabled);
+    protected void setStatusImage(Resolver resolver) {
+        mResolver = resolver;
+        resolver.loadIcon(mStatusImageView, !resolver.isEnabled());
     }
 
     protected void setDialogTitle(String title) {
@@ -306,9 +306,8 @@ public abstract class ConfigDialog extends DialogFragment {
      */
     protected void stopLoadingAnimation(boolean loggedIn) {
         mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        if (mStatusImagePath != null) {
-            TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
-                    mStatusImagePath, !loggedIn);
+        if (mResolver != null) {
+            mResolver.loadIcon(mStatusImageView, !loggedIn);
         } else {
             TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
                     mStatusImageResId, !loggedIn);

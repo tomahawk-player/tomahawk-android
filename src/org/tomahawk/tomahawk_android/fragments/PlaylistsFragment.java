@@ -30,7 +30,6 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -100,10 +99,10 @@ public class PlaylistsFragment extends TomahawkFragment {
      * Called every time an item inside a ListView or GridView is clicked
      *
      * @param view the clicked view
-     * @param item the TomahawkListItem which corresponds to the click
+     * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, TomahawkListItem item) {
+    public void onItemClick(View view, Object item) {
         if (item instanceof Playlist) {
             Bundle bundle = new Bundle();
             bundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY, ((Playlist) item).getId());
@@ -131,7 +130,7 @@ public class PlaylistsFragment extends TomahawkFragment {
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        List<TomahawkListItem> playlists = new ArrayList<TomahawkListItem>();
+        List playlists = new ArrayList();
         HatchetAuthenticatorUtils authenticatorUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);

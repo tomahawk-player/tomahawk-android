@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:layout_weight="1">
+
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/selectable_background_tomahawk">
+
+        <ImageView android:id="@+id/imageview1"
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:src="@color/hatchet_resolver_bg"/>
+
+        <ImageView android:id="@+id/imageview2"
+                   android:layout_width="@dimen/grid_item_resolver_icon_size"
+                   android:layout_height="@dimen/grid_item_resolver_icon_size"
+                   android:layout_centerInParent="true"
+                   android:src="@drawable/ic_hatchet_white"/>
+
+    </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
+
+    <TextView android:id="@+id/textview1"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:gravity="center_vertical"
+              android:paddingTop="@dimen/padding_small"
+              android:paddingBottom="@dimen/padding_small"
+              android:background="@drawable/selectable_background_tomahawk"
+              android:ellipsize="marquee"
+              android:singleLine="true"
+              android:textColor="@color/primary_textcolor"
+              android:textSize="@dimen/text_size_small"
+              android:text="Spotify"/>
+
+</LinearLayout>

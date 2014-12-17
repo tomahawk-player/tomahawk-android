@@ -118,11 +118,7 @@ public class RedirectConfigDialog extends ConfigDialog {
         setDialogTitle(scriptResolver.getName());
         hideEnabledCheckbox();
         hideNegativeButton();
-        if (scriptResolver.getIconPath() != null) {
-            setStatusImage(scriptResolver.getIconPath(), scriptResolver.isEnabled());
-        } else {
-            setStatusImage(scriptResolver.getIconResId(), scriptResolver.isEnabled());
-        }
+        setStatusImage(scriptResolver);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();

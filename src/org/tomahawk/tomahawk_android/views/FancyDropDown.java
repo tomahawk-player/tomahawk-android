@@ -24,7 +24,6 @@ import com.nineoldandroids.animation.ValueAnimator;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Resolver;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -68,16 +67,12 @@ public class FancyDropDown extends FrameLayout {
 
         public String mText;
 
-        public int mIconResId = -1;
-
-        public String mIconResPath;
+        public Resolver mResolver;
 
         public boolean equals(DropDownItemInfo itemInfo) {
             return (mText != null && mText.equals(itemInfo.mText))
                     || (mText == null && itemInfo.mText == null)
-                    && mIconResId == itemInfo.mIconResId
-                    && (mIconResPath != null && mIconResPath.equals(itemInfo.mIconResPath))
-                    || (mIconResPath == null && itemInfo.mIconResPath == null);
+                    && mResolver == itemInfo.mResolver;
         }
     }
 
@@ -132,11 +127,8 @@ public class FancyDropDown extends FrameLayout {
                     final TextView textView = (TextView) item.findViewById(R.id.textview);
                     textView.setText(mItemInfos.get(i).mText.toUpperCase());
                     ImageView imageView = (ImageView) item.findViewById(R.id.imageview);
-                    if (mItemInfos.get(i).mIconResPath != null) {
-                        TomahawkUtils.loadDrawableIntoImageView(getContext(), imageView,
-                                mItemInfos.get(i).mIconResPath);
-                    } else if (mItemInfos.get(i).mIconResId > 0) {
-                        imageView.setImageResource(mItemInfos.get(i).mIconResId);
+                    if (mItemInfos.get(i).mResolver != null) {
+                        mItemInfos.get(i).mResolver.loadIcon(imageView, false);
                     }
 
                     final int position = i;
@@ -196,13 +188,8 @@ public class FancyDropDown extends FrameLayout {
         mSelection = newSelection;
         ImageView imageView = (ImageView) findViewById(R.id.imageview_selected);
         if (mItemInfos != null) {
-            if (mItemInfos.get(mSelection).mIconResPath != null) {
-                TomahawkUtils.loadDrawableIntoImageView(getContext(), imageView,
-                        mItemInfos.get(mSelection).mIconResPath);
-                imageView.setVisibility(VISIBLE);
-            } else if (mItemInfos.get(mSelection).mIconResId > 0) {
-                imageView.setImageResource(mItemInfos.get(mSelection).mIconResId);
-                imageView.setVisibility(VISIBLE);
+            if (mItemInfos.get(mSelection).mResolver != null) {
+                mItemInfos.get(mSelection).mResolver.loadIcon(imageView, false);
             } else {
                 imageView.setVisibility(GONE);
             }
@@ -307,11 +294,12 @@ public class FancyDropDown extends FrameLayout {
                 dropDownItemInfo.mText = TomahawkApp.getContext().getString(R.string.all);
             } else if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(collection.getId())) {
                 dropDownItemInfo.mText = TomahawkApp.getContext().getString(R.string.local);
-                dropDownItemInfo.mIconResId = R.drawable.ic_action_sd_storage_light;
+                dropDownItemInfo.mResolver = PipeLine.getInstance()
+                        .getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION);
             } else {
                 Resolver resolver = PipeLine.getInstance().getResolver(collection.getId());
                 dropDownItemInfo.mText = resolver.getId();
-                dropDownItemInfo.mIconResPath = resolver.getIconPath();
+                dropDownItemInfo.mResolver = resolver;
             }
             dropDownItemInfos.add(dropDownItemInfo);
         }

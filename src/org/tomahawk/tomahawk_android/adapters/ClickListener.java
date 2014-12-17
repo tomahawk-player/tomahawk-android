@@ -18,17 +18,16 @@
 package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.view.View;
 
 public class ClickListener implements View.OnClickListener, View.OnLongClickListener {
 
-    private TomahawkListItem mItem;
+    private Object mItem;
 
     private MultiColumnClickListener mListener;
 
-    public ClickListener(TomahawkListItem item, MultiColumnClickListener listener) {
+    public ClickListener(Object item, MultiColumnClickListener listener) {
         mItem = item;
         mListener = listener;
     }

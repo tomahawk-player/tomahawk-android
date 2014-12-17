@@ -157,4 +157,8 @@
   <string name="button_close">Close</string>
   <string name="view_album">View Album</string>
   <string name="authenticator_label" translate="false">Hatchet</string>
+  <string name="connect">Connect</string>
+  <string name="connect_headertext">Select the services you want to use. Tomahawk works better when more services are activated.</string>
+  <string name="advanced">Advanced</string>
+  <string name="info">Info</string>
 </resources>

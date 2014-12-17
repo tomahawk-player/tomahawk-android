@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.res.Resources;
 import android.widget.AdapterView;
@@ -42,29 +41,29 @@ public class Segment {
 
     private List<String> mHeaderStrings = new ArrayList<String>();
 
-    private List<TomahawkListItem> mListItems = new ArrayList<TomahawkListItem>();
+    private List<Object> mListItems = new ArrayList<Object>();
 
-    private List<List<TomahawkListItem>> mGridItems = new ArrayList<List<TomahawkListItem>>();
+    private List<List<Object>> mGridItems = new ArrayList<List<Object>>();
 
     private int mSegmentSize = 0;
 
-    public Segment(List<TomahawkListItem> listItems) {
+    public Segment(List<Object> listItems) {
         mListItems = listItems;
         mSegmentSize = mListItems.size();
     }
 
-    public Segment(int headerStringResId, List<TomahawkListItem> listItems) {
+    public Segment(int headerStringResId, List<Object> listItems) {
         this(TomahawkApp.getContext().getString(headerStringResId), listItems);
     }
 
-    public Segment(String headerString, List<TomahawkListItem> listItems) {
+    public Segment(String headerString, List<Object> listItems) {
         this(listItems);
         mHeaderStrings.add(headerString);
     }
 
     public Segment(int initialPos, List<Integer> headerStringResIds,
             AdapterView.OnItemSelectedListener spinnerClickListener,
-            List<TomahawkListItem> listItems) {
+            List<Object> listItems) {
         this(listItems);
         mInitialPos = initialPos;
         for (Integer resId : headerStringResIds) {
@@ -74,7 +73,7 @@ public class Segment {
         mSpinnerSegment = true;
     }
 
-    public Segment(List<TomahawkListItem> listItems, int columnCountResId,
+    public Segment(List<Object> listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId) {
         mShowAsGrid = true;
         Resources resources = TomahawkApp.getContext().getResources();
@@ -82,7 +81,7 @@ public class Segment {
         mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
         int columnCount = resources.getInteger(columnCountResId);
         for (int i = 0; i < listItems.size(); i += columnCount) {
-            List<TomahawkListItem> row = new ArrayList<TomahawkListItem>();
+            List<Object> row = new ArrayList<Object>();
             for (int j = 0; j < columnCount; j++) {
                 if (i + j < listItems.size()) {
                     row.add(listItems.get(i + j));
@@ -95,13 +94,13 @@ public class Segment {
         mSegmentSize += listItems.size();
     }
 
-    public Segment(int headerStringResId, List<TomahawkListItem> listItems, int columnCountResId,
+    public Segment(int headerStringResId, List<Object> listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId) {
         this(TomahawkApp.getContext().getString(headerStringResId), listItems, columnCountResId,
                 horizontalPaddingResId, verticalPaddingResId);
     }
 
-    public Segment(String headerString, List<TomahawkListItem> listItems, int columnCountResId,
+    public Segment(String headerString, List<Object> listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId) {
         this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
         mHeaderStrings.add(headerString);
@@ -109,7 +108,7 @@ public class Segment {
 
     public Segment(int initialPos, List<Integer> headerStringResIds,
             AdapterView.OnItemSelectedListener spinnerClickListener,
-            List<TomahawkListItem> listItems, int columnCountResId, int horizontalPaddingResId,
+            List<Object> listItems, int columnCountResId, int horizontalPaddingResId,
             int verticalPaddingResId) {
         this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
         mInitialPos = initialPos;
@@ -155,7 +154,7 @@ public class Segment {
         return mShowAsGrid ? mGridItems.get(location) : mListItems.get(location);
     }
 
-    public TomahawkListItem getFirstSegmentItem() {
+    public Object getFirstSegmentItem() {
         return mShowAsGrid ? mGridItems.get(0).get(0) : mListItems.get(0);
     }
 

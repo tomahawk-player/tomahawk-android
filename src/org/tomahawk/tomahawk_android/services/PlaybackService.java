@@ -38,7 +38,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
+import org.tomahawk.tomahawk_android.fragments.PreferenceAdvancedFragment;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
@@ -394,9 +394,8 @@ public class PlaybackService extends Service
                 Log.d(TAG, "Headset has been plugged in");
                 SharedPreferences prefs =
                         PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                boolean playbackOnHeadsetInsert = prefs
-                        .getBoolean(FakePreferenceFragment.FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY,
-                                false);
+                boolean playbackOnHeadsetInsert = prefs.getBoolean(
+                        PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY, false);
 
                 if (!isPlaying() && playbackOnHeadsetInsert) {
                     //resume playback, if user has set the "resume on headset plugin" preference

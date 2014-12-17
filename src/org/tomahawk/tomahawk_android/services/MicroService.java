@@ -32,7 +32,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
+import org.tomahawk.tomahawk_android.fragments.PreferenceAdvancedFragment;
 
 import android.app.Service;
 import android.content.Intent;
@@ -181,7 +181,7 @@ public class MicroService extends Service {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
                 TomahawkApp.getContext());
         boolean scrobbleEverything = preferences.getBoolean(
-                FakePreferenceFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, false);
+                PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, false);
         if (scrobbleEverything && !TextUtils.isEmpty(trackName) && (!TextUtils.isEmpty(artistName)
                 || !TextUtils.isEmpty(albumArtistName))) {
             Artist artist;

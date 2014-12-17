@@ -183,15 +183,7 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                 } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
                     viewHolder.mImageView1.setVisibility(View.VISIBLE);
                     Resolver resolver = PipeLine.getInstance().getResolver(item.getKey());
-                    if (resolver.getIconPath() != null) {
-                        TomahawkUtils.loadDrawableIntoImageView(mContext,
-                                viewHolder.mImageView1, resolver.getIconPath(),
-                                !resolver.isEnabled());
-                    } else {
-                        TomahawkUtils.loadDrawableIntoImageView(mContext,
-                                viewHolder.mImageView1, resolver.getIconResId(),
-                                !resolver.isEnabled());
-                    }
+                    resolver.loadIcon(viewHolder.mImageView1, !resolver.isEnabled());
                 }
             } else if (viewHolder.mLayoutId == R.layout.fake_preferences_spinner) {
                 ArrayList<CharSequence> list = new ArrayList<CharSequence>();
@@ -228,30 +220,7 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
      */
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
-        View view;
-        ViewHolder viewHolder;
-        if (convertView != null) {
-            viewHolder = (ViewHolder) convertView.getTag();
-            view = convertView;
-        } else {
-            view = mLayoutInflater.inflate(R.layout.fake_preferences_header, parent, false);
-            viewHolder = new ViewHolder(view, R.layout.fake_preferences_header);
-            view.setTag(viewHolder);
-        }
-
-        // After we've setup the correct view and viewHolder, we now can set the text for
-        // the previously inflated header view
-        int sizeSum = 0;
-        for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
-            sizeSum += fakePreferenceGroup.getFakePreferences().size();
-            if (position < sizeSum) {
-                viewHolder.mTextView1.setText(fakePreferenceGroup.getHeader().toUpperCase());
-                break;
-            }
-        }
-
-        // Finally we can return the the correct view
-        return view;
+        return new View(TomahawkApp.getContext());
     }
 
     /**
@@ -263,17 +232,7 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
      */
     @Override
     public long getHeaderId(int position) {
-        long result = 0;
-        int sizeSum = 0;
-        for (FakePreferenceGroup fakePreferenceGroup : mFakePreferenceGroups) {
-            sizeSum += fakePreferenceGroup.getFakePreferences().size();
-            if (position < sizeSum) {
-                break;
-            } else {
-                result++;
-            }
-        }
-        return result;
+        return 0;
     }
 
     private int getViewType(FakePreferenceGroup.FakePreference item) {

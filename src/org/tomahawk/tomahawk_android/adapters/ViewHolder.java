@@ -29,10 +29,12 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 
 import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
@@ -53,6 +55,8 @@ public class ViewHolder {
     ImageView mUserImageView1;
 
     TextView mUserTextView1;
+
+    SquareWidthRelativeLayout mImageViewBackground;
 
     ImageView mImageView1;
 
@@ -191,6 +195,13 @@ public class ViewHolder {
                     .findViewById(R.id.textview2);
             mTextView3 = (TextView) rootView
                     .findViewById(R.id.textview3);
+        } else if (layoutId == R.layout.grid_item_resolver) {
+            mImageView1 = (ImageView) rootView
+                    .findViewById(R.id.imageview1);
+            mImageView2 = (ImageView) rootView
+                    .findViewById(R.id.imageview2);
+            mTextView1 = (TextView) rootView
+                    .findViewById(R.id.textview1);
         }
         if (mMainClickArea == null) {
             mMainClickArea = rootView;
@@ -330,6 +341,10 @@ public class ViewHolder {
         TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), mImageView1, integer);
     }
 
+    public void fillContentHeader(ColorDrawable drawable) {
+        mImageView1.setImageDrawable(drawable);
+    }
+
     public void fillView(final TomahawkMainActivity activity, Query query,
             String numerationString, boolean showAsPlaying, boolean showDuration,
             boolean hideArtistName) {
@@ -344,13 +359,7 @@ public class ViewHolder {
             if (showAsPlaying) {
                 mImageView1.setVisibility(View.VISIBLE);
                 Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
-                if (resolver.getIconPath() != null) {
-                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                            mImageView1, resolver.getIconPath(), false);
-                } else {
-                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                            mImageView1, resolver.getIconResId(), false);
-                }
+                resolver.loadIcon(mImageView1, false);
             } else {
                 mTextView1.setVisibility(View.VISIBLE);
                 mTextView1.setText(numerationString);
@@ -401,6 +410,12 @@ public class ViewHolder {
             mTextView3.setVisibility(View.VISIBLE);
             mTextView3.setText(songCount + " " + songs);
         }
+    }
+
+    public void fillView(Resolver resolver) {
+        mTextView1.setText(resolver.getPrettyName());
+        resolver.loadIconBackground(mImageView1, !resolver.isEnabled());
+        resolver.loadIconWhite(mImageView2);
     }
 
     private static String dateToString(Resources resources, Date date) {
