@@ -50,27 +50,23 @@ var HatchetMetadataResolver = Tomahawk.extend(TomahawkResolver, {
     },
 
     lookupUrl: function (url) {
-        Tomahawk.log("lookupUrl: "+url);
         var urlParts = url.split('/').filter(function (item) {
             return item.length != 0;
         }).map(decodeURIComponent);
-        if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/[^\/\n]+$/.test(url)) {
-            Tomahawk.log("Found an album");
+        if (/https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/[^\/\n]+/.test(url)) {
             // We have to deal with an Album
             Tomahawk.addUrlResult(url, {
                 type: 'album',
                 artist: urlParts[urlParts.length - 2],
                 name: urlParts[urlParts.length - 1]
             });
-        } else if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n][^\/\n_]+$/.test(url)) {
-            Tomahawk.log("Found an artist");
+        } else if (/https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+/.test(url)) {
             // We have to deal with an Artist
             Tomahawk.addUrlResult(url, {
                 type: 'artist',
                 name: urlParts[urlParts.length - 1]
             });
-        } else if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/_\/[^\/\n]+$/.test(url)) {
-            Tomahawk.log("Found a track");
+        } else if (/https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/_\/[^\/\n]+/.test(url)) {
             // We have to deal with a Track
             Tomahawk.addUrlResult(url, {
                 type: "track",

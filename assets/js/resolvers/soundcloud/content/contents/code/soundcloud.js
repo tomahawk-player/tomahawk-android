@@ -65,25 +65,33 @@ var SoundcloudResolver = Tomahawk.extend(TomahawkResolver, {
 		}
 	},
 
-	init: function() {
+    /**
+     * Initial the soundcloud resolver.
+     *
+     * @param callback function(err) Callback that notifies when the resolver was initialised.
+     */
+	init: function (callback) {
 		// Set userConfig here
 		var userConfig = this.getUserConfig();
-		if ( userConfig !== undefined ){
-			this.includeCovers = userConfig.includeCovers;
-			this.includeRemixes = userConfig.includeRemixes;
-			this.includeLive = userConfig.includeLive;
-		}
-		else {
-			this.includeCovers = false;
-			this.includeRemixes = false;
-			this.includeLive = false;
-		}
+        if ( userConfig !== undefined ) {
+            this.includeCovers = userConfig.includeCovers;
+            this.includeRemixes = userConfig.includeRemixes;
+            this.includeLive = userConfig.includeLive;
+        } else {
+            this.includeCovers = false;
+            this.includeRemixes = false;
+            this.includeLive = false;
+        }
 
 
 		String.prototype.capitalize = function(){
 			return this.replace( /(^|\s)([a-z])/g , function(m,p1,p2){ return p1+p2.toUpperCase(); } );
 		};
         Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
+
+        if (callback) {
+            callback(null);
+        }
 	},
 
 	getTrack: function (trackTitle, origTitle) {
@@ -103,6 +111,7 @@ var SoundcloudResolver = Tomahawk.extend(TomahawkResolver, {
 
 	resolve: function (qid, artist, album, title)
 	{
+		var query;
 		if (artist !== "") {
 			query = encodeURIComponent(artist) + "+";
 		}
@@ -122,7 +131,7 @@ var SoundcloudResolver = Tomahawk.extend(TomahawkResolver, {
                 for (i = 0; i < resp.length; i++) {
                     // Need some more validation here
                     // This doesnt help it seems, or it just throws the error anyhow, and skips?
-                    if (typeof(resp[i]) == 'undefined' || resp[i] == null) {
+                    if (typeof(resp[i]) == 'undefined' || resp[i] === null) {
                         continue;
                     }
 
@@ -131,11 +140,15 @@ var SoundcloudResolver = Tomahawk.extend(TomahawkResolver, {
 						continue;
 					}
 
-                    if (typeof(resp[i].title) != 'undefined' && resp[i].title != null) {
+                    if (typeof(resp[i].title) != 'undefined' && resp[i].title !== null) {
                         // Check whether the artist and title (if set) are in the returned title, discard otherwise
                         // But also, the artist could be the username
-                        if (resp[i].title.toLowerCase().indexOf(artist.toLowerCase()) === -1) continue;
-                        if (resp[i].title.toLowerCase().indexOf(title.toLowerCase()) === -1) continue;
+                        if (resp[i].title.toLowerCase().indexOf(artist.toLowerCase()) === -1){
+				continue;
+			}
+                        if (resp[i].title.toLowerCase().indexOf(title.toLowerCase()) === -1){
+				continue;
+			}
 
                         var result = {
                             artist: artist,
@@ -153,16 +166,20 @@ var SoundcloudResolver = Tomahawk.extend(TomahawkResolver, {
                         result.duration = resp[i].duration / 1000;
                         result.year = resp[i].release_year;
                         result.url = resp[i].stream_url + ".json?client_id=TiNg2DRYhBnp01DA3zNag";
-                        if (typeof(resp[i].permalink_url) != 'undefined' && resp[i].permalink_url != null) {
+                        if (typeof(resp[i].permalink_url) != 'undefined' && resp[i].permalink_url !== null) {
                             result.linkUrl = resp[i].permalink_url;
                         }
                         results.push(result);
                     }
 				}
-				Tomahawk.addTrackResults({
-                    qid: qid,
-                    results: [results[0]]
-                });
+                if (results.length > 0) {
+                    Tomahawk.addTrackResults({
+                        qid: qid,
+                        results: [results[0]]
+                    });
+                } else {
+                    Tomahawk.addTrackResults(empty);
+                }
 			} else {
 				Tomahawk.addTrackResults(empty);
 			}
@@ -187,7 +204,7 @@ var SoundcloudResolver = Tomahawk.extend(TomahawkResolver, {
 						stop = stop - 1;
 						continue;
 					}
-					var result = new Object();
+					var result = {};
 
 					if (that.getTrack(resp[i].title, "")){
 						var track = resp[i].title;
@@ -237,7 +254,9 @@ var SoundcloudResolver = Tomahawk.extend(TomahawkResolver, {
 					result.score = 0.85;
 					result.year = resp[i].release_year;
 					result.url = resp[i].stream_url + ".json?client_id=TiNg2DRYhBnp01DA3zNag";
-					if (resp[i].permalink_url !== undefined) result.linkUrl = resp[i].permalink_url;
+					if (resp[i].permalink_url !== undefined){
+						result.linkUrl = resp[i].permalink_url;
+					}
 
 					(function (i, result) {
 						var artist = encodeURIComponent(result.artist.capitalize());
@@ -292,7 +311,7 @@ var SoundcloudResolver = Tomahawk.extend(TomahawkResolver, {
         // case TomahawkUrlType.Track:
         // case TomahawkUrlType.Any:
         default:
-            return /https?:\/\/(www\.)?soundcloud.com\//.test(url);
+            return (/https?:\/\/(www\.)?soundcloud.com\//).test(url);
         }
     },
 
@@ -303,69 +322,69 @@ var SoundcloudResolver = Tomahawk.extend(TomahawkResolver, {
             artist: track.user.username
         };
 
-        if (!(track.stream_url == null || typeof track.stream_url === "undefined")) {
+        if (!(track.stream_url === null || typeof track.stream_url === "undefined")) {
             result.hint = track.stream_url + "?client_id=" + this.clientId;
         }
         return result;
     },
 
-    lookupUrl: function (url) {
+	lookupUrl: function (url) {
 		var query = "https://api.soundcloud.com/resolve.json?client_id=" + this.clientId + "&url=" + encodeURIComponent(url.replace(/\/likes$/, ''));
 		var that = this;
 		Tomahawk.asyncRequest(query, function (xhr) {
 			var res = JSON.parse(xhr.responseText);
-            if (res.kind == "playlist") {
-                var result = {
-                    type: "playlist",
-                    title: res.title,
-                    guid: 'soundcloud-playlist-' + res.id.toString(),
-                    info: res.description,
-                    creator: res.user.username,
-                    url: res.permalink_url,
-                    tracks: []
-                };
-                res.tracks.forEach(function (item) {
-                    result.tracks.push(that.track2Result(item));
-                });
-                Tomahawk.addUrlResult(url, result);
-            } else if (res.kind == "track") {
-                Tomahawk.addUrlResult(url, that.track2Result(res));
-            } else if (res.kind == "user") {
-                var url2 = res.uri;
-                var prefix = 'soundcloud-';
-                var title = res.full_name + "'s ";
-                if (url.indexOf("/likes") === -1) {
-                    url2 += "/tracks.json?client_id=" + that.clientId;
-                    prefix += 'user-';
-                    title += "Tracks";
-                } else {
-                    url2 += "/favorites.json?client_id=" + that.clientId;
-                    prefix += 'favortites-';
-                    title += "Favorites";
-                }
-                Tomahawk.asyncRequest(url2, function (xhr2) {
-                    var res2 = JSON.parse(xhr2.responseText);
-                    var result = {
-                        type: "playlist",
-                        title: title,
-                        guid: prefix + res.id.toString(),
-                        info: title,
-                        creator: res.username,
-                        url: res2.permalink_url,
-                        tracks: []
-                    };
-                    res2.forEach(function (item) {
-                        result.tracks.push(that.track2Result(item));
-                    });
-                    Tomahawk.addUrlResult(url, result);
-                });
-                return;
-            } else {
-                Tomahawk.log("Could not parse SoundCloud URL: " + url);
-                Tomahawk.addUrlResult(url, {})
-            }
-        });
-    }
+			if (res.kind == "playlist") {
+				var result = {
+					type: "playlist",
+					title: res.title,
+					guid: 'soundcloud-playlist-' + res.id.toString(),
+					info: res.description,
+					creator: res.user.username,
+					url: res.permalink_url,
+					tracks: []
+				};
+				res.tracks.forEach(function (item) {
+					result.tracks.push(that.track2Result(item));
+				});
+				Tomahawk.addUrlResult(url, result);
+			} else if (res.kind == "track") {
+				Tomahawk.addUrlResult(url, that.track2Result(res));
+			} else if (res.kind == "user") {
+				var url2 = res.uri;
+				var prefix = 'soundcloud-';
+				var title = res.full_name + "'s ";
+				if (url.indexOf("/likes") === -1) {
+					url2 += "/tracks.json?client_id=" + that.clientId;
+					prefix += 'user-';
+					title += "Tracks";
+				} else {
+					url2 += "/favorites.json?client_id=" + that.clientId;
+					prefix += 'favortites-';
+					title += "Favorites";
+				}
+				Tomahawk.asyncRequest(url2, function (xhr2) {
+					var res2 = JSON.parse(xhr2.responseText);
+					var result = {
+						type: "playlist",
+						title: title,
+						guid: prefix + res.id.toString(),
+						info: title,
+						creator: res.username,
+						url: res2.permalink_url,
+						tracks: []
+					};
+					res2.forEach(function (item) {
+						result.tracks.push(that.track2Result(item));
+					});
+					Tomahawk.addUrlResult(url, result);
+				});
+				return;
+			} else {
+				Tomahawk.log("Could not parse SoundCloud URL: " + url);
+				Tomahawk.addUrlResult(url, {});
+			}
+		});
+	}
 });
 
 Tomahawk.resolver.instance = SoundcloudResolver;

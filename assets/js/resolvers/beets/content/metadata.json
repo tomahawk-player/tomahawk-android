@@ -5,12 +5,14 @@
     "email": "uwelk@xhochy.com",
     "version": "0.5.5",
     "website": "http://gettomahawk.com",
-    "description": "Connects to a beets server and resolves tracks",
+    "description": "Connects to a beets server and resolves tracks.",
     "type": "resolver/javascript",
     "manifest": {
         "main": "contents/code/beets.js",
         "scripts": [],
         "icon": "contents/images/icon.png",
+        "iconWhite": "contents/images/iconWhite.png",
+        "iconBackground": "contents/images/iconBackground.png",
         "resources": [
             "contents/code/config.ui",
             "contents/code/beets-icon.png"

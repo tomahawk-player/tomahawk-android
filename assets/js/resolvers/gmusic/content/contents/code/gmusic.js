@@ -71,7 +71,8 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
     invalidateCache: function() {
         Tomahawk.log("Invalidating cache");
         delete this.cachedRequest;
-        Tomahawk.removeItem(this.storageKey);
+        if (Tomahawk.localStorage)
+            Tomahawk.localStorage.removeItem(this.storageKey);
         Tomahawk.deleteFuzzyIndex();
     },
 
@@ -176,7 +177,9 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
     _getData: function (callback) {
         var that = this;
         if (!that.cachedRequest) {
-            var persistedRequest = Tomahawk.getItem(that.storageKey);
+            var persistedRequest;
+            if (Tomahawk.localStorage)
+                persistedRequest = Tomahawk.localStorage.getItem(that.storageKey);
             if (persistedRequest) {
                 that.cachedRequest = JSON.parse(persistedRequest);
                 that._ensureFuzzyIndex();
@@ -207,7 +210,8 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                             response: results,
                             time: Date.now()
                         };
-                        Tomahawk.setItem(that.storageKey, JSON.stringify(that.cachedRequest));
+                        if (Tomahawk.localStorage)
+                            Tomahawk.localStorage.setItem(that.storageKey, JSON.stringify(that.cachedRequest));
                         that._createFuzzyIndex(that.cachedRequest.response);
                         Tomahawk.log("Updated cache in " + (Date.now() - time) + "ms");
                     } else {

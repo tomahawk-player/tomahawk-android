@@ -5,12 +5,14 @@
     "email": "teo@kde.org",
     "version": "0.3.2",
     "website": "http://gettomahawk.com",
-    "description": "Connects to an Ampache or ownCloud server and resolves tracks",
+    "description": "Connects to an Ampache or ownCloud server and resolves tracks.",
     "type": "resolver/javascript",
     "manifest": {
         "main": "contents/code/ampache.js",
         "scripts": [],
         "icon": "contents/images/icon.png",
+        "iconWhite": "contents/images/iconWhite.png",
+        "iconBackground": "contents/images/iconBackground.png",
         "resources": [
             "contents/code/config.ui",
             "contents/code/ampache-icon.png",
