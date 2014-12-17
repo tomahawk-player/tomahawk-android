@@ -30,7 +30,6 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.view.LayoutInflater;
@@ -39,6 +38,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.TreeMap;
 
 /**
@@ -73,10 +73,10 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
      * Called every time an item inside a ListView or GridView is clicked
      *
      * @param view the clicked view
-     * @param item the TomahawkListItem which corresponds to the click
+     * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, TomahawkListItem item) {
+    public void onItemClick(View view, Object item) {
         if (item instanceof PlaylistEntry) {
             PlaylistEntry entry = (PlaylistEntry) item;
             if (entry.getQuery().isPlayable()) {
@@ -116,7 +116,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
 
         mResolveQueriesHandler.removeCallbacksAndMessages(null);
         mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
-        ArrayList<TomahawkListItem> playlistEntries = new ArrayList<TomahawkListItem>();
+        List playlistEntries = new ArrayList();
         TomahawkListAdapter tomahawkListAdapter;
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
@@ -149,7 +149,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
 
         mShownQueries.clear();
         mShownPlaylistEntries.clear();
-        for (TomahawkListItem playlistEntry : playlistEntries) {
+        for (Object playlistEntry : playlistEntries) {
             mShownQueries.add(((PlaylistEntry) playlistEntry).getQuery());
             mShownPlaylistEntries.add((PlaylistEntry) playlistEntry);
         }

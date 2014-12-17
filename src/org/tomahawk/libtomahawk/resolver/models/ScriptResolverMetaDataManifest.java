@@ -27,6 +27,10 @@ public class ScriptResolverMetaDataManifest {
 
     public String icon;
 
+    public String iconWhite;
+
+    public String iconBackground;
+
     public List<String> resources;
 
     public ScriptResolverMetaDataManifest() {

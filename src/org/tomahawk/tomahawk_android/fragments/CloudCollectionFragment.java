@@ -24,7 +24,6 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.os.Bundle;
 import android.view.View;
@@ -56,10 +55,10 @@ public class CloudCollectionFragment extends TomahawkFragment {
      * @param item the TomahawkListItem which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, TomahawkListItem item) {
+    public void onItemClick(View view, Object item) {
         if (item instanceof Artist) {
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, item.getCacheKey());
+            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, ((Artist) item).getCacheKey());
             bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
             bundle.putInt(ContentHeaderFragment.MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
@@ -81,7 +80,7 @@ public class CloudCollectionFragment extends TomahawkFragment {
         }
 
         if (mCollection != null) {
-            List<TomahawkListItem> artists = new ArrayList<TomahawkListItem>();
+            List artists = new ArrayList<Object>();
             artists.addAll(mCollection.getArtists());
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter =

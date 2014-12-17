@@ -134,11 +134,11 @@ public class FragmentUtils {
      *
      * @param activity    TomahawkMainActivity needed as a context object and to make sure the
      *                    SlidingLayoutPanel is collapsed
-     * @param item        The TomahawkListItem for which to show the context menu
+     * @param item        The Object for which to show the context menu
      * @param contextItem The TomahawkListItem which indicates the context of the given item. E.g. a
      *                    Track (item) in an Album (contextItem)
      */
-    public static boolean showContextMenu(TomahawkMainActivity activity, TomahawkListItem item,
+    public static boolean showContextMenu(TomahawkMainActivity activity, Object item,
             TomahawkListItem contextItem) {
         activity.collapsePanel();
         return showContextMenu(activity, item, contextItem, R.id.content_viewer_frame);
@@ -154,7 +154,7 @@ public class FragmentUtils {
      *                    Track (item) in an Album (contextItem)
      * @param frameResId  the resource id of the ViewGroup in which the Fragment will be replaced
      */
-    public static boolean showContextMenu(TomahawkMainActivity activity, TomahawkListItem item,
+    public static boolean showContextMenu(TomahawkMainActivity activity, Object item,
             TomahawkListItem contextItem, int frameResId) {
         if (item == null
                 || (item instanceof SocialAction
@@ -175,15 +175,18 @@ public class FragmentUtils {
             args.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, contextItem.getCacheKey());
         }
         if (item instanceof Query) {
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY, item.getCacheKey());
+            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
+                    ((Query) item).getCacheKey());
             args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
                     TomahawkFragment.TOMAHAWK_QUERY_KEY);
         } else if (item instanceof Album) {
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY, item.getCacheKey());
+            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
+                    ((Album) item).getCacheKey());
             args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
                     TomahawkFragment.TOMAHAWK_ALBUM_KEY);
         } else if (item instanceof Artist) {
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY, item.getCacheKey());
+            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
+                    ((Artist) item).getCacheKey());
             args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
                     TomahawkFragment.TOMAHAWK_ARTIST_KEY);
         } else if (item instanceof SocialAction) {
@@ -192,7 +195,8 @@ public class FragmentUtils {
             args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
                     TomahawkFragment.TOMAHAWK_SOCIALACTION_ID);
         } else if (item instanceof PlaylistEntry) {
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY, item.getCacheKey());
+            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
+                    ((PlaylistEntry) item).getCacheKey());
             args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
                     TomahawkFragment.TOMAHAWK_PLAYLISTENTRY_ID);
         }

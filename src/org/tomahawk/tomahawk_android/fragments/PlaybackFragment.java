@@ -287,10 +287,10 @@ public class PlaybackFragment extends TomahawkFragment {
      * Called every time an item inside a ListView or GridView is clicked
      *
      * @param view the clicked view
-     * @param item the TomahawkListItem which corresponds to the click
+     * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, TomahawkListItem item) {
+    public void onItemClick(View view, Object item) {
         PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
         if (playbackService != null) {
@@ -311,10 +311,10 @@ public class PlaybackFragment extends TomahawkFragment {
     /**
      * Called every time an item inside a ListView or GridView is long-clicked
      *
-     * @param item the TomahawkListItem which corresponds to the long-click
+     * @param item the Object which corresponds to the long-click
      */
     @Override
-    public boolean onItemLongClick(View view, TomahawkListItem item) {
+    public boolean onItemLongClick(View view, Object item) {
         TomahawkListItem contextItem = null;
         if (mAlbum != null) {
             contextItem = mAlbum;
@@ -374,7 +374,7 @@ public class PlaybackFragment extends TomahawkFragment {
         }
         if (getListAdapter() != null) {
             if (playbackService != null) {
-                ArrayList<TomahawkListItem> tracks = new ArrayList<TomahawkListItem>();
+                ArrayList tracks = new ArrayList();
                 tracks.addAll(playbackService.getQueue().getQueries());
                 getListAdapter().setSegments(new Segment(tracks), getListView());
                 getListAdapter().notifyDataSetChanged();
@@ -415,7 +415,7 @@ public class PlaybackFragment extends TomahawkFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         PlaybackService playbackService = activity.getPlaybackService();
         if (playbackService != null) {
-            List<TomahawkListItem> entries = new ArrayList<TomahawkListItem>();
+            List entries = new ArrayList();
             entries.addAll(playbackService.getQueue().getEntries());
             Segment segment = new Segment(entries);
             if (getListAdapter() == null) {

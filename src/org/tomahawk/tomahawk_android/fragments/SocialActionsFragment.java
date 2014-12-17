@@ -110,10 +110,10 @@ public class SocialActionsFragment extends TomahawkFragment implements
      * Called every time an item inside a ListView or GridView is clicked
      *
      * @param view the clicked view
-     * @param item the TomahawkListItem which corresponds to the click
+     * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, TomahawkListItem item) {
+    public void onItemClick(View view, Object item) {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
 
         Bundle bundle = new Bundle();
@@ -141,13 +141,13 @@ public class SocialActionsFragment extends TomahawkFragment implements
                 }
             }
         } else if (item instanceof Album) {
-            bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, item.getCacheKey());
+            bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, ((Album) item).getCacheKey());
             bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
             bundle.putInt(ContentHeaderFragment.MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
             FragmentUtils.replace(activity, TracksFragment.class, bundle);
         } else if (item instanceof Artist) {
-            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, item.getCacheKey());
+            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, ((Artist) item).getCacheKey());
             bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
             bundle.putInt(ContentHeaderFragment.MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
@@ -259,7 +259,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
 
             TomahawkListAdapter tomahawkListAdapter;
             List<Segment> segments = new ArrayList<Segment>();
-            for (List<TomahawkListItem> mergedActions : mergedActionsList) {
+            for (List mergedActions : mergedActionsList) {
                 SocialAction first = (SocialAction) mergedActions.get(0);
                 if (first.getTargetObject() instanceof Album
                         || first.getTargetObject() instanceof User

@@ -40,6 +40,7 @@ import org.tomahawk.libtomahawk.resolver.models.ScriptResolverResultEntry;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverSettings;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.libtomahawk.utils.StringEscapeUtils;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -57,6 +58,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.io.IOException;
@@ -94,8 +96,6 @@ public class ScriptResolver extends Resolver {
     private ScriptResolverMetaData mMetaData;
 
     private ScriptResolverCollectionMetaData mCollectionMetaData;
-
-    private String mIconPath;
 
     private int mWeight;
 
@@ -164,7 +164,6 @@ public class ScriptResolver extends Resolver {
         mReady = false;
         mStopped = true;
         mId = mMetaData.pluginName;
-        mIconPath = "file:///android_asset/" + path + "/" + mMetaData.manifest.icon;
         if (getConfig().get(ENABLED_KEY) != null) {
             mEnabled = (Boolean) getConfig().get(ENABLED_KEY);
         } else {
@@ -212,13 +211,22 @@ public class ScriptResolver extends Resolver {
     }
 
     @Override
-    public String getIconPath() {
-        return mIconPath;
+    public void loadIcon(ImageView imageView, boolean grayOut) {
+        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                "file:///android_asset/" + mPath + "/" + mMetaData.manifest.icon, grayOut);
     }
 
     @Override
-    public int getIconResId() {
-        return 0;
+    public void loadIconWhite(ImageView imageView) {
+        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                "file:///android_asset/" + mPath + "/" + mMetaData.manifest.iconWhite);
+    }
+
+    @Override
+    public void loadIconBackground(ImageView imageView, boolean grayOut) {
+        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                "file:///android_asset/" + mPath + "/" + mMetaData.manifest.iconBackground,
+                grayOut);
     }
 
     /**

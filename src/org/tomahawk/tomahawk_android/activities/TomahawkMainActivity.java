@@ -51,10 +51,11 @@ import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.CloudCollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
-import org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
+import org.tomahawk.tomahawk_android.fragments.PreferenceAdvancedFragment;
+import org.tomahawk.tomahawk_android.fragments.PreferencePagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
@@ -390,9 +391,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                 FragmentUtils.replace(TomahawkMainActivity.this, PlaylistsFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_SETTINGS)) {
                 bundle.putInt(ContentHeaderFragment.MODE,
-                        ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
-                FragmentUtils
-                        .replace(TomahawkMainActivity.this, FakePreferenceFragment.class, bundle);
+                        ContentHeaderFragment.MODE_HEADER_STATIC_SMALL);
+                FragmentUtils.replace(TomahawkMainActivity.this, PreferencePagerFragment.class,
+                        bundle);
             }
             if (mDrawerLayout != null) {
                 mDrawerLayout.closeDrawer(mDrawerList);
@@ -457,9 +458,9 @@ public class TomahawkMainActivity extends ActionBarActivity
         // Set default preferences
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (!preferences.contains(
-                FakePreferenceFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING)) {
+                PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING)) {
             preferences.edit().putBoolean(
-                    FakePreferenceFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, true)
+                    PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, true)
                     .commit();
         }
 
@@ -503,8 +504,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         if (intent.hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
             Bundle bundle = new Bundle();
             bundle.putInt(ContentHeaderFragment.MODE,
-                    ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
-            FragmentUtils.replace(this, FakePreferenceFragment.class, bundle);
+                    ContentHeaderFragment.MODE_HEADER_STATIC_SMALL);
+            FragmentUtils.replace(this, PreferencePagerFragment.class, bundle);
         }
 
         if (intent.getData() != null) {
@@ -882,7 +883,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                     holder = new TomahawkMenuAdapter.ResourceHolder();
                     holder.id = resolverCollection.getId();
                     holder.title = resolverCollection.getName();
-                    holder.iconPath = resolverCollection.getScriptResolver().getIconPath();
+                    holder.resolver = resolverCollection.getScriptResolver();
                     holder.isCloudCollection = true;
                     holders.add(holder);
                 }

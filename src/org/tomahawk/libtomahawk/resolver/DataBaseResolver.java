@@ -17,15 +17,17 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.json.JSONObject;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
 
+import android.graphics.drawable.ColorDrawable;
 import android.text.TextUtils;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,13 +41,7 @@ public class DataBaseResolver extends Resolver {
 
     private String mId;
 
-    private int mIconResId;
-
     private int mWeight;
-
-    private int mTimeout;
-
-    private JSONObject mConfig;
 
     private boolean mReady;
 
@@ -61,7 +57,6 @@ public class DataBaseResolver extends Resolver {
         mWeight = 100;
         mReady = false;
         mStopped = true;
-        mIconResId = R.drawable.ic_action_sd_storage;
         mReady = true;
         onResolverReady();
     }
@@ -83,18 +78,32 @@ public class DataBaseResolver extends Resolver {
     }
 
     @Override
-    public String getIconPath() {
-        return null;
+    public void loadIcon(ImageView imageView, boolean grayOut) {
+        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                R.drawable.ic_action_sd_storage, grayOut);
+    }
+
+    @Override
+    public void loadIconWhite(ImageView imageView) {
+        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                R.drawable.ic_action_sd_storage_light);
+    }
+
+    @Override
+    public void loadIconBackground(ImageView imageView, boolean grayOut) {
+        imageView.setImageDrawable(new ColorDrawable(
+                TomahawkApp.getContext().getResources()
+                        .getColor(R.color.local_collection_resolver_bg)));
+        if (grayOut) {
+            imageView.setColorFilter(GrayOutTransformation.getColorFilter());
+        } else {
+            imageView.clearColorFilter();
+        }
     }
 
     @Override
     public String getCollectionName() {
         return TomahawkApp.getContext().getString(R.string.local_collection_pretty_name);
-    }
-
-    @Override
-    public int getIconResId() {
-        return mIconResId;
     }
 
     /**
@@ -174,6 +183,8 @@ public class DataBaseResolver extends Resolver {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        UserCollection userCollection = (UserCollection) CollectionManager.getInstance()
+                .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        return userCollection.hasAudioItems();
     }
 }

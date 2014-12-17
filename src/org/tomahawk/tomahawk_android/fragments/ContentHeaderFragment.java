@@ -42,6 +42,7 @@ import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -72,6 +73,8 @@ public class ContentHeaderFragment extends Fragment {
     public static final int MODE_HEADER_STATIC_USER = 3;
 
     public static final int MODE_ACTIONBAR_FILLED = 4;
+
+    public static final int MODE_HEADER_STATIC_SMALL = 5;
 
     public static final String CONTAINER_FRAGMENT_ID
             = "org.tomahawk.tomahawk_android.container_fragment_id";
@@ -135,6 +138,11 @@ public class ContentHeaderFragment extends Fragment {
                     mHeaderNonscrollableHeight = res.getDimensionPixelSize(
                             R.dimen.header_clear_space_nonscrollable_static_user);
                     break;
+                case MODE_HEADER_STATIC_SMALL:
+                    mHeaderNonscrollableHeight = res.getDimensionPixelSize(
+                            R.dimen.abc_action_bar_default_height_material)
+                            + res.getDimensionPixelSize(R.dimen.pager_indicator_height);
+                    break;
                 case MODE_ACTIONBAR_FILLED:
                     mHeaderNonscrollableHeight = res.getDimensionPixelSize(
                             R.dimen.abc_action_bar_default_height_material);
@@ -157,6 +165,8 @@ public class ContentHeaderFragment extends Fragment {
 
         if (mCurrentMode == MODE_ACTIONBAR_FILLED) {
             ((TomahawkMainActivity) getActivity()).showFilledActionBar();
+        } else if (mCurrentMode == MODE_HEADER_STATIC_SMALL) {
+            ((TomahawkMainActivity) getActivity()).showGradientActionBar();
         }
     }
 
@@ -254,17 +264,16 @@ public class ContentHeaderFragment extends Fragment {
             headerFrame.removeAllViews();
             View header = inflater.inflate(layoutId, headerFrame, false);
             headerFrame.addView(header);
-            if (mHeaderScrollableHeight > 0) {
-                header.setLayoutParams(
-                        new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                                mHeaderScrollableHeight + mHeaderNonscrollableHeight));
-            }
+            header.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                    mHeaderScrollableHeight + mHeaderNonscrollableHeight));
         }
 
         //Now we fill the added views with data
         ViewHolder viewHolder = new ViewHolder(imageFrame, headerFrame, layoutId);
         if (item instanceof Integer) {
             viewHolder.fillContentHeader((Integer) item);
+        } else if (item instanceof ColorDrawable) {
+            viewHolder.fillContentHeader((ColorDrawable) item);
         } else if (mHeaderScrollableHeight > 0) {
             View.OnClickListener moreButtonListener = new View.OnClickListener() {
                 @Override

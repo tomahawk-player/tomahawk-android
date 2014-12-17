@@ -29,7 +29,6 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -64,23 +63,23 @@ public class UserCollectionFragment extends TomahawkFragment {
      * Called every time an item inside a ListView or GridView is clicked
      *
      * @param view the clicked view
-     * @param item the TomahawkListItem which corresponds to the click
+     * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, TomahawkListItem item) {
+    public void onItemClick(View view, Object item) {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (item instanceof Album) {
             Collection userCollection = CollectionManager.getInstance()
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
             Bundle bundle = new Bundle();
             if (userCollection.getAlbumTracks((Album) item, false).size() > 0) {
-                bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, item.getCacheKey());
+                bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, ((Album) item).getCacheKey());
                 bundle.putString(CollectionManager.COLLECTION_ID, userCollection.getId());
                 bundle.putInt(ContentHeaderFragment.MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                 FragmentUtils.replace(activity, TracksFragment.class, bundle);
             } else {
-                bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, item.getCacheKey());
+                bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, ((Album) item).getCacheKey());
                 bundle.putString(CollectionManager.COLLECTION_ID, CollectionManager.getInstance()
                         .getCollection(TomahawkApp.PLUGINNAME_HATCHET).getId());
                 bundle.putInt(ContentHeaderFragment.MODE,
@@ -103,7 +102,7 @@ public class UserCollectionFragment extends TomahawkFragment {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         List<Segment> segments = new ArrayList<Segment>();
-        ArrayList<TomahawkListItem> items = new ArrayList<TomahawkListItem>();
+        ArrayList items = new ArrayList();
         if (mUser != null) {
             items.addAll(mUser.getStarredAlbums());
         } else {

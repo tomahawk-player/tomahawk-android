@@ -306,6 +306,19 @@ public class UserCollection extends Collection {
                 mLoadingThread.getState() != Thread.State.NEW;
     }
 
+    public boolean hasAudioItems() {
+        mItemListLock.readLock().lock();
+        for (int i = 0; i < mItemList.size(); i++) {
+            MediaWithDate item = mItemList.get(i);
+            if (item.getType() == Media.TYPE_AUDIO) {
+                mItemListLock.readLock().unlock();
+                return true;
+            }
+        }
+        mItemListLock.readLock().unlock();
+        return false;
+    }
+
     public ArrayList<MediaWithDate> getAudioItems() {
         ArrayList<MediaWithDate> audioItems = new ArrayList<MediaWithDate>();
         mItemListLock.readLock().lock();

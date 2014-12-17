@@ -368,13 +368,7 @@ public class PlaybackPanel extends FrameLayout {
                 && mPlaybackService.getCurrentQuery().getPreferredTrackResult() != null) {
             Resolver resolver =
                     mPlaybackService.getCurrentQuery().getPreferredTrackResult().getResolvedBy();
-            if (resolver.getIconPath() != null) {
-                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                        mResolverImageView, resolver.getIconPath(), false);
-            } else {
-                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                        mResolverImageView, resolver.getIconResId(), false);
-            }
+            resolver.loadIcon(mResolverImageView, false);
         }
     }
 

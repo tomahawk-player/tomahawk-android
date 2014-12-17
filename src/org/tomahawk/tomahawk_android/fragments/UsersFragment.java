@@ -24,7 +24,6 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -67,10 +66,10 @@ public class UsersFragment extends TomahawkFragment {
      * Called every time an item inside a ListView or GridView is clicked
      *
      * @param view the clicked view
-     * @param item the TomahawkListItem which corresponds to the click
+     * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, TomahawkListItem item) {
+    public void onItemClick(View view, Object item) {
         if (item instanceof User) {
             Bundle bundle = new Bundle();
             bundle.putInt(TomahawkFragment.SHOW_MODE,
@@ -96,7 +95,7 @@ public class UsersFragment extends TomahawkFragment {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        List<TomahawkListItem> users = new ArrayList<TomahawkListItem>();
+        List users = new ArrayList();
         if (mShowMode == SHOW_MODE_TYPE_FOLLOWERS) {
             if (mUser.getFollowers() != null && mUser.getFollowers().size() > 0) {
                 users.addAll(mUser.getFollowers().keySet());
