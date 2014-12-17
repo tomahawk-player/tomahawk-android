@@ -1,5 +1,7 @@
 /*
- *   Copyright 2014,      Uwe L. Korn <uwelk@xhochy.com>
+ *   Copyright 2014, Uwe L. Korn <uwelk@xhochy.com>
+ *
+ *   The MIT License (MIT)
  *
  *   Permission is hereby granted, free of charge, to any person obtaining a copy
  *   of this software and associated documentation files (the "Software"), to deal
@@ -10,6 +12,13 @@
  *
  *   The above copyright notice and this permission notice shall be included in
  *   all copies or substantial portions of the Software.
+ *
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ *   FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ *   COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ *   IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ *   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
 var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
@@ -46,18 +55,20 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
     newConfigSaved: function () {
         var userConfig = this.getUserConfig();
 
-        if (this.user !== userConfig.user || this.password !== userConfig.password)
-        {
+        if (this.user !== userConfig.user || this.password !== userConfig.password) {
             this.init();
         }
     },
 
 
-    login: function(doConfigTest) {
+    login: function(callback, doConfigTest) {
         var userConfig = this.getUserConfig();
         if (!userConfig.user || !userConfig.password) {
             Tomahawk.log("Beats Music Resolver not properly configured!");
             this.loggedIn = false;
+            if (callback) {
+                callback("Beats Music Resolver not properly configured!");
+            }
             if (doConfigTest) {
                 Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.InvalidCredentials);
             }
@@ -89,6 +100,9 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
                 var res = JSON.parse(xhr.responseText);
                 that.accessToken = res.access_token;
                 that.loggedIn = true;
+                if (callback) {
+                    callback();
+                }
                 if (doConfigTest) {
                     Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Success);
                 }
@@ -101,23 +115,25 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
             method: "POST",
             data: data,
             errorHandler: function (xhr) {
-                if (xhr.status == 404) {
-                    Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
-                } else {
-                    Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other,
-                        xhr.statusText.trim());
+                if (doConfigTest) {
+                    if (xhr.status == 404) {
+                        Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
+                    } else {
+                        Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other,
+                            xhr.statusText.trim());
+                    }
                 }
             }
         });
     },
 
     configTest: function () {
-        this.login(true);
+        this.login(null, true);
     },
 
     spell: function(a){magic=function(b){return(b=(b)?b:this).split("").map(function(d){if(!d.match(/[A-Za-z]/)){return d}c=d.charCodeAt(0)>=96;k=(d.toLowerCase().charCodeAt(0)-96+12)%26+1;return String.fromCharCode(k+(c?96:64))}).join("")};return magic(a)},
 
-	init: function() {
+    init: function(cb) {
         this.app_token = this.spell("s4fw8if4jfwxakawi7xud55c");
 
         Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
@@ -127,21 +143,38 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
         // re-login every 50 minutes
         setInterval((function(self) { return function() { self.login(); }; })(this), 1000*60*50);
 
-        this.login();
-	},
+        this.login(cb);
+    },
 
+    apiRequest: function (path, queryArgs, cb) {
+        var queryArray = ["client_id=" + this.app_token];
+        for (key in queryArgs) {
+            queryArray.push(key + "=" + queryArgs[key]);
+        }
+        var url = this.endpoint + "/api" + path;
+        url += "?" + queryArray.join("&");
+        Tomahawk.asyncRequest(url, function (xhr) {
+            var res = JSON.parse(xhr.responseText);
+            if (res.code == "OK") {
+                cb(res, xhr);
+            }
+        });
+    },
 
     resolve: function (qid, artist, album, title) {
         if (!this.loggedIn) return;
 
         // TODO: Add album to search
         var that = this;
-        Tomahawk.asyncRequest(this.endpoint + "/api/search?type=track&filters=streamable:true&limit=1&q=" + encodeURIComponent(artist + " " + title) + "&client_id=" + this.app_token, function (xhr) {
-            var res = JSON.parse(xhr.responseText);
-            if (res.code == "OK" && res.info.count > 0) {
+        this.apiRequest("/search", {
+            "type": "track",
+            "filters": "streamable:true",
+            "limit": "1",
+            "q": encodeURIComponent(artist + " " + title)
+        }, function (res) {
+            if (res.info.count > 0) {
                 // For the moment we just use the first result
-                Tomahawk.asyncRequest(that.endpoint + "/api/tracks/" + res.data[0].id + "?client_id=" + that.app_token, function (xhr2) {
-                    var res2 = JSON.parse(xhr2.responseText);
+                that.apiRequest("/tracks/" + res.data[0].id, {}, function (res2) {
                     Tomahawk.addTrackResults({
                         qid: qid,
                         results: [{

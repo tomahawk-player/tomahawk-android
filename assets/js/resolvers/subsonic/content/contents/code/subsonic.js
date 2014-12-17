@@ -270,18 +270,19 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
             } else {
                 searchResults = doc["subsonic-response"].searchResult3.song;
             }
-            Tomahawk.log(searchResults.length + " results returned.");
-            for (var i = 0; i < searchResults.length; i++)
-            {
-                results.push(that.parseSongFromAttributes(searchResults[i]));
+            if (searchResults) {
+                Tomahawk.log(searchResults.length + " results returned.");
+                for (var i = 0; i < searchResults.length; i++) {
+                    results.push(that.parseSongFromAttributes(searchResults[i]));
+                }
+
+                var return_songs = {
+                    qid: qid,
+                    results: results
+                };
+
+                Tomahawk.addTrackResults(return_songs);
             }
-
-            var return_songs = {
-                qid: qid,
-                results: results
-            };
-
-            Tomahawk.addTrackResults(return_songs);
         });
     },
 
@@ -389,18 +390,18 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
                     Tomahawk.log("tracks[i].album =" + tracks[i].album);
                     Tomahawk.log("album=           " + album);
 
-                    if (tracks[i].artist.toLowerCase() === artist.toLowerCase() && tracks[i].album.toLowerCase() === album.toLowerCase())
-                    {
+                    if (tracks[i].artist && artist
+                        && tracks[i].artist.toLowerCase() === artist.toLowerCase()
+                        && tracks[i].album && album
+                        && tracks[i].album.toLowerCase() === album.toLowerCase()) {
                         results.push(that.parseSongFromAttributes(tracks[i]));
                     }
                 }
-            }
-            else
-            {
-                if (tracks.artist.toLowerCase() === artist.toLowerCase() && tracks.album.toLowerCase() === album.toLowerCase())
-                {
-                    results.push(that.parseSongFromAttributes(tracks));
-                }
+            } else if (tracks && tracks.artist && artist
+                && tracks.artist.toLowerCase() === artist.toLowerCase()
+                && tracks.album && album
+                && tracks.album.toLowerCase() === album.toLowerCase()) {
+                results.push(that.parseSongFromAttributes(tracks));
             }
 
             var return_tracks = {

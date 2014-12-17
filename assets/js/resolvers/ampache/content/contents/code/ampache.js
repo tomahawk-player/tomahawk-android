@@ -70,7 +70,7 @@ var AmpacheResolver = Tomahawk.extend(TomahawkResolver, {
     {
         // prepare handshake arguments
         var time = Tomahawk.timestamp();
-        if (typeof CryptoJS.SHA256 == "function") {
+        if (typeof CryptoJS !== "undefined" && typeof CryptoJS.SHA256 == "function") {
             var key = CryptoJS.SHA256(this.password).toString(CryptoJS.enc.Hex);
             this.passphrase = CryptoJS.SHA256(time + key).toString(CryptoJS.enc.Hex);
         } else {

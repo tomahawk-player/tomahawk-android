@@ -5,12 +5,14 @@
     "email": "lasconic@gmail.com",
     "version": "0.1.5",
     "website": "http://gettomahawk.com",
-    "description": "Searches Jamendo's free music database",
+    "description": "Searches Jamendo's free music database.",
     "type": "resolver/javascript",
     "manifest": {
         "main": "contents/code/jamendo.js",
         "scripts": [],
         "icon": "contents/images/icon.png",
+        "iconWhite": "contents/images/iconWhite.png",
+        "iconBackground": "contents/images/iconBackground.png",
         "resources": [
             "contents/code/jamendo-icon.png"
         ]

@@ -6,15 +6,9 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>331</width>
-    <height>200</height>
+    <width>536</width>
+    <height>174</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>331</width>
-    <height>200</height>
-   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -22,6 +16,12 @@
   <layout class="QVBoxLayout" name="verticalLayout_3">
    <item>
     <widget class="QLabel" name="beatsmusic_label">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
      <property name="pixmap">
       <pixmap>beatsmusic-wide.png</pixmap>
      </property>

@@ -39,11 +39,11 @@ var TomahawkMetadataResolver = Tomahawk.extend(TomahawkResolver, {
     canParseUrl: function (url, type) {
         switch (type) {
             case TomahawkUrlType.Album:
-                return /^tomahawk:\/\/view\/album\/?\?/.test(url);
+                return /^tomahawk:\/\/view\/album\/?\?$/.test(url);
             case TomahawkUrlType.Artist:
-                return /^tomahawk:\/\/view\/artist\/?\?/.test(url);
+                return /^tomahawk:\/\/view\/artist\/?\?$/.test(url);
             case TomahawkUrlType.Track:
-                return /^tomahawk:\/\/(queue\/add|play)\/track\/?\?/.test(url);
+                return /^tomahawk:\/\/(queue\/add|play)\/track\/?\?$/.test(url);
             default:
                 return false;
         }
@@ -51,7 +51,7 @@ var TomahawkMetadataResolver = Tomahawk.extend(TomahawkResolver, {
 
     lookupUrl: function (url) {
         Tomahawk.log("lookupUrl: " + url);
-        if (/^tomahawk:\/\/view\/album\/?\?/.test(url)) {
+        if (/^tomahawk:\/\/view\/album\/?\?$/.test(url)) {
             Tomahawk.log("Found an album");
             // We have to deal with an Album
             Tomahawk.addUrlResult(url, {
@@ -59,14 +59,14 @@ var TomahawkMetadataResolver = Tomahawk.extend(TomahawkResolver, {
                 artist: this._getQueryVariable(url, 'artist'),
                 name: this._getQueryVariable(url, 'name')
             });
-        } else if (/^tomahawk:\/\/view\/artist\/?\?/.test(url)) {
+        } else if (/^tomahawk:\/\/view\/artist\/?\?$/.test(url)) {
             Tomahawk.log("Found an artist");
             // We have to deal with an Artist
             Tomahawk.addUrlResult(url, {
                 type: 'artist',
                 name: this._getQueryVariable(url, 'name')
             });
-        } else if (/^tomahawk:\/\/(queue\/add|play)\/track\/?\?/.test(url)) {
+        } else if (/^tomahawk:\/\/(queue\/add|play)\/track\/?\?$/.test(url)) {
             Tomahawk.log("Found a track");
             // We have to deal with a Track
             Tomahawk.addUrlResult(url, {
