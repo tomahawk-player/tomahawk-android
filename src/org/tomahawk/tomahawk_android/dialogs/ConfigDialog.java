@@ -149,6 +149,9 @@ public abstract class ConfigDialog extends DialogFragment {
                 .findViewById(R.id.config_dialog_connect_bg_imageview);
         mProgressBar = (SmoothProgressBar) mDialogView
                 .findViewById(R.id.smoothprogressbar);
+
+        mPositiveButton.setText(getString(R.string.ok).toUpperCase());
+        mNegativeButton.setText(getString(R.string.cancel).toUpperCase());
     }
 
     @Override
