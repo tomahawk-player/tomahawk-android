@@ -23,7 +23,10 @@
               android:layout_height="wrap_content"
               android:baselineAligned="false"
               android:orientation="horizontal"
-              android:padding="@dimen/padding_medium"
+              android:paddingTop="@dimen/padding_medium"
+              android:paddingBottom="@dimen/padding_medium"
+              android:paddingLeft="@dimen/padding_superlarge"
+              android:paddingRight="@dimen/padding_medium"
               android:background="@drawable/selectable_background_tomahawk">
 
     <TextView
