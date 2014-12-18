@@ -90,7 +90,7 @@ public class RedirectConfigDialog extends ConfigDialog {
         } else {
             buttonBackgroundResId = R.drawable.selectable_background_tomahawk_inverted;
             buttonImageResId = R.drawable.logo_deezer;
-            buttonTextColor = getResources().getColor(R.color.primary_textcolor_inverted);
+            buttonTextColor = getResources().getColor(R.color.deezer_resolver_bg);
             onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_DEEZER);
         }
 
@@ -116,9 +116,8 @@ public class RedirectConfigDialog extends ConfigDialog {
                 : getString(R.string.resolver_config_redirect_button_text_log_into));
         button.setOnClickListener(onClickListener);
         setDialogTitle(scriptResolver.getName());
-        hideEnabledCheckbox();
         hideNegativeButton();
-        setStatusImage(scriptResolver);
+        setStatus(scriptResolver);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();

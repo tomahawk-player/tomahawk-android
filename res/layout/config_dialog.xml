@@ -24,37 +24,72 @@
               android:layout_height="match_parent"
               android:background="@color/primary_background">
 
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/row_height_verylarge"
-            android:layout_marginLeft="@dimen/padding_large"
-            android:layout_marginRight="@dimen/padding_large">
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="@dimen/row_height_verylarge">
 
-        <CheckBox
-                android:id="@+id/config_dialog_enable_checkbox"
-                android:layout_width="@dimen/row_height_verylarge"
-                android:layout_height="@dimen/row_height_verylarge"/>
+        <ImageView android:id="@+id/config_dialog_header_background"
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:scaleType="centerCrop"
+                   android:src="@color/hatchet_resolver_bg"/>
 
-        <TextView
-                android:id="@+id/config_dialog_title_textview"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:textSize="@dimen/text_size_verylarge"
-                android:textColor="@color/tomahawk_red"
-                android:gravity="center_vertical"/>
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="@dimen/row_height_verylarge"
+                      android:layout_marginRight="@dimen/padding_medium"
+                      android:layout_marginLeft="@dimen/padding_medium">
 
-        <ImageView
-                android:id="@+id/config_dialog_status_imageview"
-                android:layout_width="@dimen/row_height_medium"
-                android:layout_height="@dimen/row_height_verylarge"/>
+            <FrameLayout android:layout_width="wrap_content"
+                         android:layout_height="match_parent"
+                         android:layout_marginRight="@dimen/padding_small">
 
-    </LinearLayout>
+                <ImageView android:id="@+id/config_dialog_connect_bg_imageview"
+                           android:layout_width="@dimen/row_height_medium"
+                           android:layout_height="@dimen/row_height_medium"
+                           android:layout_gravity="center_vertical"
+                           android:src="@drawable/selectable_background_button_green"
+                           android:visibility="gone"/>
 
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/divider_height_thick"
-            android:background="@color/tomahawk_red"/>
+                <ImageView android:id="@+id/config_dialog_connect_imageview"
+                           android:layout_width="@dimen/row_height_medium"
+                           android:layout_height="@dimen/row_height_medium"
+                           android:layout_gravity="center_vertical"
+                           android:src="@drawable/ic_connected"/>
+
+            </FrameLayout>
+
+            <TextView android:id="@+id/config_dialog_title_textview"
+                      android:layout_width="0dp"
+                      android:layout_height="match_parent"
+                      android:layout_weight="1"
+                      android:textSize="@dimen/text_size_verylarge"
+                      android:textColor="@color/primary_textcolor_inverted"
+                      android:gravity="center_vertical"
+                      android:text="Hatchet"/>
+
+            <ImageView android:id="@+id/config_dialog_status_imageview"
+                       android:layout_width="@dimen/row_height_medium"
+                       android:layout_height="@dimen/row_height_verylarge"/>
+
+        </LinearLayout>
+
+        <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/smoothprogressbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:indeterminate="true"
+                app:spb_sections_count="4"
+                app:spb_color="@color/tomahawk_red"
+                app:spb_interpolator="spb_interpolator_accelerate"
+                app:spb_speed="1.0"
+                app:spb_stroke_width="4dp"
+                app:spb_stroke_separator_length="4dp"
+                app:spb_reversed="false"
+                app:spb_mirror_mode="false"
+                android:visibility="gone"/>
+
+    </FrameLayout>
 
     <ScrollView android:layout_width="match_parent"
                 android:layout_height="wrap_content">
@@ -73,37 +108,34 @@
             android:orientation="vertical"
             android:visibility="gone"/>
 
-    <View android:layout_width="match_parent"
-          android:layout_height="1px"
-          android:background="@color/divider"/>
-
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="@dimen/row_height_large">
+    <LinearLayout android:layout_width="wrap_content"
+                  android:layout_height="@dimen/row_height_verylarge"
+                  android:layout_gravity="right">
 
         <TextView android:id="@+id/config_dialog_negative_button"
-                  android:layout_width="match_parent"
+                  android:layout_width="wrap_content"
                   android:layout_height="match_parent"
-                  android:layout_weight="1"
+                  android:paddingLeft="@dimen/padding_extralarge"
+                  android:paddingRight="@dimen/padding_extralarge"
                   android:clickable="true"
                   android:background="@drawable/selectable_background_tomahawk"
                   android:text="@string/cancel"
-                  android:textSize="@dimen/text_size_small"
-                  android:textColor="@color/primary_textcolor"
+                  android:textSize="@dimen/text_size_medium"
+                  android:textColor="@color/tomahawk_red"
+                  android:textStyle="bold"
                   android:gravity="center"/>
 
-        <View android:layout_width="1px"
-              android:layout_height="match_parent"
-              android:background="@color/divider"/>
-
         <TextView android:id="@+id/config_dialog_positive_button"
-                  android:layout_width="match_parent"
+                  android:layout_width="wrap_content"
                   android:layout_height="match_parent"
-                  android:layout_weight="1"
+                  android:paddingLeft="@dimen/padding_extralarge"
+                  android:paddingRight="@dimen/padding_extralarge"
                   android:clickable="true"
                   android:background="@drawable/selectable_background_tomahawk"
                   android:text="@string/ok"
-                  android:textSize="@dimen/text_size_small"
-                  android:textColor="@color/primary_textcolor"
+                  android:textSize="@dimen/text_size_medium"
+                  android:textColor="@color/tomahawk_red"
+                  android:textStyle="bold"
                   android:gravity="center"/>
 
     </LinearLayout>

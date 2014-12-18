@@ -19,7 +19,11 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
+import org.tomahawk.libtomahawk.resolver.HatchetStubResolver;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
 
@@ -103,8 +107,8 @@ public class LoginConfigDialog extends ConfigDialog {
         if (mAuthenticatorUtils.doesAllowRegistration() && !mAuthenticatorUtils.isLoggedIn()) {
             FrameLayout buttonLayout =
                     (FrameLayout) inflater.inflate(R.layout.config_button, null);
-            LinearLayout button =
-                    (LinearLayout) buttonLayout.findViewById(R.id.config_button);
+            FrameLayout button =
+                    (FrameLayout) buttonLayout.findViewById(R.id.config_button);
             button.setOnClickListener(new RegisterButtonListener());
             TextView buttonText =
                     (TextView) buttonLayout.findViewById(R.id.config_button_text);
@@ -114,9 +118,13 @@ public class LoginConfigDialog extends ConfigDialog {
 
         showSoftKeyboard(mUsernameEditText);
 
-        hideEnabledCheckbox();
         setDialogTitle(mAuthenticatorUtils.getPrettyName() + ": " + getString(R.string.login));
-        setStatusImage(mAuthenticatorUtils.getIconResourceId(), isLoggedIn);
+        if (TomahawkApp.PLUGINNAME_HATCHET.equals(mAuthenticatorUtils.getId())) {
+            setStatus(
+                    new HatchetStubResolver(HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME, null));
+        } else {
+            setStatus(PipeLine.getInstance().getResolver(mAuthenticatorUtils.getId()));
+        }
         updateButtonTexts(isLoggedIn);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
@@ -136,7 +144,7 @@ public class LoginConfigDialog extends ConfigDialog {
             } else if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT) {
                 updateButtonTexts(false);
             }
-            stopLoadingAnimation(false);
+            stopLoadingAnimation();
         }
     }
 

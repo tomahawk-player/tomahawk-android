@@ -299,7 +299,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                 || viewType == R.layout.grid_item
                 || viewType == R.layout.list_item_artistalbum
                 || viewType == R.layout.grid_item_user
-                || viewType == R.layout.list_item_user) {
+                || viewType == R.layout.list_item_user
+                || viewType == R.layout.grid_item_resolver) {
             for (ViewHolder viewHolder : viewHolders) {
                 if (viewType == R.layout.list_item_track
                         || viewType == R.layout.list_item_track_highlighted) {
@@ -307,6 +308,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     viewHolder.mTextView1.setVisibility(View.GONE);
                     viewHolder.mTextView3.setVisibility(View.GONE);
                     viewHolder.mTextView4.setVisibility(View.GONE);
+                } else if (viewType == R.layout.grid_item_resolver) {
+                    viewHolder.mImageView1.clearColorFilter();
                 } else {
                     viewHolder.mTextView2.setVisibility(View.GONE);
                     viewHolder.mTextView3.setVisibility(View.GONE);

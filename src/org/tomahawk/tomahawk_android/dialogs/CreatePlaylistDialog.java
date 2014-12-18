@@ -69,7 +69,6 @@ public class CreatePlaylistDialog extends ConfigDialog {
         //Set the textview's text to the proper title
         setDialogTitle(getString(R.string.save_playlist));
 
-        hideEnabledCheckbox();
         hideStatusImage();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
