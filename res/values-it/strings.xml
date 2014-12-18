@@ -11,7 +11,7 @@
   <string name="albums">Album</string>
   <string name="artists">Artisti</string>
   <string name="users">Utenti</string>
-  <string name="top_hits">Top Hits</string>
+  <string name="top_hits">Top Hit</string>
   <string name="top_albums">Top Album</string>
   <string name="playlist_details">Dettagli Playlist</string>
   <string name="album_details">Dettagli Album</string>
@@ -142,4 +142,5 @@
   <string name="button_open_queue_text">Coda</string>
   <string name="button_close">Chiudi</string>
   <string name="view_album">Vedi Album</string>
+  <string name="connect_headertext">Seleziona i servizi che vuoi utilizzare. Tomahawk funziona meglio se più servizi sono attivati.</string>
 </resources>
