@@ -39,34 +39,38 @@ var HatchetMetadataResolver = Tomahawk.extend(TomahawkResolver, {
     canParseUrl: function (url, type) {
         switch (type) {
             case TomahawkUrlType.Album:
-                return /https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/[^\/\n]+/.test(url);
+                return /^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/[^\/\n]+$/.test(url);
             case TomahawkUrlType.Artist:
-                return /https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+/.test(url);
+                return /^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n][^\/\n_]+$/.test(url);
             case TomahawkUrlType.Track:
-                return /https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/_\/[^\/\n]+/.test(url)
+                return /^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/_\/[^\/\n]+$/.test(url);
             default:
                 return false;
         }
     },
 
     lookupUrl: function (url) {
+        Tomahawk.log("lookupUrl: "+url);
         var urlParts = url.split('/').filter(function (item) {
             return item.length != 0;
         }).map(decodeURIComponent);
-        if (/https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/[^\/\n]+/.test(url)) {
+        if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/[^\/\n]+$/.test(url)) {
+            Tomahawk.log("Found an album");
             // We have to deal with an Album
             Tomahawk.addUrlResult(url, {
                 type: 'album',
                 artist: urlParts[urlParts.length - 2],
                 name: urlParts[urlParts.length - 1]
             });
-        } else if (/https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+/.test(url)) {
+        } else if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n][^\/\n_]+$/.test(url)) {
+            Tomahawk.log("Found an artist");
             // We have to deal with an Artist
             Tomahawk.addUrlResult(url, {
                 type: 'artist',
                 name: urlParts[urlParts.length - 1]
             });
-        } else if (/https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/_\/[^\/\n]+/.test(url)) {
+        } else if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/_\/[^\/\n]+$/.test(url)) {
+            Tomahawk.log("Found a track");
             // We have to deal with a Track
             Tomahawk.addUrlResult(url, {
                 type: "track",
@@ -78,4 +82,3 @@ var HatchetMetadataResolver = Tomahawk.extend(TomahawkResolver, {
 });
 
 Tomahawk.resolver.instance = HatchetMetadataResolver;
-
