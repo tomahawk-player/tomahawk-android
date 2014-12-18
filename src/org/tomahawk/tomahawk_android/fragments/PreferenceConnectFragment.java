@@ -65,14 +65,9 @@ public class PreferenceConnectFragment extends TomahawkListFragment
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (AuthenticatorManager.CONFIG_TEST_RESULT.equals(intent.getAction())) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        getListAdapter().notifyDataSetChanged();
-                    }
-                });
-            } else if (CollectionManager.COLLECTION_UPDATED.equals(intent.getAction())) {
+            if (AuthenticatorManager.CONFIG_TEST_RESULT.equals(intent.getAction())
+                    || CollectionManager.COLLECTION_UPDATED.equals(intent.getAction())
+                    || Resolver.ENABLED_STATE_CHANGED.equals(intent.getAction())) {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
@@ -143,6 +138,8 @@ public class PreferenceConnectFragment extends TomahawkListFragment
                 new IntentFilter(AuthenticatorManager.CONFIG_TEST_RESULT));
         getActivity().registerReceiver(mFakePreferenceFragmentReceiver,
                 new IntentFilter(CollectionManager.COLLECTION_UPDATED));
+        getActivity().registerReceiver(mFakePreferenceFragmentReceiver,
+                new IntentFilter(Resolver.ENABLED_STATE_CHANGED));
     }
 
     @Override
