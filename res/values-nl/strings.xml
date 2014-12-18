@@ -156,4 +156,8 @@
   <string name="button_open_queue_text">Wachtrij</string>
   <string name="button_close">Sluiten</string>
   <string name="view_album">Album weergeven</string>
+  <string name="connect">Verbinden</string>
+  <string name="connect_headertext">Selecteer de diensten die u wilt gebruiken. Tomahawk werkt beter wanneer u meer diensten activeert.</string>
+  <string name="advanced">Geavanceerd</string>
+  <string name="info">Informatie</string>
 </resources>
