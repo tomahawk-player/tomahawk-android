@@ -325,11 +325,12 @@ public class ViewHolder {
         }
     }
 
-    public void fillContentHeader(Query query) {
+    public void fillContentHeader(Query query, View.OnClickListener moreButtonListener) {
         mImageView1.setVisibility(View.VISIBLE);
-        TomahawkUtils
-                .loadImageIntoImageView(TomahawkApp.getContext(), mImageView1, query.getImage(),
-                        Image.getLargeImageSize(), query.hasArtistImage());
+        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
+                query.getImage(), Image.getLargeImageSize(), query.hasArtistImage());
+        mMoreButton.setVisibility(View.VISIBLE);
+        mMoreButton.setOnClickListener(moreButtonListener);
     }
 
     public void fillContentHeader(Image image) {
