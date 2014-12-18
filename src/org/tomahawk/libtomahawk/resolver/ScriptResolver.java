@@ -48,6 +48,7 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
@@ -770,6 +771,7 @@ public class ScriptResolver extends Resolver {
         return mConfigUi;
     }
 
+    @Override
     public boolean isEnabled() {
         AuthenticatorUtils utils = AuthenticatorManager.getInstance().getAuthenticatorUtils(mId);
         if (utils != null) {
@@ -784,6 +786,7 @@ public class ScriptResolver extends Resolver {
         Map<String, Object> config = getConfig();
         config.put(ENABLED_KEY, enabled);
         setConfig(config);
+        TomahawkApp.getContext().sendBroadcast(new Intent(ENABLED_STATE_CHANGED));
     }
 
     public void reportCapabilities(int in) {

@@ -24,6 +24,9 @@ import android.widget.ImageView;
  */
 public abstract class Resolver {
 
+    public static final String ENABLED_STATE_CHANGED
+            = "org.tomahawk.tomahawk_android.enabled_state_changed";
+
     public interface OnResolverReadyListener {
 
         public void onResolverReady(Resolver resolver);
