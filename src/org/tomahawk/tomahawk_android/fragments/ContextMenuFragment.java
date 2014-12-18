@@ -392,7 +392,9 @@ public class ContextMenuFragment extends Fragment {
                     Bundle bundle = new Bundle();
                     bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY,
                             item.getAlbum().getCacheKey());
-                    bundle.putString(CollectionManager.COLLECTION_ID, collection.getId());
+                    if (collection != null) {
+                        bundle.putString(CollectionManager.COLLECTION_ID, collection.getId());
+                    }
                     bundle.putInt(ContentHeaderFragment.MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                     FragmentUtils.replace(activity, TracksFragment.class, bundle);
