@@ -37,7 +37,6 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 import org.tomahawk.tomahawk_android.events.AnimatePagerEvent;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
 import android.content.Context;
@@ -278,8 +277,7 @@ public class ContentHeaderFragment extends Fragment {
             View.OnClickListener moreButtonListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(),
-                            (TomahawkListItem) item, null);
+                    FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item, null);
                 }
             };
             if (item instanceof Album) {
@@ -289,7 +287,7 @@ public class ContentHeaderFragment extends Fragment {
             } else if (item instanceof Playlist) {
                 viewHolder.fillContentHeader((Playlist) item, artistImages);
             } else if (item instanceof Query) {
-                viewHolder.fillContentHeader((Query) item);
+                viewHolder.fillContentHeader((Query) item, moreButtonListener);
             }
         } else {
             if (item instanceof Image) {
