@@ -21,30 +21,26 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.ui.widgets.BoundedLinearLayout;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 /**
  * A {@link android.support.v4.app.DialogFragment} which is the base class for all config dialogs
@@ -56,9 +52,7 @@ public abstract class ConfigDialog extends DialogFragment {
 
     private View mDialogView;
 
-    private View mShowKeyboardView;
-
-    private CheckBox mEnabledCheckbox;
+    private ImageView mHeaderBackground;
 
     private TextView mTitleTextView;
 
@@ -70,15 +64,17 @@ public abstract class ConfigDialog extends DialogFragment {
 
     private TextView mNegativeButton;
 
-    private Drawable mProgressDrawable;
-
     private ImageView mStatusImageView;
 
-    private Resolver mResolver;
+    private ImageView mConnectImageView;
 
-    private int mStatusImageResId;
+    private ImageView mConnectBgImageView;
+
+    private SmoothProgressBar mProgressBar;
 
     private ConfigDialogReceiver mConfigDialogReceiver;
+
+    private boolean mResolverEnabled;
 
     private class ConfigDialogReceiver extends BroadcastReceiver {
 
@@ -96,24 +92,6 @@ public abstract class ConfigDialog extends DialogFragment {
         }
     }
 
-    //Used to handle the animation of our progress animation, while we try to login
-    private Handler mAnimationHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_UPDATE_ANIMATION:
-                    mProgressDrawable.setLevel(mProgressDrawable.getLevel() + 500);
-                    mStatusImageView.setImageDrawable(mProgressDrawable);
-                    mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-                    mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
-                    break;
-            }
-            return true;
-        }
-    });
-
-    private static final int MSG_UPDATE_ANIMATION = 0x20;
-
     //So that the user can login by pressing "Enter" or something similar on his keyboard
     protected TextView.OnEditorActionListener mOnKeyboardEnterListener
             = new TextView.OnEditorActionListener() {
@@ -126,14 +104,6 @@ public abstract class ConfigDialog extends DialogFragment {
                 onPositiveAction();
             }
             return false;
-        }
-    };
-
-    private CompoundButton.OnCheckedChangeListener mEnabledCheckboxListener
-            = new CompoundButton.OnCheckedChangeListener() {
-        @Override
-        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            onEnabledCheckedChange(isChecked);
         }
     };
 
@@ -157,9 +127,8 @@ public abstract class ConfigDialog extends DialogFragment {
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         mDialogView = inflater.inflate(R.layout.config_dialog, null);
-        mEnabledCheckbox = (CheckBox) mDialogView
-                .findViewById(R.id.config_dialog_enable_checkbox);
-        mEnabledCheckbox.setOnCheckedChangeListener(mEnabledCheckboxListener);
+        mHeaderBackground = (ImageView) mDialogView
+                .findViewById(R.id.config_dialog_header_background);
         mTitleTextView = (TextView) mDialogView
                 .findViewById(R.id.config_dialog_title_textview);
         mDialogFrame = (BoundedLinearLayout) mDialogView
@@ -172,10 +141,14 @@ public abstract class ConfigDialog extends DialogFragment {
         mNegativeButton = (TextView) mDialogView
                 .findViewById(R.id.config_dialog_negative_button);
         mNegativeButton.setOnClickListener(mNegativeButtonListener);
-        mProgressDrawable = getResources()
-                .getDrawable(R.drawable.tomahawk_progress_indeterminate_circular_holo_light);
         mStatusImageView = (ImageView) mDialogView
                 .findViewById(R.id.config_dialog_status_imageview);
+        mConnectImageView = (ImageView) mDialogView
+                .findViewById(R.id.config_dialog_connect_imageview);
+        mConnectBgImageView = (ImageView) mDialogView
+                .findViewById(R.id.config_dialog_connect_bg_imageview);
+        mProgressBar = (SmoothProgressBar) mDialogView
+                .findViewById(R.id.smoothprogressbar);
     }
 
     @Override
@@ -195,7 +168,6 @@ public abstract class ConfigDialog extends DialogFragment {
     public void onPause() {
         super.onPause();
 
-        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
         if (mConfigDialogReceiver != null) {
             getActivity().unregisterReceiver(mConfigDialogReceiver);
             mConfigDialogReceiver = null;
@@ -229,23 +201,29 @@ public abstract class ConfigDialog extends DialogFragment {
         mNegativeButton.setVisibility(View.GONE);
     }
 
-    protected void hideEnabledCheckbox() {
-        mEnabledCheckbox.setVisibility(View.GONE);
-    }
-
     protected void hideStatusImage() {
         mStatusImageView.setVisibility(View.GONE);
     }
 
-    protected void setStatusImage(int statusImageResId, boolean enabled) {
-        mStatusImageResId = statusImageResId;
-        TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
-                statusImageResId, !enabled);
+    protected void setConnectImageViewClickable() {
+        mConnectBgImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onEnabledCheckedChange(!mResolverEnabled);
+            }
+        });
+        mConnectBgImageView.setVisibility(View.VISIBLE);
     }
 
-    protected void setStatusImage(Resolver resolver) {
-        mResolver = resolver;
-        resolver.loadIcon(mStatusImageView, !resolver.isEnabled());
+    protected void setStatus(Resolver resolver) {
+        mResolverEnabled = resolver.isEnabled();
+        resolver.loadIconWhite(mStatusImageView);
+        resolver.loadIconBackground(mHeaderBackground, false);
+        int resId = resolver.isEnabled() ? R.drawable.ic_connected : R.drawable.ic_connect;
+        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), mConnectImageView, resId);
+        int bgResId = resolver.isEnabled() ? R.drawable.selectable_background_button_green
+                : R.drawable.selectable_background_button_white;
+        mConnectBgImageView.setImageResource(bgResId);
     }
 
     protected void setDialogTitle(String title) {
@@ -256,19 +234,15 @@ public abstract class ConfigDialog extends DialogFragment {
 
     protected void setPositiveButtonText(int stringResId) {
         if (mPositiveButton != null) {
-            mPositiveButton.setText(stringResId);
+            String string = getString(stringResId).toUpperCase();
+            mPositiveButton.setText(string);
         }
     }
 
     protected void setNegativeButtonText(int stringResId) {
         if (mNegativeButton != null) {
-            mNegativeButton.setText(stringResId);
-        }
-    }
-
-    protected void setEnabledCheckboxState(boolean state) {
-        if (mEnabledCheckbox != null) {
-            mEnabledCheckbox.setChecked(state);
+            String string = getString(stringResId).toUpperCase();
+            mNegativeButton.setText(string);
         }
     }
 
@@ -296,73 +270,33 @@ public abstract class ConfigDialog extends DialogFragment {
      * Start the loading animation. Called when beginning login process.
      */
     protected void startLoadingAnimation() {
-        mAnimationHandler.sendEmptyMessageDelayed(MSG_UPDATE_ANIMATION, 50);
+        mProgressBar.setVisibility(View.VISIBLE);
     }
 
     /**
      * Stop the loading animation. Called when login/logout process has finished.
-     *
-     * @param loggedIn determines whether or not the status image drawable will be greyed out.
      */
-    protected void stopLoadingAnimation(boolean loggedIn) {
-        mAnimationHandler.removeMessages(MSG_UPDATE_ANIMATION);
-        if (mResolver != null) {
-            mResolver.loadIcon(mStatusImageView, !loggedIn);
-        } else {
-            TomahawkUtils.loadDrawableIntoImageView(getActivity(), mStatusImageView,
-                    mStatusImageResId, !loggedIn);
-        }
+    protected void stopLoadingAnimation() {
+        mProgressBar.setVisibility(View.GONE);
     }
 
     private void updateContainerHeight() {
-        final int buttonPanelHeight =
-                getResources().getDimensionPixelSize(R.dimen.row_height_large);
-        final int topPanelheight =
-                getResources().getDimensionPixelSize(R.dimen.row_height_verylarge);
-        final int dividerThick =
-                getResources().getDimensionPixelSize(R.dimen.divider_height_thick);
-        if (getDialogView().getHeight() > 0) {
-            // we subtract 1 here because of the divider line which is 1px thick
-            setContainerHeight(getDialogView().getHeight() - buttonPanelHeight - topPanelheight
-                    - dividerThick - 1);
-        } else {
-            getDialogView().getViewTreeObserver().addOnGlobalLayoutListener(
-                    new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            // we subtract 1 here because of the divider line which is 1px thick
-                            setContainerHeight(getDialogView().getHeight() - buttonPanelHeight
-                                    - topPanelheight - dividerThick - 1);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                getDialogView().getViewTreeObserver()
-                                        .removeOnGlobalLayoutListener(this);
-                            } else {
-                                getDialogView().getViewTreeObserver()
-                                        .removeGlobalOnLayoutListener(this);
-                            }
-                        }
-                    });
-        }
+        final int panelHeight = getResources().getDimensionPixelSize(R.dimen.row_height_verylarge);
+
+        TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(getDialogView()) {
+            @Override
+            public void run() {
+                setContainerHeight(getDialogView().getHeight() - panelHeight * 2);
+            }
+        });
     }
 
     private void setContainerHeight(final int height) {
-        if (mDialogFrame.getHeight() > 0) {
-            mDialogFrame.setMaxHeight(height);
-        } else {
-            mDialogFrame.getViewTreeObserver().addOnGlobalLayoutListener(
-                    new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            mDialogFrame.setMaxHeight(height);
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                getDialogView().getViewTreeObserver()
-                                        .removeOnGlobalLayoutListener(this);
-                            } else {
-                                getDialogView().getViewTreeObserver()
-                                        .removeGlobalOnLayoutListener(this);
-                            }
-                        }
-                    });
-        }
+        TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(getDialogView()) {
+            @Override
+            public void run() {
+                mDialogFrame.setMaxHeight(height);
+            }
+        });
     }
 }

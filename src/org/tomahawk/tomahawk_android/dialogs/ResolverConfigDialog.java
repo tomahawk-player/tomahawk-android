@@ -143,13 +143,11 @@ public class ResolverConfigDialog extends ConfigDialog {
             showSoftKeyboard(showKeyboardEditText);
         }
         setDialogTitle(mScriptResolver.getName());
-        if (mScriptResolver.isConfigTestable()) {
-            hideEnabledCheckbox();
-        } else {
-            setEnabledCheckboxState(mScriptResolver.isEnabled());
+        if (!mScriptResolver.isConfigTestable()) {
+            setConnectImageViewClickable();
         }
 
-        setStatusImage(mScriptResolver);
+        setStatus(mScriptResolver);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
@@ -174,7 +172,7 @@ public class ResolverConfigDialog extends ConfigDialog {
         if (mScriptResolver.isEnabled() != checked) {
             mScriptResolver.setEnabled(checked);
 
-            setStatusImage(mScriptResolver);
+            setStatus(mScriptResolver);
         }
     }
 
@@ -187,7 +185,7 @@ public class ResolverConfigDialog extends ConfigDialog {
             } else {
                 mScriptResolver.setEnabled(false);
             }
-            stopLoadingAnimation(false);
+            stopLoadingAnimation();
         }
     }
 

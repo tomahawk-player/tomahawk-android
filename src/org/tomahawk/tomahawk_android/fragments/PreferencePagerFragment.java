@@ -54,6 +54,7 @@ public class PreferencePagerFragment extends PagerFragment {
         FragmentInfo fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = PreferenceConnectFragment.class;
         fragmentInfo.mTitle = getString(R.string.connect);
+        fragmentInfo.mIconResId = R.drawable.ic_connect;
         fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);

@@ -29,7 +29,6 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 
@@ -39,7 +38,6 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -56,8 +54,6 @@ public class ViewHolder {
 
     TextView mUserTextView1;
 
-    SquareWidthRelativeLayout mImageViewBackground;
-
     ImageView mImageView1;
 
     ImageView mImageView2;
@@ -66,6 +62,8 @@ public class ViewHolder {
 
     ImageView mImageView4;
 
+    View mConnectImageViewContainer;
+
     CheckBox mCheckBox1;
 
     CheckBox mCheckBox2;
@@ -73,8 +71,6 @@ public class ViewHolder {
     Spinner mSpinner1;
 
     FancyDropDown mFancyDropDown;
-
-    LinearLayout mTextViewContainer;
 
     TextView mTextView1;
 
@@ -200,6 +196,8 @@ public class ViewHolder {
                     .findViewById(R.id.imageview1);
             mImageView2 = (ImageView) rootView
                     .findViewById(R.id.imageview2);
+            mConnectImageViewContainer = rootView
+                    .findViewById(R.id.connect_imageview_container);
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.textview1);
         }
@@ -310,13 +308,13 @@ public class ViewHolder {
         mTextView1.setText(user.getName().toUpperCase());
         if (showFollowing) {
             mFollowButton
-                    .setBackgroundResource(R.drawable.selectable_background_button_follow_filled);
+                    .setBackgroundResource(R.drawable.selectable_background_button_green_filled);
             mFollowButton.setOnClickListener(followButtonListener);
             mFollowButtonTextView.setText(TomahawkApp.getContext().getString(
                     R.string.content_header_following).toUpperCase());
         } else if (showNotFollowing) {
             mFollowButton
-                    .setBackgroundResource(R.drawable.selectable_background_button_follow);
+                    .setBackgroundResource(R.drawable.selectable_background_button_green);
             mFollowButton.setOnClickListener(followButtonListener);
             mFollowButtonTextView.setText(TomahawkApp.getContext().getString(
                     R.string.content_header_follow).toUpperCase());
@@ -415,8 +413,14 @@ public class ViewHolder {
 
     public void fillView(Resolver resolver) {
         mTextView1.setText(resolver.getPrettyName());
+        mImageView1.clearColorFilter();
         resolver.loadIconBackground(mImageView1, !resolver.isEnabled());
         resolver.loadIconWhite(mImageView2);
+        if (resolver.isEnabled()) {
+            mConnectImageViewContainer.setVisibility(View.VISIBLE);
+        } else {
+            mConnectImageViewContainer.setVisibility(View.GONE);
+        }
     }
 
     private static String dateToString(Resources resources, Date date) {

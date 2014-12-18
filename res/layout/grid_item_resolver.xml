@@ -22,12 +22,12 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical"
-              android:layout_weight="1">
+              android:layout_weight="1"
+              android:background="@drawable/selectable_background_tomahawk">
 
     <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/selectable_background_tomahawk">
+            android:layout_height="wrap_content">
 
         <ImageView android:id="@+id/imageview1"
                    android:layout_width="match_parent"
@@ -42,17 +42,33 @@
 
     </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
 
-    <TextView android:id="@+id/textview1"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:gravity="center_vertical"
-              android:paddingTop="@dimen/padding_small"
-              android:paddingBottom="@dimen/padding_small"
-              android:background="@drawable/selectable_background_tomahawk"
-              android:ellipsize="marquee"
-              android:singleLine="true"
-              android:textColor="@color/primary_textcolor"
-              android:textSize="@dimen/text_size_small"
-              android:text="Spotify"/>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="@dimen/padding_small"
+                  android:paddingBottom="@dimen/padding_small">
+
+        <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout
+                android:id="@+id/connect_imageview_container"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="@dimen/padding_small">
+
+            <ImageView android:layout_width="match_parent"
+                       android:layout_height="match_parent"
+                       android:src="@drawable/ic_connected"/>
+
+        </org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout>
+
+        <TextView android:id="@+id/textview1"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:gravity="center_vertical"
+                  android:ellipsize="marquee"
+                  android:singleLine="true"
+                  android:textColor="@color/primary_textcolor"
+                  android:textSize="@dimen/text_size_small"
+                  android:text="Hatchet"/>
+
+    </LinearLayout>
 
 </LinearLayout>

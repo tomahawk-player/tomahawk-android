@@ -46,5 +46,6 @@
     <color name="local_collection_resolver_bg">#3e454b</color>
     <color name="spotify_resolver_bg">#84bd00</color>
     <color name="hatchet_resolver_bg">#3892e3</color>
+    <color name="deezer_resolver_bg">#22222c</color>
 
 </resources>

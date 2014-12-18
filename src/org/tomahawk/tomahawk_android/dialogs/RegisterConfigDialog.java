@@ -19,6 +19,8 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
+import org.tomahawk.libtomahawk.resolver.HatchetStubResolver;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
@@ -109,9 +111,9 @@ public class RegisterConfigDialog extends ConfigDialog {
 
         showSoftKeyboard(mUsernameEditText);
 
-        hideEnabledCheckbox();
         setDialogTitle(mAuthenticatorUtils.getPrettyName() + ": " + getString(R.string.register));
-        setStatusImage(mAuthenticatorUtils.getIconResourceId(), isLoggedIn);
+        setStatus(
+                new HatchetStubResolver(HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME, null));
         setPositiveButtonText(R.string.register);
         setNegativeButtonText(R.string.cancel);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -130,7 +132,7 @@ public class RegisterConfigDialog extends ConfigDialog {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
                 dismiss();
             }
-            stopLoadingAnimation(false);
+            stopLoadingAnimation();
         }
     }
 
