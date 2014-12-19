@@ -78,6 +78,12 @@ public class ResolverConfigDialog extends ConfigDialog {
         EditText showKeyboardEditText = null;
         EditText lastEditText = null;
         if (mScriptResolver.getConfigUi() != null && mScriptResolver.getConfigUi().fields != null) {
+            LinearLayout headerTextLayout = (LinearLayout) inflater
+                    .inflate(R.layout.config_textview, null);
+            TextView headerTextView = (TextView) headerTextLayout
+                    .findViewById(R.id.config_textview);
+            headerTextView.setText(mScriptResolver.getDescription());
+            addScrollingViewToFrame(headerTextLayout);
             for (ScriptResolverConfigUiField field : mScriptResolver.getConfigUi().fields) {
                 Map<String, Object> config = mScriptResolver.getConfig();
                 if (PROPERTY_CHECKED.equals(field.property)) {
@@ -96,7 +102,7 @@ public class ResolverConfigDialog extends ConfigDialog {
                     addScrollingViewToFrame(checkboxLayout);
                 } else if (PROPERTY_TEXT.equals(field.property)) {
                     LinearLayout textLayout = (LinearLayout) inflater
-                            .inflate(R.layout.config_text, null);
+                            .inflate(R.layout.config_edittext, null);
                     ConfigEdittext editText = (ConfigEdittext) textLayout
                             .findViewById(R.id.config_edittext);
                     editText.mFieldName = field.name;

@@ -91,12 +91,19 @@ public class LoginConfigDialog extends ConfigDialog {
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         boolean isLoggedIn = mAuthenticatorUtils.isLoggedIn();
-        LinearLayout usernameLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
+        LinearLayout headerTextLayout =
+                (LinearLayout) inflater.inflate(R.layout.config_textview, null);
+        TextView headerTextView = (TextView) headerTextLayout.findViewById(R.id.config_textview);
+        headerTextView.setText(mAuthenticatorUtils.getDescription());
+        addScrollingViewToFrame(headerTextLayout);
+        LinearLayout usernameLayout =
+                (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
         mUsernameEditText = (ConfigEdittext) usernameLayout.findViewById(R.id.config_edittext);
         mUsernameEditText.setHint(mAuthenticatorUtils.getUserIdEditTextHintResId());
         mUsernameEditText.setText(isLoggedIn ? mAuthenticatorUtils.getUserName() : "");
         addScrollingViewToFrame(usernameLayout);
-        LinearLayout passwordLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
+        LinearLayout passwordLayout =
+                (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
         mPasswordEditText = (ConfigEdittext) passwordLayout.findViewById(R.id.config_edittext);
         mPasswordEditText.setHint(R.string.login_password);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);

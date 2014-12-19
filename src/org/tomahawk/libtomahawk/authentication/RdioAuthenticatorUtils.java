@@ -92,6 +92,11 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
     }
 
     @Override
+    public String getDescription() {
+        return null;
+    }
+
+    @Override
     public int getIconResourceId() {
         return 0;
     }

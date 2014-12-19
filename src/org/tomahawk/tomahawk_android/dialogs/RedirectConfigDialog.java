@@ -78,6 +78,16 @@ public class RedirectConfigDialog extends ConfigDialog {
                 .containsKey(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY)) {
             mResolverId = getArguments().getString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY);
         }
+
+        ScriptResolver scriptResolver = (ScriptResolver) PipeLine.getInstance()
+                .getResolver(mResolverId);
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LinearLayout headerTextLayout =
+                (LinearLayout) inflater.inflate(R.layout.config_textview, null);
+        TextView headerTextView = (TextView) headerTextLayout.findViewById(R.id.config_textview);
+        headerTextView.setText(scriptResolver.getDescription());
+        addScrollingViewToFrame(headerTextLayout);
+
         int buttonBackgroundResId;
         int buttonImageResId;
         int buttonTextColor;
@@ -88,17 +98,14 @@ public class RedirectConfigDialog extends ConfigDialog {
             buttonTextColor = getResources().getColor(R.color.primary_textcolor);
             onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_RDIO);
         } else {
-            buttonBackgroundResId = R.drawable.selectable_background_tomahawk_inverted;
+            buttonBackgroundResId = R.drawable.selectable_background_deezer_button;
             buttonImageResId = R.drawable.logo_deezer;
-            buttonTextColor = getResources().getColor(R.color.deezer_resolver_bg);
+            buttonTextColor = getResources().getColor(R.color.primary_textcolor_inverted);
             onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_DEEZER);
         }
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
         View buttonLayout = inflater.inflate(R.layout.config_redirect_button, null);
         addScrollingViewToFrame(buttonLayout);
-        ScriptResolver scriptResolver = (ScriptResolver) PipeLine.getInstance()
-                .getResolver(mResolverId);
         AuthenticatorUtils utils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(mResolverId);
         boolean loggedIn = utils.isLoggedIn();

@@ -37,6 +37,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 /**
  * A {@link ConfigDialog} which shows a textfield to enter a username and password, and provides
@@ -80,13 +81,19 @@ public class RegisterConfigDialog extends ConfigDialog {
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        boolean isLoggedIn = mAuthenticatorUtils.isLoggedIn();
-        LinearLayout usernameLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
+        LinearLayout headerTextLayout =
+                (LinearLayout) inflater.inflate(R.layout.config_textview, null);
+        TextView headerTextView = (TextView) headerTextLayout.findViewById(R.id.config_textview);
+        headerTextView.setText(mAuthenticatorUtils.getDescription());
+        addScrollingViewToFrame(headerTextLayout);
+        LinearLayout usernameLayout =
+                (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
         mUsernameEditText = (ConfigEdittext) usernameLayout.findViewById(R.id.config_edittext);
         mUsernameEditText.setHint(mAuthenticatorUtils.getUserIdEditTextHintResId());
         mUsernameEditText.setText(username);
         addScrollingViewToFrame(usernameLayout);
-        LinearLayout passwordLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
+        LinearLayout passwordLayout =
+                (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
         mPasswordEditText = (ConfigEdittext) passwordLayout.findViewById(R.id.config_edittext);
         mPasswordEditText.setHint(R.string.login_password);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
@@ -95,7 +102,7 @@ public class RegisterConfigDialog extends ConfigDialog {
         mPasswordEditText.setText(password);
         addScrollingViewToFrame(passwordLayout);
         LinearLayout passwordConfirmationLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_text, null);
+                (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
         mPasswordConfirmationEditText =
                 (ConfigEdittext) passwordConfirmationLayout.findViewById(R.id.config_edittext);
         mPasswordConfirmationEditText.setHint(
@@ -103,7 +110,7 @@ public class RegisterConfigDialog extends ConfigDialog {
         mPasswordConfirmationEditText.setTypeface(Typeface.DEFAULT);
         mPasswordConfirmationEditText.setTransformationMethod(new PasswordTransformationMethod());
         addScrollingViewToFrame(passwordConfirmationLayout);
-        LinearLayout emailLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
+        LinearLayout emailLayout = (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
         mMailEditText = (ConfigEdittext) emailLayout.findViewById(R.id.config_edittext);
         mMailEditText.setHint(R.string.account_email_label);
         mMailEditText.setOnEditorActionListener(mOnKeyboardEnterListener);

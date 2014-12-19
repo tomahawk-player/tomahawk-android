@@ -36,6 +36,8 @@ public abstract class AuthenticatorUtils {
         return mPrettyName;
     }
 
+    public abstract String getDescription();
+
     public String getId() {
         return mId;
     }

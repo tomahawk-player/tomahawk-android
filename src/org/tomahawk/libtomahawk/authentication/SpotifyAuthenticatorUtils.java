@@ -192,6 +192,12 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     @Override
+    public String getDescription() {
+        return TomahawkApp.getContext().getString(R.string.preferences_spotify_text,
+                SPOTIFY_PRETTY_NAME);
+    }
+
+    @Override
     public boolean isLoggedIn() {
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
