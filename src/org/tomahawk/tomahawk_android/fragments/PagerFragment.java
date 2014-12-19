@@ -318,6 +318,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
                 .findViewById(R.id.content_header_frame_pager);
         super.showContentHeader(headerImageFrame, headerFrame, item);
         super.setupAnimations(headerImageFrame, headerFrame);
+        super.setupNonScrollableSpacer(getView().findViewById(R.id.selector));
     }
 
     private void onSlidingLayoutShown() {
@@ -326,7 +327,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
             if (selector != null) {
                 FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) selector
                         .getLayoutParams();
-                params.setMargins(0, 0, 0,
+                params.setMargins(params.leftMargin, params.topMargin, params.rightMargin,
                         ((TomahawkMainActivity) getActivity()).getSlidingUpPanelLayout()
                                 .getPanelHeight() * -1);
                 selector.setLayoutParams(params);
@@ -340,7 +341,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
             if (selector != null) {
                 FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) selector
                         .getLayoutParams();
-                params.setMargins(0, 0, 0, 0);
+                params.setMargins(params.leftMargin, params.topMargin, params.rightMargin, 0);
                 selector.setLayoutParams(params);
             }
         }

@@ -241,7 +241,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
 
     protected void setupNonScrollableSpacer() {
         setupNonScrollableSpacer(
-                (FrameLayout) getView().findViewById(R.id.fragmentLayout_listLayout_frameLayout));
+                getView().findViewById(R.id.fragmentLayout_listLayout_frameLayout));
     }
 
     protected void setupScrollableSpacer() {
