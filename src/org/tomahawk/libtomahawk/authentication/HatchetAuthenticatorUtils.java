@@ -177,6 +177,12 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     @Override
+    public String getDescription() {
+        return TomahawkApp.getContext().getString(R.string.preferences_hatchet_text,
+                HATCHET_PRETTY_NAME);
+    }
+
+    @Override
     public int getIconResourceId() {
         return R.drawable.ic_hatchet;
     }

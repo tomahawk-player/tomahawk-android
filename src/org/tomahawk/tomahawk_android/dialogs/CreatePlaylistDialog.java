@@ -58,7 +58,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
 
         //set the proper flags for our edittext
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        LinearLayout textLayout = (LinearLayout) inflater.inflate(R.layout.config_text, null);
+        LinearLayout textLayout = (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
         mNameEditText = (ConfigEdittext) textLayout.findViewById(R.id.config_edittext);
         mNameEditText.setHint(R.string.name_playlist);
         mNameEditText.setOnEditorActionListener(mOnKeyboardEnterListener);

@@ -96,6 +96,11 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     @Override
+    public String getDescription() {
+        return null;
+    }
+
+    @Override
     public int getIconResourceId() {
         return 0;
     }
