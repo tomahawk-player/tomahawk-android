@@ -312,11 +312,15 @@ public class ContentHeaderFragment extends Fragment {
         }
     }
 
-    protected void setupNonScrollableSpacer(FrameLayout layout) {
-        //Add a non-scrollable spacer to the top of the listview
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) layout.getLayoutParams();
-        params.setMargins(0, mHeaderNonscrollableHeight, 0, 0);
-        layout.setLayoutParams(params);
+    /**
+     * Add a non-scrollable spacer to the top of the given view
+     */
+    protected void setupNonScrollableSpacer(View view) {
+        //Add a non-scrollable spacer to the top of the given view
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
+        params.setMargins(params.leftMargin, mHeaderNonscrollableHeight, params.rightMargin,
+                params.bottomMargin);
+        view.setLayoutParams(params);
     }
 
     protected void setupScrollableSpacer(TomahawkListAdapter adapter,
