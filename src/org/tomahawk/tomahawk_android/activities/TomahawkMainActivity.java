@@ -731,7 +731,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                     Bundle bundle = new Bundle();
                     bundle.putString(SearchPagerFragment.SEARCHABLEFRAGMENT_QUERY_STRING, query);
                     bundle.putInt(ContentHeaderFragment.MODE,
-                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                            ContentHeaderFragment.MODE_HEADER_STATIC);
                     FragmentUtils
                             .replace(TomahawkMainActivity.this, SearchPagerFragment.class, bundle);
                     if (mSearchItem != null) {
