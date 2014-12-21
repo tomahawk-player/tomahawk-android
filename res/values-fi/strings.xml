@@ -5,8 +5,17 @@
   <string name="login">Kirjaudu</string>
   <string name="logout">Kirjaudu ulos</string>
   <string name="register">Rekisteröity</string>
+  <string name="rescan">Etsi uudelleen nyt</string>
+  <string name="internal_storage">Sisäinen tallennustila</string>
+  <string name="tracks">Kappaleet</string>
+  <string name="albums">Albumit</string>
+  <string name="artists">Artistit</string>
+  <string name="users">Käyttäjät</string>
+  <string name="top_hits">Parhaat hitit</string>
+  <string name="top_albums">Parhaat albumit</string>
   <string name="playlist_details">Soittolistan tiedot</string>
   <string name="album_details">Albumin tiedot</string>
+  <string name="search">Hae</string>
   <string name="playlist">Soittolista</string>
   <string name="shuffle_on_label">Sekoitus käytössä</string>
   <string name="shuffle_off_label">Sekoitus ei käytössä</string>
@@ -29,10 +38,23 @@
   <string name="error_communication">Tunnistautuminen epäonnistui. Tarkista yhteytesi.</string>
   <string name="error_simultaneous_streams">Toimintoa ei sallita; tili on käytössä muualla.</string>
   <string name="error_account_expired">Tilisi on vanhentunut.</string>
+  <string name="auth_logged_in">Kirjauduttu palveluun</string>
+  <string name="auth_logged_out">Kirjauduttu ulos palvelusta</string>
   <string name="local_collection_pretty_name">Paikallinen kokoelma</string>
+  <string name="local">Paikallinen</string>
+  <string name="all">Kaikki</string>
+  <string name="preferences_services">Palvelut</string>
+  <string name="preferences_local_collection_text">Valitse kansiot, joista etsitään paikallista mediaa.</string>
+  <string name="preferences_playback_data">Skrobblaa kaikki</string>
   <string name="preferences_plug_and_play_text">Alkaa soittaa musiikkia heti, kun kuulokkeet on kytketty.</string>
   <string name="preferences_audio_quality">Haluttu äänenlaatu</string>
   <string name="preferences_audio_quality_text">Haluttu äänenlaatu, jos ei olla WiFi-yhteydessä.</string>
+  <string name="preferences_info">Info</string>
+  <string name="preferences_app_version">Versio</string>
+  <string name="preferences_app_uservoice">Palaute</string>
+  <string name="preferences_app_uservoice_text">Kerro ideasi tai pyydä tukea</string>
+  <string name="preferences_app_sendlog">Lähetä loki</string>
+  <string name="preferences_app_sendlog_text">Lähetä lokitiedosto vianjäljitystarkoituksiin</string>
   <string name="crash_dialog_title">Tomahawk on kaatunut</string>
   <string name="crash_dialog_ok_toast">Kiitos!</string>
   <string name="context_menu_play">Soita</string>
@@ -46,6 +68,7 @@
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <string name="context_menu_love">Tykkää</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">Lakkaa tykkäämästä</string>
   <string name="context_menu_share">Jaa</string>
   <string name="context_menu_gotoartist">Siirry artistiin</string>
   <string name="drawer_title_feed">Syöte</string>
@@ -106,4 +129,5 @@
   <string name="button_open_queue_text">Jono</string>
   <string name="button_close">Sulje</string>
   <string name="view_album">Näytä albumi</string>
+  <string name="info">Info</string>
 </resources>
