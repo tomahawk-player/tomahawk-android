@@ -45,17 +45,24 @@
   <string name="all">Kaikki</string>
   <string name="preferences_services">Palvelut</string>
   <string name="preferences_local_collection_text">Valitse kansiot, joista etsitään paikallista mediaa.</string>
+  <string name="preferences_hatchet_text">Synkronoi tietosi palvelun %1$s kanssa.</string>
+  <string name="preferences_spotify_text">Soita musiikkiasi palvelusta %1$s. Tarvitsee Premium-tilin.</string>
+  <string name="preferences_playback">Soitto</string>
   <string name="preferences_playback_data">Skrobblaa kaikki</string>
+  <string name="preferences_playback_data_text">Skrobblaa kaikki puhelimen millä tahansa musiikkisoittimella kuunnellut kappaleet palveluun %1$s.</string>
+  <string name="preferences_plug_and_play">Aloita soitto kytkemällä</string>
   <string name="preferences_plug_and_play_text">Alkaa soittaa musiikkia heti, kun kuulokkeet on kytketty.</string>
   <string name="preferences_audio_quality">Haluttu äänenlaatu</string>
   <string name="preferences_audio_quality_text">Haluttu äänenlaatu, jos ei olla WiFi-yhteydessä.</string>
   <string name="preferences_info">Info</string>
-  <string name="preferences_app_version">Versio</string>
+  <string name="preferences_app_version">Sovelluksen versio</string>
   <string name="preferences_app_uservoice">Palaute</string>
   <string name="preferences_app_uservoice_text">Kerro ideasi tai pyydä tukea</string>
   <string name="preferences_app_sendlog">Lähetä loki</string>
   <string name="preferences_app_sendlog_text">Lähetä lokitiedosto vianjäljitystarkoituksiin</string>
   <string name="crash_dialog_title">Tomahawk on kaatunut</string>
+  <string name="crash_dialog_text">Odottamaton virhe tapahtui, kun sovellusta pakotettiin pysähtymään. Auta meitä korjaamaan ongelma lähettämällä virhetiedot. Sinun tarvitsee vain painaa OK.</string>
+  <string name="crash_dialog_comment_prompt">Alle voit kirjoittaa lisätietoja ongelmasta:</string>
   <string name="crash_dialog_ok_toast">Kiitos!</string>
   <string name="context_menu_play">Soita</string>
   <string name="context_menu_add_to_queue">Lisää jonoon</string>
@@ -78,10 +85,16 @@
   <string name="drawer_title_settings">Asetukset</string>
   <string name="drawer_header_cloudcollections">Pilvikokoelmat</string>
   <string name="collection_dropdown_recently_added">Viimeksi lisätyt</string>
+  <string name="collection_dropdown_alpha_artists">Artisti A–Ö</string>
+  <string name="collection_dropdown_play_count">Soittomäärä</string>
+  <string name="collection_dropdown_alpha_albums">Albumi A–Ö</string>
+  <string name="collection_dropdown_alpha">A–Ö</string>
   <string name="history">Historia</string>
   <string name="preferences_bitrate_low">Tavallinen</string>
   <string name="preferences_bitrate_medium">Hyvä</string>
   <string name="preferences_bitrate_high">Paras</string>
+  <string name="drawer_open">Avaa vetovalikko</string>
+  <string name="drawer_close">Sulje vetovalikko</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Seuraamassa</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
@@ -101,11 +114,15 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">keräsi %1$d albumia</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">keräsi artistin</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">keräsi %1$d artistia</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">kommentoi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
+  <string name="socialaction_type_latchon_single">kuunteli kaverin kanssa</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
+  <string name="socialaction_type_latchon_multiple">kuunteli %1$d kaverin kanssa</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
   <string name="socialaction_type_createplaylist_single">loi soittolistan</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
@@ -121,13 +138,21 @@
   <string name="time_days">%1$d päivää sitten</string>
   <string name="music">Musiikki</string>
   <string name="biography">Biografia</string>
+  <string name="similar">Samankaltaiset</string>
+  <string name="songs">Kappaleet</string>
+  <string name="activity">Toiminta</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
+  <string name="followers">Seuraajat</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
+  <string name="following">Seuraamassa</string>
   <string name="ask_access_activity_header">Haluatko tallentaa kaikkien kuuntelemiesi kappaleiden tiedot automaattisesti Hatchetiin?</string>
+  <string name="ask_access_activity_text1">Teemme sen puolestasi! Ota palvelumme käyttöön järjestelmäasetuksista.</string>
   <string name="ask_access_activity_text2">(Voit poistaa tämän käytöstä Tomahawkin asetuksista milloin haluat)</string>
   <string name="ask_access_activity_button_text">Siirry asetuksiin</string>
   <string name="button_open_queue_text">Jono</string>
   <string name="button_close">Sulje</string>
   <string name="view_album">Näytä albumi</string>
+  <string name="connect_headertext">Valitse palvelut, joita haluat käyttää. Tomahawk toimii sitä paremmin, mitä enemmän palveluita on käytössä.</string>
+  <string name="advanced">Lisäasetukset</string>
   <string name="info">Info</string>
 </resources>
