@@ -5,6 +5,8 @@
   <string name="login">Přihlášení</string>
   <string name="logout">Odhlášení</string>
   <string name="register">Registrace</string>
+  <string name="rescan">Prohledat nyní znovu</string>
+  <string name="internal_storage">Vnitřní úložiště</string>
   <string name="tracks">Skladby</string>
   <string name="albums">Alba</string>
   <string name="artists">Umělci</string>
@@ -39,7 +41,10 @@
   <string name="auth_logged_in">Přihlášen</string>
   <string name="auth_logged_out">Odhlášen</string>
   <string name="local_collection_pretty_name">Místní sbírka</string>
+  <string name="local">Místní</string>
+  <string name="all">Vše</string>
   <string name="preferences_services">Služby</string>
+  <string name="preferences_local_collection_text">Vyberte adresáře, které se mají prohledat kvůli nalezení místních souborů.</string>
   <string name="preferences_hatchet_text">Seřídit data s %1$s.</string>
   <string name="preferences_spotify_text">Přehrávejte svoji hudbu ze %1$s. Vyžaduje účet Premium.</string>
   <string name="preferences_playback">Přehrávání</string>
@@ -54,6 +59,8 @@
   <string name="preferences_app_version">Verze</string>
   <string name="preferences_app_uservoice">Zpětná vazba</string>
   <string name="preferences_app_uservoice_text">Sdílejte své myšlenky a požádejte o podporu.</string>
+  <string name="preferences_app_sendlog">Poslat záznam</string>
+  <string name="preferences_app_sendlog_text">Poslat soubor se záznamem pro účely ladění</string>
   <string name="crash_dialog_title">Tomahawk spadl</string>
   <string name="crash_dialog_text">Neočekávaná chyba vedla k zastavení programu. Pomozte nám ji, prosím, opravit tím, že pošlete údaje o chybě. Vše, co musíte udělat, je klepnout na OK.</string>
   <string name="crash_dialog_comment_prompt">Níže můžete přidat své poznámky o potížích:</string>
@@ -79,7 +86,10 @@
   <string name="drawer_title_settings">Nastavení</string>
   <string name="drawer_header_cloudcollections">Sbírky na serveru</string>
   <string name="collection_dropdown_recently_added">Nedávno přidáno</string>
+  <string name="collection_dropdown_alpha_artists">Umělec A-Z</string>
   <string name="collection_dropdown_play_count">Počet přehrání</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Historie</string>
   <string name="preferences_bitrate_low">Normální</string>
   <string name="preferences_bitrate_medium">Dobré</string>
@@ -105,7 +115,9 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">sebral %1$d alb</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">sebral umělce</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">sebral %1$d umělců</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">přidal poznámku k</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
@@ -145,4 +157,8 @@
   <string name="button_open_queue_text">Řada</string>
   <string name="button_close">Zavřít</string>
   <string name="view_album">Zobrazit album</string>
+  <string name="connect">Připojit</string>
+  <string name="connect_headertext">Vyberte služby, jež hodláte používat. Tomahawk pracuje lépe, když je zapnuto více služeb.</string>
+  <string name="advanced">Pokročilé</string>
+  <string name="info">Informace</string>
 </resources>
