@@ -140,6 +140,7 @@
   <string name="users_favorites_suffix">\'s Favorites</string>
   <string name="music">Music</string>
   <string name="biography">Biography</string>
+  <!-- "Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <string name="similar">Similar</string>
   <!-- Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Songs</string>
