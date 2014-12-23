@@ -207,16 +207,22 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     }
 
     protected void showFancyDropDown(TomahawkListItem item) {
-        super.showFancyDropDown((FrameLayout) getView().findViewById(R.id.content_header_frame),
-                item.getName().toUpperCase());
+        if (mContainerFragmentClass == null) {
+            FrameLayout headerFrame =
+                    (FrameLayout) getView().findViewById(R.id.content_header_frame);
+            super.showFancyDropDown(headerFrame, item.getName().toUpperCase());
+        }
     }
 
     protected void showFancyDropDown(TomahawkListItem item, int initialSelection,
             List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
             FancyDropDown.DropDownListener dropDownListener) {
-        super.showFancyDropDown((FrameLayout) getView().findViewById(R.id.content_header_frame),
-                initialSelection, item.getName().toUpperCase(), dropDownItemInfos,
-                dropDownListener);
+        if (mContainerFragmentClass == null) {
+            FrameLayout headerFrame =
+                    (FrameLayout) getView().findViewById(R.id.content_header_frame);
+            super.showFancyDropDown(headerFrame, initialSelection, item.getName().toUpperCase(),
+                    dropDownItemInfos, dropDownListener);
+        }
     }
 
     protected void showContentHeader(Object item) {
