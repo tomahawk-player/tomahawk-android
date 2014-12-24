@@ -52,7 +52,8 @@ import java.util.List;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
- * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows information provided
+ * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows information
+ * provided
  * by a User object. Such as the image, feed and nowPlaying info of a user.
  */
 public class SocialActionsFragment extends TomahawkFragment implements
@@ -142,13 +143,17 @@ public class SocialActionsFragment extends TomahawkFragment implements
             }
         } else if (item instanceof Album) {
             bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, ((Album) item).getCacheKey());
-            bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+            if (mCollection != null) {
+                bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+            }
             bundle.putInt(ContentHeaderFragment.MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
             FragmentUtils.replace(activity, TracksFragment.class, bundle);
         } else if (item instanceof Artist) {
             bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, ((Artist) item).getCacheKey());
-            bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+            if (mCollection != null) {
+                bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+            }
             bundle.putInt(ContentHeaderFragment.MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
             bundle.putLong(ContentHeaderFragment.CONTAINER_FRAGMENT_ID,
