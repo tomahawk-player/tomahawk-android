@@ -126,8 +126,11 @@
   <string name="users_favorites_suffix">รายการโปรด</string>
   <string name="music">ดนตรี</string>
   <string name="biography">ชีวประวัติ</string>
+  <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <string name="similar">คล้าย</string>
+  <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">เพลง</string>
+  <!--Shown as part of a count string. E.g.: "3 songs".-->
   <string name="activity">กิจกรรม</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">ผู้ติดตาม</string>

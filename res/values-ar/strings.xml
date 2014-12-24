@@ -21,6 +21,9 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
+  <!--Shown as a title for a list of songs in the search results view.-->
+  <!--Shown as part of a count string. E.g.: "3 songs".-->
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
 </resources>

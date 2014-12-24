@@ -138,8 +138,11 @@
   <string name="time_days">%1$d päivää sitten</string>
   <string name="music">Musiikki</string>
   <string name="biography">Biografia</string>
+  <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <string name="similar">Samankaltaiset</string>
+  <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Kappaleet</string>
+  <!--Shown as part of a count string. E.g.: "3 songs".-->
   <string name="activity">Toiminta</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Seuraajat</string>

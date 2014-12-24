@@ -89,8 +89,11 @@
   <string name="users_playbacklog_suffix">недавно слушал</string>
   <string name="music">Музыка</string>
   <string name="biography">Биография</string>
+  <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <string name="similar">Похожие</string>
+  <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Песни</string>
+  <!--Shown as part of a count string. E.g.: "3 songs".-->
   <string name="activity">Действие</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Читающие</string>
