@@ -137,10 +137,14 @@
   <string name="time_hours">hace %1$d horas</string>
   <string name="time_days">hace %1$d días</string>
   <string name="users_playbacklog_suffix"> escuchó recientemente</string>
+  <string name="users_favorites_suffix">Las favoritas de</string>
   <string name="music">Música</string>
   <string name="biography">Biografía</string>
+  <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <string name="similar">Similares</string>
+  <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Canciones</string>
+  <!--Shown as part of a count string. E.g.: "3 songs".-->
   <string name="activity">Actividad</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Seguidores</string>
@@ -155,4 +159,8 @@
   <string name="button_open_queue_text">Añadir a la cola</string>
   <string name="button_close">Cerrar</string>
   <string name="view_album">Ver álbum</string>
+  <string name="connect">Conectar</string>
+  <string name="connect_headertext">Seleccione los servicios que desea utilizar. Tomahawk funciona mejor cuando se activan más servicios.</string>
+  <string name="advanced">Avanzado</string>
+  <string name="info">Información</string>
 </resources>
