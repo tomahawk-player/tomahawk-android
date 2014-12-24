@@ -102,7 +102,7 @@ Tomahawk.localStorage = {
         Tomahawk.localStorageSetItem(key, value);
     },
     getItem: function(key) {
-        Tomahawk.localStorageGetItem(key);
+        return Tomahawk.localStorageGetItem(key);
     },
     removeItem: function(key) {
         Tomahawk.localStorageRemoveItem(key);
