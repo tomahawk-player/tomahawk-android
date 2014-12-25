@@ -35,7 +35,10 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.PreferenceAdvancedFragment;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Build;
@@ -74,6 +77,32 @@ public class MicroService extends Service {
     private static Track sCurrentTrack = null;
 
     private RemoteMetadataProvider mMetadataProvider;
+
+    private MicroServiceBroadcastReceiver mMicroServiceBroadcastReceiver;
+
+    /**
+     * Handles incoming broadcasts
+     */
+    private class MicroServiceBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction()) && intent
+                    .hasExtra("state") && intent.getIntExtra("state", 0) == 1) {
+                Log.d(TAG, "Headset has been plugged in");
+                SharedPreferences prefs =
+                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                boolean playbackOnHeadsetInsert = prefs.getBoolean(
+                        PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY, false);
+
+                if (playbackOnHeadsetInsert) {
+                    //resume playback, if user has set the "resume on headset plugin" preference
+                    context.startService(new Intent(PlaybackService.ACTION_PLAY, null, context,
+                            PlaybackService.class));
+                }
+            }
+        }
+    }
 
     @Override
     public void onCreate() {
@@ -128,6 +157,10 @@ public class MicroService extends Service {
                 mMetadataProvider.acquireRemoteControls(256, 256);
             }
         }
+
+        mMicroServiceBroadcastReceiver = new MicroServiceBroadcastReceiver();
+        registerReceiver(mMicroServiceBroadcastReceiver,
+                new IntentFilter(Intent.ACTION_HEADSET_PLUG));
     }
 
     @Override
@@ -156,6 +189,16 @@ public class MicroService extends Service {
             }
         }
         return Service.START_STICKY;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        unregisterReceiver(mMicroServiceBroadcastReceiver);
+        mMicroServiceBroadcastReceiver = null;
+
+        Log.d(TAG, "MicroService has been destroyed");
     }
 
     private synchronized void onPlayStateChanged(Track track, MicroService.State state,
