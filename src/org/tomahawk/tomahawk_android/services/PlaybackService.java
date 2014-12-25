@@ -38,7 +38,6 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.fragments.PreferenceAdvancedFragment;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
@@ -65,7 +64,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
@@ -84,7 +82,6 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.PowerManager;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -382,26 +379,7 @@ public class PlaybackService extends Service
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
-                // AudioManager tells us that the sound will be played through the speaker
-                if (isPlaying()) {
-                    Log.d(TAG, "Action audio becoming noisy, pausing ...");
-                    // So we stop playback, if needed
-                    pause();
-                }
-            } else if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction()) && intent
-                    .hasExtra("state") && intent.getIntExtra("state", 0) == 1) {
-                Log.d(TAG, "Headset has been plugged in");
-                SharedPreferences prefs =
-                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                boolean playbackOnHeadsetInsert = prefs.getBoolean(
-                        PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY, false);
-
-                if (!isPlaying() && playbackOnHeadsetInsert) {
-                    //resume playback, if user has set the "resume on headset plugin" preference
-                    start();
-                }
-            } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
+            if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
                 String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
                 onPipeLineResultsReported(qid);
             } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
@@ -488,10 +466,6 @@ public class PlaybackService extends Service
 
         // Initialize and register PlaybackServiceBroadcastReceiver
         mPlaybackServiceBroadcastReceiver = new PlaybackServiceBroadcastReceiver();
-        registerReceiver(mPlaybackServiceBroadcastReceiver,
-                new IntentFilter(Intent.ACTION_HEADSET_PLUG));
-        registerReceiver(mPlaybackServiceBroadcastReceiver,
-                new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
@@ -665,7 +639,8 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Restore the current playlist from the Playlists Database. Do this by storing it in the {@link
+     * Restore the current playlist from the Playlists Database. Do this by storing it in the
+     * {@link
      * org.tomahawk.libtomahawk.collection.UserCollection} first, and then retrieving the playlist
      * from there.
      */
