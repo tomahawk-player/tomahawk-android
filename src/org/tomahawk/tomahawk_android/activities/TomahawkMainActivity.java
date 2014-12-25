@@ -604,6 +604,13 @@ public class TomahawkMainActivity extends ActionBarActivity
         config.setTopicId(62613);
         UserVoice.init(config, TomahawkMainActivity.this);
 
+        //Resolve currently logged-in user
+        HatchetAuthenticatorUtils hatchetAuthUtils
+                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        mCurrentRequestIds.add(
+                InfoSystem.getInstance().resolve(hatchetAuthUtils.getLoggedInUser()));
+
         if (!mRootViewsInitialized) {
             mRootViewsInitialized = true;
 
@@ -622,9 +629,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                                         PlaybackFragment.class.getName(), null),
                                 null)
                         .commit();
-                HatchetAuthenticatorUtils hatchetAuthUtils =
-                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                 FragmentUtils.addRootFragment(TomahawkMainActivity.this,
                         hatchetAuthUtils.getLoggedInUser());
             } else {
@@ -828,8 +832,15 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     public void onHatchetLoggedInOut(boolean loggedIn) {
-        if (loggedIn && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            RemoteControllerService.attemptAskAccess();
+        if (loggedIn) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                RemoteControllerService.attemptAskAccess();
+            }
+            HatchetAuthenticatorUtils authenticatorUtils
+                    = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+            mCurrentRequestIds.add(
+                    InfoSystem.getInstance().resolve(authenticatorUtils.getLoggedInUser()));
         }
         updateDrawer();
     }
