@@ -145,6 +145,7 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Lieder</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
+  <string name="songs_with_count">Lieder</string>
   <string name="activity">Aktivitäten</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Followers</string>
@@ -159,4 +160,8 @@
   <string name="button_open_queue_text">Warteschlange</string>
   <string name="button_close">Schließen</string>
   <string name="view_album">Album ansehen</string>
+  <string name="connect">Verbinden</string>
+  <string name="connect_headertext">Wählen Sie die Dienste aus, die Sie verwenden möchten. Tomahawk funktioniert besser, wenn mehrere Dienste aktiviert sind.</string>
+  <string name="advanced">Erweitert</string>
+  <string name="info">Info</string>
 </resources>
