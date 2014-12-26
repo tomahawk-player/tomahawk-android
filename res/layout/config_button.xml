@@ -21,22 +21,21 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:id="@+id/config_button"
              android:layout_width="match_parent"
-             android:layout_height="@dimen/row_height_verylarge"
-             android:orientation="vertical"
-             android:background="@drawable/selectable_background_tomahawk">
+             android:layout_height="wrap_content"
+             android:orientation="vertical">
 
-    <TextView
-            android:id="@+id/config_button_text"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:paddingLeft="@dimen/padding_superlarge"
-            android:paddingRight="@dimen/padding_superlarge"
-            android:textSize="@dimen/text_size_medium"
-            android:textColor="@color/tomahawk_red"
-            android:textStyle="bold"
-            android:text="REGISTER"/>
+    <TextView android:id="@+id/config_button_text"
+              android:layout_width="wrap_content"
+              android:layout_height="@dimen/row_height_verylarge"
+              android:layout_gravity="center"
+              android:paddingLeft="@dimen/padding_superlarge"
+              android:paddingRight="@dimen/padding_superlarge"
+              android:clickable="true"
+              android:background="@drawable/selectable_background_tomahawk"
+              android:text="@string/register"
+              android:textSize="@dimen/text_size_medium"
+              android:textColor="@color/tomahawk_red"
+              android:textStyle="bold"
+              android:gravity="center"/>
 
 </FrameLayout>
