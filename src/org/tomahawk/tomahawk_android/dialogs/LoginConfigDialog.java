@@ -96,6 +96,15 @@ public class LoginConfigDialog extends ConfigDialog {
         TextView headerTextView = (TextView) headerTextLayout.findViewById(R.id.config_textview);
         headerTextView.setText(mAuthenticatorUtils.getDescription());
         addScrollingViewToFrame(headerTextLayout);
+        if (mAuthenticatorUtils.doesAllowRegistration() && !isLoggedIn) {
+            FrameLayout buttonLayout =
+                    (FrameLayout) inflater.inflate(R.layout.config_button, null);
+            TextView buttonText =
+                    (TextView) buttonLayout.findViewById(R.id.config_button_text);
+            buttonText.setText(getString(R.string.register).toUpperCase());
+            buttonText.setOnClickListener(new RegisterButtonListener());
+            addScrollingViewToFrame(buttonLayout);
+        }
         LinearLayout usernameLayout =
                 (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
         mUsernameEditText = (ConfigEdittext) usernameLayout.findViewById(R.id.config_edittext);
@@ -111,17 +120,6 @@ public class LoginConfigDialog extends ConfigDialog {
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
         addScrollingViewToFrame(passwordLayout);
-        if (mAuthenticatorUtils.doesAllowRegistration() && !mAuthenticatorUtils.isLoggedIn()) {
-            FrameLayout buttonLayout =
-                    (FrameLayout) inflater.inflate(R.layout.config_button, null);
-            FrameLayout button =
-                    (FrameLayout) buttonLayout.findViewById(R.id.config_button);
-            button.setOnClickListener(new RegisterButtonListener());
-            TextView buttonText =
-                    (TextView) buttonLayout.findViewById(R.id.config_button_text);
-            buttonText.setText(R.string.register);
-            addScrollingViewToFrame(buttonLayout);
-        }
 
         showSoftKeyboard(mUsernameEditText);
 
