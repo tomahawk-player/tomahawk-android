@@ -115,27 +115,13 @@ public class TracksFragment extends TomahawkFragment {
         if (item instanceof Query) {
             Query query = (Query) item;
             if (query.isPlayable()) {
-                ArrayList<Query> queries = new ArrayList<Query>();
                 TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-                if (mAlbum != null) {
-                    queries = CollectionUtils.getAlbumTracks(mAlbum, mCollection);
-                } else if (mArtist != null) {
-                    queries = CollectionUtils.getArtistTracks(mArtist, mCollection);
-                } else if (mQuery != null) {
-                    queries.add(mQuery);
-                } else if (mSearchSongs != null) {
-                    queries = mSearchSongs;
-                } else {
-                    Collection userCollection = CollectionManager.getInstance()
-                            .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                    queries.addAll(userCollection.getQueries());
-                }
                 PlaybackService playbackService = activity.getPlaybackService();
                 if (playbackService != null && playbackService.getCurrentQuery() == query) {
                     playbackService.playPause();
                 } else {
                     Playlist playlist = Playlist.fromQueryList(DatabaseHelper.CACHED_PLAYLIST_NAME,
-                            queries);
+                            mShownQueries);
                     playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
                     if (playbackService != null) {
                         playbackService.setPlaylist(playlist, playlist.getEntryWithQuery(query));
@@ -258,10 +244,7 @@ public class TracksFragment extends TomahawkFragment {
             }
         }
 
-        mShownQueries.clear();
-        for (Object query : queries) {
-            mShownQueries.add((Query) query);
-        }
+        mShownQueries = queries;
 
         onUpdateAdapterFinished();
     }
