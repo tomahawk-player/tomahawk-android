@@ -5,6 +5,8 @@
   <string name="login">Вхід</string>
   <string name="logout">Вихід</string>
   <string name="register">Реєстрація</string>
+  <string name="rescan">Пересканувати знову</string>
+  <string name="tracks">Композиції</string>
   <string name="albums">Альбоми</string>
   <string name="artists">Виконавці</string>
   <string name="users">Користувачі</string>
@@ -36,6 +38,7 @@
   <string name="auth_logged_in">Під’єднаний до</string>
   <string name="auth_logged_out">Від’єднаний від</string>
   <string name="local_collection_pretty_name">Локальна колекція</string>
+  <string name="all">Всі</string>
   <string name="preferences_services">Сервіси</string>
   <string name="preferences_hatchet_text">Синхронізуйте Ваші дані з %1$s.</string>
   <string name="preferences_spotify_text">Прослуховуйте музику з %1$s. Потребує облікового запису Преміум.</string>
@@ -57,9 +60,13 @@
   <string name="context_menu_add_to_playlist">Додати до Списку відтворення</string>
   <string name="context_menu_delete">Вилучити</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">Вилучити з колекції</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">Додати до колекції</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">Улюблене</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">Неулюблене</string>
   <string name="context_menu_share">Поділитися</string>
   <string name="context_menu_gotoartist">Перейти до Виконавця</string>
   <string name="drawer_title_feed">Фід</string>
@@ -67,6 +74,7 @@
   <string name="drawer_title_playlists">Списки відтворення</string>
   <string name="drawer_title_lovedtracks">Вибрані</string>
   <string name="drawer_title_settings">Параметри</string>
+  <string name="drawer_header_cloudcollections">Хмара колекцій</string>
   <string name="collection_dropdown_recently_added">Нещодавно Додані</string>
   <string name="collection_dropdown_play_count">Лічильник Відтворень</string>
   <string name="history">Історія</string>
@@ -80,7 +88,9 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
+  <string name="socialaction_type_love_track_single">сподобалася композиція:</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
+  <string name="socialaction_type_love_track_multiple">сподобалися %1$d композиції</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
@@ -92,8 +102,17 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
+  <string name="socialaction_type_createplaylist_single">створив список відтворення</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
+  <string name="socialaction_type_createplaylist_multiple">створив %1$d списки відтворення</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="time_afewseconds">декілька секунд тому</string>
+  <string name="time_aminute">хвилина тому</string>
+  <string name="time_anhour">година тому</string>
+  <string name="time_aday">день тому</string>
+  <string name="time_minutes">%1$d хвилин тому</string>
+  <string name="time_hours">%1$d годин тому</string>
+  <string name="time_days">%1$d днів тому</string>
   <string name="users_playbacklog_suffix">нещодавно слухав</string>
   <string name="music">Музика</string>
   <string name="biography">Біографія</string>
@@ -102,6 +121,7 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Пісні</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
+  <string name="songs_with_count">Пісні</string>
   <string name="activity">Дія</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Читаючі</string>
@@ -114,4 +134,8 @@
   <string name="ask_access_activity_text2">(Ви можете вимкнути це будь-коли в налаштуваннях Tomahawk)</string>
   <string name="ask_access_activity_button_text">Перейти до Налаштувань</string>
   <string name="button_open_queue_text">Черга</string>
+  <string name="button_close">Закрити</string>
+  <string name="view_album">Перегляд альбому</string>
+  <string name="connect">З’єднання</string>
+  <string name="info">Інфо</string>
 </resources>
