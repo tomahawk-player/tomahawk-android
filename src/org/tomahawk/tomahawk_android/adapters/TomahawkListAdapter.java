@@ -243,8 +243,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             viewHolders = (List<ViewHolder>) convertView.getTag();
             view = convertView;
         }
-        int viewType = getViewType(o, shouldBeHighlighted,
-                mHeaderSpacerHeight > 0 && position == 0, position == getCount() - 1);
+        int viewType = getViewType(o, mHeaderSpacerHeight > 0 && position == 0,
+                position == getCount() - 1);
         int expectedViewHoldersCount = 1;
         if (o instanceof List) {
             expectedViewHoldersCount = 0;
@@ -295,19 +295,18 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     view.getPaddingRight(), view.getPaddingBottom());
             view.setTag(viewHolders);
         } else if (viewType == R.layout.list_item_track
-                || viewType == R.layout.list_item_track_highlighted
                 || viewType == R.layout.grid_item
                 || viewType == R.layout.list_item_artistalbum
                 || viewType == R.layout.grid_item_user
                 || viewType == R.layout.list_item_user
                 || viewType == R.layout.grid_item_resolver) {
             for (ViewHolder viewHolder : viewHolders) {
-                if (viewType == R.layout.list_item_track
-                        || viewType == R.layout.list_item_track_highlighted) {
+                if (viewType == R.layout.list_item_track) {
                     viewHolder.mImageView1.setVisibility(View.GONE);
                     viewHolder.mTextView1.setVisibility(View.GONE);
                     viewHolder.mTextView3.setVisibility(View.GONE);
                     viewHolder.mTextView4.setVisibility(View.GONE);
+                    viewHolder.mProgressBarContainer.removeAllViews();
                 } else if (viewType == R.layout.grid_item_resolver) {
                     viewHolder.mImageView1.clearColorFilter();
                 } else {
@@ -348,8 +347,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                 viewHolder.fillView(((TomahawkListItem) item).getName());
             } else if (viewHolder.mLayoutId == R.layout.list_item_text) {
                 viewHolder.fillView(((TomahawkListItem) item).getName());
-            } else if (viewHolder.mLayoutId == R.layout.list_item_track
-                    || viewHolder.mLayoutId == R.layout.list_item_track_highlighted) {
+            } else if (viewHolder.mLayoutId == R.layout.list_item_track) {
                 if (item instanceof Query || item instanceof PlaylistEntry) {
                     String numerationString = null;
                     if (mShowNumeration) {
@@ -361,17 +359,16 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     } else {
                         query = (Query) item;
                     }
-                    viewHolder.fillView(mActivity, query, numerationString,
+                    viewHolder.fillView(query, numerationString,
                             mHighlightedItemIsPlaying && shouldBeHighlighted, mShowDuration,
                             mHideArtistName);
                 }
-                if (viewHolder.mProgressBarContainer != null
-                        && viewHolder.mProgressBarContainer.findViewById(R.id.progressbar)
-                        == null) {
+                if (mHighlightedItemIsPlaying && shouldBeHighlighted) {
                     if (mProgressBar == null) {
                         mProgressBar = (ProgressBar) mLayoutInflater.inflate(R.layout.progressbar,
                                 viewHolder.mProgressBarContainer, false);
-                    } else {
+                    }
+                    if (mProgressBar.getParent() instanceof FrameLayout) {
                         ((FrameLayout) mProgressBar.getParent()).removeView(mProgressBar);
                     }
                     viewHolder.mProgressBarContainer.addView(mProgressBar);
@@ -380,8 +377,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             }
 
             //Set up the click listeners
-            if (viewHolder.mLayoutId == R.layout.list_item_track
-                    || viewHolder.mLayoutId == R.layout.list_item_track_highlighted) {
+            if (viewHolder.mLayoutId == R.layout.list_item_track) {
                 if (item instanceof SocialAction || item instanceof User) {
                     User user;
                     if (item instanceof SocialAction) {
@@ -591,8 +587,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
         }
     }
 
-    private int getViewType(Object item, boolean isHighlighted,
-            boolean isContentHeaderItem, boolean isFooter) {
+    private int getViewType(Object item, boolean isContentHeaderItem, boolean isFooter) {
         if (item instanceof List) {
             // We have a grid item
             // Don't display the socialAction item directly, but rather the item that is its target
@@ -620,8 +615,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             return R.layout.content_footer_spacer;
         } else if (item instanceof Playlist) {
             return R.layout.single_line_list_item;
-        } else if (isHighlighted) {
-            return R.layout.list_item_track_highlighted;
         } else if (item instanceof ListItemString) {
             return R.layout.list_item_text;
         } else if (item instanceof Album || item instanceof Artist) {
