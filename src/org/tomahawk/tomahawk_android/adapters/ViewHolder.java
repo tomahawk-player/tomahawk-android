@@ -28,7 +28,6 @@ import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 
@@ -106,8 +105,7 @@ public class ViewHolder {
                     .findViewById(R.id.userimageview1);
             mUserTextView1 = (TextView) rootView
                     .findViewById(R.id.usertextview1);
-        } else if (layoutId == R.layout.list_item_track
-                || layoutId == R.layout.list_item_track_highlighted) {
+        } else if (layoutId == R.layout.list_item_track) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.imageview1);
             mTextView1 = (TextView) rootView
@@ -344,9 +342,8 @@ public class ViewHolder {
         mImageView1.setImageDrawable(drawable);
     }
 
-    public void fillView(final TomahawkMainActivity activity, Query query,
-            String numerationString, boolean showAsPlaying, boolean showDuration,
-            boolean hideArtistName) {
+    public void fillView(Query query, String numerationString, boolean showAsPlaying,
+            boolean showDuration, boolean hideArtistName) {
         if (!hideArtistName) {
             mTextView3.setVisibility(View.VISIBLE);
             mTextView3.setText(query.getArtist().getName());
@@ -356,6 +353,8 @@ public class ViewHolder {
         setTextViewEnabled(mTextView3, query.isPlayable(), false);
         if (numerationString != null) {
             if (showAsPlaying) {
+                mTextView1.setVisibility(View.INVISIBLE);
+                mTextView1.setText(numerationString);
                 mImageView1.setVisibility(View.VISIBLE);
                 Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
                 resolver.loadIcon(mImageView1, false);
