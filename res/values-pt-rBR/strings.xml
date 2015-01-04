@@ -5,6 +5,7 @@
   <string name="login">Entrar</string>
   <string name="logout">Sair</string>
   <string name="register">Registrar</string>
+  <string name="internal_storage">Armazenamento Interno</string>
   <string name="tracks">Faixas</string>
   <string name="albums">Álbuns</string>
   <string name="artists">Artistas</string>
@@ -38,6 +39,7 @@
   <string name="local">Local</string>
   <string name="all">Todos</string>
   <string name="preferences_services">Serviços</string>
+  <string name="preferences_local_collection_text">Escolha os diretórios que deverão ser examinados para mídia local.</string>
   <string name="preferences_hatchet_text">Sincronizar seus dados com %1$s.</string>
   <string name="preferences_spotify_text">Toque sua música de %1$s. É necessária uma Conta Premium.</string>
   <string name="preferences_plug_and_play">Conectar para Tocar</string>
@@ -48,6 +50,7 @@
   <string name="preferences_app_version">Versão-do-Aplicativo</string>
   <string name="preferences_app_uservoice_text">Compartilhe suas ideias ou pergunte para o suporte</string>
   <string name="preferences_app_sendlog">Enviar Registro</string>
+  <string name="crash_dialog_title">O Tomahawk travou</string>
   <string name="crash_dialog_text">Um erro inesperado ocorreu, forçando a interrupção da aplicação. Por favor, nos ajude a arrumar isso enviando os dados do erro. Tudo que você precisa fazer é clicar em OK.</string>
   <string name="crash_dialog_comment_prompt">Abaixo, você pode fazer comentários sobre o problema :</string>
   <string name="crash_dialog_ok_toast">Obrigado !</string>
@@ -69,6 +72,9 @@
   <string name="drawer_title_settings">Configurações</string>
   <string name="drawer_header_cloudcollections">Coleções na Nuvem</string>
   <string name="collection_dropdown_recently_added">Recentemente Adicionado</string>
+  <string name="collection_dropdown_alpha_artists">Artista A-Z</string>
+  <string name="collection_dropdown_alpha_albums">Álbum A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Histórico</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Bom</string>
@@ -97,6 +103,7 @@
   <string name="socialaction_type_createplaylist_single">criou uma playlist</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s por %2$s</string>
   <string name="time_afewseconds">há poucos segundos</string>
   <string name="time_aminute">há um minuto</string>
   <string name="time_anhour">há uma hora</string>
@@ -111,6 +118,7 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Músicas</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
+  <string name="songs_with_count">Músicas</string>
   <string name="activity">Atividade</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Seguidores</string>
@@ -122,4 +130,7 @@
   <string name="ask_access_activity_button_text">Ir para Ajustes</string>
   <string name="button_close">Fechar</string>
   <string name="view_album">Visualizar Álbum</string>
+  <string name="connect">Conectar</string>
+  <string name="connect_headertext">Selecione os serviços que você quer usar. O Tomahawk funciona melhor com mais seviços ativados.</string>
+  <string name="info">Informação</string>
 </resources>

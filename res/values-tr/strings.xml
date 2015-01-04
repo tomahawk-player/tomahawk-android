@@ -145,6 +145,7 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Şarkılar</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
+  <string name="songs_with_count">Şarkı</string>
   <string name="activity">Etkinlikler</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Takipçiler</string>
@@ -159,4 +160,8 @@
   <string name="button_open_queue_text">Sıra</string>
   <string name="button_close">Kapat</string>
   <string name="view_album">Albümü Görüntüle</string>
+  <string name="connect">Bağlan</string>
+  <string name="connect_headertext">Kullanmak istediğin servisi seç. Daha fazla hizmet etkinleştirildiğinde Tomahawk daha iyi çalışır.</string>
+  <string name="advanced">Gelişmiş</string>
+  <string name="info">Bilgi</string>
 </resources>
