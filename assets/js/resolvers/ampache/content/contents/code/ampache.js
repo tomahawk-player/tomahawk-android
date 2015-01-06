@@ -107,6 +107,7 @@ var AmpacheResolver = Tomahawk.extend(TomahawkResolver, {
 
     configTest: function () {
         var that = this;
+        this.prepareHandshake();
         Tomahawk.asyncRequest(this.generateUrl('handshake', this.passphrase, this.params),
             function (xhr) {
                 // parse the result
