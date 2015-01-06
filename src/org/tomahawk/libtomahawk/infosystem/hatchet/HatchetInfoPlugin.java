@@ -405,7 +405,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
                 HatchetArtists artists = mHatchet.getArtists(params.ids, params.name);
-                if (artists != null) {
+                if (artists != null && artists.artists != null) {
                     Artist artistToBeFilled =
                             (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
                     HatchetArtistInfo artistInfo =
@@ -425,7 +425,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
             } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
                 HatchetAlbums albums = mHatchet.getAlbums(params.ids, params.name,
                         params.artistname);
-                if (albums != null) {
+                if (albums != null && albums.albums != null) {
                     Album album = (Album) mItemsToBeFilled.get(infoRequestData.getRequestId());
                     HatchetAlbumInfo albumInfo = TomahawkUtils.carelessGet(albums.albums, 0);
                     if (albumInfo != null) {
@@ -521,7 +521,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         params.ids,
                         params.userid, params.targettype, params.targetuserid, null, null, null,
                         params.type);
-                if (relationshipsStruct != null) {
+                if (relationshipsStruct != null && relationshipsStruct.relationships != null) {
                     Map<String, String> relationShipIds = new HashMap<String, String>();
                     for (HatchetRelationshipStruct relationship : relationshipsStruct.relationships) {
                         if (infoRequestData.getType()
@@ -573,34 +573,32 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 HatchetRelationshipsStruct relationShips = mHatchet.getRelationships(params.ids,
                         params.userid, params.targettype, params.targetuserid, null, null, null,
                         params.type);
-                if (relationShips != null) {
+                if (relationShips != null && relationShips.relationships != null) {
                     List<Album> convertedAlbums = new ArrayList<Album>();
                     List<Artist> convertedArtists = new ArrayList<Artist>();
-                    if (relationShips.relationships != null) {
-                        for (HatchetRelationshipStruct relationship : relationShips.relationships) {
-                            if (infoRequestData.getType()
-                                    == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
-                                HatchetAlbumInfo album = TomahawkUtils.carelessGet(
-                                        relationShips.albums, relationship.targetAlbum);
-                                if (album != null) {
-                                    HatchetArtistInfo artist = TomahawkUtils.carelessGet(
-                                            relationShips.artists, album.artist);
-                                    if (artist != null) {
-                                        Album convertedAlbum = InfoSystemUtils.convertToAlbum(album,
-                                                artist.name, null);
-                                        convertedAlbums.add(convertedAlbum);
-                                        hatchetCollection.addAlbum(convertedAlbum);
-                                    }
-                                }
-                            } else {
+                    for (HatchetRelationshipStruct relationship : relationShips.relationships) {
+                        if (infoRequestData.getType()
+                                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
+                            HatchetAlbumInfo album = TomahawkUtils.carelessGet(
+                                    relationShips.albums, relationship.targetAlbum);
+                            if (album != null) {
                                 HatchetArtistInfo artist = TomahawkUtils.carelessGet(
-                                        relationShips.artists, relationship.targetArtist);
+                                        relationShips.artists, album.artist);
                                 if (artist != null) {
-                                    Artist convertedArtist =
-                                            InfoSystemUtils.convertToArtist(artist, null);
-                                    convertedArtists.add(convertedArtist);
-                                    hatchetCollection.addArtist(convertedArtist);
+                                    Album convertedAlbum = InfoSystemUtils.convertToAlbum(album,
+                                            artist.name, null);
+                                    convertedAlbums.add(convertedAlbum);
+                                    hatchetCollection.addAlbum(convertedAlbum);
                                 }
+                            }
+                        } else {
+                            HatchetArtistInfo artist = TomahawkUtils.carelessGet(
+                                    relationShips.artists, relationship.targetArtist);
+                            if (artist != null) {
+                                Artist convertedArtist =
+                                        InfoSystemUtils.convertToArtist(artist, null);
+                                convertedArtists.add(convertedArtist);
+                                hatchetCollection.addArtist(convertedArtist);
                             }
                         }
                     }
