@@ -140,8 +140,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
         RequestInterceptor requestInterceptor = new RequestInterceptor() {
             @Override
             public void intercept(RequestFacade request) {
-                int maxStale = 60 * 60 * 24 * 7 * 54; // tolerate 1-year stale
-                request.addHeader("Cache-Control", "public, max-stale=" + maxStale);
+                if (!TomahawkUtils.isNetworkAvailable()) {
+                    int maxStale = 60 * 60 * 24 * 7; // tolerate 1-week stale
+                    request.addHeader("Cache-Control", "public, max-stale=" + maxStale);
+                }
             }
         };
         OkHttpClient okHttpClient = new OkHttpClient();

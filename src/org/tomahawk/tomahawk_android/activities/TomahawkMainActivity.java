@@ -185,8 +185,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private PlaybackPanel mPlaybackPanel;
 
-    public static boolean sIsConnectedToWifi;
-
     private Bundle mSavedInstanceState;
 
     private boolean mRootViewsInitialized;
@@ -225,10 +223,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                             .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                     InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
                 }
-                ConnectivityManager connMgr = (ConnectivityManager) context
-                        .getSystemService(Context.CONNECTIVITY_SERVICE);
-                sIsConnectedToWifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI) != null
-                        && connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected();
             } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent.getStringExtra(
                         InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
