@@ -21,7 +21,6 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptInterface;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.CircularImageTransformation;
 import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
@@ -30,6 +29,8 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import android.app.Notification;
 import android.content.Context;
 import android.content.res.Resources;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
@@ -599,7 +600,7 @@ public class TomahawkUtils {
     public static void loadBlurredImageIntoImageView(Context context, ImageView imageView,
             Image image, int width, int placeHolderResId) {
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
-            String imagePath = buildImagePath(context, image, width);
+            String imagePath = buildImagePath(image, width);
             RequestCreator creator = Picasso.with(context).load(
                     TomahawkUtils.preparePathForPicasso(imagePath)).resize(width, width);
             if (placeHolderResId > 0) {
@@ -631,7 +632,7 @@ public class TomahawkUtils {
         int placeHolder = isArtistImage ? R.drawable.artist_placeholder_grid
                 : R.drawable.album_placeholder_grid;
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
-            String imagePath = buildImagePath(context, image, width);
+            String imagePath = buildImagePath(image, width);
             RequestCreator creator = Picasso.with(context).load(
                     TomahawkUtils.preparePathForPicasso(imagePath))
                     .placeholder(placeHolder)
@@ -667,7 +668,7 @@ public class TomahawkUtils {
         int placeHolder = R.drawable.circle_black;
         if (user.getImage() != null && !TextUtils.isEmpty(user.getImage().getImagePath())) {
             textView.setVisibility(View.GONE);
-            String imagePath = buildImagePath(context, user.getImage(), width);
+            String imagePath = buildImagePath(user.getImage(), width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .transform(new CircularImageTransformation())
                     .placeholder(placeHolder)
@@ -760,7 +761,7 @@ public class TomahawkUtils {
         int placeHolder = isArtistImage ? R.drawable.artist_placeholder_grid
                 : R.drawable.album_placeholder_grid;
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
-            String imagePath = buildImagePath(context, image, width);
+            String imagePath = buildImagePath(image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .resize(width, width)
                     .into(target);
@@ -784,7 +785,7 @@ public class TomahawkUtils {
         int placeHolder = isArtistImage ? R.drawable.artist_placeholder_grid
                 : R.drawable.album_placeholder_grid;
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
-            String imagePath = buildImagePath(context, image, width);
+            String imagePath = buildImagePath(image, width);
             Picasso.with(context).load(TomahawkUtils.preparePathForPicasso(imagePath))
                     .resize(width, width)
                     .into(remoteViews, viewId, notificationId, notification);
@@ -813,10 +814,10 @@ public class TomahawkUtils {
         return path.startsWith("file:") ? path : "file:" + path;
     }
 
-    private static String buildImagePath(Context context, Image image, int width) {
+    private static String buildImagePath(Image image, int width) {
         if (image.isHatchetImage()) {
             int squareImageWidth = Math.min(image.getHeight(), image.getWidth());
-            if (TomahawkMainActivity.sIsConnectedToWifi) {
+            if (isWifiAvailable()) {
                 if (squareImageWidth > width) {
                     return image.getImagePath() + "?width=" + width + "&height=" + width;
                 }
@@ -899,5 +900,20 @@ public class TomahawkUtils {
                         }
                     });
         }
+    }
+
+    public static boolean isNetworkAvailable() {
+        ConnectivityManager cm = (ConnectivityManager)
+                TomahawkApp.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
+    public static boolean isWifiAvailable() {
+        ConnectivityManager cm = (ConnectivityManager)
+                TomahawkApp.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting()
+                && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
     }
 }
