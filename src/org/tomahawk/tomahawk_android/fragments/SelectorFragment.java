@@ -19,20 +19,16 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import com.google.common.collect.Sets;
 
-import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
 import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.views.Selector;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -50,34 +46,22 @@ import de.greenrobot.event.EventBus;
 
 public abstract class SelectorFragment extends Fragment {
 
-    protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
+    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
 
     protected Set<Query> mCorrespondingQueries
             = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
-
-    private PagerFragmentReceiver mPagerFragmentReceiver;
-
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class PagerFragmentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
-                String requestId = intent.getStringExtra(
-                        InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-                if (mCurrentRequestIds.contains(requestId)) {
-                    onInfoSystemResultsReported(requestId);
-                }
-            }
-        }
-    }
 
     @SuppressWarnings("unused")
     public void onEvent(PipeLineResultsEvent event) {
         if (mCorrespondingQueries.contains(event.mQuery)) {
             onPipeLineResultsReported(event.mQuery);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(InfoSystemResultsEvent event) {
+        if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
+            onInfoSystemResultsReported(event.mInfoRequestData.getRequestId());
         }
     }
 
@@ -89,18 +73,6 @@ public abstract class SelectorFragment extends Fragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
-
-        // Initialize and register Receiver
-        if (mPagerFragmentReceiver == null) {
-            mPagerFragmentReceiver = new PagerFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
-        }
-    }
-
-    @Override
     public void onPause() {
         super.onPause();
 
@@ -109,29 +81,12 @@ public abstract class SelectorFragment extends Fragment {
                 mCorrespondingQueries.remove(query);
             }
         }
-
-        if (mPagerFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mPagerFragmentReceiver);
-            mPagerFragmentReceiver = null;
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.selectorfragment_layout, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // Initialize and register Receiver
-        if (mPagerFragmentReceiver == null) {
-            mPagerFragmentReceiver = new PagerFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
-        }
     }
 
     protected void setupSelector(final List<FragmentInfo> fragmentInfos, final int initialPage,

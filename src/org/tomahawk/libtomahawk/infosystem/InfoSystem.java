@@ -42,9 +42,10 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSocialActionPos
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.events.InfoSystemOpLogIsEmptiedEvent;
+import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -54,27 +55,14 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * The InfoSystem resolves metadata for artists and albums like album covers and artist images.
  */
 public class InfoSystem {
 
     private static final String TAG = InfoSystem.class.getSimpleName();
-
-    public static final String INFOSYSTEM_RESULTSREPORTED = "infosystem_resultsreported";
-
-    public static final String INFOSYSTEM_RESULTSREPORTED_REQUESTID
-            = "infosystem_resultsreported_requestid";
-
-    public static final String INFOSYSTEM_REQUESTFAILED = "infosystem_requestfailed";
-
-    public static final String INFOSYSTEM_OPLOGISEMPTIED = "infosystem_oplogisempty";
-
-    public static final String INFOSYSTEM_OPLOGISEMPTIED_IDS
-            = "infosystem_oplogisempty_ids";
-
-    public static final String INFOSYSTEM_OPLOGISEMPTIED_REQUESTTYPES
-            = "infosystem_oplogisempty_requesttype";
 
     private static class Holder {
 
@@ -83,9 +71,6 @@ public class InfoSystem {
     }
 
     private ArrayList<InfoPlugin> mInfoPlugins = new ArrayList<InfoPlugin>();
-
-    private ConcurrentHashMap<String, InfoRequestData> mRequests
-            = new ConcurrentHashMap<String, InfoRequestData>();
 
     private ConcurrentHashMap<String, InfoRequestData> mSentRequests
             = new ConcurrentHashMap<String, InfoRequestData>();
@@ -390,7 +375,6 @@ public class InfoSystem {
      * @param infoRequestData the InfoRequestData object to fetch results for
      */
     public void resolve(InfoRequestData infoRequestData) {
-        mRequests.put(infoRequestData.getRequestId(), infoRequestData);
         for (InfoPlugin infoPlugin : mInfoPlugins) {
             infoPlugin.resolve(infoRequestData);
         }
@@ -405,7 +389,6 @@ public class InfoSystem {
      */
     public void resolve(InfoRequestData infoRequestData,
             TomahawkListItem itemToBeFilled) {
-        mRequests.put(infoRequestData.getRequestId(), infoRequestData);
         for (InfoPlugin infoPlugin : mInfoPlugins) {
             infoPlugin.resolve(infoRequestData, itemToBeFilled);
         }
@@ -648,13 +631,6 @@ public class InfoSystem {
     /**
      * Get the InfoRequestData with the given Id
      */
-    public InfoRequestData getInfoRequestById(String requestId) {
-        return mRequests.get(requestId);
-    }
-
-    /**
-     * Get the InfoRequestData with the given Id
-     */
     public InfoRequestData getSentLoggedOpById(String requestId) {
         return mSentRequests.get(requestId);
     }
@@ -663,16 +639,11 @@ public class InfoSystem {
      * Method to enable InfoPlugins to report that the InfoRequestData objects with the given
      * requestIds have received their results
      */
-    public void reportResults(ArrayList<String> doneRequestsIds) {
-        for (String doneRequestId : doneRequestsIds) {
-            sendReportResultsBroadcast(doneRequestId);
-        }
-    }
-
-    public void requestFailed(ArrayList<String> doneRequestsIds) {
-        for (String doneRequestId : doneRequestsIds) {
-            sendRequestFailedBroadcast(doneRequestId);
-        }
+    public void reportResults(InfoRequestData infoRequestData, boolean success) {
+        InfoSystemResultsEvent event = new InfoSystemResultsEvent();
+        event.mInfoRequestData = infoRequestData;
+        event.mSuccess = success;
+        EventBus.getDefault().post(event);
     }
 
 
@@ -732,14 +703,10 @@ public class InfoSystem {
             DatabaseHelper.getInstance().removeOpsFromInfoSystemOpLog(loggedOps);
             if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
                 if (!requestTypes.isEmpty()) {
-                    Intent reportIntent = new Intent(INFOSYSTEM_OPLOGISEMPTIED);
-                    reportIntent.putIntegerArrayListExtra(INFOSYSTEM_OPLOGISEMPTIED_REQUESTTYPES,
-                            new ArrayList<Integer>(requestTypes));
-                    if (!playlistIds.isEmpty()) {
-                        reportIntent.putStringArrayListExtra(INFOSYSTEM_OPLOGISEMPTIED_IDS,
-                                new ArrayList<String>(playlistIds));
-                    }
-                    TomahawkApp.getContext().sendBroadcast(reportIntent);
+                    InfoSystemOpLogIsEmptiedEvent event = new InfoSystemOpLogIsEmptiedEvent();
+                    event.mRequestTypes = requestTypes;
+                    event.mPlaylistIds = playlistIds;
+                    EventBus.getDefault().post(event);
                 }
             }
         }
@@ -769,23 +736,5 @@ public class InfoSystem {
         ArrayList<String> doneRequestsIds = new ArrayList<String>();
         doneRequestsIds.add(loggedOp.getRequestId());
         InfoSystem.getInstance().onLoggedOpsSent(doneRequestsIds, true);
-    }
-
-    /**
-     * Send a broadcast containing the id of the resolved inforequest.
-     */
-    private void sendReportResultsBroadcast(String requestId) {
-        Intent reportIntent = new Intent(INFOSYSTEM_RESULTSREPORTED);
-        reportIntent.putExtra(INFOSYSTEM_RESULTSREPORTED_REQUESTID, requestId);
-        TomahawkApp.getContext().sendBroadcast(reportIntent);
-    }
-
-    /**
-     * Send a broadcast indicating that the request failed
-     */
-    private void sendRequestFailedBroadcast(String requestId) {
-        Intent reportIntent = new Intent(INFOSYSTEM_REQUESTFAILED);
-        reportIntent.putExtra(INFOSYSTEM_RESULTSREPORTED_REQUESTID, requestId);
-        TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
 }

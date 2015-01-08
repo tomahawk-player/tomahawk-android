@@ -252,8 +252,8 @@ public class SearchPagerFragment extends PagerFragment {
         mArtistIds.clear();
         mUserIds.clear();
         mCurrentQueryString = fullTextQuery;
-        mCurrentRequestIds.clear();
-        mCurrentRequestIds.add(InfoSystem.getInstance().resolve(fullTextQuery));
+        mCorrespondingRequestIds.clear();
+        mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(fullTextQuery));
         Query query = PipeLine.getInstance().resolve(fullTextQuery, false);
         if (query != null) {
             mCorrespondingQueries.clear();
@@ -262,23 +262,22 @@ public class SearchPagerFragment extends PagerFragment {
     }
 
     @Override
-    protected void onInfoSystemResultsReported(String requestId) {
-        InfoRequestData data = InfoSystem.getInstance().getInfoRequestById(requestId);
-        for (Artist artist : data.getResultList(Artist.class)) {
+    protected void onInfoSystemResultsReported(InfoRequestData infoRequestData) {
+        for (Artist artist : infoRequestData.getResultList(Artist.class)) {
             if (mContentHeaderImage == null && artist.getImage() != null) {
                 mContentHeaderImage = artist.getImage();
                 showContentHeader(mContentHeaderImage);
             }
             mArtistIds.add(artist.getCacheKey());
         }
-        for (Album album : data.getResultList(Album.class)) {
+        for (Album album : infoRequestData.getResultList(Album.class)) {
             if (mContentHeaderImage == null && album.getImage() != null) {
                 mContentHeaderImage = album.getImage();
                 showContentHeader(mContentHeaderImage);
             }
             mAlbumIds.add(album.getCacheKey());
         }
-        for (User user : data.getResultList(User.class)) {
+        for (User user : infoRequestData.getResultList(User.class)) {
             if (mContentHeaderImage == null && user.getImage() != null) {
                 mContentHeaderImage = user.getImage();
                 showContentHeader(mContentHeaderImage);

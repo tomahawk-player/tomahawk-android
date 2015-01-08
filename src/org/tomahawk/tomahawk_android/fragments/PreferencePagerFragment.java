@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
@@ -79,6 +80,6 @@ public class PreferencePagerFragment extends PagerFragment {
     }
 
     @Override
-    protected void onInfoSystemResultsReported(String requestId) {
+    protected void onInfoSystemResultsReported(InfoRequestData infoRequestData) {
     }
 }

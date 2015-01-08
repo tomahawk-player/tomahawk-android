@@ -108,7 +108,7 @@ public class ArtistsFragment extends TomahawkFragment {
             for (Artist artist : starredArtists) {
                 ArrayList<String> requestIds = InfoSystem.getInstance().resolve(artist, false);
                 for (String requestId : requestIds) {
-                    mCurrentRequestIds.add(requestId);
+                    mCorrespondingRequestIds.add(requestId);
                 }
             }
             artists.addAll(starredArtists);

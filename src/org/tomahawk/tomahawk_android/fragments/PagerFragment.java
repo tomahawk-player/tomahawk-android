@@ -18,10 +18,11 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
+import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
 import org.tomahawk.tomahawk_android.events.PagerAnimateEvent;
 import org.tomahawk.tomahawk_android.events.PagerRequestSyncEvent;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
@@ -53,7 +54,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
     private final static String TAG = PagerFragment.class.getSimpleName();
 
-    protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
+    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
 
     private TomahawkPagerAdapter mPagerAdapter;
 
@@ -102,13 +103,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
-                String requestId = intent.getStringExtra(
-                        InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-                if (mCurrentRequestIds.contains(requestId)) {
-                    onInfoSystemResultsReported(requestId);
-                }
-            } else if (TomahawkMainActivity.SLIDING_LAYOUT_SHOWN.equals(intent.getAction())) {
+            if (TomahawkMainActivity.SLIDING_LAYOUT_SHOWN.equals(intent.getAction())) {
                 onSlidingLayoutShown();
             } else if (TomahawkMainActivity.SLIDING_LAYOUT_HIDDEN.equals(intent.getAction())) {
                 onSlidingLayoutHidden();
@@ -122,6 +117,13 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
                 && mViewPager != null
                 && event.mContainerFragmentPage == mViewPager.getCurrentItem()) {
             animate(event.mPlayTime);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(InfoSystemResultsEvent event) {
+        if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
+            onInfoSystemResultsReported(event.mInfoRequestData);
         }
     }
 
@@ -139,9 +141,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         // Initialize and register Receiver
         if (mPagerFragmentReceiver == null) {
             mPagerFragmentReceiver = new PagerFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_SHOWN);
+            IntentFilter intentFilter = new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_SHOWN);
             getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_HIDDEN);
             getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
@@ -162,18 +162,6 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.pagerfragment_layout, container, false);
-    }
-
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        // Initialize and register Receiver
-        if (mPagerFragmentReceiver == null) {
-            mPagerFragmentReceiver = new PagerFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
-        }
     }
 
     /**
@@ -276,7 +264,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         }
     }
 
-    protected abstract void onInfoSystemResultsReported(String requestId);
+    protected abstract void onInfoSystemResultsReported(InfoRequestData infoRequestData);
 
     protected void showFancyDropDown(TomahawkListItem item, int initialSelection,
             List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,

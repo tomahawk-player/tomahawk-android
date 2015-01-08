@@ -28,22 +28,21 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.HashSet;
 
+import de.greenrobot.event.EventBus;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
 
@@ -94,35 +93,12 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private HatchetAuth mHatchetAuth;
 
-    private HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
-
-    private HatchetAuthUtilsReceiver mHatchetAuthUtilsReceiver = new HatchetAuthUtilsReceiver();
-
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class HatchetAuthUtilsReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String requestId = intent.getStringExtra(
-                    InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-            if (mCorrespondingRequestIds.contains(requestId)) {
-                InfoRequestData data = InfoSystem.getInstance().getInfoRequestById(requestId);
-                if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
-                    User user = data.getResult(User.class);
-                    if (user != null) {
-                        storeUserId(user.getId());
-                    }
-                }
-            }
-        }
-    }
+    private HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
     public HatchetAuthenticatorUtils() {
         super(TomahawkApp.PLUGINNAME_HATCHET, HATCHET_PRETTY_NAME);
 
-        mAllowRegistration = true;
+        EventBus.getDefault().register(this);
 
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
@@ -130,9 +106,19 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 .setConverter(new JacksonConverter(InfoSystemUtils.getObjectMapper()))
                 .build();
         mHatchetAuth = restAdapter.create(HatchetAuth.class);
+    }
 
-        TomahawkApp.getContext().registerReceiver(mHatchetAuthUtilsReceiver,
-                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
+    @SuppressWarnings("unused")
+    public void onEvent(InfoSystemResultsEvent event) {
+        if (event.mSuccess
+                && mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
+            if (event.mInfoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
+                User user = event.mInfoRequestData.getResult(User.class);
+                if (user != null) {
+                    storeUserId(user.getId());
+                }
+            }
+        }
     }
 
     public void onLogin(String username, String refreshToken,
@@ -289,6 +275,11 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             return getAccount().name;
         }
         return null;
+    }
+
+    @Override
+    public boolean doesAllowRegistration() {
+        return true;
     }
 
     private String getUserId() {

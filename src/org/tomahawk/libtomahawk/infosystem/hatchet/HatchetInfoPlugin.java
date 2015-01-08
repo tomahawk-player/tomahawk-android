@@ -707,11 +707,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     }
                 }
                 InfoSystem.getInstance().onLoggedOpsSent(doneRequestsIds, success);
-                if (success) {
-                    InfoSystem.getInstance().reportResults(doneRequestsIds);
-                } else {
-                    InfoSystem.getInstance().requestFailed(doneRequestsIds);
-                }
+                InfoSystem.getInstance().reportResults(infoRequestData, success);
             }
         };
         ThreadManager.getInstance().execute(runnable);
@@ -735,15 +731,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
         TomahawkRunnable runnable = new TomahawkRunnable(priority) {
             @Override
             public void run() {
-                ArrayList<String> doneRequestsIds = new ArrayList<String>();
                 try {
-                    if (getParseConvert(infoRequestData)) {
-                        doneRequestsIds.add(infoRequestData.getRequestId());
-                        InfoSystem.getInstance().reportResults(doneRequestsIds);
-                    } else {
-                        doneRequestsIds.add(infoRequestData.getRequestId());
-                        InfoSystem.getInstance().requestFailed(doneRequestsIds);
-                    }
+                    boolean success = getParseConvert(infoRequestData);
+                    InfoSystem.getInstance().reportResults(infoRequestData, success);
                 } catch (ClientProtocolException e) {
                     Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
                 } catch (IOException e) {

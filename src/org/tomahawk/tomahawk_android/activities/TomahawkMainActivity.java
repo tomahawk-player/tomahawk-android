@@ -47,6 +47,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
+import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
 import org.tomahawk.tomahawk_android.events.PipeLineUrlResultsEvent;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.CloudCollectionFragment;
@@ -160,7 +161,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private static long mSessionIdCounter = 0;
 
-    protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
+    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
 
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
             this);
@@ -224,16 +225,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                     AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                             .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                     InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
-                }
-            } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
-                String requestId = intent.getStringExtra(
-                        InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-                if (mCurrentRequestIds.contains(requestId)) {
-                    InfoRequestData data = InfoSystem.getInstance().getInfoRequestById(requestId);
-                    if (data != null
-                            && data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
-                        updateDrawer();
-                    }
                 }
             } else if (AuthenticatorManager.CONFIG_TEST_RESULT
                     .equals(intent.getAction())) {
@@ -393,6 +384,17 @@ public class TomahawkMainActivity extends ActionBarActivity
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
             FragmentUtils.replace(TomahawkMainActivity.this, PlaylistEntriesFragment.class,
                     bundle);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(InfoSystemResultsEvent event) {
+        if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
+            if (event.mInfoRequestData != null
+                    && event.mInfoRequestData.getType()
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
+                updateDrawer();
+            }
         }
     }
 
@@ -580,8 +582,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED));
         registerReceiver(mTomahawkMainReceiver,
-                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
-        registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(AuthenticatorManager.CONFIG_TEST_RESULT));
@@ -603,7 +603,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         HatchetAuthenticatorUtils hatchetAuthUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        mCurrentRequestIds.add(
+        mCorrespondingRequestIds.add(
                 InfoSystem.getInstance().resolve(hatchetAuthUtils.getLoggedInUser()));
 
         if (!mRootViewsInitialized) {
@@ -834,7 +834,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             HatchetAuthenticatorUtils authenticatorUtils
                     = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            mCurrentRequestIds.add(
+            mCorrespondingRequestIds.add(
                     InfoSystem.getInstance().resolve(authenticatorUtils.getLoggedInUser()));
         }
         updateDrawer();
@@ -846,7 +846,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
         mDrawerList = (StickyListHeadersListView) findViewById(R.id.left_drawer);
-        ArrayList<TomahawkMenuAdapter.ResourceHolder> holders =
+        final ArrayList<TomahawkMenuAdapter.ResourceHolder> holders =
                 new ArrayList<TomahawkMenuAdapter.ResourceHolder>();
         TomahawkMenuAdapter.ResourceHolder holder = new TomahawkMenuAdapter.ResourceHolder();
         if (authenticatorUtils.getLoggedInUser() != null) {
@@ -895,8 +895,14 @@ public class TomahawkMainActivity extends ActionBarActivity
                 }
             }
         }
-        TomahawkMenuAdapter slideMenuAdapter = new TomahawkMenuAdapter(this, holders);
-        mDrawerList.setAdapter(slideMenuAdapter);
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                TomahawkMenuAdapter slideMenuAdapter =
+                        new TomahawkMenuAdapter(TomahawkMainActivity.this, holders);
+                mDrawerList.setAdapter(slideMenuAdapter);
+            }
+        });
 
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
     }

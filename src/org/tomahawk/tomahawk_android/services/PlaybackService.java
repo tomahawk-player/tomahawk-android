@@ -40,6 +40,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
 import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
@@ -99,6 +100,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * This {@link Service} handles all playback related processes.
@@ -165,7 +168,7 @@ public class PlaybackService extends Service
     protected Set<Query> mCorrespondingQueries
             = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
-    protected ConcurrentHashMap<String, String> mCorrespondingInfoDataIds
+    protected ConcurrentHashMap<String, String> mCorrespondingRequestIds
             = new ConcurrentHashMap<String, String>();
 
     private Playlist mPlaylist;
@@ -384,11 +387,7 @@ public class PlaybackService extends Service
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
-                String requestId = intent
-                        .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-                onInfoSystemResultsReported(requestId);
-            } else if (SpotifyService.REQUEST_SPOTIFYSERVICE.equals(intent.getAction())) {
+            if (SpotifyService.REQUEST_SPOTIFYSERVICE.equals(intent.getAction())) {
                 if (!mIsBindingToSpotifyService) {
                     Log.d(TAG, "SpotifyService has been requested, I'm trying to bind to it ...");
                     mIsBindingToSpotifyService = true;
@@ -428,12 +427,33 @@ public class PlaybackService extends Service
 
     @SuppressWarnings("unused")
     public void onEvent(PipeLineResultsEvent event) {
-        onPipeLineResultsReported(event.mQuery);
+        if (getCurrentQuery() != null && getCurrentQuery() == event.mQuery) {
+            updateNotification();
+            updateLockscreenControls();
+            sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
+            if (mCurrentMediaPlayer == null
+                    || !(mCurrentMediaPlayer.isPrepared(getCurrentQuery())
+                    || mCurrentMediaPlayer.isPreparing(getCurrentQuery()))) {
+                prepareCurrentQuery();
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(InfoSystemResultsEvent event) {
+        if (getCurrentEntry() != null && getCurrentQuery().getCacheKey()
+                .equals(mCorrespondingRequestIds.get(event.mInfoRequestData.getRequestId()))) {
+            updateNotification();
+            updateLockscreenControls();
+            sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
+        }
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
+
+        EventBus.getDefault().register(this);
 
         mMediaPlayers.add(VLCMediaPlayer.getInstance());
         mMediaPlayers.add(DeezerMediaPlayer.getInstance());
@@ -473,8 +493,6 @@ public class PlaybackService extends Service
 
         // Initialize and register PlaybackServiceBroadcastReceiver
         mPlaybackServiceBroadcastReceiver = new PlaybackServiceBroadcastReceiver();
-        registerReceiver(mPlaybackServiceBroadcastReceiver,
-                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(SpotifyService.REQUEST_SPOTIFYSERVICE));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
@@ -972,12 +990,12 @@ public class PlaybackService extends Service
                     ArrayList<String> requestIds = InfoSystem.getInstance().resolve(
                             getCurrentQuery().getArtist(), true);
                     for (String requestId : requestIds) {
-                        mCorrespondingInfoDataIds.put(requestId, getCurrentQuery().getCacheKey());
+                        mCorrespondingRequestIds.put(requestId, getCurrentQuery().getCacheKey());
                     }
                     String requestId = InfoSystem.getInstance()
                             .resolve(getCurrentQuery().getAlbum());
                     if (requestId != null) {
-                        mCorrespondingInfoDataIds.put(requestId, getCurrentQuery().getCacheKey());
+                        mCorrespondingRequestIds.put(requestId, getCurrentQuery().getCacheKey());
                     }
                 }
 
@@ -1454,22 +1472,9 @@ public class PlaybackService extends Service
         }
     }
 
-    private void onPipeLineResultsReported(Query query) {
-        if (getCurrentQuery() != null && getCurrentQuery() == query) {
-            updateNotification();
-            updateLockscreenControls();
-            sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
-            if (mCurrentMediaPlayer == null
-                    || !(mCurrentMediaPlayer.isPrepared(getCurrentQuery())
-                    || mCurrentMediaPlayer.isPreparing(getCurrentQuery()))) {
-                prepareCurrentQuery();
-            }
-        }
-    }
-
     private void onInfoSystemResultsReported(String requestId) {
         if (getCurrentEntry() != null && getCurrentQuery().getCacheKey()
-                .equals(mCorrespondingInfoDataIds.get(requestId))) {
+                .equals(mCorrespondingRequestIds.get(requestId))) {
             updateNotification();
             updateLockscreenControls();
             sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));

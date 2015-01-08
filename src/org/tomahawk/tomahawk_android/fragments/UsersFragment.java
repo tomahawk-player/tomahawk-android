@@ -50,9 +50,9 @@ public class UsersFragment extends TomahawkFragment {
             if (getArguments().containsKey(SHOW_MODE)) {
                 mShowMode = getArguments().getInt(SHOW_MODE);
                 if (mShowMode == SHOW_MODE_TYPE_FOLLOWERS) {
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveFollowers(mUser));
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFollowers(mUser));
                 } else {
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveFollowings(mUser));
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFollowings(mUser));
                 }
             }
         }

@@ -25,8 +25,6 @@ public abstract class AuthenticatorUtils {
 
     private String mId;
 
-    protected boolean mAllowRegistration;
-
     protected AuthenticatorUtils(String id, String prettyName) {
         mId = id;
         mPrettyName = prettyName;
@@ -64,7 +62,5 @@ public abstract class AuthenticatorUtils {
         logout(null);
     }
 
-    public boolean doesAllowRegistration() {
-        return mAllowRegistration;
-    }
+    public abstract boolean doesAllowRegistration();
 }

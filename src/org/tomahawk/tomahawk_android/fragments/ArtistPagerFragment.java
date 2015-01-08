@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
@@ -111,7 +112,7 @@ public class ArtistPagerFragment extends PagerFragment {
                 } else {
                     ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
                     for (String requestId : requestIds) {
-                        mCurrentRequestIds.add(requestId);
+                        mCorrespondingRequestIds.add(requestId);
                     }
                 }
             }
@@ -165,7 +166,7 @@ public class ArtistPagerFragment extends PagerFragment {
     }
 
     @Override
-    protected void onInfoSystemResultsReported(String requestId) {
+    protected void onInfoSystemResultsReported(InfoRequestData infoRequestData) {
         showContentHeader(mArtist);
     }
 }
