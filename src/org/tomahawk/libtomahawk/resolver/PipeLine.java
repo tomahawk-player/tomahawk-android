@@ -127,13 +127,7 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
                             .readValue(rawJsonString, ScriptResolverMetaData.class);
                     ScriptResolver scriptResolver = new ScriptResolver(metaData, path, this);
                     mResolvers.add(scriptResolver);
-                } catch (FileNotFoundException e) {
-                    Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
-                } catch (JsonMappingException e) {
-                    Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
-                } catch (JsonParseException e) {
-                    Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
-                } catch (IOException e) {
+                } catch (FileNotFoundException | JsonMappingException | JsonParseException e) {
                     Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
             }
@@ -193,21 +187,6 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
             Query q = Query.get(fullTextQuery, forceOnlyLocal);
             resolve(q, forceOnlyLocal);
             return q.getCacheKey();
-        }
-        return null;
-    }
-
-    /**
-     * This will invoke every {@link Resolver} to resolve the given {@link
-     * org.tomahawk.libtomahawk.collection.Track}/{@link org.tomahawk.libtomahawk.collection.Artist}/{@link
-     * org.tomahawk.libtomahawk.collection.Album}. If there already is a {@link Query} with the same
-     * {@link org.tomahawk.libtomahawk.collection.Track}/{@link org.tomahawk.libtomahawk.collection.Artist}/{@link
-     * org.tomahawk.libtomahawk.collection.Album}, the old resultList will be reported.
-     */
-    public String resolve(String trackName, String albumName, String artistName) {
-        if (trackName != null && !TextUtils.isEmpty(trackName)) {
-            Query q = Query.get(trackName, albumName, artistName, false);
-            return resolve(q);
         }
         return null;
     }
@@ -424,18 +403,6 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
 
     public ScriptResolverUrlResult getUrlResult(String url) {
         return mUrlLookupMap.get(url);
-    }
-
-    /**
-     * @return true if one or more {@link ScriptResolver}s are currently resolving. False otherwise
-     */
-    public boolean isResolving() {
-        for (Resolver resolver : mResolvers) {
-            if (resolver.isResolving() || !resolver.isReady()) {
-                return true;
-            }
-        }
-        return false;
     }
 
     /**
