@@ -18,6 +18,8 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import com.google.common.collect.Sets;
+
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
@@ -35,6 +37,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
+import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
@@ -56,7 +59,8 @@ import android.widget.BaseAdapter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
@@ -143,8 +147,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     private HashSet<TomahawkListItem> mResolvingItems = new HashSet<TomahawkListItem>();
 
-    protected ConcurrentSkipListSet<String> mCorrespondingQueryIds
-            = new ConcurrentSkipListSet<String>();
+    protected Set<Query> mCorrespondingQueries
+            = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     protected ArrayList<Query> mShownQueries = new ArrayList<Query>();
 
@@ -184,19 +188,16 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     };
 
-    private ArrayList<String> mQueryKeysToReport = new ArrayList<String>();
+    private Set<Query> mQueriesToReport =
+            Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     // Handler which reports the PipeLine's results
     private final Handler mPipeLineResultReporter = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             removeMessages(msg.what);
-            ArrayList<String> queryKeys;
-            synchronized (TomahawkFragment.this) {
-                queryKeys = new ArrayList<String>(mQueryKeysToReport);
-                mQueryKeysToReport.clear();
-            }
-            onPipeLineResultsReported(queryKeys);
+            onPipeLineResultsReported(mQueriesToReport);
+            mQueriesToReport.clear();
         }
     };
 
@@ -235,15 +236,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 } else {
                     updateAdapter();
                 }
-            } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
-                String queryKey = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
-                synchronized (TomahawkFragment.this) {
-                    mQueryKeysToReport.add(queryKey);
-                }
-                if (!mPipeLineResultReporter.hasMessages(PIPELINE_RESULT_REPORTER_MSG)) {
-                    mPipeLineResultReporter.sendEmptyMessageDelayed(PIPELINE_RESULT_REPORTER_MSG,
-                            PIPELINE_RESULT_REPORTER_DELAY);
-                }
             } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent.getStringExtra(
                         InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
@@ -263,6 +255,15 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     refreshCurrentPlaylist();
                 }
             }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(PipeLineResultsEvent event) {
+        mQueriesToReport.add(event.mQuery);
+        if (!mPipeLineResultReporter.hasMessages(PIPELINE_RESULT_REPORTER_MSG)) {
+            mPipeLineResultReporter.sendEmptyMessageDelayed(PIPELINE_RESULT_REPORTER_MSG,
+                    PIPELINE_RESULT_REPORTER_DELAY);
         }
     }
 
@@ -371,8 +372,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
             IntentFilter intentFilter = new IntentFilter(CollectionManager.COLLECTION_UPDATED);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
-            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PlaybackService.BROADCAST_CURRENTTRACKCHANGED);
@@ -400,9 +399,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public void onPause() {
         super.onPause();
 
-        for (String queryKey : mCorrespondingQueryIds) {
-            if (ThreadManager.getInstance().stop(Query.getQueryByKey(queryKey))) {
-                mCorrespondingQueryIds.remove(queryKey);
+        for (Query query : mCorrespondingQueries) {
+            if (ThreadManager.getInstance().stop(query)) {
+                mCorrespondingQueries.remove(query);
             }
         }
 
@@ -477,9 +476,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         updateShowPlaystate();
     }
 
-    protected void onPipeLineResultsReported(ArrayList<String> queryKeys) {
-        for (String key : queryKeys) {
-            if (mCorrespondingQueryIds.contains(key)) {
+    protected void onPipeLineResultsReported(Set<Query> queries) {
+        for (Query query : queries) {
+            if (mCorrespondingQueries.contains(query)) {
                 updateAdapter();
                 break;
             }
@@ -567,16 +566,16 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     private void resolveQueriesFromTo(final int start, final int end) {
-        ArrayList<Query> qs = new ArrayList<Query>();
+        Set<Query> qs = new HashSet<>();
         for (int i = (start < 0 ? 0 : start); i < end && i < mShownQueries.size(); i++) {
             Query q = mShownQueries.get(i);
-            if (!q.isSolved() && !mCorrespondingQueryIds.contains(q.getCacheKey())) {
+            if (!q.isSolved() && !mCorrespondingQueries.contains(q)) {
                 qs.add(q);
             }
         }
         if (!qs.isEmpty()) {
-            HashSet<String> qids = PipeLine.getInstance().resolve(qs);
-            mCorrespondingQueryIds.addAll(qids);
+            HashSet<Query> queries = PipeLine.getInstance().resolve(qs);
+            mCorrespondingQueries.addAll(queries);
         }
     }
 

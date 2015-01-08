@@ -44,6 +44,8 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.events.PipeLineStreamUrlEvent;
+import org.tomahawk.tomahawk_android.events.PipeLineUrlResultsEvent;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -70,6 +72,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * This class represents a javascript resolver.
  */
@@ -86,7 +90,9 @@ public class ScriptResolver extends Resolver {
     // We have to map the original cache keys to an id string, because a string containing "\t\t"
     // delimiters does come out without the delimiters, after it has been processed in the js
     // resolver script
-    private ConcurrentHashMap<String, String> mQueryKeys = new ConcurrentHashMap<String, String>();
+    private ConcurrentHashMap<String, Query> mQueryKeys = new ConcurrentHashMap<>();
+
+    private ConcurrentHashMap<String, Result> mResultKeys = new ConcurrentHashMap<>();
 
     private String mId;
 
@@ -534,7 +540,11 @@ public class ScriptResolver extends Resolver {
                             .getLocalizedMessage());
                 }
                 if (result != null) {
-                    PipeLine.getInstance().reportUrlResult(url, ScriptResolver.this, result);
+                    Log.d(TAG, "reportUrlResult - url: " + url);
+                    PipeLineUrlResultsEvent event = new PipeLineUrlResultsEvent();
+                    event.mResolver = ScriptResolver.this;
+                    event.mResult = result;
+                    EventBus.getDefault().post(event);
                 }
                 mStopped = true;
             }
@@ -542,14 +552,17 @@ public class ScriptResolver extends Resolver {
         ).start();
     }
 
-    public void reportStreamUrl(String qid, String url, String stringifiedHeaders) {
+    public void reportStreamUrl(String resultId, String url, String stringifiedHeaders) {
         try {
             Map<String, String> headers = null;
             if (stringifiedHeaders != null) {
                 headers = mObjectMapper.readValue(stringifiedHeaders, Map.class);
             }
-            String resultKey = mQueryKeys.get(qid);
-            PipeLine.getInstance().sendStreamUrlReportBroadcast(resultKey, url, headers);
+            PipeLineStreamUrlEvent event = new PipeLineStreamUrlEvent();
+            event.mResult = mResultKeys.get(resultId);
+            event.mUrl = url;
+            event.mHeaders = headers;
+            EventBus.getDefault().post(event);
         } catch (IOException e) {
             Log.e(TAG, "reportStreamUrl: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
@@ -603,7 +616,7 @@ public class ScriptResolver extends Resolver {
             mTimeOutHandler.removeCallbacksAndMessages(null);
             mTimeOutHandler.sendEmptyMessageDelayed(TIMEOUT_HANDLER_MSG, mTimeout);
             String qid = TomahawkMainActivity.getSessionUniqueStringId();
-            mQueryKeys.put(qid, query.getCacheKey());
+            mQueryKeys.put(qid, query);
 
             // construct javascript call url
             final String url;
@@ -631,7 +644,7 @@ public class ScriptResolver extends Resolver {
         if (result != null) {
             String resultId = TomahawkMainActivity.getSessionUniqueStringId();
             // we are using the same map as we do when resolving queries
-            mQueryKeys.put(resultId, result.getCacheKey());
+            mResultKeys.put(resultId, result);
             loadUrl("javascript: Tomahawk.resolver.instance." + callbackFuncName + "( '"
                     + StringEscapeUtils.escapeJavaScript(resultId)
                     + "', '" + StringEscapeUtils.escapeJavaScript(result.getPath()) + "' )");

@@ -76,10 +76,6 @@ public class CollectionPagerFragment extends PagerFragment {
     }
 
     @Override
-    protected void onPipeLineResultsReported(String key) {
-    }
-
-    @Override
     protected void onInfoSystemResultsReported(String requestId) {
     }
 }

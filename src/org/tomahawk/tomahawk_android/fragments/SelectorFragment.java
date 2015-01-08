@@ -17,11 +17,13 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import com.google.common.collect.Sets;
+
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -41,14 +43,17 @@ import android.widget.TextView;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import de.greenrobot.event.EventBus;
 
 public abstract class SelectorFragment extends Fragment {
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
 
-    protected ConcurrentSkipListSet<String> mCorrespondingQueryIds
-            = new ConcurrentSkipListSet<String>();
+    protected Set<Query> mCorrespondingQueries
+            = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     private PagerFragmentReceiver mPagerFragmentReceiver;
 
@@ -65,13 +70,22 @@ public abstract class SelectorFragment extends Fragment {
                 if (mCurrentRequestIds.contains(requestId)) {
                     onInfoSystemResultsReported(requestId);
                 }
-            } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
-                String queryKey = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
-                if (mCorrespondingQueryIds.contains(queryKey)) {
-                    onPipeLineResultsReported(queryKey);
-                }
             }
         }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(PipeLineResultsEvent event) {
+        if (mCorrespondingQueries.contains(event.mQuery)) {
+            onPipeLineResultsReported(event.mQuery);
+        }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -81,9 +95,7 @@ public abstract class SelectorFragment extends Fragment {
         // Initialize and register Receiver
         if (mPagerFragmentReceiver == null) {
             mPagerFragmentReceiver = new PagerFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
-            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
+            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
             getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
         }
     }
@@ -92,9 +104,9 @@ public abstract class SelectorFragment extends Fragment {
     public void onPause() {
         super.onPause();
 
-        for (String queryKey : mCorrespondingQueryIds) {
-            if (ThreadManager.getInstance().stop(Query.getQueryByKey(queryKey))) {
-                mCorrespondingQueryIds.remove(queryKey);
+        for (Query query : mCorrespondingQueries) {
+            if (ThreadManager.getInstance().stop(query)) {
+                mCorrespondingQueries.remove(query);
             }
         }
 
@@ -118,8 +130,6 @@ public abstract class SelectorFragment extends Fragment {
         if (mPagerFragmentReceiver == null) {
             mPagerFragmentReceiver = new PagerFragmentReceiver();
             IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
             getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
         }
     }
@@ -189,7 +199,7 @@ public abstract class SelectorFragment extends Fragment {
         }
     }
 
-    protected void onPipeLineResultsReported(String key) {
+    protected void onPipeLineResultsReported(Query key) {
 
     }
 

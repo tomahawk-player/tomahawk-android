@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,11 +17,15 @@
  */
 package org.tomahawk.tomahawk_android.events;
 
-public class AnimatePagerEvent {
+import org.tomahawk.libtomahawk.resolver.Result;
 
-    public int mPlayTime;
+import java.util.Map;
 
-    public long mContainerFragmentId;
+public class PipeLineStreamUrlEvent {
 
-    public int mContainerFragmentPage;
+    public Result mResult;
+
+    public String mUrl;
+
+    public Map<String, String> mHeaders;
 }

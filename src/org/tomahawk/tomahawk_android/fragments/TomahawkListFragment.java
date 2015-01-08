@@ -22,9 +22,9 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.StickyBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.events.AnimatePagerEvent;
-import org.tomahawk.tomahawk_android.events.PerformSyncEvent;
-import org.tomahawk.tomahawk_android.events.RequestSyncEvent;
+import org.tomahawk.tomahawk_android.events.PagerAnimateEvent;
+import org.tomahawk.tomahawk_android.events.PagerPerformSyncEvent;
+import org.tomahawk.tomahawk_android.events.PagerRequestSyncEvent;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
@@ -171,7 +171,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
             playTime = 10000;
         }
         if (mContainerFragmentId >= 0) {
-            AnimatePagerEvent event = new AnimatePagerEvent();
+            PagerAnimateEvent event = new PagerAnimateEvent();
             event.mContainerFragmentId = mContainerFragmentId;
             event.mContainerFragmentPage = mContainerFragmentPage;
             event.mPlayTime = playTime;
@@ -182,10 +182,10 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(RequestSyncEvent event) {
+    public void onEvent(PagerRequestSyncEvent event) {
         if (mContainerFragmentId == event.mContainerFragmentId
                 && mContainerFragmentPage == event.mPerformerFragmentPage) {
-            PerformSyncEvent performSyncEvent = new PerformSyncEvent();
+            PagerPerformSyncEvent performSyncEvent = new PagerPerformSyncEvent();
             performSyncEvent.mContainerFragmentId = event.mContainerFragmentId;
             performSyncEvent.mContainerFragmentPage = event.mReceiverFragmentPage;
             performSyncEvent.mFirstVisiblePosition = getListView().getFirstVisiblePosition();
@@ -195,7 +195,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(PerformSyncEvent event) {
+    public void onEvent(PagerPerformSyncEvent event) {
         if (mContainerFragmentId == event.mContainerFragmentId
                 && mContainerFragmentPage == event.mContainerFragmentPage) {
             if (event.mFirstVisiblePosition == 0) {

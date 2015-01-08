@@ -159,7 +159,7 @@ public class DataBaseResolver extends Resolver {
                     }
                 }
             }
-            PipeLine.getInstance().reportResults(queryToSearchFor.getCacheKey(), results, mId);
+            PipeLine.getInstance().reportResults(queryToSearchFor, results, mId);
             mStopped = true;
         }
         return mReady;

@@ -257,7 +257,8 @@ public class SpotifyResolver extends Resolver {
                                 result.setAlbum(album);
                                 results.add(result);
                             }
-                            PipeLine.getInstance().reportResults(spotifyResults.qid, results, mId);
+                            PipeLine.getInstance().reportResults(
+                                    Query.getQueryByKey(spotifyResults.qid), results, mId);
                         }
                     }
                 }

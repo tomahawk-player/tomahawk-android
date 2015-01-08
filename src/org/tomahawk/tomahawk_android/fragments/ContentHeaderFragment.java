@@ -35,7 +35,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
-import org.tomahawk.tomahawk_android.events.AnimatePagerEvent;
+import org.tomahawk.tomahawk_android.events.PagerAnimateEvent;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
@@ -349,7 +349,7 @@ public class ContentHeaderFragment extends Fragment {
         setupImageViewAnimation(headerImage);
 
         if (mContainerFragmentId >= 0) {
-            AnimatePagerEvent event = new AnimatePagerEvent();
+            PagerAnimateEvent event = new PagerAnimateEvent();
             event.mContainerFragmentId = mContainerFragmentId;
             event.mContainerFragmentPage = mContainerFragmentPage;
             event.mPlayTime = mLastPlayTime;

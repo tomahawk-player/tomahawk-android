@@ -165,10 +165,6 @@ public class ArtistPagerFragment extends PagerFragment {
     }
 
     @Override
-    protected void onPipeLineResultsReported(String key) {
-    }
-
-    @Override
     protected void onInfoSystemResultsReported(String requestId) {
         showContentHeader(mArtist);
     }

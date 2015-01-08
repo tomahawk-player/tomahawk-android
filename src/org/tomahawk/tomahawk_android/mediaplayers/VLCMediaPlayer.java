@@ -23,20 +23,20 @@ import org.tomahawk.libtomahawk.resolver.ResolverUrlHandler;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.events.PipeLineStreamUrlEvent;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.LibVlcException;
 
 import android.app.Application;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.media.MediaPlayer;
 import android.util.Log;
 
 import java.util.concurrent.ConcurrentHashMap;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * This class wraps a libvlc mediaplayer instance.
@@ -61,36 +61,11 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
     private Query mPreparingQuery;
 
-    private VLCMediaPlayerReceiver mVLCMediaPlayerReceiver = new VLCMediaPlayerReceiver();
-
     private ConcurrentHashMap<Result, String> mTranslatedUrls
             = new ConcurrentHashMap<Result, String>();
 
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class VLCMediaPlayerReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (PipeLine.PIPELINE_STREAMURLREPORTED.equals(intent.getAction())) {
-                String resultKey = intent
-                        .getStringExtra(PipeLine.PIPELINE_STREAMURLREPORTED_RESULTKEY);
-                String url = intent.getStringExtra(PipeLine.PIPELINE_STREAMURLREPORTED_URL);
-                final Result result = Result.getResultByKey(resultKey);
-                mTranslatedUrls.put(result, url);
-                if (mPreparingQuery != null
-                        && result == mPreparingQuery.getPreferredTrackResult()) {
-                    prepare(mPreparingQuery);
-                }
-            }
-        }
-    }
-
     private VLCMediaPlayer() {
-        // Initialize and register Receiver
-        IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_STREAMURLREPORTED);
-        TomahawkApp.getContext().registerReceiver(mVLCMediaPlayerReceiver, intentFilter);
+        EventBus.getDefault().register(this);
     }
 
     public static LibVLC getLibVlcInstance() {
@@ -110,6 +85,15 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
     public static VLCMediaPlayer getInstance() {
         return Holder.instance;
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(PipeLineStreamUrlEvent event) {
+        mTranslatedUrls.put(event.mResult, event.mUrl);
+        if (mPreparingQuery != null
+                && event.mResult == mPreparingQuery.getPreferredTrackResult()) {
+            prepare(mPreparingQuery);
+        }
     }
 
     @Override

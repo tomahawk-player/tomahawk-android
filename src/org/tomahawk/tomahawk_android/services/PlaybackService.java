@@ -18,6 +18,8 @@
  */
 package org.tomahawk.tomahawk_android.services;
 
+import com.google.common.collect.Sets;
+
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -38,6 +40,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
@@ -94,6 +97,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -158,7 +162,8 @@ public class PlaybackService extends Service
 
     private boolean mShowingNotification;
 
-    protected HashSet<String> mCorrespondingQueryKeys = new HashSet<String>();
+    protected Set<Query> mCorrespondingQueries
+            = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     protected ConcurrentHashMap<String, String> mCorrespondingInfoDataIds
             = new ConcurrentHashMap<String, String>();
@@ -379,10 +384,7 @@ public class PlaybackService extends Service
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
-                String qid = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
-                onPipeLineResultsReported(qid);
-            } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
+            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
                 String requestId = intent
                         .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
                 onInfoSystemResultsReported(requestId);
@@ -423,6 +425,11 @@ public class PlaybackService extends Service
             }
         }
     };
+
+    @SuppressWarnings("unused")
+    public void onEvent(PipeLineResultsEvent event) {
+        onPipeLineResultsReported(event.mQuery);
+    }
 
     @Override
     public void onCreate() {
@@ -466,8 +473,6 @@ public class PlaybackService extends Service
 
         // Initialize and register PlaybackServiceBroadcastReceiver
         mPlaybackServiceBroadcastReceiver = new PlaybackServiceBroadcastReceiver();
-        registerReceiver(mPlaybackServiceBroadcastReceiver,
-                new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
         registerReceiver(mPlaybackServiceBroadcastReceiver,
@@ -639,8 +644,7 @@ public class PlaybackService extends Service
     }
 
     /**
-     * Restore the current playlist from the Playlists Database. Do this by storing it in the
-     * {@link
+     * Restore the current playlist from the Playlists Database. Do this by storing it in the {@link
      * org.tomahawk.libtomahawk.collection.UserCollection} first, and then retrieving the playlist
      * from there.
      */
@@ -1435,24 +1439,23 @@ public class PlaybackService extends Service
     }
 
     private void resolveQueriesFromTo(ArrayList<PlaylistEntry> entries, int start, int end) {
-        ArrayList<Query> qs = new ArrayList<Query>();
+        Set<Query> qs = new HashSet<>();
         for (int i = start; i < end; i++) {
             if (i >= 0 && i < entries.size()) {
                 Query q = entries.get(i).getQuery();
-                if (!mCorrespondingQueryKeys.contains(q.getCacheKey())) {
+                if (!mCorrespondingQueries.contains(q)) {
                     qs.add(q);
                 }
             }
         }
         if (!qs.isEmpty()) {
-            HashSet<String> queryKeys = PipeLine.getInstance().resolve(qs);
-            mCorrespondingQueryKeys.addAll(queryKeys);
+            HashSet<Query> queries = PipeLine.getInstance().resolve(qs);
+            mCorrespondingQueries.addAll(queries);
         }
     }
 
-    private void onPipeLineResultsReported(String queryKey) {
-        if (getCurrentQuery() != null
-                && getCurrentQuery().getCacheKey().equals(queryKey)) {
+    private void onPipeLineResultsReported(Query query) {
+        if (getCurrentQuery() != null && getCurrentQuery() == query) {
             updateNotification();
             updateLockscreenControls();
             sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));

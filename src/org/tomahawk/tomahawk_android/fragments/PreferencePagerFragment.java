@@ -79,10 +79,6 @@ public class PreferencePagerFragment extends PagerFragment {
     }
 
     @Override
-    protected void onPipeLineResultsReported(String key) {
-    }
-
-    @Override
     protected void onInfoSystemResultsReported(String requestId) {
     }
 }
