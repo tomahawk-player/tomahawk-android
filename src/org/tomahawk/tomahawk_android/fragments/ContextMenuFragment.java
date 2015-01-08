@@ -34,15 +34,13 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.dialogs.ChoosePlaylistDialog;
+import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Build;
@@ -59,6 +57,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * A {@link DialogFragment} which emulates the appearance and behaviour of the standard context menu
@@ -79,31 +79,30 @@ public class ContextMenuFragment extends Fragment {
 
     protected Collection mCollection;
 
-    protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
-
-    private ContextMenuFragmentReceiver mContextMenuFragmentReceiver;
+    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
 
     public static interface Action {
 
         public void run();
     }
 
-    private class ContextMenuFragmentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
-                String requestId = intent.getStringExtra(
-                        InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-                if (mCurrentRequestIds.contains(requestId) && getView() != null) {
-                    ImageView albumImageView =
-                            (ImageView) getView().findViewById(R.id.album_imageview);
-                    TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
-                            mTomahawkListItem.getAlbum().getImage(), Image.getLargeImageSize(),
-                            true, false);
-                }
-            }
+    @SuppressWarnings("unused")
+    public void onEvent(InfoSystemResultsEvent event) {
+        if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())
+                && getView() != null) {
+            ImageView albumImageView =
+                    (ImageView) getView().findViewById(R.id.album_imageview);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
+                    mTomahawkListItem.getAlbum().getImage(), Image.getLargeImageSize(),
+                    true, false);
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -115,13 +114,6 @@ public class ContextMenuFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        // Initialize and register Receiver
-        if (mContextMenuFragmentReceiver == null) {
-            mContextMenuFragmentReceiver = new ContextMenuFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
-            getActivity().registerReceiver(mContextMenuFragmentReceiver, intentFilter);
-        }
 
         boolean showDelete = false;
         if (getArguments() != null) {
@@ -281,19 +273,9 @@ public class ContextMenuFragment extends Fragment {
                         mTomahawkListItem.getAlbum().getImage(), Image.getLargeImageSize(), true,
                         false);
             } else {
-                mCurrentRequestIds
+                mCorrespondingRequestIds
                         .add(InfoSystem.getInstance().resolve(mTomahawkListItem.getAlbum()));
             }
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mContextMenuFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mContextMenuFragmentReceiver);
-            mContextMenuFragmentReceiver = null;
         }
     }
 

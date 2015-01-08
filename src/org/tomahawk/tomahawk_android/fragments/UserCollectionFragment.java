@@ -53,7 +53,7 @@ public class UserCollectionFragment extends TomahawkFragment {
         if (mUser == null) {
             getActivity().setTitle(getString(R.string.drawer_title_collection).toUpperCase());
         } else {
-            mCurrentRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(mUser));
+            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveStarredAlbums(mUser));
         }
 
         updateAdapter();

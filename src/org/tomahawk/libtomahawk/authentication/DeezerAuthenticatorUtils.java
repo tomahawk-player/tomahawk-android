@@ -199,4 +199,9 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
     public String getUserName() {
         return null;
     }
+
+    @Override
+    public boolean doesAllowRegistration() {
+        return false;
+    }
 }

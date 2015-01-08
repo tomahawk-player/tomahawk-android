@@ -54,9 +54,9 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         CollectionManager.getInstance().fetchPlaylists();
         if (mUser != null) {
             if (mPlaylist == mUser.getPlaybackLog()) {
-                mCurrentRequestIds.add(InfoSystem.getInstance().resolvePlaybackLog(mUser));
+                mCorrespondingRequestIds.add(InfoSystem.getInstance().resolvePlaybackLog(mUser));
             } else if (mPlaylist == mUser.getFavorites()) {
-                mCurrentRequestIds.add(InfoSystem.getInstance().resolveFavorites(mUser));
+                mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFavorites(mUser));
             }
         }
         if (mPlaylist != null
@@ -183,7 +183,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 }
                 ArrayList<String> requestIds = InfoSystem.getInstance().resolve(artist, true);
                 for (String requestId : requestIds) {
-                    mCurrentRequestIds.add(requestId);
+                    mCorrespondingRequestIds.add(requestId);
                 }
                 if (playlist.getContentHeaderArtists().size() == 6) {
                     break;

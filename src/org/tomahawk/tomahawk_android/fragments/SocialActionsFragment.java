@@ -77,7 +77,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         getActivity().setTitle(getString(R.string.drawer_title_feed).toUpperCase());
                     }
                     for (int i = 0; i < mUser.getFriendsFeed().size(); i++) {
-                        mCurrentRequestIds.add(
+                        mCorrespondingRequestIds.add(
                                 InfoSystem.getInstance().resolveFriendsFeed(mUser, i));
                     }
                 } else {
@@ -85,13 +85,13 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         getActivity().setTitle("");
                     }
                     for (int i = 0; i < mUser.getSocialActions().size(); i++) {
-                        mCurrentRequestIds.add(
+                        mCorrespondingRequestIds.add(
                                 InfoSystem.getInstance().resolveSocialActions(mUser, i));
                     }
                     HatchetAuthenticatorUtils authUtils = (HatchetAuthenticatorUtils)
                             AuthenticatorManager.getInstance().getAuthenticatorUtils(
                                     TomahawkApp.PLUGINNAME_HATCHET);
-                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
                             .resolveFollowings(authUtils.getLoggedInUser()));
                 }
             }
@@ -304,13 +304,13 @@ public class SocialActionsFragment extends TomahawkFragment implements
             if (mShowMode == SHOW_MODE_DASHBOARD) {
                 if (!mResolvingPages.contains(mUser.getFriendsFeed().size())) {
                     mResolvingPages.add(mUser.getFriendsFeed().size());
-                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
                             .resolveFriendsFeed(mUser, mUser.getFriendsFeed().size()));
                 }
             } else {
                 if (!mResolvingPages.contains(mUser.getSocialActions().size())) {
                     mResolvingPages.add(mUser.getSocialActions().size());
-                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
                             .resolveSocialActions(mUser, mUser.getSocialActions().size()));
                 }
             }

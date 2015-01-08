@@ -37,6 +37,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
+import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
 import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
@@ -137,13 +138,17 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected static final long PIPELINE_RESULT_REPORTER_DELAY = 1000;
 
+    protected static final int INFOSYSTEM_RESULT_REPORTER_MSG = 1338;
+
+    protected static final long INFOSYSTEM_RESULT_REPORTER_DELAY = 1000;
+
     private TomahawkListAdapter mTomahawkListAdapter;
 
     private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
 
     protected boolean mIsResumed;
 
-    protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
+    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
 
     private HashSet<TomahawkListItem> mResolvingItems = new HashSet<TomahawkListItem>();
 
@@ -196,8 +201,31 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         @Override
         public void handleMessage(Message msg) {
             removeMessages(msg.what);
-            onPipeLineResultsReported(mQueriesToReport);
+            for (Query query : mQueriesToReport) {
+                if (mCorrespondingQueries.contains(query)) {
+                    updateAdapter();
+                    break;
+                }
+            }
             mQueriesToReport.clear();
+        }
+    };
+
+    private Set<String> mInfoRequestIdsToReport =
+            Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+
+    // Handler which reports the InfoSystem's results
+    private final Handler mInfoSystemResultReporter = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            removeMessages(msg.what);
+            for (String requestId : mInfoRequestIdsToReport) {
+                if (mCorrespondingRequestIds.contains(requestId)) {
+                    updateAdapter();
+                    break;
+                }
+            }
+            mInfoRequestIdsToReport.clear();
         }
     };
 
@@ -236,10 +264,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 } else {
                     updateAdapter();
                 }
-            } else if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
-                String requestId = intent.getStringExtra(
-                        InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-                onInfoSystemResultsReported(requestId);
             } else if (TomahawkMainActivity.PLAYBACKSERVICE_READY.equals(intent.getAction())) {
                 onPlaybackServiceReady();
             } else if (PlaybackService.BROADCAST_CURRENTTRACKCHANGED.equals(intent.getAction())) {
@@ -267,6 +291,15 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
+    @SuppressWarnings("unused")
+    public void onEvent(InfoSystemResultsEvent event) {
+        mInfoRequestIdsToReport.add(event.mInfoRequestData.getRequestId());
+        if (!mInfoSystemResultReporter.hasMessages(INFOSYSTEM_RESULT_REPORTER_MSG)) {
+            mInfoSystemResultReporter.sendEmptyMessageDelayed(INFOSYSTEM_RESULT_REPORTER_MSG,
+                    INFOSYSTEM_RESULT_REPORTER_DELAY);
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -279,7 +312,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else {
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mAlbum));
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mAlbum));
                 }
             }
             if (getArguments().containsKey(TOMAHAWK_PLAYLIST_KEY) && !TextUtils.isEmpty(
@@ -302,7 +335,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 } else {
                     ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
                     for (String requestId : requestIds) {
-                        mCurrentRequestIds.add(requestId);
+                        mCorrespondingRequestIds.add(requestId);
                     }
                 }
             }
@@ -310,7 +343,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     .isEmpty(getArguments().getString(TOMAHAWK_USER_ID))) {
                 mUser = User.get(getArguments().getString(TOMAHAWK_USER_ID));
                 if (mUser.getName() == null) {
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
             }
             if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
@@ -327,7 +360,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     ArrayList<String> requestIds =
                             InfoSystem.getInstance().resolve(mQuery.getArtist(), true);
                     for (String requestId : requestIds) {
-                        mCurrentRequestIds.add(requestId);
+                        mCorrespondingRequestIds.add(requestId);
                     }
                 }
             }
@@ -371,8 +404,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         if (mTomahawkFragmentReceiver == null) {
             mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
             IntentFilter intentFilter = new IntentFilter(CollectionManager.COLLECTION_UPDATED);
-            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(PlaybackService.BROADCAST_CURRENTTRACKCHANGED);
             activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
@@ -474,23 +505,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
      */
     protected void onPlaybackServiceReady() {
         updateShowPlaystate();
-    }
-
-    protected void onPipeLineResultsReported(Set<Query> queries) {
-        for (Query query : queries) {
-            if (mCorrespondingQueries.contains(query)) {
-                updateAdapter();
-                break;
-            }
-        }
-    }
-
-    protected void onInfoSystemResultsReported(String requestId) {
-        if (mCurrentRequestIds.contains(requestId)) {
-            updateAdapter();
-            mResolveQueriesHandler.removeCallbacksAndMessages(null);
-            mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
-        }
     }
 
     /**
@@ -605,11 +619,11 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 resolveItem(((SocialAction) item).getTargetObject());
                 resolveItem(((SocialAction) item).getUser());
             } else if (item instanceof Album && item.getImage() == null) {
-                mCurrentRequestIds.add(infoSystem.resolve((Album) item));
+                mCorrespondingRequestIds.add(infoSystem.resolve((Album) item));
             } else if (item instanceof Artist && item.getImage() == null) {
-                mCurrentRequestIds.addAll(infoSystem.resolve((Artist) item, false));
+                mCorrespondingRequestIds.addAll(infoSystem.resolve((Artist) item, false));
             } else if (item instanceof User && item.getImage() == null) {
-                mCurrentRequestIds.add(infoSystem.resolve((User) item));
+                mCorrespondingRequestIds.add(infoSystem.resolve((User) item));
             }
         }
     }
@@ -623,7 +637,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                         if (mUser != authenticatorUtils.getLoggedInUser()) {
-                            mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mPlaylist));
+                            mCorrespondingRequestIds
+                                    .add(InfoSystem.getInstance().resolve(mPlaylist));
                         } else {
                             Playlist playlist =
                                     DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());

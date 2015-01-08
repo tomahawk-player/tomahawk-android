@@ -50,7 +50,7 @@ public class UserMusicSelectorFragment extends SelectorFragment {
                     .isEmpty(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID))) {
                 mUser = User.get(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID));
                 if (mUser.getName() == null) {
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
             }
         }

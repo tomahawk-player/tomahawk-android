@@ -29,6 +29,8 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.events.InfoSystemOpLogIsEmptiedEvent;
+import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -46,6 +48,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * This class represents a user's local {@link org.tomahawk.libtomahawk.collection.CollectionManager}
@@ -90,52 +94,7 @@ public class CollectionManager {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (InfoSystem.INFOSYSTEM_RESULTSREPORTED.equals(intent.getAction())) {
-                final String requestId = intent
-                        .getStringExtra(InfoSystem.INFOSYSTEM_RESULTSREPORTED_REQUESTID);
-                if (mCorrespondingRequestIds.contains(requestId)) {
-                    mCorrespondingRequestIds.remove(requestId);
-                    ThreadManager.getInstance().execute(
-                            new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
-                                @Override
-                                public void run() {
-                                    InfoRequestData infoRequestData =
-                                            InfoSystem.getInstance().getInfoRequestById(requestId);
-                                    handleHatchetPlaylistResponse(infoRequestData);
-                                }
-                            }
-                    );
-                }
-            } else if (InfoSystem.INFOSYSTEM_OPLOGISEMPTIED.equals(intent.getAction())) {
-                ArrayList<Integer> requestTypes = intent.getIntegerArrayListExtra(
-                        InfoSystem.INFOSYSTEM_OPLOGISEMPTIED_REQUESTTYPES);
-                for (Integer requestType : requestTypes) {
-                    if (requestType
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
-                        CollectionManager.this.fetchStarredArtists();
-                        CollectionManager.this.fetchStarredAlbums();
-                        CollectionManager.this.fetchLovedItemsPlaylist();
-                    } else if (requestType
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES) {
-                        HatchetAuthenticatorUtils hatchetAuthUtils =
-                                (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                        InfoSystem.getInstance()
-                                .resolvePlaybackLog(hatchetAuthUtils.getLoggedInUser());
-                    } else if (requestType
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
-                        CollectionManager.this.fetchPlaylists();
-                    } else if (requestType
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
-                        ArrayList<String> playlistIds = intent.getStringArrayListExtra(
-                                InfoSystem.INFOSYSTEM_OPLOGISEMPTIED_IDS);
-                        for (String playlistId : playlistIds) {
-                            CollectionManager.this.fetchHatchetPlaylistEntries(
-                                    Playlist.getPlaylistById(playlistId));
-                        }
-                    }
-                }
-            } else if (DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED
+            if (DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED
                     .equals(intent.getAction())) {
                 CollectionManager.this.updatePlaylists();
             } else if (HatchetAuthenticatorUtils.STORED_USER_ID.equals(intent.getAction())) {
@@ -149,6 +108,8 @@ public class CollectionManager {
     }
 
     private CollectionManager() {
+        EventBus.getDefault().register(this);
+
         addCollection(new UserCollection());
         addCollection(new HatchetCollection());
 
@@ -157,11 +118,50 @@ public class CollectionManager {
         fetchAll();
 
         TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
-                new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED));
-        TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
-                new IntentFilter(InfoSystem.INFOSYSTEM_OPLOGISEMPTIED));
-        TomahawkApp.getContext().registerReceiver(mCollectionManagerReceiver,
                 new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED));
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(InfoSystemOpLogIsEmptiedEvent event) {
+        for (Integer requestType : event.mRequestTypes) {
+            if (requestType
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
+                CollectionManager.this.fetchStarredArtists();
+                CollectionManager.this.fetchStarredAlbums();
+                CollectionManager.this.fetchLovedItemsPlaylist();
+            } else if (requestType
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES) {
+                HatchetAuthenticatorUtils hatchetAuthUtils =
+                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                InfoSystem.getInstance()
+                        .resolvePlaybackLog(hatchetAuthUtils.getLoggedInUser());
+            } else if (requestType
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
+                CollectionManager.this.fetchPlaylists();
+            } else if (requestType
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
+                for (String playlistId : event.mPlaylistIds) {
+                    CollectionManager.this.fetchHatchetPlaylistEntries(
+                            Playlist.getPlaylistById(playlistId));
+                }
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(final InfoSystemResultsEvent event) {
+        if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
+            mCorrespondingRequestIds.remove(event.mInfoRequestData.getRequestId());
+            ThreadManager.getInstance().execute(
+                    new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
+                        @Override
+                        public void run() {
+                            handleHatchetPlaylistResponse(event.mInfoRequestData);
+                        }
+                    }
+            );
+        }
     }
 
     public void fetchAll() {

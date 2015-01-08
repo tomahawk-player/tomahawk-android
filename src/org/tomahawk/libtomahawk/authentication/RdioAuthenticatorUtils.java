@@ -216,4 +216,9 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
     public String getUserName() {
         return null;
     }
+
+    @Override
+    public boolean doesAllowRegistration() {
+        return false;
+    }
 }

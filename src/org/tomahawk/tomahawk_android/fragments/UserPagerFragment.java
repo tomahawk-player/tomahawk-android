@@ -61,10 +61,10 @@ public class UserPagerFragment extends PagerFragment {
                     .isEmpty(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID))) {
                 mUser = User.get(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID));
                 if (mUser.getName() == null) {
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolve(mUser));
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
                 if (mUser.getFollowings() == null) {
-                    mCurrentRequestIds.add(InfoSystem.getInstance().resolveFollowings(mUser));
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFollowings(mUser));
                 }
             }
         }
@@ -79,12 +79,12 @@ public class UserPagerFragment extends PagerFragment {
                 if (authUtils.getLoggedInUser().getFollowings().containsKey(mUser)) {
                     String relationshipId =
                             authUtils.getLoggedInUser().getFollowings().get(mUser);
-                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
                             .deleteRelationship(authUtils, relationshipId));
                     mShowFakeNotFollowing = true;
                     mShowFakeFollowing = false;
                 } else {
-                    mCurrentRequestIds.add(InfoSystem.getInstance()
+                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
                             .sendRelationshipPostStruct(authUtils, mUser));
                     mShowFakeNotFollowing = false;
                     mShowFakeFollowing = true;
@@ -171,21 +171,21 @@ public class UserPagerFragment extends PagerFragment {
     }
 
     @Override
-    protected void onInfoSystemResultsReported(String requestId) {
+    protected void onInfoSystemResultsReported(InfoRequestData infoRequestData) {
         showContentHeader(mUser);
 
-        InfoRequestData infoRequestData = InfoSystem.getInstance().getSentLoggedOpById(requestId);
-        if (infoRequestData != null && infoRequestData.getType()
+        InfoRequestData sentLoggedOp = InfoSystem.getInstance()
+                .getSentLoggedOpById(infoRequestData.getRequestId());
+        if (sentLoggedOp != null && sentLoggedOp.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS
-                && (infoRequestData.getHttpType() == InfoRequestData.HTTPTYPE_DELETE
-                || infoRequestData.getHttpType() == InfoRequestData.HTTPTYPE_POST)) {
+                && (sentLoggedOp.getHttpType() == InfoRequestData.HTTPTYPE_DELETE
+                || sentLoggedOp.getHttpType() == InfoRequestData.HTTPTYPE_POST)) {
             HatchetAuthenticatorUtils authUtils
                     = (HatchetAuthenticatorUtils) AuthenticatorManager
                     .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            mCurrentRequestIds.add(
+            mCorrespondingRequestIds.add(
                     InfoSystem.getInstance().resolveFollowings(authUtils.getLoggedInUser()));
         }
-        infoRequestData = InfoSystem.getInstance().getInfoRequestById(requestId);
         if (infoRequestData != null && infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS) {
             mShowFakeFollowing = false;

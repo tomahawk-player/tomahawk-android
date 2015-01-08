@@ -346,4 +346,9 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         return preferences.getString(STORAGE_KEY_USERNAME, "");
     }
+
+    @Override
+    public boolean doesAllowRegistration() {
+        return false;
+    }
 }
