@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import com.google.common.collect.Sets;
+
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
@@ -27,7 +29,9 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -39,6 +43,10 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import de.greenrobot.event.EventBus;
 
 public class SearchPagerFragment extends PagerFragment {
 
@@ -46,6 +54,9 @@ public class SearchPagerFragment extends PagerFragment {
             = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_ID";
 
     private String mCurrentQueryString;
+
+    protected Set<Query> mCorrespondingQueries
+            = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     private ArrayList<String> mAlbumIds = new ArrayList<String>();
 
@@ -76,6 +87,17 @@ public class SearchPagerFragment extends PagerFragment {
         }
     }
 
+    @SuppressWarnings("unused")
+    public void onEvent(PipeLineResultsEvent event) {
+        mSongIds.clear();
+        if (event.mQuery != null) {
+            for (Query q : event.mQuery.getTrackQueries()) {
+                mSongIds.add(q.getCacheKey());
+            }
+        }
+        updatePager();
+    }
+
     /**
      * Restore the {@link String} inside the search {@link android.widget.TextView}. Either through
      * the savedInstanceState {@link Bundle} or through the a {@link Bundle} provided in the
@@ -84,6 +106,8 @@ public class SearchPagerFragment extends PagerFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        EventBus.getDefault().register(this);
 
         if (savedInstanceState != null && savedInstanceState
                 .containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)
@@ -138,6 +162,12 @@ public class SearchPagerFragment extends PagerFragment {
     @Override
     public void onPause() {
         super.onPause();
+
+        for (Query query : mCorrespondingQueries) {
+            if (ThreadManager.getInstance().stop(query)) {
+                mCorrespondingQueries.remove(query);
+            }
+        }
 
         if (mSearchFragmentReceiver != null) {
             getActivity().unregisterReceiver(mSearchFragmentReceiver);
@@ -224,23 +254,11 @@ public class SearchPagerFragment extends PagerFragment {
         mCurrentQueryString = fullTextQuery;
         mCurrentRequestIds.clear();
         mCurrentRequestIds.add(InfoSystem.getInstance().resolve(fullTextQuery));
-        String queryId = PipeLine.getInstance().resolve(fullTextQuery, false);
-        if (queryId != null) {
-            mCorrespondingQueryIds.clear();
-            mCorrespondingQueryIds.add(queryId);
-        }
-    }
-
-    @Override
-    protected void onPipeLineResultsReported(String key) {
-        mSongIds.clear();
-        Query query = Query.getQueryByKey(key);
+        Query query = PipeLine.getInstance().resolve(fullTextQuery, false);
         if (query != null) {
-            for (Query q : query.getTrackQueries()) {
-                mSongIds.add(q.getCacheKey());
-            }
+            mCorrespondingQueries.clear();
+            mCorrespondingQueries.add(query);
         }
-        updatePager();
     }
 
     @Override

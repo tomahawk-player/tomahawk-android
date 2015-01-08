@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,11 +17,12 @@
  */
 package org.tomahawk.tomahawk_android.events;
 
-public class RequestSyncEvent {
+import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 
-    public long mContainerFragmentId;
+public class PipeLineUrlResultsEvent {
 
-    public int mPerformerFragmentPage;
+    public Resolver mResolver;
 
-    public int mReceiverFragmentPage;
+    public ScriptResolverUrlResult mResult;
 }

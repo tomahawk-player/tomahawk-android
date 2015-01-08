@@ -148,8 +148,8 @@ public class ScriptInterface {
     }
 
     @JavascriptInterface
-    public void reportStreamUrlString(String qid, String url, String stringifiedHeaders) {
-        mScriptResolver.reportStreamUrl(qid, url, stringifiedHeaders);
+    public void reportStreamUrlString(String resultId, String url, String stringifiedHeaders) {
+        mScriptResolver.reportStreamUrl(resultId, url, stringifiedHeaders);
     }
 
     @JavascriptInterface

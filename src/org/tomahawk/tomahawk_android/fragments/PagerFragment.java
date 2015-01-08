@@ -19,15 +19,12 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
-import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
-import org.tomahawk.tomahawk_android.events.AnimatePagerEvent;
-import org.tomahawk.tomahawk_android.events.RequestSyncEvent;
+import org.tomahawk.tomahawk_android.events.PagerAnimateEvent;
+import org.tomahawk.tomahawk_android.events.PagerRequestSyncEvent;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
-import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PageIndicator;
@@ -48,7 +45,6 @@ import android.widget.LinearLayout;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import de.greenrobot.event.EventBus;
 
@@ -58,9 +54,6 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
     private final static String TAG = PagerFragment.class.getSimpleName();
 
     protected HashSet<String> mCurrentRequestIds = new HashSet<String>();
-
-    protected ConcurrentSkipListSet<String> mCorrespondingQueryIds
-            = new ConcurrentSkipListSet<String>();
 
     private TomahawkPagerAdapter mPagerAdapter;
 
@@ -115,16 +108,20 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
                 if (mCurrentRequestIds.contains(requestId)) {
                     onInfoSystemResultsReported(requestId);
                 }
-            } else if (PipeLine.PIPELINE_RESULTSREPORTED.equals(intent.getAction())) {
-                String queryKey = intent.getStringExtra(PipeLine.PIPELINE_RESULTSREPORTED_QUERYKEY);
-                if (mCorrespondingQueryIds.contains(queryKey)) {
-                    onPipeLineResultsReported(queryKey);
-                }
             } else if (TomahawkMainActivity.SLIDING_LAYOUT_SHOWN.equals(intent.getAction())) {
                 onSlidingLayoutShown();
             } else if (TomahawkMainActivity.SLIDING_LAYOUT_HIDDEN.equals(intent.getAction())) {
                 onSlidingLayoutHidden();
             }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(PagerAnimateEvent event) {
+        if (mContainerFragmentId == event.mContainerFragmentId
+                && mViewPager != null
+                && event.mContainerFragmentPage == mViewPager.getCurrentItem()) {
+            animate(event.mPlayTime);
         }
     }
 
@@ -142,9 +139,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         // Initialize and register Receiver
         if (mPagerFragmentReceiver == null) {
             mPagerFragmentReceiver = new PagerFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
-            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
+            IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
             getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
             intentFilter = new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_SHOWN);
             getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
@@ -156,12 +151,6 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
     @Override
     public void onPause() {
         super.onPause();
-
-        for (String queryKey : mCorrespondingQueryIds) {
-            if (ThreadManager.getInstance().stop(Query.getQueryByKey(queryKey))) {
-                mCorrespondingQueryIds.remove(queryKey);
-            }
-        }
 
         if (mPagerFragmentReceiver != null) {
             getActivity().unregisterReceiver(mPagerFragmentReceiver);
@@ -184,8 +173,6 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
             mPagerFragmentReceiver = new PagerFragmentReceiver();
             IntentFilter intentFilter = new IntentFilter(InfoSystem.INFOSYSTEM_RESULTSREPORTED);
             getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(PipeLine.PIPELINE_RESULTSREPORTED);
-            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
         }
     }
 
@@ -207,7 +194,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
         if (mShouldSyncListStates && positionOffset != 0f && isDynamicHeader()) {
             mShouldSyncListStates = false;
-            RequestSyncEvent event = new RequestSyncEvent();
+            PagerRequestSyncEvent event = new PagerRequestSyncEvent();
             if (mViewPager.getCurrentItem() == position) {
                 // first visible fragment is the current fragment,
                 // so we get the one to the right by asking for the fragment at position + 1
@@ -256,15 +243,6 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         }
     }
 
-    @SuppressWarnings("unused")
-    public void onEvent(AnimatePagerEvent event) {
-        if (mContainerFragmentId == event.mContainerFragmentId
-                && mViewPager != null
-                && event.mContainerFragmentPage == mViewPager.getCurrentItem()) {
-            animate(event.mPlayTime);
-        }
-    }
-
     protected void setupPager(List<FragmentInfoList> fragmentInfoLists, int initialPage,
             String selectorPosStorageKey) {
         List<FragmentInfo> currentFragmentInfos = new ArrayList<FragmentInfo>();
@@ -297,8 +275,6 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
             onSlidingLayoutShown();
         }
     }
-
-    protected abstract void onPipeLineResultsReported(String key);
 
     protected abstract void onInfoSystemResultsReported(String requestId);
 

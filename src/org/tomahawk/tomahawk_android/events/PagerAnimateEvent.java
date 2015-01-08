@@ -17,13 +17,11 @@
  */
 package org.tomahawk.tomahawk_android.events;
 
-public class PerformSyncEvent {
+public class PagerAnimateEvent {
 
-    public int mContainerFragmentPage;
+    public int mPlayTime;
 
     public long mContainerFragmentId;
 
-    public int mFirstVisiblePosition;
-
-    public int mTop;
+    public int mContainerFragmentPage;
 }

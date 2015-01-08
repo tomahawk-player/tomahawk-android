@@ -17,6 +17,8 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
+import com.google.common.collect.Sets;
+
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 
@@ -27,21 +29,21 @@ import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
-import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * The {@link PipeLine} is being used to provide all the resolving functionality. All {@link
@@ -66,30 +68,6 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
 
     public static final String URL_TYPE_PLAYLIST = "playlist";
 
-    public static final String PIPELINE_RESULTSREPORTED
-            = "org.tomahawk.tomahawk_android.pipeline_resultsreported";
-
-    public static final String PIPELINE_STREAMURLREPORTED
-            = "org.tomahawk.tomahawk_android.pipeline_streamurlreported";
-
-    public static final String PIPELINE_STREAMURLREPORTED_URL
-            = "org.tomahawk.tomahawk_android.pipeline_streamurlreported_url";
-
-    public static final String PIPELINE_STREAMURLREPORTED_RESULTKEY
-            = "org.tomahawk.tomahawk_android.pipeline_streamurlreported_resultkey";
-
-    public static final String PIPELINE_RESULTSREPORTED_QUERYKEY
-            = "org.tomahawk.tomahawk_android.pipeline_resultsreported_querykey";
-
-    public static final String PIPELINE_URLLOOKUPFINISHED
-            = "org.tomahawk.tomahawk_android.pipeline_urllookupfinished";
-
-    public static final String PIPELINE_URLLOOKUPFINISHED_URL
-            = "org.tomahawk.tomahawk_android.pipeline_urllookupfinished_url";
-
-    public static final String PIPELINE_URLLOOKUPFINISHED_RESOLVERID
-            = "org.tomahawk.tomahawk_android.pipeline_urllookupfinished_resolverid";
-
     private static final float MINSCORE = 0.5F;
 
     private static class Holder {
@@ -100,19 +78,15 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
 
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
 
-    private ConcurrentHashMap<String, Query> mWaitingQueries
-            = new ConcurrentHashMap<String, Query>();
+    private Set<Query> mWaitingQueries =
+            Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
-    private HashSet<String> mWaitingUrlLookups
-            = new HashSet<String>();
+    private HashSet<String> mWaitingUrlLookups = new HashSet<>();
 
     private boolean mAllResolversAdded;
 
     private ConcurrentHashMap<String, ResolverUrlHandler> mUrlHandlerMap
-            = new ConcurrentHashMap<String, ResolverUrlHandler>();
-
-    private ConcurrentHashMap<String, ScriptResolverUrlResult> mUrlLookupMap
-            = new ConcurrentHashMap<String, ScriptResolverUrlResult>();
+            = new ConcurrentHashMap<>();
 
     private PipeLine() {
         try {
@@ -174,7 +148,7 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
      * This will invoke every {@link Resolver} to resolve the given fullTextQuery. If there already
      * is a {@link Query} with the same fullTextQuery, the old resultList will be reported.
      */
-    public String resolve(String fullTextQuery) {
+    public Query resolve(String fullTextQuery) {
         return resolve(fullTextQuery, false);
     }
 
@@ -182,11 +156,11 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
      * This will invoke every {@link Resolver} to resolve the given fullTextQuery. If there already
      * is a {@link Query} with the same fullTextQuery, the old resultList will be reported.
      */
-    public String resolve(String fullTextQuery, boolean forceOnlyLocal) {
+    public Query resolve(String fullTextQuery, boolean forceOnlyLocal) {
         if (fullTextQuery != null && !TextUtils.isEmpty(fullTextQuery)) {
             Query q = Query.get(fullTextQuery, forceOnlyLocal);
             resolve(q, forceOnlyLocal);
-            return q.getCacheKey();
+            return q;
         }
         return null;
     }
@@ -194,24 +168,25 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
     /**
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
-    public String resolve(Query q) {
+    public Query resolve(Query q) {
         return resolve(q, false);
     }
 
     /**
      * This will invoke every {@link Resolver} to resolve the given {@link Query}.
      */
-    public String resolve(final Query q, final boolean forceOnlyLocal) {
+    public Query resolve(final Query q, final boolean forceOnlyLocal) {
         final TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
             @Override
             public void run() {
                 if (!forceOnlyLocal && q.isSolved()) {
-                    sendResultsReportBroadcast(q.getCacheKey());
+                    PipeLineResultsEvent event = new PipeLineResultsEvent();
+                    event.mQuery = q;
+                    EventBus.getDefault().post(event);
                 } else {
                     if (!isEveryResolverReady()) {
-                        if (!mWaitingQueries.containsKey(q.getCacheKey())) {
-                            mWaitingQueries.put(q.getCacheKey(), q);
-                        }
+                        resolve(mWaitingQueries);
+                        mWaitingQueries.clear();
                     } else {
                         for (final Resolver resolver : mResolvers) {
                             if (shouldResolve(resolver, q, forceOnlyLocal)) {
@@ -223,7 +198,7 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
             }
         };
         ThreadManager.getInstance().execute(r, q);
-        return q.getCacheKey();
+        return q;
     }
 
     /**
@@ -247,7 +222,7 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
      * Resolve the given ArrayList of {@link org.tomahawk.libtomahawk.resolver.Query}s and return a
      * HashSet containing all query ids
      */
-    public HashSet<String> resolve(ArrayList<Query> queries) {
+    public HashSet<Query> resolve(Set<Query> queries) {
         return resolve(queries, false);
     }
 
@@ -255,8 +230,8 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
      * Resolve the given ArrayList of {@link org.tomahawk.libtomahawk.resolver.Query}s and return a
      * HashSet containing all query keys
      */
-    public HashSet<String> resolve(ArrayList<Query> queries, boolean forceOnlyLocal) {
-        HashSet<String> queryKeys = new HashSet<String>();
+    public HashSet<Query> resolve(Set<Query> queries, boolean forceOnlyLocal) {
+        HashSet<Query> queryKeys = new HashSet<>();
         if (queries != null) {
             for (Query query : queries) {
                 if (forceOnlyLocal || !query.isSolved()) {
@@ -268,53 +243,14 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
     }
 
     /**
-     * Send a broadcast containing the stream url which has previously been requested by a
-     * MediaPlayerInterface.
-     */
-    public void sendStreamUrlReportBroadcast(final String resultKey, final String url,
-            final Map<String, String> headers) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    String finalUrl = url;
-                    if (headers != null) {
-                        finalUrl = TomahawkUtils
-                                .getRedirectedUrl(TomahawkUtils.HTTP_METHOD_GET, url, headers);
-                    }
-                    Intent reportIntent = new Intent(PIPELINE_STREAMURLREPORTED);
-                    reportIntent.putExtra(PIPELINE_STREAMURLREPORTED_RESULTKEY, resultKey);
-                    reportIntent.putExtra(PIPELINE_STREAMURLREPORTED_URL, finalUrl);
-                    TomahawkApp.getContext().sendBroadcast(reportIntent);
-                } catch (NoSuchAlgorithmException e) {
-                    e.printStackTrace();
-                } catch (KeyManagementException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-    }
-
-    /**
-     * Send a broadcast containing the key of the resolved {@link Query}.
-     */
-    private void sendResultsReportBroadcast(String queryKey) {
-        Intent reportIntent = new Intent(PIPELINE_RESULTSREPORTED);
-        reportIntent.putExtra(PIPELINE_RESULTSREPORTED_QUERYKEY, queryKey);
-        TomahawkApp.getContext().sendBroadcast(reportIntent);
-    }
-
-    /**
      * If the {@link ScriptResolver} has resolved the {@link Query}, this method will be called.
      * This method will then calculate a score and assign it to every {@link Result}. If the score
      * is higher than MINSCORE the {@link Result} is added to the output resultList.
      *
-     * @param queryKey the {@link Query}'s key
-     * @param results  the unfiltered {@link ArrayList} of {@link Result}s
+     * @param query   the {@link Query} that results are being reported for
+     * @param results the unfiltered {@link ArrayList} of {@link Result}s
      */
-    public void reportResults(final String queryKey, final ArrayList<Result> results,
+    public void reportResults(final Query query, final ArrayList<Result> results,
             final String resolverId) {
         int priority;
         if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(resolverId)) {
@@ -332,19 +268,19 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
                     @Override
                     public void run() {
                         ArrayList<Result> cleanTrackResults = new ArrayList<Result>();
-                        ArrayList<Result> cleanAlbumResults = new ArrayList<Result>();
-                        ArrayList<Result> cleanArtistResults = new ArrayList<Result>();
-                        Query q = Query.getQueryByKey(queryKey);
-                        if (q != null) {
+                        /*ArrayList<Result> cleanAlbumResults = new ArrayList<Result>();
+                        ArrayList<Result> cleanArtistResults = new ArrayList<Result>();*/
+                        if (query != null) {
                             for (Result r : results) {
                                 if (r != null) {
-                                    r.setTrackScore(q.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
+                                    r.setTrackScore(
+                                            query.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
                                     if (r.getTrackScore() >= MINSCORE
                                             && !cleanTrackResults.contains(r)) {
                                         r.setType(Result.RESULT_TYPE_TRACK);
                                         cleanTrackResults.add(r);
                                     }
-                                    if (q.isFullTextQuery()) {
+                                    /*if (q.isFullTextQuery()) {
                                         r.setAlbumScore(
                                                 q.howSimilar(r, PIPELINE_SEARCHTYPE_ALBUMS));
                                         if (r.getAlbumScore() >= MINSCORE
@@ -359,15 +295,17 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
                                             r.setType(Result.RESULT_TYPE_ARTIST);
                                             cleanArtistResults.add(r);
                                         }
-                                    }
+                                    }*/
                                 }
                             }
-                            q.addArtistResults(cleanArtistResults);
-                            q.addAlbumResults(cleanAlbumResults);
-                            q.addTrackResults(cleanTrackResults);
-                            sendResultsReportBroadcast(q.getCacheKey());
-                            if (q.isSolved()) {
-                                ThreadManager.getInstance().stop(q);
+                            /*q.addArtistResults(cleanArtistResults);
+                            q.addAlbumResults(cleanAlbumResults);*/
+                            query.addTrackResults(cleanTrackResults);
+                            PipeLineResultsEvent event = new PipeLineResultsEvent();
+                            event.mQuery = query;
+                            EventBus.getDefault().post(event);
+                            if (query.isSolved()) {
+                                ThreadManager.getInstance().stop(query);
                             }
                         }
                     }
@@ -393,16 +331,6 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
     }
 
     public void reportUrlResult(String url, Resolver resolver, ScriptResolverUrlResult result) {
-        Log.d(TAG, "reportUrlResult - url: " + url);
-        mUrlLookupMap.put(url, result);
-        Intent reportIntent = new Intent(PIPELINE_URLLOOKUPFINISHED);
-        reportIntent.putExtra(PIPELINE_URLLOOKUPFINISHED_URL, url);
-        reportIntent.putExtra(PIPELINE_URLLOOKUPFINISHED_RESOLVERID, resolver.getId());
-        TomahawkApp.getContext().sendBroadcast(reportIntent);
-    }
-
-    public ScriptResolverUrlResult getUrlResult(String url) {
-        return mUrlLookupMap.get(url);
     }
 
     /**
@@ -426,10 +354,8 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
     @Override
     public void onResolverReady(Resolver resolver) {
         if (isEveryResolverReady()) {
-            for (Query query : mWaitingQueries.values()) {
-                mWaitingQueries.remove(query.getCacheKey());
-                resolve(query);
-            }
+            resolve(mWaitingQueries);
+            mWaitingQueries.clear();
             for (String url : mWaitingUrlLookups) {
                 mWaitingUrlLookups.remove(url);
                 lookupUrl(url);
