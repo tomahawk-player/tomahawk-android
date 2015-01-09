@@ -23,14 +23,11 @@ import org.tomahawk.libtomahawk.resolver.ResolverUrlHandler;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.events.PipeLineStreamUrlEvent;
-import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.LibVlcException;
 
 import android.app.Application;
-import android.content.Intent;
 import android.media.MediaPlayer;
 import android.util.Log;
 
@@ -48,6 +45,14 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
     private static class Holder {
 
         private static final VLCMediaPlayer instance = new VLCMediaPlayer();
+
+    }
+
+    public static class PreparedEvent {
+
+    }
+
+    public static class ReleasedEvent {
 
     }
 
@@ -88,7 +93,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(PipeLineStreamUrlEvent event) {
+    public void onEventAsync(PipeLine.StreamUrlEvent event) {
         mTranslatedUrls.put(event.mResult, event.mUrl);
         if (mPreparingQuery != null
                 && event.mResult == mPreparingQuery.getPreferredTrackResult()) {
@@ -179,8 +184,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
     @Override
     public void release() {
         Log.d(TAG, "release()");
-        TomahawkApp.getContext()
-                .sendBroadcast(new Intent(PlaybackService.BROADCAST_VLCMEDIAPLAYER_RELEASED));
+        EventBus.getDefault().post(new ReleasedEvent());
         pause();
     }
 
@@ -217,8 +221,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         mPreparedQuery = mPreparingQuery;
         mPreparingQuery = null;
         mOnPreparedListener.onPrepared(mp);
-        TomahawkApp.getContext()
-                .sendBroadcast(new Intent(PlaybackService.BROADCAST_VLCMEDIAPLAYER_PREPARED));
+        EventBus.getDefault().post(new PreparedEvent());
     }
 
     @Override

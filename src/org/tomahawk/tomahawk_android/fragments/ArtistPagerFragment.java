@@ -26,10 +26,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -41,24 +37,10 @@ public class ArtistPagerFragment extends PagerFragment {
 
     private Artist mArtist;
 
-    private ArtistsPagerFragmentReceiver mArtistsPagerFragmentReceiver;
-
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class ArtistsPagerFragmentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (CollectionManager.COLLECTION_UPDATED.equals(intent.getAction())) {
-                if (intent.getStringExtra(TomahawkFragment.TOMAHAWK_ARTIST_KEY) != null) {
-                    if (mArtist != null
-                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_ARTIST_KEY).equals(
-                            mArtist.getCacheKey())) {
-                        updatePager();
-                    }
-                }
-            }
+    @SuppressWarnings("unused")
+    public void onEventMainThread(CollectionManager.UpdatedEvent event) {
+        if (mArtist != null && mArtist == event.mUpdatedItem) {
+            updatePager();
         }
     }
 
@@ -72,28 +54,6 @@ public class ArtistPagerFragment extends PagerFragment {
 
         getActivity().setTitle("");
         updatePager();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // Initialize and register Receiver
-        if (mArtistsPagerFragmentReceiver == null) {
-            mArtistsPagerFragmentReceiver = new ArtistsPagerFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(CollectionManager.COLLECTION_UPDATED);
-            getActivity().registerReceiver(mArtistsPagerFragmentReceiver, intentFilter);
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mArtistsPagerFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mArtistsPagerFragmentReceiver);
-            mArtistsPagerFragmentReceiver = null;
-        }
     }
 
     private void updatePager() {

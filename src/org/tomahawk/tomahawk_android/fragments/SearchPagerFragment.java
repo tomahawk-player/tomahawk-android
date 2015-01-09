@@ -29,7 +29,6 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 
@@ -45,8 +44,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import de.greenrobot.event.EventBus;
 
 public class SearchPagerFragment extends PagerFragment {
 
@@ -88,7 +85,7 @@ public class SearchPagerFragment extends PagerFragment {
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(PipeLineResultsEvent event) {
+    public void onEventMainThread(PipeLine.ResultsEvent event) {
         mSongIds.clear();
         if (event.mQuery != null) {
             for (Query q : event.mQuery.getTrackQueries()) {
@@ -106,8 +103,6 @@ public class SearchPagerFragment extends PagerFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        EventBus.getDefault().register(this);
 
         if (savedInstanceState != null && savedInstanceState
                 .containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)

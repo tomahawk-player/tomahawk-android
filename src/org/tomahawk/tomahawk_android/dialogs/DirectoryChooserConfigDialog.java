@@ -69,7 +69,7 @@ public class DirectoryChooserConfigDialog extends ConfigDialog {
     }
 
     @Override
-    protected void onConfigTestResult(String componentId, int type, String message) {
+    protected void onConfigTestResult(Object component, int type, String message) {
         // We don't care about this since we don't offer a checkbox in a DirectoryChooserConfigDialog
     }
 

@@ -29,7 +29,6 @@ import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -40,6 +39,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -74,6 +74,27 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
 
         private static final PipeLine instance = new PipeLine();
 
+    }
+
+    public static class ResultsEvent {
+
+        public Query mQuery;
+    }
+
+    public static class StreamUrlEvent {
+
+        public Result mResult;
+
+        public String mUrl;
+
+        public Map<String, String> mHeaders;
+    }
+
+    public static class UrlResultsEvent {
+
+        public Resolver mResolver;
+
+        public ScriptResolverUrlResult mResult;
     }
 
     private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
@@ -180,7 +201,7 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
             @Override
             public void run() {
                 if (!forceOnlyLocal && q.isSolved()) {
-                    PipeLineResultsEvent event = new PipeLineResultsEvent();
+                    ResultsEvent event = new ResultsEvent();
                     event.mQuery = q;
                     EventBus.getDefault().post(event);
                 } else {
@@ -301,7 +322,7 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
                             /*q.addArtistResults(cleanArtistResults);
                             q.addAlbumResults(cleanAlbumResults);*/
                             query.addTrackResults(cleanTrackResults);
-                            PipeLineResultsEvent event = new PipeLineResultsEvent();
+                            ResultsEvent event = new ResultsEvent();
                             event.mQuery = query;
                             EventBus.getDefault().post(event);
                             if (query.isSolved()) {

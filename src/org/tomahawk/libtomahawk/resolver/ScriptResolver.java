@@ -44,8 +44,6 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.events.PipeLineStreamUrlEvent;
-import org.tomahawk.tomahawk_android.events.PipeLineUrlResultsEvent;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -86,6 +84,10 @@ public class ScriptResolver extends Resolver {
     public final static String CONFIG = "config";
 
     public final static String ENABLED_KEY = "_enabled_";
+
+    public static class EnabledStateChangedEvent {
+
+    }
 
     // We have to map the original cache keys to an id string, because a string containing "\t\t"
     // delimiters does come out without the delimiters, after it has been processed in the js
@@ -541,7 +543,7 @@ public class ScriptResolver extends Resolver {
                 }
                 if (result != null) {
                     Log.d(TAG, "reportUrlResult - url: " + url);
-                    PipeLineUrlResultsEvent event = new PipeLineUrlResultsEvent();
+                    PipeLine.UrlResultsEvent event = new PipeLine.UrlResultsEvent();
                     event.mResolver = ScriptResolver.this;
                     event.mResult = result;
                     EventBus.getDefault().post(event);
@@ -558,7 +560,7 @@ public class ScriptResolver extends Resolver {
             if (stringifiedHeaders != null) {
                 headers = mObjectMapper.readValue(stringifiedHeaders, Map.class);
             }
-            PipeLineStreamUrlEvent event = new PipeLineStreamUrlEvent();
+            PipeLine.StreamUrlEvent event = new PipeLine.StreamUrlEvent();
             event.mResult = mResultKeys.get(resultId);
             event.mUrl = url;
             event.mHeaders = headers;
@@ -799,7 +801,7 @@ public class ScriptResolver extends Resolver {
         Map<String, Object> config = getConfig();
         config.put(ENABLED_KEY, enabled);
         setConfig(config);
-        TomahawkApp.getContext().sendBroadcast(new Intent(ENABLED_STATE_CHANGED));
+        EventBus.getDefault().post(new EnabledStateChangedEvent());
     }
 
     public void reportCapabilities(int in) {
@@ -867,8 +869,12 @@ public class ScriptResolver extends Resolver {
     public void onConfigTestResult(final int type, final String message) {
         Log.d(TAG, getName() + ": Config test result received. type: " + type + ", message:"
                 + message);
-        AuthenticatorManager.broadcastConfigTestResult(getId(),
-                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_RESOLVER, type,
-                message, null);
+        AuthenticatorManager.ConfigTestResultEvent event
+                = new AuthenticatorManager.ConfigTestResultEvent();
+        event.mComponent = this;
+        event.mType = type;
+        event.mMessage = message;
+        EventBus.getDefault().post(event);
+        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 }

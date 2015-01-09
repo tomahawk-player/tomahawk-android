@@ -32,6 +32,8 @@ import android.util.Log;
 
 import java.io.UnsupportedEncodingException;
 
+import de.greenrobot.event.EventBus;
+
 public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioListener {
 
     // Used for debug logging
@@ -67,9 +69,12 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
                     new String(Base64.decode(RDIO_APPKEYSECRET, Base64.DEFAULT), "UTF-8"),
                     extraToken, extraTokenSecret, TomahawkApp.getContext(), this);
             mRdio.prepareForPlayback();
-            AuthenticatorManager.broadcastConfigTestResult(getId(),
-                    AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
-                    AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
+            AuthenticatorManager.ConfigTestResultEvent event
+                    = new AuthenticatorManager.ConfigTestResultEvent();
+            event.mComponent = this;
+            event.mType = AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS;
+            EventBus.getDefault().post(event);
+            AuthenticatorManager.showToast(getPrettyName(), event);
         } catch (UnsupportedEncodingException e) {
             Log.e(TAG, "onAuthTokenProvided: " + e.getClass() + ": " + e.getLocalizedMessage());
             onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
@@ -79,16 +84,23 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
 
     public void onLoginFailed(int type, String message) {
         Log.d(TAG, "Rdio login failed :(, Type:" + type + ", Error: " + message);
-        AuthenticatorManager.broadcastConfigTestResult(getId(),
-                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS, type,
-                message);
+        AuthenticatorManager.ConfigTestResultEvent event
+                = new AuthenticatorManager.ConfigTestResultEvent();
+        event.mComponent = this;
+        event.mType = type;
+        event.mMessage = message;
+        EventBus.getDefault().post(event);
+        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
     public void onLogout() {
         Log.d(TAG, "Rdio user logged out");
-        AuthenticatorManager.broadcastConfigTestResult(getId(),
-                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
-                AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT);
+        AuthenticatorManager.ConfigTestResultEvent event
+                = new AuthenticatorManager.ConfigTestResultEvent();
+        event.mComponent = this;
+        event.mType = AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT;
+        EventBus.getDefault().post(event);
+        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
     @Override
@@ -190,9 +202,12 @@ public class RdioAuthenticatorUtils extends AuthenticatorUtils implements RdioLi
     @Override
     public void onRdioUserPlayingElsewhere() {
         Log.d(TAG, "onRdioUserPlayingElsewhere()");
-        AuthenticatorManager.broadcastConfigTestResult(getId(),
-                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
-                AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_PLAYINGELSEWHERE);
+        AuthenticatorManager.ConfigTestResultEvent event
+                = new AuthenticatorManager.ConfigTestResultEvent();
+        event.mComponent = this;
+        event.mType = AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_PLAYINGELSEWHERE;
+        EventBus.getDefault().post(event);
+        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
     /*

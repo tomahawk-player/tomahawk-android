@@ -37,8 +37,6 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
-import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
@@ -46,10 +44,6 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
@@ -63,6 +57,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.greenrobot.event.EventBus;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
@@ -140,11 +135,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected static final int INFOSYSTEM_RESULT_REPORTER_MSG = 1338;
 
-    protected static final long INFOSYSTEM_RESULT_REPORTER_DELAY = 1000;
+    protected static final long INFOSYSTEM_RESULT_REPORTER_DELAY = 500;
 
     private TomahawkListAdapter mTomahawkListAdapter;
-
-    private TomahawkFragmentReceiver mTomahawkFragmentReceiver;
 
     protected boolean mIsResumed;
 
@@ -229,61 +222,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     };
 
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class TomahawkFragmentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (CollectionManager.COLLECTION_UPDATED.equals(intent.getAction())) {
-                if (intent.getStringExtra(TOMAHAWK_PLAYLIST_KEY) != null) {
-                    if (mPlaylist != null
-                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY).equals(
-                            mPlaylist.getCacheKey())) {
-                        updateAdapter();
-                    }
-                } else if (intent.getStringExtra(TOMAHAWK_ALBUM_KEY) != null) {
-                    if (mAlbum != null
-                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_ALBUM_KEY).equals(
-                            mAlbum.getCacheKey())) {
-                        updateAdapter();
-                    }
-                } else if (intent.getStringExtra(TOMAHAWK_ARTIST_KEY) != null) {
-                    if (mArtist != null
-                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_ARTIST_KEY).equals(
-                            mArtist.getCacheKey())) {
-                        updateAdapter();
-                    }
-                } else if (intent.getStringExtra(TOMAHAWK_QUERY_KEY) != null) {
-                    if (mQuery != null
-                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_QUERY_KEY).equals(
-                            mQuery.getCacheKey())) {
-                        updateAdapter();
-                    }
-                } else {
-                    updateAdapter();
-                }
-            } else if (TomahawkMainActivity.PLAYBACKSERVICE_READY.equals(intent.getAction())) {
-                onPlaybackServiceReady();
-            } else if (PlaybackService.BROADCAST_CURRENTTRACKCHANGED.equals(intent.getAction())) {
-                onTrackChanged();
-            } else if (PlaybackService.BROADCAST_PLAYLISTCHANGED.equals(intent.getAction())) {
-                onPlaylistChanged();
-            } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
-                onPlaystateChanged();
-            } else if (DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED
-                    .equals(intent.getAction())) {
-                if (mPlaylist != null && mPlaylist.getId().equals(intent.getStringExtra(
-                        DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED_PLAYLISTID))) {
-                    refreshCurrentPlaylist();
-                }
-            }
-        }
-    }
-
     @SuppressWarnings("unused")
-    public void onEvent(PipeLineResultsEvent event) {
+    public void onEvent(PipeLine.ResultsEvent event) {
         mQueriesToReport.add(event.mQuery);
         if (!mPipeLineResultReporter.hasMessages(PIPELINE_RESULT_REPORTER_MSG)) {
             mPipeLineResultReporter.sendEmptyMessageDelayed(PIPELINE_RESULT_REPORTER_MSG,
@@ -292,12 +232,51 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(InfoSystemResultsEvent event) {
+    public void onEvent(InfoSystem.ResultsEvent event) {
         mInfoRequestIdsToReport.add(event.mInfoRequestData.getRequestId());
         if (!mInfoSystemResultReporter.hasMessages(INFOSYSTEM_RESULT_REPORTER_MSG)) {
             mInfoSystemResultReporter.sendEmptyMessageDelayed(INFOSYSTEM_RESULT_REPORTER_MSG,
                     INFOSYSTEM_RESULT_REPORTER_DELAY);
         }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(PlaybackService.PlayingTrackChangedEvent event) {
+        onTrackChanged();
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(PlaybackService.PlayStateChangedEvent event) {
+        onPlaystateChanged();
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(PlaybackService.PlayingPlaylistChangedEvent event) {
+        onPlaylistChanged();
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(CollectionManager.UpdatedEvent event) {
+        if (event.mUpdatedItem != null) {
+            if (mPlaylist == event.mUpdatedItem || mAlbum == event.mUpdatedItem
+                    || mArtist == event.mUpdatedItem || mQuery == event.mUpdatedItem) {
+                updateAdapter();
+            }
+        } else {
+            updateAdapter();
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(DatabaseHelper.PlaylistsUpdatedEvent event) {
+        if (mPlaylist != null && mPlaylist.getId().equals(event.mPlaylistId)) {
+            refreshCurrentPlaylist();
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(PlaybackService.ReadyEvent event) {
+        onPlaybackServiceReady();
     }
 
     @Override
@@ -399,23 +378,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
         }
 
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        // Initialize and register Receiver
-        if (mTomahawkFragmentReceiver == null) {
-            mTomahawkFragmentReceiver = new TomahawkFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(CollectionManager.COLLECTION_UPDATED);
-            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(PlaybackService.BROADCAST_CURRENTTRACKCHANGED);
-            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYLISTCHANGED);
-            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED);
-            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(TomahawkMainActivity.PLAYBACKSERVICE_READY);
-            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(DatabaseHelper.PLAYLISTSDATASOURCE_RESULTSREPORTED);
-            activity.registerReceiver(mTomahawkFragmentReceiver, intentFilter);
-        }
         StickyListHeadersListView list = getListView();
         if (list != null) {
             list.setOnScrollListener(this);
@@ -437,11 +399,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
 
         mPipeLineResultReporter.removeCallbacksAndMessages(null);
-
-        if (mTomahawkFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mTomahawkFragmentReceiver);
-            mTomahawkFragmentReceiver = null;
-        }
 
         mIsResumed = false;
     }
@@ -644,7 +601,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                                     DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());
                             if (playlist != null) {
                                 mPlaylist = playlist;
-                                CollectionManager.sendCollectionUpdatedBroadcast(null, mPlaylist);
+                                CollectionManager.UpdatedEvent event
+                                        = new CollectionManager.UpdatedEvent();
+                                event.mUpdatedItem = mPlaylist;
+                                EventBus.getDefault().post(event);
                             }
                         }
                     }

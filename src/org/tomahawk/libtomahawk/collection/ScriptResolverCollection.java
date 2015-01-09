@@ -26,6 +26,8 @@ import android.text.TextUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * This class represents a Collection which contains tracks/albums/artists retrieved by a
  * ScriptResolver.
@@ -62,7 +64,10 @@ public class ScriptResolverCollection extends Collection {
             addQuery(query, 0);
         }
         addAlbumTracks(album, queries);
-        CollectionManager.sendCollectionUpdatedBroadcast(this, album);
+        CollectionManager.UpdatedEvent event = new CollectionManager.UpdatedEvent();
+        event.mCollection = this;
+        event.mUpdatedItem = album;
+        EventBus.getDefault().post(event);
     }
 
     public void addArtistResults(List<Artist> artists) {
@@ -78,7 +83,10 @@ public class ScriptResolverCollection extends Collection {
             if (!TextUtils.isEmpty(album.getName())) {
                 addAlbum(album);
                 addArtistAlbum(album.getArtist(), album);
-                CollectionManager.sendCollectionUpdatedBroadcast(this, album.getArtist());
+                CollectionManager.UpdatedEvent event = new CollectionManager.UpdatedEvent();
+                event.mCollection = this;
+                event.mUpdatedItem = album.getArtist();
+                EventBus.getDefault().post(event);
             }
         }
     }

@@ -33,10 +33,6 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
@@ -56,24 +52,10 @@ public class TracksFragment extends TomahawkFragment {
     public static final String COLLECTION_TRACKS_SPINNER_POSITION
             = "org.tomahawk.tomahawk_android.collection_tracks_spinner_position";
 
-    private TracksFragmentReceiver mTracksFragmentReceiver;
-
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class TracksFragmentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (CollectionManager.COLLECTION_UPDATED.equals(intent.getAction())) {
-                if (intent.getStringExtra(TOMAHAWK_ALBUM_KEY) != null) {
-                    if (mAlbum != null
-                            && intent.getStringExtra(TomahawkFragment.TOMAHAWK_ALBUM_KEY).equals(
-                            mAlbum.getCacheKey())) {
-                        showAlbumFancyDropDown();
-                    }
-                }
-            }
+    @SuppressWarnings("unused")
+    public void onEventMainThread(CollectionManager.UpdatedEvent event) {
+        if (mAlbum != null && mAlbum == event.mUpdatedItem) {
+            showAlbumFancyDropDown();
         }
     }
 
@@ -81,27 +63,10 @@ public class TracksFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        // Initialize and register Receiver
-        if (mTracksFragmentReceiver == null) {
-            mTracksFragmentReceiver = new TracksFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(CollectionManager.COLLECTION_UPDATED);
-            getActivity().registerReceiver(mTracksFragmentReceiver, intentFilter);
-        }
-
         if (mContainerFragmentClass == null) {
             getActivity().setTitle("");
         }
         updateAdapter();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mTracksFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mTracksFragmentReceiver);
-            mTracksFragmentReceiver = null;
-        }
     }
 
     /**

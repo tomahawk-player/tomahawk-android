@@ -183,8 +183,8 @@ public class ResolverConfigDialog extends ConfigDialog {
     }
 
     @Override
-    protected void onConfigTestResult(String componentId, int type, String message) {
-        if (mScriptResolver.isConfigTestable() && componentId.equals(mScriptResolver.getId())) {
+    protected void onConfigTestResult(Object component, int type, String message) {
+        if (mScriptResolver == component && mScriptResolver.isConfigTestable()) {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
                 mScriptResolver.setEnabled(true);
                 dismiss();

@@ -95,7 +95,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
     }
 
     @Override
-    protected void onConfigTestResult(String componentId, int type, String message) {
+    protected void onConfigTestResult(Object component, int type, String message) {
     }
 
     @Override

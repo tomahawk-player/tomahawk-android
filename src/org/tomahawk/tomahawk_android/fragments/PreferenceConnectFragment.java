@@ -37,13 +37,7 @@ import org.tomahawk.tomahawk_android.dialogs.RedirectConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -59,23 +53,19 @@ public class PreferenceConnectFragment extends TomahawkListFragment
 
     private static final String TAG = PreferenceConnectFragment.class.getSimpleName();
 
-    private FakePreferenceFragmentReceiver mFakePreferenceFragmentReceiver;
+    @SuppressWarnings("unused")
+    public void onEventMainThread(CollectionManager.UpdatedEvent event) {
+        getListAdapter().notifyDataSetChanged();
+    }
 
-    private class FakePreferenceFragmentReceiver extends BroadcastReceiver {
+    @SuppressWarnings("unused")
+    public void onEventMainThread(AuthenticatorManager.ConfigTestResultEvent event) {
+        getListAdapter().notifyDataSetChanged();
+    }
 
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (AuthenticatorManager.CONFIG_TEST_RESULT.equals(intent.getAction())
-                    || CollectionManager.COLLECTION_UPDATED.equals(intent.getAction())
-                    || Resolver.ENABLED_STATE_CHANGED.equals(intent.getAction())) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        getListAdapter().notifyDataSetChanged();
-                    }
-                });
-            }
-        }
+    @SuppressWarnings("unused")
+    public void onEventMainThread(ScriptResolver.EnabledStateChangedEvent event) {
+        getListAdapter().notifyDataSetChanged();
     }
 
     /**
@@ -118,38 +108,6 @@ public class PreferenceConnectFragment extends TomahawkListFragment
         }
 
         setupNonScrollableSpacer();
-    }
-
-    /**
-     * Initialize
-     */
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        getListAdapter().notifyDataSetChanged();
-
-        if (mFakePreferenceFragmentReceiver == null) {
-            mFakePreferenceFragmentReceiver = new FakePreferenceFragmentReceiver();
-        }
-
-        // Register intents that the BroadcastReceiver should listen to
-        getActivity().registerReceiver(mFakePreferenceFragmentReceiver,
-                new IntentFilter(AuthenticatorManager.CONFIG_TEST_RESULT));
-        getActivity().registerReceiver(mFakePreferenceFragmentReceiver,
-                new IntentFilter(CollectionManager.COLLECTION_UPDATED));
-        getActivity().registerReceiver(mFakePreferenceFragmentReceiver,
-                new IntentFilter(Resolver.ENABLED_STATE_CHANGED));
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mFakePreferenceFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mFakePreferenceFragmentReceiver);
-            mFakePreferenceFragmentReceiver = null;
-        }
     }
 
     @Override

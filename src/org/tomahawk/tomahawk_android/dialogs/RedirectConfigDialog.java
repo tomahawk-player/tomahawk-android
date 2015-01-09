@@ -43,7 +43,7 @@ public class RedirectConfigDialog extends ConfigDialog {
 
     public final static String TAG = RedirectConfigDialog.class.getSimpleName();
 
-    private String mResolverId;
+    private ScriptResolver mScriptResolver;
 
     private TextView mRedirectButtonTextView;
 
@@ -76,23 +76,22 @@ public class RedirectConfigDialog extends ConfigDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments()
                 .containsKey(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY)) {
-            mResolverId = getArguments().getString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY);
+            mScriptResolver = (ScriptResolver) PipeLine.getInstance().getResolver(
+                    getArguments().getString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY));
         }
 
-        ScriptResolver scriptResolver = (ScriptResolver) PipeLine.getInstance()
-                .getResolver(mResolverId);
         LayoutInflater inflater = getActivity().getLayoutInflater();
         LinearLayout headerTextLayout =
                 (LinearLayout) inflater.inflate(R.layout.config_textview, null);
         TextView headerTextView = (TextView) headerTextLayout.findViewById(R.id.config_textview);
-        headerTextView.setText(scriptResolver.getDescription());
+        headerTextView.setText(mScriptResolver.getDescription());
         addScrollingViewToFrame(headerTextLayout);
 
         int buttonBackgroundResId;
         int buttonImageResId;
         int buttonTextColor;
         View.OnClickListener onClickListener;
-        if (mResolverId.equals(TomahawkApp.PLUGINNAME_RDIO)) {
+        if (mScriptResolver.getId().equals(TomahawkApp.PLUGINNAME_RDIO)) {
             buttonBackgroundResId = R.drawable.selectable_background_tomahawk;
             buttonImageResId = R.drawable.logo_rdio;
             buttonTextColor = getResources().getColor(R.color.primary_textcolor);
@@ -107,7 +106,7 @@ public class RedirectConfigDialog extends ConfigDialog {
         View buttonLayout = inflater.inflate(R.layout.config_redirect_button, null);
         addScrollingViewToFrame(buttonLayout);
         AuthenticatorUtils utils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(mResolverId);
+                .getAuthenticatorUtils(mScriptResolver.getId());
         boolean loggedIn = utils.isLoggedIn();
         LinearLayout button = ((LinearLayout) buttonLayout
                 .findViewById(R.id.config_redirect_button));
@@ -122,9 +121,9 @@ public class RedirectConfigDialog extends ConfigDialog {
                 ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                 : getString(R.string.resolver_config_redirect_button_text_log_into));
         button.setOnClickListener(onClickListener);
-        setDialogTitle(scriptResolver.getName());
+        setDialogTitle(mScriptResolver.getName());
         hideNegativeButton();
-        setStatus(scriptResolver);
+        setStatus(mScriptResolver);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
@@ -138,7 +137,7 @@ public class RedirectConfigDialog extends ConfigDialog {
         super.onResume();
 
         AuthenticatorUtils utils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(mResolverId);
+                .getAuthenticatorUtils(mScriptResolver.getId());
         if (utils != null) {
             boolean loggedIn = utils.isLoggedIn();
             mRedirectButtonTextView.setText(loggedIn
@@ -153,8 +152,8 @@ public class RedirectConfigDialog extends ConfigDialog {
     }
 
     @Override
-    protected void onConfigTestResult(String componentId, int type, String message) {
-        if (mResolverId.equals(componentId)) {
+    protected void onConfigTestResult(Object component, int type, String message) {
+        if (mScriptResolver == component) {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
                 mRedirectButtonTextView.setText(
                         getString(R.string.resolver_config_redirect_button_text_log_out_of));

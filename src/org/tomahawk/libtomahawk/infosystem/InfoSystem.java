@@ -42,8 +42,6 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSocialActionPos
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.events.InfoSystemOpLogIsEmptiedEvent;
-import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.text.TextUtils;
@@ -68,6 +66,20 @@ public class InfoSystem {
 
         private static final InfoSystem instance = new InfoSystem();
 
+    }
+
+    public static class OpLogIsEmptiedEvent {
+
+        public HashSet<Integer> mRequestTypes;
+
+        public HashSet<String> mPlaylistIds;
+    }
+
+    public class ResultsEvent {
+
+        public boolean mSuccess;
+
+        public InfoRequestData mInfoRequestData;
     }
 
     private ArrayList<InfoPlugin> mInfoPlugins = new ArrayList<InfoPlugin>();
@@ -640,7 +652,7 @@ public class InfoSystem {
      * requestIds have received their results
      */
     public void reportResults(InfoRequestData infoRequestData, boolean success) {
-        InfoSystemResultsEvent event = new InfoSystemResultsEvent();
+        ResultsEvent event = new ResultsEvent();
         event.mInfoRequestData = infoRequestData;
         event.mSuccess = success;
         EventBus.getDefault().post(event);
@@ -703,7 +715,7 @@ public class InfoSystem {
             DatabaseHelper.getInstance().removeOpsFromInfoSystemOpLog(loggedOps);
             if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
                 if (!requestTypes.isEmpty()) {
-                    InfoSystemOpLogIsEmptiedEvent event = new InfoSystemOpLogIsEmptiedEvent();
+                    OpLogIsEmptiedEvent event = new OpLogIsEmptiedEvent();
                     event.mRequestTypes = requestTypes;
                     event.mPlaylistIds = playlistIds;
                     EventBus.getDefault().post(event);

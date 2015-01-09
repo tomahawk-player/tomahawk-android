@@ -40,8 +40,6 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
-import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
@@ -112,21 +110,6 @@ public class PlaybackService extends Service
 
     private static String TAG = PlaybackService.class.getSimpleName();
 
-    public static final String BROADCAST_CURRENTTRACKCHANGED
-            = "org.tomahawk.tomahawk_android.BROADCAST_CURRENTTRACKCHANGED";
-
-    public static final String BROADCAST_PLAYLISTCHANGED
-            = "org.tomahawk.tomahawk_android.BROADCAST_PLAYLISTCHANGED";
-
-    public static final String BROADCAST_PLAYSTATECHANGED
-            = "org.tomahawk.tomahawk_android.BROADCAST_PLAYSTATECHANGED";
-
-    public static final String BROADCAST_VLCMEDIAPLAYER_PREPARED
-            = "org.tomahawk.tomahawk_android.BROADCAST_VLCMEDIAPLAYER_PREPARED";
-
-    public static final String BROADCAST_VLCMEDIAPLAYER_RELEASED
-            = "org.tomahawk.tomahawk_android.BROADCAST_VLCMEDIAPLAYER_RELEASED";
-
     public static final String ACTION_PLAYPAUSE
             = "org.tomahawk.tomahawk_android.ACTION_PLAYPAUSE";
 
@@ -162,6 +145,22 @@ public class PlaybackService extends Service
     private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 1;
 
     private static final int DELAY_TO_KILL = 300000;
+
+    public static class PlayingTrackChangedEvent {
+
+    }
+
+    public static class PlayingPlaylistChangedEvent {
+
+    }
+
+    public static class PlayStateChangedEvent {
+
+    }
+
+    public static class ReadyEvent {
+
+    }
 
     private boolean mShowingNotification;
 
@@ -394,10 +393,6 @@ public class PlaybackService extends Service
                     bindService(new Intent(PlaybackService.this, SpotifyService.class),
                             mSpotifyServiceConnection, Context.BIND_AUTO_CREATE);
                 }
-            } else if (BROADCAST_VLCMEDIAPLAYER_PREPARED.equals(intent.getAction())) {
-                EventHandler.getInstance().addHandler(mVlcHandler);
-            } else if (BROADCAST_VLCMEDIAPLAYER_RELEASED.equals(intent.getAction())) {
-                EventHandler.getInstance().removeHandler(mVlcHandler);
             }
         }
     }
@@ -426,11 +421,11 @@ public class PlaybackService extends Service
     };
 
     @SuppressWarnings("unused")
-    public void onEvent(PipeLineResultsEvent event) {
+    public void onEvent(PipeLine.ResultsEvent event) {
         if (getCurrentQuery() != null && getCurrentQuery() == event.mQuery) {
             updateNotification();
             updateLockscreenControls();
-            sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
+            EventBus.getDefault().post(new PlayingTrackChangedEvent());
             if (mCurrentMediaPlayer == null
                     || !(mCurrentMediaPlayer.isPrepared(getCurrentQuery())
                     || mCurrentMediaPlayer.isPreparing(getCurrentQuery()))) {
@@ -440,13 +435,23 @@ public class PlaybackService extends Service
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(InfoSystemResultsEvent event) {
+    public void onEvent(InfoSystem.ResultsEvent event) {
         if (getCurrentEntry() != null && getCurrentQuery().getCacheKey()
                 .equals(mCorrespondingRequestIds.get(event.mInfoRequestData.getRequestId()))) {
             updateNotification();
             updateLockscreenControls();
-            sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
+            EventBus.getDefault().post(new PlayingTrackChangedEvent());
         }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(VLCMediaPlayer.PreparedEvent event) {
+        EventHandler.getInstance().addHandler(mVlcHandler);
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(VLCMediaPlayer.ReleasedEvent event) {
+        EventHandler.getInstance().removeHandler(mVlcHandler);
     }
 
     @Override
@@ -495,10 +500,6 @@ public class PlaybackService extends Service
         mPlaybackServiceBroadcastReceiver = new PlaybackServiceBroadcastReceiver();
         registerReceiver(mPlaybackServiceBroadcastReceiver,
                 new IntentFilter(SpotifyService.REQUEST_SPOTIFYSERVICE));
-        registerReceiver(mPlaybackServiceBroadcastReceiver,
-                new IntentFilter(BROADCAST_VLCMEDIAPLAYER_PREPARED));
-        registerReceiver(mPlaybackServiceBroadcastReceiver,
-                new IntentFilter(BROADCAST_VLCMEDIAPLAYER_RELEASED));
 
         mMediaButtonReceiverComponent = new ComponentName(this, MediaButtonReceiver.class);
         mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
@@ -557,6 +558,8 @@ public class PlaybackService extends Service
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        EventBus.getDefault().unregister(this);
 
         pause(true);
         saveState();
@@ -704,7 +707,7 @@ public class PlaybackService extends Service
         Log.d(TAG, "start");
         if (getCurrentQuery() != null) {
             mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
-            sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
+            EventBus.getDefault().post(new PlayStateChangedEvent());
             handlePlayState();
 
             mShowingNotification = true;
@@ -729,7 +732,7 @@ public class PlaybackService extends Service
     public void pause(boolean dismissNotificationOnPause) {
         Log.d(TAG, "pause, dismissing Notification:" + dismissNotificationOnPause);
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
-        sendBroadcast(new Intent(BROADCAST_PLAYSTATECHANGED));
+        EventBus.getDefault().post(new PlayStateChangedEvent());
         handlePlayState();
         if (dismissNotificationOnPause) {
             mShowingNotification = false;
@@ -810,7 +813,7 @@ public class PlaybackService extends Service
             deleteQueryInQueue(mCurrentEntry);
             mCurrentEntry = entry;
             if (mCurrentEntry.getQuery().isPlayable()) {
-                sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+                EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
                 onTrackChanged();
                 break;
             }
@@ -830,7 +833,7 @@ public class PlaybackService extends Service
             deleteQueryInQueue(entry);
             mCurrentEntry = entry;
             if (mCurrentEntry.getQuery().isPlayable()) {
-                sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+                EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
                 onTrackChanged();
                 break;
             }
@@ -859,7 +862,7 @@ public class PlaybackService extends Service
                 resolveQueriesFromTo(mQueue.getEntries(), index, index + 10);
             }
 
-            sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+            EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
         }
     }
 
@@ -898,7 +901,7 @@ public class PlaybackService extends Service
     public void setRepeating(boolean repeating) {
         Log.d(TAG, "setRepeating to " + repeating);
         mRepeating = repeating;
-        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+        EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
     }
 
     /**
@@ -1011,7 +1014,7 @@ public class PlaybackService extends Service
                                         && getCurrentQuery().getPreferredTrackResult() != null) {
                                     getCurrentQuery().blacklistTrackResult(
                                             getCurrentQuery().getPreferredTrackResult());
-                                    sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+                                    EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
                                 }
                                 if (!isNetworkAvailable
                                         || getCurrentQuery().getPreferredTrackResult() == null) {
@@ -1042,13 +1045,13 @@ public class PlaybackService extends Service
         deleteQueryInQueue(mCurrentEntry);
         mCurrentEntry = entry;
         handlePlayState();
-        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+        EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
         onTrackChanged();
     }
 
     private void onTrackChanged() {
         Log.d(TAG, "onTrackChanged");
-        sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
+        EventBus.getDefault().post(new PlayingTrackChangedEvent());
         if (getCurrentEntry() != null) {
             int index = mMergedPlaylist.getIndexOfEntry(mCurrentEntry);
             resolveQueriesFromTo(mMergedPlaylist.getEntries(), index - 2, index + 10);
@@ -1098,7 +1101,7 @@ public class PlaybackService extends Service
         mMergedPlaylist.setEntries(getMergedPlaylistEntries());
 
         handlePlayState();
-        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+        EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
         onTrackChanged();
     }
 
@@ -1135,7 +1138,7 @@ public class PlaybackService extends Service
         Log.d(TAG, "addQueriesToQueue count: " + queries.size());
         mQueue.addQueries(queries);
         mMergedPlaylist.setEntries(getMergedPlaylistEntries());
-        sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+        EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
         onTrackChanged();
     }
 
@@ -1146,7 +1149,7 @@ public class PlaybackService extends Service
         Log.d(TAG, "deleteQueryInQueue");
         if (mQueue.deleteEntry(entry)) {
             mMergedPlaylist.setEntries(getMergedPlaylistEntries());
-            sendBroadcast(new Intent(BROADCAST_PLAYLISTCHANGED));
+            EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
             onTrackChanged();
         }
     }
@@ -1477,7 +1480,7 @@ public class PlaybackService extends Service
                 .equals(mCorrespondingRequestIds.get(requestId))) {
             updateNotification();
             updateLockscreenControls();
-            sendBroadcast(new Intent(BROADCAST_CURRENTTRACKCHANGED));
+            EventBus.getDefault().post(new PlayingTrackChangedEvent());
         }
     }
 

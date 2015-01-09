@@ -134,8 +134,8 @@ public class RegisterConfigDialog extends ConfigDialog {
     }
 
     @Override
-    protected void onConfigTestResult(String componentId, int type, String message) {
-        if (componentId.equals(mAuthenticatorUtils.getId())) {
+    protected void onConfigTestResult(Object component, int type, String message) {
+        if (mAuthenticatorUtils == component) {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
                 dismiss();
             }

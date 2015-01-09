@@ -34,7 +34,6 @@ import org.tomahawk.tomahawk_android.utils.MediaWithDate;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteFullException;
@@ -52,6 +51,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * This class provides a way of storing user created {@link org.tomahawk.libtomahawk.collection.Playlist}s
  * in the database
@@ -59,12 +60,6 @@ import java.util.Set;
 public class DatabaseHelper {
 
     private static final String TAG = DatabaseHelper.class.getSimpleName();
-
-    public static final String PLAYLISTSDATASOURCE_RESULTSREPORTED
-            = "org.tomahawk.tomahawk_android.playlistsdatasource_resultsreported";
-
-    public static final String PLAYLISTSDATASOURCE_RESULTSREPORTED_PLAYLISTID
-            = "org.tomahawk.tomahawk_android.playlistsdatasource_resultsreported_playlistid";
 
     public static final String CACHED_PLAYLIST_NAME = "Last used playlist";
 
@@ -88,6 +83,11 @@ public class DatabaseHelper {
 
         private static final DatabaseHelper instance = new DatabaseHelper();
 
+    }
+
+    public static class PlaylistsUpdatedEvent {
+
+        public String mPlaylistId;
     }
 
     // Database fields
@@ -175,7 +175,9 @@ public class DatabaseHelper {
                     }
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast(playlist.getId());
+                    PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
+                    event.mPlaylistId = playlist.getId();
+                    EventBus.getDefault().post(event);
                 }
             }
         }).start();
@@ -204,7 +206,9 @@ public class DatabaseHelper {
                             values, SQLiteDatabase.CONFLICT_REPLACE);
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast(playlist.getId());
+                    PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
+                    event.mPlaylistId = playlist.getId();
+                    EventBus.getDefault().post(event);
                 }
             }
         }).start();
@@ -383,7 +387,9 @@ public class DatabaseHelper {
                             new String[]{playlistId});
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast(playlistId);
+                    PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
+                    event.mPlaylistId = playlistId;
+                    EventBus.getDefault().post(event);
                 }
             }
         }).start();
@@ -406,7 +412,9 @@ public class DatabaseHelper {
                                     + " = ?", new String[]{playlistId, entryId});
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast(playlistId);
+                    PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
+                    event.mPlaylistId = playlistId;
+                    EventBus.getDefault().post(event);
                 }
             }
         }).start();
@@ -452,7 +460,9 @@ public class DatabaseHelper {
                     }
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast(playlistId);
+                    PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
+                    event.mPlaylistId = playlistId;
+                    EventBus.getDefault().post(event);
                 }
             }
         }).start();
@@ -501,7 +511,9 @@ public class DatabaseHelper {
                     }
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast(playlistId);
+                    PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
+                    event.mPlaylistId = playlistId;
+                    EventBus.getDefault().post(event);
                 }
             }
         }).start();
@@ -597,7 +609,9 @@ public class DatabaseHelper {
                             query.getArtist().getName()});
             mDatabase.setTransactionSuccessful();
             mDatabase.endTransaction();
-            sendReportResultsBroadcast(LOVEDITEMS_PLAYLIST_ID);
+            PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
+            event.mPlaylistId = LOVEDITEMS_PLAYLIST_ID;
+            EventBus.getDefault().post(event);
         }
     }
 
@@ -675,7 +689,7 @@ public class DatabaseHelper {
                     }
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast(null);
+                    EventBus.getDefault().post(new PlaylistsUpdatedEvent());
                 }
             }
         }).start();
@@ -699,7 +713,7 @@ public class DatabaseHelper {
                     }
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
-                    sendReportResultsBroadcast(null);
+                    EventBus.getDefault().post(new PlaylistsUpdatedEvent());
                 }
             }
         }).start();
@@ -872,18 +886,6 @@ public class DatabaseHelper {
         int count = opLogCursor.getCount();
         opLogCursor.close();
         return count;
-    }
-
-    /**
-     * Send a broadcast indicating that playlists have been changed in the database and should be
-     * refetched
-     */
-    private void sendReportResultsBroadcast(String playlistId) {
-        Intent reportIntent = new Intent(PLAYLISTSDATASOURCE_RESULTSREPORTED);
-        if (playlistId != null) {
-            reportIntent.putExtra(PLAYLISTSDATASOURCE_RESULTSREPORTED_PLAYLISTID, playlistId);
-        }
-        TomahawkApp.getContext().sendBroadcast(reportIntent);
     }
 
     /**
