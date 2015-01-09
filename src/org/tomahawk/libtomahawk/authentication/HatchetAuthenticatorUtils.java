@@ -28,14 +28,12 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -49,8 +47,6 @@ import retrofit.RetrofitError;
 public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private static final String TAG = HatchetAuthenticatorUtils.class.getSimpleName();
-
-    public static final String STORED_USER_ID = "hatchetauthenticatorutils.stored_user_id";
 
     public static final String HATCHET_PRETTY_NAME = "Hatchet";
 
@@ -95,6 +91,10 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
+    public static class UserLoginEvent {
+
+    }
+
     public HatchetAuthenticatorUtils() {
         super(TomahawkApp.PLUGINNAME_HATCHET, HATCHET_PRETTY_NAME);
 
@@ -109,7 +109,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(InfoSystemResultsEvent event) {
+    public void onEventAsync(InfoSystem.ResultsEvent event) {
         if (event.mSuccess
                 && mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
             if (event.mInfoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
@@ -142,24 +142,34 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             }
         }
         CollectionManager.getInstance().fetchAll();
-        AuthenticatorManager.broadcastConfigTestResult(getId(),
-                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
-                AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
+        AuthenticatorManager.ConfigTestResultEvent event
+                = new AuthenticatorManager.ConfigTestResultEvent();
+        event.mComponent = this;
+        event.mType = AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS;
+        EventBus.getDefault().post(event);
+        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
     public void onLoginFailed(int type, String message) {
         Log.d(TAG,
                 "Hatchet login failed :(, Type:" + type + ", Error: " + message);
-        AuthenticatorManager.broadcastConfigTestResult(getId(),
-                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS, type,
-                message);
+        AuthenticatorManager.ConfigTestResultEvent event
+                = new AuthenticatorManager.ConfigTestResultEvent();
+        event.mComponent = this;
+        event.mType = type;
+        event.mMessage = message;
+        EventBus.getDefault().post(event);
+        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
     public void onLogout() {
         Log.d(TAG, "Hatchet user logged out");
-        AuthenticatorManager.broadcastConfigTestResult(getId(),
-                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
-                AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT);
+        AuthenticatorManager.ConfigTestResultEvent event
+                = new AuthenticatorManager.ConfigTestResultEvent();
+        event.mComponent = this;
+        event.mType = AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT;
+        EventBus.getDefault().post(event);
+        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
     @Override
@@ -428,7 +438,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     public static void storeUserId(String userId) {
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         am.setUserData(getAccount(), USER_ID_HATCHET, userId);
-        TomahawkApp.getContext().sendBroadcast(new Intent(STORED_USER_ID));
+        EventBus.getDefault().post(new UserLoginEvent());
     }
 }
 

@@ -22,9 +22,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.StickyBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.events.PagerAnimateEvent;
-import org.tomahawk.tomahawk_android.events.PagerPerformSyncEvent;
-import org.tomahawk.tomahawk_android.events.PagerRequestSyncEvent;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
@@ -102,14 +99,19 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
                 }
             }
         }
-
-        EventBus.getDefault().register(this);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.tomahawklistfragment_layout, container, false);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -130,6 +132,13 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         super.onPause();
 
         mListState = getListState();
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+
+        super.onStop();
     }
 
     @Override
@@ -171,7 +180,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
             playTime = 10000;
         }
         if (mContainerFragmentId >= 0) {
-            PagerAnimateEvent event = new PagerAnimateEvent();
+            AnimateEvent event = new AnimateEvent();
             event.mContainerFragmentId = mContainerFragmentId;
             event.mContainerFragmentPage = mContainerFragmentPage;
             event.mPlayTime = playTime;
@@ -182,10 +191,10 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(PagerRequestSyncEvent event) {
+    public void onEvent(RequestSyncEvent event) {
         if (mContainerFragmentId == event.mContainerFragmentId
                 && mContainerFragmentPage == event.mPerformerFragmentPage) {
-            PagerPerformSyncEvent performSyncEvent = new PagerPerformSyncEvent();
+            PerformSyncEvent performSyncEvent = new PerformSyncEvent();
             performSyncEvent.mContainerFragmentId = event.mContainerFragmentId;
             performSyncEvent.mContainerFragmentPage = event.mReceiverFragmentPage;
             performSyncEvent.mFirstVisiblePosition = getListView().getFirstVisiblePosition();
@@ -195,7 +204,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(PagerPerformSyncEvent event) {
+    public void onEventMainThread(PerformSyncEvent event) {
         if (mContainerFragmentId == event.mContainerFragmentId
                 && mContainerFragmentPage == event.mContainerFragmentPage) {
             if (event.mFirstVisiblePosition == 0) {

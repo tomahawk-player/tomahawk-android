@@ -36,10 +36,6 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.res.Configuration;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
@@ -78,22 +74,14 @@ public class PlaybackFragment extends TomahawkFragment {
 
     private Toast mToast;
 
-    private PlaybackFragmentReceiver mPlaybackFragmentReceiver;
-
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class PlaybackFragmentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (TomahawkMainActivity.SLIDING_LAYOUT_EXPANDED.equals(intent.getAction())) {
+    @SuppressWarnings("unused")
+    public void onEventMainThread(TomahawkMainActivity.SlidingLayoutChangedEvent event) {
+        switch (event.mSlideState) {
+            case COLLAPSED:
+            case EXPANDED:
                 mAlbumArtSwipeAdapter.notifyDataSetChanged();
-            } else if (TomahawkMainActivity.SLIDING_LAYOUT_COLLAPSED.equals(intent.getAction())) {
-                mAlbumArtSwipeAdapter.notifyDataSetChanged();
-            }
+                break;
         }
-
     }
 
     @Override
@@ -173,17 +161,6 @@ public class PlaybackFragment extends TomahawkFragment {
                 .getPlaybackService();
 
         onPlaylistChanged();
-
-        // Initialize and register Receiver
-        if (mPlaybackFragmentReceiver == null) {
-            mPlaybackFragmentReceiver = new PlaybackFragmentReceiver();
-            IntentFilter intentFilter =
-                    new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_COLLAPSED);
-            getActivity().registerReceiver(mPlaybackFragmentReceiver, intentFilter);
-            intentFilter =
-                    new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_EXPANDED);
-            getActivity().registerReceiver(mPlaybackFragmentReceiver, intentFilter);
-        }
 
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter((TomahawkMainActivity) getActivity(),
                 getActivity().getSupportFragmentManager(), getActivity().getLayoutInflater(),
@@ -273,16 +250,6 @@ public class PlaybackFragment extends TomahawkFragment {
         updateAdapter();
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mPlaybackFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mPlaybackFragmentReceiver);
-            mPlaybackFragmentReceiver = null;
-        }
-    }
-
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *
@@ -332,6 +299,8 @@ public class PlaybackFragment extends TomahawkFragment {
      */
     @Override
     public void onPlaybackServiceReady() {
+        super.onPlaybackServiceReady();
+
         PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
         if (playbackService != null) {

@@ -24,10 +24,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.ui.widgets.BoundedLinearLayout;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
@@ -40,6 +37,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import de.greenrobot.event.EventBus;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
 
 /**
@@ -72,25 +70,7 @@ public abstract class ConfigDialog extends DialogFragment {
 
     private SmoothProgressBar mProgressBar;
 
-    private ConfigDialogReceiver mConfigDialogReceiver;
-
     private boolean mResolverEnabled;
-
-    private class ConfigDialogReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (AuthenticatorManager.CONFIG_TEST_RESULT.equals(intent.getAction())) {
-                String componentId = intent
-                        .getStringExtra(AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINNAME);
-                int type = intent
-                        .getIntExtra(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE, 0);
-                String message = intent
-                        .getStringExtra(AuthenticatorManager.CONFIG_TEST_RESULT_MESSAGE);
-                onConfigTestResult(componentId, type, message);
-            }
-        }
-    }
 
     //So that the user can login by pressing "Enter" or something similar on his keyboard
     protected TextView.OnEditorActionListener mOnKeyboardEnterListener
@@ -120,6 +100,11 @@ public abstract class ConfigDialog extends DialogFragment {
             onNegativeAction();
         }
     };
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(AuthenticatorManager.ConfigTestResultEvent event) {
+        onConfigTestResult(event.mComponent, event.mType, event.mMessage);
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -155,26 +140,17 @@ public abstract class ConfigDialog extends DialogFragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
 
-        if (mConfigDialogReceiver == null) {
-            mConfigDialogReceiver = new ConfigDialogReceiver();
-        }
-
-        // Register intents that the BroadcastReceiver should listen to
-        getActivity().registerReceiver(mConfigDialogReceiver,
-                new IntentFilter(AuthenticatorManager.CONFIG_TEST_RESULT));
+        EventBus.getDefault().register(this);
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
 
-        if (mConfigDialogReceiver != null) {
-            getActivity().unregisterReceiver(mConfigDialogReceiver);
-            mConfigDialogReceiver = null;
-        }
+        super.onStop();
     }
 
     public View getDialogView() {
@@ -194,7 +170,7 @@ public abstract class ConfigDialog extends DialogFragment {
 
     protected abstract void onEnabledCheckedChange(boolean checked);
 
-    protected abstract void onConfigTestResult(String componentId, int type, String message);
+    protected abstract void onConfigTestResult(Object component, int type, String message);
 
     protected abstract void onPositiveAction();
 

@@ -19,22 +19,16 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
-import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
-import org.tomahawk.tomahawk_android.events.PagerAnimateEvent;
-import org.tomahawk.tomahawk_android.events.PagerRequestSyncEvent;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PageIndicator;
 import org.tomahawk.tomahawk_android.views.Selector;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -63,8 +57,6 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
     private boolean mShouldSyncListStates = true;
 
     private PageIndicator mPageIndicator;
-
-    private PagerFragmentReceiver mPagerFragmentReceiver;
 
     public class FragmentInfoList {
 
@@ -96,23 +88,8 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         }
     }
 
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class PagerFragmentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (TomahawkMainActivity.SLIDING_LAYOUT_SHOWN.equals(intent.getAction())) {
-                onSlidingLayoutShown();
-            } else if (TomahawkMainActivity.SLIDING_LAYOUT_HIDDEN.equals(intent.getAction())) {
-                onSlidingLayoutHidden();
-            }
-        }
-    }
-
     @SuppressWarnings("unused")
-    public void onEvent(PagerAnimateEvent event) {
+    public void onEventMainThread(AnimateEvent event) {
         if (mContainerFragmentId == event.mContainerFragmentId
                 && mViewPager != null
                 && event.mContainerFragmentPage == mViewPager.getCurrentItem()) {
@@ -121,40 +98,22 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(InfoSystemResultsEvent event) {
+    public void onEventMainThread(InfoSystem.ResultsEvent event) {
         if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
             onInfoSystemResultsReported(event.mInfoRequestData);
         }
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        // Initialize and register Receiver
-        if (mPagerFragmentReceiver == null) {
-            mPagerFragmentReceiver = new PagerFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_SHOWN);
-            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
-            intentFilter = new IntentFilter(TomahawkMainActivity.SLIDING_LAYOUT_HIDDEN);
-            getActivity().registerReceiver(mPagerFragmentReceiver, intentFilter);
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mPagerFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mPagerFragmentReceiver);
-            mPagerFragmentReceiver = null;
+    @SuppressWarnings("unused")
+    public void onEventMainThread(TomahawkMainActivity.SlidingLayoutChangedEvent event) {
+        switch (event.mSlideState) {
+            case COLLAPSED:
+            case EXPANDED:
+                onSlidingLayoutShown();
+                break;
+            case HIDDEN:
+                onSlidingLayoutHidden();
+                break;
         }
     }
 
@@ -162,6 +121,20 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.pagerfragment_layout, container, false);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+
+        super.onStop();
     }
 
     /**
@@ -182,7 +155,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
         if (mShouldSyncListStates && positionOffset != 0f && isDynamicHeader()) {
             mShouldSyncListStates = false;
-            PagerRequestSyncEvent event = new PagerRequestSyncEvent();
+            RequestSyncEvent event = new RequestSyncEvent();
             if (mViewPager.getCurrentItem() == position) {
                 // first visible fragment is the current fragment,
                 // so we get the one to the right by asking for the fragment at position + 1

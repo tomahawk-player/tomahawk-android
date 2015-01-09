@@ -47,8 +47,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
-import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
-import org.tomahawk.tomahawk_android.events.PipeLineUrlResultsEvent;
 import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
 import org.tomahawk.tomahawk_android.fragments.CloudCollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
@@ -138,26 +136,17 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static final String SAVED_STATE_ACTION_BAR_HIDDEN = "saved_state_action_bar_hidden";
 
-    public static final String PLAYBACKSERVICE_READY
-            = "org.tomahawk.tomahawk_android.playbackservice_ready";
-
     public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
             = "org.tomahawk.tomahawk_android.show_playbackfragment_on_startup";
 
-    public static final String SLIDING_LAYOUT_COLLAPSED
-            = "org.tomahawk.tomahawk_android.sliding_layout_collapsed";
-
-    public static final String SLIDING_LAYOUT_EXPANDED
-            = "org.tomahawk.tomahawk_android.sliding_layout_expanded";
-
-    public static final String SLIDING_LAYOUT_SHOWN
-            = "org.tomahawk.tomahawk_android.sliding_layout_shown";
-
-    public static final String SLIDING_LAYOUT_HIDDEN
-            = "org.tomahawk.tomahawk_android.sliding_layout_hidden";
-
     public static final String SHOW_ACTION_BAR_BG_MODE
             = "org.tomahawk.tomahawk_android.show_action_bar_bg_mode";
+
+    public static class SlidingLayoutChangedEvent {
+
+        public SlidingUpPanelLayout.PanelState mSlideState;
+
+    }
 
     private static long mSessionIdCounter = 0;
 
@@ -226,37 +215,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                             .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                     InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
                 }
-            } else if (AuthenticatorManager.CONFIG_TEST_RESULT
-                    .equals(intent.getAction())) {
-                String authenticatorId = intent
-                        .getStringExtra(AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINNAME);
-                final int type = intent
-                        .getIntExtra(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE, 0);
-                if (TomahawkApp.PLUGINNAME_HATCHET.equals(authenticatorId)
-                        && (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS
-                        || type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT)) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            onHatchetLoggedInOut(type
-                                    == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
-                        }
-                    });
-                }
-            } else if (CollectionManager.COLLECTION_ADDED.equals(intent.getAction())) {
-                updateDrawer();
-            } else if (PlaybackService.BROADCAST_CURRENTTRACKCHANGED.equals(intent.getAction())) {
-                mPlaybackPanel.update(mPlaybackService);
-            } else if (PlaybackService.BROADCAST_PLAYSTATECHANGED.equals(intent.getAction())) {
-                if (mPlaybackService != null && mPlaybackService.isPlaying()) {
-                    mPlaybackPanel.updateSeekBarPosition();
-                    mPlaybackPanel.updatePlayPauseState(true);
-                } else {
-                    mPlaybackPanel.stopUpdates();
-                    mPlaybackPanel.updatePlayPauseState(false);
-                }
-            } else if (HatchetAuthenticatorUtils.STORED_USER_ID.equals(intent.getAction())) {
-                updateDrawer();
             }
         }
     }
@@ -346,7 +304,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(PipeLineUrlResultsEvent event) {
+    public void onEventMainThread(PipeLine.UrlResultsEvent event) {
         Bundle bundle = new Bundle();
         if (event.mResult.type.equals(PipeLine.URL_TYPE_ARTIST)) {
             bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY,
@@ -388,7 +346,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(InfoSystemResultsEvent event) {
+    public void onEventMainThread(InfoSystem.ResultsEvent event) {
         if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
             if (event.mInfoRequestData != null
                     && event.mInfoRequestData.getType()
@@ -398,11 +356,45 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
     }
 
+    @SuppressWarnings("unused")
+    public void onEventMainThread(PlaybackService.PlayingTrackChangedEvent event) {
+        mPlaybackPanel.update(mPlaybackService);
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(PlaybackService.PlayStateChangedEvent event) {
+        if (mPlaybackService != null && mPlaybackService.isPlaying()) {
+            mPlaybackPanel.updateSeekBarPosition();
+            mPlaybackPanel.updatePlayPauseState(true);
+        } else {
+            mPlaybackPanel.stopUpdates();
+            mPlaybackPanel.updatePlayPauseState(false);
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(CollectionManager.AddedEvent event) {
+        updateDrawer();
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(HatchetAuthenticatorUtils.UserLoginEvent event) {
+        updateDrawer();
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(AuthenticatorManager.ConfigTestResultEvent event) {
+        if (event.mComponent instanceof HatchetAuthenticatorUtils
+                && (event.mType == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS
+                || event.mType == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT)) {
+            onHatchetLoggedInOut(
+                    event.mType == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
+        }
+    }
+
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        EventBus.getDefault().register(this);
 
         UserCollection userCollection = (UserCollection) CollectionManager.getInstance()
                 .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
@@ -553,6 +545,13 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
 
@@ -578,17 +577,14 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         // Register intents that the BroadcastReceiver should listen to
         registerReceiver(mTomahawkMainReceiver,
-                new IntentFilter(PlaybackService.BROADCAST_CURRENTTRACKCHANGED));
-        registerReceiver(mTomahawkMainReceiver,
-                new IntentFilter(PlaybackService.BROADCAST_PLAYSTATECHANGED));
-        registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-        registerReceiver(mTomahawkMainReceiver,
-                new IntentFilter(AuthenticatorManager.CONFIG_TEST_RESULT));
-        registerReceiver(mTomahawkMainReceiver,
-                new IntentFilter(CollectionManager.COLLECTION_ADDED));
-        registerReceiver(mTomahawkMainReceiver,
-                new IntentFilter(HatchetAuthenticatorUtils.STORED_USER_ID));
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+
+        super.onStop();
     }
 
     @Override
@@ -813,7 +809,7 @@ public class TomahawkMainActivity extends ActionBarActivity
      */
     @Override
     public void onPlaybackServiceReady() {
-        sendBroadcast(new Intent(PLAYBACKSERVICE_READY));
+        EventBus.getDefault().post(new PlaybackService.ReadyEvent());
         mPlaybackPanel.update(mPlaybackService);
     }
 
@@ -958,25 +954,28 @@ public class TomahawkMainActivity extends ActionBarActivity
             getSupportActionBar().show();
         }
         mPlaybackPanel.onPanelSlide(view, v);
+        sendSlidingLayoutChangedEvent();
     }
 
     @Override
     public void onPanelCollapsed(View view) {
         getSupportActionBar().show();
-        TomahawkApp.getContext().sendBroadcast(new Intent(SLIDING_LAYOUT_COLLAPSED));
+        sendSlidingLayoutChangedEvent();
     }
 
     @Override
     public void onPanelExpanded(View view) {
-        TomahawkApp.getContext().sendBroadcast(new Intent(SLIDING_LAYOUT_EXPANDED));
+        sendSlidingLayoutChangedEvent();
     }
 
     @Override
     public void onPanelAnchored(View view) {
+        sendSlidingLayoutChangedEvent();
     }
 
     @Override
     public void onPanelHidden(View view) {
+        sendSlidingLayoutChangedEvent();
     }
 
     public void collapsePanel() {
@@ -997,6 +996,12 @@ public class TomahawkMainActivity extends ActionBarActivity
             mSlidingUpPanelLayout.hidePanel();
             mPlaybackPanel.setVisibility(View.GONE);
         }
+    }
+
+    private void sendSlidingLayoutChangedEvent() {
+        SlidingLayoutChangedEvent event = new SlidingLayoutChangedEvent();
+        event.mSlideState = mSlidingUpPanelLayout.getPanelState();
+        EventBus.getDefault().post(event);
     }
 
     public PlaybackPanel getPlaybackPanel() {

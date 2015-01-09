@@ -40,6 +40,8 @@ import android.util.Log;
 
 import java.io.IOException;
 
+import de.greenrobot.event.EventBus;
+
 public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
 
     // Used for debug logging
@@ -171,24 +173,34 @@ public class SpotifyAuthenticatorUtils extends AuthenticatorUtils {
             editor.commit();
             updateBitrate();
         }
-        AuthenticatorManager.broadcastConfigTestResult(getId(),
-                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
-                AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
+        AuthenticatorManager.ConfigTestResultEvent event
+                = new AuthenticatorManager.ConfigTestResultEvent();
+        event.mComponent = this;
+        event.mType = AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS;
+        EventBus.getDefault().post(event);
+        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
     public void onLoginFailed(int type, String message) {
         Log.d(TAG,
                 "Spotify login failed :(, Type:" + type + ", Error: " + message);
-        AuthenticatorManager.broadcastConfigTestResult(getId(),
-                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS, type,
-                message);
+        AuthenticatorManager.ConfigTestResultEvent event
+                = new AuthenticatorManager.ConfigTestResultEvent();
+        event.mComponent = this;
+        event.mType = type;
+        event.mMessage = message;
+        EventBus.getDefault().post(event);
+        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
     public void onLogout() {
         Log.d(TAG, "Spotify user logged out");
-        AuthenticatorManager.broadcastConfigTestResult(getId(),
-                AuthenticatorManager.CONFIG_TEST_RESULT_PLUGINTYPE_AUTHUTILS,
-                AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT);
+        AuthenticatorManager.ConfigTestResultEvent event
+                = new AuthenticatorManager.ConfigTestResultEvent();
+        event.mComponent = this;
+        event.mType = AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT;
+        EventBus.getDefault().post(event);
+        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
     @Override

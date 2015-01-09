@@ -23,11 +23,9 @@ import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 
-import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Parcelable;
 import android.support.v4.app.FragmentManager;
@@ -100,13 +98,9 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                 Query query = mPlaybackService.getPlaylist().getEntries().get(position).getQuery();
                 refreshTrackInfo(view, query);
                 mActivity.showPanel();
-                TomahawkApp.getContext()
-                        .sendBroadcast(new Intent(TomahawkMainActivity.SLIDING_LAYOUT_SHOWN));
             } else {
                 refreshTrackInfo(view, null);
                 mActivity.hidePanel();
-                TomahawkApp.getContext()
-                        .sendBroadcast(new Intent(TomahawkMainActivity.SLIDING_LAYOUT_HIDDEN));
             }
         }
         if (view != null) {

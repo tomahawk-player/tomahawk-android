@@ -58,6 +58,8 @@ import java.util.StringTokenizer;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * This class represents a user's local {@link UserCollection}.
  */
@@ -537,7 +539,7 @@ public class UserCollection extends Collection {
                     mRestart = false;
                     restartHandler.sendEmptyMessageDelayed(1, 200);
                 }
-                CollectionManager.sendCollectionUpdatedBroadcast(null, null);
+                EventBus.getDefault().post(new CollectionManager.UpdatedEvent());
             }
         }
     }

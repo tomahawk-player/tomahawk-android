@@ -19,11 +19,11 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import com.google.common.collect.Sets;
 
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.events.InfoSystemResultsEvent;
-import org.tomahawk.tomahawk_android.events.PipeLineResultsEvent;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -52,22 +52,28 @@ public abstract class SelectorFragment extends Fragment {
             = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     @SuppressWarnings("unused")
-    public void onEvent(PipeLineResultsEvent event) {
+    public void onEventMainThread(PipeLine.ResultsEvent event) {
         if (mCorrespondingQueries.contains(event.mQuery)) {
             onPipeLineResultsReported(event.mQuery);
         }
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(InfoSystemResultsEvent event) {
+    public void onEventMainThread(InfoSystem.ResultsEvent event) {
         if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
             onInfoSystemResultsReported(event.mInfoRequestData.getRequestId());
         }
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.selectorfragment_layout, container, false);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
 
         EventBus.getDefault().register(this);
     }
@@ -84,9 +90,10 @@ public abstract class SelectorFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.selectorfragment_layout, container, false);
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+
+        super.onStop();
     }
 
     protected void setupSelector(final List<FragmentInfo> fragmentInfos, final int initialPage,

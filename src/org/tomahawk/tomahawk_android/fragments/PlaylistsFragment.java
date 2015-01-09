@@ -31,10 +31,6 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,31 +47,14 @@ public class PlaylistsFragment extends TomahawkFragment {
 
     private HashSet<User> mResolvingUsers = new HashSet<User>();
 
-    private PlaylistsFragmentReceiver mPlaylistsFragmentReceiver;
-
-    /**
-     * Handles incoming broadcasts.
-     */
-    private class PlaylistsFragmentReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (CollectionManager.PLAYLISTS_UPDATED.equals(intent.getAction())) {
-                updateAdapter();
-            }
-        }
+    @SuppressWarnings("unused")
+    public void onEventMainThread(CollectionManager.PlaylistsUpdatedEvent event) {
+        updateAdapter();
     }
 
     @Override
     public void onResume() {
         super.onResume();
-
-        // Initialize and register Receiver
-        if (mPlaylistsFragmentReceiver == null) {
-            mPlaylistsFragmentReceiver = new PlaylistsFragmentReceiver();
-            IntentFilter intentFilter = new IntentFilter(CollectionManager.PLAYLISTS_UPDATED);
-            getActivity().registerReceiver(mPlaylistsFragmentReceiver, intentFilter);
-        }
 
         CollectionManager.getInstance().fetchPlaylists();
 
@@ -83,16 +62,6 @@ public class PlaylistsFragment extends TomahawkFragment {
             getActivity().setTitle(getString(R.string.drawer_title_playlists).toUpperCase());
         }
         updateAdapter();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-
-        if (mPlaylistsFragmentReceiver != null) {
-            getActivity().unregisterReceiver(mPlaylistsFragmentReceiver);
-            mPlaylistsFragmentReceiver = null;
-        }
     }
 
     /**
