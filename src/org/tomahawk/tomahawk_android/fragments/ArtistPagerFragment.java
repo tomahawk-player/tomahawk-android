@@ -70,7 +70,7 @@ public class ArtistPagerFragment extends PagerFragment {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else {
-                    ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
+                    ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, true);
                     for (String requestId : requestIds) {
                         mCorrespondingRequestIds.add(requestId);
                     }

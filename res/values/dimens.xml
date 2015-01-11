@@ -35,6 +35,7 @@
     <dimen name="header_following_height">32dp</dimen>
 
     <dimen name="divider_height_thick">2dp</dimen>
+    <dimen name="divider_height_verythick">5dp</dimen>
 
     <dimen name="text_size_micro">12sp</dimen>
     <dimen name="text_size_small">14sp</dimen>

@@ -59,8 +59,6 @@ public class ViewHolder {
 
     ImageView mImageView3;
 
-    ImageView mImageView4;
-
     View mConnectImageViewContainer;
 
     CheckBox mCheckBox1;
@@ -198,6 +196,19 @@ public class ViewHolder {
                     .findViewById(R.id.connect_imageview_container);
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.textview1);
+        } else if (layoutId == R.layout.grid_item_playlist) {
+            mImageView1 = (ImageView) rootView
+                    .findViewById(R.id.imageview1);
+            mImageView2 = (ImageView) rootView
+                    .findViewById(R.id.imageview2);
+            mImageView3 = (ImageView) rootView
+                    .findViewById(R.id.imageview3);
+            mTextView1 = (TextView) rootView
+                    .findViewById(R.id.textview1);
+            mTextView2 = (TextView) rootView
+                    .findViewById(R.id.textview2);
+            mTextView3 = (TextView) rootView
+                    .findViewById(R.id.textview3);
         }
         if (mMainClickArea == null) {
             mMainClickArea = rootView;
@@ -230,8 +241,6 @@ public class ViewHolder {
                     .findViewById(R.id.imageview2);
             mImageView3 = (ImageView) imageFrame
                     .findViewById(R.id.imageview3);
-            mImageView4 = (ImageView) imageFrame
-                    .findViewById(R.id.imageview4);
         }
         if (mMainClickArea == null) {
             mMainClickArea = headerFrame;
@@ -272,22 +281,6 @@ public class ViewHolder {
                 artist.getImage(), Image.getLargeImageSize(), true);
         mMoreButton.setVisibility(View.VISIBLE);
         mMoreButton.setOnClickListener(moreButtonListener);
-    }
-
-    public void fillContentHeader(Playlist playlist, ArrayList<Image> images) {
-        if (images.size() > 3) {
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
-                    images.get(0), Image.getSmallImageSize(), false);
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView2,
-                    images.get(1), Image.getSmallImageSize(), false);
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView3,
-                    images.get(2), Image.getSmallImageSize(), false);
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView4,
-                    images.get(3), Image.getSmallImageSize(), false);
-        } else if (images.size() > 0) {
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
-                    images.get(0), Image.getLargeImageSize(), false);
-        }
     }
 
     public void fillContentHeaderSmall(String text, User user) {
@@ -419,6 +412,56 @@ public class ViewHolder {
             mConnectImageViewContainer.setVisibility(View.VISIBLE);
         } else {
             mConnectImageViewContainer.setVisibility(View.GONE);
+        }
+    }
+
+    public void fillView(Playlist playlist) {
+        ArrayList<Image> artistImages = new ArrayList<>();
+        String topArtistsString = "";
+        String[] artists = playlist.getTopArtistNames();
+        if (artists != null) {
+            for (int i = 0; i < artists.length && i < 3; i++) {
+                Artist artist = Artist.get(artists[i]);
+                topArtistsString += artists[i];
+                if (i != artists.length - 1) {
+                    topArtistsString += ", ";
+                }
+                if (artist.getImage() != null) {
+                    artistImages.add(artist.getImage());
+                }
+            }
+        }
+        if (artistImages.size() > 2) {
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
+                    artistImages.get(0), Image.getLargeImageSize(), false);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView2,
+                    artistImages.get(1), Image.getSmallImageSize(), false);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView3,
+                    artistImages.get(2), Image.getSmallImageSize(), false);
+            mImageView1.setVisibility(View.VISIBLE);
+            mImageView3.setVisibility(View.VISIBLE);
+        } else if (artistImages.size() > 1) {
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView2,
+                    artistImages.get(0), Image.getLargeImageSize(), false);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView3,
+                    artistImages.get(1), Image.getLargeImageSize(), false);
+            mImageView3.setVisibility(View.VISIBLE);
+        } else if (artistImages.size() > 0) {
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView2,
+                    artistImages.get(0), Image.getLargeImageSize(), false);
+        } else {
+            TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), mImageView2,
+                    R.drawable.album_placeholder_grid);
+        }
+        if (mTextView1 != null) {
+            mTextView1.setText(playlist.getName());
+        }
+        if (mTextView2 != null) {
+            mTextView2.setText(topArtistsString);
+        }
+        if (mTextView3 != null) {
+            mTextView3.setText(playlist.getCount() + " "
+                    + TomahawkApp.getContext().getString(R.string.songs_with_count));
         }
     }
 

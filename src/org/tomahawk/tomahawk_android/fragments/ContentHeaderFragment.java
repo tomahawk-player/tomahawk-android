@@ -50,7 +50,6 @@ import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import de.greenrobot.event.EventBus;
@@ -235,43 +234,21 @@ public class ContentHeaderFragment extends Fragment {
         //Inflate views and add them into our frames
         LayoutInflater inflater = (LayoutInflater)
                 TomahawkApp.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ArrayList<Image> artistImages = new ArrayList<Image>();
-        if (item instanceof Playlist) {
-            synchronized (item) {
-                ArrayList<Artist> artists = ((Playlist) item).getContentHeaderArtists();
-                for (Artist artist : artists) {
-                    if (artist.getImage() != null) {
-                        artistImages.add(artist.getImage());
-                    }
-                }
-            }
-        }
         int layoutId;
         int viewId;
-        if (artistImages.size() > 3) {
-            if (mHeaderScrollableHeight > 0) {
-                layoutId = R.layout.content_header_imagegrid;
-                viewId = R.id.content_header_imagegrid;
-            } else {
-                layoutId = R.layout.content_header_imagegrid_static;
-                viewId = R.id.content_header_imagegrid_static;
-            }
+        if (item instanceof Playlist) {
+            layoutId = R.layout.content_header_imagegrid;
+            viewId = R.id.content_header_imagegrid;
         } else {
-            if (mHeaderScrollableHeight > 0) {
-                layoutId = R.layout.content_header_imagesingle;
-                viewId = R.id.content_header_imagesingle;
-            } else {
-                layoutId = R.layout.content_header_imagesingle_static;
-                viewId = R.id.content_header_imagesingle_static;
-            }
+            layoutId = R.layout.content_header_imagesingle;
+            viewId = R.id.content_header_imagesingle;
         }
         if (imageFrame.findViewById(viewId) == null) {
             imageFrame.removeAllViews();
             View headerImage = inflater.inflate(layoutId, imageFrame, false);
-            if (mHeaderScrollableHeight <= 0) {
-                headerImage.setLayoutParams(new FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT, mHeaderNonscrollableHeight));
-            }
+            headerImage.setLayoutParams(new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    mHeaderNonscrollableHeight + mHeaderScrollableHeight));
             imageFrame.addView(headerImage);
         }
 
@@ -313,7 +290,7 @@ public class ContentHeaderFragment extends Fragment {
             } else if (item instanceof Artist) {
                 viewHolder.fillContentHeader((Artist) item, moreButtonListener);
             } else if (item instanceof Playlist) {
-                viewHolder.fillContentHeader((Playlist) item, artistImages);
+                viewHolder.fillView((Playlist) item);
             } else if (item instanceof Query) {
                 viewHolder.fillContentHeader((Query) item, moreButtonListener);
             }
@@ -362,28 +339,30 @@ public class ContentHeaderFragment extends Fragment {
     }
 
     protected void setupAnimations(FrameLayout imageFrame, FrameLayout headerFrame) {
-        View header = headerFrame.findViewById(R.id.content_header);
-        if (header == null) {
-            header = headerFrame.findViewById(R.id.content_header_user);
-        }
-        setupFancyDropDownAnimation(header);
-        setupButtonAnimation(header);
-        setupPageIndicatorAnimation(header);
+        if (isDynamicHeader()) {
+            View header = headerFrame.findViewById(R.id.content_header);
+            if (header == null) {
+                header = headerFrame.findViewById(R.id.content_header_user);
+            }
+            setupFancyDropDownAnimation(header);
+            setupButtonAnimation(header);
+            setupPageIndicatorAnimation(header);
 
-        View headerImage = imageFrame.findViewById(R.id.content_header_imagegrid);
-        if (headerImage == null) {
-            headerImage = imageFrame.findViewById(R.id.content_header_imagesingle);
-        }
-        setupImageViewAnimation(headerImage);
+            View headerImage = imageFrame.findViewById(R.id.content_header_imagegrid);
+            if (headerImage == null) {
+                headerImage = imageFrame.findViewById(R.id.content_header_imagesingle);
+            }
+            setupImageViewAnimation(headerImage);
 
-        if (mContainerFragmentId >= 0) {
-            AnimateEvent event = new AnimateEvent();
-            event.mContainerFragmentId = mContainerFragmentId;
-            event.mContainerFragmentPage = mContainerFragmentPage;
-            event.mPlayTime = mLastPlayTime;
-            EventBus.getDefault().post(event);
-        } else {
-            animate(mLastPlayTime);
+            if (mContainerFragmentId >= 0) {
+                AnimateEvent event = new AnimateEvent();
+                event.mContainerFragmentId = mContainerFragmentId;
+                event.mContainerFragmentPage = mContainerFragmentPage;
+                event.mPlayTime = mLastPlayTime;
+                EventBus.getDefault().post(event);
+            } else {
+                animate(mLastPlayTime);
+            }
         }
     }
 
@@ -463,29 +442,20 @@ public class ContentHeaderFragment extends Fragment {
 
     private void setupImageViewAnimation(final View view) {
         if (view != null) {
-            View imageView = view.findViewById(R.id.content_header_imagesingle);
-            if (imageView == null) {
-                imageView = view.findViewById(R.id.content_header_imagegrid);
-            }
-            if (imageView == null) {
-                imageView = view.findViewById(R.id.content_header_imagesingle_static);
-            }
-            if (imageView != null) {
-                TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(imageView) {
-                    @Override
-                    public void run() {
-                        // correctly position imageview first
-                        getView().setY(0);
-                        getView().setX(0);
+            TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(view) {
+                @Override
+                public void run() {
+                    // correctly position imageview first
+                    getView().setY(0);
+                    getView().setX(0);
 
-                        // now calculate the animation goal and instantiate the animation
-                        mImageViewAnim = ObjectAnimator
-                                .ofFloat(getView(), "y", view.getHeight() / -3)
-                                .setDuration(10000);
-                        mImageViewAnim.setInterpolator(new LinearInterpolator());
-                    }
-                });
-            }
+                    // now calculate the animation goal and instantiate the animation
+                    mImageViewAnim = ObjectAnimator
+                            .ofFloat(getView(), "y", view.getHeight() / -3)
+                            .setDuration(10000);
+                    mImageViewAnim.setInterpolator(new LinearInterpolator());
+                }
+            });
         }
     }
 

@@ -129,19 +129,16 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected static final long RESOLVE_QUERIES_REPORTER_DELAY = 100;
 
-    protected static final int PIPELINE_RESULT_REPORTER_MSG = 1337;
+    protected static final int ADAPTER_UPDATE_MSG = 1337;
 
-    protected static final long PIPELINE_RESULT_REPORTER_DELAY = 1000;
-
-    protected static final int INFOSYSTEM_RESULT_REPORTER_MSG = 1338;
-
-    protected static final long INFOSYSTEM_RESULT_REPORTER_DELAY = 500;
+    protected static final long ADAPTER_UPDATE_DELAY = 500;
 
     private TomahawkListAdapter mTomahawkListAdapter;
 
     protected boolean mIsResumed;
 
-    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
+    protected Set<String> mCorrespondingRequestIds =
+            Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     private HashSet<TomahawkListItem> mResolvingItems = new HashSet<TomahawkListItem>();
 
@@ -186,57 +183,32 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     };
 
-    private Set<Query> mQueriesToReport =
-            Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
-
-    // Handler which reports the PipeLine's results
-    private final Handler mPipeLineResultReporter = new Handler() {
+    // Handler which reports the PipeLine's and InfoSystem's results in intervals
+    private final Handler mAdapterUpdateHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             removeMessages(msg.what);
-            for (Query query : mQueriesToReport) {
-                if (mCorrespondingQueries.contains(query)) {
-                    updateAdapter();
-                    break;
-                }
-            }
-            mQueriesToReport.clear();
-        }
-    };
-
-    private Set<String> mInfoRequestIdsToReport =
-            Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
-
-    // Handler which reports the InfoSystem's results
-    private final Handler mInfoSystemResultReporter = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            removeMessages(msg.what);
-            for (String requestId : mInfoRequestIdsToReport) {
-                if (mCorrespondingRequestIds.contains(requestId)) {
-                    updateAdapter();
-                    break;
-                }
-            }
-            mInfoRequestIdsToReport.clear();
+            updateAdapter();
         }
     };
 
     @SuppressWarnings("unused")
     public void onEvent(PipeLine.ResultsEvent event) {
-        mQueriesToReport.add(event.mQuery);
-        if (!mPipeLineResultReporter.hasMessages(PIPELINE_RESULT_REPORTER_MSG)) {
-            mPipeLineResultReporter.sendEmptyMessageDelayed(PIPELINE_RESULT_REPORTER_MSG,
-                    PIPELINE_RESULT_REPORTER_DELAY);
+        if (mCorrespondingQueries.contains(event.mQuery)) {
+            if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+                mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
+                        ADAPTER_UPDATE_DELAY);
+            }
         }
     }
 
     @SuppressWarnings("unused")
     public void onEvent(InfoSystem.ResultsEvent event) {
-        mInfoRequestIdsToReport.add(event.mInfoRequestData.getRequestId());
-        if (!mInfoSystemResultReporter.hasMessages(INFOSYSTEM_RESULT_REPORTER_MSG)) {
-            mInfoSystemResultReporter.sendEmptyMessageDelayed(INFOSYSTEM_RESULT_REPORTER_MSG,
-                    INFOSYSTEM_RESULT_REPORTER_DELAY);
+        if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
+            if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+                mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
+                        ADAPTER_UPDATE_DELAY);
+            }
         }
     }
 
@@ -337,7 +309,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     return;
                 } else {
                     ArrayList<String> requestIds =
-                            InfoSystem.getInstance().resolve(mQuery.getArtist(), true);
+                            InfoSystem.getInstance().resolve(mQuery.getArtist(), false);
                     for (String requestId : requestIds) {
                         mCorrespondingRequestIds.add(requestId);
                     }
@@ -398,7 +370,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
         }
 
-        mPipeLineResultReporter.removeCallbacksAndMessages(null);
+        mAdapterUpdateHandler.removeCallbacksAndMessages(null);
 
         mIsResumed = false;
     }
@@ -532,8 +504,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     private void resolveVisibleItems() {
         resolveQueriesFromTo(mFirstVisibleItemLastTime - 5,
                 mFirstVisibleItemLastTime + mVisibleItemCount + 5);
-        resolveItemsFromTo(mFirstVisibleItemLastTime - 5,
-                mFirstVisibleItemLastTime + mVisibleItemCount + 5);
+        resolveItemsFromTo(mFirstVisibleItemLastTime,
+                mFirstVisibleItemLastTime + mVisibleItemCount + 1);
     }
 
     private void resolveQueriesFromTo(final int start, final int end) {
@@ -568,7 +540,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    private void resolveItem(TomahawkListItem item) {
+    protected void resolveItem(TomahawkListItem item) {
         InfoSystem infoSystem = InfoSystem.getInstance();
         if (!mResolvingItems.contains(item)) {
             mResolvingItems.add(item);

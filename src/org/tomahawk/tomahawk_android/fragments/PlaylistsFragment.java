@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
+import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -30,6 +31,7 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -45,7 +47,7 @@ import java.util.List;
  */
 public class PlaylistsFragment extends TomahawkFragment {
 
-    private HashSet<User> mResolvingUsers = new HashSet<User>();
+    private HashSet<User> mResolvingUsers = new HashSet<>();
 
     @SuppressWarnings("unused")
     public void onEventMainThread(CollectionManager.PlaylistsUpdatedEvent event) {
@@ -103,6 +105,7 @@ public class PlaylistsFragment extends TomahawkFragment {
         HatchetAuthenticatorUtils authenticatorUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        Segment segment;
         if (mUser != null && mUser != authenticatorUtils.getLoggedInUser()) {
             if (mUser.getPlaylists().size() == 0) {
                 if (!mResolvingUsers.contains(mUser)) {
@@ -112,10 +115,12 @@ public class PlaylistsFragment extends TomahawkFragment {
             } else {
                 playlists.addAll(mUser.getPlaylists());
             }
+            segment = new Segment(playlists);
         } else {
             playlists.addAll(CollectionManager.getInstance().getPlaylists());
+            segment = new Segment(playlists, R.integer.grid_column_count,
+                    R.dimen.padding_superlarge, R.dimen.padding_superlarge);
         }
-        Segment segment = new Segment(playlists);
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
                     (TomahawkMainActivity) getActivity(), layoutInflater, segment, this);
@@ -127,4 +132,15 @@ public class PlaylistsFragment extends TomahawkFragment {
 
         onUpdateAdapterFinished();
     }
+
+    @Override
+    protected void resolveItem(TomahawkListItem item) {
+        Playlist pl = (Playlist) item;
+        if (pl.getTopArtistNames() != null) {
+            for (int i = 0; i < pl.getTopArtistNames().length && i < 5; i++) {
+                super.resolveItem(Artist.get(pl.getTopArtistNames()[i]));
+            }
+        }
+    }
+
 }
