@@ -991,7 +991,7 @@ public class PlaybackService extends Service
 
                 if (getCurrentQuery().getImage() == null) {
                     ArrayList<String> requestIds = InfoSystem.getInstance().resolve(
-                            getCurrentQuery().getArtist(), true);
+                            getCurrentQuery().getArtist(), false);
                     for (String requestId : requestIds) {
                         mCorrespondingRequestIds.put(requestId, getCurrentQuery().getCacheKey());
                     }

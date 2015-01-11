@@ -21,8 +21,6 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.text.TextUtils;
-
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,7 +43,9 @@ public class Playlist implements TomahawkListItem {
 
     private String mCurrentRevision = "";
 
-    private ArrayList<Artist> mContentHeaderArtists = new ArrayList<Artist>();
+    private String[] mTopArtistNames;
+
+    private int mCount;
 
     private boolean mIsFilled;
 
@@ -169,12 +169,12 @@ public class Playlist implements TomahawkListItem {
         return mCurrentRevision;
     }
 
-    public ArrayList<Artist> getContentHeaderArtists() {
-        return mContentHeaderArtists;
+    public String[] getTopArtistNames() {
+        return mTopArtistNames;
     }
 
-    public void addContentHeaderArtists(Artist artist) {
-        mContentHeaderArtists.add(artist);
+    public void setTopArtistNames(String[] topArtistNames) {
+        mTopArtistNames = topArtistNames;
     }
 
     /**
@@ -348,12 +348,15 @@ public class Playlist implements TomahawkListItem {
 
     @Override
     public Image getImage() {
-        for (Artist artist : mContentHeaderArtists) {
-            if (artist.getImage() != null && !TextUtils.isEmpty(artist.getImage().getImagePath())) {
-                return artist.getImage();
-            }
-        }
         return null;
+    }
+
+    public int getCount() {
+        return mCount;
+    }
+
+    public void setCount(int count) {
+        mCount = count;
     }
 
     public boolean isFilled() {

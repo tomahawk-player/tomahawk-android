@@ -35,10 +35,12 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import de.greenrobot.event.EventBus;
 
@@ -167,8 +169,8 @@ public class CollectionManager {
         return mCollections.get(collectionId);
     }
 
-    public ArrayList<Collection> getCollections() {
-        return new ArrayList<Collection>(mCollections.values());
+    public java.util.Collection<Collection> getCollections() {
+        return mCollections.values();
     }
 
     /**
@@ -329,6 +331,9 @@ public class CollectionManager {
                     ArrayList<Playlist> playlists = DatabaseHelper.getInstance().getPlaylists();
                     for (Playlist playlist : playlists) {
                         mPlaylists.put(playlist.getId(), playlist);
+                        if (playlist.getTopArtistNames() == null) {
+                            updateTopArtists(playlist);
+                        }
                     }
                     Log.d(TAG, "Hatchet sync - read playlists from database, count: "
                             + mPlaylists.size());
@@ -478,6 +483,7 @@ public class CollectionManager {
         Log.d(TAG, "Hatchet sync - creating playlist \"" + playlist.getName() + "\", id: "
                 + playlist.getId() + " with " + playlist.getEntries().size() + " entries");
         DatabaseHelper.getInstance().storePlaylist(playlist);
+        updateTopArtists(playlist);
         UpdatedEvent event = new UpdatedEvent();
         event.mUpdatedItem = playlist;
         EventBus.getDefault().post(event);
@@ -500,6 +506,9 @@ public class CollectionManager {
             Log.e(TAG, "Hatchet sync - couldn't add entries to playlist with id: " + playlistId);
         }
         DatabaseHelper.getInstance().addEntriesToPlaylist(playlistId, entries);
+        if (Playlist.getPlaylistById(playlistId) != null) {
+            updateTopArtists(Playlist.getPlaylistById(playlistId));
+        }
         UpdatedEvent event = new UpdatedEvent();
         event.mUpdatedItem = Playlist.getPlaylistById(playlistId);
         EventBus.getDefault().post(event);
@@ -519,6 +528,9 @@ public class CollectionManager {
             Log.e(TAG, "Hatchet sync - couldn't delete entry in playlist with id: " + playlistId);
         }
         DatabaseHelper.getInstance().deleteEntryInPlaylist(playlistId, entryId);
+        if (Playlist.getPlaylistById(playlistId) != null) {
+            updateTopArtists(Playlist.getPlaylistById(playlistId));
+        }
         UpdatedEvent event = new UpdatedEvent();
         event.mUpdatedItem = Playlist.getPlaylistById(playlistId);
         EventBus.getDefault().post(event);
@@ -547,5 +559,30 @@ public class CollectionManager {
             }
         }
         return collections;
+    }
+
+    private void updateTopArtists(Playlist playlist) {
+        if (playlist.getEntries().size() == 0) {
+            playlist = DatabaseHelper.getInstance().getPlaylist(playlist.getId());
+        }
+        final HashMap<Artist, Integer> countMap = new HashMap<>();
+        for (PlaylistEntry entry : playlist.getEntries()) {
+            Artist artist = entry.getArtist();
+            if (countMap.containsKey(artist)) {
+                countMap.put(artist, countMap.get(artist) + 1);
+            } else {
+                countMap.put(artist, 1);
+            }
+        }
+        ConcurrentSkipListSet<Artist> topArtists = new ConcurrentSkipListSet<>(
+                new Comparator<Artist>() {
+                    @Override
+                    public int compare(Artist lhs, Artist rhs) {
+                        return countMap.get(lhs) >= countMap.get(rhs) ? -1 : 1;
+                    }
+                }
+        );
+        topArtists.addAll(countMap.keySet());
+        DatabaseHelper.getInstance().updatePlaylist(playlist, topArtists);
     }
 }

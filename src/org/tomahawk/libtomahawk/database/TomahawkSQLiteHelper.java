@@ -51,6 +51,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String PLAYLISTS_COLUMN_HATCHETID = "hatchetid";
 
+    public static final String PLAYLISTS_COLUMN_TOPARTISTS = "topartists";
+
     public static final String TABLE_TRACKS = "tracks";
 
     public static final String TRACKS_COLUMN_ID = "id";
@@ -158,7 +160,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 15;
+    private static final int DATABASE_VERSION = 16;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_PLAYLISTS =
@@ -167,7 +169,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                     + PLAYLISTS_COLUMN_NAME + "` TEXT , `"
                     + PLAYLISTS_COLUMN_CURRENTTRACKINDEX + "` INTEGER , `"
                     + PLAYLISTS_COLUMN_CURRENTREVISION + "` TEXT , `"
-                    + PLAYLISTS_COLUMN_HATCHETID + "` TEXT );";
+                    + PLAYLISTS_COLUMN_HATCHETID + "` TEXT , `"
+                    + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT );";
 
     private static final String CREATE_TABLE_TRACKS =
             "CREATE TABLE `" + TABLE_TRACKS + "` (  `"
@@ -320,13 +323,22 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         } else if (oldVersion == 11) {
             db.execSQL(CREATE_TABLE_MEDIA);
             db.execSQL(CREATE_TABLE_MEDIADIRS);
+            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
+                    + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
         } else if (oldVersion == 12) {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
             db.execSQL(CREATE_TABLE_MEDIA);
             db.execSQL(CREATE_TABLE_MEDIADIRS);
+            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
+                    + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
         } else if (oldVersion == 13 || oldVersion == 14) {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
             db.execSQL(CREATE_TABLE_MEDIA);
+            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
+                    + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
+        } else if (oldVersion == 15) {
+            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
+                    + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
         } else {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");

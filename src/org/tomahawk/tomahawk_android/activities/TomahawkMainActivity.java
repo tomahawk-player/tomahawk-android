@@ -877,18 +877,16 @@ public class TomahawkMainActivity extends ActionBarActivity
         holder.title = getString(R.string.drawer_title_settings);
         holder.iconResId = R.drawable.ic_action_settings;
         holders.add(holder);
-        if (CollectionManager.getInstance().getCollections() != null) {
-            for (Collection collection : CollectionManager.getInstance().getCollections()) {
-                if (collection instanceof ScriptResolverCollection) {
-                    ScriptResolverCollection resolverCollection =
-                            (ScriptResolverCollection) collection;
-                    holder = new TomahawkMenuAdapter.ResourceHolder();
-                    holder.id = resolverCollection.getId();
-                    holder.title = resolverCollection.getName();
-                    holder.resolver = resolverCollection.getScriptResolver();
-                    holder.isCloudCollection = true;
-                    holders.add(holder);
-                }
+        for (Collection collection : CollectionManager.getInstance().getCollections()) {
+            if (collection instanceof ScriptResolverCollection) {
+                ScriptResolverCollection resolverCollection =
+                        (ScriptResolverCollection) collection;
+                holder = new TomahawkMenuAdapter.ResourceHolder();
+                holder.id = resolverCollection.getId();
+                holder.title = resolverCollection.getName();
+                holder.resolver = resolverCollection.getScriptResolver();
+                holder.isCloudCollection = true;
+                holders.add(holder);
             }
         }
         new Handler(Looper.getMainLooper()).post(new Runnable() {

@@ -125,11 +125,11 @@ public class InfoSystem {
     /**
      * Fill up the given artist with metadata fetched from all added InfoPlugins
      *
-     * @param artist    the Artist to enrich with data from the InfoPlugins
-     * @param justImage true, if only the artist image should be fetched
+     * @param artist the Artist to enrich with data from the InfoPlugins
+     * @param full   true, if top-hits and albums should also be resolved
      * @return an ArrayList of Strings containing all created requestIds
      */
-    public ArrayList<String> resolve(Artist artist, boolean justImage) {
+    public ArrayList<String> resolve(Artist artist, boolean full) {
         ArrayList<String> requestIds = new ArrayList<String>();
         if (artist != null) {
             QueryParams params = new QueryParams();
@@ -137,12 +137,14 @@ public class InfoSystem {
             String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params,
                     artist);
             requestIds.add(requestId);
-            requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params,
-                    artist);
-            requestIds.add(requestId);
-            requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params,
-                    artist);
-            requestIds.add(requestId);
+            if (full) {
+                requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params,
+                        artist);
+                requestIds.add(requestId);
+                requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params,
+                        artist);
+                requestIds.add(requestId);
+            }
         }
         return requestIds;
     }

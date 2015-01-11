@@ -206,8 +206,9 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
                     EventBus.getDefault().post(event);
                 } else {
                     if (!isEveryResolverReady()) {
-                        resolve(mWaitingQueries);
-                        mWaitingQueries.clear();
+                        if (!mWaitingQueries.contains(q)) {
+                            mWaitingQueries.add(q);
+                        }
                     } else {
                         for (final Resolver resolver : mResolvers) {
                             if (shouldResolve(resolver, q, forceOnlyLocal)) {

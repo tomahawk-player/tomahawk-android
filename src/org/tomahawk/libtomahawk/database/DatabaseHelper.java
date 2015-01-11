@@ -50,6 +50,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import de.greenrobot.event.EventBus;
 
@@ -194,12 +195,20 @@ public class DatabaseHelper {
             @Override
             public void run() {
                 synchronized (this) {
+                    String topArtistsString = "";
+                    for (String s : playlist.getTopArtistNames()) {
+                        topArtistsString += s + "\t\t";
+                    }
+
                     ContentValues values = new ContentValues();
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, newName);
-                    String insertId = playlist.getId();
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlist.getId());
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, playlist.getName());
                     values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
                             playlist.getCurrentRevision());
-                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, insertId);
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
+                            playlist.getHatchetId());
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TOPARTISTS, topArtistsString);
 
                     mDatabase.beginTransaction();
                     mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_PLAYLISTS, null,
@@ -209,6 +218,42 @@ public class DatabaseHelper {
                     PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
                     event.mPlaylistId = playlist.getId();
                     EventBus.getDefault().post(event);
+                }
+            }
+        }).start();
+    }
+
+    /**
+     * Update the given {@link Playlist}
+     *
+     * @param playlist   the given {@link Playlist}
+     * @param topArtists the list of top artists
+     */
+    public void updatePlaylist(final Playlist playlist,
+            final ConcurrentSkipListSet<Artist> topArtists) {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    String topArtistsString = "";
+                    for (Artist artist : topArtists) {
+                        topArtistsString += artist.getName() + "\t\t";
+                    }
+
+                    ContentValues values = new ContentValues();
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlist.getId());
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, playlist.getName());
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
+                            playlist.getCurrentRevision());
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
+                            playlist.getHatchetId());
+                    values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TOPARTISTS, topArtistsString);
+
+                    mDatabase.beginTransaction();
+                    mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_PLAYLISTS, null,
+                            values, SQLiteDatabase.CONFLICT_REPLACE);
+                    mDatabase.setTransactionSuccessful();
+                    mDatabase.endTransaction();
                 }
             }
         }).start();
@@ -254,7 +299,8 @@ public class DatabaseHelper {
     public Playlist getEmptyPlaylist(String playlistId) {
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID};
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TOPARTISTS};
 
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
@@ -263,7 +309,12 @@ public class DatabaseHelper {
             Playlist playlist = Playlist.get(playlistId,
                     playlistsCursor.getString(0), playlistsCursor.getString(1));
             playlist.setHatchetId(playlistsCursor.getString(2));
+            String rawTopArtistsString = playlistsCursor.getString(3);
+            if (rawTopArtistsString != null && rawTopArtistsString.length() > 0) {
+                playlist.setTopArtistNames(rawTopArtistsString.split("\t\t"));
+            }
             playlistsCursor.close();
+            playlist.setCount(getPlaylistTrackCount(playlistId));
             return playlist;
         }
         playlistsCursor.close();
@@ -291,7 +342,8 @@ public class DatabaseHelper {
     public Playlist getPlaylist(String playlistId, boolean reverseEntries) {
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID};
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TOPARTISTS};
 
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
@@ -333,7 +385,14 @@ public class DatabaseHelper {
             playlist.setHatchetId(playlistsCursor.getString(2));
             playlist.setFilled(true);
             tracksCursor.close();
+            String rawTopArtistsString = playlistsCursor.getString(3);
+            if (rawTopArtistsString != null && rawTopArtistsString.length() > 0) {
+                playlist.setTopArtistNames(rawTopArtistsString.split("\t\t"));
+            } else {
+                playlist.setTopArtistNames(new String[]{});
+            }
             playlistsCursor.close();
+            playlist.setCount(getPlaylistTrackCount(playlistId));
             return playlist;
         }
         playlistsCursor.close();

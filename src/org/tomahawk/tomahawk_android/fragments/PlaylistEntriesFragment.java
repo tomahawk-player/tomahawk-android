@@ -23,23 +23,17 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.view.LayoutInflater;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.TreeMap;
 
 /**
  * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows a set of {@link
@@ -59,9 +53,16 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFavorites(mUser));
             }
         }
-        if (mPlaylist != null
-                && DatabaseHelper.LOVEDITEMS_PLAYLIST_ID.equals(mPlaylist.getId())) {
-            CollectionManager.getInstance().fetchLovedItemsPlaylist();
+        if (mPlaylist != null) {
+            if (DatabaseHelper.LOVEDITEMS_PLAYLIST_ID.equals(mPlaylist.getId())) {
+                CollectionManager.getInstance().fetchLovedItemsPlaylist();
+            }
+            if (mPlaylist.getTopArtistNames() != null) {
+                for (int i = 0; i < mPlaylist.getTopArtistNames().length && i < 5; i++) {
+                    mCorrespondingRequestIds.addAll(InfoSystem.getInstance().resolve(
+                            Artist.get(mPlaylist.getTopArtistNames()[i]), false));
+                }
+            }
         }
         if (mContainerFragmentClass == null) {
             getActivity().setTitle("");
@@ -121,14 +122,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         if (mPlaylist != null) {
-            ThreadManager.getInstance().execute(
-                    new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_MEDIUM) {
-                        @Override
-                        public void run() {
-                            getPlaylistArtists(mPlaylist);
-                        }
-                    }
-            );
             if (!mPlaylist.isFilled()) {
                 refreshCurrentPlaylist();
             } else {
@@ -155,40 +148,5 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         }
 
         onUpdateAdapterFinished();
-    }
-
-    private void getPlaylistArtists(Playlist playlist) {
-        if (playlist.getContentHeaderArtists().size() < 6) {
-            final HashMap<Artist, Integer> countMap = new HashMap<Artist, Integer>();
-            for (Query query : playlist.getQueries()) {
-                Artist artist = query.getArtist();
-                if (countMap.containsKey(artist)) {
-                    countMap.put(artist, countMap.get(artist) + 1);
-                } else {
-                    countMap.put(artist, 1);
-                }
-            }
-            TreeMap<Artist, Integer> sortedCountMap = new TreeMap<Artist, Integer>(
-                    new Comparator<Artist>() {
-                        @Override
-                        public int compare(Artist lhs, Artist rhs) {
-                            return countMap.get(lhs) >= countMap.get(rhs) ? -1 : 1;
-                        }
-                    }
-            );
-            sortedCountMap.putAll(countMap);
-            for (Artist artist : sortedCountMap.keySet()) {
-                synchronized (playlist) {
-                    playlist.addContentHeaderArtists(artist);
-                }
-                ArrayList<String> requestIds = InfoSystem.getInstance().resolve(artist, true);
-                for (String requestId : requestIds) {
-                    mCorrespondingRequestIds.add(requestId);
-                }
-                if (playlist.getContentHeaderArtists().size() == 6) {
-                    break;
-                }
-            }
-        }
     }
 }

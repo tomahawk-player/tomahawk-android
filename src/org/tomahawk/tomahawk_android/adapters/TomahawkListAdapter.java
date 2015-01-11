@@ -299,7 +299,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                 || viewType == R.layout.list_item_artistalbum
                 || viewType == R.layout.grid_item_user
                 || viewType == R.layout.list_item_user
-                || viewType == R.layout.grid_item_resolver) {
+                || viewType == R.layout.grid_item_resolver
+                || viewType == R.layout.grid_item_playlist) {
             for (ViewHolder viewHolder : viewHolders) {
                 if (viewType == R.layout.list_item_track) {
                     viewHolder.mImageView1.setVisibility(View.GONE);
@@ -309,6 +310,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     viewHolder.mProgressBarContainer.removeAllViews();
                 } else if (viewType == R.layout.grid_item_resolver) {
                     viewHolder.mImageView1.clearColorFilter();
+                } else if (viewType == R.layout.grid_item_playlist) {
+                    viewHolder.mImageView1.setVisibility(View.GONE);
+                    viewHolder.mImageView2.setVisibility(View.VISIBLE);
+                    viewHolder.mImageView3.setVisibility(View.GONE);
                 } else {
                     viewHolder.mTextView2.setVisibility(View.GONE);
                     viewHolder.mTextView3.setVisibility(View.GONE);
@@ -340,6 +345,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                 }
             } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
                 viewHolder.fillView((Resolver) item);
+            } else if (viewHolder.mLayoutId == R.layout.grid_item_playlist) {
+                viewHolder.fillView((Playlist) item);
             } else if (viewHolder.mLayoutId == R.layout.grid_item_user
                     || viewHolder.mLayoutId == R.layout.list_item_user) {
                 viewHolder.fillView((User) item);
@@ -601,6 +608,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     return R.layout.grid_item_user;
                 } else if (firstItem instanceof Resolver) {
                     return R.layout.grid_item_resolver;
+                } else if (firstItem instanceof Playlist) {
+                    return R.layout.grid_item_playlist;
                 } else {
                     return R.layout.grid_item;
                 }
