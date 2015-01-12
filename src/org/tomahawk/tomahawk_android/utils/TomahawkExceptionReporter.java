@@ -64,6 +64,10 @@ public class TomahawkExceptionReporter implements ReportSender {
      */
     @Override
     public void send(CrashReportData data) throws ReportSenderException {
+        if (!"org.tomahawk.tomahawk_android".equals(data.getProperty(ReportField.PACKAGE_NAME))) {
+            return;
+        }
+
         StringBuilder body = new StringBuilder();
 
         List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
