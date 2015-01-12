@@ -420,7 +420,7 @@ public class ViewHolder {
         String topArtistsString = "";
         String[] artists = playlist.getTopArtistNames();
         if (artists != null) {
-            for (int i = 0; i < artists.length && i < 3; i++) {
+            for (int i = 0; i < artists.length && i < 5 && artistImages.size() < 3; i++) {
                 Artist artist = Artist.get(artists[i]);
                 topArtistsString += artists[i];
                 if (i != artists.length - 1) {

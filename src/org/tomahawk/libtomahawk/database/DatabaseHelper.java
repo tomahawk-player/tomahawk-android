@@ -50,7 +50,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import de.greenrobot.event.EventBus;
 
@@ -226,18 +225,16 @@ public class DatabaseHelper {
     /**
      * Update the given {@link Playlist}
      *
-     * @param playlist   the given {@link Playlist}
-     * @param topArtists the list of top artists
+     * @param playlist       the given {@link Playlist}
      */
-    public void updatePlaylist(final Playlist playlist,
-            final ConcurrentSkipListSet<Artist> topArtists) {
+    public void updatePlaylist(final Playlist playlist) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 synchronized (this) {
                     String topArtistsString = "";
-                    for (Artist artist : topArtists) {
-                        topArtistsString += artist.getName() + "\t\t";
+                    for (String s : playlist.getTopArtistNames()) {
+                        topArtistsString += s + "\t\t";
                     }
 
                     ContentValues values = new ContentValues();
