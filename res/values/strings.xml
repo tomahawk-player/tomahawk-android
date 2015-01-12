@@ -60,6 +60,9 @@
   <string name="preferences_app_uservoice_text">Share your ideas or ask for support.</string>
   <string name="preferences_app_sendlog">Send Log</string>
   <string name="preferences_app_sendlog_text">Send your log file for debug purposes</string>
+  <string name="preferences_app_sendlog_dialog_text">Please briefly describe the issue you are having and provide an email so we can contact you if needed. Thanks!</string>
+  <string name="preferences_app_sendlog_email">Your email address</string>
+  <string name="preferences_app_sendlog_issue">Issue</string>
   <string name="crash_dialog_title">Tomahawk has crashed</string>
   <string name="crash_dialog_text">An unexpected error occurred forcing the application to stop. Please help us fix this by sending us error data, all you have to do is click OK.</string>
   <string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>

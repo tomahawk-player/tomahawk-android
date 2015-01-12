@@ -35,6 +35,7 @@ import android.util.Log;
  */
 @ReportsCrashes(formKey = "",
         mode = ReportingInteractionMode.DIALOG,
+        logcatArguments = {"-t", "2000", "-v", "time"},
         resDialogText = R.string.crash_dialog_text,
         resDialogIcon = android.R.drawable.ic_dialog_info,
         resDialogTitle = R.string.crash_dialog_title,
