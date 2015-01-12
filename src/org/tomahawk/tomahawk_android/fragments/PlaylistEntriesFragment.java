@@ -28,6 +28,8 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,12 +58,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         if (mPlaylist != null) {
             if (DatabaseHelper.LOVEDITEMS_PLAYLIST_ID.equals(mPlaylist.getId())) {
                 CollectionManager.getInstance().fetchLovedItemsPlaylist();
-            }
-            if (mPlaylist.getTopArtistNames() != null) {
-                for (int i = 0; i < mPlaylist.getTopArtistNames().length && i < 5; i++) {
-                    mCorrespondingRequestIds.addAll(InfoSystem.getInstance().resolve(
-                            Artist.get(mPlaylist.getTopArtistNames()[i]), false));
-                }
             }
         }
         if (mContainerFragmentClass == null) {
@@ -137,6 +133,22 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 }
                 showContentHeader(mPlaylist);
                 showFancyDropDown(mPlaylist);
+                ThreadManager.getInstance()
+                        .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW) {
+                            @Override
+                            public void run() {
+                                if (mPlaylist.getTopArtistNames() == null
+                                        || mPlaylist.getTopArtistNames().length == 0) {
+                                    mPlaylist.updateTopArtistNames();
+                                }
+                                for (int i = 0; i < mPlaylist.getTopArtistNames().length && i < 5;
+                                        i++) {
+                                    mCorrespondingRequestIds.addAll(InfoSystem.getInstance()
+                                            .resolve(Artist.get(mPlaylist.getTopArtistNames()[i]),
+                                                    false));
+                                }
+                            }
+                        });
             }
         }
 

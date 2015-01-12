@@ -35,12 +35,10 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 
 import de.greenrobot.event.EventBus;
 
@@ -565,24 +563,9 @@ public class CollectionManager {
         if (playlist.getEntries().size() == 0) {
             playlist = DatabaseHelper.getInstance().getPlaylist(playlist.getId());
         }
-        final HashMap<Artist, Integer> countMap = new HashMap<>();
-        for (PlaylistEntry entry : playlist.getEntries()) {
-            Artist artist = entry.getArtist();
-            if (countMap.containsKey(artist)) {
-                countMap.put(artist, countMap.get(artist) + 1);
-            } else {
-                countMap.put(artist, 1);
-            }
-        }
-        ConcurrentSkipListSet<Artist> topArtists = new ConcurrentSkipListSet<>(
-                new Comparator<Artist>() {
-                    @Override
-                    public int compare(Artist lhs, Artist rhs) {
-                        return countMap.get(lhs) >= countMap.get(rhs) ? -1 : 1;
-                    }
-                }
-        );
-        topArtists.addAll(countMap.keySet());
-        DatabaseHelper.getInstance().updatePlaylist(playlist, topArtists);
+
+        playlist.updateTopArtistNames();
+
+        DatabaseHelper.getInstance().updatePlaylist(playlist);
     }
 }
