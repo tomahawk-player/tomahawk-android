@@ -29,14 +29,14 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.content.Intent;
 import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * This class uploads a Tomahawk Exception Report to oops.tomahawk-player.org or sends it as a TEXT
@@ -45,6 +45,12 @@ import java.util.List;
 public class TomahawkExceptionReporter implements ReportSender {
 
     private static final String TAG = TomahawkExceptionReporter.class.getSimpleName();
+
+    public static class ShowSendLogConfigDialogEvent {
+
+        public String mLogData;
+
+    }
 
     /**
      * Construct a new TomahawkExceptionReporter
@@ -88,6 +94,12 @@ public class TomahawkExceptionReporter implements ReportSender {
         body.append("Crash Date: ").append(data.getProperty(ReportField.USER_CRASH_DATE))
                 .append("\r\n\r\n");
 
+        body.append("----------- User Info  ------------\r\n");
+        body.append("User Email: ").append(data.getProperty(ReportField.USER_EMAIL)).append("\r\n");
+        body.append("User Comment: ").append(data.getProperty(ReportField.USER_COMMENT))
+                .append("\r\n");
+        body.append("-----------------------------------\r\n\r\n");
+
         body.append("--------- Phone Details  ----------\r\n");
         body.append("Phone Model: ").append(data.getProperty(ReportField.PHONE_MODEL))
                 .append("\r\n");
@@ -101,6 +113,8 @@ public class TomahawkExceptionReporter implements ReportSender {
         body.append("-----------------------------------\r\n\r\n");
 
         body.append("------- Operating System  ---------\r\n");
+        body.append("Android Version: ").append(data.getProperty(ReportField.ANDROID_VERSION))
+                .append("\r\n");
         body.append("App Version Name: ").append(data.getProperty(ReportField.APP_VERSION_NAME))
                 .append("\r\n");
         body.append("Total Mem Size: ").append(data.getProperty(ReportField.TOTAL_MEM_SIZE))
@@ -111,22 +125,20 @@ public class TomahawkExceptionReporter implements ReportSender {
                 .append("\r\n");
         body.append("-----------------------------------\r\n\r\n");
 
+        body.append("-------------- Build --------------\r\n");
+        body.append(data.getProperty(ReportField.BUILD)).append("\r\n");
+        body.append("-----------------------------------\r\n\r\n");
+
         body.append("-------------- Misc ---------------\r\n");
         body.append("Package Name: ").append(data.getProperty(ReportField.PACKAGE_NAME))
                 .append("\r\n");
         body.append("File Path: ").append(data.getProperty(ReportField.FILE_PATH)).append("\r\n");
 
-        body.append("Android Version: ").append(data.getProperty(ReportField.ANDROID_VERSION))
-                .append("\r\n");
-        body.append("Build: ").append(data.getProperty(ReportField.BUILD)).append("\r\n");
         body.append("Initial Configuration:  ")
                 .append(data.getProperty(ReportField.INITIAL_CONFIGURATION)).append("\r\n");
         body.append("Crash Configuration: ")
                 .append(data.getProperty(ReportField.CRASH_CONFIGURATION)).append("\r\n");
         body.append("Settings Secure: ").append(data.getProperty(ReportField.SETTINGS_SECURE))
-                .append("\r\n");
-        body.append("User Email: ").append(data.getProperty(ReportField.USER_EMAIL)).append("\r\n");
-        body.append("User Comment: ").append(data.getProperty(ReportField.USER_COMMENT))
                 .append("\r\n");
         body.append("-----------------------------------\r\n\r\n");
 
@@ -146,26 +158,25 @@ public class TomahawkExceptionReporter implements ReportSender {
         body.append("\r\n--thkboundary--\r\n");
 
         if ("true".equals(data.getProperty(ReportField.IS_SILENT))) {
-            Intent intent = new Intent(Intent.ACTION_SEND);
-            intent.setType("text/plain");
-            body.insert(0, "Please tell us why you're sending us this log:\n\n\n\n\n");
-            intent.putExtra(Intent.EXTRA_TEXT, body.toString());
-            intent.putExtra(Intent.EXTRA_EMAIL, new String[]{"support@tomahawk-player.org"});
-            intent.putExtra(Intent.EXTRA_SUBJECT, "Tomahawk Android Log");
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            TomahawkApp.getContext().startActivity(intent);
+            ShowSendLogConfigDialogEvent event = new ShowSendLogConfigDialogEvent();
+            event.mLogData = body.toString();
+            EventBus.getDefault().post(event);
         } else {
-            HttpClient httpclient = new DefaultHttpClient();
-            HttpPost httppost = new HttpPost("http://oops.tomahawk-player.org/addreport.php");
-            httppost.setHeader("Content-type", "multipart/form-data; boundary=thkboundary");
-            try {
-                httppost.setEntity(new StringEntity(body.toString()));
-                httpclient.execute(httppost);
-            } catch (ClientProtocolException e) {
-                Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (IOException e) {
-                Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
-            }
+            sendCrashReport(body.toString());
+        }
+    }
+
+    public static void sendCrashReport(String bodyString) {
+        HttpClient httpclient = new DefaultHttpClient();
+        HttpPost httppost = new HttpPost("http://oops.tomahawk-player.org/addreport.php");
+        httppost.setHeader("Content-type", "multipart/form-data; boundary=thkboundary");
+        try {
+            httppost.setEntity(new StringEntity(bodyString));
+            httpclient.execute(httppost);
+        } catch (ClientProtocolException e) {
+            Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } catch (IOException e) {
+            Log.e(TAG, "send: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 }
