@@ -245,6 +245,47 @@
 
                     </LinearLayout>
 
+                    <LinearLayout android:layout_width="match_parent"
+                                  android:layout_height="wrap_content">
+
+                        <View android:layout_width="0dp"
+                              android:layout_height="wrap_content"
+                              android:layout_weight="0.5"/>
+
+                        <LinearLayout android:id="@+id/remove_button"
+                                      android:orientation="vertical"
+                                      android:layout_width="0dp"
+                                      android:layout_height="wrap_content"
+                                      android:layout_weight="1"
+                                      android:paddingTop="@dimen/padding_superlarge"
+                                      android:paddingBottom="@dimen/padding_superlarge"
+                                      android:clickable="true"
+                                      android:background="@drawable/selectable_background_tomahawk"
+                                      android:visibility="gone">
+
+                            <ImageView android:layout_width="@dimen/context_menu_icon_height"
+                                       android:layout_height="@dimen/context_menu_icon_height"
+                                       android:layout_margin="@dimen/padding_small"
+                                       android:layout_gravity="center"
+                                       android:src="@drawable/ic_player_exit_light"/>
+
+                            <TextView android:id="@+id/remove_button_textview"
+                                      android:layout_width="wrap_content"
+                                      android:layout_height="wrap_content"
+                                      android:layout_gravity="center"
+                                      android:gravity="center_horizontal"
+                                      android:textSize="@dimen/text_size_small"
+                                      android:textColor="@color/primary_textcolor_inverted"
+                                      android:text="@string/context_menu_removefromplaylist"/>
+
+                        </LinearLayout>
+
+                        <View android:layout_width="0dp"
+                              android:layout_height="wrap_content"
+                              android:layout_weight="0.5"/>
+
+                    </LinearLayout>
+
                 </LinearLayout>
 
                 <TextView android:id="@+id/track_name"
@@ -296,7 +337,8 @@
                              android:paddingBottom="@dimen/padding_verysmall"
                              android:paddingTop="@dimen/padding_verysmall"
                              android:background="@drawable/selectable_background_button_white"
-                             android:clickable="true">
+                             android:clickable="true"
+                             android:visibility="gone">
 
                     <TextView android:id="@+id/artist_name"
                               android:layout_width="match_parent"

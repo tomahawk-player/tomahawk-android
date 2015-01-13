@@ -158,10 +158,8 @@ public class FragmentUtils {
             TomahawkListItem contextItem, int frameResId) {
         if (item == null
                 || (item instanceof SocialAction
-                && (((SocialAction) item).getTargetObject() instanceof User
-                || ((SocialAction) item).getTargetObject() instanceof Playlist))
-                || item instanceof User
-                || item instanceof Playlist) {
+                && ((SocialAction) item).getTargetObject() instanceof User)
+                || item instanceof User) {
             return false;
         }
 
@@ -199,6 +197,11 @@ public class FragmentUtils {
                     ((PlaylistEntry) item).getCacheKey());
             args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
                     TomahawkFragment.TOMAHAWK_PLAYLISTENTRY_ID);
+        } else if (item instanceof Playlist) {
+            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
+                    ((Playlist) item).getCacheKey());
+            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
+                    TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
         }
         add(activity, ContextMenuFragment.class, args, frameResId);
         return true;
