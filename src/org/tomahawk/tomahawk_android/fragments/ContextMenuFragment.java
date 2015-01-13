@@ -39,7 +39,6 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Bundle;
@@ -361,11 +360,7 @@ public class ContextMenuFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 actionOnDone.run();
-                Intent shareIntent = ShareUtils
-                        .generateShareIntent(item);
-                if (shareIntent != null) {
-                    activity.startActivity(shareIntent);
-                }
+                ShareUtils.sendShareIntent(activity, item);
             }
         });
         if (item instanceof PlaylistEntry || item instanceof Playlist) {

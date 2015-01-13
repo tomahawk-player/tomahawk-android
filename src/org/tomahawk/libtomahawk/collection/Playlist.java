@@ -415,4 +415,12 @@ public class Playlist implements TomahawkListItem {
     public int getIndexOfEntry(PlaylistEntry entry) {
         return mEntries.indexOf(entry);
     }
+
+    public String getUserId() {
+        if (mHatchetId != null) {
+            String[] s = mHatchetId.split("_");
+            return s[0];
+        }
+        return null;
+    }
 }
