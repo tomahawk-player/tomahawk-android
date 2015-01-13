@@ -70,6 +70,7 @@
                 <data android:host="www.hatchet.is"/>
                 <data android:host="hatchet.is"/>
                 <data android:pathPattern="/music/.*"/>
+                <data android:pathPattern="/people/.*"/>
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>

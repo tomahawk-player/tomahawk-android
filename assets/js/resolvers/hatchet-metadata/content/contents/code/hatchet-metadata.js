@@ -44,6 +44,8 @@ var HatchetMetadataResolver = Tomahawk.extend(TomahawkResolver, {
                 return /^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n][^\/\n_]+$/.test(url);
             case TomahawkUrlType.Track:
                 return /^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/_\/[^\/\n]+$/.test(url);
+            case TomahawkUrlType.Playlist:
+                return /^https?:\/\/(www\.)?hatchet\.is\/people\/[^\/\n]+\/playlists\/[^\/\n]+$/.test(url);
             default:
                 return false;
         }
@@ -77,7 +79,47 @@ var HatchetMetadataResolver = Tomahawk.extend(TomahawkResolver, {
                 artist: urlParts[urlParts.length - 3],
                 title: urlParts[urlParts.length - 1]
             });
-        }
+        } else if (/^https?:\/\/(www\.)?hatchet\.is\/people\/[^\/\n]+\/playlists\/[^\/\n]+$/.test(url)) {
+            Tomahawk.log("Found a playlist");
+            // We have to deal with a Playlist
+            var match = url.match(/^https?:\/\/(?:www\.)?hatchet\.is\/people\/[^\/\n]+\/playlists\/([^\/\n]+)$/);
+            var query = 'https://api.hatchet.is/v1/playlists/' + match[1];
+            Tomahawk.log("Found playlist, calling url: '" + query + "'");
+            Tomahawk.asyncRequest(query, function (xhr) {
+                var res = JSON.parse(xhr.responseText);
+                var result = {
+                    type: "playlist",
+                    title: res.playlists[0].title,
+                    guid: res.playlists[0].id,
+                    info: "A playlist on Hatchet.",
+                    creator: res.playlists[0].user,
+                    url: url,
+                    tracks: []
+                };
+                var playlistEntries = {};
+                res.playlistEntries.forEach( function (item) {
+                    playlistEntries[item.id] = item;
+                });
+                var artists = {};
+                res.artists.forEach( function (item) {
+                    artists[item.id] = item;
+                });
+                var tracks = {};
+                res.tracks.forEach( function (item) {
+                    tracks[item.id] = item;
+                });
+                result.tracks = res.playlists[0].playlistEntries.map( function (item) {
+                    var track = tracks[playlistEntries[item].track];
+                    return {
+                        type: "track",
+                        title: track.name,
+                        artist: artists[track.artist].name
+                    };
+                });
+                Tomahawk.addUrlResult(url, result);
+                Tomahawk.log("Reported found playlist '" + result.title + "' containing " + result.tracks.length + " tracks");
+            });
+         }
     }
 });
 
