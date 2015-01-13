@@ -290,7 +290,7 @@ public class ContentHeaderFragment extends Fragment {
             } else if (item instanceof Artist) {
                 viewHolder.fillContentHeader((Artist) item, moreButtonListener);
             } else if (item instanceof Playlist) {
-                viewHolder.fillView((Playlist) item);
+                viewHolder.fillContentHeader((Playlist) item, moreButtonListener);
             } else if (item instanceof Query) {
                 viewHolder.fillContentHeader((Query) item, moreButtonListener);
             }

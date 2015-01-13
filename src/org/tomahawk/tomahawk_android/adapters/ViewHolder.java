@@ -283,6 +283,13 @@ public class ViewHolder {
         mMoreButton.setOnClickListener(moreButtonListener);
     }
 
+    public void fillContentHeader(final Playlist playlist,
+            View.OnClickListener moreButtonListener) {
+        fillView(playlist);
+        mMoreButton.setVisibility(View.VISIBLE);
+        mMoreButton.setOnClickListener(moreButtonListener);
+    }
+
     public void fillContentHeaderSmall(String text, User user) {
         mTextView1.setText(text.toUpperCase());
         TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(), mUserImageView1,
