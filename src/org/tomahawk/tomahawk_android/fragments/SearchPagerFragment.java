@@ -47,9 +47,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SearchPagerFragment extends PagerFragment {
 
-    public static final String SEARCHABLEFRAGMENT_QUERY_STRING
-            = "org.tomahawk.tomahawk_android.SEARCHABLEFRAGMENT_QUERY_ID";
-
     private String mCurrentQueryString;
 
     protected Set<Query> mCorrespondingQueries
@@ -104,10 +101,11 @@ public class SearchPagerFragment extends PagerFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (savedInstanceState != null && savedInstanceState
-                .containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)
-                && savedInstanceState.getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
-            mCurrentQueryString = savedInstanceState.getString(SEARCHABLEFRAGMENT_QUERY_STRING);
+        if (savedInstanceState != null
+                && savedInstanceState.containsKey(TomahawkFragment.QUERY_STRING)
+                && savedInstanceState.getString(TomahawkFragment.QUERY_STRING) != null) {
+            mCurrentQueryString = savedInstanceState.getString(
+                    TomahawkFragment.QUERY_STRING);
         }
     }
 
@@ -124,9 +122,10 @@ public class SearchPagerFragment extends PagerFragment {
             if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
                 initialPage = getArguments().getInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
-            if (getArguments().containsKey(SEARCHABLEFRAGMENT_QUERY_STRING)
-                    && getArguments().getString(SEARCHABLEFRAGMENT_QUERY_STRING) != null) {
-                mCurrentQueryString = getArguments().getString(SEARCHABLEFRAGMENT_QUERY_STRING);
+            if (getArguments().containsKey(TomahawkFragment.QUERY_STRING)
+                    && getArguments().getString(TomahawkFragment.QUERY_STRING) != null) {
+                mCurrentQueryString = getArguments().getString(
+                        TomahawkFragment.QUERY_STRING);
             }
         }
 
@@ -175,7 +174,7 @@ public class SearchPagerFragment extends PagerFragment {
      */
     @Override
     public void onSaveInstanceState(Bundle out) {
-        out.putString(SEARCHABLEFRAGMENT_QUERY_STRING, mCurrentQueryString);
+        out.putString(TomahawkFragment.QUERY_STRING, mCurrentQueryString);
         super.onSaveInstanceState(out);
     }
 
@@ -193,7 +192,7 @@ public class SearchPagerFragment extends PagerFragment {
         fragmentInfo.mBundle = getChildFragmentBundle();
         if (mArtistIds != null) {
             fragmentInfo.mBundle
-                    .putStringArrayList(TomahawkFragment.TOMAHAWK_ARTISTARRAY_KEY, mArtistIds);
+                    .putStringArrayList(TomahawkFragment.ARTISTARRAY, mArtistIds);
         }
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
@@ -205,7 +204,7 @@ public class SearchPagerFragment extends PagerFragment {
         fragmentInfo.mBundle = getChildFragmentBundle();
         if (mAlbumIds != null) {
             fragmentInfo.mBundle
-                    .putStringArrayList(TomahawkFragment.TOMAHAWK_ALBUMARRAY_KEY, mAlbumIds);
+                    .putStringArrayList(TomahawkFragment.ALBUMARRAY, mAlbumIds);
         }
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
@@ -217,7 +216,7 @@ public class SearchPagerFragment extends PagerFragment {
         fragmentInfo.mBundle = getChildFragmentBundle();
         if (mSongIds != null) {
             fragmentInfo.mBundle
-                    .putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYARRAY_KEY, mSongIds);
+                    .putStringArrayList(TomahawkFragment.QUERYARRAY, mSongIds);
         }
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
@@ -229,7 +228,7 @@ public class SearchPagerFragment extends PagerFragment {
         fragmentInfo.mBundle = getChildFragmentBundle();
         if (mUserIds != null) {
             fragmentInfo.mBundle
-                    .putStringArrayList(TomahawkFragment.TOMAHAWK_USERARRAY_ID, mUserIds);
+                    .putStringArrayList(TomahawkFragment.USERARRAY, mUserIds);
         }
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);

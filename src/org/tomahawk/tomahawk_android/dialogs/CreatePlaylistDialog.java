@@ -48,9 +48,9 @@ public class CreatePlaylistDialog extends ConfigDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Check if there is a playlist key in the provided arguments
         if (getArguments() != null && getArguments()
-                .containsKey(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY)) {
+                .containsKey(TomahawkFragment.PLAYLIST)) {
             mPlaylist = Playlist.getPlaylistById(
-                    getArguments().getString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY));
+                    getArguments().getString(TomahawkFragment.PLAYLIST));
             if (mPlaylist == null) {
                 dismiss();
             }

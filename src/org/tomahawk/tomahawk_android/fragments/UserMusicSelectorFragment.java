@@ -46,9 +46,9 @@ public class UserMusicSelectorFragment extends SelectorFragment {
             if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
                 initialPage = getArguments().getInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_USER_ID) && !TextUtils
-                    .isEmpty(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID))) {
-                mUser = User.get(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID));
+            if (getArguments().containsKey(TomahawkFragment.USER) && !TextUtils
+                    .isEmpty(getArguments().getString(TomahawkFragment.USER))) {
+                mUser = User.get(getArguments().getString(TomahawkFragment.USER));
                 if (mUser.getName() == null) {
                     mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
@@ -60,7 +60,7 @@ public class UserMusicSelectorFragment extends SelectorFragment {
         fragmentInfo.mClass = UserCollectionFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_collection);
         fragmentInfo.mBundle = new Bundle();
-        fragmentInfo.mBundle.putInt(ContentHeaderFragment.MODE,
+        fragmentInfo.mBundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                 ContentHeaderFragment.MODE_HEADER_DYNAMIC);
         fragmentInfo.mIconResId = R.drawable.ic_action_collection;
         fragmentInfos.add(fragmentInfo);
@@ -69,10 +69,10 @@ public class UserMusicSelectorFragment extends SelectorFragment {
         fragmentInfo.mClass = PlaylistEntriesFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_playlists);
         fragmentInfo.mBundle = new Bundle();
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
+        fragmentInfo.mBundle.putString(TomahawkFragment.PLAYLIST,
                 mUser.getPlaybackLog().getCacheKey());
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
-        fragmentInfo.mBundle.putInt(ContentHeaderFragment.MODE,
+        fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
+        fragmentInfo.mBundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                 ContentHeaderFragment.MODE_HEADER_DYNAMIC);
         fragmentInfo.mIconResId = R.drawable.ic_action_playlist;
         fragmentInfos.add(fragmentInfo);

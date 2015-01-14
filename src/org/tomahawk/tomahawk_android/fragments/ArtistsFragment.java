@@ -74,16 +74,16 @@ public class ArtistsFragment extends TomahawkFragment {
     public void onItemClick(View view, Object item) {
         if (item instanceof Artist) {
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, ((Artist) item).getCacheKey());
+            bundle.putString(TomahawkFragment.ARTIST, ((Artist) item).getCacheKey());
             if (mCollection != null
                     && mCollection.getArtistAlbums((Artist) item, false).size() > 0) {
-                bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+                bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
             } else {
-                bundle.putString(CollectionManager.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
+                bundle.putString(TomahawkFragment.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
             }
-            bundle.putInt(ContentHeaderFragment.MODE,
+            bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
-            bundle.putLong(ContentHeaderFragment.CONTAINER_FRAGMENT_ID,
+            bundle.putLong(CONTAINER_FRAGMENT_ID,
                     TomahawkMainActivity.getSessionUniqueId());
             FragmentUtils.replace((TomahawkMainActivity) getActivity(), ArtistPagerFragment.class,
                     bundle);

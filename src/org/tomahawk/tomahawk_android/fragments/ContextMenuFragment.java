@@ -108,63 +108,63 @@ public class ContextMenuFragment extends Fragment {
         boolean fromPlaybackFragment = false;
 
         if (getArguments() != null) {
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_ALBUM_KEY)) {
+            if (getArguments().containsKey(TomahawkFragment.ALBUM)) {
                 contextItem = Album.getAlbumByKey(
-                        getArguments().getString(TomahawkFragment.TOMAHAWK_ALBUM_KEY));
+                        getArguments().getString(TomahawkFragment.ALBUM));
                 if (contextItem == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 }
-            } else if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY)) {
+            } else if (getArguments().containsKey(TomahawkFragment.PLAYLIST)) {
                 contextItem = Playlist.getPlaylistById(getArguments()
-                        .getString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY));
+                        .getString(TomahawkFragment.PLAYLIST));
                 if (contextItem == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 }
-            } else if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_ARTIST_KEY)) {
+            } else if (getArguments().containsKey(TomahawkFragment.ARTIST)) {
                 contextItem = Artist.getArtistByKey(
-                        getArguments().getString(TomahawkFragment.TOMAHAWK_ARTIST_KEY));
+                        getArguments().getString(TomahawkFragment.ARTIST));
                 if (contextItem == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 }
             }
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_SHOWDELETE_KEY)) {
-                showDelete = getArguments().getBoolean(TomahawkFragment.TOMAHAWK_SHOWDELETE_KEY);
+            if (getArguments().containsKey(TomahawkFragment.SHOWDELETE)) {
+                showDelete = getArguments().getBoolean(TomahawkFragment.SHOWDELETE);
             }
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_FROMPLAYBACKFRAGMENT)) {
+            if (getArguments().containsKey(TomahawkFragment.FROM_PLAYBACKFRAGMENT)) {
                 fromPlaybackFragment = getArguments()
-                        .getBoolean(TomahawkFragment.TOMAHAWK_FROMPLAYBACKFRAGMENT);
+                        .getBoolean(TomahawkFragment.FROM_PLAYBACKFRAGMENT);
             }
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE)
-                    && getArguments().containsKey(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY)) {
+            if (getArguments().containsKey(TomahawkFragment.TOMAHAWKLISTITEM_TYPE)
+                    && getArguments().containsKey(TomahawkFragment.TOMAHAWKLISTITEM)) {
                 String type = getArguments()
-                        .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE);
+                        .getString(TomahawkFragment.TOMAHAWKLISTITEM_TYPE);
                 switch (type) {
-                    case TomahawkFragment.TOMAHAWK_ALBUM_KEY:
+                    case TomahawkFragment.ALBUM:
                         mTomahawkListItem = Album.getAlbumByKey(getArguments()
-                                .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
+                                .getString(TomahawkFragment.TOMAHAWKLISTITEM));
                         break;
-                    case TomahawkFragment.TOMAHAWK_PLAYLIST_KEY:
+                    case TomahawkFragment.PLAYLIST:
                         mTomahawkListItem = Playlist.getPlaylistById(getArguments()
-                                .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
+                                .getString(TomahawkFragment.TOMAHAWKLISTITEM));
                         break;
-                    case TomahawkFragment.TOMAHAWK_ARTIST_KEY:
+                    case TomahawkFragment.ARTIST:
                         mTomahawkListItem = Artist.getArtistByKey(getArguments()
-                                .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
+                                .getString(TomahawkFragment.TOMAHAWKLISTITEM));
                         break;
-                    case TomahawkFragment.TOMAHAWK_QUERY_KEY:
+                    case TomahawkFragment.QUERY:
                         mTomahawkListItem = Query.getQueryByKey(getArguments()
-                                .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
+                                .getString(TomahawkFragment.TOMAHAWKLISTITEM));
                         break;
-                    case TomahawkFragment.TOMAHAWK_SOCIALACTION_ID:
+                    case TomahawkFragment.SOCIALACTION:
                         mTomahawkListItem = SocialAction.getSocialActionById(getArguments()
-                                .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
+                                .getString(TomahawkFragment.TOMAHAWKLISTITEM));
                         break;
-                    case TomahawkFragment.TOMAHAWK_PLAYLISTENTRY_ID:
+                    case TomahawkFragment.PLAYLISTENTRY:
                         mTomahawkListItem = PlaylistEntry.getPlaylistEntryByKey(getArguments()
-                                .getString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY));
+                                .getString(TomahawkFragment.TOMAHAWKLISTITEM));
                         break;
                 }
                 if (mTomahawkListItem == null) {
@@ -172,9 +172,9 @@ public class ContextMenuFragment extends Fragment {
                     return;
                 }
             }
-            if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
+            if (getArguments().containsKey(TomahawkFragment.COLLECTION_ID)) {
                 mCollection = CollectionManager.getInstance()
-                        .getCollection(getArguments().getString(CollectionManager.COLLECTION_ID));
+                        .getCollection(getArguments().getString(TomahawkFragment.COLLECTION_ID));
             }
         }
         if (mTomahawkListItem instanceof SocialAction) {
@@ -230,10 +230,10 @@ public class ContextMenuFragment extends Fragment {
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     Bundle bundle = new Bundle();
-                    bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY,
+                    bundle.putString(TomahawkFragment.ALBUM,
                             mTomahawkListItem.getCacheKey());
-                    bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
-                    bundle.putInt(ContentHeaderFragment.MODE,
+                    bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
+                    bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                     FragmentUtils.replace((TomahawkMainActivity) getActivity(),
                             TracksFragment.class, bundle);
@@ -350,7 +350,7 @@ public class ContextMenuFragment extends Fragment {
                 }
                 ChoosePlaylistDialog dialog = new ChoosePlaylistDialog();
                 Bundle args = new Bundle();
-                args.putStringArrayList(TomahawkFragment.TOMAHAWK_QUERYARRAY_KEY, queryKeys);
+                args.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
                 dialog.setArguments(args);
                 dialog.show(activity.getSupportFragmentManager(), null);
             }
@@ -405,12 +405,12 @@ public class ContextMenuFragment extends Fragment {
                 public void onClick(View v) {
                     actionOnDone.run();
                     Bundle bundle = new Bundle();
-                    bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY,
+                    bundle.putString(TomahawkFragment.ALBUM,
                             item.getAlbum().getCacheKey());
                     if (collection != null) {
-                        bundle.putString(CollectionManager.COLLECTION_ID, collection.getId());
+                        bundle.putString(TomahawkFragment.COLLECTION_ID, collection.getId());
                     }
-                    bundle.putInt(ContentHeaderFragment.MODE,
+                    bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                     FragmentUtils.replace(activity, TracksFragment.class, bundle);
                 }
@@ -422,14 +422,14 @@ public class ContextMenuFragment extends Fragment {
                 public void onClick(View v) {
                     actionOnDone.run();
                     Bundle bundle = new Bundle();
-                    bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY,
+                    bundle.putString(TomahawkFragment.ARTIST,
                             item.getArtist().getCacheKey());
                     if (collection != null) {
-                        bundle.putString(CollectionManager.COLLECTION_ID, collection.getId());
+                        bundle.putString(TomahawkFragment.COLLECTION_ID, collection.getId());
                     }
-                    bundle.putInt(ContentHeaderFragment.MODE,
+                    bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
-                    bundle.putLong(ContentHeaderFragment.CONTAINER_FRAGMENT_ID,
+                    bundle.putLong(TomahawkFragment.CONTAINER_FRAGMENT_ID,
                             TomahawkMainActivity.getSessionUniqueId());
                     FragmentUtils.replace(activity, ArtistPagerFragment.class, bundle);
                 }

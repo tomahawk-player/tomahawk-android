@@ -132,7 +132,7 @@ public class PreferenceConnectFragment extends TomahawkListFragment
                     break;
             }
             Bundle args = new Bundle();
-            args.putString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY, id);
+            args.putString(TomahawkFragment.PREFERENCEID, id);
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
         }

@@ -17,7 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
@@ -286,12 +285,12 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
     protected Bundle getChildFragmentBundle() {
         Bundle bundle = new Bundle();
-        if (getArguments().containsKey(CollectionManager.COLLECTION_ID)) {
-            bundle.putString(CollectionManager.COLLECTION_ID,
-                    getArguments().getString(CollectionManager.COLLECTION_ID));
+        if (getArguments().containsKey(TomahawkFragment.COLLECTION_ID)) {
+            bundle.putString(TomahawkFragment.COLLECTION_ID,
+                    getArguments().getString(TomahawkFragment.COLLECTION_ID));
         }
-        if (getArguments().containsKey(MODE)) {
-            bundle.putInt(MODE, getArguments().getInt(MODE));
+        if (getArguments().containsKey(TomahawkFragment.CONTENT_HEADER_MODE)) {
+            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE, getArguments().getInt(TomahawkFragment.CONTENT_HEADER_MODE));
         }
         return bundle;
     }

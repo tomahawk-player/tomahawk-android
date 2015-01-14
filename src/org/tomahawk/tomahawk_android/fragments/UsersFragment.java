@@ -74,8 +74,8 @@ public class UsersFragment extends TomahawkFragment {
             Bundle bundle = new Bundle();
             bundle.putInt(TomahawkFragment.SHOW_MODE,
                     SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
-            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, ((User) item).getId());
-            bundle.putInt(ContentHeaderFragment.MODE,
+            bundle.putString(TomahawkFragment.USER, ((User) item).getId());
+            bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_STATIC_USER);
             FragmentUtils.replace((TomahawkMainActivity) getActivity(), UserPagerFragment.class,
                     bundle);

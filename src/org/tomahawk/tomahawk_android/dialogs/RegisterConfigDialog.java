@@ -66,17 +66,17 @@ public class RegisterConfigDialog extends ConfigDialog {
         String username = "";
         String password = "";
         if (getArguments() != null) {
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY)) {
+            if (getArguments().containsKey(TomahawkFragment.PREFERENCEID)) {
                 String authenticatorId = getArguments().getString(
-                        TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY);
+                        TomahawkFragment.PREFERENCEID);
                 mAuthenticatorUtils = AuthenticatorManager.getInstance().getAuthenticatorUtils(
                         authenticatorId);
             }
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_USERNAME_STRING)) {
-                username = getArguments().getString(TomahawkFragment.TOMAHAWK_USERNAME_STRING);
+            if (getArguments().containsKey(TomahawkFragment.USERNAME_STRING)) {
+                username = getArguments().getString(TomahawkFragment.USERNAME_STRING);
             }
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_PASSWORD_STRING)) {
-                password = getArguments().getString(TomahawkFragment.TOMAHAWK_PASSWORD_STRING);
+            if (getArguments().containsKey(TomahawkFragment.PASSWORD_STRING)) {
+                password = getArguments().getString(TomahawkFragment.PASSWORD_STRING);
             }
         }
 

@@ -76,11 +76,11 @@ public class PlaylistsFragment extends TomahawkFragment {
     public void onItemClick(View view, Object item) {
         if (item instanceof Playlist) {
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY, ((Playlist) item).getId());
+            bundle.putString(TomahawkFragment.PLAYLIST, ((Playlist) item).getId());
             if (mUser != null) {
-                bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getId());
+                bundle.putString(TomahawkFragment.USER, mUser.getId());
             }
-            bundle.putInt(ContentHeaderFragment.MODE,
+            bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
                     PlaylistEntriesFragment.class, bundle);

@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
@@ -48,9 +49,6 @@ public class SendLogConfigDialog extends ConfigDialog {
 
     public final static String TAG = SendLogConfigDialog.class.getSimpleName();
 
-    public static final String LOG_DATA
-            = "org.tomahawk.tomahawk_android.log_data";
-
     private EditText mEmailEditText;
 
     private EditText mUserMessageEditText;
@@ -65,8 +63,8 @@ public class SendLogConfigDialog extends ConfigDialog {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        if (getArguments() != null && getArguments().containsKey(LOG_DATA)) {
-            mLogData = getArguments().getString(LOG_DATA);
+        if (getArguments() != null && getArguments().containsKey(TomahawkFragment.LOG_DATA)) {
+            mLogData = getArguments().getString(TomahawkFragment.LOG_DATA);
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();

@@ -102,15 +102,15 @@ public class AlbumsFragment extends TomahawkFragment {
             }
         } else if (item instanceof Album) {
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, ((Album) item).getCacheKey());
+            bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
             if (mCollection != null
                     && (mCollection instanceof ScriptResolverCollection
                     || mCollection.getAlbumTracks((Album) item, false).size() > 0)) {
-                bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+                bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
             } else {
-                bundle.putString(CollectionManager.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
+                bundle.putString(TomahawkFragment.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
             }
-            bundle.putInt(ContentHeaderFragment.MODE,
+            bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
             FragmentUtils
                     .replace((TomahawkMainActivity) getActivity(), TracksFragment.class, bundle);

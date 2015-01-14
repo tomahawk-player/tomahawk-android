@@ -75,9 +75,9 @@ public class RedirectConfigDialog extends ConfigDialog {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments()
-                .containsKey(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY)) {
+                .containsKey(TomahawkFragment.PREFERENCEID)) {
             mScriptResolver = (ScriptResolver) PipeLine.getInstance().getResolver(
-                    getArguments().getString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY));
+                    getArguments().getString(TomahawkFragment.PREFERENCEID));
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();

@@ -59,8 +59,6 @@ public class ContentHeaderFragment extends Fragment {
 
     private static final String TAG = ContentHeaderFragment.class.getSimpleName();
 
-    public static final String MODE = "org.tomahawk.tomahawk_android.mode";
-
     public static final int MODE_HEADER_DYNAMIC = 0;
 
     public static final int MODE_HEADER_DYNAMIC_PAGER = 1;
@@ -72,12 +70,6 @@ public class ContentHeaderFragment extends Fragment {
     public static final int MODE_ACTIONBAR_FILLED = 4;
 
     public static final int MODE_HEADER_STATIC_SMALL = 5;
-
-    public static final String CONTAINER_FRAGMENT_ID
-            = "org.tomahawk.tomahawk_android.container_fragment_id";
-
-    public static final String CONTAINER_FRAGMENT_PAGE
-            = "org.tomahawk.tomahawk_android.container_fragment_page";
 
     public static class AnimateEvent {
 
@@ -140,7 +132,7 @@ public class ContentHeaderFragment extends Fragment {
 
         Resources res = getResources();
         if (getArguments() != null) {
-            mCurrentMode = getArguments().getInt(MODE, -1);
+            mCurrentMode = getArguments().getInt(TomahawkFragment.CONTENT_HEADER_MODE, -1);
 
             switch (mCurrentMode) {
                 case MODE_HEADER_DYNAMIC:
@@ -176,11 +168,12 @@ public class ContentHeaderFragment extends Fragment {
                 default:
                     throw new RuntimeException("Missing or invalid ContentHeaderFragment mode");
             }
-            if (getArguments().containsKey(CONTAINER_FRAGMENT_ID)) {
-                mContainerFragmentId = getArguments().getLong(CONTAINER_FRAGMENT_ID);
+            if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_ID)) {
+                mContainerFragmentId = getArguments().getLong(TomahawkFragment.CONTAINER_FRAGMENT_ID);
             }
-            if (getArguments().containsKey(CONTAINER_FRAGMENT_PAGE)) {
-                mContainerFragmentPage = getArguments().getInt(CONTAINER_FRAGMENT_PAGE);
+            if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
+                mContainerFragmentPage = getArguments().getInt(
+                        TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
         }
     }
