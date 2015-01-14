@@ -61,6 +61,9 @@
   <string name="preferences_app_uservoice_text">Comparte tus ideas o pide ayuda.</string>
   <string name="preferences_app_sendlog">Enviar Log</string>
   <string name="preferences_app_sendlog_text">Enviar tu log  de errores con propósitos de depuración</string>
+  <string name="preferences_app_sendlog_dialog_text">Por favor describa brevemente el inconveniente que estás teniendo e indicanos una dirección de correo donde podamos contactarte en caso de ser necesario. Gracias.</string>
+  <string name="preferences_app_sendlog_email">Tu dirección de correo </string>
+  <string name="preferences_app_sendlog_issue">Problema</string>
   <string name="crash_dialog_title">Lo sentimos tomahawk se detuvo.</string>
   <string name="crash_dialog_text">Un error inesperado ha ocurrido y la aplicación se detuvo . Por favor ayudanos enviando la información del error para repararlo, lo único que tienes que hacer es un click en OK.</string>
   <string name="crash_dialog_comment_prompt">Aquí puedes enviar tus comentarios sobre el problema: </string>
