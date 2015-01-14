@@ -67,10 +67,9 @@ public class ResolverConfigDialog extends ConfigDialog {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        if (getArguments() != null && getArguments()
-                .containsKey(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY)) {
+        if (getArguments() != null && getArguments().containsKey(TomahawkFragment.PREFERENCEID)) {
             String resolverId = getArguments().getString(
-                    TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY);
+                    TomahawkFragment.PREFERENCEID);
             mScriptResolver = (ScriptResolver) PipeLine.getInstance().getResolver(resolverId);
         }
 

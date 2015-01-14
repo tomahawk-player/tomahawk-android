@@ -65,10 +65,10 @@ public class LoginConfigDialog extends ConfigDialog {
             dismiss();
             RegisterConfigDialog dialog = new RegisterConfigDialog();
             Bundle args = new Bundle();
-            args.putString(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY, mAuthenticatorUtils.getId());
-            args.putString(TomahawkFragment.TOMAHAWK_USERNAME_STRING,
+            args.putString(TomahawkFragment.PREFERENCEID, mAuthenticatorUtils.getId());
+            args.putString(TomahawkFragment.USERNAME_STRING,
                     mUsernameEditText.getText().toString());
-            args.putString(TomahawkFragment.TOMAHAWK_PASSWORD_STRING,
+            args.putString(TomahawkFragment.PASSWORD_STRING,
                     mPasswordEditText.getText().toString());
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
@@ -82,9 +82,9 @@ public class LoginConfigDialog extends ConfigDialog {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments()
-                .containsKey(TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY)) {
+                .containsKey(TomahawkFragment.PREFERENCEID)) {
             String authenticatorId = getArguments().getString(
-                    TomahawkFragment.TOMAHAWK_PREFERENCEID_KEY);
+                    TomahawkFragment.PREFERENCEID);
             mAuthenticatorUtils = AuthenticatorManager.getInstance().getAuthenticatorUtils(
                     authenticatorId);
         }

@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
@@ -58,17 +57,17 @@ public class FragmentUtils {
         FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
         if (loggedInUser != null) {
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, loggedInUser.getId());
+            bundle.putString(TomahawkFragment.USER, loggedInUser.getId());
             bundle.putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_DASHBOARD);
-            bundle.putInt(ContentHeaderFragment.MODE, ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
+            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE, ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
             ft.add(R.id.content_viewer_frame,
                     Fragment.instantiate(activity, SocialActionsFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
         } else {
             Bundle bundle = new Bundle();
-            bundle.putString(CollectionManager.COLLECTION_ID,
+            bundle.putString(TomahawkFragment.COLLECTION_ID,
                     TomahawkApp.PLUGINNAME_USERCOLLECTION);
-            bundle.putInt(ContentHeaderFragment.MODE, ContentHeaderFragment.MODE_HEADER_STATIC);
+            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE, ContentHeaderFragment.MODE_HEADER_STATIC);
             ft.add(R.id.content_viewer_frame,
                     Fragment.instantiate(activity, CollectionPagerFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
@@ -165,43 +164,43 @@ public class FragmentUtils {
 
         Bundle args = new Bundle();
         if (contextItem instanceof Album) {
-            args.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, contextItem.getCacheKey());
+            args.putString(TomahawkFragment.ALBUM, contextItem.getCacheKey());
         } else if (contextItem instanceof Playlist) {
-            args.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
+            args.putString(TomahawkFragment.PLAYLIST,
                     ((Playlist) contextItem).getId());
         } else if (contextItem instanceof Artist) {
-            args.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, contextItem.getCacheKey());
+            args.putString(TomahawkFragment.ARTIST, contextItem.getCacheKey());
         }
         if (item instanceof Query) {
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM,
                     ((Query) item).getCacheKey());
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
-                    TomahawkFragment.TOMAHAWK_QUERY_KEY);
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM_TYPE,
+                    TomahawkFragment.QUERY);
         } else if (item instanceof Album) {
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM,
                     ((Album) item).getCacheKey());
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
-                    TomahawkFragment.TOMAHAWK_ALBUM_KEY);
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM_TYPE,
+                    TomahawkFragment.ALBUM);
         } else if (item instanceof Artist) {
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM,
                     ((Artist) item).getCacheKey());
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
-                    TomahawkFragment.TOMAHAWK_ARTIST_KEY);
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM_TYPE,
+                    TomahawkFragment.ARTIST);
         } else if (item instanceof SocialAction) {
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM,
                     ((SocialAction) item).getId());
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
-                    TomahawkFragment.TOMAHAWK_SOCIALACTION_ID);
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM_TYPE,
+                    TomahawkFragment.SOCIALACTION);
         } else if (item instanceof PlaylistEntry) {
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM,
                     ((PlaylistEntry) item).getCacheKey());
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
-                    TomahawkFragment.TOMAHAWK_PLAYLISTENTRY_ID);
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM_TYPE,
+                    TomahawkFragment.PLAYLISTENTRY);
         } else if (item instanceof Playlist) {
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_KEY,
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM,
                     ((Playlist) item).getCacheKey());
-            args.putString(TomahawkFragment.TOMAHAWK_TOMAHAWKLISTITEM_TYPE,
-                    TomahawkFragment.TOMAHAWK_PLAYLIST_KEY);
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM_TYPE,
+                    TomahawkFragment.PLAYLIST);
         }
         add(activity, ContextMenuFragment.class, args, frameResId);
         return true;

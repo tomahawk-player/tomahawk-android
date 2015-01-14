@@ -57,9 +57,9 @@ public class UserPagerFragment extends PagerFragment {
             if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
                 initialPage = getArguments().getInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_USER_ID) && !TextUtils
-                    .isEmpty(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID))) {
-                mUser = User.get(getArguments().getString(TomahawkFragment.TOMAHAWK_USER_ID));
+            if (getArguments().containsKey(TomahawkFragment.USER) && !TextUtils
+                    .isEmpty(getArguments().getString(TomahawkFragment.USER))) {
+                mUser = User.get(getArguments().getString(TomahawkFragment.USER));
                 if (mUser.getName() == null) {
                     mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
@@ -101,7 +101,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo.mClass = SocialActionsFragment.class;
         fragmentInfo.mTitle = getString(R.string.activity);
         fragmentInfo.mBundle = getChildFragmentBundle();
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
         fragmentInfo.mBundle
                 .putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_SOCIALACTIONS);
         fragmentInfo.mIconResId = R.drawable.ic_action_activity;
@@ -113,32 +113,32 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo.mClass = UserCollectionFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_collection);
         fragmentInfo.mBundle = getChildFragmentBundle();
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_collection;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = PlaylistsFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_playlists);
         fragmentInfo.mBundle = getChildFragmentBundle();
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_playlist;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = PlaylistEntriesFragment.class;
         fragmentInfo.mTitle = getString(R.string.history);
         fragmentInfo.mBundle = getChildFragmentBundle();
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
+        fragmentInfo.mBundle.putString(TomahawkFragment.PLAYLIST,
                 mUser.getPlaybackLog().getCacheKey());
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_history;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = PlaylistEntriesFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_lovedtracks);
         fragmentInfo.mBundle = getChildFragmentBundle();
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY,
+        fragmentInfo.mBundle.putString(TomahawkFragment.PLAYLIST,
                 mUser.getFavorites().getCacheKey());
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_favorites;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         SharedPreferences preferences = PreferenceManager
@@ -153,7 +153,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
                 UsersFragment.SHOW_MODE_TYPE_FOLLOWERS);
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_friend;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfo = new FragmentInfo();
@@ -162,7 +162,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
                 UsersFragment.SHOW_MODE_TYPE_FOLLOWINGS);
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, mUser.getCacheKey());
+        fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_friend;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);

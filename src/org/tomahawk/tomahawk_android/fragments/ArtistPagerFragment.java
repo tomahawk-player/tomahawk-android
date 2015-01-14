@@ -62,10 +62,10 @@ public class ArtistPagerFragment extends PagerFragment {
             if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
                 initialPage = getArguments().getInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
-            if (getArguments().containsKey(TomahawkFragment.TOMAHAWK_ARTIST_KEY) && !TextUtils
-                    .isEmpty(getArguments().getString(TomahawkFragment.TOMAHAWK_ARTIST_KEY))) {
+            if (getArguments().containsKey(TomahawkFragment.ARTIST)
+                    && !TextUtils.isEmpty(getArguments().getString(TomahawkFragment.ARTIST))) {
                 mArtist = Artist.getArtistByKey(
-                        getArguments().getString(TomahawkFragment.TOMAHAWK_ARTIST_KEY));
+                        getArguments().getString(TomahawkFragment.ARTIST));
                 if (mArtist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
@@ -84,7 +84,7 @@ public class ArtistPagerFragment extends PagerFragment {
         int initialSelection = 0;
         for (int i = 0; i < collections.size(); i++) {
             if (collections.get(i).getId().equals(
-                    getArguments().getString(CollectionManager.COLLECTION_ID))) {
+                    getArguments().getString(TomahawkFragment.COLLECTION_ID))) {
                 initialSelection = i;
                 break;
             }
@@ -94,7 +94,7 @@ public class ArtistPagerFragment extends PagerFragment {
                 new FancyDropDown.DropDownListener() {
                     @Override
                     public void onDropDownItemSelected(int position) {
-                        getArguments().putString(CollectionManager.COLLECTION_ID,
+                        getArguments().putString(TomahawkFragment.COLLECTION_ID,
                                 collections.get(position).getId());
                         updatePager();
                     }
@@ -109,7 +109,7 @@ public class ArtistPagerFragment extends PagerFragment {
         fragmentInfo.mClass = AlbumsFragment.class;
         fragmentInfo.mTitle = getString(R.string.music);
         fragmentInfo.mBundle = getChildFragmentBundle();
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
+        fragmentInfo.mBundle.putString(TomahawkFragment.ARTIST, mArtist.getCacheKey());
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
@@ -118,7 +118,7 @@ public class ArtistPagerFragment extends PagerFragment {
         fragmentInfo.mClass = BiographyFragment.class;
         fragmentInfo.mTitle = getString(R.string.biography);
         fragmentInfo.mBundle = getChildFragmentBundle();
-        fragmentInfo.mBundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, mArtist.getCacheKey());
+        fragmentInfo.mBundle.putString(TomahawkFragment.ARTIST, mArtist.getCacheKey());
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 

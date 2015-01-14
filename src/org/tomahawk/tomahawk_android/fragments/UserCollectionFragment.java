@@ -73,16 +73,16 @@ public class UserCollectionFragment extends TomahawkFragment {
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
             Bundle bundle = new Bundle();
             if (userCollection.getAlbumTracks((Album) item, false).size() > 0) {
-                bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, ((Album) item).getCacheKey());
-                bundle.putString(CollectionManager.COLLECTION_ID, userCollection.getId());
-                bundle.putInt(ContentHeaderFragment.MODE,
+                bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
+                bundle.putString(TomahawkFragment.COLLECTION_ID, userCollection.getId());
+                bundle.putInt(CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                 FragmentUtils.replace(activity, TracksFragment.class, bundle);
             } else {
-                bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, ((Album) item).getCacheKey());
-                bundle.putString(CollectionManager.COLLECTION_ID, CollectionManager.getInstance()
+                bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
+                bundle.putString(TomahawkFragment.COLLECTION_ID, CollectionManager.getInstance()
                         .getCollection(TomahawkApp.PLUGINNAME_HATCHET).getId());
-                bundle.putInt(ContentHeaderFragment.MODE,
+                bundle.putInt(CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                 FragmentUtils.replace(activity, TracksFragment.class, bundle);
             }

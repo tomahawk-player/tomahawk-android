@@ -21,7 +21,6 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -119,8 +118,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
 
         Bundle bundle = new Bundle();
         if (item instanceof User) {
-            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID, ((User) item).getId());
-            bundle.putInt(ContentHeaderFragment.MODE,
+            bundle.putString(TomahawkFragment.USER, ((User) item).getId());
+            bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_STATIC_USER);
             FragmentUtils.replace(activity, UserPagerFragment.class, bundle);
         } else if (item instanceof Query && ((Query) item).isPlayable()) {
@@ -142,27 +141,27 @@ public class SocialActionsFragment extends TomahawkFragment implements
                 }
             }
         } else if (item instanceof Album) {
-            bundle.putString(TomahawkFragment.TOMAHAWK_ALBUM_KEY, ((Album) item).getCacheKey());
+            bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
             if (mCollection != null) {
-                bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+                bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
             }
-            bundle.putInt(ContentHeaderFragment.MODE,
+            bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
             FragmentUtils.replace(activity, TracksFragment.class, bundle);
         } else if (item instanceof Artist) {
-            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, ((Artist) item).getCacheKey());
+            bundle.putString(TomahawkFragment.ARTIST, ((Artist) item).getCacheKey());
             if (mCollection != null) {
-                bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
+                bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
             }
-            bundle.putInt(ContentHeaderFragment.MODE,
+            bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
-            bundle.putLong(ContentHeaderFragment.CONTAINER_FRAGMENT_ID,
+            bundle.putLong(CONTAINER_FRAGMENT_ID,
                     TomahawkMainActivity.getSessionUniqueId());
             FragmentUtils.replace(activity, ArtistPagerFragment.class, bundle);
         } else if (item instanceof Playlist) {
-            bundle.putInt(ContentHeaderFragment.MODE,
+            bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-            bundle.putString(TomahawkFragment.TOMAHAWK_PLAYLIST_KEY, ((Playlist) item).getId());
+            bundle.putString(TomahawkFragment.PLAYLIST, ((Playlist) item).getId());
             FragmentUtils.replace(activity, PlaylistEntriesFragment.class, bundle);
         }
     }
@@ -177,9 +176,9 @@ public class SocialActionsFragment extends TomahawkFragment implements
         }
         if (item instanceof SocialAction) {
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.TOMAHAWK_USER_ID,
+            bundle.putString(TomahawkFragment.USER,
                     ((SocialAction) item).getUser().getId());
-            bundle.putInt(ContentHeaderFragment.MODE,
+            bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_STATIC_USER);
             FragmentUtils.replace(activity, UserPagerFragment.class, bundle);
         }

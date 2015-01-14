@@ -50,8 +50,6 @@ public class CollectionManager {
 
     public static final String TAG = CollectionManager.class.getSimpleName();
 
-    public static final String COLLECTION_ID = "org.tomahawk.tomahawk_android.collection_id";
-
     private static class Holder {
 
         private static final CollectionManager instance = new CollectionManager();

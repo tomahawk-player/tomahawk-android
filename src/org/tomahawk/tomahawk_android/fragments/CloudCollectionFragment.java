@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
@@ -58,11 +57,11 @@ public class CloudCollectionFragment extends TomahawkFragment {
     public void onItemClick(View view, Object item) {
         if (item instanceof Artist) {
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.TOMAHAWK_ARTIST_KEY, ((Artist) item).getCacheKey());
-            bundle.putString(CollectionManager.COLLECTION_ID, mCollection.getId());
-            bundle.putInt(ContentHeaderFragment.MODE,
+            bundle.putString(TomahawkFragment.ARTIST, ((Artist) item).getCacheKey());
+            bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
+            bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
-            bundle.putLong(ContentHeaderFragment.CONTAINER_FRAGMENT_ID,
+            bundle.putLong(CONTAINER_FRAGMENT_ID,
                     TomahawkMainActivity.getSessionUniqueId());
             FragmentUtils.replace((TomahawkMainActivity) getActivity(), ArtistPagerFragment.class,
                     bundle);

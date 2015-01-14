@@ -47,12 +47,6 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 public abstract class TomahawkListFragment extends ContentHeaderFragment implements
         AbsListView.OnScrollListener {
 
-    public static final String TOMAHAWK_LIST_SCROLL_POSITION
-            = "org.tomahawk.tomahawk_android.tomahawk_list_scroll_position";
-
-    public static final String CONTAINER_FRAGMENT_CLASSNAME
-            = "org.tomahawk.tomahawk_android.container_fragment_classname";
-
     private StickyBaseAdapter mStickyBaseAdapter;
 
     private StickyListHeadersListView mList;
@@ -79,15 +73,16 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         super.onCreate(savedInstanceState);
 
         if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(TOMAHAWK_LIST_SCROLL_POSITION)) {
+            if (savedInstanceState.containsKey(TomahawkFragment.LIST_SCROLL_POSITION)) {
                 mListState = savedInstanceState.getParcelable(
-                        TOMAHAWK_LIST_SCROLL_POSITION);
+                        TomahawkFragment.LIST_SCROLL_POSITION);
             }
         }
 
         if (getArguments() != null) {
-            if (getArguments().containsKey(CONTAINER_FRAGMENT_CLASSNAME)) {
-                String fragmentName = getArguments().getString(CONTAINER_FRAGMENT_CLASSNAME);
+            if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_CLASSNAME)) {
+                String fragmentName = getArguments().getString(
+                        TomahawkFragment.CONTAINER_FRAGMENT_CLASSNAME);
                 if (fragmentName.equals(ArtistPagerFragment.class.getName())) {
                     mContainerFragmentClass = ArtistPagerFragment.class;
                 } else if (fragmentName.equals(SearchPagerFragment.class.getName())) {
@@ -155,7 +150,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
 
-        out.putParcelable(TOMAHAWK_LIST_SCROLL_POSITION, mListState);
+        out.putParcelable(TomahawkFragment.LIST_SCROLL_POSITION, mListState);
     }
 
     @Override
