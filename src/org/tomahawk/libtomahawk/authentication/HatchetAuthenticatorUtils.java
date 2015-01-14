@@ -33,6 +33,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.accounts.Account;
 import android.accounts.AccountManager;
+import android.accounts.OnAccountsUpdateListener;
 import android.app.Activity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -90,6 +91,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     private HatchetAuth mHatchetAuth;
 
     private HashSet<String> mCorrespondingRequestIds = new HashSet<>();
+
+    boolean mWaitingForAccountRemoval;
 
     public static class UserLoginEvent {
 
@@ -267,11 +270,21 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     @Override
     public void logout(Activity activity) {
-        AccountManager am = AccountManager.get(TomahawkApp.getContext());
+        final AccountManager am = AccountManager.get(TomahawkApp.getContext());
         if (am != null && getAccount() != null) {
             am.removeAccount(getAccount(), null, null);
+            mWaitingForAccountRemoval = true;
+            am.addOnAccountsUpdatedListener(new OnAccountsUpdateListener() {
+                @Override
+                public void onAccountsUpdated(Account[] accounts) {
+                    if (mWaitingForAccountRemoval && getAccount() == null) {
+                        am.removeOnAccountsUpdatedListener(this);
+                        mWaitingForAccountRemoval = false;
+                        onLogout();
+                    }
+                }
+            }, null, false);
         }
-        onLogout();
     }
 
     public boolean isLoggedIn() {
