@@ -560,12 +560,12 @@ public class CollectionManager {
     }
 
     private void updateTopArtists(Playlist playlist) {
-        if (playlist.getEntries().size() == 0) {
+        if (playlist != null && playlist.getEntries().size() == 0) {
             playlist = DatabaseHelper.getInstance().getPlaylist(playlist.getId());
         }
-
-        playlist.updateTopArtistNames();
-
-        DatabaseHelper.getInstance().updatePlaylist(playlist);
+        if (playlist != null && playlist.getEntries().size() == 0) {
+            playlist.updateTopArtistNames();
+            DatabaseHelper.getInstance().updatePlaylist(playlist);
+        }
     }
 }
