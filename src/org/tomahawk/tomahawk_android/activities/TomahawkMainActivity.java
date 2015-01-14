@@ -513,6 +513,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         if (intent.getData() != null) {
             Uri data = intent.getData();
+            intent.setData(null);
             List<String> pathSegments = data.getPathSegments();
             String host = data.getHost();
             if (host.contains("hatchet.is") || host.contains("toma.hk") || host.contains("spotify")
