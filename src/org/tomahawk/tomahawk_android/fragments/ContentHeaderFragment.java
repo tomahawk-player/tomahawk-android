@@ -169,7 +169,8 @@ public class ContentHeaderFragment extends Fragment {
                     throw new RuntimeException("Missing or invalid ContentHeaderFragment mode");
             }
             if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_ID)) {
-                mContainerFragmentId = getArguments().getLong(TomahawkFragment.CONTAINER_FRAGMENT_ID);
+                mContainerFragmentId = getArguments()
+                        .getLong(TomahawkFragment.CONTAINER_FRAGMENT_ID);
             }
             if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_PAGE)) {
                 mContainerFragmentPage = getArguments().getInt(
@@ -294,11 +295,12 @@ public class ContentHeaderFragment extends Fragment {
                 HatchetAuthenticatorUtils authUtils =
                         (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                boolean showFollowing, showNotFollowing;
+                boolean showFollowing = false;
+                boolean showNotFollowing = false;
                 if (mShowFakeFollowing || mShowFakeNotFollowing) {
                     showFollowing = mShowFakeFollowing;
                     showNotFollowing = mShowFakeNotFollowing;
-                } else {
+                } else if (authUtils.getLoggedInUser() != null) {
                     showFollowing = item != authUtils.getLoggedInUser()
                             && authUtils.getLoggedInUser().getFollowings().containsKey(item);
                     showNotFollowing = item != authUtils.getLoggedInUser()
