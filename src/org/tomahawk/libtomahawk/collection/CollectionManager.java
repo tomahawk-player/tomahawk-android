@@ -561,7 +561,7 @@ public class CollectionManager {
         if (playlist != null && playlist.getEntries().size() == 0) {
             playlist = DatabaseHelper.getInstance().getPlaylist(playlist.getId());
         }
-        if (playlist != null && playlist.getEntries().size() == 0) {
+        if (playlist != null && playlist.getEntries().size() > 0) {
             playlist.updateTopArtistNames();
             DatabaseHelper.getInstance().updatePlaylist(playlist);
         }
