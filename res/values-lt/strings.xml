@@ -5,6 +5,7 @@
   <string name="login">Prisijungti</string>
   <string name="logout">Atsijungti</string>
   <string name="register">Registruotis</string>
+  <string name="internal_storage">Vidinė Talpykla</string>
   <string name="tracks">Takeliai</string>
   <string name="albums">Albumai</string>
   <string name="artists">Atlikėjai</string>
@@ -45,6 +46,8 @@
   <string name="preferences_app_version">Programos Versija</string>
   <string name="preferences_app_uservoice">Atsiliepimai</string>
   <string name="preferences_app_uservoice_text">Pasidalinkite savo idėjomis arba paprašykite palaikymo.</string>
+  <string name="preferences_app_sendlog_email">Jūsų el. pašto adresas</string>
+  <string name="preferences_app_sendlog_issue">Problema</string>
   <string name="crash_dialog_title">Tomahawk užstrigo</string>
   <string name="crash_dialog_text">Įvyko netikėta klaida, kuri privertė programą baigti darbą. Prašome mums padėti, išsiunčiant klaidos duomenis, viskas ką jums reikia padaryti, tai nuspausti OK.</string>
   <string name="crash_dialog_comment_prompt">Žemiau, galite pridėti savo, su problema susijusius, komentarus:</string>
@@ -53,6 +56,7 @@
   <string name="context_menu_add_to_queue">Pridėti į Eilę</string>
   <string name="context_menu_add_to_playlist">Pridėti į Grojaraštį</string>
   <string name="context_menu_delete">Ištrinti</string>
+  <string name="context_menu_removefromplaylist">Šalinti iš Grojaraščio</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <string name="context_menu_removefromcollection">Pašalinti iš Kolekcijos</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
@@ -60,6 +64,7 @@
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Dalintis</string>
+  <string name="drawer_title_feed">Kanalas</string>
   <string name="drawer_title_collection">Kolekcija</string>
   <string name="drawer_title_playlists">Grojaraščiai</string>
   <string name="drawer_title_settings">Nustatymai</string>
@@ -117,4 +122,5 @@
   <string name="button_open_queue_text">Eilė</string>
   <string name="button_close">Uždaryti</string>
   <string name="view_album">Žiūrėti Albumą</string>
+  <string name="connect_headertext">Pasirinkite paslaugas, kuriomis norite naudotis. Tomahawk veikia geriau, kuomet yra aktyvuota daugiau paslaugų.</string>
 </resources>

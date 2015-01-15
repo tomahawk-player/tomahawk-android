@@ -60,6 +60,9 @@
   <string name="preferences_app_uservoice_text">Comparte tus ideas o pide ayuda</string>
   <string name="preferences_app_sendlog">Enviar registros</string>
   <string name="preferences_app_sendlog_text">Envía tu archivo de registros, con el fin de ayudar a corregir errores</string>
+  <string name="preferences_app_sendlog_dialog_text">Describa brevemente el problema que está teniendo y proporcione una dirección de correo electrónico para que podamos contactar con usted si es necesario. Gracias!</string>
+  <string name="preferences_app_sendlog_email">Su dirección de correo electrónico</string>
+  <string name="preferences_app_sendlog_issue">Problema</string>
   <string name="crash_dialog_title">Tomahawk se cerró inesperadamente</string>
   <string name="crash_dialog_text">Se produjo un error inesperado que provocó el cierre de la aplicación. Para ayudarnos a corregirlo, envíenos los datos del error: todo lo que tiene que hacer es pulsar en Aceptar.</string>
   <string name="crash_dialog_comment_prompt">Puede añadir sus comentarios sobre el problema a continuación (en inglés):</string>
@@ -68,6 +71,7 @@
   <string name="context_menu_add_to_queue">Añadir a la cola</string>
   <string name="context_menu_add_to_playlist">Añadir a lista de reproducción</string>
   <string name="context_menu_delete">Eliminar</string>
+  <string name="context_menu_removefromplaylist">Eliminar de la lista de reproducción</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <string name="context_menu_removefromcollection">Quitar de la colección</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
@@ -138,6 +142,7 @@
   <string name="time_days">hace %1$d días</string>
   <string name="users_playbacklog_suffix"> escuchó recientemente</string>
   <string name="users_favorites_suffix">Las favoritas de</string>
+  <string name="users_playlist_suffix">de la Lista de reproducción</string>
   <string name="music">Música</string>
   <string name="biography">Biografía</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->

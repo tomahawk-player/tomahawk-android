@@ -60,6 +60,9 @@
   <string name="preferences_app_uservoice_text">Ideeen met ons delen or om ondersteuning vragen.</string>
   <string name="preferences_app_sendlog">Log versturen</string>
   <string name="preferences_app_sendlog_text">Verstuur uw logbestand voor foutopsporingsdoeleinden</string>
+  <string name="preferences_app_sendlog_dialog_text">Omschrijf het probleem dat u ervaart en geef een e-mailadres op zodat we contact op kunnen nemen indien nodig. Bedankt!</string>
+  <string name="preferences_app_sendlog_email">Uw e-mailadres</string>
+  <string name="preferences_app_sendlog_issue">Probleem</string>
   <string name="crash_dialog_title">Tomahawk is vastgelopen.</string>
   <string name="crash_dialog_text">Er is een onverwachte fout opgetreden waardoor de toepassing niet meer werkt. Help ons dit op te lossen door de foutgegevens naar ons te versturen. Klik daarvoor op OK.</string>
   <string name="crash_dialog_comment_prompt">U kunt opmerkingen over het probleem hieronder plaatsen:</string>
@@ -68,6 +71,7 @@
   <string name="context_menu_add_to_queue">Aan wachtrij toevoegen</string>
   <string name="context_menu_add_to_playlist">Aan afspeellijst toevoegen</string>
   <string name="context_menu_delete">Verwijderen</string>
+  <string name="context_menu_removefromplaylist">Verwijderen uit afspeellijst</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <string name="context_menu_removefromcollection">Uit verzameling verwijderen</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
@@ -138,6 +142,7 @@
   <string name="time_days">%1$d dagen geleden</string>
   <string name="users_playbacklog_suffix">heeft recent afgespeeld</string>
   <string name="users_favorites_suffix">\'s favorieten</string>
+  <string name="users_playlist_suffix">\'s afspeellijst</string>
   <string name="music">Muziek</string>
   <string name="biography">Biografie</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
