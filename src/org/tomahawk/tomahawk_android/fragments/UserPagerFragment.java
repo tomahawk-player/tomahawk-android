@@ -183,8 +183,11 @@ public class UserPagerFragment extends PagerFragment {
             HatchetAuthenticatorUtils authUtils
                     = (HatchetAuthenticatorUtils) AuthenticatorManager
                     .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            mCorrespondingRequestIds.add(
-                    InfoSystem.getInstance().resolveFollowings(authUtils.getLoggedInUser()));
+            String requestId =
+                    InfoSystem.getInstance().resolveFollowings(authUtils.getLoggedInUser());
+            if (requestId != null) {
+                mCorrespondingRequestIds.add(requestId);
+            }
         }
         if (infoRequestData != null && infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS) {

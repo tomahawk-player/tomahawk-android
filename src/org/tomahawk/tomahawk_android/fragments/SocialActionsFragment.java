@@ -51,8 +51,7 @@ import java.util.List;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
- * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows information
- * provided
+ * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows information provided
  * by a User object. Such as the image, feed and nowPlaying info of a user.
  */
 public class SocialActionsFragment extends TomahawkFragment implements
@@ -90,8 +89,11 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     HatchetAuthenticatorUtils authUtils = (HatchetAuthenticatorUtils)
                             AuthenticatorManager.getInstance().getAuthenticatorUtils(
                                     TomahawkApp.PLUGINNAME_HATCHET);
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
-                            .resolveFollowings(authUtils.getLoggedInUser()));
+                    String requestId =
+                            InfoSystem.getInstance().resolveFollowings(authUtils.getLoggedInUser());
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 }
             }
         }
