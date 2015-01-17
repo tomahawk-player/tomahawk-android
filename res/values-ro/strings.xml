@@ -1,9 +1,53 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ok">OK</string>
+  <string name="cancel">Renunță</string>
+  <string name="tracks">Piese</string>
+  <string name="albums">Albume</string>
+  <string name="artists">Artiști</string>
+  <string name="users">Utilizatori</string>
+  <string name="top_hits">Cântece de top</string>
+  <string name="top_albums">Albume de top</string>
+  <string name="playlist_details">Detalii listă</string>
+  <string name="album_details">Detalii album</string>
+  <string name="search">Caută</string>
+  <string name="playlist">Listă de redare</string>
+  <string name="unknown">necunoscut</string>
+  <string name="no_track">nicio piesă</string>
+  <string name="save_playlist">Salvează lista curentă</string>
+  <string name="create_playlist">Creează o nouă listă</string>
+  <string name="name_playlist">Nume</string>
+  <string name="login_name_label">Email/Utilizator</string>
+  <string name="login_username">Utilizator</string>
+  <string name="login_password">Parolă</string>
+  <string name="login_password_confirmation">Confirmare parolă</string>
+  <string name="account_email_label">Email (opțional)</string>
+  <string name="error_field_required">Acest câmp este obligatoriu</string>
+  <string name="error_passwords_dont_match">Parolele nu se potrivesc</string>
+  <string name="error_invalid_credentials">Utilizator sau parolă incorecte.</string>
+  <string name="error_invalid_account">Contul a fost respins de server.</string>
+  <string name="local_collection_pretty_name">Colecție locală</string>
+  <string name="local">Local</string>
+  <string name="all">Tot</string>
+  <string name="preferences_services">Servicii</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="drawer_title_collection">Colecție</string>
+  <string name="drawer_title_playlists">Liste de redare</string>
+  <string name="drawer_title_lovedtracks">Favorite</string>
+  <string name="drawer_title_settings">Configurări</string>
+  <string name="drawer_header_cloudcollections">Colecții în cloud</string>
+  <string name="collection_dropdown_recently_added">Adăugate recent</string>
+  <string name="collection_dropdown_alpha_artists">Artist A-Z</string>
+  <string name="collection_dropdown_play_count">Numărul de redări</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
+  <string name="history">Istoric</string>
+  <string name="preferences_bitrate_low">Normal</string>
+  <string name="preferences_bitrate_medium">Bun</string>
+  <string name="preferences_bitrate_high">Cel mai bun</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->

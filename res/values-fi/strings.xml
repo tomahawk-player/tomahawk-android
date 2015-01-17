@@ -60,7 +60,9 @@
   <string name="preferences_app_uservoice_text">Kerro ideasi tai pyydä tukea</string>
   <string name="preferences_app_sendlog">Lähetä loki</string>
   <string name="preferences_app_sendlog_text">Lähetä lokitiedosto vianjäljitystarkoituksiin</string>
+  <string name="preferences_app_sendlog_dialog_text">Kerro kokemasi ongelma lyhyesti ja anna sähköpostiosoite, jotta voimme tarvittaessa ottaa sinuun yhteyttä. Kiitos!</string>
   <string name="preferences_app_sendlog_email">Sähköpostiosoitteesi</string>
+  <string name="preferences_app_sendlog_issue">Ongelma</string>
   <string name="crash_dialog_title">Tomahawk on kaatunut</string>
   <string name="crash_dialog_text">Odottamaton virhe tapahtui, kun sovellusta pakotettiin pysähtymään. Auta meitä korjaamaan ongelma lähettämällä virhetiedot. Sinun tarvitsee vain painaa OK.</string>
   <string name="crash_dialog_comment_prompt">Alle voit kirjoittaa lisätietoja ongelmasta:</string>
