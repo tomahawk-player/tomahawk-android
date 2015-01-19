@@ -61,6 +61,9 @@
   <string name="preferences_app_uservoice_text">Sdílejte své myšlenky a požádejte o podporu.</string>
   <string name="preferences_app_sendlog">Poslat záznam</string>
   <string name="preferences_app_sendlog_text">Poslat soubor se záznamem pro účely ladění</string>
+  <string name="preferences_app_sendlog_dialog_text">Popište, prosím, krátce vaše potíže a poskytněte adresu elektronické pošty, abychom se s v případě potřeby vámi mohli spojit. Díky!</string>
+  <string name="preferences_app_sendlog_email">Vaše elektronická poštovní adresa</string>
+  <string name="preferences_app_sendlog_issue">Potíže</string>
   <string name="crash_dialog_title">Tomahawk spadl</string>
   <string name="crash_dialog_text">Neočekávaná chyba vedla k zastavení programu. Pomozte nám ji, prosím, opravit tím, že pošlete údaje o chybě. Vše, co musíte udělat, je klepnout na OK.</string>
   <string name="crash_dialog_comment_prompt">Níže můžete přidat své poznámky o potížích:</string>
@@ -69,6 +72,7 @@
   <string name="context_menu_add_to_queue">Zařadit</string>
   <string name="context_menu_add_to_playlist">Přidat do seznamu skladeb</string>
   <string name="context_menu_delete">Smazat</string>
+  <string name="context_menu_removefromplaylist">Odstranit ze seznamu skladeb</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <string name="context_menu_removefromcollection">Odstranit ze sbírky</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
@@ -139,6 +143,7 @@
   <string name="time_days">před %1$d dny</string>
   <string name="users_playbacklog_suffix"> nedávno hráno</string>
   <string name="users_favorites_suffix"> oblíbené</string>
+  <string name="users_playlist_suffix"> seznam skladeb</string>
   <string name="music">Hudba</string>
   <string name="biography">Životopis</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -146,6 +151,7 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Písně</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
+  <string name="songs_with_count">Písně</string>
   <string name="activity">Činnost</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Sledující</string>
