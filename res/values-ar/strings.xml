@@ -1,11 +1,91 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ok">حسنًا</string>
+  <string name="cancel">ألغِ</string>
+  <string name="login">لِج</string>
+  <string name="logout">اخرج</string>
+  <string name="register">سجّل</string>
+  <string name="rescan">أعد الفحص الآن</string>
+  <string name="internal_storage">التّخزين الدّاخليّ</string>
+  <string name="tracks">المقطوعات</string>
+  <string name="albums">الألبومات</string>
+  <string name="artists">الفنّانون</string>
+  <string name="users">المستخدمون</string>
+  <string name="playlist_details">تفاصيل قائمة التّشغيل</string>
+  <string name="album_details">تفاصيل الألبوم</string>
+  <string name="search">ابحث عن</string>
+  <string name="playlist">قائمة تشغيل</string>
+  <string name="shuffle_on_label">الخلط يعمل</string>
+  <string name="shuffle_off_label">الخلط لا يعمل</string>
+  <string name="repeat_on_label">التّكرار يعمل</string>
+  <string name="repeat_off_label">التّكرار لا يعمل</string>
+  <string name="save_playlist">احفظ قائمة التّشغيل الحاليّة</string>
+  <string name="create_playlist">أنشئ قائمة تشغيل جديدة</string>
+  <string name="name_playlist">الاسم</string>
+  <string name="login_name_label">البريد الإلكترونيّ/اسم المستخدم</string>
+  <string name="login_username">اسم المستخدم</string>
+  <string name="login_password">كلمة المرور</string>
+  <string name="login_password_confirmation">أكّد كلمة المرور</string>
+  <string name="account_email_label">البريد الإلكترونيّ (اختياريّ)</string>
+  <string name="error_field_required">هذا الحقل مطلوب</string>
+  <string name="error_passwords_dont_match">كلمات المرور لا تتطابق</string>
+  <string name="error_invalid_credentials">اسم المستخدم أو كلمة المرور غير صالحة.</string>
+  <string name="error_invalid_account">رفض الخادومُ الحسابَ.</string>
+  <string name="error_communication">تعذّر الاستيثاق. فضلًا تحقّق من اتّصالك.</string>
+  <string name="error_simultaneous_streams">الإجراء غير مسموح به، الحساب مستخدم في مكان ما.</string>
+  <string name="error_account_expired">انتهت صلاحيّة حسابك.</string>
+  <string name="local_collection_pretty_name">التّجميعة المحليّة</string>
+  <string name="local">المحليّ</string>
+  <string name="all">الكلّ</string>
+  <string name="preferences_services">الخدمات</string>
+  <string name="preferences_hatchet_text">زامن بياناتك مع %1$s.</string>
+  <string name="preferences_spotify_text">شغّل موسيقاك من %1$s. يتطلّب حسابًا متميّزًا.</string>
+  <string name="preferences_plug_and_play_text">يبدأ تشغيل الموسيقى بمجرّد اتّصال سمّاعة الرأس بلاقط صوت.</string>
+  <string name="preferences_audio_quality">جودة الصّوت المحبّذة</string>
+  <string name="preferences_audio_quality_text">جودة الصّوت المحبّذة عند عدم الاتّصال بِواي-فاي.</string>
+  <string name="preferences_info">معلومات</string>
+  <string name="preferences_app_version">إصدار التّطبيق</string>
+  <string name="preferences_app_uservoice">التّغذية الاسترجاعيّة</string>
+  <string name="preferences_app_uservoice_text">شارك أفكارك أو اسأل عن الدّعم.</string>
+  <string name="preferences_app_sendlog">أرسل سجلًّا</string>
+  <string name="preferences_app_sendlog_text">أرسل ملفّ سجلّك لأغراض تنقيح</string>
+  <string name="preferences_app_sendlog_dialog_text">فضلًا صِف بإيجاز المشكلة الّتي تواجهها ووفّر بريدًا إلكترونيًّا لنتّصل بك إن لزم الأمر. شكرًا!</string>
+  <string name="preferences_app_sendlog_email">عنوان بريدك الإلكترونيّ</string>
+  <string name="preferences_app_sendlog_issue">المشكلة</string>
+  <string name="crash_dialog_title">انهار توماهوك</string>
+  <string name="crash_dialog_text">حدث خطأ غير متوقّع أجبر التّطبيق ليتوقّف. فضلًا ساعدنا لإصلاح هذا بإرسال بينات الخطأ. كلّ ما عليك فعله هو نقر حسنًا.</string>
+  <string name="crash_dialog_comment_prompt">يمكنك إضافة تعليقات حول المشكلة أدناه:</string>
+  <string name="crash_dialog_ok_toast">شكرًا لك!</string>
+  <string name="context_menu_add_to_playlist">أضف إلى قائمة تشغيل</string>
+  <string name="context_menu_delete">احذف</string>
+  <string name="context_menu_removefromplaylist">أزل من قائمة التّشغيل</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">أزل من التّجميعة</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">أضف إلى التّجميعة</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">أحبّها</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">لا أحبّها</string>
+  <string name="context_menu_share">شارك</string>
+  <string name="context_menu_gotoartist">اذهب إلى الفنّان</string>
+  <string name="drawer_title_collection">التّجميعة</string>
+  <string name="drawer_title_playlists">قوائم التّشغيل</string>
+  <string name="drawer_title_lovedtracks">المفضّلة</string>
+  <string name="drawer_title_settings">إعدادات</string>
+  <string name="drawer_header_cloudcollections">تجميعات السّحاب</string>
+  <string name="collection_dropdown_recently_added">مضافة حديثًا</string>
+  <string name="collection_dropdown_alpha_artists">الفنّان ء-ي</string>
+  <string name="collection_dropdown_alpha_albums">الألبوم ء-ي</string>
+  <string name="collection_dropdown_alpha">ء-ي</string>
+  <string name="history">التأريخ</string>
+  <string name="preferences_bitrate_low">عاديّة</string>
+  <string name="preferences_bitrate_medium">جيّدة</string>
+  <string name="preferences_bitrate_high">سيّئة</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">متابَع</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">تابع</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
@@ -21,9 +101,22 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="music">الموسيقى</string>
+  <string name="biography">السّيرة الذّاتيّة</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <!--Shown as a title for a list of songs in the search results view.-->
+  <string name="songs">الأغاني</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
+  <string name="followers">المتابِعين</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
+  <string name="following">المتابَعين</string>
+  <string name="ask_access_activity_text1">سنفعل ذلك لك! فضلًا مكّن خدمتنا في إعدادات النّظام.</string>
+  <string name="ask_access_activity_text2">(يمكنك تعطيل هذا متى ما أردت في إعدادات توماهوك)</string>
+  <string name="ask_access_activity_button_text">اذهب إلى الإعدادات</string>
+  <string name="button_close">أغلق</string>
+  <string name="view_album">اعرض الألبوم</string>
+  <string name="connect_headertext">اختر الخدمات الّتي تريد استخدامها. يعمل توماهوك أفضل عندما تكون خدمات أكثر مفعّلة.</string>
+  <string name="advanced">متقدّم</string>
+  <string name="info">معلومات</string>
 </resources>
