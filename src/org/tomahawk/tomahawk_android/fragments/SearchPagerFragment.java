@@ -83,13 +83,15 @@ public class SearchPagerFragment extends PagerFragment {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(PipeLine.ResultsEvent event) {
-        mSongIds.clear();
-        if (event.mQuery != null) {
-            for (Query q : event.mQuery.getTrackQueries()) {
-                mSongIds.add(q.getCacheKey());
+        if (mCorrespondingQueries.contains(event.mQuery)) {
+            mSongIds.clear();
+            if (event.mQuery != null) {
+                for (Query q : event.mQuery.getTrackQueries()) {
+                    mSongIds.add(q.getCacheKey());
+                }
             }
+            updatePager();
         }
-        updatePager();
     }
 
     /**
