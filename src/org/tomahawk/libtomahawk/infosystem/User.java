@@ -103,6 +103,10 @@ public class User implements TomahawkListItem {
         return sUsers.get(user.getId());
     }
 
+    public static User getUserById(String id) {
+        return sUsers.get(id);
+    }
+
     /**
      * @return A {@link java.util.List} of all {@link User}s
      */

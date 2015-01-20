@@ -59,11 +59,13 @@ public class UserPagerFragment extends PagerFragment {
             }
             if (getArguments().containsKey(TomahawkFragment.USER) && !TextUtils
                     .isEmpty(getArguments().getString(TomahawkFragment.USER))) {
-                mUser = User.get(getArguments().getString(TomahawkFragment.USER));
-                if (mUser.getName() == null) {
+                mUser = User.getUserById(getArguments().getString(TomahawkFragment.USER));
+                if (mUser == null) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                    return;
+                } else if (mUser.getName() == null) {
                     mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mUser));
-                }
-                if (mUser.getFollowings() == null) {
+                } else if (mUser.getFollowings() == null) {
                     mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFollowings(mUser));
                 }
             }
