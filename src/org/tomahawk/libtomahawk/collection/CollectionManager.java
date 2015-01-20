@@ -18,6 +18,8 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import com.google.common.collect.Sets;
+
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
@@ -36,6 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
@@ -73,6 +76,9 @@ public class CollectionManager {
 
     private HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
 
+    private Set<String> mDirtyPlaylistMap =
+            Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+
     private CollectionManager() {
         EventBus.getDefault().register(this);
 
@@ -99,13 +105,10 @@ public class CollectionManager {
                 InfoSystem.getInstance()
                         .resolvePlaybackLog(hatchetAuthUtils.getLoggedInUser());
             } else if (requestType
-                    == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
-                fetchPlaylists();
-            } else if (requestType
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS
+                    || requestType
                     == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
-                for (String playlistId : event.mPlaylistIds) {
-                    fetchHatchetPlaylistEntries(playlistId);
-                }
+                fetchPlaylists();
             }
         }
     }
@@ -352,18 +355,24 @@ public class CollectionManager {
             for (final Playlist fetchedList : fetchedLists) {
                 Playlist storedList = storedListsMap.remove(fetchedList.getHatchetId());
                 if (storedList == null) {
-                    Log.d(TAG, "Hatchet sync - playlist \"" + fetchedList.getName()
-                            + "\" didn't exist in database ... storing and fetching entries");
-                    // Delete the current revision since we don't want to store it until we have
-                    // fetched and added the playlist's entries
-                    fetchedList.setCurrentRevision("");
-                    DatabaseHelper.getInstance().storePlaylist(fetchedList,
-                            new Runnable() {
-                                @Override
-                                public void run() {
-                                    fetchHatchetPlaylistEntries(fetchedList.getId());
-                                }
-                            });
+                    if (mDirtyPlaylistMap.contains(fetchedList.getHatchetId())) {
+                        Log.d(TAG, "Hatchet sync - playlist \"" + fetchedList.getName()
+                                + "\" didn't exist in database, but was marked as dirty so we don't"
+                                + " store it.");
+                    } else {
+                        Log.d(TAG, "Hatchet sync - playlist \"" + fetchedList.getName()
+                                + "\" didn't exist in database ... storing and fetching entries");
+                        // Delete the current revision since we don't want to store it until we have
+                        // fetched and added the playlist's entries
+                        fetchedList.setCurrentRevision("");
+                        DatabaseHelper.getInstance().storePlaylist(fetchedList,
+                                new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        fetchHatchetPlaylistEntries(fetchedList.getId());
+                                    }
+                                });
+                    }
                 } else if (!storedList.getCurrentRevision()
                         .equals(fetchedList.getCurrentRevision())) {
                     Log.d(TAG, "Hatchet sync - revision differed for playlist \""
@@ -423,13 +432,15 @@ public class CollectionManager {
         if (playlistName != null) {
             Log.d(TAG, "Hatchet sync - deleting playlist \"" + playlistName + "\", id: "
                     + playlistId);
+            Playlist playlist = DatabaseHelper.getInstance().getEmptyPlaylist(playlistId);
+            mDirtyPlaylistMap.add(playlist.getHatchetId());
+            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+            InfoSystem.getInstance().deletePlaylist(hatchetAuthUtils, playlistId);
+            DatabaseHelper.getInstance().deletePlaylist(playlistId);
         } else {
             Log.e(TAG, "Hatchet sync - couldn't delete playlist with id: " + playlistId);
         }
-        AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        InfoSystem.getInstance().deletePlaylist(hatchetAuthUtils, playlistId);
-        DatabaseHelper.getInstance().deletePlaylist(playlistId);
     }
 
     public void createPlaylist(Playlist playlist) {
@@ -451,34 +462,36 @@ public class CollectionManager {
     public void addPlaylistEntries(String playlistId, ArrayList<PlaylistEntry> entries) {
         String playlistName = DatabaseHelper.getInstance().getPlaylistName(playlistId);
         if (playlistName != null) {
-            Log.d(TAG, "Hatchet sync - deleting playlist \"" + playlistName + "\", id: "
-                    + playlistId);
+            Log.d(TAG, "Hatchet sync - adding " + entries.size() + " entries to \""
+                    + playlistName + "\", id: " + playlistId);
             updateTopArtists(playlistId);
+            DatabaseHelper.getInstance().addEntriesToPlaylist(playlistId, entries);
+            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+            for (PlaylistEntry entry : entries) {
+                InfoSystem.getInstance().sendPlaylistEntriesPostStruct(hatchetAuthUtils, playlistId,
+                        entry.getName(), entry.getArtist().getName(), entry.getAlbum().getName());
+            }
         } else {
-            Log.e(TAG, "Hatchet sync - couldn't add entries to playlist with id: " + playlistId);
-        }
-        DatabaseHelper.getInstance().addEntriesToPlaylist(playlistId, entries);
-        AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        for (PlaylistEntry entry : entries) {
-            InfoSystem.getInstance().sendPlaylistEntriesPostStruct(hatchetAuthUtils, playlistId,
-                    entry.getName(), entry.getArtist().getName(), entry.getAlbum().getName());
+            Log.e(TAG, "Hatchet sync - couldn't add " + entries.size()
+                    + " entries to playlist with id: " + playlistId);
         }
     }
 
     public void deletePlaylistEntry(String playlistId, String entryId) {
         String playlistName = DatabaseHelper.getInstance().getPlaylistName(playlistId);
         if (playlistName != null) {
-            Log.d(TAG, "Hatchet sync - deleting playlist \"" + playlistName + "\", id: "
-                    + playlistId);
+            Log.d(TAG, "Hatchet sync - deleting playlist entry in \"" + playlistName
+                    + "\", playlistId: " + playlistId + ", entryId: " + entryId);
             updateTopArtists(playlistId);
+            DatabaseHelper.getInstance().deleteEntryInPlaylist(playlistId, entryId);
+            AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+            InfoSystem.getInstance().deletePlaylistEntry(hatchetAuthUtils, playlistId, entryId);
         } else {
-            Log.e(TAG, "Hatchet sync - couldn't delete entry in playlist with id: " + playlistId);
+            Log.e(TAG, "Hatchet sync - couldn't delete entry in playlist, playlistId: "
+                    + playlistId + ", entryId: " + entryId);
         }
-        DatabaseHelper.getInstance().deleteEntryInPlaylist(playlistId, entryId);
-        AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        InfoSystem.getInstance().deletePlaylistEntry(hatchetAuthUtils, playlistId, entryId);
     }
 
     public List<Collection> getAvailableCollections(Album album) {
