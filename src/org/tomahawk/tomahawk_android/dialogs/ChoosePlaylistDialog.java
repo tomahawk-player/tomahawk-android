@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -68,7 +69,7 @@ public class ChoosePlaylistDialog extends DialogFragment {
             }
         }
 
-        final ArrayList<Playlist> playlists = CollectionManager.getInstance().getPlaylists();
+        final ArrayList<Playlist> playlists = DatabaseHelper.getInstance().getPlaylists();
 
         ListView listView = (ListView) view.findViewById(R.id.playlist_dialog_playlists_listview);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {

@@ -184,9 +184,9 @@ public class InfoSystem {
     public String resolve(Playlist playlist) {
         if (playlist != null) {
             QueryParams params = new QueryParams();
+            params.playlist_local_id = playlist.getId();
             params.playlist_id = playlist.getHatchetId();
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES, params,
-                    playlist);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params, playlist);
         }
         return null;
     }
@@ -661,7 +661,7 @@ public class InfoSystem {
     }
 
 
-    public List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
+    public synchronized List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
         List<String> requestIds = new ArrayList<String>();
         List<InfoRequestData> loggedOps = DatabaseHelper.getInstance().getLoggedOps();
         for (InfoRequestData loggedOp : loggedOps) {
@@ -685,7 +685,7 @@ public class InfoSystem {
         return requestIds;
     }
 
-    public void onLoggedOpsSent(ArrayList<String> doneRequestsIds, boolean success) {
+    public synchronized void onLoggedOpsSent(ArrayList<String> doneRequestsIds, boolean success) {
         List<InfoRequestData> loggedOps = new ArrayList<InfoRequestData>();
         HashSet<Integer> requestTypes = new HashSet<Integer>();
         HashSet<String> playlistIds = new HashSet<String>();
@@ -702,8 +702,9 @@ public class InfoSystem {
                             loggedOp.getResult(HatchetPlaylistEntries.class);
                     if (entries != null && entries.playlists.size() > 0) {
                         playlistIds.add(entries.playlists.get(0).id);
-                        Playlist.getPlaylistById(loggedOp.getQueryParams().playlist_local_id)
-                                .setHatchetId(entries.playlists.get(0).id);
+                        DatabaseHelper.getInstance().updatePlaylistHatchetId(
+                                loggedOp.getQueryParams().playlist_local_id,
+                                entries.playlists.get(0).id);
                     }
                 }
                 mLoggedOpsMap.remove(loggedOp.getLoggedOpId());
@@ -726,14 +727,15 @@ public class InfoSystem {
         }
     }
 
-    private void trySendingQueuedOps() {
+    private synchronized void trySendingQueuedOps() {
         if (mPlaylistsLoggedOpsMap.isEmpty()) {
-            for (int i = 0; i < mQueuedLoggedOps.size(); i++) {
+            while (!mQueuedLoggedOps.isEmpty()) {
                 InfoRequestData queuedLoggedOp = mQueuedLoggedOps.remove(0);
                 QueryParams params = queuedLoggedOp.getQueryParams();
-                Playlist playlist = Playlist.getPlaylistById(params.playlist_local_id);
-                if (playlist != null && playlist.getHatchetId() != null) {
-                    params.playlist_id = playlist.getHatchetId();
+                String hatchetId = DatabaseHelper.getInstance()
+                        .getPlaylistHatchetId(params.playlist_local_id);
+                if (hatchetId != null) {
+                    params.playlist_id = hatchetId;
                     send(queuedLoggedOp, AuthenticatorManager.getInstance().getAuthenticatorUtils(
                             TomahawkApp.PLUGINNAME_HATCHET));
                 } else {

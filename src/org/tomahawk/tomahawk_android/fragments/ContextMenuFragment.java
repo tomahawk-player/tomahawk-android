@@ -122,6 +122,15 @@ public class ContextMenuFragment extends Fragment {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 }
+                String playlistId = getArguments().getString(TomahawkFragment.PLAYLIST);
+                contextItem = DatabaseHelper.getInstance().getPlaylist(playlistId);
+                if (contextItem == null) {
+                    contextItem = Playlist.getPlaylistById(playlistId);
+                    if (contextItem == null) {
+                        getActivity().getSupportFragmentManager().popBackStack();
+                        return;
+                    }
+                }
             } else if (getArguments().containsKey(TomahawkFragment.ARTIST)) {
                 contextItem = Artist.getArtistByKey(
                         getArguments().getString(TomahawkFragment.ARTIST));

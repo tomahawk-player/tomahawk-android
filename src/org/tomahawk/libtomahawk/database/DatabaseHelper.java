@@ -109,7 +109,16 @@ public class DatabaseHelper {
      * @param playlist the given {@link Playlist}
      */
     public void storePlaylist(final Playlist playlist) {
-        storePlaylist(playlist, false);
+        storePlaylist(playlist, false, null);
+    }
+
+    /**
+     * Store the given {@link Playlist}
+     *
+     * @param playlist the given {@link Playlist}
+     */
+    public void storePlaylist(final Playlist playlist, final Runnable callback) {
+        storePlaylist(playlist, false, callback);
     }
 
     /**
@@ -119,7 +128,8 @@ public class DatabaseHelper {
      * @param reverseEntries set to true, if the order of the entries should be reversed before
      *                       storing in the database
      */
-    public void storePlaylist(final Playlist playlist, final boolean reverseEntries) {
+    public void storePlaylist(final Playlist playlist, final boolean reverseEntries,
+            final Runnable callback) {
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -178,6 +188,9 @@ public class DatabaseHelper {
                     PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
                     event.mPlaylistId = playlist.getId();
                     EventBus.getDefault().post(event);
+                    if (callback != null) {
+                        callback.run();
+                    }
                 }
             }
         }).start();
@@ -225,7 +238,7 @@ public class DatabaseHelper {
     /**
      * Update the given {@link Playlist}
      *
-     * @param playlist       the given {@link Playlist}
+     * @param playlist the given {@link Playlist}
      */
     public void updatePlaylist(final Playlist playlist) {
         new Thread(new Runnable() {
@@ -251,9 +264,43 @@ public class DatabaseHelper {
                             values, SQLiteDatabase.CONFLICT_REPLACE);
                     mDatabase.setTransactionSuccessful();
                     mDatabase.endTransaction();
+                    PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
+                    event.mPlaylistId = playlist.getId();
+                    EventBus.getDefault().post(event);
                 }
             }
         }).start();
+    }
+
+    /**
+     * Update the given Playlist's hatchet id
+     *
+     * @param playlistId the id of the playlist to update
+     * @param hatchetId  the new hatchet id to set
+     */
+    public void updatePlaylistHatchetId(final String playlistId, final String hatchetId) {
+        Playlist playlist = getEmptyPlaylist(playlistId);
+        String topArtistsString = "";
+        for (String s : playlist.getTopArtistNames()) {
+            topArtistsString += s + "\t\t";
+        }
+
+        ContentValues values = new ContentValues();
+        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlist.getId());
+        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, playlist.getName());
+        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
+                playlist.getCurrentRevision());
+        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID, hatchetId);
+        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TOPARTISTS, topArtistsString);
+
+        mDatabase.beginTransaction();
+        mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_PLAYLISTS, null,
+                values, SQLiteDatabase.CONFLICT_REPLACE);
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+        PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
+        event.mPlaylistId = playlist.getId();
+        EventBus.getDefault().post(event);
     }
 
     /**
@@ -290,6 +337,42 @@ public class DatabaseHelper {
 
     /**
      * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.Playlist}
+     * @return the playlist's hatchet id, null if playlist not found
+     */
+    public String getPlaylistHatchetId(String playlistId) {
+        String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID};
+
+        Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
+                columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
+                new String[]{playlistId}, null, null, null);
+        String hatchetId = null;
+        if (playlistsCursor.moveToFirst()) {
+            hatchetId = playlistsCursor.getString(0);
+        }
+        playlistsCursor.close();
+        return hatchetId;
+    }
+
+    /**
+     * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.Playlist}
+     * @return the playlist's name, null if playlist not found
+     */
+    public String getPlaylistName(String playlistId) {
+        String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME};
+
+        Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
+                columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
+                new String[]{playlistId}, null, null, null);
+        String name = null;
+        if (playlistsCursor.moveToFirst()) {
+            name = playlistsCursor.getString(0);
+        }
+        playlistsCursor.close();
+        return name;
+    }
+
+    /**
+     * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.Playlist}
      * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with playlistId as
      * its id
      */
@@ -309,6 +392,10 @@ public class DatabaseHelper {
             String rawTopArtistsString = playlistsCursor.getString(3);
             if (rawTopArtistsString != null && rawTopArtistsString.length() > 0) {
                 playlist.setTopArtistNames(rawTopArtistsString.split("\t\t"));
+            } else {
+                playlist = getPlaylist(playlistId);
+                playlist.updateTopArtistNames();
+                DatabaseHelper.getInstance().updatePlaylist(playlist);
             }
             playlistsCursor.close();
             playlist.setCount(getPlaylistTrackCount(playlistId));
@@ -388,6 +475,8 @@ public class DatabaseHelper {
             } else {
                 playlist.setTopArtistNames(new String[]{});
             }
+            playlist.updateTopArtistNames();
+            DatabaseHelper.getInstance().updatePlaylist(playlist);
             playlistsCursor.close();
             playlist.setCount(getPlaylistTrackCount(playlistId));
             return playlist;

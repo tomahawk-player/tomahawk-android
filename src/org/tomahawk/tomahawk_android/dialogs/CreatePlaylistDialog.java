@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
@@ -49,10 +50,13 @@ public class CreatePlaylistDialog extends ConfigDialog {
         // Check if there is a playlist key in the provided arguments
         if (getArguments() != null && getArguments()
                 .containsKey(TomahawkFragment.PLAYLIST)) {
-            mPlaylist = Playlist.getPlaylistById(
-                    getArguments().getString(TomahawkFragment.PLAYLIST));
+            String playlistId = getArguments().getString(TomahawkFragment.PLAYLIST);
+            mPlaylist = DatabaseHelper.getInstance().getPlaylist(playlistId);
             if (mPlaylist == null) {
-                dismiss();
+                mPlaylist = Playlist.getPlaylistById(playlistId);
+                if (mPlaylist == null) {
+                    dismiss();
+                }
             }
         }
 
