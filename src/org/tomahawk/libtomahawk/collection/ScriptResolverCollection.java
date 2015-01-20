@@ -66,7 +66,7 @@ public class ScriptResolverCollection extends Collection {
         addAlbumTracks(album, queries);
         CollectionManager.UpdatedEvent event = new CollectionManager.UpdatedEvent();
         event.mCollection = this;
-        event.mUpdatedItem = album;
+        event.mUpdatedItemId = album.getCacheKey();
         EventBus.getDefault().post(event);
     }
 
@@ -85,7 +85,7 @@ public class ScriptResolverCollection extends Collection {
                 addArtistAlbum(album.getArtist(), album);
                 CollectionManager.UpdatedEvent event = new CollectionManager.UpdatedEvent();
                 event.mCollection = this;
-                event.mUpdatedItem = album.getArtist();
+                event.mUpdatedItemId = album.getArtist().getCacheKey();
                 EventBus.getDefault().post(event);
             }
         }

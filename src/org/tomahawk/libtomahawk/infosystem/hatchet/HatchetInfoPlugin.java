@@ -31,6 +31,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -238,16 +239,21 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 }
 
             } else if (infoRequestData.getType()
-                    == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES) {
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
                 HatchetPlaylistEntries playlistEntries = mHatchet.getPlaylists(params.playlist_id);
                 if (playlistEntries != null) {
-                    Playlist playlistToBeFilled =
-                            (Playlist) mItemsToBeFilled.get(infoRequestData.getRequestId());
-                    playlistToBeFilled =
-                            InfoSystemUtils.fillPlaylist(playlistToBeFilled, playlistEntries);
-                    playlistToBeFilled
-                            .setCurrentRevision(playlistEntries.playlists.get(0).currentrevision);
-                    infoRequestData.setResult(playlistToBeFilled);
+                    Playlist playlist;
+                    Object itemToBeFilled =
+                            mItemsToBeFilled.get(infoRequestData.getRequestId());
+                    if (itemToBeFilled instanceof Playlist) {
+                        playlist = (Playlist) itemToBeFilled;
+                    } else {
+                        playlist = DatabaseHelper.getInstance()
+                                .getEmptyPlaylist(params.playlist_local_id);
+                    }
+                    playlist = InfoSystemUtils.fillPlaylist(playlist, playlistEntries);
+                    playlist.setCurrentRevision(playlistEntries.playlists.get(0).currentrevision);
+                    infoRequestData.setResult(playlist);
                     return true;
                 }
 
@@ -721,7 +727,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
         if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
             priority = TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_HIGH;
         } else if (infoRequestData.getType()
-                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES
+                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS
                 || infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
             priority = TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW;

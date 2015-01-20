@@ -133,7 +133,8 @@ public class Playlist implements TomahawkListItem {
     }
 
     /**
-     * Get the {@link org.tomahawk.libtomahawk.collection.Playlist} by providing its cache key
+     * Get the {@link org.tomahawk.libtomahawk.collection.Playlist} by providing its cache key. Only
+     * use this for playlists that are not stored in the database!
      */
     public static Playlist getPlaylistById(String key) {
         return sPlaylists.get(key);

@@ -57,7 +57,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import de.greenrobot.event.EventBus;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
@@ -226,9 +225,11 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     @SuppressWarnings("unused")
     public void onEventMainThread(CollectionManager.UpdatedEvent event) {
-        if (event.mUpdatedItem != null) {
-            if (mPlaylist == event.mUpdatedItem || mAlbum == event.mUpdatedItem
-                    || mArtist == event.mUpdatedItem || mQuery == event.mUpdatedItem) {
+        if (event.mUpdatedItemId != null) {
+            if (event.mUpdatedItemId.equals(mPlaylist.getId())
+                    || event.mUpdatedItemId.equals(mAlbum.getCacheKey())
+                    || event.mUpdatedItemId.equals(mArtist.getCacheKey())
+                    || event.mUpdatedItemId.equals(mQuery.getCacheKey())) {
                 updateAdapter();
             }
         } else {
@@ -265,13 +266,22 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
             if (getArguments().containsKey(PLAYLIST)
                     && !TextUtils.isEmpty(getArguments().getString(PLAYLIST))) {
-                mPlaylist = Playlist
-                        .getPlaylistById(getArguments().getString(PLAYLIST));
+                String playlistId = getArguments().getString(TomahawkFragment.PLAYLIST);
+                mPlaylist = DatabaseHelper.getInstance().getPlaylist(playlistId);
                 if (mPlaylist == null) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                    return;
-                } else {
-                    refreshCurrentPlaylist();
+                    mPlaylist = Playlist.getPlaylistById(playlistId);
+                    if (mPlaylist == null) {
+                        getActivity().getSupportFragmentManager().popBackStack();
+                        return;
+                    } else {
+                        HatchetAuthenticatorUtils authenticatorUtils
+                                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                        if (mUser != authenticatorUtils.getLoggedInUser()) {
+                            mCorrespondingRequestIds
+                                    .add(InfoSystem.getInstance().resolve(mPlaylist));
+                        }
+                    }
                 }
             }
             if (getArguments().containsKey(ARTIST)
@@ -570,10 +580,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                                     DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());
                             if (playlist != null) {
                                 mPlaylist = playlist;
-                                CollectionManager.UpdatedEvent event
-                                        = new CollectionManager.UpdatedEvent();
-                                event.mUpdatedItem = mPlaylist;
-                                EventBus.getDefault().post(event);
                             }
                         }
                     }

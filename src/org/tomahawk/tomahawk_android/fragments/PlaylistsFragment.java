@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
@@ -48,11 +49,6 @@ import java.util.List;
 public class PlaylistsFragment extends TomahawkFragment {
 
     private HashSet<User> mResolvingUsers = new HashSet<>();
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(CollectionManager.PlaylistsUpdatedEvent event) {
-        updateAdapter();
-    }
 
     @Override
     public void onResume() {
@@ -117,7 +113,7 @@ public class PlaylistsFragment extends TomahawkFragment {
             }
             segment = new Segment(playlists);
         } else {
-            playlists.addAll(CollectionManager.getInstance().getPlaylists());
+            playlists.addAll(DatabaseHelper.getInstance().getPlaylists());
             segment = new Segment(playlists, R.integer.grid_column_count,
                     R.dimen.padding_superlarge, R.dimen.padding_superlarge);
         }
