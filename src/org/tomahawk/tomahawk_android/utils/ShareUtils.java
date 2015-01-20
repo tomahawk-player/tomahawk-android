@@ -168,7 +168,7 @@ public class ShareUtils {
 
     public static String generateShareMsg(Playlist playlist) {
         if (playlist != null && playlist.getUserId() != null) {
-            User user = User.get(playlist.getUserId());
+            User user = User.getUserById(playlist.getUserId());
             if (user != null && user.getName() != null) {
                 return DEFAULT_SHARE_PREFIX + " " + user.getName()
                         + TomahawkApp.getContext().getString(R.string.users_playlist_suffix)

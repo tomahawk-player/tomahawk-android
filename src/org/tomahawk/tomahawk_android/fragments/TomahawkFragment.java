@@ -309,8 +309,11 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
             if (getArguments().containsKey(USER)
                     && !TextUtils.isEmpty(getArguments().getString(USER))) {
-                mUser = User.get(getArguments().getString(USER));
-                if (mUser.getName() == null) {
+                mUser = User.getUserById(getArguments().getString(USER));
+                if (mUser == null) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                    return;
+                } else if (mUser.getName() == null) {
                     mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mUser));
                 }
             }
@@ -335,7 +338,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             if (getArguments().containsKey(USERARRAY)) {
                 mSearchUsers = new ArrayList<User>();
                 for (String userId : getArguments().getStringArrayList(USERARRAY)) {
-                    mSearchUsers.add(User.get(userId));
+                    mSearchUsers.add(User.getUserById(userId));
                 }
             }
             if (getArguments().containsKey(ARTISTARRAY)) {
