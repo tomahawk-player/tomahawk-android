@@ -230,10 +230,16 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     || event.mUpdatedItemId.equals(mAlbum.getCacheKey())
                     || event.mUpdatedItemId.equals(mArtist.getCacheKey())
                     || event.mUpdatedItemId.equals(mQuery.getCacheKey())) {
-                updateAdapter();
+                if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+                    mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
+                            ADAPTER_UPDATE_DELAY);
+                }
             }
         } else {
-            updateAdapter();
+            if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+                mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
+                        ADAPTER_UPDATE_DELAY);
+            }
         }
     }
 
@@ -241,6 +247,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public void onEventMainThread(DatabaseHelper.PlaylistsUpdatedEvent event) {
         if (mPlaylist != null && mPlaylist.getId().equals(event.mPlaylistId)) {
             refreshCurrentPlaylist();
+        }
+        if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+            mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
+                    ADAPTER_UPDATE_DELAY);
         }
     }
 
@@ -580,6 +590,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                                     DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());
                             if (playlist != null) {
                                 mPlaylist = playlist;
+                                if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+                                    mAdapterUpdateHandler.sendEmptyMessageDelayed(
+                                            ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
+                                }
                             }
                         }
                     }
