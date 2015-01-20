@@ -158,7 +158,8 @@
                                       android:paddingTop="@dimen/padding_superlarge"
                                       android:paddingBottom="@dimen/padding_superlarge"
                                       android:clickable="true"
-                                      android:background="@drawable/selectable_background_tomahawk">
+                                      android:background="@drawable/selectable_background_tomahawk"
+                                      android:visibility="gone">
 
                             <ImageView android:layout_width="@dimen/context_menu_icon_height"
                                        android:layout_height="@dimen/context_menu_icon_height"

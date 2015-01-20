@@ -341,29 +341,32 @@ public class ContextMenuFragment extends Fragment {
                 }
             });
         }
-        View addToPlaylistButton = view.findViewById(R.id.addtoplaylist_button);
-        addToPlaylistButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                actionOnDone.run();
-                ArrayList<Query> queries;
-                if (item instanceof Album) {
-                    Album album = (Album) item;
-                    queries = CollectionUtils.getAlbumTracks(album, collection);
-                } else {
-                    queries = item.getQueries();
+        if (!(item instanceof Artist)) {
+            View addToPlaylistButton = view.findViewById(R.id.addtoplaylist_button);
+            addToPlaylistButton.setVisibility(View.VISIBLE);
+            addToPlaylistButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    actionOnDone.run();
+                    ArrayList<Query> queries;
+                    if (item instanceof Album) {
+                        Album album = (Album) item;
+                        queries = CollectionUtils.getAlbumTracks(album, collection);
+                    } else {
+                        queries = item.getQueries();
+                    }
+                    ArrayList<String> queryKeys = new ArrayList<String>();
+                    for (Query query : queries) {
+                        queryKeys.add(query.getCacheKey());
+                    }
+                    ChoosePlaylistDialog dialog = new ChoosePlaylistDialog();
+                    Bundle args = new Bundle();
+                    args.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
+                    dialog.setArguments(args);
+                    dialog.show(activity.getSupportFragmentManager(), null);
                 }
-                ArrayList<String> queryKeys = new ArrayList<String>();
-                for (Query query : queries) {
-                    queryKeys.add(query.getCacheKey());
-                }
-                ChoosePlaylistDialog dialog = new ChoosePlaylistDialog();
-                Bundle args = new Bundle();
-                args.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
-                dialog.setArguments(args);
-                dialog.show(activity.getSupportFragmentManager(), null);
-            }
-        });
+            });
+        }
         View shareButton = view.findViewById(R.id.share_button);
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
