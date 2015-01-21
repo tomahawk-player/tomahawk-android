@@ -291,7 +291,7 @@ public class PlaybackFragment extends TomahawkFragment {
             contextItem = mPlaylist;
         }
         return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
-                contextItem, R.id.playback_fragment_frame);
+                contextItem, R.id.playback_fragment_frame, null);
     }
 
     /**

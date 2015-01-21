@@ -25,6 +25,7 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -125,6 +126,8 @@ public class ContentHeaderFragment extends Fragment {
     protected long mContainerFragmentId = -1;
 
     protected int mContainerFragmentPage = -1;
+
+    protected Collection mCollection;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -276,7 +279,9 @@ public class ContentHeaderFragment extends Fragment {
             View.OnClickListener moreButtonListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item, null);
+                    String collectionId = mCollection != null ? mCollection.getId() : null;
+                    FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item, null,
+                            collectionId);
                 }
             };
             if (item instanceof Album) {
