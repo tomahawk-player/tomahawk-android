@@ -146,8 +146,8 @@ public class TracksFragment extends TomahawkFragment {
             }
             showContentHeader(mQuery);
             showFancyDropDown(mQuery);
-        } else if (mSearchSongs != null) {
-            queries.addAll(mSearchSongs);
+        } else if (mQueryArray != null) {
+            queries.addAll(mQueryArray);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
                         layoutInflater, new Segment(queries), this);

@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -74,8 +75,17 @@ public class PlaylistsFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, Object item) {
         if (item instanceof Playlist) {
+            String playlistId = ((Playlist) item).getId();
+            if (mQueryArray != null) {
+                ArrayList<PlaylistEntry> entries = new ArrayList<>();
+                for (Query query : mQueryArray) {
+                    entries.add(PlaylistEntry.get(playlistId, query,
+                            TomahawkMainActivity.getLifetimeUniqueStringId()));
+                }
+                CollectionManager.getInstance().addPlaylistEntries(playlistId, entries);
+            }
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.PLAYLIST, ((Playlist) item).getId());
+            bundle.putString(TomahawkFragment.PLAYLIST, playlistId);
             if (mUser != null) {
                 bundle.putString(TomahawkFragment.USER, mUser.getId());
             }
@@ -84,7 +94,8 @@ public class PlaylistsFragment extends TomahawkFragment {
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
                     PlaylistEntriesFragment.class, bundle);
         } else {
-            Playlist playlist = Playlist.fromQueryList("", new ArrayList<Query>());
+            ArrayList<Query> queries = mQueryArray != null ? mQueryArray : new ArrayList<Query>();
+            Playlist playlist = Playlist.fromQueryList("", queries);
             CreatePlaylistDialog dialog = new CreatePlaylistDialog();
             Bundle args = new Bundle();
             args.putString(TomahawkFragment.PLAYLIST, playlist.getId());

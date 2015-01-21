@@ -143,13 +143,13 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected ArrayList<Query> mShownQueries = new ArrayList<Query>();
 
-    protected ArrayList<Query> mSearchSongs;
+    protected ArrayList<Query> mQueryArray;
 
-    protected ArrayList<Album> mSearchAlbums;
+    protected ArrayList<Album> mAlbumArray;
 
-    protected ArrayList<Artist> mSearchArtists;
+    protected ArrayList<Artist> mArtistArray;
 
-    protected ArrayList<User> mSearchUsers;
+    protected ArrayList<User> mUserArray;
 
     protected ArrayList<PlaylistEntry> mShownPlaylistEntries = new ArrayList<PlaylistEntry>();
 
@@ -336,35 +336,35 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 }
             }
             if (getArguments().containsKey(USERARRAY)) {
-                mSearchUsers = new ArrayList<User>();
+                mUserArray = new ArrayList<User>();
                 for (String userId : getArguments().getStringArrayList(USERARRAY)) {
-                    mSearchUsers.add(User.getUserById(userId));
+                    mUserArray.add(User.getUserById(userId));
                 }
             }
             if (getArguments().containsKey(ARTISTARRAY)) {
-                mSearchArtists = new ArrayList<Artist>();
+                mArtistArray = new ArrayList<Artist>();
                 for (String userId : getArguments().getStringArrayList(ARTISTARRAY)) {
                     Artist artist = Artist.getArtistByKey(userId);
                     if (artist != null) {
-                        mSearchArtists.add(artist);
+                        mArtistArray.add(artist);
                     }
                 }
             }
             if (getArguments().containsKey(ALBUMARRAY)) {
-                mSearchAlbums = new ArrayList<Album>();
+                mAlbumArray = new ArrayList<Album>();
                 for (String userId : getArguments().getStringArrayList(ALBUMARRAY)) {
                     Album album = Album.getAlbumByKey(userId);
                     if (album != null) {
-                        mSearchAlbums.add(album);
+                        mAlbumArray.add(album);
                     }
                 }
             }
             if (getArguments().containsKey(QUERYARRAY)) {
-                mSearchSongs = new ArrayList<Query>();
+                mQueryArray = new ArrayList<Query>();
                 for (String userId : getArguments().getStringArrayList(QUERYARRAY)) {
                     Query query = Query.getQueryByKey(userId);
                     if (query != null) {
-                        mSearchSongs.add(query);
+                        mQueryArray.add(query);
                     }
                 }
             }

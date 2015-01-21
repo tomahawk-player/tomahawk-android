@@ -172,8 +172,8 @@ public class AlbumsFragment extends TomahawkFragment {
             } else {
                 getListAdapter().setSegments(segments, getListView());
             }
-        } else if (mSearchAlbums != null) {
-            items.addAll(mSearchAlbums);
+        } else if (mAlbumArray != null) {
+            items.addAll(mAlbumArray);
             segments.add(new Segment(items));
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
