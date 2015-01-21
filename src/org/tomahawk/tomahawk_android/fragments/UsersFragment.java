@@ -100,8 +100,8 @@ public class UsersFragment extends TomahawkFragment {
             if (mUser.getFollowers() != null && mUser.getFollowers().size() > 0) {
                 users.addAll(mUser.getFollowers().keySet());
             }
-        } else if (mSearchUsers != null) {
-            users.addAll(mSearchUsers);
+        } else if (mUserArray != null) {
+            users.addAll(mUserArray);
         } else if (mUser.getFollowings() != null && mUser.getFollowings().size() > 0) {
             users.addAll(mUser.getFollowings().keySet());
         }

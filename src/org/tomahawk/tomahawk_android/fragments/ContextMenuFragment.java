@@ -33,7 +33,6 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.dialogs.ChoosePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ShareUtils;
@@ -359,11 +358,11 @@ public class ContextMenuFragment extends Fragment {
                     for (Query query : queries) {
                         queryKeys.add(query.getCacheKey());
                     }
-                    ChoosePlaylistDialog dialog = new ChoosePlaylistDialog();
-                    Bundle args = new Bundle();
-                    args.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
-                    dialog.setArguments(args);
-                    dialog.show(activity.getSupportFragmentManager(), null);
+                    Bundle bundle = new Bundle();
+                    bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                            ContentHeaderFragment.MODE_HEADER_STATIC);
+                    bundle.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
+                    FragmentUtils.replace(activity, PlaylistsFragment.class, bundle);
                 }
             });
         }

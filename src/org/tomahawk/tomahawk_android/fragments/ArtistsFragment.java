@@ -120,8 +120,8 @@ public class ArtistsFragment extends TomahawkFragment {
             } else {
                 getListAdapter().setSegments(new Segment(artists), getListView());
             }
-        } else if (mSearchArtists != null) {
-            artists.addAll(mSearchArtists);
+        } else if (mArtistArray != null) {
+            artists.addAll(mArtistArray);
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter =
                         new TomahawkListAdapter((TomahawkMainActivity) getActivity(),

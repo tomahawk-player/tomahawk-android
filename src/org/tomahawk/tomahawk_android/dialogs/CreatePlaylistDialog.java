@@ -21,8 +21,12 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
+import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -85,12 +89,18 @@ public class CreatePlaylistDialog extends ConfigDialog {
      * org.tomahawk.libtomahawk.collection.Playlist} in our database
      */
     private void savePlaylist() {
-        String playlistName = TextUtils.isEmpty(mNameEditText.getText().toString())
-                ? getString(R.string.playlist)
-                : mNameEditText.getText().toString();
         if (mPlaylist != null) {
-            CollectionManager.getInstance().createPlaylist(Playlist.fromQueryList(playlistName,
-                    mPlaylist.getQueries()));
+            String playlistName = TextUtils.isEmpty(mNameEditText.getText().toString())
+                    ? getString(R.string.playlist)
+                    : mNameEditText.getText().toString();
+            mPlaylist.setName(playlistName);
+            CollectionManager.getInstance().createPlaylist(mPlaylist);
+            Bundle bundle = new Bundle();
+            bundle.putString(TomahawkFragment.PLAYLIST, mPlaylist.getId());
+            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                    ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                    PlaylistEntriesFragment.class, bundle);
         }
     }
 
