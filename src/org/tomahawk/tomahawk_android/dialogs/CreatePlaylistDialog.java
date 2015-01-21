@@ -71,7 +71,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
         showSoftKeyboard(mNameEditText);
 
         //Set the textview's text to the proper title
-        setDialogTitle(getString(R.string.save_playlist));
+        setDialogTitle(getString(R.string.create_playlist));
 
         hideStatusImage();
 

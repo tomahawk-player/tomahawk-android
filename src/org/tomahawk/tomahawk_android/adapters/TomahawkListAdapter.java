@@ -32,6 +32,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
@@ -311,9 +312,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                 } else if (viewType == R.layout.grid_item_resolver) {
                     viewHolder.mImageView1.clearColorFilter();
                 } else if (viewType == R.layout.grid_item_playlist) {
+                    viewHolder.mMainClickArea.setBackgroundResource(0);
                     viewHolder.mImageView1.setVisibility(View.GONE);
                     viewHolder.mImageView2.setVisibility(View.VISIBLE);
                     viewHolder.mImageView3.setVisibility(View.GONE);
+                    viewHolder.mAddIcon.setVisibility(View.GONE);
                 } else {
                     viewHolder.mTextView2.setVisibility(View.GONE);
                     viewHolder.mTextView3.setVisibility(View.GONE);
@@ -346,7 +349,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
                 viewHolder.fillView((Resolver) item);
             } else if (viewHolder.mLayoutId == R.layout.grid_item_playlist) {
-                viewHolder.fillView((Playlist) item);
+                if (item instanceof Playlist) {
+                    viewHolder.fillView((Playlist) item);
+                } else if (item instanceof Integer) {
+                    viewHolder.fillView((int) item);
+                }
             } else if (viewHolder.mLayoutId == R.layout.grid_item_user
                     || viewHolder.mLayoutId == R.layout.list_item_user) {
                 viewHolder.fillView((User) item);
@@ -610,6 +617,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     return R.layout.grid_item_resolver;
                 } else if (firstItem instanceof Playlist) {
                     return R.layout.grid_item_playlist;
+                } else if (firstItem instanceof Integer) {
+                    switch ((Integer) firstItem) {
+                        case PlaylistsFragment.CREATE_PLAYLIST_BUTTON_ID:
+                            return R.layout.grid_item_playlist;
+                    }
                 } else {
                     return R.layout.grid_item;
                 }

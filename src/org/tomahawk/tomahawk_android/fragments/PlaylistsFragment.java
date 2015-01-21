@@ -25,6 +25,7 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -47,6 +48,8 @@ import java.util.List;
  * inside its {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class PlaylistsFragment extends TomahawkFragment {
+
+    public static final int CREATE_PLAYLIST_BUTTON_ID = 8008135;
 
     private HashSet<User> mResolvingUsers = new HashSet<>();
 
@@ -81,8 +84,12 @@ public class PlaylistsFragment extends TomahawkFragment {
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
                     PlaylistEntriesFragment.class, bundle);
         } else {
-            new CreatePlaylistDialog().show(getFragmentManager(),
-                    getString(R.string.create_playlist));
+            Playlist playlist = Playlist.fromQueryList("", new ArrayList<Query>());
+            CreatePlaylistDialog dialog = new CreatePlaylistDialog();
+            Bundle args = new Bundle();
+            args.putString(TomahawkFragment.PLAYLIST, playlist.getId());
+            dialog.setArguments(args);
+            dialog.show(getFragmentManager(), null);
         }
     }
 
@@ -98,6 +105,7 @@ public class PlaylistsFragment extends TomahawkFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         List playlists = new ArrayList();
+        playlists.add(CREATE_PLAYLIST_BUTTON_ID);
         HatchetAuthenticatorUtils authenticatorUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);

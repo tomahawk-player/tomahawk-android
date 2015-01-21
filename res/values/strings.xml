@@ -24,7 +24,7 @@
   <string name="unknown">unknown</string>
   <string name="no_track">no track</string>
   <string name="save_playlist">Save the current playlist</string>
-  <string name="create_playlist">Create a new playlist</string>
+  <string name="create_playlist">Create playlist</string>
   <string name="name_playlist">Name</string>
   <string name="login_name_label">E-Mail/Username</string>
   <string name="login_username">Username</string>
