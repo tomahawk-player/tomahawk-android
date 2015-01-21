@@ -24,7 +24,6 @@
   <string name="unknown">neznámý</string>
   <string name="no_track">žádná skladba</string>
   <string name="save_playlist">Uložit nynější seznam skladeb</string>
-  <string name="create_playlist">Vytvořit nový seznam skladeb</string>
   <string name="name_playlist">Název</string>
   <string name="login_name_label">E-Mail/Uživatelské jméno</string>
   <string name="login_username">Uživatelské jméno</string>

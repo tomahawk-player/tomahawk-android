@@ -24,7 +24,6 @@
   <string name="unknown">未知</string>
   <string name="no_track">无曲目</string>
   <string name="save_playlist">保存当前播放列表</string>
-  <string name="create_playlist">创建新播放列表</string>
   <string name="name_playlist">名称</string>
   <string name="login_name_label">邮箱/用户名</string>
   <string name="login_username">用户名</string>

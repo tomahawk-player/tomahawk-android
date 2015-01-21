@@ -25,7 +25,6 @@
   <string name="unknown">desconocido</string>
   <string name="no_track">Ninguna pista</string>
   <string name="save_playlist">Guardar esta playlist</string>
-  <string name="create_playlist">Crear una nueva playlist</string>
   <string name="name_playlist">Nombre</string>
   <string name="login_name_label">Correo/nombre de usuario</string>
   <string name="login_username">Nombre de usuario</string>

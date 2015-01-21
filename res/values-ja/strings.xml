@@ -22,7 +22,6 @@
   <string name="unknown">不明</string>
   <string name="no_track">トラックがありません</string>
   <string name="save_playlist">プレイリストを保存</string>
-  <string name="create_playlist">プレイリストを作成</string>
   <string name="name_playlist">名前</string>
   <string name="login_name_label">メール/ユーザー名</string>
   <string name="login_username">ユーザー名</string>

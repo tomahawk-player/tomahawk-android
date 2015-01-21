@@ -24,7 +24,6 @@
   <string name="unknown">desconocido</string>
   <string name="no_track">no hay pistas</string>
   <string name="save_playlist">Guardar la lista actual</string>
-  <string name="create_playlist">Crear una lista nueva</string>
   <string name="name_playlist">Nombre</string>
   <string name="login_name_label">Usuario o correo electrónico</string>
   <string name="login_username">Nombre de usuario</string>

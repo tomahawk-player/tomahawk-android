@@ -19,7 +19,6 @@
   <string name="unknown">desconhecido</string>
   <string name="no_track">sem faixa</string>
   <string name="save_playlist">Salvar a playlist atual</string>
-  <string name="create_playlist">Criar uma nova playlist</string>
   <string name="name_playlist">Nome</string>
   <string name="login_name_label">E-Mail/Nome de usuário</string>
   <string name="login_username">Nome de usuári</string>
