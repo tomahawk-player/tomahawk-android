@@ -22,7 +22,6 @@
   <string name="unknown">ไม่ทราบ</string>
   <string name="no_track">ไม่มีแทร็ค</string>
   <string name="save_playlist">บันทึกบัญชีการเล่นปัจจุบัน</string>
-  <string name="create_playlist">สร้างบัญชีการเล่นใหม่</string>
   <string name="name_playlist">ชื่อ</string>
   <string name="login_name_label">อีเมล/ชื่อผู้ใช้</string>
   <string name="login_username">ชื่อผู้ใช้</string>

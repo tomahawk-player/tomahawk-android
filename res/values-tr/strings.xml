@@ -24,7 +24,6 @@
   <string name="unknown">bilinmeyen</string>
   <string name="no_track">parça yok</string>
   <string name="save_playlist">Mevcut çalma listesini kaydet</string>
-  <string name="create_playlist">Yeni bir çalma listesi oluştur</string>
   <string name="name_playlist">İsim</string>
   <string name="login_name_label">E-Posta/Kullanıcı Adı</string>
   <string name="login_username">Kullanıcı Adı</string>

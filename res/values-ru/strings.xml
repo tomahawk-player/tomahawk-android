@@ -15,7 +15,6 @@
   <string name="repeat_on_label">Повтор включен</string>
   <string name="repeat_off_label">Повтор выключен</string>
   <string name="save_playlist">Сохранить в текущий список</string>
-  <string name="create_playlist">Создать новый список</string>
   <string name="name_playlist">Имя</string>
   <string name="login_name_label">e-mail/имя пользователя</string>
   <string name="login_username">Имя пользователя</string>

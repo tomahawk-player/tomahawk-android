@@ -23,7 +23,6 @@
   <string name="unknown">nežinoma</string>
   <string name="no_track">nėra takelio</string>
   <string name="save_playlist">Išsaugoti dabartinį grojaraštį</string>
-  <string name="create_playlist">Sukurti naują grojaraštį</string>
   <string name="login_name_label">El. paštas/Vartotojo vardas</string>
   <string name="login_username">Vartotojo vardas</string>
   <string name="login_password">Slaptažodis</string>

@@ -22,7 +22,6 @@
   <string name="unknown">Okänd</string>
   <string name="no_track">Ingen låt</string>
   <string name="save_playlist">Spara aktiv spellista</string>
-  <string name="create_playlist">Skapa ny spellista</string>
   <string name="name_playlist">Namn</string>
   <string name="login_name_label">E-post/Användarnamn</string>
   <string name="login_username">Användarnamn</string>

@@ -21,7 +21,6 @@
   <string name="repeat_on_label">Повторення увімкнено</string>
   <string name="repeat_off_label">Повторення вимкнено</string>
   <string name="save_playlist">Зберегти поточний список відтворення</string>
-  <string name="create_playlist">Створити новий список відтворення</string>
   <string name="name_playlist">Ім’я</string>
   <string name="login_name_label">Пошта/Ім’я користувача</string>
   <string name="login_username">Ім’я користувача</string>
