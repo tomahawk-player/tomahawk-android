@@ -24,7 +24,6 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -152,8 +151,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected ArrayList<User> mUserArray;
 
     protected ArrayList<PlaylistEntry> mShownPlaylistEntries = new ArrayList<PlaylistEntry>();
-
-    protected Collection mCollection;
 
     protected Album mAlbum;
 
@@ -413,8 +410,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         } else if (mPlaylist != null) {
             contextItem = mPlaylist;
         }
+        String collectionId = mCollection != null ? mCollection.getId() : null;
         return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
-                contextItem);
+                contextItem, collectionId);
     }
 
     /**

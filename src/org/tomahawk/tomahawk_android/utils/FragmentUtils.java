@@ -59,7 +59,8 @@ public class FragmentUtils {
             Bundle bundle = new Bundle();
             bundle.putString(TomahawkFragment.USER, loggedInUser.getId());
             bundle.putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_DASHBOARD);
-            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE, ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
+            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                    ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
             ft.add(R.id.content_viewer_frame,
                     Fragment.instantiate(activity, SocialActionsFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
@@ -67,7 +68,8 @@ public class FragmentUtils {
             Bundle bundle = new Bundle();
             bundle.putString(TomahawkFragment.COLLECTION_ID,
                     TomahawkApp.PLUGINNAME_USERCOLLECTION);
-            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE, ContentHeaderFragment.MODE_HEADER_STATIC);
+            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                    ContentHeaderFragment.MODE_HEADER_STATIC);
             ft.add(R.id.content_viewer_frame,
                     Fragment.instantiate(activity, CollectionPagerFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
@@ -131,30 +133,35 @@ public class FragmentUtils {
      * Show the context menu for the given item in the given context. This method also automatically
      * collapses the SlidingPanel.
      *
-     * @param activity    TomahawkMainActivity needed as a context object and to make sure the
-     *                    SlidingLayoutPanel is collapsed
-     * @param item        The Object for which to show the context menu
-     * @param contextItem The TomahawkListItem which indicates the context of the given item. E.g. a
-     *                    Track (item) in an Album (contextItem)
+     * @param activity     TomahawkMainActivity needed as a context object and to make sure the
+     *                     SlidingLayoutPanel is collapsed
+     * @param item         The Object for which to show the context menu
+     * @param contextItem  The TomahawkListItem which indicates the context of the given item. E.g.
+     *                     a Track (item) in an Album (contextItem)
+     * @param collectionId the id of the corresponding collection (this is being used to e.g. get an
+     *                     album's tracklist from a specific collection)
      */
     public static boolean showContextMenu(TomahawkMainActivity activity, Object item,
-            TomahawkListItem contextItem) {
+            TomahawkListItem contextItem, String collectionId) {
         activity.collapsePanel();
-        return showContextMenu(activity, item, contextItem, R.id.content_viewer_frame);
+        return showContextMenu(activity, item, contextItem, R.id.content_viewer_frame,
+                collectionId);
     }
 
     /**
      * Show the context menu for the given item in the given context.
      *
-     * @param activity    TomahawkMainActivity needed as a context object and to make sure the
-     *                    SlidingLayoutPanel is collapsed
-     * @param item        The TomahawkListItem for which to show the context menu
-     * @param contextItem The TomahawkListItem which indicates the context of the given item. E.g. a
-     *                    Track (item) in an Album (contextItem)
-     * @param frameResId  the resource id of the ViewGroup in which the Fragment will be replaced
+     * @param activity     TomahawkMainActivity needed as a context object and to make sure the
+     *                     SlidingLayoutPanel is collapsed
+     * @param item         The TomahawkListItem for which to show the context menu
+     * @param contextItem  The TomahawkListItem which indicates the context of the given item. E.g.
+     *                     a Track (item) in an Album (contextItem)
+     * @param frameResId   the resource id of the ViewGroup in which the Fragment will be replaced
+     * @param collectionId the id of the corresponding collection (this is being used to e.g. get an
+     *                     album's tracklist from a specific collection)
      */
     public static boolean showContextMenu(TomahawkMainActivity activity, Object item,
-            TomahawkListItem contextItem, int frameResId) {
+            TomahawkListItem contextItem, int frameResId, String collectionId) {
         if (item == null
                 || (item instanceof SocialAction
                 && ((SocialAction) item).getTargetObject() instanceof User)
@@ -163,6 +170,9 @@ public class FragmentUtils {
         }
 
         Bundle args = new Bundle();
+        if (collectionId != null) {
+            args.putString(TomahawkFragment.COLLECTION_ID, collectionId);
+        }
         if (contextItem instanceof Album) {
             args.putString(TomahawkFragment.ALBUM, contextItem.getCacheKey());
         } else if (contextItem instanceof Playlist) {
