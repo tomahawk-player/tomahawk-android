@@ -76,7 +76,10 @@ public class CollectionManager {
 
     private HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
 
-    private Set<String> mDirtyPlaylistMap =
+    private Set<String> mShowAsDeletedPlaylistMap =
+            Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+
+    private Set<String> mShowAsCreatedPlaylistMap =
             Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     private CollectionManager() {
@@ -355,11 +358,17 @@ public class CollectionManager {
             for (final Playlist fetchedList : fetchedLists) {
                 Playlist storedList = storedListsMap.remove(fetchedList.getHatchetId());
                 if (storedList == null) {
-                    if (mDirtyPlaylistMap.contains(fetchedList.getHatchetId())) {
+                    if (mShowAsDeletedPlaylistMap.contains(fetchedList.getHatchetId())) {
                         Log.d(TAG, "Hatchet sync - playlist \"" + fetchedList.getName()
-                                + "\" didn't exist in database, but was marked as dirty so we don't"
-                                + " store it.");
+                                + "\" didn't exist in database, but was marked as showAsDeleted so"
+                                + " we don't store it.");
                     } else {
+                        if (mShowAsCreatedPlaylistMap.contains(fetchedList.getHatchetId())) {
+                            mShowAsCreatedPlaylistMap.remove(fetchedList.getHatchetId());
+                            Log.d(TAG, "Hatchet sync - playlist \"" + fetchedList.getName()
+                                    + "\" is no longer marked as showAsCreated, since it seems to "
+                                    + "have arrived on the server");
+                        }
                         Log.d(TAG, "Hatchet sync - playlist \"" + fetchedList.getName()
                                 + "\" didn't exist in database ... storing and fetching entries");
                         // Delete the current revision since we don't want to store it until we have
@@ -386,17 +395,31 @@ public class CollectionManager {
                 }
             }
             for (Playlist storedList : storedListsMap.values()) {
-                Log.d(TAG, "Hatchet sync - playlist \"" + storedList.getName()
-                        + "\" doesn't exist on Hatchet ... deleting");
-                DatabaseHelper.getInstance().deletePlaylist(storedList.getId());
+                if (!mShowAsCreatedPlaylistMap.contains(storedList.getHatchetId())) {
+                    Log.d(TAG, "Hatchet sync - playlist \"" + storedList.getName()
+                            + "\" doesn't exist on Hatchet ... deleting");
+                    DatabaseHelper.getInstance().deletePlaylist(storedList.getId());
+                } else {
+                    Log.d(TAG, "Hatchet sync - playlist \"" + storedList.getName()
+                            + "\" doesn't exist on Hatchet, but we don't delete it since it's"
+                            + " marked as showAsCreated");
+                }
             }
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
-            Playlist filledList = data.getResult(Playlist.class);
-            if (filledList != null) {
-                Log.d(TAG, "Hatchet sync - received entry list for playlist \""
-                        + filledList.getName() + "\", hatchetId: " + filledList.getHatchetId()
-                        + ", count: " + filledList.getEntries().size());
-                DatabaseHelper.getInstance().storePlaylist(filledList);
+            if (data.getHttpType() == InfoRequestData.HTTPTYPE_GET) {
+                Playlist filledList = data.getResult(Playlist.class);
+                if (filledList != null) {
+                    Log.d(TAG, "Hatchet sync - received entry list for playlist \""
+                            + filledList.getName() + "\", hatchetId: " + filledList.getHatchetId()
+                            + ", count: " + filledList.getEntries().size());
+                    DatabaseHelper.getInstance().storePlaylist(filledList);
+                }
+            } else if (data.getHttpType() == InfoRequestData.HTTPTYPE_POST) {
+                String hatchetId = DatabaseHelper.getInstance()
+                        .getPlaylistHatchetId(data.getQueryParams().playlist_local_id);
+                mShowAsCreatedPlaylistMap.add(hatchetId);
+                Log.d(TAG, "Hatchet sync - created playlist and marked as showAsCreated, id: "
+                        + data.getQueryParams().playlist_local_id + ", hatchetId: " + hatchetId);
             }
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
             Playlist fetchedList = data.getResult(Playlist.class);
@@ -433,7 +456,7 @@ public class CollectionManager {
             Log.d(TAG, "Hatchet sync - deleting playlist \"" + playlistName + "\", id: "
                     + playlistId);
             Playlist playlist = DatabaseHelper.getInstance().getEmptyPlaylist(playlistId);
-            mDirtyPlaylistMap.add(playlist.getHatchetId());
+            mShowAsDeletedPlaylistMap.add(playlist.getHatchetId());
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().deletePlaylist(hatchetAuthUtils, playlistId);
@@ -450,8 +473,11 @@ public class CollectionManager {
         updateTopArtists(playlist.getId());
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        InfoSystem.getInstance()
+        List<String> requestIds = InfoSystem.getInstance()
                 .sendPlaylistPostStruct(hatchetAuthUtils, playlist.getId(), playlist.getName());
+        if (requestIds != null) {
+            mCorrespondingRequestIds.addAll(requestIds);
+        }
         for (PlaylistEntry entry : playlist.getEntries()) {
             InfoSystem.getInstance().sendPlaylistEntriesPostStruct(hatchetAuthUtils,
                     playlist.getId(), entry.getName(), entry.getArtist().getName(),

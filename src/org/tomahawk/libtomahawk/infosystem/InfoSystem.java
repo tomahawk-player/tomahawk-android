@@ -510,8 +510,8 @@ public class InfoSystem {
                 album.getName(), type, action);
     }
 
-    public void sendPlaylistPostStruct(AuthenticatorUtils authenticatorUtils, String localId,
-            String title) {
+    public List<String> sendPlaylistPostStruct(AuthenticatorUtils authenticatorUtils,
+            String localId, String title) {
         long timeStamp = System.currentTimeMillis();
         HatchetPlaylistRequest request = new HatchetPlaylistRequest();
         request.title = title;
@@ -529,11 +529,12 @@ public class InfoSystem {
                     InfoRequestData.HTTPTYPE_POST, jsonString);
             DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
                     (int) (timeStamp / 1000));
-            sendLoggedOps(authenticatorUtils);
+            return sendLoggedOps(authenticatorUtils);
         } catch (JsonProcessingException e) {
             Log.e(TAG, "sendPlaylistPostStruct: " + e.getClass() + ": "
                     + e.getLocalizedMessage());
         }
+        return null;
     }
 
     public void sendPlaylistEntriesPostStruct(AuthenticatorUtils authenticatorUtils,
