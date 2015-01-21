@@ -69,6 +69,24 @@
 
         </LinearLayout>
 
+        <FrameLayout android:id="@+id/add_icon"
+                     android:layout_width="@dimen/grid_item_resolver_icon_size"
+                     android:layout_height="@dimen/grid_item_resolver_icon_size"
+                     android:layout_centerInParent="true"
+                     android:visibility="gone">
+
+            <View android:layout_width="match_parent"
+                  android:layout_height="11dp"
+                  android:layout_gravity="center_vertical"
+                  android:background="#fff"/>
+
+            <View android:layout_width="11dp"
+                  android:layout_height="match_parent"
+                  android:layout_gravity="center_horizontal"
+                  android:background="#fff"/>
+
+        </FrameLayout>
+
     </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
 
     <LinearLayout

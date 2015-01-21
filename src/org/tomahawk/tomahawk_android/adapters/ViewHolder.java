@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 
@@ -58,6 +59,8 @@ public class ViewHolder {
     ImageView mImageView2;
 
     ImageView mImageView3;
+
+    View mAddIcon;
 
     View mConnectImageViewContainer;
 
@@ -209,6 +212,8 @@ public class ViewHolder {
                     .findViewById(R.id.textview2);
             mTextView3 = (TextView) rootView
                     .findViewById(R.id.textview3);
+            mAddIcon = rootView
+                    .findViewById(R.id.add_icon);
         }
         if (mMainClickArea == null) {
             mMainClickArea = rootView;
@@ -469,6 +474,21 @@ public class ViewHolder {
         if (mTextView3 != null) {
             mTextView3.setText(playlist.getCount() + " "
                     + TomahawkApp.getContext().getString(R.string.songs_with_count));
+        }
+    }
+
+    public void fillView(int id) {
+        switch (id) {
+            case PlaylistsFragment.CREATE_PLAYLIST_BUTTON_ID:
+                mMainClickArea.setBackgroundColor(TomahawkApp.getContext().getResources()
+                        .getColor(R.color.primary_textcolor));
+                mImageView2.setVisibility(View.GONE);
+                mAddIcon.setVisibility(View.VISIBLE);
+                mTextView1.setText(
+                        TomahawkApp.getContext().getString(R.string.create_playlist).toUpperCase());
+                mTextView2.setText("");
+                mTextView3.setText("");
+                break;
         }
     }
 
