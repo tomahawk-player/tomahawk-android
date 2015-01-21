@@ -42,7 +42,7 @@
   <string name="preferences_spotify_text">شغّل موسيقاك من %1$s. يتطلّب حسابًا متميّزًا.</string>
   <string name="preferences_plug_and_play_text">يبدأ تشغيل الموسيقى بمجرّد اتّصال سمّاعة الرأس بلاقط صوت.</string>
   <string name="preferences_audio_quality">جودة الصّوت المحبّذة</string>
-  <string name="preferences_audio_quality_text">جودة الصّوت المحبّذة عند عدم الاتّصال بِواي-فاي.</string>
+  <string name="preferences_audio_quality_text">جودة الصّوت المحبّذة عند عدم الاتّصال بِواي-⁠فاي.</string>
   <string name="preferences_info">معلومات</string>
   <string name="preferences_app_version">إصدار التّطبيق</string>
   <string name="preferences_app_uservoice">التّغذية الاسترجاعيّة</string>
@@ -74,11 +74,11 @@
   <string name="drawer_title_lovedtracks">المفضّلة</string>
   <string name="drawer_title_settings">إعدادات</string>
   <string name="drawer_header_cloudcollections">تجميعات السّحاب</string>
-  <string name="collection_dropdown_recently_added">مضافة حديثًا</string>
+  <string name="collection_dropdown_recently_added">المضافة حديثًا</string>
   <string name="collection_dropdown_alpha_artists">الفنّان ء-ي</string>
   <string name="collection_dropdown_alpha_albums">الألبوم ء-ي</string>
   <string name="collection_dropdown_alpha">ء-ي</string>
-  <string name="history">التأريخ</string>
+  <string name="history">التّأريخ</string>
   <string name="preferences_bitrate_low">عاديّة</string>
   <string name="preferences_bitrate_medium">جيّدة</string>
   <string name="preferences_bitrate_high">سيّئة</string>
@@ -105,7 +105,6 @@
   <string name="biography">السّيرة الذّاتيّة</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <!--Shown as a title for a list of songs in the search results view.-->
-  <string name="songs">الأغاني</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">المتابِعين</string>
