@@ -417,9 +417,12 @@ public class CollectionManager {
             } else if (data.getHttpType() == InfoRequestData.HTTPTYPE_POST) {
                 String hatchetId = DatabaseHelper.getInstance()
                         .getPlaylistHatchetId(data.getQueryParams().playlist_local_id);
-                mShowAsCreatedPlaylistMap.add(hatchetId);
-                Log.d(TAG, "Hatchet sync - created playlist and marked as showAsCreated, id: "
-                        + data.getQueryParams().playlist_local_id + ", hatchetId: " + hatchetId);
+                if (hatchetId != null) {
+                    mShowAsCreatedPlaylistMap.add(hatchetId);
+                    Log.d(TAG, "Hatchet sync - created playlist and marked as showAsCreated, id: "
+                            + data.getQueryParams().playlist_local_id + ", hatchetId: "
+                            + hatchetId);
+                }
             }
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS) {
             Playlist fetchedList = data.getResult(Playlist.class);
@@ -456,7 +459,9 @@ public class CollectionManager {
             Log.d(TAG, "Hatchet sync - deleting playlist \"" + playlistName + "\", id: "
                     + playlistId);
             Playlist playlist = DatabaseHelper.getInstance().getEmptyPlaylist(playlistId);
-            mShowAsDeletedPlaylistMap.add(playlist.getHatchetId());
+            if (playlist.getHatchetId() != null) {
+                mShowAsDeletedPlaylistMap.add(playlist.getHatchetId());
+            }
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().deletePlaylist(hatchetAuthUtils, playlistId);
