@@ -50,7 +50,7 @@ public class ThreadManager {
 
     private ThreadPoolExecutor mPlaybackThreadPool;
 
-    private Multimap<Query, Runnable> mQueryRunnableMap;
+    private Multimap<Query, TomahawkRunnable> mQueryRunnableMap;
 
     private ThreadManager() {
         mQueryRunnableMap = HashMultimap.create();
@@ -64,11 +64,11 @@ public class ThreadManager {
         return Holder.instance;
     }
 
-    public void execute(Runnable r) {
+    public void execute(TomahawkRunnable r) {
         mThreadPool.execute(r);
     }
 
-    public void execute(Runnable r, Query query) {
+    public void execute(TomahawkRunnable r, Query query) {
         synchronized (query) {
             mQueryRunnableMap.put(query, r);
         }
@@ -78,7 +78,7 @@ public class ThreadManager {
     public boolean stop(Query query) {
         boolean success = false;
         synchronized (query) {
-            for (Runnable r : mQueryRunnableMap.removeAll(query)) {
+            for (TomahawkRunnable r : mQueryRunnableMap.removeAll(query)) {
                 mThreadPool.remove(r);
                 success = true;
             }
@@ -86,7 +86,7 @@ public class ThreadManager {
         return success;
     }
 
-    public void executePlayback(Runnable r) {
+    public void executePlayback(TomahawkRunnable r) {
         mPlaybackThreadPool.execute(r);
     }
 
