@@ -59,12 +59,22 @@ Tomahawk.createFuzzyIndex =
 
 Tomahawk.searchFuzzyIndex =
     function (query) {
-        return JSON.parse(Tomahawk.searchFuzzyIndexString(query));
+        var result = Tomahawk.searchFuzzyIndexString(query);
+        if (result) {
+            return JSON.parse(result);
+        } else {
+            return null;
+        }
     };
 
 Tomahawk.resolveFromFuzzyIndex =
     function (artist, album, title) {
-        return JSON.parse(Tomahawk.resolveFromFuzzyIndexString(artist, album, title));
+        var result = Tomahawk.resolveFromFuzzyIndexString(artist, album, title);
+        if (result) {
+            return JSON.parse(result);
+        } else {
+            return null;
+        }
     };
 
 Tomahawk.nativeAsyncRequest =

@@ -250,24 +250,29 @@ public class ScriptInterface {
 
     @JavascriptInterface
     public String searchFuzzyIndexString(String query) {
-        double[][] results = mScriptResolver.getFuzzyIndex().search(Query.get(query, false));
-        try {
-            return InfoSystemUtils.getObjectMapper().writeValueAsString(results);
-        } catch (IOException e) {
-            Log.e(TAG, "searchFuzzyIndexString: " + e.getClass() + ": " + e.getLocalizedMessage());
+        if (mScriptResolver.hasFuzzyIndex()) {
+            double[][] results = mScriptResolver.getFuzzyIndex().search(Query.get(query, false));
+            try {
+                return InfoSystemUtils.getObjectMapper().writeValueAsString(results);
+            } catch (IOException e) {
+                Log.e(TAG,
+                        "searchFuzzyIndexString: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
         }
         return null;
     }
 
     @JavascriptInterface
     public String resolveFromFuzzyIndexString(String artist, String album, String title) {
-        double[][] results = mScriptResolver.getFuzzyIndex().search(
-                Query.get(title, album, artist, false));
-        try {
-            return InfoSystemUtils.getObjectMapper().writeValueAsString(results);
-        } catch (IOException e) {
-            Log.e(TAG, "resolveFromFuzzyIndexString: " + e.getClass() + ": " + e
-                    .getLocalizedMessage());
+        if (mScriptResolver.hasFuzzyIndex()) {
+            double[][] results = mScriptResolver.getFuzzyIndex().search(
+                    Query.get(title, album, artist, false));
+            try {
+                return InfoSystemUtils.getObjectMapper().writeValueAsString(results);
+            } catch (IOException e) {
+                Log.e(TAG, "resolveFromFuzzyIndexString: " + e.getClass() + ": " + e
+                        .getLocalizedMessage());
+            }
         }
         return null;
     }
