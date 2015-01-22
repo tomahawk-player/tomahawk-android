@@ -25,6 +25,7 @@
   <string name="unknown">desconocido</string>
   <string name="no_track">Ninguna pista</string>
   <string name="save_playlist">Guardar esta playlist</string>
+  <string name="create_playlist">Crear Playlist</string>
   <string name="name_playlist">Nombre</string>
   <string name="login_name_label">Correo/nombre de usuario</string>
   <string name="login_username">Nombre de usuario</string>
@@ -71,6 +72,7 @@
   <string name="context_menu_add_to_queue">Añadir a la cola</string>
   <string name="context_menu_add_to_playlist">Agregar al playlist</string>
   <string name="context_menu_delete">Eliminar</string>
+  <string name="context_menu_removefromplaylist">Remover de la Playlist</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <string name="context_menu_removefromcollection">Remover de la coleccion</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
@@ -141,6 +143,7 @@
   <string name="time_days">Hace  %1$d día atrás</string>
   <string name="users_playbacklog_suffix">reprodujo recientemente</string>
   <string name="users_favorites_suffix">Las favoritas de</string>
+  <string name="users_playlist_suffix">Playlist de</string>
   <string name="music">Música</string>
   <string name="biography">Biografía </string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
