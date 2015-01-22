@@ -24,6 +24,7 @@
   <string name="unknown">tuntematon</string>
   <string name="no_track">ei kappaletta</string>
   <string name="save_playlist">Tallenna nykyinen soittolista</string>
+  <string name="create_playlist">Luo soittolista</string>
   <string name="name_playlist">Nimi</string>
   <string name="login_name_label">Sähköposti/käyttäjätunnus</string>
   <string name="login_username">Käyttäjätunnus</string>

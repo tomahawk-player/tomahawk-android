@@ -24,6 +24,7 @@
   <string name="unknown">onbekend</string>
   <string name="no_track">geen nummer</string>
   <string name="save_playlist">De huidige afspeellijst opslaan</string>
+  <string name="create_playlist">Afspeellijst creeëren</string>
   <string name="name_playlist">Naam</string>
   <string name="login_name_label">E-mailadres/gebruikersnaam</string>
   <string name="login_username">Gebruikersnaam</string>
