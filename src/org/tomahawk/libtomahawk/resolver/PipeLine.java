@@ -39,7 +39,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -86,8 +85,6 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
         public Result mResult;
 
         public String mUrl;
-
-        public Map<String, String> mHeaders;
     }
 
     public static class UrlResultsEvent {

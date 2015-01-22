@@ -48,7 +48,6 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
@@ -64,6 +63,8 @@ import android.widget.ImageView;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -554,20 +555,32 @@ public class ScriptResolver extends Resolver {
         ).start();
     }
 
-    public void reportStreamUrl(String resultId, String url, String stringifiedHeaders) {
-        try {
-            Map<String, String> headers = null;
-            if (stringifiedHeaders != null) {
-                headers = mObjectMapper.readValue(stringifiedHeaders, Map.class);
+    public void reportStreamUrl(final String resultId, final String url,
+            final String stringifiedHeaders) {
+        TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_PLAYBACK) {
+            @Override
+            public void run() {
+                try {
+                    Map<String, String> headers = null;
+                    if (stringifiedHeaders != null) {
+                        headers = mObjectMapper.readValue(stringifiedHeaders, Map.class);
+                    }
+                    PipeLine.StreamUrlEvent event = new PipeLine.StreamUrlEvent();
+                    event.mResult = mResultKeys.get(resultId);
+                    if (headers != null) {
+                        event.mUrl = TomahawkUtils.getRedirectedUrl(TomahawkUtils.HTTP_METHOD_GET,
+                                url, headers);
+                    } else {
+                        event.mUrl = url;
+                    }
+                    EventBus.getDefault().post(event);
+                } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+                    Log.e(TAG, "reportStreamUrl: " + e.getClass() + ": " + e
+                            .getLocalizedMessage());
+                }
             }
-            PipeLine.StreamUrlEvent event = new PipeLine.StreamUrlEvent();
-            event.mResult = mResultKeys.get(resultId);
-            event.mUrl = url;
-            event.mHeaders = headers;
-            EventBus.getDefault().post(event);
-        } catch (IOException e) {
-            Log.e(TAG, "reportStreamUrl: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
+        };
+        ThreadManager.getInstance().execute(r);
     }
 
     public void collection() {
