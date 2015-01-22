@@ -167,7 +167,11 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
 
     _callAllWaitingCallbacks: function () {
         while (this._waitingCallbacks.length > 0) {
-            this._waitingCallbacks.splice(0, 1)[0](this.cachedRequest.response);
+            var response;
+            if (this.cachedRequest) {
+                response = this.cachedRequest.response;
+            }
+            this._waitingCallbacks.splice(0, 1)[0](response);
         }
         this._isRequesting = false;
     },
@@ -280,7 +284,7 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                 }
 
                 var resultIds = Tomahawk.searchFuzzyIndex(query);
-                for (var idx = 0; idx < resultIds.length; idx++) {
+                for (var idx = 0; resultIds && idx < resultIds.length; idx++) {
                     var id = resultIds[idx][0];
                     var entry = response[id];
                     var artist = that._convertArtist(entry);
@@ -419,7 +423,7 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
             var time = Date.now();
             var resultIds = Tomahawk.resolveFromFuzzyIndex(artist, album, title);
             var resolveTarget = "";
-            if (resultIds.length > 0) {
+            if (resultIds && resultIds.length > 0) {
                 resolveTarget = "Locker";
                 Tomahawk.addTrackResults({
                     'qid': qid,
@@ -432,8 +436,8 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                 that._resolveAllAccess(qid, artist, album, title);
             }
             Tomahawk.log(resolveTarget + ": Resolved track '" + artist + " - " + title + " - "
-                + album + "' for " + (Date.now() - time) + "ms and found " + resultIds.length
-                + " track results");
+                + album + "' for " + (Date.now() - time) + "ms and found "
+                + (resultIds ? resultIds.length : 0) + " track results");
         });
     },
 
