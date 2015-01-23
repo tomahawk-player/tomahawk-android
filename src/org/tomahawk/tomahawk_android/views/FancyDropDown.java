@@ -24,17 +24,16 @@ import com.nineoldandroids.animation.ValueAnimator;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
@@ -150,20 +149,13 @@ public class FancyDropDown extends FrameLayout {
                     itemsContainer.addView(frameLayout);
                     mItemFrames.put(position, frameLayout);
                 }
-                mItemFrames.get(0).getViewTreeObserver()
-                        .addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                TomahawkUtils.afterViewGlobalLayout(
+                        new TomahawkUtils.ViewRunnable(mItemFrames.get(0)) {
                             @Override
-                            public void onGlobalLayout() {
+                            public void run() {
                                 mItemHeight = mItemFrames.get(0).getHeight();
                                 for (int i = 0; i < mItemFrames.size(); i++) {
                                     mItemFrames.get(i).getChildAt(0).setY(mItemHeight * -1);
-                                }
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                    mItemFrames.get(0).getViewTreeObserver()
-                                            .removeOnGlobalLayoutListener(this);
-                                } else {
-                                    mItemFrames.get(0).getViewTreeObserver()
-                                            .removeGlobalOnLayoutListener(this);
                                 }
                             }
                         });

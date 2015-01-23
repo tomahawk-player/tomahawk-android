@@ -37,13 +37,11 @@ import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
@@ -659,26 +657,13 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
 
     private void updateFooterSpacerHeight(final StickyListHeadersListView listView) {
         if (mHeaderSpacerHeight > 0) {
-            if (listView.getHeight() > 0) {
-                mFooterSpacerHeight = calculateFooterSpacerHeight(listView);
-            } else {
-                listView.getViewTreeObserver().addOnGlobalLayoutListener(
-                        new ViewTreeObserver.OnGlobalLayoutListener() {
-                            @Override
-                            public void onGlobalLayout() {
-                                mFooterSpacerHeight = calculateFooterSpacerHeight(
-                                        listView);
-                                notifyDataSetChanged();
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                    listView.getViewTreeObserver()
-                                            .removeOnGlobalLayoutListener(this);
-                                } else {
-                                    listView.getViewTreeObserver()
-                                            .removeGlobalOnLayoutListener(this);
-                                }
-                            }
-                        });
-            }
+            TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(listView) {
+                @Override
+                public void run() {
+                    mFooterSpacerHeight = calculateFooterSpacerHeight(listView);
+                    notifyDataSetChanged();
+                }
+            });
         }
     }
 
