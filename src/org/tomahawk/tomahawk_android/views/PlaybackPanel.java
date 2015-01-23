@@ -33,13 +33,11 @@ import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -278,44 +276,37 @@ public class PlaybackPanel extends FrameLayout {
     private void calculateAnimationPoints() {
         final View content = mSlidingUpPanelView.findViewById(R.id.content);
         if (content != null) {
-            content.getViewTreeObserver().addOnGlobalLayoutListener(
-                    new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            Resources resources = TomahawkApp.getContext().getResources();
-                            int panelHeight = resources
-                                    .getDimensionPixelSize(R.dimen.playback_panel_height);
-                            int resolverIconSize = resources.getDimensionPixelSize(
-                                    R.dimen.playback_panel_resolver_icon_size);
-                            int paddingSmall =
-                                    resources.getDimensionPixelSize(R.dimen.padding_small);
-                            mStartingPoint = new Point(
-                                    resolverIconSize + panelHeight + paddingSmall,
-                                    content.getHeight() - mTextViewContainer.getHeight() / 2
-                                            - panelHeight / 2);
+            TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(content) {
+                @Override
+                public void run() {
+                    Resources resources = TomahawkApp.getContext().getResources();
+                    int panelHeight = resources
+                            .getDimensionPixelSize(R.dimen.playback_panel_height);
+                    int resolverIconSize = resources.getDimensionPixelSize(
+                            R.dimen.playback_panel_resolver_icon_size);
+                    int paddingSmall =
+                            resources.getDimensionPixelSize(R.dimen.padding_small);
+                    mStartingPoint = new Point(
+                            resolverIconSize + panelHeight + paddingSmall,
+                            content.getHeight() - mTextViewContainer.getHeight() / 2
+                                    - panelHeight / 2);
 
-                            int padding = resources.getDimensionPixelSize(R.dimen.padding_medium);
-                            int panelBottom = resources
-                                    .getDimensionPixelSize(R.dimen.playback_clear_space_bottom);
-                            float textViewWidthSum =
-                                    mTextViewContainer.findViewById(R.id.artist_textview).getWidth()
-                                            + mTextViewContainer.findViewById(R.id.hyphen_textview)
-                                            .getWidth()
-                                            + mTextViewContainer.findViewById(R.id.track_textview)
-                                            .getWidth();
-                            mExpandedPanelPoint = new Point(
-                                    content.getHeight() + padding - panelBottom,
-                                    (int) (content.getWidth() - textViewWidthSum * 1.5f) / 2);
+                    int padding = resources.getDimensionPixelSize(R.dimen.padding_medium);
+                    int panelBottom = resources
+                            .getDimensionPixelSize(R.dimen.playback_clear_space_bottom);
+                    float textViewWidthSum =
+                            mTextViewContainer.findViewById(R.id.artist_textview).getWidth()
+                                    + mTextViewContainer.findViewById(R.id.hyphen_textview)
+                                    .getWidth()
+                                    + mTextViewContainer.findViewById(R.id.track_textview)
+                                    .getWidth();
+                    mExpandedPanelPoint = new Point(
+                            content.getHeight() + padding - panelBottom,
+                            (int) (content.getWidth() - textViewWidthSum * 1.5f) / 2);
 
-                            setupAnimations();
-
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                content.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                            } else {
-                                content.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                            }
-                        }
-                    });
+                    setupAnimations();
+                }
+            });
         }
     }
 
