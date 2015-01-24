@@ -5,6 +5,7 @@
   <string name="login">Prisijungti</string>
   <string name="logout">Atsijungti</string>
   <string name="register">Registruotis</string>
+  <string name="rescan">Peržvelgti iš naujo dabar</string>
   <string name="internal_storage">Vidinė Talpykla</string>
   <string name="tracks">Takeliai</string>
   <string name="albums">Albumai</string>
@@ -23,6 +24,7 @@
   <string name="unknown">nežinoma</string>
   <string name="no_track">nėra takelio</string>
   <string name="save_playlist">Išsaugoti dabartinį grojaraštį</string>
+  <string name="create_playlist">Sukurti grojaraštį</string>
   <string name="login_name_label">El. paštas/Vartotojo vardas</string>
   <string name="login_username">Vartotojo vardas</string>
   <string name="login_password">Slaptažodis</string>
@@ -39,12 +41,16 @@
   <string name="auth_logged_out">Atsijungta nuo</string>
   <string name="local_collection_pretty_name">Vietinė Kolekcija</string>
   <string name="preferences_services">Paslaugos</string>
+  <string name="preferences_local_collection_text">Pasirinkite katalogus, kurie turėtų būti peržvelgiami, ieškant vietinės medijos.</string>
   <string name="preferences_hatchet_text">Sinchronizuoti duomenis su %1$s.</string>
   <string name="preferences_spotify_text">Groti jūsų muziką iš %1$s. Reikalauja Premium paskyros.</string>
   <string name="preferences_info">Informacija</string>
   <string name="preferences_app_version">Programos Versija</string>
   <string name="preferences_app_uservoice">Atsiliepimai</string>
   <string name="preferences_app_uservoice_text">Pasidalinkite savo idėjomis arba paprašykite palaikymo.</string>
+  <string name="preferences_app_sendlog">Siųsti Žurnalą</string>
+  <string name="preferences_app_sendlog_text">Siųsti savo žurnalą derinimo tikslais</string>
+  <string name="preferences_app_sendlog_dialog_text">Prašome trumpai aprašyti problemą, su kuria susiduriate, ir suteikti savo el. pašto adresą, kad, jei būtina, galėtume su jumis susisiekti. Ačiū!</string>
   <string name="preferences_app_sendlog_email">Jūsų el. pašto adresas</string>
   <string name="preferences_app_sendlog_issue">Problema</string>
   <string name="crash_dialog_title">Tomahawk užstrigo</string>
@@ -63,6 +69,7 @@
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Dalintis</string>
+  <string name="context_menu_gotoartist">Pereiti prie Atlikėjo</string>
   <string name="drawer_title_feed">Kanalas</string>
   <string name="drawer_title_collection">Kolekcija</string>
   <string name="drawer_title_playlists">Grojaraščiai</string>
@@ -110,6 +117,7 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Dainos</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
+  <string name="activity">Veikla</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Sekėjai</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
