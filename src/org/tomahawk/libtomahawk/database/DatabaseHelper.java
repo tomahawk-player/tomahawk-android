@@ -35,6 +35,7 @@ import org.tomahawk.tomahawk_android.utils.MediaWithDate;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteFullException;
 import android.graphics.Bitmap;
@@ -111,6 +112,8 @@ public class DatabaseHelper {
      *                       storing in the database
      */
     public void storePlaylist(final Playlist playlist, final boolean reverseEntries) {
+        ArrayList<PlaylistEntry> entries = playlist.getEntries();
+
         ContentValues values = new ContentValues();
         values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, playlist.getName());
         values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
@@ -118,6 +121,7 @@ public class DatabaseHelper {
         values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlist.getId());
         values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
                 playlist.getHatchetId());
+        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TRACKCOUNT, entries.size());
 
         mDatabase.beginTransaction();
         mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_PLAYLISTS, null,
@@ -130,7 +134,6 @@ public class DatabaseHelper {
 
         // Store every single Track in the database and store the relationship
         // by storing the playlists's id with it
-        ArrayList<PlaylistEntry> entries = playlist.getEntries();
         for (int i = 0; i < entries.size(); i++) {
             PlaylistEntry entry;
             if (reverseEntries) {
@@ -463,25 +466,33 @@ public class DatabaseHelper {
      * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with playlistId as
      * its id
      */
-    public int getPlaylistTrackCount(String playlistId) {
-        int count = 0;
-        String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTTRACKINDEX};
-
+    public long getPlaylistTrackCount(String playlistId) {
+        long trackCount = -1;
+        String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TRACKCOUNT};
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
         if (playlistsCursor.moveToFirst()) {
-            columns = new String[]{TomahawkSQLiteHelper.TRACKS_COLUMN_ID};
-            Cursor tracksCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_TRACKS, columns,
-                    TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
-                    new String[]{playlistId}, null, null, null);
-            count = tracksCursor.getCount();
-            tracksCursor.close();
+            if (playlistsCursor.isNull(0)) {
+                // if no trackcount is stored, we calculate it and store it
+                trackCount = DatabaseUtils.queryNumEntries(mDatabase,
+                        TomahawkSQLiteHelper.TABLE_TRACKS,
+                        TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
+                        new String[]{playlistId});
+                mDatabase.beginTransaction();
+                ContentValues values = new ContentValues();
+                values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TRACKCOUNT, trackCount);
+                mDatabase.update(TomahawkSQLiteHelper.TABLE_PLAYLISTS, values,
+                        TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
+                        new String[]{playlistId});
+                mDatabase.setTransactionSuccessful();
+                mDatabase.endTransaction();
+            } else {
+                trackCount = playlistsCursor.getLong(0);
+            }
         }
         playlistsCursor.close();
-        return count;
+        return trackCount;
     }
 
     /**
@@ -510,11 +521,17 @@ public class DatabaseHelper {
      * the {@link org.tomahawk.libtomahawk.collection.Playlist} with the given playlistId
      */
     public void deleteEntryInPlaylist(final String playlistId, final String entryId) {
+        long trackCount = getPlaylistTrackCount(playlistId);
         mDatabase.beginTransaction();
-        mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
+        trackCount -= mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ? AND "
                         + TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYID
                         + " = ?", new String[]{playlistId, entryId});
+        ContentValues values = new ContentValues();
+        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TRACKCOUNT, trackCount);
+        mDatabase.update(TomahawkSQLiteHelper.TABLE_PLAYLISTS, values,
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
+                new String[]{playlistId});
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
         PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
@@ -527,7 +544,7 @@ public class DatabaseHelper {
      * org.tomahawk.libtomahawk.collection.Playlist} with the given playlistId
      */
     public void addQueriesToPlaylist(final String playlistId, final ArrayList<Query> queries) {
-        int trackCount = getPlaylistTrackCount(playlistId);
+        long trackCount = getPlaylistTrackCount(playlistId);
 
         mDatabase.beginTransaction();
         // Store every single Track in the database and store the relationship
@@ -546,7 +563,7 @@ public class DatabaseHelper {
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
                     query.getTopTrackResultKey());
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYINDEX,
-                    trackCount + i);
+                    trackCount);
             if (query.isFetchedViaHatchet()) {
                 values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
                         TRUE);
@@ -554,8 +571,15 @@ public class DatabaseHelper {
                 values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
                         FALSE);
             }
-            mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values);
+            if (mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values) != -1) {
+                trackCount++;
+            }
         }
+        ContentValues values = new ContentValues();
+        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TRACKCOUNT, trackCount);
+        mDatabase.update(TomahawkSQLiteHelper.TABLE_PLAYLISTS, values,
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
+                new String[]{playlistId});
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
         PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
@@ -569,7 +593,7 @@ public class DatabaseHelper {
      */
     public void addEntriesToPlaylist(final String playlistId,
             final ArrayList<PlaylistEntry> entries) {
-        int trackCount = getPlaylistTrackCount(playlistId);
+        long trackCount = getPlaylistTrackCount(playlistId);
 
         mDatabase.beginTransaction();
         // Store every single Track in the database and store the relationship
@@ -588,7 +612,7 @@ public class DatabaseHelper {
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_RESULTHINT,
                     entry.getQuery().getTopTrackResultKey());
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYINDEX,
-                    trackCount + i);
+                    trackCount);
             if (entry.getQuery().isFetchedViaHatchet()) {
                 values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ISFETCHEDVIAHATCHET,
                         TRUE);
@@ -598,8 +622,15 @@ public class DatabaseHelper {
             }
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYID,
                     entry.getId());
-            mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values);
+            if (mDatabase.insert(TomahawkSQLiteHelper.TABLE_TRACKS, null, values) != -1) {
+                trackCount++;
+            }
         }
+        ContentValues values = new ContentValues();
+        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TRACKCOUNT, trackCount);
+        mDatabase.update(TomahawkSQLiteHelper.TABLE_PLAYLISTS, values,
+                TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
+                new String[]{playlistId});
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
         PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
@@ -857,6 +888,10 @@ public class DatabaseHelper {
             values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_PARAMS, paramsJsonString);
         }
         mDatabase.insert(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG, null, values);
+        long logCount = getLoggedOpsCount();
+        values = new ContentValues();
+        values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOGINFO_COLUMN_LOGCOUNT, logCount + 1);
+        mDatabase.update(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOGINFO, values, null, null);
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
     }
@@ -869,26 +904,17 @@ public class DatabaseHelper {
     public void removeOpsFromInfoSystemOpLog(List<InfoRequestData> loggedOps) {
 
         mDatabase.beginTransaction();
+        int deletedLogs = 0;
         for (InfoRequestData loggedOp : loggedOps) {
-            mDatabase.delete(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
+            deletedLogs = mDatabase.delete(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
                     TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID + " = ?",
                     new String[]{String.valueOf(loggedOp.getLoggedOpId())});
         }
-        mDatabase.setTransactionSuccessful();
-        mDatabase.endTransaction();
-    }
-
-    /**
-     * Remove the operation with the given id from the InfoSystem-OpLog table
-     *
-     * @param opLogId the id of the operation to remove from the InfoSystem-OpLog table
-     */
-    public void removeOpFromInfoSystemOpLog(int opLogId) {
-
-        mDatabase.beginTransaction();
-        mDatabase.delete(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
-                TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID + " = ?",
-                new String[]{String.valueOf(opLogId)});
+        long logCount = getLoggedOpsCount();
+        ContentValues values = new ContentValues();
+        values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOGINFO_COLUMN_LOGCOUNT,
+                logCount - deletedLogs);
+        mDatabase.update(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOGINFO, values, null, null);
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
     }
@@ -932,14 +958,29 @@ public class DatabaseHelper {
     /**
      * @return the count of all logged ops that should be delivered to the API
      */
-    public int getLoggedOpsCount() {
-        String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID};
-
-        Cursor opLogCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
+    public long getLoggedOpsCount() {
+        long logCount = -1;
+        String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOGINFO_COLUMN_LOGCOUNT};
+        Cursor opLogsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOGINFO,
                 columns, null, null, null, null, null);
-        int count = opLogCursor.getCount();
-        opLogCursor.close();
-        return count;
+        if (opLogsCursor.moveToFirst()) {
+            if (opLogsCursor.isNull(0)) {
+                // if no logcount is stored, we calculate it and store it
+                logCount = DatabaseUtils
+                        .queryNumEntries(mDatabase, TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG);
+                mDatabase.beginTransaction();
+                ContentValues values = new ContentValues();
+                values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOGINFO_COLUMN_LOGCOUNT, logCount);
+                mDatabase.update(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOGINFO, values, null,
+                        null);
+                mDatabase.setTransactionSuccessful();
+                mDatabase.endTransaction();
+            } else {
+                logCount = opLogsCursor.getLong(0);
+            }
+        }
+        opLogsCursor.close();
+        return logCount;
     }
 
     /**

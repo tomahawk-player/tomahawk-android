@@ -53,6 +53,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String PLAYLISTS_COLUMN_TOPARTISTS = "topartists";
 
+    public static final String PLAYLISTS_COLUMN_TRACKCOUNT = "trackcount";
+
     public static final String TABLE_TRACKS = "tracks";
 
     public static final String TRACKS_COLUMN_ID = "id";
@@ -78,6 +80,10 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
     public static final String SEARCHHISTORY_COLUMN_ID = BaseColumns._ID;
 
     public static final String SEARCHHISTORY_COLUMN_ENTRY = "entry";
+
+    public static final String TABLE_INFOSYSTEMOPLOGINFO = "infosystemoploginfo";
+
+    public static final String INFOSYSTEMOPLOGINFO_COLUMN_LOGCOUNT = "logcount";
 
     public static final String TABLE_INFOSYSTEMOPLOG = "infosystemoplog";
 
@@ -160,7 +166,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 16;
+    private static final int DATABASE_VERSION = 17;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_PLAYLISTS =
@@ -170,7 +176,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                     + PLAYLISTS_COLUMN_CURRENTTRACKINDEX + "` INTEGER , `"
                     + PLAYLISTS_COLUMN_CURRENTREVISION + "` TEXT , `"
                     + PLAYLISTS_COLUMN_HATCHETID + "` TEXT , `"
-                    + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT );";
+                    + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT , `"
+                    + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER );";
 
     private static final String CREATE_TABLE_TRACKS =
             "CREATE TABLE `" + TABLE_TRACKS + "` (  `"
@@ -191,6 +198,10 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             "CREATE TABLE `" + TABLE_SEARCHHISTORY + "` (  `"
                     + SEARCHHISTORY_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
                     + SEARCHHISTORY_COLUMN_ENTRY + "` TEXT UNIQUE ON CONFLICT REPLACE);";
+
+    private static final String CREATE_TABLE_INFOSYSTEMOPLOGINFO =
+            "CREATE TABLE `" + TABLE_INFOSYSTEMOPLOGINFO + "` (  `"
+                    + INFOSYSTEMOPLOGINFO_COLUMN_LOGCOUNT + "` INTEGER);";
 
     private static final String CREATE_TABLE_INFOSYSTEMOPLOG =
             "CREATE TABLE `" + TABLE_INFOSYSTEMOPLOG + "` (  `"
@@ -250,6 +261,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_TABLE_PLAYLISTS);
         database.execSQL(CREATE_TABLE_TRACKS);
         database.execSQL(CREATE_TABLE_SEARCHHISTORY);
+        database.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
         database.execSQL(CREATE_TABLE_INFOSYSTEMOPLOG);
         database.execSQL(CREATE_TABLE_LOVED_ALBUMS);
         database.execSQL(CREATE_TABLE_LOVED_ARTISTS);
@@ -320,30 +332,48 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             db.execSQL(CREATE_TABLE_TRACKS);
             db.execSQL(CREATE_TABLE_MEDIA);
             db.execSQL(CREATE_TABLE_MEDIADIRS);
+            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
         } else if (oldVersion == 11) {
             db.execSQL(CREATE_TABLE_MEDIA);
             db.execSQL(CREATE_TABLE_MEDIADIRS);
             db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
                     + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
+            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
+                    + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
+            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
         } else if (oldVersion == 12) {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
             db.execSQL(CREATE_TABLE_MEDIA);
             db.execSQL(CREATE_TABLE_MEDIADIRS);
             db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
                     + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
+            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
+                    + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
+            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
         } else if (oldVersion == 13 || oldVersion == 14) {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
             db.execSQL(CREATE_TABLE_MEDIA);
             db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
                     + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
+            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
+                    + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
+            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
         } else if (oldVersion == 15) {
             db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
                     + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
+            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
+                    + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
+            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
+        } else if (oldVersion == 16) {
+            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
+                    + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
+            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
         } else {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_PLAYLISTS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_SEARCHHISTORY + "`;");
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOGINFO + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOG + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_LOVED_ALBUMS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_LOVED_ARTISTS + "`;");

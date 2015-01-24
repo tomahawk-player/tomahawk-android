@@ -48,7 +48,7 @@ public class Playlist implements TomahawkListItem {
 
     private String[] mTopArtistNames;
 
-    private int mCount;
+    private long mCount;
 
     private boolean mIsFilled;
 
@@ -381,11 +381,11 @@ public class Playlist implements TomahawkListItem {
         return null;
     }
 
-    public int getCount() {
+    public long getCount() {
         return mCount;
     }
 
-    public void setCount(int count) {
+    public void setCount(long count) {
         mCount = count;
     }
 
