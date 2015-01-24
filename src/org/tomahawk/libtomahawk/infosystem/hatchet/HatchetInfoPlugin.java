@@ -252,7 +252,11 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 .getEmptyPlaylist(params.playlist_local_id);
                     }
                     playlist = InfoSystemUtils.fillPlaylist(playlist, playlistEntries);
-                    playlist.setCurrentRevision(playlistEntries.playlists.get(0).currentrevision);
+                    if (playlist != null && playlistEntries.playlists != null
+                            && playlistEntries.playlists.size() > 0) {
+                        playlist.setCurrentRevision(
+                                playlistEntries.playlists.get(0).currentrevision);
+                    }
                     infoRequestData.setResult(playlist);
                     return true;
                 }
