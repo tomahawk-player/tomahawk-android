@@ -56,11 +56,24 @@ public class PlaylistsFragment extends TomahawkFragment {
 
     private HashSet<User> mResolvingUsers = new HashSet<>();
 
+    private ArrayList<Playlist> mPlaylists = new ArrayList<>();
+
+    @SuppressWarnings("unused")
+    public void onEventAsync(DatabaseHelper.PlaylistsUpdatedEvent event) {
+        HatchetAuthenticatorUtils authenticatorUtils
+                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        if (mUser == null || mUser == authenticatorUtils.getLoggedInUser()) {
+            refreshPlaylists();
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
 
         CollectionManager.getInstance().fetchPlaylists();
+        refreshPlaylists();
 
         if (mContainerFragmentClass == null) {
             getActivity().setTitle(getString(R.string.drawer_title_playlists).toUpperCase());
@@ -134,7 +147,7 @@ public class PlaylistsFragment extends TomahawkFragment {
             }
             segment = new Segment(playlists);
         } else {
-            playlists.addAll(DatabaseHelper.getInstance().getPlaylists());
+            playlists.addAll(mPlaylists);
             segment = new Segment(playlists, R.integer.grid_column_count,
                     R.dimen.padding_superlarge, R.dimen.padding_superlarge);
         }
@@ -152,31 +165,50 @@ public class PlaylistsFragment extends TomahawkFragment {
 
     @Override
     protected void resolveItem(final TomahawkListItem item) {
-        TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
-            @Override
-            public void run() {
-                if (!mResolvingItems.contains(item)) {
-                    mResolvingItems.add(item);
-                    Playlist pl = (Playlist) item;
-                    if (pl.getEntries().size() == 0) {
-                        pl = DatabaseHelper.getInstance().getPlaylist(pl.getId());
-                    }
-                    if (pl != null && pl.getEntries().size() > 0) {
-                        pl.updateTopArtistNames();
-                        DatabaseHelper.getInstance().updatePlaylist(pl);
-                        if (pl.getTopArtistNames() != null) {
-                            for (int i = 0; i < pl.getTopArtistNames().length && i < 5; i++) {
-                                PlaylistsFragment.super
-                                        .resolveItem(Artist.get(pl.getTopArtistNames()[i]));
-                            }
+        HatchetAuthenticatorUtils authenticatorUtils
+                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        if (mUser == null || mUser == authenticatorUtils.getLoggedInUser()) {
+            TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
+                @Override
+                public void run() {
+                    if (!mResolvingItems.contains(item)) {
+                        mResolvingItems.add(item);
+                        Playlist pl = (Playlist) item;
+                        if (pl.getEntries().size() == 0) {
+                            pl = DatabaseHelper.getInstance().getPlaylist(pl.getId());
                         }
-                    } else {
-                        mResolvingItems.remove(item);
+                        if (pl != null && pl.getEntries().size() > 0) {
+                            pl.updateTopArtistNames();
+                            DatabaseHelper.getInstance().updatePlaylist(pl);
+                            if (pl.getTopArtistNames() != null) {
+                                for (int i = 0; i < pl.getTopArtistNames().length && i < 5; i++) {
+                                    PlaylistsFragment.super
+                                            .resolveItem(Artist.get(pl.getTopArtistNames()[i]));
+                                }
+                            }
+                        } else {
+                            mResolvingItems.remove(item);
+                        }
                     }
                 }
-            }
-        };
-        ThreadManager.getInstance().execute(r);
+            };
+            ThreadManager.getInstance().execute(r);
+        }
+    }
+
+    private void refreshPlaylists() {
+        ThreadManager.getInstance().execute(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
+                    @Override
+                    public void run() {
+                        mPlaylists = DatabaseHelper.getInstance().getPlaylists();
+                        if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+                            mAdapterUpdateHandler.sendEmptyMessageDelayed(
+                                    ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
+                        }
+                    }
+                });
     }
 
 }
