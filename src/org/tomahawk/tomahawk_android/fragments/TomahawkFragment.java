@@ -177,7 +177,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     };
 
     // Handler which reports the PipeLine's and InfoSystem's results in intervals
-    private final Handler mAdapterUpdateHandler = new Handler() {
+    protected final Handler mAdapterUpdateHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             removeMessages(msg.what);
@@ -237,17 +237,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
                         ADAPTER_UPDATE_DELAY);
             }
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(DatabaseHelper.PlaylistsUpdatedEvent event) {
-        if (mPlaylist != null && mPlaylist.getId().equals(event.mPlaylistId)) {
-            refreshCurrentPlaylist();
-        }
-        if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-            mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
-                    ADAPTER_UPDATE_DELAY);
         }
     }
 
@@ -579,33 +568,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 }
             }
         }
-    }
-
-    protected void refreshCurrentPlaylist() {
-        ThreadManager.getInstance().execute(
-                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
-                    @Override
-                    public void run() {
-                        HatchetAuthenticatorUtils authenticatorUtils
-                                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                        if (mUser != authenticatorUtils.getLoggedInUser()) {
-                            mCorrespondingRequestIds
-                                    .add(InfoSystem.getInstance().resolve(mPlaylist));
-                        } else {
-                            Playlist playlist =
-                                    DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());
-                            if (playlist != null) {
-                                mPlaylist = playlist;
-                                if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-                                    mAdapterUpdateHandler.sendEmptyMessageDelayed(
-                                            ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
-                                }
-                            }
-                        }
-                    }
-                }
-        );
     }
 }
 

@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -24,6 +26,7 @@ import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -42,6 +45,13 @@ import java.util.List;
  * org.tomahawk.libtomahawk.collection.Track}s inside its {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class PlaylistEntriesFragment extends TomahawkFragment {
+
+    @SuppressWarnings("unused")
+    public void onEvent(DatabaseHelper.PlaylistsUpdatedEvent event) {
+        if (mPlaylist != null && mPlaylist.getId().equals(event.mPlaylistId)) {
+            refreshCurrentPlaylist();
+        }
+    }
 
     @Override
     public void onResume() {
@@ -160,5 +170,32 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         }
 
         onUpdateAdapterFinished();
+    }
+
+    protected void refreshCurrentPlaylist() {
+        ThreadManager.getInstance().execute(
+                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
+                    @Override
+                    public void run() {
+                        HatchetAuthenticatorUtils authenticatorUtils
+                                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                        if (mUser != authenticatorUtils.getLoggedInUser()) {
+                            mCorrespondingRequestIds
+                                    .add(InfoSystem.getInstance().resolve(mPlaylist));
+                        } else {
+                            Playlist playlist =
+                                    DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());
+                            if (playlist != null) {
+                                mPlaylist = playlist;
+                                if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+                                    mAdapterUpdateHandler.sendEmptyMessageDelayed(
+                                            ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
+                                }
+                            }
+                        }
+                    }
+                }
+        );
     }
 }
