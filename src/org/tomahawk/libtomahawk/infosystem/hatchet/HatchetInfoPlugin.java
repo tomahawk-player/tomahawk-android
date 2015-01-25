@@ -31,6 +31,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -78,6 +79,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import retrofit.RequestInterceptor;
@@ -223,7 +226,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
                 HatchetPlaylistEntries entries = mHatchet.getUsersPlaylists(params.userid);
                 if (entries != null) {
-                    List<Playlist> playlists = new ArrayList<Playlist>();
+                    TreeSet<Playlist> playlists = new TreeSet<>(new TomahawkListItemComparator(
+                            TomahawkListItemComparator.COMPARE_ALPHA));
                     for (HatchetPlaylistInfo playlistInfo : entries.playlists) {
                         playlists.add(InfoSystemUtils.convertToPlaylist(playlistInfo));
                     }
@@ -563,7 +567,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                         user, track, artist, image));
                             }
                         }
-                        Map<User, String> relationships = new HashMap<User, String>();
+                        TreeMap<User, String> relationships =
+                                new TreeMap<>(new TomahawkListItemComparator(
+                                        TomahawkListItemComparator.COMPARE_ALPHA));
                         for (User user : convertedUsers) {
                             relationships.put(user, relationShipIds.get(user.getId()));
                         }

@@ -23,6 +23,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
@@ -51,6 +52,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 
 import de.greenrobot.event.EventBus;
 
@@ -290,8 +292,9 @@ public class DatabaseHelper {
     /**
      * @return every stored {@link org.tomahawk.libtomahawk.collection.Playlist} in the database
      */
-    public ArrayList<Playlist> getPlaylists() {
-        ArrayList<Playlist> playListList = new ArrayList<Playlist>();
+    public TreeSet<Playlist> getPlaylists() {
+        TreeSet<Playlist> playListList = new TreeSet<>(
+                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID};
 
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
