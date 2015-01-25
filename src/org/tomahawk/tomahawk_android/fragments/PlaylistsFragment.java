@@ -131,7 +131,6 @@ public class PlaylistsFragment extends TomahawkFragment {
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
         List playlists = new ArrayList();
-        playlists.add(CREATE_PLAYLIST_BUTTON_ID);
         HatchetAuthenticatorUtils authenticatorUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
@@ -147,6 +146,7 @@ public class PlaylistsFragment extends TomahawkFragment {
             }
             segment = new Segment(playlists);
         } else {
+            playlists.add(CREATE_PLAYLIST_BUTTON_ID);
             playlists.addAll(mPlaylists);
             segment = new Segment(playlists, R.integer.grid_column_count,
                     R.dimen.padding_superlarge, R.dimen.padding_superlarge);
