@@ -76,6 +76,8 @@ public class CollectionManager {
 
     private HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
 
+    private HashSet<String> mResolvingHatchetIds = new HashSet<String>();
+
     private Set<String> mShowAsDeletedPlaylistMap =
             Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
@@ -318,14 +320,21 @@ public class CollectionManager {
         String name = DatabaseHelper.getInstance().getPlaylistName(playlistId);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             if (hatchetId != null) {
-                Log.d(TAG, "Hatchet sync - fetching entry list for playlist \"" + name
-                        + "\", hatchetId: " + hatchetId);
-                QueryParams params = new QueryParams();
-                params.playlist_local_id = playlistId;
-                params.playlist_id = hatchetId;
-                String requestid = InfoSystem.getInstance().resolve(
-                        InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params);
-                mCorrespondingRequestIds.add(requestid);
+                if (!mResolvingHatchetIds.contains(hatchetId)) {
+                    Log.d(TAG, "Hatchet sync - fetching entry list for playlist \"" + name
+                            + "\", hatchetId: " + hatchetId);
+                    mResolvingHatchetIds.add(hatchetId);
+                    QueryParams params = new QueryParams();
+                    params.playlist_local_id = playlistId;
+                    params.playlist_id = hatchetId;
+                    String requestid = InfoSystem.getInstance().resolve(
+                            InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params);
+                    mCorrespondingRequestIds.add(requestid);
+                } else {
+                    Log.d(TAG, "Hatchet sync - couldn't fetch entry list for playlist \""
+                            + name + "\", because this playlist is already waiting for its entry "
+                            + "list, hatchetId: " + hatchetId);
+                }
             } else {
                 Log.d(TAG, "Hatchet sync - couldn't fetch entry list for playlist \""
                         + name + "\" because hatchetId was null");
@@ -407,6 +416,7 @@ public class CollectionManager {
                     Log.d(TAG, "Hatchet sync - received entry list for playlist \""
                             + filledList.getName() + "\", hatchetId: " + filledList.getHatchetId()
                             + ", count: " + filledList.getEntries().size());
+                    mResolvingHatchetIds.remove(filledList.getHatchetId());
                     DatabaseHelper.getInstance().storePlaylist(filledList, false);
                 }
             } else if (data.getHttpType() == InfoRequestData.HTTPTYPE_POST) {
