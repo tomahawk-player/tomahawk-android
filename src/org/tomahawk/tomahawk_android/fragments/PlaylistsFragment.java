@@ -120,6 +120,17 @@ public class PlaylistsFragment extends TomahawkFragment {
     }
 
     /**
+     * Called every time an item inside a ListView or GridView is long-clicked
+     *
+     * @param item the Object which corresponds to the long-click
+     */
+    @Override
+    public boolean onItemLongClick(View view, Object item) {
+        return item.equals(CREATE_PLAYLIST_BUTTON_ID) || FragmentUtils
+                .showContextMenu((TomahawkMainActivity) getActivity(), item, null, null);
+    }
+
+    /**
      * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
      */
     @Override
