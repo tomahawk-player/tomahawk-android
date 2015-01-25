@@ -135,7 +135,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected Set<String> mCorrespondingRequestIds =
             Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-    private HashSet<TomahawkListItem> mResolvingItems = new HashSet<TomahawkListItem>();
+    protected HashSet<TomahawkListItem> mResolvingItems = new HashSet<TomahawkListItem>();
 
     protected Set<Query> mCorrespondingQueries
             = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
@@ -565,12 +565,18 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             if (item instanceof SocialAction) {
                 resolveItem(((SocialAction) item).getTargetObject());
                 resolveItem(((SocialAction) item).getUser());
-            } else if (item instanceof Album && item.getImage() == null) {
-                mCorrespondingRequestIds.add(infoSystem.resolve((Album) item));
-            } else if (item instanceof Artist && item.getImage() == null) {
-                mCorrespondingRequestIds.addAll(infoSystem.resolve((Artist) item, false));
-            } else if (item instanceof User && item.getImage() == null) {
-                mCorrespondingRequestIds.add(infoSystem.resolve((User) item));
+            } else if (item instanceof Album) {
+                if (item.getImage() == null) {
+                    mCorrespondingRequestIds.add(infoSystem.resolve((Album) item));
+                }
+            } else if (item instanceof Artist) {
+                if (item.getImage() == null) {
+                    mCorrespondingRequestIds.addAll(infoSystem.resolve((Artist) item, false));
+                }
+            } else if (item instanceof User) {
+                if (item.getImage() == null) {
+                    mCorrespondingRequestIds.add(infoSystem.resolve((User) item));
+                }
             }
         }
     }
