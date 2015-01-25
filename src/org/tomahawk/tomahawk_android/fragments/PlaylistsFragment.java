@@ -34,7 +34,9 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -149,13 +151,32 @@ public class PlaylistsFragment extends TomahawkFragment {
     }
 
     @Override
-    protected void resolveItem(TomahawkListItem item) {
-        Playlist pl = (Playlist) item;
-        if (pl.getTopArtistNames() != null) {
-            for (int i = 0; i < pl.getTopArtistNames().length && i < 5; i++) {
-                super.resolveItem(Artist.get(pl.getTopArtistNames()[i]));
+    protected void resolveItem(final TomahawkListItem item) {
+        TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
+            @Override
+            public void run() {
+                if (!mResolvingItems.contains(item)) {
+                    mResolvingItems.add(item);
+                    Playlist pl = (Playlist) item;
+                    if (pl.getEntries().size() == 0) {
+                        pl = DatabaseHelper.getInstance().getPlaylist(pl.getId());
+                    }
+                    if (pl != null && pl.getEntries().size() > 0) {
+                        pl.updateTopArtistNames();
+                        DatabaseHelper.getInstance().updatePlaylist(pl);
+                        if (pl.getTopArtistNames() != null) {
+                            for (int i = 0; i < pl.getTopArtistNames().length && i < 5; i++) {
+                                PlaylistsFragment.super
+                                        .resolveItem(Artist.get(pl.getTopArtistNames()[i]));
+                            }
+                        }
+                    } else {
+                        mResolvingItems.remove(item);
+                    }
+                }
             }
-        }
+        };
+        ThreadManager.getInstance().execute(r);
     }
 
 }

@@ -470,7 +470,6 @@ public class CollectionManager {
         Log.d(TAG, "Hatchet sync - creating playlist \"" + playlist.getName() + "\", id: "
                 + playlist.getId() + " with " + playlist.getEntries().size() + " entries");
         DatabaseHelper.getInstance().storePlaylist(playlist, false);
-        updateTopArtists(playlist.getId());
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         List<String> requestIds = InfoSystem.getInstance()
@@ -490,7 +489,6 @@ public class CollectionManager {
         if (playlistName != null) {
             Log.d(TAG, "Hatchet sync - adding " + entries.size() + " entries to \""
                     + playlistName + "\", id: " + playlistId);
-            updateTopArtists(playlistId);
             DatabaseHelper.getInstance().addEntriesToPlaylist(playlistId, entries);
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
@@ -509,7 +507,6 @@ public class CollectionManager {
         if (playlistName != null) {
             Log.d(TAG, "Hatchet sync - deleting playlist entry in \"" + playlistName
                     + "\", playlistId: " + playlistId + ", entryId: " + entryId);
-            updateTopArtists(playlistId);
             DatabaseHelper.getInstance().deleteEntryInPlaylist(playlistId, entryId);
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
@@ -540,13 +537,5 @@ public class CollectionManager {
             }
         }
         return collections;
-    }
-
-    private void updateTopArtists(String playlistId) {
-        Playlist playlist = DatabaseHelper.getInstance().getPlaylist(playlistId);
-        if (playlist != null && playlist.getEntries().size() > 0) {
-            playlist.updateTopArtistNames();
-            DatabaseHelper.getInstance().updatePlaylist(playlist);
-        }
     }
 }

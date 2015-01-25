@@ -368,10 +368,6 @@ public class DatabaseHelper {
             String rawTopArtistsString = playlistsCursor.getString(3);
             if (rawTopArtistsString != null && rawTopArtistsString.length() > 0) {
                 playlist.setTopArtistNames(rawTopArtistsString.split("\t\t"));
-            } else {
-                playlist = getPlaylist(playlistId);
-                playlist.updateTopArtistNames();
-                DatabaseHelper.getInstance().updatePlaylist(playlist);
             }
             playlistsCursor.close();
             playlist.setCount(getPlaylistTrackCount(playlistId));
@@ -448,11 +444,7 @@ public class DatabaseHelper {
             String rawTopArtistsString = playlistsCursor.getString(3);
             if (rawTopArtistsString != null && rawTopArtistsString.length() > 0) {
                 playlist.setTopArtistNames(rawTopArtistsString.split("\t\t"));
-            } else {
-                playlist.setTopArtistNames(new String[]{});
             }
-            playlist.updateTopArtistNames();
-            DatabaseHelper.getInstance().updatePlaylist(playlist);
             playlistsCursor.close();
             playlist.setCount(getPlaylistTrackCount(playlistId));
             return playlist;
@@ -963,21 +955,19 @@ public class DatabaseHelper {
         String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOGINFO_COLUMN_LOGCOUNT};
         Cursor opLogsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOGINFO,
                 columns, null, null, null, null, null);
-        if (opLogsCursor.moveToFirst()) {
-            if (opLogsCursor.isNull(0)) {
-                // if no logcount is stored, we calculate it and store it
-                logCount = DatabaseUtils
-                        .queryNumEntries(mDatabase, TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG);
-                mDatabase.beginTransaction();
-                ContentValues values = new ContentValues();
-                values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOGINFO_COLUMN_LOGCOUNT, logCount);
-                mDatabase.update(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOGINFO, values, null,
-                        null);
-                mDatabase.setTransactionSuccessful();
-                mDatabase.endTransaction();
-            } else {
-                logCount = opLogsCursor.getLong(0);
-            }
+        if (!opLogsCursor.moveToFirst() || opLogsCursor.isNull(0)) {
+            // if no logcount is stored, we calculate it and store it
+            logCount = DatabaseUtils
+                    .queryNumEntries(mDatabase, TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG);
+            mDatabase.beginTransaction();
+            ContentValues values = new ContentValues();
+            values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOGINFO_COLUMN_LOGCOUNT, logCount);
+            mDatabase.update(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOGINFO, values, null,
+                    null);
+            mDatabase.setTransactionSuccessful();
+            mDatabase.endTransaction();
+        } else {
+            logCount = opLogsCursor.getLong(0);
         }
         opLogsCursor.close();
         return logCount;
