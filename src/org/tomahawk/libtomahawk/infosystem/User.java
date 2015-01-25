@@ -32,9 +32,9 @@ import android.util.SparseArray;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class User implements TomahawkListItem {
@@ -72,13 +72,13 @@ public class User implements TomahawkListItem {
 
     private Playlist mFavorites;
 
-    private Map<User, String> mFollowings = new HashMap<User, String>();
+    private TreeMap<User, String> mFollowings = new TreeMap<>();
 
-    private Map<User, String> mFollowers = new HashMap<User, String>();
+    private TreeMap<User, String> mFollowers = new TreeMap<>();
 
     private List<Album> mStarredAlbums = new ArrayList<Album>();
 
-    private List<Playlist> mPlaylists = new ArrayList<Playlist>();
+    private TreeSet<Playlist> mPlaylists = new TreeSet<>();
 
     /**
      * Construct a new {@link User} with the given id
@@ -246,19 +246,19 @@ public class User implements TomahawkListItem {
         return mFavorites;
     }
 
-    public Map<User, String> getFollowings() {
+    public TreeMap<User, String> getFollowings() {
         return mFollowings;
     }
 
-    public void setFollowings(Map<User, String> followings) {
+    public void setFollowings(TreeMap<User, String> followings) {
         mFollowings = followings;
     }
 
-    public Map<User, String> getFollowers() {
+    public TreeMap<User, String> getFollowers() {
         return mFollowers;
     }
 
-    public void setFollowers(Map<User, String> followers) {
+    public void setFollowers(TreeMap<User, String> followers) {
         mFollowers = followers;
     }
 
@@ -270,11 +270,11 @@ public class User implements TomahawkListItem {
         mStarredAlbums = starredAlbums;
     }
 
-    public List<Playlist> getPlaylists() {
+    public TreeSet<Playlist> getPlaylists() {
         return mPlaylists;
     }
 
-    public void setPlaylists(List<Playlist> playlists) {
+    public void setPlaylists(TreeSet<Playlist> playlists) {
         mPlaylists = playlists;
     }
 }

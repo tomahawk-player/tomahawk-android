@@ -49,7 +49,6 @@ public class TomahawkListItemComparator
      *             compared
      */
     public TomahawkListItemComparator(int flag) {
-        super();
         mFlag = flag;
     }
 
@@ -62,7 +61,6 @@ public class TomahawkListItemComparator
      *                     TomahawkListItems which will be sorted
      */
     public TomahawkListItemComparator(int flag, ConcurrentHashMap timeStampMap) {
-        super();
         mFlag = flag;
         mTimeStampMap = new HashMap(timeStampMap);
     }
@@ -75,11 +73,14 @@ public class TomahawkListItemComparator
      * @return int containing comparison score
      */
     public int compare(TomahawkListItem a1, TomahawkListItem a2) {
+        int result = 0;
         switch (mFlag) {
             case COMPARE_ALPHA:
-                return a1.getName().compareToIgnoreCase(a2.getName());
+                result = a1.getName().compareToIgnoreCase(a2.getName());
+                break;
             case COMPARE_ARTIST_ALPHA:
-                return a1.getArtist().getName().compareToIgnoreCase(a2.getArtist().getName());
+                result = a1.getArtist().getName().compareToIgnoreCase(a2.getArtist().getName());
+                break;
             case COMPARE_RECENTLY_ADDED:
                 Long a1TimeStamp;
                 if (a1 instanceof Query) {
@@ -95,17 +96,21 @@ public class TomahawkListItemComparator
                 }
 
                 if (a1TimeStamp == null && a2TimeStamp == null) {
-                    return 0;
+                    result = 0;
                 } else if (a1TimeStamp == null
                         || (a2TimeStamp != null && a1TimeStamp > a2TimeStamp)) {
-                    return -1;
+                    result = -1;
                 } else if (a2TimeStamp == null
                         || a1TimeStamp < a2TimeStamp) {
-                    return 1;
+                    result = 1;
                 } else {
-                    return 0;
+                    result = 0;
                 }
+                break;
         }
-        return 0;
+        if (result == 0 && a1 != a2) {
+            result++;
+        }
+        return result;
     }
 }

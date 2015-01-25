@@ -350,7 +350,7 @@ public class CollectionManager {
 
     public void handleHatchetPlaylistResponse(InfoRequestData data) {
         if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
-            ArrayList<Playlist> storedLists = DatabaseHelper.getInstance().getPlaylists();
+            Set<Playlist> storedLists = DatabaseHelper.getInstance().getPlaylists();
             HashMap<String, Playlist> storedListsMap = new HashMap<String, Playlist>();
             for (Playlist storedList : storedLists) {
                 if (storedListsMap.containsKey(storedList.getHatchetId())) {
