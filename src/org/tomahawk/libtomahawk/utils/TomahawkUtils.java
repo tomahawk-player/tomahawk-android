@@ -10,6 +10,8 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
@@ -28,6 +30,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.app.Notification;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -915,5 +918,34 @@ public class TomahawkUtils {
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting()
                 && activeNetwork.getType() == ConnectivityManager.TYPE_WIFI;
+    }
+
+    public static float[] getFloatArray(SharedPreferences pref, String key) {
+        float[] array = null;
+        String s = pref.getString(key, null);
+        if (s != null) {
+            try {
+                JSONArray json = new JSONArray(s);
+                array = new float[json.length()];
+                for (int i = 0; i < array.length; i++) {
+                    array[i] = (float) json.getDouble(i);
+                }
+            } catch (JSONException e) {
+                Log.e(TAG, "getFloatArray: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
+        }
+        return array;
+    }
+
+    public static void putFloatArray(SharedPreferences.Editor editor, String key, float[] array) {
+        try {
+            JSONArray json = new JSONArray();
+            for (float f : array) {
+                json.put(f);
+            }
+            editor.putString("equalizer_values", json.toString());
+        } catch (JSONException e) {
+            Log.e(TAG, "putFloatArray: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
     }
 }
