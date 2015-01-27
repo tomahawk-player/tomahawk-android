@@ -48,6 +48,8 @@
   <string name="preferences_hatchet_text">Synkronoi tietosi palvelun %1$s kanssa.</string>
   <string name="preferences_spotify_text">Soita musiikkiasi palvelusta %1$s. Tarvitsee Premium-tilin.</string>
   <string name="preferences_playback">Soitto</string>
+  <string name="preferences_equalizer">Taajuuskorjain</string>
+  <string name="preferences_equalizer_text">Mukauta äänen ulostuloa.</string>
   <string name="preferences_playback_data">Skrobblaa kaikki</string>
   <string name="preferences_playback_data_text">Skrobblaa kaikki puhelimen millä tahansa musiikkisoittimella kuunnellut kappaleet palveluun %1$s.</string>
   <string name="preferences_plug_and_play">Aloita soitto kytkemällä</string>
@@ -163,4 +165,5 @@
   <string name="connect_headertext">Valitse palvelut, joita haluat käyttää. Tomahawk toimii sitä paremmin, mitä enemmän palveluita on käytössä.</string>
   <string name="advanced">Lisäasetukset</string>
   <string name="info">Info</string>
+  <string name="equalizer">Taajuuskorjain</string>
 </resources>
