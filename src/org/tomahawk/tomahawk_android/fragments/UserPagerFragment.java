@@ -78,20 +78,22 @@ public class UserPagerFragment extends PagerFragment {
                 HatchetAuthenticatorUtils authUtils =
                         (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                if (authUtils.getLoggedInUser().getFollowings().containsKey(mUser)) {
-                    String relationshipId =
-                            authUtils.getLoggedInUser().getFollowings().get(mUser);
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
-                            .deleteRelationship(authUtils, relationshipId));
-                    mShowFakeNotFollowing = true;
-                    mShowFakeFollowing = false;
-                } else {
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
-                            .sendRelationshipPostStruct(authUtils, mUser));
-                    mShowFakeNotFollowing = false;
-                    mShowFakeFollowing = true;
+                if (authUtils.getLoggedInUser().getFollowings() != null) {
+                    if (authUtils.getLoggedInUser().getFollowings().containsKey(mUser)) {
+                        String relationshipId =
+                                authUtils.getLoggedInUser().getFollowings().get(mUser);
+                        mCorrespondingRequestIds.add(InfoSystem.getInstance()
+                                .deleteRelationship(authUtils, relationshipId));
+                        mShowFakeNotFollowing = true;
+                        mShowFakeFollowing = false;
+                    } else {
+                        mCorrespondingRequestIds.add(InfoSystem.getInstance()
+                                .sendRelationshipPostStruct(authUtils, mUser));
+                        mShowFakeNotFollowing = false;
+                        mShowFakeFollowing = true;
+                    }
+                    showContentHeader(mUser);
                 }
-                showContentHeader(mUser);
             }
         };
 
