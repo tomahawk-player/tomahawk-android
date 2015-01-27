@@ -310,12 +310,14 @@ public class ViewHolder {
                 user, Image.getSmallImageSize(), mUserTextView1);
         mTextView1.setText(user.getName().toUpperCase());
         if (showFollowing) {
+            mFollowButton.setVisibility(View.VISIBLE);
             mFollowButton
                     .setBackgroundResource(R.drawable.selectable_background_button_green_filled);
             mFollowButton.setOnClickListener(followButtonListener);
             mFollowButtonTextView.setText(TomahawkApp.getContext().getString(
                     R.string.content_header_following).toUpperCase());
         } else if (showNotFollowing) {
+            mFollowButton.setVisibility(View.VISIBLE);
             mFollowButton
                     .setBackgroundResource(R.drawable.selectable_background_button_green);
             mFollowButton.setOnClickListener(followButtonListener);
