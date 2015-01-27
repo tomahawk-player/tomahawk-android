@@ -38,7 +38,7 @@ public class TomahawkListItemComparator
     public static final int COMPARE_RECENTLY_ADDED = 2;
 
     //Flag containing the current mode to be used
-    private static int mFlag = COMPARE_ALPHA;
+    private int mFlag = COMPARE_ALPHA;
 
     private HashMap mTimeStampMap;
 
