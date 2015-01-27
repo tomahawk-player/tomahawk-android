@@ -148,7 +148,7 @@ public class PlaylistsFragment extends TomahawkFragment {
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         Segment segment;
         if (mUser != null && mUser != authenticatorUtils.getLoggedInUser()) {
-            if (mUser.getPlaylists().size() == 0) {
+            if (mUser.getPlaylists() == null) {
                 if (!mResolvingUsers.contains(mUser)) {
                     mCorrespondingRequestIds.add(InfoSystem.getInstance().resolvePlaylists(mUser));
                     mResolvingUsers.add(mUser);

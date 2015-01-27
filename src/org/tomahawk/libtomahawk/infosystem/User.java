@@ -72,13 +72,13 @@ public class User implements TomahawkListItem {
 
     private Playlist mFavorites;
 
-    private TreeMap<User, String> mFollowings = new TreeMap<>();
+    private TreeMap<User, String> mFollowings;
 
-    private TreeMap<User, String> mFollowers = new TreeMap<>();
+    private TreeMap<User, String> mFollowers;
 
     private List<Album> mStarredAlbums = new ArrayList<Album>();
 
-    private TreeSet<Playlist> mPlaylists = new TreeSet<>();
+    private TreeSet<Playlist> mPlaylists;
 
     /**
      * Construct a new {@link User} with the given id

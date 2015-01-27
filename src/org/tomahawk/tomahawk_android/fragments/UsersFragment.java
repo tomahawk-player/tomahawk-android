@@ -97,12 +97,12 @@ public class UsersFragment extends TomahawkFragment {
 
         List users = new ArrayList();
         if (mShowMode == SHOW_MODE_TYPE_FOLLOWERS) {
-            if (mUser.getFollowers() != null && mUser.getFollowers().size() > 0) {
+            if (mUser.getFollowers() != null) {
                 users.addAll(mUser.getFollowers().keySet());
             }
         } else if (mUserArray != null) {
             users.addAll(mUserArray);
-        } else if (mUser.getFollowings() != null && mUser.getFollowings().size() > 0) {
+        } else if (mUser.getFollowings() != null) {
             users.addAll(mUser.getFollowings().keySet());
         }
         Segment segment = new Segment(users, R.integer.grid_column_count,

@@ -306,10 +306,11 @@ public class ContentHeaderFragment extends Fragment {
                     showFollowing = mShowFakeFollowing;
                     showNotFollowing = mShowFakeNotFollowing;
                 } else if (authUtils.getLoggedInUser() != null) {
-                    showFollowing = item != authUtils.getLoggedInUser()
-                            && authUtils.getLoggedInUser().getFollowings().containsKey(item);
-                    showNotFollowing = item != authUtils.getLoggedInUser()
-                            && !authUtils.getLoggedInUser().getFollowings().containsKey(item);
+                    User user = authUtils.getLoggedInUser();
+                    showFollowing = item != user && user.getFollowings() != null
+                            && user.getFollowings().containsKey(item);
+                    showNotFollowing = item != user && user.getFollowings() != null
+                            && !user.getFollowings().containsKey(item);
                 }
                 viewHolder.fillContentHeader((User) item, showFollowing, showNotFollowing,
                         mFollowButtonListener);
