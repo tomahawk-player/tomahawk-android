@@ -65,14 +65,18 @@ public class UserPagerFragment extends PagerFragment {
                     return;
                 } else if (mUser.getName() == null) {
                     mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mUser));
-                } else if (mUser.getFollowings() == null) {
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFollowings(mUser));
                 }
             }
         }
+        HatchetAuthenticatorUtils authUtils =
+                (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        User user = authUtils.getLoggedInUser();
+        if (user != null && user.getFollowings() == null) {
+            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFollowings(user));
+        }
 
         mFollowButtonListener = new View.OnClickListener() {
-
             @Override
             public void onClick(View v) {
                 HatchetAuthenticatorUtils authUtils =
@@ -180,8 +184,8 @@ public class UserPagerFragment extends PagerFragment {
 
         InfoRequestData sentLoggedOp = InfoSystem.getInstance()
                 .getSentLoggedOpById(infoRequestData.getRequestId());
-        if (sentLoggedOp != null && sentLoggedOp.getType()
-                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS
+        if (sentLoggedOp != null
+                && sentLoggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS
                 && (sentLoggedOp.getHttpType() == InfoRequestData.HTTPTYPE_DELETE
                 || sentLoggedOp.getHttpType() == InfoRequestData.HTTPTYPE_POST)) {
             HatchetAuthenticatorUtils authUtils
@@ -193,7 +197,7 @@ public class UserPagerFragment extends PagerFragment {
                 mCorrespondingRequestIds.add(requestId);
             }
         }
-        if (infoRequestData != null && infoRequestData.getType()
+        if (infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS) {
             mShowFakeFollowing = false;
             mShowFakeNotFollowing = false;

@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -30,7 +28,6 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -85,14 +82,6 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     for (int i = 0; i < mUser.getSocialActions().size(); i++) {
                         mCorrespondingRequestIds.add(
                                 InfoSystem.getInstance().resolveSocialActions(mUser, i));
-                    }
-                    HatchetAuthenticatorUtils authUtils = (HatchetAuthenticatorUtils)
-                            AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                                    TomahawkApp.PLUGINNAME_HATCHET);
-                    String requestId =
-                            InfoSystem.getInstance().resolveFollowings(authUtils.getLoggedInUser());
-                    if (requestId != null) {
-                        mCorrespondingRequestIds.add(requestId);
                     }
                 }
             }
