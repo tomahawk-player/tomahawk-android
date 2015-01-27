@@ -22,13 +22,17 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ResolverUrlHandler;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.fragments.EqualizerFragment;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.LibVlcException;
 
 import android.app.Application;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.concurrent.ConcurrentHashMap;
@@ -80,6 +84,12 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
                 instance = LibVLC.getInstance();
                 instance.setHttpReconnect(true);
                 instance.init(TomahawkApp.getContext());
+                SharedPreferences pref =
+                        PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+                if (pref.getBoolean(EqualizerFragment.EQUALIZER_ENABLED_PREFERENCE_KEY, false)) {
+                    instance.setEqualizer(TomahawkUtils.getFloatArray(pref,
+                            EqualizerFragment.EQUALIZER_VALUES_PREFERENCE_KEY));
+                }
             } catch (LibVlcException e) {
                 Log.e(TAG, "getLibVlcInstance: Failed to initialize LibVLC: " + e
                         .getLocalizedMessage());

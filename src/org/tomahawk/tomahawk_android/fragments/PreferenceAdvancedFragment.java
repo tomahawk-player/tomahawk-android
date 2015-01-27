@@ -19,9 +19,11 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
 import org.tomahawk.tomahawk_android.services.RemoteControllerService;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -50,6 +52,8 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
 
     public static final String FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING = "scrobble_everything";
 
+    public static final String FAKEPREFERENCEFRAGMENT_ID_EQUALIZER = "mEqualizerValues";
+
     public static final String FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE
             = "org.tomahawk.tomahawk_android.prefbitrate";
 
@@ -58,6 +62,9 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
 
     public static final String FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY
             = "org.tomahawk.tomahawk_android.plugintoplay";
+
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_EQUALIZER
+            = "org.tomahawk.tomahawk_android.mEqualizerValues";
 
     private SharedPreferences mSharedPreferences;
 
@@ -76,9 +83,15 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         // Set up the set of FakePreferences to be shown in this Fragment
-        mFakePreferenceGroups = new ArrayList<FakePreferenceGroup>();
+        mFakePreferenceGroups = new ArrayList<>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
                 getString(R.string.preferences_playback));
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
+                FAKEPREFERENCEFRAGMENT_ID_EQUALIZER,
+                FAKEPREFERENCEFRAGMENT_KEY_EQUALIZER,
+                getString(R.string.preferences_equalizer),
+                getString(R.string.preferences_equalizer_text)));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX,
                 FAKEPREFERENCEFRAGMENT_ID_PLUGINTOPLAY,
@@ -146,6 +159,12 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
                     && !preferenceState && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 RemoteControllerService.askAccess();
             }
+        } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_EQUALIZER)) {
+            Bundle bundle = new Bundle();
+            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                    ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
+            FragmentUtils.replace((TomahawkMainActivity) getActivity(), EqualizerFragment.class,
+                    bundle);
         }
     }
 
