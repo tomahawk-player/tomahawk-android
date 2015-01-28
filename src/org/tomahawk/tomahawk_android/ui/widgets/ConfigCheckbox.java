@@ -18,10 +18,10 @@
 package org.tomahawk.tomahawk_android.ui.widgets;
 
 import android.content.Context;
+import android.support.v7.internal.widget.TintCheckBox;
 import android.util.AttributeSet;
-import android.widget.CheckBox;
 
-public class ConfigCheckbox extends CheckBox implements StringView {
+public class ConfigCheckbox extends TintCheckBox implements StringView {
 
     public String mFieldName;
 

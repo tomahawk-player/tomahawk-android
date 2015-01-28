@@ -27,7 +27,6 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.CompoundButton;
 
 import java.io.File;
@@ -37,6 +36,8 @@ import java.util.List;
  * This class populates the listview inside the navigation drawer
  */
 public class DirectoryChooserAdapter extends StickyBaseAdapter {
+
+    private LayoutInflater mLayoutInflater;
 
     private boolean mIsFirstRoot;
 
@@ -58,8 +59,10 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
      *
      * @param isFirstRoot true if the currentFolderRoot is the upmost root that should be reachable
      */
-    public DirectoryChooserAdapter(boolean isFirstRoot, List<CustomDirectory> folders,
+    public DirectoryChooserAdapter(LayoutInflater layoutInflater, boolean isFirstRoot,
+            List<CustomDirectory> folders,
             DirectoryChooser.DirectoryChooserListener directoryChooserListener) {
+        mLayoutInflater = layoutInflater;
         mIsFirstRoot = isFirstRoot;
         mFolders = folders;
         mDirectoryChooserListener = directoryChooserListener;
@@ -111,31 +114,29 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
             viewHolder = (ViewHolder) convertView.getTag();
             view = convertView;
         } else {
-            LayoutInflater layoutInflater = LayoutInflater.from(TomahawkApp.getContext());
-            view = layoutInflater.inflate(R.layout.list_item_folder, parent, false);
+            view = mLayoutInflater.inflate(R.layout.list_item_folder, parent, false);
             viewHolder = new ViewHolder(view, R.layout.list_item_folder);
             view.setTag(viewHolder);
         }
 
         final CustomDirectory dir = (CustomDirectory) getItem(position);
 
-        // Init checkboxes
-        final CheckBox checkBox1 = viewHolder.mCheckBox1;
-        final CheckBox checkBox2 = viewHolder.mCheckBox2;
-        updateCheckBoxAppearance(dir, checkBox1, checkBox2);
+        // Init checkbox
+        if (!dir.isMediaDirComplete) {
+            viewHolder.mCheckBox1.setButtonDrawable(
+                    R.drawable.abc_btn_check_to_on_mtrl_015_disabled);
+        } else {
+            viewHolder.mCheckBox1.setButtonDrawable(R.drawable.abc_btn_check_material);
+        }
         viewHolder.mCheckBox1.setOnCheckedChangeListener(null);
-        viewHolder.mCheckBox2.setOnCheckedChangeListener(null);
         viewHolder.mCheckBox1.setChecked(dir.isWhitelisted || !dir.isMediaDirComplete);
-        viewHolder.mCheckBox2.setChecked(dir.isWhitelisted || !dir.isMediaDirComplete);
-        CompoundButton.OnCheckedChangeListener listener
-                = new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                mDirectoryChooserListener.onDirectoryChecked(dir.file, isChecked);
-            }
-        };
-        viewHolder.mCheckBox1.setOnCheckedChangeListener(listener);
-        viewHolder.mCheckBox2.setOnCheckedChangeListener(listener);
+        viewHolder.mCheckBox1.setOnCheckedChangeListener(
+                new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        mDirectoryChooserListener.onDirectoryChecked(dir.file, isChecked);
+                    }
+                });
 
         // Init textviews and main click listener
         viewHolder.mTextView1.setText(getVisibleName(dir.file));
@@ -220,16 +221,5 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
             }
         }
         return file.getName();
-    }
-
-    private void updateCheckBoxAppearance(CustomDirectory dir, CheckBox checkBox,
-            CheckBox checkBoxFakeDisabled) {
-        if (!dir.isMediaDirComplete) {
-            checkBox.setVisibility(View.GONE);
-            checkBoxFakeDisabled.setVisibility(View.VISIBLE);
-        } else {
-            checkBox.setVisibility(View.VISIBLE);
-            checkBoxFakeDisabled.setVisibility(View.GONE);
-        }
     }
 }

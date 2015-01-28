@@ -26,6 +26,7 @@ import android.content.Context;
 import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 
@@ -120,7 +121,7 @@ public class DirectoryChooser extends FrameLayout implements
             dirs.add(position, dir);
         }
         if (mAdapter == null) {
-            mAdapter = new DirectoryChooserAdapter(isFirstRoot,
+            mAdapter = new DirectoryChooserAdapter(LayoutInflater.from(getContext()), isFirstRoot,
                     dirs, new DirectoryChooserListener() {
                 @Override
                 public void onDirectoryChecked(File chosenSubFolder, boolean isChecked) {
