@@ -162,6 +162,7 @@
   <string name="button_open_queue_text">Jono</string>
   <string name="button_close">Sulje</string>
   <string name="view_album">Näytä albumi</string>
+  <string name="connect">Yhdistä</string>
   <string name="connect_headertext">Valitse palvelut, joita haluat käyttää. Tomahawk toimii sitä paremmin, mitä enemmän palveluita on käytössä.</string>
   <string name="advanced">Lisäasetukset</string>
   <string name="info">Info</string>
