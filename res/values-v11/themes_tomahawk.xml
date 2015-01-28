@@ -28,6 +28,8 @@
 
         <item name="colorPrimaryDark">@color/tomahawk_red</item>
 
+        <item name="colorAccent">@color/tomahawk_red</item>
+
         <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
 
     </style>

@@ -31,6 +31,7 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +45,6 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.Spinner;
-import android.widget.ToggleButton;
 
 public class EqualizerFragment extends ContentHeaderFragment {
 
@@ -56,7 +56,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
 
     public final static String EQUALIZER_PRESET_PREFERENCE_KEY = "equalizer_preset";
 
-    private ToggleButton mEnableButton;
+    private SwitchCompat mEnableButton;
 
     private Spinner mEqualizerPresets;
 
@@ -155,7 +155,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
     }
 
     private void saveViewChildren(View v) {
-        mEnableButton = (ToggleButton) v.findViewById(R.id.equalizer_button);
+        mEnableButton = (SwitchCompat) v.findViewById(R.id.equalizer_button);
         mEqualizerPresets = (Spinner) v.findViewById(R.id.equalizer_presets);
         mPreAmpSeekBar = (SeekBar) v.findViewById(R.id.equalizer_preamp);
         mBandsContainers = (LinearLayout) v.findViewById(R.id.equalizer_bands);
