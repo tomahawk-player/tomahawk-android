@@ -9,9 +9,6 @@
 
         <item name="android:autoCompleteTextViewStyle">@style/AutoCompleteTextViewTomahawk</item>
 
-        <item name="android:listChoiceIndicatorMultiple">@drawable/tomahawk_btn_check_holo_light
-        </item>
-
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarTomahawk</item>
 
         <item name="android:listChoiceBackgroundIndicator">

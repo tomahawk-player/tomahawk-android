@@ -34,8 +34,8 @@ import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v7.internal.widget.TintCheckBox;
 import android.view.View;
-import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Spinner;
@@ -64,9 +64,7 @@ public class ViewHolder {
 
     View mConnectImageViewContainer;
 
-    CheckBox mCheckBox1;
-
-    CheckBox mCheckBox2;
+    TintCheckBox mCheckBox1;
 
     Spinner mSpinner1;
 
@@ -124,10 +122,8 @@ public class ViewHolder {
         } else if (layoutId == R.layout.list_item_folder) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.textview1);
-            mCheckBox1 = (CheckBox) rootView
+            mCheckBox1 = (TintCheckBox) rootView
                     .findViewById(R.id.checkbox1);
-            mCheckBox2 = (CheckBox) rootView
-                    .findViewById(R.id.checkbox2);
         } else if (layoutId == R.layout.single_line_list_header) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.textview1);
@@ -151,7 +147,7 @@ public class ViewHolder {
                     .findViewById(R.id.textview1);
             mTextView2 = (TextView) rootView
                     .findViewById(R.id.textview2);
-            mCheckBox1 = (CheckBox) rootView
+            mCheckBox1 = (TintCheckBox) rootView
                     .findViewById(R.id.checkbox1);
         } else if (layoutId == R.layout.fake_preferences_spinner) {
             mTextView1 = (TextView) rootView

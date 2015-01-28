@@ -51,24 +51,11 @@
               android:textColor="@color/primary_textcolor"
               android:textSize="@dimen/text_size_medium"/>
 
-    <FrameLayout android:layout_width="wrap_content"
-                 android:layout_height="match_parent">
-
-        <CheckBox android:id="@+id/checkbox1"
-                  style="@style/CheckBoxTomahawk"
-                  android:layout_width="wrap_content"
-                  android:layout_height="match_parent"
-                  android:layout_gravity="center"
-                  android:paddingLeft="@dimen/padding_superlarge"/>
-
-        <CheckBox android:id="@+id/checkbox2"
-                  style="@style/CheckBoxTomahawkFakeDisabled"
-                  android:layout_width="wrap_content"
-                  android:layout_height="match_parent"
-                  android:layout_gravity="center"
-                  android:paddingLeft="@dimen/padding_superlarge"
-                  android:visibility="gone"/>
-
-    </FrameLayout>
+    <android.support.v7.internal.widget.TintCheckBox
+            android:id="@+id/checkbox1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:paddingLeft="@dimen/padding_superlarge"/>
 
 </LinearLayout>
