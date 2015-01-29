@@ -44,6 +44,7 @@
   <string name="preferences_local_collection_text">Pasirinkite katalogus, kurie turėtų būti peržvelgiami, ieškant vietinės medijos.</string>
   <string name="preferences_hatchet_text">Sinchronizuoti duomenis su %1$s.</string>
   <string name="preferences_spotify_text">Groti jūsų muziką iš %1$s. Reikalauja Premium paskyros.</string>
+  <string name="preferences_equalizer">Glodintuvas</string>
   <string name="preferences_info">Informacija</string>
   <string name="preferences_app_version">Programos Versija</string>
   <string name="preferences_app_uservoice">Atsiliepimai</string>
@@ -117,6 +118,7 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Dainos</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
+  <string name="songs_with_count">Dainos</string>
   <string name="activity">Veikla</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Sekėjai</string>
@@ -130,4 +132,6 @@
   <string name="button_close">Uždaryti</string>
   <string name="view_album">Žiūrėti Albumą</string>
   <string name="connect_headertext">Pasirinkite paslaugas, kuriomis norite naudotis. Tomahawk veikia geriau, kuomet yra aktyvuota daugiau paslaugų.</string>
+  <string name="info">Informacija</string>
+  <string name="equalizer">Glodintuvas</string>
 </resources>

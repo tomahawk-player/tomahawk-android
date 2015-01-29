@@ -49,6 +49,8 @@
   <string name="preferences_hatchet_text">Sincronizando tus datos al %1$s.</string>
   <string name="preferences_spotify_text">Reproduce tu música desde %1$s. Requiere una cuenta Premium</string>
   <string name="preferences_playback">Reproducción</string>
+  <string name="preferences_equalizer">Ecualizador</string>
+  <string name="preferences_equalizer_text">Personaliza la salida de audio</string>
   <string name="preferences_playback_data">Hacer scrobblings de todo.</string>
   <string name="preferences_playback_data_text">Haz scrobble de cada pista en cada reproductor en el teléfono a %1$s.</string>
   <string name="preferences_plug_and_play">Conecte para reproducir</string>
@@ -170,4 +172,5 @@
   <string name="connect_headertext">Selecciona los serivicios que quieres usar, Tomahawk funciona mejor cuando más servicios estan activos.</string>
   <string name="advanced">Avanzado</string>
   <string name="info">Información</string>
+  <string name="equalizer">Ecualizador</string>
 </resources>
