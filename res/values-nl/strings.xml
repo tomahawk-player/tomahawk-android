@@ -48,6 +48,8 @@
   <string name="preferences_hatchet_text">Synchroniseer uw gegevens met %1$s.</string>
   <string name="preferences_spotify_text">Speel uw muziek af van %1$s. Hiervoor is een Premium-account nodig.</string>
   <string name="preferences_playback">Afspelen</string>
+  <string name="preferences_equalizer">Toonregelaar</string>
+  <string name="preferences_equalizer_text">De audiouitvoer naar wens aanpassen</string>
   <string name="preferences_playback_data">Van alles muziekgegevens bijhouden</string>
   <string name="preferences_playback_data_text">De muziekgegevens bijhouden van elke nummer afgespeeld op elke muziekspeler-app op de telefoon met %1$s.</string>
   <string name="preferences_plug_and_play">Plug-in-to-Play</string>
@@ -169,4 +171,5 @@
   <string name="connect_headertext">Selecteer de diensten die u wilt gebruiken. Tomahawk werkt beter wanneer u meer diensten activeert.</string>
   <string name="advanced">Geavanceerd</string>
   <string name="info">Informatie</string>
+  <string name="equalizer">Toonregelaar</string>
 </resources>
