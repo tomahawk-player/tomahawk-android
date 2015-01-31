@@ -48,6 +48,8 @@
   <string name="preferences_hatchet_text">使用 %1$s 同步数据</string>
   <string name="preferences_spotify_text">从 %1$s 播放音乐。需要 Premium 账号</string>
   <string name="preferences_playback">回放</string>
+  <string name="preferences_equalizer">均衡器</string>
+  <string name="preferences_equalizer_text">自定义音频输出。</string>
   <string name="preferences_playback_data">收藏所有内容</string>
   <string name="preferences_playback_data_text">将手机中所有音乐播放软件的曲目收藏到 %1$s</string>
   <string name="preferences_plug_and_play">即插即播</string>
@@ -169,4 +171,5 @@
   <string name="connect_headertext">请选择要使用的服务。激活的服务更多，Tomahawk 工作的越好。</string>
   <string name="advanced">高级</string>
   <string name="info">信息</string>
+  <string name="equalizer">均衡器</string>
 </resources>
