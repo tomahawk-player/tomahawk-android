@@ -17,12 +17,10 @@
  */
 package org.tomahawk.tomahawk_android.views;
 
-import com.nineoldandroids.animation.Animator;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.PropertyValuesHolder;
 import com.nineoldandroids.animation.ValueAnimator;
 import com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar;
-import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -45,21 +43,26 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class PlaybackPanel extends FrameLayout {
 
     private PlaybackService mPlaybackService;
 
     public static final String COMPLETION_STRING_DEFAULT = "-:--";
 
-    private boolean mIsSeeking;
-
-    private SlidingUpPanelLayout mSlidingUpPanelView;
-
     private LinearLayout mTextViewContainer;
 
-    private Point mStartingPoint;
+    private LinearLayout mPanelContainer;
 
-    private Point mExpandedPanelPoint;
+    private boolean mIsPanelExpanded;
+
+    private Map<View, AnimationGoal> mStartingPoints = new HashMap<>();
+
+    private Map<View, AnimationGoal> mExpandedPanelPoints = new HashMap<>();
+
+    private Map<View, AnimationGoal> mScrolledDownPanelPoints = new HashMap<>();
 
     private TextView mArtistTextView;
 
@@ -91,22 +94,30 @@ public class PlaybackPanel extends FrameLayout {
 
     private ValueAnimator mTextViewContainerAnimation;
 
+    private ValueAnimator mPanelContainerAnimation;
+
     private int mLastPlayTime = 0;
 
     private boolean mInitialized = false;
 
     private static final int MSG_UPDATE_PROGRESS = 0x1;
 
-    private static class Point {
+    private static class AnimationGoal {
 
-        Point(float x, float y) {
+        AnimationGoal(int x, int y, float scaleX, float scaleY) {
             this.x = x;
             this.y = y;
+            this.scaleX = scaleX;
+            this.scaleY = scaleY;
         }
 
-        float x;
+        int x;
 
-        float y;
+        int y;
+
+        float scaleX;
+
+        float scaleY;
     }
 
     private Handler mProgressHandler = new Handler(new Handler.Callback() {
@@ -136,11 +147,11 @@ public class PlaybackPanel extends FrameLayout {
         return false;
     }
 
-    public void setup(SlidingUpPanelLayout slidingUpPanelView) {
+    public void setup(final boolean isPanelExpanded) {
         mInitialized = true;
-        mSlidingUpPanelView = slidingUpPanelView;
 
         mTextViewContainer = (LinearLayout) findViewById(R.id.textview_container);
+        mPanelContainer = (LinearLayout) findViewById(R.id.panel_container);
         mArtistTextView = (TextView) mTextViewContainer.findViewById(R.id.artist_textview);
         mTrackTextView = (TextView) mTextViewContainer.findViewById(R.id.track_textview);
         mCompletionTimeTextView = (TextView) findViewById(R.id.completiontime_textview);
@@ -168,9 +179,7 @@ public class PlaybackPanel extends FrameLayout {
         mCircularProgressBar.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                mIsSeeking = true;
-                if (!mSlidingUpPanelView.isPanelExpanded()
-                        || getResources().getBoolean(R.bool.is_landscape)) {
+                if (!isPanelExpanded || getResources().getBoolean(R.bool.is_landscape)) {
                     AnimationUtils.fade(mTextViewContainer,
                             AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
                 }
@@ -193,9 +202,8 @@ public class PlaybackPanel extends FrameLayout {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
                         if (event.getAction() == MotionEvent.ACTION_UP) {
-                            mIsSeeking = false;
-                            if (!mSlidingUpPanelView.isPanelExpanded()
-                                    || getResources().getBoolean(R.bool.is_landscape)) {
+                            if (!isPanelExpanded || getResources()
+                                    .getBoolean(R.bool.is_landscape)) {
                                 AnimationUtils.fade(mTextViewContainer,
                                         AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
                             }
@@ -273,41 +281,53 @@ public class PlaybackPanel extends FrameLayout {
         }
     }
 
+    public void setPanelExpanded(boolean isPanelExpanded) {
+        mIsPanelExpanded = isPanelExpanded;
+        mLastPlayTime = 0;
+        setupAnimations();
+    }
+
     private void calculateAnimationPoints() {
-        final View content = mSlidingUpPanelView.findViewById(R.id.content);
-        if (content != null) {
-            TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(content) {
-                @Override
-                public void run() {
-                    Resources resources = TomahawkApp.getContext().getResources();
-                    int panelHeight = resources
-                            .getDimensionPixelSize(R.dimen.playback_panel_height);
-                    int resolverIconSize = resources.getDimensionPixelSize(
-                            R.dimen.playback_panel_resolver_icon_size);
-                    int paddingSmall =
-                            resources.getDimensionPixelSize(R.dimen.padding_small);
-                    mStartingPoint = new Point(
-                            resolverIconSize + panelHeight + paddingSmall,
-                            content.getHeight() - mTextViewContainer.getHeight() / 2
-                                    - panelHeight / 2);
+        TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(this) {
+            @Override
+            public void run() {
+                Resources resources = TomahawkApp.getContext().getResources();
+                int panelHeight =
+                        resources.getDimensionPixelSize(R.dimen.playback_panel_height);
+                int resolverIconSize =
+                        resources.getDimensionPixelSize(R.dimen.playback_panel_resolver_icon_size);
+                int paddingSmall =
+                        resources.getDimensionPixelSize(R.dimen.padding_small);
+                mStartingPoints.put(mTextViewContainer, new AnimationGoal(
+                        resolverIconSize + panelHeight + paddingSmall,
+                        getHeight() - mTextViewContainer.getHeight() / 2 - panelHeight / 2,
+                        1f, 1f));
+                mStartingPoints.put(mPanelContainer, new AnimationGoal(
+                        0, getHeight() - mPanelContainer.getHeight(), 1f, 1f));
 
-                    int padding = resources.getDimensionPixelSize(R.dimen.padding_medium);
-                    int panelBottom = resources
-                            .getDimensionPixelSize(R.dimen.playback_clear_space_bottom);
-                    float textViewWidthSum =
-                            mTextViewContainer.findViewById(R.id.artist_textview).getWidth()
-                                    + mTextViewContainer.findViewById(R.id.hyphen_textview)
-                                    .getWidth()
-                                    + mTextViewContainer.findViewById(R.id.track_textview)
-                                    .getWidth();
-                    mExpandedPanelPoint = new Point(
-                            content.getHeight() + padding - panelBottom,
-                            (int) (content.getWidth() - textViewWidthSum * 1.5f) / 2);
+                int padding =
+                        resources.getDimensionPixelSize(R.dimen.padding_medium);
+                int panelBottom =
+                        resources.getDimensionPixelSize(R.dimen.playback_clear_space_bottom);
+                int textViewContainerWidth =
+                        (int) (mTextViewContainer.getWidth() / mTextViewContainer.getScaleX());
+                mExpandedPanelPoints.put(mTextViewContainer, new AnimationGoal(
+                        (int) (getWidth() - textViewContainerWidth * 1.5f) / 2,
+                        getHeight() + padding - panelBottom, 1.5f, 1.5f));
+                mExpandedPanelPoints.put(mPanelContainer, new AnimationGoal(
+                        0, getHeight() - mPanelContainer.getHeight(), 1f, 1f));
 
-                    setupAnimations();
-                }
-            });
-        }
+                int headerClearSpace = resources.getDimensionPixelSize(
+                        R.dimen.header_clear_space_nonscrollable_playback);
+                mScrolledDownPanelPoints.put(mTextViewContainer, new AnimationGoal(
+                        (int) (getWidth() - textViewContainerWidth * 1.5f) / 2,
+                        headerClearSpace / 2 - mTextViewContainer.getHeight() / 2, 1.5f, 1.5f));
+                mScrolledDownPanelPoints.put(mPanelContainer, new AnimationGoal(
+                        0, headerClearSpace - mPanelContainer.getHeight(), 1f, 1f));
+
+                setupAnimations();
+            }
+        });
     }
 
     public void updatePlayPauseState(boolean isPlaying) {
@@ -380,105 +400,54 @@ public class PlaybackPanel extends FrameLayout {
     }
 
     private void setupAnimations() {
-        if (mTextViewContainer != null) {
-            mTextViewContainer.setX(mStartingPoint.x);
-            mTextViewContainer.setY(mStartingPoint.y);
-            mTextViewContainer.setScaleX(1f);
-            mTextViewContainer.setScaleY(1f);
-            mTextViewContainer.setPivotX(0f);
-            mTextViewContainer.setPivotY(0f);
-            if (!getResources().getBoolean(R.bool.is_landscape)) {
-                View content = mSlidingUpPanelView.findViewById(R.id.content);
-                if (content != null) {
-                    PropertyValuesHolder pvhY =
-                            PropertyValuesHolder.ofFloat("y", mExpandedPanelPoint.x);
-                    PropertyValuesHolder pvhX =
-                            PropertyValuesHolder.ofFloat("x", mExpandedPanelPoint.y);
-                    PropertyValuesHolder pvhScaleX = PropertyValuesHolder.ofFloat("scaleX", 1.5f);
-                    PropertyValuesHolder pvhScaleY = PropertyValuesHolder.ofFloat("scaleY", 1.5f);
-                    mTextViewContainerAnimation =
-                            ObjectAnimator.ofPropertyValuesHolder(mTextViewContainer, pvhX, pvhY,
-                                    pvhScaleX, pvhScaleY).setDuration(10000);
-                    mTextViewContainerAnimation.setInterpolator(new LinearInterpolator());
-                    mTextViewContainerAnimation.setCurrentPlayTime(mLastPlayTime);
-                }
-            }
-        }
+        mTextViewContainerAnimation = setupAnimation(mTextViewContainer);
+        mPanelContainerAnimation = setupAnimation(mPanelContainer);
     }
 
-    public void onPanelSlide(final View view, float f) {
-        if (f > 0.15f) {
-            AnimationUtils.fade(view.findViewById(R.id.top_buttonpanel), 0f, 1f,
-                    AnimationUtils.DURATION_PLAYBACKTOPPANEL, true,
-                    new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                            if (view.findViewById(R.id.imageButton_repeat) != null) {
-                                view.findViewById(R.id.imageButton_repeat)
-                                        .setVisibility(View.VISIBLE);
-                            }
-                            if (view.findViewById(R.id.close_button) != null) {
-                                view.findViewById(R.id.close_button)
-                                        .setVisibility(View.VISIBLE);
-                            }
-                            if (view.findViewById(R.id.imageButton_shuffle) != null) {
-                                view.findViewById(R.id.imageButton_shuffle)
-                                        .setVisibility(View.VISIBLE);
-                            }
-                            animation.removeListener(this);
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-                        }
-                    });
-        } else if (f < 0.15f) {
-            AnimationUtils.fade(view.findViewById(R.id.top_buttonpanel), 1f, 0f,
-                    AnimationUtils.DURATION_PLAYBACKTOPPANEL, false,
-                    new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            if (view.findViewById(R.id.imageButton_repeat) != null) {
-                                view.findViewById(R.id.imageButton_repeat)
-                                        .setVisibility(View.GONE);
-                            }
-                            if (view.findViewById(R.id.close_button) != null) {
-                                view.findViewById(R.id.close_button)
-                                        .setVisibility(View.GONE);
-                            }
-                            if (view.findViewById(R.id.imageButton_shuffle) != null) {
-                                view.findViewById(R.id.imageButton_shuffle)
-                                        .setVisibility(View.GONE);
-                            }
-                            animation.removeListener(this);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-                        }
-                    });
+    private ValueAnimator setupAnimation(View view) {
+        AnimationGoal firstAnimationGoal, secondAnimationGoal;
+        if (mIsPanelExpanded) {
+            firstAnimationGoal = mExpandedPanelPoints.get(view);
+            secondAnimationGoal = mScrolledDownPanelPoints.get(view);
+        } else {
+            firstAnimationGoal = mStartingPoints.get(view);
+            secondAnimationGoal = mExpandedPanelPoints.get(view);
         }
-        int position = Math.min(10000, Math.max(0, (int) ((f - 0.8f) * 10000f / (1f - 0.8f))));
+        ValueAnimator animator = null;
+        if (firstAnimationGoal != null && secondAnimationGoal != null) {
+            view.setX(firstAnimationGoal.x);
+            view.setY(firstAnimationGoal.y);
+            view.setScaleX(firstAnimationGoal.scaleX);
+            view.setScaleY(firstAnimationGoal.scaleY);
+            view.setPivotX(0f);
+            view.setPivotY(0f);
+            if (!getResources().getBoolean(R.bool.is_landscape)) {
+                PropertyValuesHolder pvhX =
+                        PropertyValuesHolder.ofFloat("x", secondAnimationGoal.x);
+                PropertyValuesHolder pvhY =
+                        PropertyValuesHolder.ofFloat("y", secondAnimationGoal.y);
+                PropertyValuesHolder pvhScaleX =
+                        PropertyValuesHolder.ofFloat("scaleX", secondAnimationGoal.scaleX);
+                PropertyValuesHolder pvhScaleY =
+                        PropertyValuesHolder.ofFloat("scaleY", secondAnimationGoal.scaleY);
+                animator = ObjectAnimator.ofPropertyValuesHolder(view, pvhX, pvhY,
+                        pvhScaleX, pvhScaleY).setDuration(10000);
+                animator.setInterpolator(new LinearInterpolator());
+                animator.setCurrentPlayTime(mLastPlayTime);
+            }
+        }
+        return animator;
+    }
+
+    public void animate(int position) {
         mLastPlayTime = position;
         if (mTextViewContainerAnimation != null
                 && position != mTextViewContainerAnimation.getCurrentPlayTime()) {
             mTextViewContainerAnimation.setCurrentPlayTime(position);
+        }
+        if (mPanelContainerAnimation != null
+                && position != mPanelContainerAnimation.getCurrentPlayTime()) {
+            mPanelContainerAnimation.setCurrentPlayTime(position);
         }
     }
 }

@@ -60,9 +60,10 @@
                              android:layout_width="match_parent"
                              android:layout_height="match_parent"/>
 
-                <FrameLayout android:id="@+id/playback_fragment_frame"
-                             android:layout_width="match_parent"
-                             android:layout_height="match_parent"/>
+                <org.tomahawk.tomahawk_android.views.PlaybackFragmentFrame
+                        android:id="@+id/playback_fragment_frame"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"/>
 
             </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 

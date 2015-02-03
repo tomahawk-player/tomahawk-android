@@ -18,6 +18,7 @@
  */
 package org.tomahawk.tomahawk_android.activities;
 
+import com.nineoldandroids.animation.Animator;
 import com.rdio.android.api.OAuth1WebViewActivity;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.uservoice.uservoicesdk.Config;
@@ -174,6 +175,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     private SmoothProgressBar mSmoothProgressBar;
 
     private SlidingUpPanelLayout mSlidingUpPanelLayout;
+
+    private SlidingUpPanelLayout.PanelState mLastSlidingState;
 
     private PlaybackPanel mPlaybackPanel;
 
@@ -568,7 +571,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         if (mSlidingUpPanelLayout.isPanelHidden()) {
             mPlaybackPanel.setVisibility(View.GONE);
         } else {
-            mPlaybackPanel.setup(mSlidingUpPanelLayout);
+            mPlaybackPanel.setup(mSlidingUpPanelLayout.isPanelExpanded());
             mPlaybackPanel.update(mPlaybackService);
             mPlaybackPanel.setVisibility(View.VISIBLE);
             if (mSlidingUpPanelLayout.isPanelExpanded()) {
@@ -624,10 +627,13 @@ public class TomahawkMainActivity extends ActionBarActivity
             bindService(intent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
 
             if (mSavedInstanceState == null) {
+                Bundle bundle = new Bundle();
+                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                        ContentHeaderFragment.MODE_HEADER_PLAYBACK);
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.playback_fragment_frame,
                                 Fragment.instantiate(TomahawkMainActivity.this,
-                                        PlaybackFragment.class.getName(), null),
+                                        PlaybackFragment.class.getName(), bundle),
                                 null)
                         .commit();
                 FragmentUtils.addRootFragment(TomahawkMainActivity.this,
@@ -961,7 +967,61 @@ public class TomahawkMainActivity extends ActionBarActivity
         } else if (v < 0.5f && !getSupportActionBar().isShowing()) {
             getSupportActionBar().show();
         }
-        mPlaybackPanel.onPanelSlide(view, v);
+        final View topPanel = mSlidingUpPanelLayout.findViewById(R.id.top_buttonpanel);
+        if (v > 0.15f) {
+            AnimationUtils.fade(topPanel, 0f, 1f,
+                    AnimationUtils.DURATION_PLAYBACKTOPPANEL, true,
+                    new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                            topPanel.findViewById(R.id.imageButton_repeat)
+                                    .setVisibility(View.VISIBLE);
+                            topPanel.findViewById(R.id.close_button).setVisibility(View.VISIBLE);
+                            topPanel.findViewById(R.id.imageButton_shuffle)
+                                    .setVisibility(View.VISIBLE);
+                            animation.removeListener(this);
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+                        }
+                    });
+        } else if (v < 0.15f) {
+            AnimationUtils.fade(mSlidingUpPanelLayout.findViewById(R.id.top_buttonpanel), 1f, 0f,
+                    AnimationUtils.DURATION_PLAYBACKTOPPANEL, false,
+                    new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animation) {
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            topPanel.findViewById(R.id.imageButton_repeat).setVisibility(View.GONE);
+                            topPanel.findViewById(R.id.close_button).setVisibility(View.GONE);
+                            topPanel.findViewById(R.id.imageButton_shuffle)
+                                    .setVisibility(View.GONE);
+                            animation.removeListener(this);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animation) {
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animation) {
+                        }
+                    });
+        }
+        int position = Math.min(10000, Math.max(0, (int) ((v - 0.8f) * 10000f / (1f - 0.8f))));
+        mPlaybackPanel.animate(position);
         sendSlidingLayoutChangedEvent();
     }
 
@@ -993,7 +1053,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void showPanel() {
         if (mSlidingUpPanelLayout.isPanelHidden()) {
             mSlidingUpPanelLayout.showPanel();
-            mPlaybackPanel.setup(mSlidingUpPanelLayout);
+            mPlaybackPanel.setup(mSlidingUpPanelLayout.isPanelExpanded());
             mPlaybackPanel.update(mPlaybackService);
             mPlaybackPanel.setVisibility(View.VISIBLE);
         }
@@ -1007,9 +1067,14 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     private void sendSlidingLayoutChangedEvent() {
-        SlidingLayoutChangedEvent event = new SlidingLayoutChangedEvent();
-        event.mSlideState = mSlidingUpPanelLayout.getPanelState();
-        EventBus.getDefault().post(event);
+        if (mSlidingUpPanelLayout.getPanelState() != mLastSlidingState) {
+            mLastSlidingState = mSlidingUpPanelLayout.getPanelState();
+            mPlaybackPanel.setPanelExpanded(mSlidingUpPanelLayout.isPanelExpanded());
+
+            SlidingLayoutChangedEvent event = new SlidingLayoutChangedEvent();
+            event.mSlideState = mSlidingUpPanelLayout.getPanelState();
+            EventBus.getDefault().post(event);
+        }
     }
 
     public PlaybackPanel getPlaybackPanel() {

@@ -51,7 +51,9 @@ import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -71,6 +73,8 @@ public class ContentHeaderFragment extends Fragment {
     public static final int MODE_ACTIONBAR_FILLED = 4;
 
     public static final int MODE_HEADER_STATIC_SMALL = 5;
+
+    public static final int MODE_HEADER_PLAYBACK = 6;
 
     public static class AnimateEvent {
 
@@ -101,21 +105,15 @@ public class ContentHeaderFragment extends Fragment {
         public int mReceiverFragmentPage;
     }
 
-    private ValueAnimator mTextViewAnim;
-
-    private ValueAnimator mButtonAnim;
-
-    private ValueAnimator mImageViewAnim;
-
-    private ValueAnimator mPageIndicatorAnim;
+    private Set<ValueAnimator> mAnimators = new HashSet<>();
 
     protected boolean mShowFakeFollowing = false;
 
     protected boolean mShowFakeNotFollowing = false;
 
-    private int mHeaderScrollableHeight = 0;
+    protected int mHeaderScrollableHeight = 0;
 
-    private int mHeaderNonscrollableHeight = 0;
+    protected int mHeaderNonscrollableHeight = 0;
 
     private int mCurrentMode = -1;
 
@@ -168,6 +166,10 @@ public class ContentHeaderFragment extends Fragment {
                     mHeaderNonscrollableHeight = res.getDimensionPixelSize(
                             R.dimen.abc_action_bar_default_height_material);
                     break;
+                case MODE_HEADER_PLAYBACK:
+                    mHeaderNonscrollableHeight = res.getDimensionPixelSize(
+                            R.dimen.header_clear_space_nonscrollable_playback);
+                    break;
                 default:
                     throw new RuntimeException("Missing or invalid ContentHeaderFragment mode");
             }
@@ -179,6 +181,21 @@ public class ContentHeaderFragment extends Fragment {
                 mContainerFragmentPage = getArguments().getInt(
                         TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
+        }
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        if (mCurrentMode == MODE_HEADER_PLAYBACK) {
+            TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(view) {
+                @Override
+                public void run() {
+                    mHeaderScrollableHeight = getLayedOutView().getHeight()
+                            - mHeaderNonscrollableHeight;
+                }
+            });
         }
     }
 
@@ -339,6 +356,10 @@ public class ContentHeaderFragment extends Fragment {
         }
     }
 
+    protected void addAnimator(ValueAnimator animator) {
+        mAnimators.add(animator);
+    }
+
     protected void setupAnimations(FrameLayout imageFrame, FrameLayout headerFrame) {
         if (isDynamicHeader()) {
             View header = headerFrame.findViewById(R.id.content_header);
@@ -378,8 +399,9 @@ public class ContentHeaderFragment extends Fragment {
                         int dropDownHeight = TomahawkApp.getContext().getResources()
                                 .getDimensionPixelSize(
                                         R.dimen.show_context_menu_icon_height);
-                        getView().setY(view.getHeight() / 2 - dropDownHeight / 2);
-                        getView().setX(view.getWidth() / 2 - getView().getWidth() / 2);
+                        getLayedOutView().setY(view.getHeight() / 2 - dropDownHeight / 2);
+                        getLayedOutView()
+                                .setX(view.getWidth() / 2 - getLayedOutView().getWidth() / 2);
 
                         // now calculate the animation goal and instantiate the animation
                         Resources resources = TomahawkApp.getContext().getResources();
@@ -391,10 +413,11 @@ public class ContentHeaderFragment extends Fragment {
                         int y = actionBarHeight + smallPadding;
                         PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("x", x);
                         PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("y", y);
-                        mTextViewAnim = ObjectAnimator
-                                .ofPropertyValuesHolder(getView(), pvhX, pvhY)
+                        ValueAnimator animator = ObjectAnimator
+                                .ofPropertyValuesHolder(getLayedOutView(), pvhX, pvhY)
                                 .setDuration(10000);
-                        mTextViewAnim.setInterpolator(new LinearInterpolator());
+                        animator.setInterpolator(new LinearInterpolator());
+                        addAnimator(animator);
                     }
                 });
             }
@@ -423,7 +446,7 @@ public class ContentHeaderFragment extends Fragment {
                             pageIndicatorHeight = TomahawkApp.getContext().getResources()
                                     .getDimensionPixelSize(R.dimen.pager_indicator_height);
                         }
-                        getView().setY(view.getHeight() - buttonHeight - largePadding
+                        getLayedOutView().setY(view.getHeight() - buttonHeight - largePadding
                                 - pageIndicatorHeight);
 
                         // now calculate the animation goal and instantiate the animation
@@ -432,9 +455,10 @@ public class ContentHeaderFragment extends Fragment {
                         int actionBarHeight = resources.getDimensionPixelSize(
                                 R.dimen.abc_action_bar_default_height_material);
                         int y = actionBarHeight + smallPadding;
-                        mButtonAnim = ObjectAnimator.ofFloat(getView(), "y", y)
+                        ValueAnimator animator = ObjectAnimator.ofFloat(getLayedOutView(), "y", y)
                                 .setDuration(10000);
-                        mButtonAnim.setInterpolator(new LinearInterpolator());
+                        animator.setInterpolator(new LinearInterpolator());
+                        addAnimator(animator);
                     }
                 });
             }
@@ -447,14 +471,15 @@ public class ContentHeaderFragment extends Fragment {
                 @Override
                 public void run() {
                     // correctly position imageview first
-                    getView().setY(0);
-                    getView().setX(0);
+                    getLayedOutView().setY(0);
+                    getLayedOutView().setX(0);
 
                     // now calculate the animation goal and instantiate the animation
-                    mImageViewAnim = ObjectAnimator
-                            .ofFloat(getView(), "y", view.getHeight() / -3)
+                    ValueAnimator animator = ObjectAnimator
+                            .ofFloat(getLayedOutView(), "y", view.getHeight() / -3)
                             .setDuration(10000);
-                    mImageViewAnim.setInterpolator(new LinearInterpolator());
+                    animator.setInterpolator(new LinearInterpolator());
+                    addAnimator(animator);
                 }
             });
         }
@@ -468,14 +493,15 @@ public class ContentHeaderFragment extends Fragment {
                     @Override
                     public void run() {
                         // correctly position indicator first
-                        getView().setY(view.getHeight() - getView().getHeight());
+                        getLayedOutView().setY(view.getHeight() - getLayedOutView().getHeight());
 
                         // now calculate the animation goal and instantiate the animation
-                        int y = mHeaderNonscrollableHeight - getView().getHeight();
-                        mPageIndicatorAnim = ObjectAnimator
-                                .ofFloat(getView(), "y", y)
+                        int y = mHeaderNonscrollableHeight - getLayedOutView().getHeight();
+                        ValueAnimator animator = ObjectAnimator
+                                .ofFloat(getLayedOutView(), "y", y)
                                 .setDuration(10000);
-                        mPageIndicatorAnim.setInterpolator(new LinearInterpolator());
+                        animator.setInterpolator(new LinearInterpolator());
+                        addAnimator(animator);
                     }
                 });
             }
@@ -484,17 +510,10 @@ public class ContentHeaderFragment extends Fragment {
 
     public void animate(int position) {
         mLastPlayTime = position;
-        if (mTextViewAnim != null && position != mTextViewAnim.getCurrentPlayTime()) {
-            mTextViewAnim.setCurrentPlayTime(position);
-        }
-        if (mButtonAnim != null && position != mButtonAnim.getCurrentPlayTime()) {
-            mButtonAnim.setCurrentPlayTime(position);
-        }
-        if (mImageViewAnim != null && position != mImageViewAnim.getCurrentPlayTime()) {
-            mImageViewAnim.setCurrentPlayTime(position);
-        }
-        if (mPageIndicatorAnim != null && position != mPageIndicatorAnim.getCurrentPlayTime()) {
-            mPageIndicatorAnim.setCurrentPlayTime(position);
+        for (ValueAnimator animator : mAnimators) {
+            if (animator != null && position != animator.getCurrentPlayTime()) {
+                animator.setCurrentPlayTime(position);
+            }
         }
     }
 }

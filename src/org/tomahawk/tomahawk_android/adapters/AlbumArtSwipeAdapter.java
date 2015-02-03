@@ -104,7 +104,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
             }
         }
         if (view != null) {
-            view.setOnLongClickListener(mClickListener);
             container.addView(view);
         }
         return view;

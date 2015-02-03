@@ -25,59 +25,9 @@
                 android:focusableInTouchMode="false"
                 android:clickable="false">
 
-    <FrameLayout android:id="@+id/circularprogressbar_container"
-                 android:layout_width="@dimen/playback_panel_height"
-                 android:layout_height="@dimen/playback_panel_height"
-                 android:layout_alignParentBottom="true"
-                 android:paddingLeft="@dimen/padding_medium"
-                 android:paddingRight="@dimen/padding_medium">
-
-        <com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar
-                android:id="@+id/circularprogressbar"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@drawable/selectable_background_ring_tomahawk"/>
-
-        <ImageView android:id="@+id/pause_button"
-                   android:layout_width="18dp"
-                   android:layout_height="18dp"
-                   android:layout_gravity="center"
-                   android:scaleType="fitCenter"
-                   android:src="@drawable/ic_player_pause_light"
-                   android:visibility="gone"/>
-
-        <ImageView android:id="@+id/play_button"
-                   android:layout_width="18dp"
-                   android:layout_height="18dp"
-                   android:layout_gravity="center"
-                   android:layout_marginLeft="2dp"
-                   android:scaleType="fitCenter"
-                   android:src="@drawable/ic_player_play_light"/>
-
-    </FrameLayout>
-
-    <TextView android:id="@+id/seektime_textview"
-              android:layout_width="@dimen/playback_panel_height"
-              android:layout_height="@dimen/playback_panel_height"
-              android:layout_alignParentBottom="true"
-              android:gravity="center"
-              android:text="0:00"
-              android:textSize="@dimen/text_size_micro"
-              android:textColor="@color/primary_textcolor_inverted"
-              android:visibility="gone"/>
-
-    <ImageView android:id="@+id/resolver_imageview"
-               android:layout_width="@dimen/playback_panel_resolver_icon_size"
-               android:layout_height="@dimen/playback_panel_height"
-               android:layout_alignParentBottom="true"
-               android:layout_toRightOf="@id/circularprogressbar_container"
-               android:src="@drawable/ic_spotify"/>
-
     <LinearLayout android:id="@+id/textview_container"
                   android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_marginRight="@dimen/playback_panel_height"
-                  android:layout_toRightOf="@id/resolver_imageview">
+                  android:layout_height="wrap_content">
 
         <TextView android:id="@+id/track_textview"
                   android:layout_width="wrap_content"
@@ -120,43 +70,96 @@
 
     </LinearLayout>
 
-    <include layout="@layout/progressbar_white"
-             android:id="@+id/progressbar"
-             android:layout_width="match_parent"
-             android:layout_height="@dimen/playback_panel_height"
-             android:layout_toRightOf="@id/circularprogressbar_container"
-             android:layout_marginRight="@dimen/playback_panel_height"
-             android:layout_alignParentBottom="true"
-             android:visibility="gone"/>
+    <LinearLayout android:id="@+id/panel_container"
+                  android:layout_width="match_parent"
+                  android:layout_height="@dimen/playback_panel_height"
+                  android:layout_alignParentBottom="true">
 
-    <View android:id="@+id/progressbar_thumb"
-          android:layout_width="2px"
-          android:layout_height="@dimen/playback_panel_thumb_height"
-          android:layout_alignParentBottom="true"
-          android:background="#fff"
-          android:layout_marginBottom="8dp"
-          android:layout_toRightOf="@id/circularprogressbar_container"
-          android:visibility="gone"/>
+        <FrameLayout android:id="@+id/circularprogressbar_container"
+                     android:layout_width="@dimen/playback_panel_height"
+                     android:layout_height="match_parent"
+                     android:paddingLeft="@dimen/padding_medium"
+                     android:paddingRight="@dimen/padding_medium">
 
-    <TextView android:id="@+id/currenttime_textview"
-              android:layout_width="@dimen/playback_panel_height"
-              android:layout_height="@dimen/playback_panel_height"
-              android:layout_alignParentBottom="true"
-              android:layout_alignParentRight="true"
-              android:gravity="center"
-              android:text="6:32"
-              android:textSize="@dimen/text_size_micro"
-              android:textColor="@color/primary_textcolor_inverted"
-              android:visibility="gone"/>
+            <com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar
+                    android:id="@+id/circularprogressbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/selectable_background_ring_tomahawk"/>
 
-    <TextView android:id="@+id/completiontime_textview"
-              android:layout_width="@dimen/playback_panel_height"
-              android:layout_height="@dimen/playback_panel_height"
-              android:layout_alignParentBottom="true"
-              android:layout_alignParentRight="true"
-              android:gravity="center"
-              android:text="6:32"
-              android:textSize="@dimen/text_size_micro"
-              android:textColor="@color/primary_textcolor_inverted"/>
+            <ImageView android:id="@+id/pause_button"
+                       android:layout_width="18dp"
+                       android:layout_height="18dp"
+                       android:layout_gravity="center"
+                       android:scaleType="fitCenter"
+                       android:src="@drawable/ic_player_pause_light"
+                       android:visibility="gone"/>
+
+            <ImageView android:id="@+id/play_button"
+                       android:layout_width="18dp"
+                       android:layout_height="18dp"
+                       android:layout_gravity="center"
+                       android:layout_marginLeft="2dp"
+                       android:scaleType="fitCenter"
+                       android:src="@drawable/ic_player_play_light"/>
+
+            <TextView android:id="@+id/seektime_textview"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:gravity="center"
+                      android:text="0:00"
+                      android:textSize="@dimen/text_size_micro"
+                      android:textColor="@color/primary_textcolor_inverted"
+                      android:visibility="gone"/>
+
+        </FrameLayout>
+
+        <ImageView android:id="@+id/resolver_imageview"
+                   android:layout_width="@dimen/playback_panel_resolver_icon_size"
+                   android:layout_height="match_parent"
+                   android:src="@drawable/ic_spotify"/>
+
+        <FrameLayout android:layout_width="0dp"
+                     android:layout_height="match_parent"
+                     android:layout_weight="1">
+
+            <include layout="@layout/progressbar_white"
+                     android:id="@+id/progressbar"
+                     android:layout_width="match_parent"
+                     android:layout_height="match_parent"
+                     android:visibility="gone"/>
+
+            <View android:id="@+id/progressbar_thumb"
+                  android:layout_width="2px"
+                  android:layout_height="@dimen/playback_panel_thumb_height"
+                  android:layout_gravity="center_vertical"
+                  android:background="#fff"
+                  android:visibility="gone"/>
+
+        </FrameLayout>
+
+        <FrameLayout android:layout_width="wrap_content"
+                     android:layout_height="match_parent">
+
+            <TextView android:id="@+id/currenttime_textview"
+                      android:layout_width="@dimen/playback_panel_height"
+                      android:layout_height="match_parent"
+                      android:gravity="center"
+                      android:text="6:32"
+                      android:textSize="@dimen/text_size_micro"
+                      android:textColor="@color/primary_textcolor_inverted"
+                      android:visibility="gone"/>
+
+            <TextView android:id="@+id/completiontime_textview"
+                      android:layout_width="@dimen/playback_panel_height"
+                      android:layout_height="match_parent"
+                      android:gravity="center"
+                      android:text="6:32"
+                      android:textSize="@dimen/text_size_micro"
+                      android:textColor="@color/primary_textcolor_inverted"/>
+
+        </FrameLayout>
+
+    </LinearLayout>
 
 </RelativeLayout>
