@@ -400,7 +400,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     viewHolder.setClickArea1Listener(new ClickListener(user, mClickListener));
                 }
             }
-            viewHolder.setMainClickListener(new ClickListener(item, mClickListener));
+            if (item != null) {
+                viewHolder.setMainClickListener(new ClickListener(item, mClickListener));
+            }
         }
         return view;
     }

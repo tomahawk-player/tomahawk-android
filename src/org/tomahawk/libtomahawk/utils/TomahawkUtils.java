@@ -110,7 +110,7 @@ public class TomahawkUtils {
             this.mView = view;
         }
 
-        public View getView() {
+        public View getLayedOutView() {
             return mView;
         }
     }
@@ -883,21 +883,21 @@ public class TomahawkUtils {
     }
 
     public static void afterViewGlobalLayout(final ViewRunnable viewRunnable) {
-        if (viewRunnable.getView().getHeight() > 0
-                || viewRunnable.getView().getWidth() > 0) {
+        if (viewRunnable.getLayedOutView().getHeight() > 0
+                || viewRunnable.getLayedOutView().getWidth() > 0) {
             viewRunnable.run();
         } else {
-            viewRunnable.getView().getViewTreeObserver().addOnGlobalLayoutListener(
+            viewRunnable.getLayedOutView().getViewTreeObserver().addOnGlobalLayoutListener(
                     new ViewTreeObserver.OnGlobalLayoutListener() {
                         @Override
                         public void onGlobalLayout() {
                             viewRunnable.run();
 
                             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                viewRunnable.getView().getViewTreeObserver()
+                                viewRunnable.getLayedOutView().getViewTreeObserver()
                                         .removeOnGlobalLayoutListener(this);
                             } else {
-                                viewRunnable.getView().getViewTreeObserver()
+                                viewRunnable.getLayedOutView().getViewTreeObserver()
                                         .removeGlobalOnLayoutListener(this);
                             }
                         }

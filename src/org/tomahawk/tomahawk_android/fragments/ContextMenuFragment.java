@@ -204,7 +204,7 @@ public class ContextMenuFragment extends Fragment {
                     bm = BlurTransformation.staticTransform(bm, 25f);
 
                     ImageView bgImageView =
-                            (ImageView) getView().findViewById(R.id.background);
+                            (ImageView) getLayedOutView().findViewById(R.id.background);
                     bgImageView.setImageBitmap(bm);
                 }
             });

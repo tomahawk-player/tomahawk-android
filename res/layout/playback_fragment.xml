@@ -35,7 +35,7 @@
 
     <LinearLayout android:id="@+id/content"
                   android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
+                  android:layout_height="match_parent"
                   android:orientation="vertical">
 
         <FrameLayout android:id="@+id/top_buttonpanel"
@@ -103,11 +103,6 @@
         <FrameLayout android:layout_width="match_parent"
                      android:layout_height="0dp"
                      android:layout_weight="1">
-
-            <org.tomahawk.tomahawk_android.views.TomahawkVerticalViewPager
-                    android:id="@+id/playback_view_pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"/>
 
             <LinearLayout android:id="@+id/context_menu_framelayout"
                           android:layout_width="match_parent"
@@ -310,5 +305,16 @@
         </FrameLayout>
 
     </LinearLayout>
+
+    <FrameLayout android:id="@+id/fragmentLayout_listLayout_frameLayout"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"/>
+
+    <org.tomahawk.tomahawk_android.views.AlbumArtViewPager
+            android:id="@+id/albumart_viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="@dimen/playback_panel_height"
+            android:layout_marginBottom="@dimen/playback_clear_space_bottom"/>
 
 </FrameLayout>
