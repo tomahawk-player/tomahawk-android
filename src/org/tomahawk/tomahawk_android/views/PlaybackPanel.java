@@ -52,7 +52,7 @@ public class PlaybackPanel extends FrameLayout {
 
     public static final String COMPLETION_STRING_DEFAULT = "-:--";
 
-    private LinearLayout mTextViewContainer;
+    private FrameLayout mTextViewContainer;
 
     private LinearLayout mPanelContainer;
 
@@ -150,7 +150,7 @@ public class PlaybackPanel extends FrameLayout {
     public void setup(final boolean isPanelExpanded) {
         mInitialized = true;
 
-        mTextViewContainer = (LinearLayout) findViewById(R.id.textview_container);
+        mTextViewContainer = (FrameLayout) findViewById(R.id.textview_container);
         mPanelContainer = (LinearLayout) findViewById(R.id.panel_container);
         mArtistTextView = (TextView) mTextViewContainer.findViewById(R.id.artist_textview);
         mTrackTextView = (TextView) mTextViewContainer.findViewById(R.id.track_textview);
@@ -294,12 +294,8 @@ public class PlaybackPanel extends FrameLayout {
                 Resources resources = TomahawkApp.getContext().getResources();
                 int panelHeight =
                         resources.getDimensionPixelSize(R.dimen.playback_panel_height);
-                int resolverIconSize =
-                        resources.getDimensionPixelSize(R.dimen.playback_panel_resolver_icon_size);
-                int paddingSmall =
-                        resources.getDimensionPixelSize(R.dimen.padding_small);
                 mStartingPoints.put(mTextViewContainer, new AnimationGoal(
-                        resolverIconSize + panelHeight + paddingSmall,
+                        (int) mTextViewContainer.getX(),
                         getHeight() - mTextViewContainer.getHeight() / 2 - panelHeight / 2,
                         1f, 1f));
                 mStartingPoints.put(mPanelContainer, new AnimationGoal(
@@ -309,10 +305,8 @@ public class PlaybackPanel extends FrameLayout {
                         resources.getDimensionPixelSize(R.dimen.padding_medium);
                 int panelBottom =
                         resources.getDimensionPixelSize(R.dimen.playback_clear_space_bottom);
-                int textViewContainerWidth =
-                        (int) (mTextViewContainer.getWidth() / mTextViewContainer.getScaleX());
                 mExpandedPanelPoints.put(mTextViewContainer, new AnimationGoal(
-                        (int) (getWidth() - textViewContainerWidth * 1.5f) / 2,
+                        (int) mTextViewContainer.getX(),
                         getHeight() + padding - panelBottom, 1.5f, 1.5f));
                 mExpandedPanelPoints.put(mPanelContainer, new AnimationGoal(
                         0, getHeight() - mPanelContainer.getHeight(), 1f, 1f));
@@ -320,7 +314,7 @@ public class PlaybackPanel extends FrameLayout {
                 int headerClearSpace = resources.getDimensionPixelSize(
                         R.dimen.header_clear_space_nonscrollable_playback);
                 mScrolledDownPanelPoints.put(mTextViewContainer, new AnimationGoal(
-                        (int) (getWidth() - textViewContainerWidth * 1.5f) / 2,
+                        (int) mTextViewContainer.getX(),
                         headerClearSpace / 2 - mTextViewContainer.getHeight() / 2, 1.5f, 1.5f));
                 mScrolledDownPanelPoints.put(mPanelContainer, new AnimationGoal(
                         0, headerClearSpace - mPanelContainer.getHeight(), 1f, 1f));
@@ -419,8 +413,6 @@ public class PlaybackPanel extends FrameLayout {
             view.setY(firstAnimationGoal.y);
             view.setScaleX(firstAnimationGoal.scaleX);
             view.setScaleY(firstAnimationGoal.scaleY);
-            view.setPivotX(0f);
-            view.setPivotY(0f);
             if (!getResources().getBoolean(R.bool.is_landscape)) {
                 PropertyValuesHolder pvhX =
                         PropertyValuesHolder.ofFloat("x", secondAnimationGoal.x);
