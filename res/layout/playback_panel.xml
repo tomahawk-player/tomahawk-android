@@ -25,50 +25,58 @@
                 android:focusableInTouchMode="false"
                 android:clickable="false">
 
-    <LinearLayout android:id="@+id/textview_container"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content">
+    <FrameLayout android:id="@+id/textview_container"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_marginLeft="76dp"
+                 android:layout_marginRight="76dp">
 
-        <TextView android:id="@+id/track_textview"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_weight="1"
-                  android:layout_gravity="center_vertical"
-                  android:text="Timber Timbre"
-                  android:singleLine="true"
-                  android:textSize="@dimen/text_size_small"
-                  android:textColor="@color/primary_textcolor_inverted"/>
+        <LinearLayout android:layout_width="wrap_content"
+                      android:layout_height="match_parent"
+                      android:layout_gravity="center">
 
-        <TextView android:id="@+id/hyphen_textview"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_gravity="center_vertical"
-                  android:text=" - "
-                  android:singleLine="true"
-                  android:textSize="@dimen/text_size_micro"
-                  android:textColor="@color/primary_textcolor_inverted"/>
+            <TextView android:id="@+id/track_textview"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_weight="1"
+                      android:layout_gravity="center_vertical"
+                      android:text="Timber Timbre"
+                      android:singleLine="true"
+                      android:textSize="@dimen/text_size_small"
+                      android:textColor="@color/primary_textcolor_inverted"/>
 
-        <FrameLayout android:id="@+id/artist_name_button"
-                     android:layout_width="wrap_content"
-                     android:layout_height="wrap_content"
-                     android:layout_weight="1"
-                     android:layout_gravity="center"
-                     android:padding="@dimen/padding_small"
-                     android:background="@drawable/selectable_background_button_white_transition"
-                     android:clickable="false">
-
-            <TextView android:id="@+id/artist_textview"
+            <TextView android:id="@+id/hyphen_textview"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
                       android:layout_gravity="center_vertical"
-                      android:text="Beat the drum slowly"
+                      android:text=" - "
                       android:singleLine="true"
                       android:textSize="@dimen/text_size_micro"
                       android:textColor="@color/primary_textcolor_inverted"/>
 
-        </FrameLayout>
+            <FrameLayout android:id="@+id/artist_name_button"
+                         android:layout_width="wrap_content"
+                         android:layout_height="wrap_content"
+                         android:layout_weight="1"
+                         android:layout_gravity="center"
+                         android:padding="@dimen/padding_small"
+                         android:background="@drawable/selectable_background_button_white_transition"
+                         android:clickable="false">
 
-    </LinearLayout>
+                <TextView android:id="@+id/artist_textview"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_gravity="center_vertical"
+                          android:text="Beat the drum slowly"
+                          android:singleLine="true"
+                          android:textSize="@dimen/text_size_micro"
+                          android:textColor="@color/primary_textcolor_inverted"/>
+
+            </FrameLayout>
+
+        </LinearLayout>
+
+    </FrameLayout>
 
     <LinearLayout android:id="@+id/panel_container"
                   android:layout_width="match_parent"
