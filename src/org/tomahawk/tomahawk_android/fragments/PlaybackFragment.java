@@ -238,6 +238,8 @@ public class PlaybackFragment extends TomahawkFragment {
         mAlbumArtViewPager.setAdapter(mAlbumArtSwipeAdapter);
         mAlbumArtViewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
 
+        setupAlbumArtAnimation();
+
         refreshTrackInfo();
         refreshRepeatButtonState();
         refreshShuffleButtonState();
@@ -317,6 +319,7 @@ public class PlaybackFragment extends TomahawkFragment {
         super.onTrackChanged();
 
         refreshTrackInfo();
+        updateAdapter();
     }
 
     /**
@@ -335,16 +338,8 @@ public class PlaybackFragment extends TomahawkFragment {
             mResolveQueriesHandler.removeCallbacksAndMessages(null);
             mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         }
-        if (getListAdapter() != null) {
-            if (playbackService != null) {
-                ArrayList tracks = new ArrayList();
-                tracks.addAll(playbackService.getPlaylist().getEntries());
-                getListAdapter().setSegments(new Segment(tracks), getListView());
-                getListAdapter().notifyDataSetChanged();
-            }
-        } else {
-            updateAdapter();
-        }
+        updateAdapter();
+
         refreshRepeatButtonState();
         refreshShuffleButtonState();
         if (mAlbumArtSwipeAdapter != null) {
@@ -385,7 +380,11 @@ public class PlaybackFragment extends TomahawkFragment {
         PlaybackService playbackService = activity.getPlaybackService();
         if (playbackService != null) {
             List entries = new ArrayList();
-            entries.addAll(playbackService.getPlaylist().getEntries());
+            entries.addAll(playbackService.getQueue().getEntries());
+            int currentIndex = playbackService.getPlaylist()
+                    .getIndexOfEntry(playbackService.getCurrentEntry());
+            entries.addAll(playbackService.getPlaylist().getEntries()
+                    .subList(Math.max(0, currentIndex), playbackService.getPlaylist().size()));
             Segment segment = new Segment(entries);
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
@@ -399,9 +398,9 @@ public class PlaybackFragment extends TomahawkFragment {
         }
 
         updateShowPlaystate();
-        setupScrollableSpacer();
+        forceAutoResolve();
         setupNonScrollableSpacer();
-        setupAlbumArtAnimation();
+        setupScrollableSpacer();
     }
 
     private void setupAlbumArtAnimation() {
