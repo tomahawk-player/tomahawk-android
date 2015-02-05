@@ -365,6 +365,12 @@ public class PlaybackFragment extends TomahawkFragment {
         }
     }
 
+    @Override
+    public void onHeaderHeightChanged() {
+        setupScrollableSpacer();
+        setupNonScrollableSpacer();
+    }
+
     /**
      * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
      */

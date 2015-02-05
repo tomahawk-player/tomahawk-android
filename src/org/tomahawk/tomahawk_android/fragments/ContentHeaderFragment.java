@@ -192,8 +192,9 @@ public class ContentHeaderFragment extends Fragment {
             TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(view) {
                 @Override
                 public void run() {
-                    mHeaderScrollableHeight = getLayedOutView().getHeight()
-                            - mHeaderNonscrollableHeight;
+                    mHeaderScrollableHeight =
+                            getLayedOutView().getHeight() - mHeaderNonscrollableHeight;
+                    onHeaderHeightChanged();
                 }
             });
         }
@@ -215,6 +216,9 @@ public class ContentHeaderFragment extends Fragment {
         super.onPause();
 
         ((TomahawkMainActivity) getActivity()).showGradientActionBar();
+    }
+
+    public void onHeaderHeightChanged() {
     }
 
     public boolean isDynamicHeader() {
