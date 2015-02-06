@@ -381,7 +381,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             } else if (viewHolder.mLayoutId == R.layout.list_item_track) {
                 if (item instanceof Query || item instanceof PlaylistEntry) {
                     String numerationString = null;
-                    if (mShowNumeration) {
+                    if (!getSegment(position).isShowAsQueued() && mShowNumeration) {
                         numerationString = String.format("%02d", getPosInSegment(position) + 1);
                     }
                     final Query query;
@@ -397,7 +397,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                                 public void onClick(View v) {
                                     mActivity.getPlaybackService().addQueryToQueue(query);
                                 }
-                            });
+                            }, getSegment(position).isShowAsQueued());
                 }
                 if (mHighlightedItemIsPlaying && shouldBeHighlighted) {
                     if (mProgressBar == null) {
