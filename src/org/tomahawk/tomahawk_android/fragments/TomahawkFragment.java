@@ -41,7 +41,6 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
-import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.os.Handler;
 import android.os.Message;
@@ -417,6 +416,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public void setListAdapter(TomahawkListAdapter adapter) {
         super.setListAdapter(adapter);
         mTomahawkListAdapter = adapter;
+        getListView().setOnItemClickListener(mTomahawkListAdapter);
+        getListView().setOnItemLongClickListener(mTomahawkListAdapter);
     }
 
     /**

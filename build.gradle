@@ -21,6 +21,7 @@ dependencies {
     compile 'com.android.support:multidex:1.0.0'
     compile "com.android.support:appcompat-v7:21.0.3"
     compile "com.android.support:support-v4:21.0.3"
+    compile 'com.android.support:recyclerview-v7:21.0.3'
     compile "se.emilsjolander:stickylistheaders:2.4.1"
     compile("ch.acra:acra:4.5.0") {
         transitive = false
@@ -47,6 +48,7 @@ dependencies {
         transitive = false
     }
     compile 'de.greenrobot:eventbus:2.4.0'
+    compile "com.daimajia.swipelayout:library:1.1.8@aar"
 }
 
 /*

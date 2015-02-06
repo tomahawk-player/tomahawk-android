@@ -1132,6 +1132,17 @@ public class PlaybackService extends Service
     }
 
     /**
+     * Add given {@link org.tomahawk.libtomahawk.resolver.Query} to the Queue
+     */
+    public void addQueryToQueue(Query query) {
+        Log.d(TAG, "addQueryToQueue " + query.getName());
+        mQueue.addQuery(query);
+        mMergedPlaylist.setEntries(getMergedPlaylistEntries());
+        EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
+        onTrackChanged();
+    }
+
+    /**
      * Add given {@link ArrayList} of {@link org.tomahawk.libtomahawk.resolver.Query}s to the Queue
      */
     public void addQueriesToQueue(ArrayList<Query> queries) {

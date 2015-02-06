@@ -326,6 +326,14 @@ public class Playlist implements TomahawkListItem {
     }
 
     /**
+     * Append {@link Query} at the end of this playlist
+     */
+    public void addQuery(Query query) {
+        mEntries.add(PlaylistEntry.get(mId, query,
+                TomahawkMainActivity.getLifetimeUniqueStringId()));
+    }
+
+    /**
      * Append an {@link ArrayList} of {@link Query}s at the end of this playlist
      */
     public void addQueries(ArrayList<Query> queries) {

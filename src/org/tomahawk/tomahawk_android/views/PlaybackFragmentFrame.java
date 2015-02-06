@@ -116,9 +116,11 @@ public class PlaybackFragmentFrame extends FrameLayout {
         } else {
             if (mDownMotionEvent != null) {
                 getChildAt(0).dispatchTouchEvent(mDownMotionEvent);
+                getParent().requestDisallowInterceptTouchEvent(true);
                 mDownMotionEvent = null;
             }
             getChildAt(0).dispatchTouchEvent(event);
+            getParent().requestDisallowInterceptTouchEvent(true);
         }
     }
 

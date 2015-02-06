@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import com.daimajia.swipe.SwipeLayout;
+
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
@@ -42,20 +44,24 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
-public class TomahawkListAdapter extends StickyBaseAdapter {
+public class TomahawkListAdapter extends StickyBaseAdapter implements
+        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
 
     private TomahawkMainActivity mActivity;
 
@@ -88,6 +94,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
     private int mFooterSpacerHeight = 0;
 
     private ProgressBar mProgressBar;
+
+    private Set<SwipeLayout> mOpenSwipeLayouts = new HashSet<>();
 
     private Handler mProgressHandler = new Handler(new Handler.Callback() {
         @Override
@@ -365,7 +373,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     if (mShowNumeration) {
                         numerationString = String.format("%02d", getPosInSegment(position) + 1);
                     }
-                    Query query;
+                    final Query query;
                     if (item instanceof PlaylistEntry) {
                         query = ((PlaylistEntry) item).getQuery();
                     } else {
@@ -373,7 +381,12 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
                     }
                     viewHolder.fillView(query, numerationString,
                             mHighlightedItemIsPlaying && shouldBeHighlighted, mShowDuration,
-                            mHideArtistName);
+                            mHideArtistName, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mActivity.getPlaybackService().addQueryToQueue(query);
+                                }
+                            });
                 }
                 if (mHighlightedItemIsPlaying && shouldBeHighlighted) {
                     if (mProgressBar == null) {
@@ -389,18 +402,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             }
 
             //Set up the click listeners
-            if (viewHolder.mLayoutId == R.layout.list_item_track) {
-                if (item instanceof SocialAction || item instanceof User) {
-                    User user;
-                    if (item instanceof SocialAction) {
-                        user = ((SocialAction) item).getUser();
-                    } else {
-                        user = (User) item;
-                    }
-                    viewHolder.setClickArea1Listener(new ClickListener(user, mClickListener));
-                }
-            }
-            if (item != null) {
+            if (item != null && viewHolder.mMainClickArea != null) {
                 viewHolder.setMainClickListener(new ClickListener(item, mClickListener));
             }
         }
@@ -698,5 +700,25 @@ public class TomahawkListAdapter extends StickyBaseAdapter {
             }
         }
         return footerSpacerHeight;
+    }
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        Object o = getItem(position);
+        // Don't display the socialAction item directly, but rather the item that is its target
+        if (o instanceof SocialAction && ((SocialAction) o).getTargetObject() != null) {
+            o = ((SocialAction) o).getTargetObject();
+        }
+        mClickListener.onItemClick(view, o);
+    }
+
+    @Override
+    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        Object o = getItem(position);
+        // Don't display the socialAction item directly, but rather the item that is its target
+        if (o instanceof SocialAction && ((SocialAction) o).getTargetObject() != null) {
+            o = ((SocialAction) o).getTargetObject();
+        }
+        return mClickListener.onItemLongClick(view, o);
     }
 }
