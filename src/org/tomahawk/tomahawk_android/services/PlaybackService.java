@@ -654,12 +654,12 @@ public class PlaybackService extends Service
      */
     private void saveState() {
         /*
-        if (getPlaylist() != null) {
+        if (getMergedPlaylist() != null) {
             long startTime = System.currentTimeMillis();
             CollectionManager.getInstance().setCachedPlaylist(Playlist
                     .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
                             DatabaseHelper.CACHED_PLAYLIST_NAME,
-                            getPlaylist().getQueries()));
+                            getMergedPlaylist().getQueries()));
             Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
         }*/
     }
@@ -674,7 +674,7 @@ public class PlaybackService extends Service
         long startTime = System.currentTimeMillis();
         setPlaylist(CollectionManager.getInstance().getCachedPlaylist());
         Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
-        if (getPlaylist() != null && isPlaying()) {
+        if (getMergedPlaylist() != null && isPlaying()) {
             pause(true);
         }
         */
@@ -1075,6 +1075,13 @@ public class PlaybackService extends Service
      * Get the current Playlist
      */
     public Playlist getPlaylist() {
+        return mPlaylist;
+    }
+
+    /**
+     * Get the current merged Playlist (playlist + queue)
+     */
+    public Playlist getMergedPlaylist() {
         return mMergedPlaylist;
     }
 

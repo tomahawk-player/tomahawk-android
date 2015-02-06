@@ -91,11 +91,11 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
         View view = mLayoutInflater.inflate(
                 org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
         if (mPlaybackService != null) {
-            if (mPlaybackService.getPlaylist().size() > 0) {
+            if (mPlaybackService.getMergedPlaylist().size() > 0) {
                 if (mPlaybackService.isRepeating()) {
-                    position = position % mPlaybackService.getPlaylist().size();
+                    position = position % mPlaybackService.getMergedPlaylist().size();
                 }
-                Query query = mPlaybackService.getPlaylist().getEntries().get(position).getQuery();
+                Query query = mPlaybackService.getMergedPlaylist().getEntries().get(position).getQuery();
                 refreshTrackInfo(view, query);
                 mActivity.showPanel();
             } else {
@@ -115,13 +115,13 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     @Override
     public int getCount() {
-        if (mPlaybackService == null || mPlaybackService.getPlaylist().size() == 0) {
+        if (mPlaybackService == null || mPlaybackService.getMergedPlaylist().size() == 0) {
             return 1;
         }
         if (mPlaybackService.isRepeating()) {
             return FAKE_INFINITY_COUNT;
         }
-        return mPlaybackService.getPlaylist().size();
+        return mPlaybackService.getMergedPlaylist().size();
     }
 
     /**
@@ -185,21 +185,21 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      * @param smoothScroll boolean to determine whether or not to show a scrolling animation
      */
     public void setCurrentItem(PlaylistEntry entry, boolean smoothScroll) {
-        int position = mPlaybackService.getPlaylist().getIndexOfEntry(entry);
+        int position = mPlaybackService.getMergedPlaylist().getIndexOfEntry(entry);
         if (mPlaybackService.isRepeating()) {
             position += mFakeInfinityOffset;
         }
         if (position != mViewPager.getCurrentItem()) {
             if (mPlaybackService.isRepeating()) {
                 if (position
-                        == (mCurrentViewPage % mPlaybackService.getPlaylist().size()) + 1
-                        || ((mCurrentViewPage % mPlaybackService.getPlaylist().size())
-                        == mPlaybackService.getPlaylist().size() - 1 && position == 0)) {
+                        == (mCurrentViewPage % mPlaybackService.getMergedPlaylist().size()) + 1
+                        || ((mCurrentViewPage % mPlaybackService.getMergedPlaylist().size())
+                        == mPlaybackService.getMergedPlaylist().size() - 1 && position == 0)) {
                     setCurrentToNextItem(smoothScroll);
                 } else if (position
-                        == (mCurrentViewPage % mPlaybackService.getPlaylist().size()) - 1
-                        || ((mCurrentViewPage % mPlaybackService.getPlaylist().size()) == 0
-                        && position == mPlaybackService.getPlaylist().size() - 1)) {
+                        == (mCurrentViewPage % mPlaybackService.getMergedPlaylist().size()) - 1
+                        || ((mCurrentViewPage % mPlaybackService.getMergedPlaylist().size()) == 0
+                        && position == mPlaybackService.getMergedPlaylist().size() - 1)) {
                     setCurrentToPreviousItem(smoothScroll);
                 } else {
                     mViewPager.setCurrentItem(position, false);
@@ -231,7 +231,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      */
     public void updatePlaylist() {
         if (mPlaybackService != null) {
-            Playlist playlist = mPlaybackService.getPlaylist();
+            Playlist playlist = mPlaybackService.getMergedPlaylist();
             int size = playlist.size();
             notifyDataSetChanged();
             if (size > 0) {

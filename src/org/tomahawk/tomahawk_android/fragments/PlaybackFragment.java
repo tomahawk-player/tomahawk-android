@@ -315,7 +315,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 .getPlaybackService();
 
         if (playbackService != null) {
-            mShownQueries = playbackService.getPlaylist().getQueries();
+            mShownQueries = playbackService.getMergedPlaylist().getQueries();
             mResolveQueriesHandler.removeCallbacksAndMessages(null);
             mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         }
