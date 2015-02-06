@@ -136,10 +136,10 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
     public void updateTextViewCurrentTime(int position) {
         if (mTextViewCurrentTime != null) {
             if (mPlaybackService != null && !isIsSeeking()
-                    && mPlaybackService.getPlaylist().size() > 0) {
+                    && mPlaybackService.getMergedPlaylist().size() > 0) {
                 mTextViewCurrentTime.setText(TomahawkUtils.durationToString(position));
             } else if (mPlaybackService != null
-                    && mPlaybackService.getPlaylist().size() > 0) {
+                    && mPlaybackService.getMergedPlaylist().size() > 0) {
                 mTextViewCurrentTime.setText(TomahawkUtils.durationToString(getProgress()));
             } else {
                 mTextViewCurrentTime.setText(TomahawkUtils.durationToString(0));
