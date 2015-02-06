@@ -298,8 +298,19 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 viewHolders.add(viewHolder);
             }
             // Set extra padding
-            view.setPadding(view.getPaddingLeft() + mLeftExtraPadding, view.getPaddingTop(),
-                    view.getPaddingRight(), view.getPaddingBottom());
+            if (mLeftExtraPadding > 0) {
+                if (viewType == R.layout.list_item_track) {
+                    // if it's a list_item_track, we have to set the padding on the foreground
+                    // layout in the SwipeLayout instead
+                    View foreground = ((ViewGroup) view).getChildAt(1);
+                    foreground.setPadding(foreground.getPaddingLeft() + mLeftExtraPadding,
+                            foreground.getPaddingTop(), foreground.getPaddingRight(),
+                            foreground.getPaddingBottom());
+                } else {
+                    view.setPadding(view.getPaddingLeft() + mLeftExtraPadding, view.getPaddingTop(),
+                            view.getPaddingRight(), view.getPaddingBottom());
+                }
+            }
             view.setTag(viewHolders);
         } else if (viewType == R.layout.list_item_track
                 || viewType == R.layout.grid_item
