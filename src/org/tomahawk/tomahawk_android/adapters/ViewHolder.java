@@ -217,6 +217,7 @@ public class ViewHolder {
             mAddIcon = rootView
                     .findViewById(R.id.add_icon);
         }
+        mMainClickArea = rootView.findViewById(R.id.mainclickarea);
     }
 
     public ViewHolder(View imageFrame, View headerFrame, int layoutId) {
