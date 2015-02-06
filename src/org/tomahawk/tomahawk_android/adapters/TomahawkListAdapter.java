@@ -716,20 +716,25 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Object o = getItem(position);
-        // Don't display the socialAction item directly, but rather the item that is its target
-        if (o instanceof SocialAction && ((SocialAction) o).getTargetObject() != null) {
-            o = ((SocialAction) o).getTargetObject();
+        if (!(o instanceof List)) {
+            // Don't display the socialAction item directly, but rather the item that is its target
+            if (o instanceof SocialAction && ((SocialAction) o).getTargetObject() != null) {
+                o = ((SocialAction) o).getTargetObject();
+            }
+            mClickListener.onItemClick(view, o);
         }
-        mClickListener.onItemClick(view, o);
     }
 
     @Override
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         Object o = getItem(position);
-        // Don't display the socialAction item directly, but rather the item that is its target
-        if (o instanceof SocialAction && ((SocialAction) o).getTargetObject() != null) {
-            o = ((SocialAction) o).getTargetObject();
+        if (!(o instanceof List)) {
+            // Don't display the socialAction item directly, but rather the item that is its target
+            if (o instanceof SocialAction && ((SocialAction) o).getTargetObject() != null) {
+                o = ((SocialAction) o).getTargetObject();
+            }
+            return mClickListener.onItemLongClick(view, o);
         }
-        return mClickListener.onItemLongClick(view, o);
+        return false;
     }
 }
