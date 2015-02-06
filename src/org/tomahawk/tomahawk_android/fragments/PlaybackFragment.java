@@ -41,9 +41,7 @@ import org.tomahawk.tomahawk_android.views.PlaybackFragmentFrame;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -70,29 +68,13 @@ public class PlaybackFragment extends TomahawkFragment {
 
     private Toast mToast;
 
-    private boolean mWasDownwardsSwipe;
-
-    private GestureDetector mGestureDetector;
-
-    /**
-     * Class to extend a {@link android.view.GestureDetector.SimpleOnGestureListener}, so that we
-     * can apply our logic to manually solve the TouchEvent conflict.
-     */
-    private class ShouldSwipeDetector extends GestureDetector.SimpleOnGestureListener {
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            // we return true, if the scroll movement is downwards, false otherwise
-            return distanceY < -5. && distanceX < 40. && distanceX > -40.;
-        }
-    }
-
     @SuppressWarnings("unused")
     public void onEventMainThread(TomahawkMainActivity.SlidingLayoutChangedEvent event) {
         switch (event.mSlideState) {
             case COLLAPSED:
             case EXPANDED:
                 mAlbumArtSwipeAdapter.notifyDataSetChanged();
+                getListView().smoothScrollToPosition(0);
                 break;
         }
     }
@@ -102,7 +84,6 @@ public class PlaybackFragment extends TomahawkFragment {
         super.onCreate(savedInstanceState);
 
         setRestoreScrollPosition(false);
-        mGestureDetector = new GestureDetector(getActivity(), new ShouldSwipeDetector());
     }
 
     @Override
