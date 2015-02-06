@@ -22,6 +22,7 @@
 
     <color name="tomahawk_red">#FFff004c</color>
     <color name="tomahawk_red_transparent">#DDff004c</color>
+    <color name="tomahawk_red_very_transparent">#44ff004c</color>
     <color name="divider">#3B3F45</color>
     <color name="primary_background">#FFffffff</color>
     <color name="secondary_background">#FF777777</color>

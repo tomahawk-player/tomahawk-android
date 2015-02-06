@@ -18,93 +18,120 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:paddingLeft="@dimen/padding_superlarge"
-              android:paddingRight="@dimen/padding_superlarge"
-              android:baselineAligned="false"
-              android:orientation="horizontal"
-              android:descendantFocusability="afterDescendants"
-              android:background="@drawable/selectable_background_tomahawk_opaque">
+<com.daimajia.swipe.SwipeLayout
+        xmlns:swipe="http://schemas.android.com/apk/res-auto"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipelayout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/list_item_track_height"
+        swipe:show_mode="lay_down">
 
-    <FrameLayout android:id="@+id/clickarea1"
+    <FrameLayout android:id="@+id/swipemenu_button1"
                  android:layout_width="wrap_content"
                  android:layout_height="match_parent"
-                 android:clickable="true">
+                 android:background="@color/primary_background">
 
-        <ImageView android:id="@+id/imageview1"
-                   android:layout_width="@dimen/row_height_medium"
-                   android:layout_height="@dimen/row_height_medium"
-                   android:layout_gravity="center"
-                   android:paddingRight="@dimen/padding_small"
-                   android:paddingTop="@dimen/padding_small"
-                   android:paddingBottom="@dimen/padding_small"
-                   android:scaleType="centerInside"
-                   android:visibility="gone"/>
+        <ImageView android:layout_width="@dimen/list_item_track_height"
+                   android:layout_height="match_parent"
+                   android:layout_marginRight="@dimen/padding_superlarge"
+                   android:padding="@dimen/padding_small"
+                   android:src="@drawable/selectable_background_button_ring_red"/>
 
-        <TextView android:id="@+id/textview1"
-                  android:layout_width="wrap_content"
-                  android:layout_height="@dimen/row_height_medium"
-                  android:minWidth="@dimen/row_height_medium"
-                  android:layout_gravity="center"
-                  android:paddingRight="@dimen/padding_small"
-                  android:gravity="center_vertical"
-                  android:singleLine="true"
-                  android:textSize="@dimen/text_size_small"
-                  android:textColor="@color/secondary_textcolor"
-                  android:visibility="gone"/>
+        <ImageView android:layout_width="@dimen/list_item_track_height"
+                   android:layout_height="match_parent"
+                   android:layout_marginRight="@dimen/padding_superlarge"
+                   android:padding="@dimen/padding_large"
+                   android:src="@drawable/ic_action_queue_red"/>
 
     </FrameLayout>
 
-    <FrameLayout android:layout_width="0dp"
-                 android:layout_height="match_parent"
-                 android:layout_weight="1">
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:paddingLeft="@dimen/padding_superlarge"
+                  android:paddingRight="@dimen/padding_superlarge"
+                  android:baselineAligned="false"
+                  android:orientation="horizontal"
+                  android:descendantFocusability="afterDescendants"
+                  android:background="@drawable/selectable_background_tomahawk_opaque">
 
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="match_parent"
-                      android:orientation="horizontal"
-                      android:paddingTop="@dimen/padding_large"
-                      android:paddingBottom="@dimen/padding_large">
+        <FrameLayout android:layout_width="wrap_content"
+                     android:layout_height="match_parent"
+                     android:clickable="true">
 
-            <TextView android:id="@+id/textview2"
-                      android:layout_width="0dp"
+            <ImageView android:id="@+id/imageview1"
+                       android:layout_width="@dimen/row_height_medium"
+                       android:layout_height="match_parent"
+                       android:layout_gravity="center"
+                       android:paddingRight="@dimen/padding_small"
+                       android:paddingTop="@dimen/padding_small"
+                       android:paddingBottom="@dimen/padding_small"
+                       android:scaleType="centerInside"
+                       android:visibility="gone"/>
+
+            <TextView android:id="@+id/textview1"
+                      android:layout_width="wrap_content"
                       android:layout_height="match_parent"
-                      android:layout_weight="0.55"
+                      android:minWidth="@dimen/row_height_medium"
+                      android:layout_gravity="center"
+                      android:paddingRight="@dimen/padding_small"
                       android:gravity="center_vertical"
                       android:singleLine="true"
-                      android:textStyle="bold"
-                      android:textColor="@color/primary_textcolor"
-                      android:textSize="@dimen/text_size_medium"/>
-
-            <TextView android:id="@+id/textview3"
-                      android:layout_width="0dp"
-                      android:layout_height="match_parent"
-                      android:layout_weight="0.45"
-                      android:paddingLeft="@dimen/padding_small"
-                      android:gravity="center_vertical"
-                      android:singleLine="true"
-                      android:textColor="@color/primary_textcolor"
-                      android:textSize="@dimen/text_size_medium"
-                      android:visibility="gone"/>
-
-            <TextView android:id="@+id/textview4"
-                      android:layout_width="44dp"
-                      android:layout_height="match_parent"
-                      android:paddingLeft="@dimen/padding_small"
-                      android:gravity="center_vertical|right"
-                      android:singleLine="true"
-                      android:textColor="@color/secondary_textcolor"
                       android:textSize="@dimen/text_size_small"
+                      android:textColor="@color/secondary_textcolor"
                       android:visibility="gone"/>
 
-        </LinearLayout>
+        </FrameLayout>
 
-        <FrameLayout android:id="@+id/progressbar_container"
-                     android:layout_width="match_parent"
-                     android:layout_height="wrap_content"
-                     android:layout_gravity="bottom"/>
+        <FrameLayout android:layout_width="0dp"
+                     android:layout_height="match_parent"
+                     android:layout_weight="1">
 
-    </FrameLayout>
+            <LinearLayout android:layout_width="match_parent"
+                          android:layout_height="match_parent"
+                          android:orientation="horizontal"
+                          android:paddingTop="@dimen/padding_large"
+                          android:paddingBottom="@dimen/padding_large">
 
-</LinearLayout>
+                <TextView android:id="@+id/textview2"
+                          android:layout_width="0dp"
+                          android:layout_height="match_parent"
+                          android:layout_weight="0.55"
+                          android:gravity="center_vertical"
+                          android:singleLine="true"
+                          android:textStyle="bold"
+                          android:textColor="@color/primary_textcolor"
+                          android:textSize="@dimen/text_size_medium"/>
+
+                <TextView android:id="@+id/textview3"
+                          android:layout_width="0dp"
+                          android:layout_height="match_parent"
+                          android:layout_weight="0.45"
+                          android:paddingLeft="@dimen/padding_small"
+                          android:gravity="center_vertical"
+                          android:singleLine="true"
+                          android:textColor="@color/primary_textcolor"
+                          android:textSize="@dimen/text_size_medium"
+                          android:visibility="gone"/>
+
+                <TextView android:id="@+id/textview4"
+                          android:layout_width="44dp"
+                          android:layout_height="match_parent"
+                          android:paddingLeft="@dimen/padding_small"
+                          android:gravity="center_vertical|right"
+                          android:singleLine="true"
+                          android:textColor="@color/secondary_textcolor"
+                          android:textSize="@dimen/text_size_small"
+                          android:visibility="gone"/>
+
+            </LinearLayout>
+
+            <FrameLayout android:id="@+id/progressbar_container"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:layout_gravity="bottom"/>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</com.daimajia.swipe.SwipeLayout>

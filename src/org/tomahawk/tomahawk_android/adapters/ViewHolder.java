@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import com.daimajia.swipe.SwipeLayout;
+
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
@@ -86,7 +88,9 @@ public class ViewHolder {
 
     View mMainClickArea;
 
-    View mClickArea1;
+    View mSwipeMenuButton1;
+
+    SwipeLayout mSwipeLayout;
 
     FrameLayout mProgressBarContainer;
 
@@ -115,10 +119,12 @@ public class ViewHolder {
                     .findViewById(R.id.textview3);
             mTextView4 = (TextView) rootView
                     .findViewById(R.id.textview4);
-            mClickArea1 = rootView
-                    .findViewById(R.id.clickarea1);
             mProgressBarContainer = (FrameLayout) rootView
                     .findViewById(R.id.progressbar_container);
+            mSwipeMenuButton1 = rootView
+                    .findViewById(R.id.swipemenu_button1);
+            mSwipeLayout = (SwipeLayout) rootView.
+                    findViewById(R.id.swipelayout);
         } else if (layoutId == R.layout.list_item_folder) {
             mTextView1 = (TextView) rootView
                     .findViewById(R.id.textview1);
@@ -211,9 +217,6 @@ public class ViewHolder {
             mAddIcon = rootView
                     .findViewById(R.id.add_icon);
         }
-        if (mMainClickArea == null) {
-            mMainClickArea = rootView;
-        }
     }
 
     public ViewHolder(View imageFrame, View headerFrame, int layoutId) {
@@ -251,11 +254,6 @@ public class ViewHolder {
     public void setMainClickListener(ClickListener listener) {
         mMainClickArea.setOnClickListener(listener);
         mMainClickArea.setOnLongClickListener(listener);
-    }
-
-    public void setClickArea1Listener(ClickListener listener) {
-        mClickArea1.setOnClickListener(listener);
-        mClickArea1.setOnLongClickListener(listener);
     }
 
     public void setupFancyDropDown(String text) {
@@ -346,7 +344,8 @@ public class ViewHolder {
     }
 
     public void fillView(Query query, String numerationString, boolean showAsPlaying,
-            boolean showDuration, boolean hideArtistName) {
+            boolean showDuration, boolean hideArtistName,
+            View.OnClickListener swipeMenuButton1Listener) {
         if (!hideArtistName) {
             mTextView3.setVisibility(View.VISIBLE);
             mTextView3.setText(query.getArtist().getName());
@@ -375,6 +374,7 @@ public class ViewHolder {
                 mTextView4.setText(PlaybackSeekBar.COMPLETION_STRING_DEFAULT);
             }
         }
+        mSwipeMenuButton1.setOnClickListener(swipeMenuButton1Listener);
     }
 
     public void fillView(String string) {
