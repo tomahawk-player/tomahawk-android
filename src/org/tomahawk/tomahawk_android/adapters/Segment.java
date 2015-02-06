@@ -47,6 +47,8 @@ public class Segment {
 
     private int mSegmentSize = 0;
 
+    private boolean mShowAsQueued;
+
     public Segment(List<Object> listItems) {
         mListItems = listItems;
         mSegmentSize = mListItems.size();
@@ -164,5 +166,13 @@ public class Segment {
 
     public int getVerticalPadding() {
         return mVerticalPadding;
+    }
+
+    public boolean isShowAsQueued() {
+        return mShowAsQueued;
+    }
+
+    public void setShowAsQueued(boolean showAsQueued) {
+        mShowAsQueued = showAsQueued;
     }
 }

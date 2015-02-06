@@ -345,7 +345,7 @@ public class ViewHolder {
 
     public void fillView(Query query, String numerationString, boolean showAsPlaying,
             boolean showDuration, boolean hideArtistName,
-            View.OnClickListener swipeMenuButton1Listener) {
+            View.OnClickListener swipeMenuButton1Listener, boolean showAsQueued) {
         if (!hideArtistName) {
             mTextView3.setVisibility(View.VISIBLE);
             mTextView3.setText(query.getArtist().getName());
@@ -353,7 +353,11 @@ public class ViewHolder {
         mTextView2.setText(query.getName());
         setTextViewEnabled(mTextView2, query.isPlayable(), false);
         setTextViewEnabled(mTextView3, query.isPlayable(), false);
-        if (numerationString != null) {
+        if (showAsQueued) {
+            mImageView1.setVisibility(View.VISIBLE);
+            TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), mImageView1,
+                    R.drawable.ic_action_queue_red);
+        } else if (numerationString != null) {
             if (showAsPlaying) {
                 mTextView1.setVisibility(View.INVISIBLE);
                 mTextView1.setText(numerationString);
