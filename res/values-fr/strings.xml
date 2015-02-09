@@ -48,6 +48,8 @@
   <string name="preferences_hatchet_text">Synchroniser vos données avec %1$s.</string>
   <string name="preferences_spotify_text">Diffuse votre musique depuis %1$s. Compte Premium requis.</string>
   <string name="preferences_playback">Diffusion</string>
+  <string name="preferences_equalizer">Égaliseur</string>
+  <string name="preferences_equalizer_text">Ajuster le rendu audio.</string>
   <string name="preferences_playback_data">Tout scrobbler</string>
   <string name="preferences_playback_data_text">Scrobbler toutes les pistes de toutes les application musicales du téléphone vers %1$s.</string>
   <string name="preferences_plug_and_play">Brancher et écouter</string>
@@ -60,6 +62,7 @@
   <string name="preferences_app_uservoice_text">Donnez-nous vos idées ou demandez de l\'aide.</string>
   <string name="preferences_app_sendlog">Envoyer les logs</string>
   <string name="preferences_app_sendlog_text">Envoyer le fichier de logs pour aider à corriger le problème</string>
+  <string name="preferences_app_sendlog_dialog_text">Décrivez brièvement le problème que vous rencontrez et donnez une adresse email afin que nous puissions vous contacter si besoin. Merci !</string>
   <string name="preferences_app_sendlog_email">Votre adresse email</string>
   <string name="preferences_app_sendlog_issue">Problème</string>
   <string name="crash_dialog_title">Tomahawk a planté</string>
@@ -117,7 +120,9 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
   <string name="socialaction_type_collected_album_multiple">a ajouté %1$d albums</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">a ajouté un artiste</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">a ajouté %1$d artistes</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">a ajouté un commentaire sur</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
@@ -161,5 +166,9 @@
   <string name="button_open_queue_text">File</string>
   <string name="button_close">Fermer</string>
   <string name="view_album">Voir l\'album</string>
+  <string name="connect">Connexion</string>
+  <string name="connect_headertext">Sélectionnez les services que vous souhaitez utiliser. Tomahawk fonctionne d\'autant mieux que plusieurs services sont activés.</string>
+  <string name="advanced">Avancé</string>
   <string name="info">Info</string>
+  <string name="equalizer">Égaliseur</string>
 </resources>
