@@ -68,6 +68,60 @@ public class PlaybackFragment extends TomahawkFragment {
 
     private Toast mToast;
 
+    public abstract static class ShowContextMenuListener {
+
+        public abstract void onShowContextMenu(Query query);
+    }
+
+    private ShowContextMenuListener mShowContextMenuListener = new ShowContextMenuListener() {
+
+        @Override
+        public void onShowContextMenu(Query query) {
+            ContextMenuFragment.setupClickListeners((TomahawkMainActivity) getActivity(),
+                    getView(), query, null, true,
+                    new ContextMenuFragment.Action() {
+                        @Override
+                        public void run() {
+                            AnimationUtils.fade(getView().findViewById(
+                                            R.id.context_menu_framelayout),
+                                    AnimationUtils.DURATION_CONTEXTMENU, false);
+                            AnimationUtils
+                                    .fade(getView().findViewById(R.id.view_album_button),
+                                            AnimationUtils.DURATION_CONTEXTMENU, false);
+                            TomahawkMainActivity activity
+                                    = ((TomahawkMainActivity) getActivity());
+                            AnimationUtils.fade(activity.getPlaybackPanel().findViewById(
+                                            R.id.textview_container),
+                                    AnimationUtils.DURATION_CONTEXTMENU, true);
+                            View artistTextViewButton = activity.getPlaybackPanel()
+                                    .findViewById(R.id.artist_name_button);
+                            artistTextViewButton.setClickable(false);
+                            TransitionDrawable drawable
+                                    = (TransitionDrawable) artistTextViewButton
+                                    .getBackground();
+                            drawable.reverseTransition(AnimationUtils.DURATION_CONTEXTMENU);
+                        }
+                    });
+            AnimationUtils.fade(getView().findViewById(R.id.context_menu_framelayout),
+                    AnimationUtils.DURATION_CONTEXTMENU, true);
+            if (!TextUtils.isEmpty(query.getAlbum().getName())) {
+                AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
+                        AnimationUtils.DURATION_CONTEXTMENU, true);
+            }
+            View artistTextViewButton = ((TomahawkMainActivity) getActivity())
+                    .getPlaybackPanel().findViewById(R.id.artist_name_button);
+            artistTextViewButton.setClickable(true);
+            TransitionDrawable drawable =
+                    (TransitionDrawable) artistTextViewButton.getBackground();
+            drawable.startTransition(AnimationUtils.DURATION_CONTEXTMENU);
+            if (getResources().getBoolean(R.bool.is_landscape)) {
+                AnimationUtils.fade(((TomahawkMainActivity) getActivity()).getPlaybackPanel()
+                                .findViewById(R.id.textview_container),
+                        AnimationUtils.DURATION_CONTEXTMENU, false);
+            }
+        }
+    };
+
     @SuppressWarnings("unused")
     public void onEventMainThread(TomahawkMainActivity.SlidingLayoutChangedEvent event) {
         switch (event.mSlideState) {
@@ -95,6 +149,14 @@ public class PlaybackFragment extends TomahawkFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        getListView().setFastScrollEnabled(false);
+
+        mAlbumArtViewPager = (AlbumArtViewPager) view.findViewById(R.id.albumart_viewpager);
+        mAlbumArtViewPager.setListView(getListView().getWrappedList());
+        mAlbumArtViewPager.setShowContextMenuListener(mShowContextMenuListener);
+        mAlbumArtViewPager
+                .setPlaybackService(((TomahawkMainActivity) getActivity()).getPlaybackService());
 
         PlaybackFragmentFrame playbackFragmentFrame = (PlaybackFragmentFrame) view.getParent();
         playbackFragmentFrame.setListView(getListView());
@@ -145,9 +207,6 @@ public class PlaybackFragment extends TomahawkFragment {
         });
         TextView closeButtonText = (TextView) closeButton.findViewById(R.id.close_button_text);
         closeButtonText.setText(getString(R.string.button_close).toUpperCase());
-
-        mAlbumArtViewPager = (AlbumArtViewPager) view.findViewById(R.id.albumart_viewpager);
-        mAlbumArtViewPager.setListView(getListView().getWrappedList());
     }
 
     @Override
@@ -160,61 +219,7 @@ public class PlaybackFragment extends TomahawkFragment {
         onPlaylistChanged();
 
         mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter((TomahawkMainActivity) getActivity(),
-                getActivity().getSupportFragmentManager(), getActivity().getLayoutInflater(),
-                mAlbumArtViewPager, new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                PlaybackService playbackService =
-                        ((TomahawkMainActivity) getActivity()).getPlaybackService();
-                if (playbackService != null && playbackService.getCurrentQuery() != null) {
-                    ContextMenuFragment.setupClickListeners((TomahawkMainActivity) getActivity(),
-                            getView(), playbackService.getCurrentQuery(), null, true,
-                            new ContextMenuFragment.Action() {
-                                @Override
-                                public void run() {
-                                    AnimationUtils.fade(getView().findViewById(
-                                                    R.id.context_menu_framelayout),
-                                            AnimationUtils.DURATION_CONTEXTMENU, false);
-                                    AnimationUtils
-                                            .fade(getView().findViewById(R.id.view_album_button),
-                                                    AnimationUtils.DURATION_CONTEXTMENU, false);
-                                    TomahawkMainActivity activity
-                                            = ((TomahawkMainActivity) getActivity());
-                                    AnimationUtils.fade(activity.getPlaybackPanel().findViewById(
-                                                    R.id.textview_container),
-                                            AnimationUtils.DURATION_CONTEXTMENU, true);
-                                    View artistTextViewButton = activity.getPlaybackPanel()
-                                            .findViewById(R.id.artist_name_button);
-                                    artistTextViewButton.setClickable(false);
-                                    TransitionDrawable drawable
-                                            = (TransitionDrawable) artistTextViewButton
-                                            .getBackground();
-                                    drawable.reverseTransition(AnimationUtils.DURATION_CONTEXTMENU);
-                                }
-                            });
-                    AnimationUtils.fade(getView().findViewById(R.id.context_menu_framelayout),
-                            AnimationUtils.DURATION_CONTEXTMENU, true);
-                    if (!TextUtils
-                            .isEmpty(playbackService.getCurrentQuery().getAlbum().getName())) {
-                        AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
-                                AnimationUtils.DURATION_CONTEXTMENU, true);
-                    }
-                    View artistTextViewButton = ((TomahawkMainActivity) getActivity())
-                            .getPlaybackPanel().findViewById(R.id.artist_name_button);
-                    artistTextViewButton.setClickable(true);
-                    TransitionDrawable drawable =
-                            (TransitionDrawable) artistTextViewButton.getBackground();
-                    drawable.startTransition(AnimationUtils.DURATION_CONTEXTMENU);
-                    if (getResources().getBoolean(R.bool.is_landscape)) {
-                        AnimationUtils
-                                .fade(((TomahawkMainActivity) getActivity()).getPlaybackPanel()
-                                                .findViewById(R.id.textview_container),
-                                        AnimationUtils.DURATION_CONTEXTMENU, false);
-                    }
-                }
-                return true;
-            }
-        });
+                getActivity().getLayoutInflater(), mAlbumArtViewPager);
         mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
         mAlbumArtViewPager.setAdapter(mAlbumArtSwipeAdapter);
         mAlbumArtViewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
@@ -259,16 +264,22 @@ public class PlaybackFragment extends TomahawkFragment {
      */
     @Override
     public boolean onItemLongClick(View view, Object item) {
-        TomahawkListItem contextItem = null;
-        if (mAlbum != null) {
-            contextItem = mAlbum;
-        } else if (mArtist != null) {
-            contextItem = mArtist;
-        } else if (mPlaylist != null) {
-            contextItem = mPlaylist;
+        if (item != null) {
+            TomahawkListItem contextItem = null;
+            if (mAlbum != null) {
+                contextItem = mAlbum;
+            } else if (mArtist != null) {
+                contextItem = mArtist;
+            } else if (mPlaylist != null) {
+                contextItem = mPlaylist;
+            }
+            TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+            AnimationUtils
+                    .fade(activity.getPlaybackPanel(), AnimationUtils.DURATION_CONTEXTMENU, false);
+            return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
+                    contextItem, R.id.context_menu_framelayout2, null);
         }
-        return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
-                contextItem, R.id.playback_fragment_frame, null);
+        return false;
     }
 
     /**
@@ -287,6 +298,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 refreshRepeatButtonState();
                 refreshShuffleButtonState();
             }
+            mAlbumArtViewPager.setPlaybackService(playbackService);
         }
         onPlaylistChanged();
     }
@@ -499,6 +511,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 next track. That's why we have to make a difference between a swipe by the user, and a
                 programmatically called swipe.
                 */
+                mAlbumArtViewPager.setPlaybackService(playbackService);
                 mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
                 if (!mAlbumArtSwipeAdapter.isSwiped()) {
                     mAlbumArtSwipeAdapter.setByUser(false);

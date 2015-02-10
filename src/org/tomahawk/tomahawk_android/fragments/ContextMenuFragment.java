@@ -33,6 +33,7 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ShareUtils;
@@ -204,7 +205,7 @@ public class ContextMenuFragment extends Fragment {
                     bm = BlurTransformation.staticTransform(bm, 25f);
 
                     ImageView bgImageView =
-                            (ImageView) getLayedOutView().findViewById(R.id.background);
+                            (ImageView) getView().findViewById(R.id.background);
                     bgImageView.setImageBitmap(bm);
                 }
             });
@@ -216,6 +217,11 @@ public class ContextMenuFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 getActivity().getSupportFragmentManager().popBackStack();
+                TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+                if (!activity.getSlidingUpPanelLayout().isPanelHidden()) {
+                    AnimationUtils.fade(activity.getPlaybackPanel(),
+                            AnimationUtils.DURATION_CONTEXTMENU, true);
+                }
             }
         });
         TextView closeButtonText = (TextView) closeButton.findViewById(R.id.close_button_text);

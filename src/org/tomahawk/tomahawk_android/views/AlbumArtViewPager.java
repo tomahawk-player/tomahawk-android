@@ -17,6 +17,9 @@
  */
 package org.tomahawk.tomahawk_android.views;
 
+import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
+
 import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -38,11 +41,15 @@ public class AlbumArtViewPager extends ViewPager {
 
     private GestureDetector mGestureDetector;
 
-    private boolean mHasDetectedScroll;
-
     private boolean mVerticallyScrolled;
 
     private MotionEvent mDownMotionEvent;
+
+    private boolean mTouchCancelled;
+
+    private PlaybackFragment.ShowContextMenuListener mShowContextMenuListener;
+
+    private PlaybackService mPlaybackService;
 
     /**
      * Class to extend a {@link android.view.GestureDetector.SimpleOnGestureListener}, so that we
@@ -52,11 +59,12 @@ public class AlbumArtViewPager extends ViewPager {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if (!mHasDetectedScroll) {
-                mHasDetectedScroll = true;
-                mVerticallyScrolled = Math.abs(distanceY) >= Math.abs(distanceX);
-            }
-            return true;
+            return Math.abs(distanceY) >= Math.abs(distanceX);
+        }
+
+        @Override
+        public void onLongPress(MotionEvent e) {
+            mShowContextMenuListener.onShowContextMenu(mPlaybackService.getCurrentQuery());
         }
     }
 
@@ -81,40 +89,48 @@ public class AlbumArtViewPager extends ViewPager {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        mGestureDetector.onTouchEvent(event);
-
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDownMotionEvent = MotionEvent.obtain(event);
-                mHasDetectedScroll = false;
-                break;
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_UP:
-                forwardTouchEvent(event);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if (mHasDetectedScroll) {
-                    forwardTouchEvent(event);
-                }
+                mVerticallyScrolled = false;
+                mTouchCancelled = false;
                 break;
         }
 
-        return true;
-    }
+        if (!mVerticallyScrolled) {
+            mVerticallyScrolled = mGestureDetector.onTouchEvent(event);
+        }
 
-    private void forwardTouchEvent(MotionEvent event) {
         if (mVerticallyScrolled) {
             if (mDownMotionEvent != null) {
                 mListView.dispatchTouchEvent(mDownMotionEvent);
                 mDownMotionEvent = null;
             }
             mListView.dispatchTouchEvent(event);
+            ensureTouchCancel(event);
         } else {
-            if (mDownMotionEvent != null) {
-                super.onTouchEvent(mDownMotionEvent);
-                mDownMotionEvent = null;
-            }
             super.onTouchEvent(event);
         }
+
+        return true;
+    }
+
+    private void ensureTouchCancel(MotionEvent event) {
+        if (!mTouchCancelled) {
+            mTouchCancelled = true;
+            MotionEvent cancel = MotionEvent.obtain(event);
+            cancel.setAction(MotionEvent.ACTION_CANCEL);
+            super.onTouchEvent(cancel);
+            cancel.recycle();
+        }
+    }
+
+    public void setShowContextMenuListener(
+            PlaybackFragment.ShowContextMenuListener showContextMenuListener) {
+        mShowContextMenuListener = showContextMenuListener;
+    }
+
+    public void setPlaybackService(PlaybackService playbackService) {
+        mPlaybackService = playbackService;
     }
 }
