@@ -74,7 +74,7 @@
                       android:minWidth="@dimen/row_height_medium"
                       android:layout_gravity="center"
                       android:paddingRight="@dimen/padding_small"
-                      android:gravity="center_vertical"
+                      android:gravity="center"
                       android:singleLine="true"
                       android:textSize="@dimen/text_size_small"
                       android:textColor="@color/secondary_textcolor"
