@@ -35,11 +35,11 @@ public class PlaybackFragmentFrame extends FrameLayout {
 
     private GestureDetector mGestureDetector;
 
-    private boolean mHasDetectedScroll;
-
     private boolean mVerticallyScrolled;
 
     private MotionEvent mDownMotionEvent;
+
+    private boolean mTouchCancelled;
 
     /**
      * Class to extend a {@link android.view.GestureDetector.SimpleOnGestureListener}, so that we
@@ -49,11 +49,7 @@ public class PlaybackFragmentFrame extends FrameLayout {
 
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            if (!mHasDetectedScroll) {
-                mHasDetectedScroll = true;
-                mVerticallyScrolled = Math.abs(distanceY) >= Math.abs(distanceX) && distanceY < 0;
-            }
-            return true;
+            return Math.abs(distanceY) >= Math.abs(distanceX) && distanceY < 0;
         }
     }
 
@@ -82,29 +78,18 @@ public class PlaybackFragmentFrame extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        getParent().requestDisallowInterceptTouchEvent(true);
-        mGestureDetector.onTouchEvent(event);
-
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDownMotionEvent = MotionEvent.obtain(event);
-                mHasDetectedScroll = false;
-                break;
-            case MotionEvent.ACTION_CANCEL:
-            case MotionEvent.ACTION_UP:
-                forwardTouchEvent(event);
-                break;
-            case MotionEvent.ACTION_MOVE:
-                if (mHasDetectedScroll) {
-                    forwardTouchEvent(event);
-                }
+                mVerticallyScrolled = false;
+                mTouchCancelled = false;
                 break;
         }
 
-        return true;
-    }
+        if (!mVerticallyScrolled) {
+            mVerticallyScrolled = mGestureDetector.onTouchEvent(event);
+        }
 
-    private void forwardTouchEvent(MotionEvent event) {
         if (!mPanelLayout.isPanelExpanded()
                 || (mVerticallyScrolled && isListViewScrolledUp())) {
             getParent().requestDisallowInterceptTouchEvent(false);
@@ -113,20 +98,29 @@ public class PlaybackFragmentFrame extends FrameLayout {
                 mDownMotionEvent = null;
             }
             super.onTouchEvent(event);
+            ensureTouchCancel(event);
         } else {
-            if (mDownMotionEvent != null) {
-                getChildAt(0).dispatchTouchEvent(mDownMotionEvent);
-                getParent().requestDisallowInterceptTouchEvent(true);
-                mDownMotionEvent = null;
-            }
+            getParent().requestDisallowInterceptTouchEvent(true);
             getChildAt(0).dispatchTouchEvent(event);
             getParent().requestDisallowInterceptTouchEvent(true);
         }
+
+        return true;
     }
 
     private boolean isListViewScrolledUp() {
         return mListView.getFirstVisiblePosition() == 0
                 && (mListView.getListChildAt(0) == null
                 || mListView.getListChildAt(0).getTop() >= 0);
+    }
+
+    private void ensureTouchCancel(MotionEvent event) {
+        if (!mTouchCancelled) {
+            mTouchCancelled = true;
+            MotionEvent cancel = MotionEvent.obtain(event);
+            cancel.setAction(MotionEvent.ACTION_CANCEL);
+            getChildAt(0).dispatchTouchEvent(cancel);
+            cancel.recycle();
+        }
     }
 }

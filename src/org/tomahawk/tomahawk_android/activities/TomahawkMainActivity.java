@@ -925,7 +925,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onBackPressed() {
-        if (mSlidingUpPanelLayout.isEnabled() && (mSlidingUpPanelLayout.isPanelExpanded()
+        if (mSlidingUpPanelLayout.findViewById(R.id.context_menu_fragment) == null
+                && mSlidingUpPanelLayout.isEnabled() && (mSlidingUpPanelLayout.isPanelExpanded()
                 || mSlidingUpPanelLayout.isPanelAnchored())) {
             final View contextMenu = mSlidingUpPanelLayout
                     .findViewById(R.id.context_menu_framelayout);
@@ -944,6 +945,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                 mSlidingUpPanelLayout.collapsePanel();
             }
         } else {
+            if (!mSlidingUpPanelLayout.isPanelHidden()) {
+                AnimationUtils.fade(mPlaybackPanel, AnimationUtils.DURATION_CONTEXTMENU, true);
+            }
             super.onBackPressed();
         }
     }

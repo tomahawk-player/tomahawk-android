@@ -28,7 +28,6 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.content.res.Configuration;
 import android.os.Parcelable;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -49,8 +48,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
 
     private LayoutInflater mLayoutInflater;
 
-    private FragmentManager mFragmentManager;
-
     private int mFakeInfinityOffset;
 
     private boolean mByUser;
@@ -58,8 +55,6 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
     private boolean mSwiped;
 
     private ViewPager mViewPager;
-
-    private View.OnLongClickListener mClickListener;
 
     private PlaybackService mPlaybackService;
 
@@ -70,14 +65,11 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
      *
      * @param viewPager ViewPager which this adapter has been connected with
      */
-    public AlbumArtSwipeAdapter(TomahawkMainActivity activity, FragmentManager fragmentManager,
-            LayoutInflater layoutInflater, ViewPager viewPager,
-            View.OnLongClickListener clickListener) {
+    public AlbumArtSwipeAdapter(TomahawkMainActivity activity, LayoutInflater layoutInflater,
+            ViewPager viewPager) {
         mActivity = activity;
         mLayoutInflater = layoutInflater;
-        mFragmentManager = fragmentManager;
         mViewPager = viewPager;
-        mClickListener = clickListener;
         mByUser = true;
         mSwiped = false;
     }
@@ -95,7 +87,8 @@ public class AlbumArtSwipeAdapter extends PagerAdapter implements ViewPager.OnPa
                 if (mPlaybackService.isRepeating()) {
                     position = position % mPlaybackService.getMergedPlaylist().size();
                 }
-                Query query = mPlaybackService.getMergedPlaylist().getEntries().get(position).getQuery();
+                Query query = mPlaybackService.getMergedPlaylist().getEntries().get(position)
+                        .getQuery();
                 refreshTrackInfo(view, query);
                 mActivity.showPanel();
             } else {
