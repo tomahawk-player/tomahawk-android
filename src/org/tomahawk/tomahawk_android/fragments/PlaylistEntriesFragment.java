@@ -133,10 +133,10 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             } else {
                 playlistEntries.addAll(mPlaylist.getEntries());
                 Segment segment = new Segment(R.string.playlist_details, playlistEntries);
+                segment.setShowNumeration(true, 1);
                 if (getListAdapter() == null) {
                     tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                             segment, this);
-                    tomahawkListAdapter.setShowNumeration(true);
                     setListAdapter(tomahawkListAdapter);
                 } else {
                     getListAdapter().setSegments(segment, getListView());

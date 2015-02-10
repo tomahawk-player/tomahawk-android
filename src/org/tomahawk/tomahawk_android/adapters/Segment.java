@@ -49,6 +49,16 @@ public class Segment {
 
     private boolean mShowAsQueued;
 
+    private int mNumerationCorrection;
+
+    private boolean mShowDuration;
+
+    private boolean mShowNumeration;
+
+    private boolean mHideArtistName;
+
+    private int mLeftExtraPadding;
+
     public Segment(List<Object> listItems) {
         mListItems = listItems;
         mSegmentSize = mListItems.size();
@@ -174,5 +184,42 @@ public class Segment {
 
     public void setShowAsQueued(boolean showAsQueued) {
         mShowAsQueued = showAsQueued;
+    }
+
+    public boolean isShowDuration() {
+        return mShowDuration;
+    }
+
+    public void setShowDuration(boolean showDuration) {
+        mShowDuration = showDuration;
+    }
+
+    public boolean isShowNumeration() {
+        return mShowNumeration;
+    }
+
+    public int getNumerationCorrection() {
+        return mNumerationCorrection;
+    }
+
+    public void setShowNumeration(boolean showNumeration, int numerationCorrection) {
+        mShowNumeration = showNumeration;
+        mNumerationCorrection = numerationCorrection;
+    }
+
+    public boolean isHideArtistName() {
+        return mHideArtistName;
+    }
+
+    public void setHideArtistName(boolean hideArtistName) {
+        mHideArtistName = hideArtistName;
+    }
+
+    public int getLeftExtraPadding() {
+        return mLeftExtraPadding;
+    }
+
+    public void setLeftExtraPadding(int leftExtraPadding) {
+        mLeftExtraPadding = leftExtraPadding;
     }
 }

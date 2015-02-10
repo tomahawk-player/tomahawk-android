@@ -81,14 +81,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private boolean mHighlightedItemIsPlaying = false;
 
-    private boolean mShowDuration = false;
-
-    private boolean mShowNumeration = false;
-
-    private boolean mHideArtistName = false;
-
-    private int mLeftExtraPadding = 0;
-
     private int mHeaderSpacerHeight = 0;
 
     private int mFooterSpacerHeight = 0;
@@ -196,26 +188,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     }
 
     /**
-     * Set whether or not to show by which {@link org.tomahawk.libtomahawk.resolver.Resolver} the
-     * {@link TomahawkListItem} has been resolved
-     */
-    public void setShowDuration(boolean showDuration) {
-        this.mShowDuration = showDuration;
-    }
-
-    public void setShowNumeration(boolean showNumeration) {
-        mShowNumeration = showNumeration;
-    }
-
-    public void setHideArtistName(boolean hideArtistName) {
-        mHideArtistName = hideArtistName;
-    }
-
-    public void setLeftExtraPadding(int leftExtraPadding) {
-        mLeftExtraPadding = leftExtraPadding;
-    }
-
-    /**
      * Get the correct {@link View} for the given position.
      *
      * @param position    The position for which to get the correct {@link View}
@@ -298,16 +270,19 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 viewHolders.add(viewHolder);
             }
             // Set extra padding
-            if (mLeftExtraPadding > 0) {
+            if (getSegment(position) != null && getSegment(position).getLeftExtraPadding() > 0) {
                 if (viewType == R.layout.list_item_track) {
                     // if it's a list_item_track, we have to set the padding on the foreground
                     // layout in the SwipeLayout instead
                     View foreground = ((ViewGroup) view).getChildAt(1);
-                    foreground.setPadding(foreground.getPaddingLeft() + mLeftExtraPadding,
+                    foreground.setPadding(foreground.getPaddingLeft() + getSegment(position)
+                                    .getLeftExtraPadding(),
                             foreground.getPaddingTop(), foreground.getPaddingRight(),
                             foreground.getPaddingBottom());
                 } else {
-                    view.setPadding(view.getPaddingLeft() + mLeftExtraPadding, view.getPaddingTop(),
+                    view.setPadding(
+                            view.getPaddingLeft() + getSegment(position).getLeftExtraPadding(),
+                            view.getPaddingTop(),
                             view.getPaddingRight(), view.getPaddingBottom());
                 }
             }
@@ -381,8 +356,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             } else if (viewHolder.mLayoutId == R.layout.list_item_track) {
                 if (item instanceof Query || item instanceof PlaylistEntry) {
                     String numerationString = null;
-                    if (!getSegment(position).isShowAsQueued() && mShowNumeration) {
-                        numerationString = String.format("%02d", getPosInSegment(position) + 1);
+                    if (!getSegment(position).isShowAsQueued() && getSegment(position)
+                            .isShowNumeration()) {
+                        numerationString = String.format("%02d", getPosInSegment(position)
+                                + getSegment(position).getNumerationCorrection());
                     }
                     final Query query;
                     if (item instanceof PlaylistEntry) {
@@ -391,8 +368,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                         query = (Query) item;
                     }
                     viewHolder.fillView(query, numerationString,
-                            mHighlightedItemIsPlaying && shouldBeHighlighted, mShowDuration,
-                            mHideArtistName, new View.OnClickListener() {
+                            mHighlightedItemIsPlaying && shouldBeHighlighted,
+                            getSegment(position).isShowNumeration(),
+                            getSegment(position).isHideArtistName(), new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     mActivity.getPlaybackService().addQueryToQueue(query);

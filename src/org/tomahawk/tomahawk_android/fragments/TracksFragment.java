@@ -119,14 +119,14 @@ public class TracksFragment extends TomahawkFragment {
         if (mAlbum != null) {
             queries.addAll(CollectionUtils.getAlbumTracks(mAlbum, mCollection));
             Segment segment = new Segment(mAlbum.getArtist().getName(), queries);
+            if (CollectionUtils.allFromOneArtist(queries)) {
+                segment.setHideArtistName(true);
+                segment.setShowDuration(true);
+            }
+            segment.setShowNumeration(true, 1);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
-                if (CollectionUtils.allFromOneArtist(queries)) {
-                    tomahawkListAdapter.setHideArtistName(true);
-                    tomahawkListAdapter.setShowDuration(true);
-                }
-                tomahawkListAdapter.setShowNumeration(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment, getListView());
@@ -136,10 +136,10 @@ public class TracksFragment extends TomahawkFragment {
         } else if (mQuery != null) {
             queries.add(mQuery);
             Segment segment = new Segment(queries);
+            segment.setShowDuration(true);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
                         this);
-                tomahawkListAdapter.setShowDuration(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment, getListView());
@@ -148,10 +148,11 @@ public class TracksFragment extends TomahawkFragment {
             showFancyDropDown(mQuery);
         } else if (mQueryArray != null) {
             queries.addAll(mQueryArray);
+            Segment segment = new Segment(queries);
+            segment.setShowDuration(true);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
-                        layoutInflater, new Segment(queries), this);
-                tomahawkListAdapter.setShowDuration(true);
+                        layoutInflater, segment, this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(new Segment(queries), getListView());

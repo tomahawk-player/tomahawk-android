@@ -256,21 +256,25 @@ public class SocialActionsFragment extends TomahawkFragment implements
             List<Segment> segments = new ArrayList<Segment>();
             for (List mergedActions : mergedActionsList) {
                 SocialAction first = (SocialAction) mergedActions.get(0);
+                Segment segment;
                 if (first.getTargetObject() instanceof Album
                         || first.getTargetObject() instanceof User
                         || first.getTargetObject() instanceof Artist) {
-                    segments.add(new Segment(mergedActions, R.integer.grid_column_count_feed,
-                            R.dimen.padding_superlarge, R.dimen.padding_small));
+                    segment = new Segment(mergedActions, R.integer.grid_column_count_feed,
+                            R.dimen.padding_superlarge, R.dimen.padding_small);
                 } else {
-                    segments.add(new Segment(mergedActions));
+                    segment = new Segment(mergedActions);
                 }
+                int extraPadding = getResources().getDimensionPixelSize(R.dimen.padding_medium)
+                        + TomahawkUtils.convertDpToPixel(32);
+                segment.setLeftExtraPadding(extraPadding);
+                segments.add(segment);
             }
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
                         segments, this);
                 int extraPadding = getResources().getDimensionPixelSize(R.dimen.padding_medium)
                         + TomahawkUtils.convertDpToPixel(32);
-                tomahawkListAdapter.setLeftExtraPadding(extraPadding);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments, getListView());
