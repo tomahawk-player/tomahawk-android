@@ -134,26 +134,36 @@ public class AlbumsFragment extends TomahawkFragment {
             if (mCollection != null
                     && !TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
                 items.addAll(mCollection.getArtistAlbums(mArtist, true));
-                segments.add(new Segment(mCollection.getName() + " " + getString(R.string.albums),
+                Segment segment = new Segment(
+                        mCollection.getName() + " " + getString(R.string.albums),
                         items, R.integer.grid_column_count, R.dimen.padding_superlarge,
-                        R.dimen.padding_superlarge));
+                        R.dimen.padding_superlarge);
+                segment.setShowNumeration(true, 1);
+                segment.setHideArtistName(true);
+                segment.setShowDuration(true);
+                segments.add(segment);
             } else {
                 items.addAll(CollectionUtils.getArtistAlbums(mArtist, null));
-                segments.add(new Segment(R.string.top_albums, items,
+                Segment segment = new Segment(R.string.top_albums, items,
                         R.integer.grid_column_count, R.dimen.padding_superlarge,
-                        R.dimen.padding_superlarge));
+                        R.dimen.padding_superlarge);
+                segment.setShowNumeration(true, 1);
+                segment.setHideArtistName(true);
+                segment.setShowDuration(true);
+                segments.add(segment);
                 ArrayList<Query> topHits = CollectionUtils.getArtistTopHits(mArtist);
                 items = new ArrayList<Object>();
                 items.addAll(topHits);
-                segments.add(new Segment(R.string.top_hits, items));
+                segment = new Segment(R.string.top_hits, items);
+                segment.setShowNumeration(true, 1);
+                segment.setHideArtistName(true);
+                segment.setShowDuration(true);
+                segments.add(segment);
                 mShownQueries = topHits;
             }
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                         layoutInflater, segments, this);
-                tomahawkListAdapter.setShowDuration(true);
-                tomahawkListAdapter.setHideArtistName(true);
-                tomahawkListAdapter.setShowNumeration(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments, getListView());

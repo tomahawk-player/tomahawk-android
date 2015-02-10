@@ -374,8 +374,14 @@ public class PlaybackFragment extends TomahawkFragment {
         if (playbackService != null) {
             List<Segment> segments = new ArrayList<>();
             List entries = new ArrayList();
-            entries.addAll(playbackService.getQueue().getEntries());
+            entries.add(playbackService.getCurrentEntry());
             Segment segment = new Segment(entries);
+            segment.setShowNumeration(true, 0);
+            segments.add(segment);
+
+            entries = new ArrayList();
+            entries.addAll(playbackService.getQueue().getEntries());
+            segment = new Segment(entries);
             segment.setShowAsQueued(true);
             segments.add(segment);
 
@@ -383,13 +389,14 @@ public class PlaybackFragment extends TomahawkFragment {
             int currentIndex = playbackService.getPlaylist()
                     .getIndexOfEntry(playbackService.getCurrentEntry());
             entries.addAll(playbackService.getPlaylist().getEntries()
-                    .subList(Math.max(0, currentIndex), playbackService.getPlaylist().size()));
-            segments.add(new Segment(entries));
+                    .subList(Math.max(1, currentIndex + 1), playbackService.getPlaylist().size()));
+            segment = new Segment(entries);
+            segment.setShowNumeration(true, 1);
+            segments.add(segment);
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                         layoutInflater, segments, this);
                 tomahawkListAdapter.setShowPlaystate(true);
-                tomahawkListAdapter.setShowNumeration(true);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments, getListView());
