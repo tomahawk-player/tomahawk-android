@@ -1073,7 +1073,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     private void sendSlidingLayoutChangedEvent() {
         if (mSlidingUpPanelLayout.getPanelState() != mLastSlidingState) {
             mLastSlidingState = mSlidingUpPanelLayout.getPanelState();
-            mPlaybackPanel.setPanelExpanded(mSlidingUpPanelLayout.isPanelExpanded());
 
             SlidingLayoutChangedEvent event = new SlidingLayoutChangedEvent();
             event.mSlideState = mSlidingUpPanelLayout.getPanelState();
