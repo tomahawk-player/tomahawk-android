@@ -399,24 +399,24 @@ public class ContentHeaderFragment extends Fragment {
                 TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(fancyDropDown) {
                     @Override
                     public void run() {
-                        // correctly position fancyDropDown first
-                        int dropDownHeight = TomahawkApp.getContext().getResources()
-                                .getDimensionPixelSize(
-                                        R.dimen.show_context_menu_icon_height);
-                        getLayedOutView().setY(view.getHeight() / 2 - dropDownHeight / 2);
-                        getLayedOutView()
-                                .setX(view.getWidth() / 2 - getLayedOutView().getWidth() / 2);
-
-                        // now calculate the animation goal and instantiate the animation
+                        // get resources first
                         Resources resources = TomahawkApp.getContext().getResources();
-                        int smallPadding = resources
-                                .getDimensionPixelSize(R.dimen.padding_small);
-                        int x = resources.getDimensionPixelSize(R.dimen.padding_superlarge);
+                        int dropDownHeight = resources.getDimensionPixelSize(
+                                R.dimen.show_context_menu_icon_height);
                         int actionBarHeight = resources.getDimensionPixelSize(
                                 R.dimen.abc_action_bar_default_height_material);
-                        int y = actionBarHeight + smallPadding;
-                        PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("x", x);
-                        PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("y", y);
+                        int smallPadding = resources.getDimensionPixelSize(
+                                R.dimen.padding_small);
+                        int superLargePadding = resources.getDimensionPixelSize(
+                                R.dimen.padding_superlarge);
+
+                        // now calculate the animation goal and instantiate the animation
+                        PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("x",
+                                view.getWidth() / 2 - getLayedOutView().getWidth() / 2,
+                                superLargePadding);
+                        PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("y",
+                                view.getHeight() / 2 - dropDownHeight / 2,
+                                actionBarHeight + smallPadding);
                         ValueAnimator animator = ObjectAnimator
                                 .ofPropertyValuesHolder(getLayedOutView(), pvhX, pvhY)
                                 .setDuration(10000);
@@ -435,31 +435,30 @@ public class ContentHeaderFragment extends Fragment {
                 TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(buttonView) {
                     @Override
                     public void run() {
-                        // correctly position button first
+                        // get resources first
                         Resources resources = TomahawkApp.getContext().getResources();
                         int buttonHeight = TomahawkApp.getContext().getResources()
                                 .getDimensionPixelSize(
                                         R.dimen.show_context_menu_icon_height);
                         int largePadding = TomahawkApp.getContext().getResources()
                                 .getDimensionPixelSize(R.dimen.padding_large);
+                        int smallPadding = resources
+                                .getDimensionPixelSize(R.dimen.padding_small);
+                        int actionBarHeight = resources.getDimensionPixelSize(
+                                R.dimen.abc_action_bar_default_height_material);
+                        View pageIndicator = view.findViewById(R.id.page_indicator_container);
                         int pageIndicatorHeight = 0;
-                        View pageIndicator =
-                                view.findViewById(R.id.page_indicator_container);
                         if (pageIndicator != null
                                 && pageIndicator.getVisibility() == View.VISIBLE) {
                             pageIndicatorHeight = TomahawkApp.getContext().getResources()
                                     .getDimensionPixelSize(R.dimen.pager_indicator_height);
                         }
-                        getLayedOutView().setY(view.getHeight() - buttonHeight - largePadding
-                                - pageIndicatorHeight);
 
                         // now calculate the animation goal and instantiate the animation
-                        int smallPadding = resources
-                                .getDimensionPixelSize(R.dimen.padding_small);
-                        int actionBarHeight = resources.getDimensionPixelSize(
-                                R.dimen.abc_action_bar_default_height_material);
-                        int y = actionBarHeight + smallPadding;
-                        ValueAnimator animator = ObjectAnimator.ofFloat(getLayedOutView(), "y", y)
+                        ValueAnimator animator = ObjectAnimator.ofFloat(getLayedOutView(), "y",
+                                view.getHeight() - buttonHeight - largePadding
+                                        - pageIndicatorHeight,
+                                actionBarHeight + smallPadding)
                                 .setDuration(10000);
                         animator.setInterpolator(new LinearInterpolator());
                         addAnimator(animator);
@@ -474,13 +473,9 @@ public class ContentHeaderFragment extends Fragment {
             TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(view) {
                 @Override
                 public void run() {
-                    // correctly position imageview first
-                    getLayedOutView().setY(0);
-                    getLayedOutView().setX(0);
-
                     // now calculate the animation goal and instantiate the animation
-                    ValueAnimator animator = ObjectAnimator
-                            .ofFloat(getLayedOutView(), "y", view.getHeight() / -3)
+                    ValueAnimator animator = ObjectAnimator.ofFloat(getLayedOutView(), "y",
+                            0, view.getHeight() / -3)
                             .setDuration(10000);
                     animator.setInterpolator(new LinearInterpolator());
                     addAnimator(animator);
@@ -496,13 +491,11 @@ public class ContentHeaderFragment extends Fragment {
                 TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(indicatorView) {
                     @Override
                     public void run() {
-                        // correctly position indicator first
-                        getLayedOutView().setY(view.getHeight() - getLayedOutView().getHeight());
-
                         // now calculate the animation goal and instantiate the animation
-                        int y = mHeaderNonscrollableHeight - getLayedOutView().getHeight();
                         ValueAnimator animator = ObjectAnimator
-                                .ofFloat(getLayedOutView(), "y", y)
+                                .ofFloat(getLayedOutView(), "y",
+                                        view.getHeight() - getLayedOutView().getHeight(),
+                                        mHeaderNonscrollableHeight - getLayedOutView().getHeight())
                                 .setDuration(10000);
                         animator.setInterpolator(new LinearInterpolator());
                         addAnimator(animator);
