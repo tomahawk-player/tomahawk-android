@@ -421,7 +421,7 @@ public class PlaybackService extends Service
     };
 
     @SuppressWarnings("unused")
-    public void onEvent(PipeLine.ResultsEvent event) {
+    public void onEventMainThread(PipeLine.ResultsEvent event) {
         if (getCurrentQuery() != null && getCurrentQuery() == event.mQuery) {
             updateNotification();
             updateLockscreenControls();
