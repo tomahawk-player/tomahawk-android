@@ -421,16 +421,12 @@ public class PlaybackFragment extends TomahawkFragment {
                     if (mOriginalViewPagerHeight <= 0) {
                         mOriginalViewPagerHeight = mAlbumArtViewPager.getHeight();
                     }
-                    // correctly position albumArtViewPager first
-                    int playbackPanelHeight = TomahawkApp.getContext().getResources()
-                            .getDimensionPixelSize(R.dimen.playback_panel_height);
-                    getLayedOutView().setY(playbackPanelHeight);
-                    getLayedOutView().getLayoutParams().height = mOriginalViewPagerHeight;
-                    getLayedOutView().requestLayout();
 
                     // now calculate the animation goal and instantiate the animation
-                    int y = 0;
-                    ValueAnimator animator = ObjectAnimator.ofFloat(getLayedOutView(), "y", y)
+                    int playbackPanelHeight = TomahawkApp.getContext().getResources()
+                            .getDimensionPixelSize(R.dimen.playback_panel_height);
+                    ValueAnimator animator = ObjectAnimator
+                            .ofFloat(getLayedOutView(), "y", playbackPanelHeight, 0f)
                             .setDuration(10000);
                     animator.setInterpolator(new AccelerateDecelerateInterpolator());
                     addAnimator(animator);
