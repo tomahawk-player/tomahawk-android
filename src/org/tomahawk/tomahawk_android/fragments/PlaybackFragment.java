@@ -222,7 +222,6 @@ public class PlaybackFragment extends TomahawkFragment {
                 getActivity().getLayoutInflater(), mAlbumArtViewPager);
         mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
         mAlbumArtViewPager.setAdapter(mAlbumArtSwipeAdapter);
-        mAlbumArtViewPager.setOnPageChangeListener(mAlbumArtSwipeAdapter);
 
         setupAlbumArtAnimation();
 
@@ -381,18 +380,23 @@ public class PlaybackFragment extends TomahawkFragment {
 
             entries = new ArrayList();
             entries.addAll(playbackService.getQueue().getEntries());
+            entries.remove(playbackService
+                    .getCurrentEntry()); // don't show queue entry if currently playing
             segment = new Segment(entries);
             segment.setShowAsQueued(true);
             segments.add(segment);
 
-            entries = new ArrayList();
-            int currentIndex = playbackService.getPlaylist()
-                    .getIndexOfEntry(playbackService.getCurrentEntry());
-            entries.addAll(playbackService.getPlaylist().getEntries()
-                    .subList(Math.max(1, currentIndex + 1), playbackService.getPlaylist().size()));
-            segment = new Segment(entries);
-            segment.setShowNumeration(true, 1);
-            segments.add(segment);
+            if (playbackService.getPlaylist().size() > 1) {
+                entries = new ArrayList();
+                int currentIndex = playbackService.getPlaylist()
+                        .getIndexOfEntry(playbackService.getCurrentEntry());
+                entries.addAll(playbackService.getPlaylist().getEntries()
+                        .subList(Math.max(1, currentIndex + 1),
+                                playbackService.getPlaylist().size()));
+                segment = new Segment(entries);
+                segment.setShowNumeration(true, 1);
+                segments.add(segment);
+            }
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
                         layoutInflater, segments, this);
@@ -520,11 +524,6 @@ public class PlaybackFragment extends TomahawkFragment {
                 */
                 mAlbumArtViewPager.setPlaybackService(playbackService);
                 mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
-                if (!mAlbumArtSwipeAdapter.isSwiped()) {
-                    mAlbumArtSwipeAdapter.setByUser(false);
-                    mAlbumArtSwipeAdapter.setCurrentItem(playbackService.getCurrentEntry(), true);
-                    mAlbumArtSwipeAdapter.setByUser(true);
-                }
 
                 // Make all buttons clickable
                 getView().findViewById(R.id.imageButton_shuffle).setClickable(true);

@@ -806,19 +806,15 @@ public class PlaybackService extends Service
      */
     public void next() {
         Log.d(TAG, "next");
-        releaseAllPlayers();
         int counter = 0;
-        while (hasNextEntry() && counter++ < mMergedPlaylist.size()) {
-            PlaylistEntry entry = getNextEntry();
-            deleteQueryInQueue(mCurrentEntry);
-            mCurrentEntry = entry;
-            if (mCurrentEntry.getQuery().isPlayable()) {
-                EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
-                onTrackChanged();
+        PlaylistEntry entry = getNextEntry();
+        while (entry != null && counter++ < mMergedPlaylist.size()) {
+            setCurrentEntry(entry);
+            if (entry.getQuery().isPlayable()) {
                 break;
             }
+            entry = getNextEntry(entry);
         }
-        handlePlayState();
     }
 
     /**
@@ -826,19 +822,15 @@ public class PlaybackService extends Service
      */
     public void previous() {
         Log.d(TAG, "previous");
-        releaseAllPlayers();
         int counter = 0;
-        while (hasPreviousEntry() && counter++ < mMergedPlaylist.size()) {
-            PlaylistEntry entry = getPreviousEntry();
-            deleteQueryInQueue(entry);
-            mCurrentEntry = entry;
-            if (mCurrentEntry.getQuery().isPlayable()) {
-                EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
-                onTrackChanged();
+        PlaylistEntry entry = getPreviousEntry();
+        while (entry != null && counter++ < mMergedPlaylist.size()) {
+            if (entry.getQuery().isPlayable()) {
+                setCurrentEntry(entry);
                 break;
             }
+            entry = getPreviousEntry(entry);
         }
-        handlePlayState();
     }
 
     public boolean isShuffled() {
@@ -927,7 +919,11 @@ public class PlaybackService extends Service
     }
 
     public PlaylistEntry getNextEntry() {
-        PlaylistEntry entry = mMergedPlaylist.getNextEntry(mCurrentEntry);
+        return getNextEntry(mCurrentEntry);
+    }
+
+    public PlaylistEntry getNextEntry(PlaylistEntry entry) {
+        entry = mMergedPlaylist.getNextEntry(entry);
         if (entry == null && mRepeating) {
             entry = mMergedPlaylist.getFirstEntry();
         }
@@ -935,7 +931,11 @@ public class PlaybackService extends Service
     }
 
     public boolean hasNextEntry() {
-        boolean result = mMergedPlaylist.hasNextEntry(mCurrentEntry);
+        return hasNextEntry(mCurrentEntry);
+    }
+
+    public boolean hasNextEntry(PlaylistEntry entry) {
+        boolean result = mMergedPlaylist.hasNextEntry(entry);
         if (!result && mRepeating) {
             result = mMergedPlaylist.size() > 0;
         }
@@ -943,7 +943,11 @@ public class PlaybackService extends Service
     }
 
     public PlaylistEntry getPreviousEntry() {
-        PlaylistEntry entry = mMergedPlaylist.getPreviousEntry(mCurrentEntry);
+        return getPreviousEntry(mCurrentEntry);
+    }
+
+    public PlaylistEntry getPreviousEntry(PlaylistEntry entry) {
+        entry = mMergedPlaylist.getPreviousEntry(entry);
         if (entry == null && mRepeating) {
             entry = mMergedPlaylist.getLastEntry();
         }
@@ -951,7 +955,11 @@ public class PlaybackService extends Service
     }
 
     public boolean hasPreviousEntry() {
-        boolean result = mMergedPlaylist.hasPreviousEntry(mCurrentEntry);
+        return hasPreviousEntry(mCurrentEntry);
+    }
+
+    public boolean hasPreviousEntry(PlaylistEntry entry) {
+        boolean result = mMergedPlaylist.hasPreviousEntry(entry);
         if (!result && mRepeating) {
             result = mMergedPlaylist.size() > 0;
         }
@@ -1044,6 +1052,7 @@ public class PlaybackService extends Service
         releaseAllPlayers();
         deleteQueryInQueue(mCurrentEntry);
         mCurrentEntry = entry;
+        mMergedPlaylist.setEntries(getMergedPlaylistEntries());
         handlePlayState();
         EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
         onTrackChanged();
@@ -1103,13 +1112,7 @@ public class PlaybackService extends Service
         mRepeating = false;
         mPlaylist = playlist;
         mQueueStartPos = -1;
-        deleteQueryInQueue(mCurrentEntry);
-        mCurrentEntry = currentEntry;
-        mMergedPlaylist.setEntries(getMergedPlaylistEntries());
-
-        handlePlayState();
-        EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
-        onTrackChanged();
+        setCurrentEntry(currentEntry);
     }
 
     public void setReturnFragment(Class clss, Bundle args) {
@@ -1126,13 +1129,13 @@ public class PlaybackService extends Service
     }
 
     private ArrayList<PlaylistEntry> getMergedPlaylistEntries() {
-        ArrayList<PlaylistEntry> entries = new ArrayList<PlaylistEntry>();
+        ArrayList<PlaylistEntry> entries = new ArrayList<>();
         entries.addAll(mShuffled ? mShuffledPlaylist.getEntries() : mPlaylist.getEntries());
         int insertPos = entries.indexOf(mCurrentEntry);
-        if (insertPos > 0) {
+        if (insertPos >= 0) {
             entries.addAll(insertPos + 1, mQueue.getEntries());
             mQueueStartPos = insertPos;
-        } else if (mQueueStartPos > 0) {
+        } else if (mQueueStartPos >= 0) {
             entries.addAll(mQueueStartPos + 1, mQueue.getEntries());
         }
         return entries;
