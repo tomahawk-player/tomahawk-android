@@ -19,6 +19,7 @@
  */
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:focusable="false"
@@ -40,7 +41,6 @@
                       android:layout_height="wrap_content"
                       android:layout_weight="1"
                       android:layout_gravity="center_vertical"
-                      android:text="Timber Timbre"
                       android:singleLine="true"
                       android:textSize="@dimen/text_size_small"
                       android:textColor="@color/primary_textcolor_inverted"/>
@@ -52,7 +52,8 @@
                       android:text=" - "
                       android:singleLine="true"
                       android:textSize="@dimen/text_size_micro"
-                      android:textColor="@color/primary_textcolor_inverted"/>
+                      android:textColor="@color/primary_textcolor_inverted"
+                      tools:ignore="HardcodedText"/>
 
             <FrameLayout android:id="@+id/artist_name_button"
                          android:layout_width="wrap_content"
@@ -67,7 +68,6 @@
                           android:layout_width="wrap_content"
                           android:layout_height="wrap_content"
                           android:layout_gravity="center_vertical"
-                          android:text="Beat the drum slowly"
                           android:singleLine="true"
                           android:textSize="@dimen/text_size_micro"
                           android:textColor="@color/primary_textcolor_inverted"/>
@@ -115,7 +115,6 @@
                       android:layout_width="match_parent"
                       android:layout_height="match_parent"
                       android:gravity="center"
-                      android:text="0:00"
                       android:textSize="@dimen/text_size_micro"
                       android:textColor="@color/primary_textcolor_inverted"
                       android:visibility="gone"/>
@@ -124,8 +123,7 @@
 
         <ImageView android:id="@+id/resolver_imageview"
                    android:layout_width="@dimen/playback_panel_resolver_icon_size"
-                   android:layout_height="match_parent"
-                   android:src="@drawable/ic_spotify"/>
+                   android:layout_height="match_parent"/>
 
         <FrameLayout android:layout_width="0dp"
                      android:layout_height="match_parent"
@@ -142,7 +140,8 @@
                   android:layout_height="@dimen/playback_panel_thumb_height"
                   android:layout_gravity="center_vertical"
                   android:background="#fff"
-                  android:visibility="gone"/>
+                  android:visibility="gone"
+                  tools:ignore="PxUsage"/>
 
         </FrameLayout>
 
@@ -153,7 +152,6 @@
                       android:layout_width="@dimen/playback_panel_height"
                       android:layout_height="match_parent"
                       android:gravity="center"
-                      android:text="6:32"
                       android:textSize="@dimen/text_size_micro"
                       android:textColor="@color/primary_textcolor_inverted"
                       android:visibility="gone"/>
@@ -162,7 +160,6 @@
                       android:layout_width="@dimen/playback_panel_height"
                       android:layout_height="match_parent"
                       android:gravity="center"
-                      android:text="6:32"
                       android:textSize="@dimen/text_size_micro"
                       android:textColor="@color/primary_textcolor_inverted"/>
 
