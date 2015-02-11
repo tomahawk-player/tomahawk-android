@@ -32,9 +32,13 @@
                  android:layout_marginLeft="76dp"
                  android:layout_marginRight="76dp">
 
-        <LinearLayout android:layout_width="wrap_content"
+        <LinearLayout android:id="@+id/textview_container_inner"
+                      android:layout_width="wrap_content"
                       android:layout_height="match_parent"
-                      android:layout_gravity="center">
+                      android:layout_gravity="center"
+                      android:paddingLeft="@dimen/padding_medium"
+                      android:paddingRight="@dimen/padding_medium"
+                      android:background="@color/tertiary_transparent">
 
             <TextView android:id="@+id/track_textview"
                       android:layout_width="wrap_content"
@@ -81,7 +85,8 @@
     <LinearLayout android:id="@+id/panel_container"
                   android:layout_width="match_parent"
                   android:layout_height="@dimen/playback_panel_height"
-                  android:layout_alignParentBottom="true">
+                  android:layout_alignParentBottom="true"
+                  android:background="@drawable/above_shadow_slightly_darker">
 
         <FrameLayout android:id="@+id/circularprogressbar_container"
                      android:layout_width="@dimen/playback_panel_height"

@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.views;
 
+import com.nineoldandroids.animation.Keyframe;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.PropertyValuesHolder;
 import com.nineoldandroids.animation.ValueAnimator;
@@ -31,6 +32,7 @@ import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -43,8 +45,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 public class PlaybackPanel extends FrameLayout {
 
@@ -55,14 +57,6 @@ public class PlaybackPanel extends FrameLayout {
     private FrameLayout mTextViewContainer;
 
     private LinearLayout mPanelContainer;
-
-    private boolean mIsPanelExpanded;
-
-    private Map<View, AnimationGoal> mStartingPoints = new HashMap<>();
-
-    private Map<View, AnimationGoal> mExpandedPanelPoints = new HashMap<>();
-
-    private Map<View, AnimationGoal> mScrolledDownPanelPoints = new HashMap<>();
 
     private TextView mArtistTextView;
 
@@ -92,33 +86,13 @@ public class PlaybackPanel extends FrameLayout {
 
     private HoloCircularProgressBar mCircularProgressBar;
 
-    private ValueAnimator mTextViewContainerAnimation;
-
-    private ValueAnimator mPanelContainerAnimation;
+    private Set<ValueAnimator> mAnimators = new HashSet<>();
 
     private int mLastPlayTime = 0;
 
     private boolean mInitialized = false;
 
     private static final int MSG_UPDATE_PROGRESS = 0x1;
-
-    private static class AnimationGoal {
-
-        AnimationGoal(int x, int y, float scaleX, float scaleY) {
-            this.x = x;
-            this.y = y;
-            this.scaleX = scaleX;
-            this.scaleY = scaleY;
-        }
-
-        int x;
-
-        int y;
-
-        float scaleX;
-
-        float scaleY;
-    }
 
     private Handler mProgressHandler = new Handler(new Handler.Callback() {
         @Override
@@ -264,6 +238,8 @@ public class PlaybackPanel extends FrameLayout {
                 return true;
             }
         });
+
+        setupAnimations();
     }
 
     public void update(PlaybackService playbackService) {
@@ -276,52 +252,7 @@ public class PlaybackPanel extends FrameLayout {
             if (mPlaybackService != null) {
                 updatePlayPauseState(mPlaybackService.isPlaying());
             }
-
-            calculateAnimationPoints();
         }
-    }
-
-    public void setPanelExpanded(boolean isPanelExpanded) {
-        mIsPanelExpanded = isPanelExpanded;
-        mLastPlayTime = 0;
-        setupAnimations();
-    }
-
-    private void calculateAnimationPoints() {
-        TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(this) {
-            @Override
-            public void run() {
-                Resources resources = TomahawkApp.getContext().getResources();
-                int panelHeight =
-                        resources.getDimensionPixelSize(R.dimen.playback_panel_height);
-                mStartingPoints.put(mTextViewContainer, new AnimationGoal(
-                        (int) mTextViewContainer.getX(),
-                        getHeight() - mTextViewContainer.getHeight() / 2 - panelHeight / 2,
-                        1f, 1f));
-                mStartingPoints.put(mPanelContainer, new AnimationGoal(
-                        0, getHeight() - mPanelContainer.getHeight(), 1f, 1f));
-
-                int padding =
-                        resources.getDimensionPixelSize(R.dimen.padding_medium);
-                int panelBottom =
-                        resources.getDimensionPixelSize(R.dimen.playback_clear_space_bottom);
-                mExpandedPanelPoints.put(mTextViewContainer, new AnimationGoal(
-                        (int) mTextViewContainer.getX(),
-                        getHeight() + padding - panelBottom, 1.5f, 1.5f));
-                mExpandedPanelPoints.put(mPanelContainer, new AnimationGoal(
-                        0, getHeight() - mPanelContainer.getHeight(), 1f, 1f));
-
-                int headerClearSpace = resources.getDimensionPixelSize(
-                        R.dimen.header_clear_space_nonscrollable_playback);
-                mScrolledDownPanelPoints.put(mTextViewContainer, new AnimationGoal(
-                        (int) mTextViewContainer.getX(),
-                        headerClearSpace / 2 - mTextViewContainer.getHeight() / 2, 1.5f, 1.5f));
-                mScrolledDownPanelPoints.put(mPanelContainer, new AnimationGoal(
-                        0, headerClearSpace - mPanelContainer.getHeight(), 1f, 1f));
-
-                setupAnimations();
-            }
-        });
     }
 
     public void updatePlayPauseState(boolean isPlaying) {
@@ -394,52 +325,95 @@ public class PlaybackPanel extends FrameLayout {
     }
 
     private void setupAnimations() {
-        mTextViewContainerAnimation = setupAnimation(mTextViewContainer);
-        mPanelContainerAnimation = setupAnimation(mPanelContainer);
-    }
+        TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(this) {
+            @Override
+            public void run() {
+                mAnimators.clear();
+                // get relevant dimension sizes first
+                Resources resources = TomahawkApp.getContext().getResources();
+                int panelHeight = resources.getDimensionPixelSize(
+                        R.dimen.playback_panel_height);
+                int padding = resources.getDimensionPixelSize(
+                        R.dimen.padding_medium);
+                int panelBottom = resources.getDimensionPixelSize(
+                        R.dimen.playback_clear_space_bottom);
+                int headerClearSpace = resources.getDimensionPixelSize(
+                        R.dimen.header_clear_space_nonscrollable_playback);
 
-    private ValueAnimator setupAnimation(View view) {
-        AnimationGoal firstAnimationGoal, secondAnimationGoal;
-        if (mIsPanelExpanded) {
-            firstAnimationGoal = mExpandedPanelPoints.get(view);
-            secondAnimationGoal = mScrolledDownPanelPoints.get(view);
-        } else {
-            firstAnimationGoal = mStartingPoints.get(view);
-            secondAnimationGoal = mExpandedPanelPoints.get(view);
-        }
-        ValueAnimator animator = null;
-        if (firstAnimationGoal != null && secondAnimationGoal != null) {
-            view.setX(firstAnimationGoal.x);
-            view.setY(firstAnimationGoal.y);
-            view.setScaleX(firstAnimationGoal.scaleX);
-            view.setScaleY(firstAnimationGoal.scaleY);
-            if (!getResources().getBoolean(R.bool.is_landscape)) {
-                PropertyValuesHolder pvhX =
-                        PropertyValuesHolder.ofFloat("x", secondAnimationGoal.x);
+                // Setup mTextViewContainer animation
+                Keyframe kfY0 = Keyframe.ofFloat(0f,
+                        getHeight() - mTextViewContainer.getHeight() / 2 - panelHeight / 2);
+                Keyframe kfY1 = Keyframe.ofFloat(0.5f,
+                        getHeight() + padding - panelBottom);
+                Keyframe kfY2 = Keyframe.ofFloat(1f,
+                        headerClearSpace / 2 - mTextViewContainer.getHeight() / 2);
                 PropertyValuesHolder pvhY =
-                        PropertyValuesHolder.ofFloat("y", secondAnimationGoal.y);
-                PropertyValuesHolder pvhScaleX =
-                        PropertyValuesHolder.ofFloat("scaleX", secondAnimationGoal.scaleX);
+                        PropertyValuesHolder.ofKeyframe("y", kfY0, kfY1, kfY2);
+                Keyframe kfScale0 = Keyframe.ofFloat(0f, 1f);
+                Keyframe kfScale1 = Keyframe.ofFloat(0.5f, 1.5f);
+                Keyframe kfScale2 = Keyframe.ofFloat(1f, 1.5f);
                 PropertyValuesHolder pvhScaleY =
-                        PropertyValuesHolder.ofFloat("scaleY", secondAnimationGoal.scaleY);
-                animator = ObjectAnimator.ofPropertyValuesHolder(view, pvhX, pvhY,
-                        pvhScaleX, pvhScaleY).setDuration(10000);
+                        PropertyValuesHolder.ofKeyframe("scaleY", kfScale0, kfScale1, kfScale2);
+                PropertyValuesHolder pvhScaleX =
+                        PropertyValuesHolder.ofKeyframe("scaleX", kfScale0, kfScale1, kfScale2);
+                ValueAnimator animator = ObjectAnimator
+                        .ofPropertyValuesHolder(mTextViewContainer, pvhY,
+                                pvhScaleX, pvhScaleY).setDuration(20000);
                 animator.setInterpolator(new LinearInterpolator());
                 animator.setCurrentPlayTime(mLastPlayTime);
+                mAnimators.add(animator);
+
+                // Setup mPanelContainer animation
+                kfY0 = Keyframe.ofFloat(0f, getHeight() - mPanelContainer.getHeight());
+                kfY1 = Keyframe.ofFloat(0.5f, getHeight() - mPanelContainer.getHeight());
+                kfY2 = Keyframe.ofFloat(1f, headerClearSpace - mPanelContainer.getHeight());
+                pvhY = PropertyValuesHolder.ofKeyframe("y", kfY0, kfY1, kfY2);
+                animator = ObjectAnimator
+                        .ofPropertyValuesHolder(mPanelContainer, pvhY).setDuration(20000);
+                animator.setInterpolator(new LinearInterpolator());
+                animator.setCurrentPlayTime(mLastPlayTime);
+                mAnimators.add(animator);
+
+                // Setup mTextViewContainer backgroundColor alpha animation
+                Keyframe kfColor1 = Keyframe.ofInt(0f, 0x0);
+                Keyframe kfColor2 = Keyframe.ofInt(0.5f, 0x0);
+                Keyframe kfColor3 = Keyframe.ofInt(1f, 0x99);
+                PropertyValuesHolder pvhColor = PropertyValuesHolder
+                        .ofKeyframe("color", kfColor1, kfColor2, kfColor3);
+                animator = ValueAnimator.ofPropertyValuesHolder(pvhColor).setDuration(20000);
+                animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                    @Override
+                    public void onAnimationUpdate(ValueAnimator animation) {
+                        int color = Color.argb((Integer) animation.getAnimatedValue(), 0, 0, 0);
+                        mTextViewContainer.findViewById(R.id.textview_container_inner)
+                                .setBackgroundColor(color);
+                    }
+                });
+                animator.setInterpolator(new LinearInterpolator());
+                animator.setCurrentPlayTime(mLastPlayTime);
+                mAnimators.add(animator);
+
+                // Setup mPanelContainer background fade animation
+                Keyframe kfBgAlpha0 = Keyframe.ofInt(0f, 0);
+                Keyframe kfBgAlpha1 = Keyframe.ofInt(0.5f, 0);
+                Keyframe kfBgAlpha2 = Keyframe.ofInt(1f, 255);
+                PropertyValuesHolder pvhBgAlpha = PropertyValuesHolder
+                        .ofKeyframe("alpha", kfBgAlpha0, kfBgAlpha1, kfBgAlpha2);
+                animator = ObjectAnimator.ofPropertyValuesHolder(mPanelContainer.getBackground(),
+                        pvhBgAlpha).setDuration(20000);
+                animator.setInterpolator(new LinearInterpolator());
+                animator.setCurrentPlayTime(mLastPlayTime);
+                mAnimators.add(animator);
             }
-        }
-        return animator;
+        });
     }
 
     public void animate(int position) {
         mLastPlayTime = position;
-        if (mTextViewContainerAnimation != null
-                && position != mTextViewContainerAnimation.getCurrentPlayTime()) {
-            mTextViewContainerAnimation.setCurrentPlayTime(position);
-        }
-        if (mPanelContainerAnimation != null
-                && position != mPanelContainerAnimation.getCurrentPlayTime()) {
-            mPanelContainerAnimation.setCurrentPlayTime(position);
+        for (ValueAnimator animator : mAnimators) {
+            if (animator != null && position != animator.getCurrentPlayTime()) {
+                animator.setCurrentPlayTime(position);
+            }
         }
     }
 }
