@@ -255,8 +255,10 @@ public class DatabaseHelper {
         Playlist playlist = getEmptyPlaylist(playlistId);
         if (playlist != null) {
             String topArtistsString = "";
-            for (String s : playlist.getTopArtistNames()) {
-                topArtistsString += s + "\t\t";
+            if (playlist.getTopArtistNames() != null) {
+                for (String s : playlist.getTopArtistNames()) {
+                    topArtistsString += s + "\t\t";
+                }
             }
 
             ContentValues values = new ContentValues();
