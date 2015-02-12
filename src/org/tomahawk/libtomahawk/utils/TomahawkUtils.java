@@ -616,7 +616,6 @@ public class TomahawkUtils {
             RequestCreator creator = Picasso.with(context).load(placeHolderResId)
                     .placeholder(placeHolderResId)
                     .error(placeHolderResId);
-            creator.transform(new BlurTransformation());
             creator.into(imageView);
         }
     }
