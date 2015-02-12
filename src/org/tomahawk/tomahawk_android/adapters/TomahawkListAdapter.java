@@ -547,48 +547,53 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                         Image.getSmallImageSize(), viewHolder.mUserTextView1);
                 TomahawkListItem targetObject = socialAction.getTargetObject();
                 Resources resources = view.getResources();
+                String userName = socialAction.getUser().getName();
                 String phrase = "!FIXME! type: " + socialAction.getType()
-                        + ", action: " + socialAction.getAction();
+                        + ", action: " + socialAction.getAction() + ", user: " + userName;
                 if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
                         .equals(socialAction.getType())) {
                     if (targetObject instanceof Query) {
                         phrase = segment.segmentSize() > 1 ?
                                 resources.getString(R.string.socialaction_type_love_track_multiple,
-                                        segment.segmentSize())
-                                : resources.getString(R.string.socialaction_type_love_track_single);
+                                        userName, segment.segmentSize())
+                                : resources.getString(R.string.socialaction_type_love_track_single,
+                                        userName);
                     } else if (targetObject instanceof Album) {
                         phrase = segment.segmentSize() > 1 ?
                                 resources.getString(
                                         R.string.socialaction_type_collected_album_multiple,
-                                        segment.segmentSize())
+                                        userName, segment.segmentSize())
                                 : resources.getString(
-                                        R.string.socialaction_type_collected_album_single);
+                                        R.string.socialaction_type_collected_album_single,
+                                        userName);
                     } else if (targetObject instanceof Artist) {
                         phrase = segment.segmentSize() > 1 ?
                                 resources.getString(
                                         R.string.socialaction_type_collected_artist_multiple,
-                                        segment.segmentSize())
+                                        userName, segment.segmentSize())
                                 : resources.getString(
-                                        R.string.socialaction_type_collected_artist_single);
+                                        R.string.socialaction_type_collected_artist_single,
+                                        userName);
                     }
                 } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW
                         .equals(socialAction.getType())) {
-                    phrase = resources.getString(R.string.socialaction_type_follow);
+                    phrase = resources.getString(R.string.socialaction_type_follow, userName);
                 } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST
                         .equals(socialAction.getType())) {
                     phrase = segment.segmentSize() > 1 ?
                             resources.getString(R.string.socialaction_type_createplaylist_multiple,
-                                    segment.segmentSize())
-                            : resources.getString(R.string.socialaction_type_createplaylist_single);
+                                    userName, segment.segmentSize())
+                            : resources.getString(R.string.socialaction_type_createplaylist_single,
+                                    userName);
                 } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON
                         .equals(socialAction.getType())) {
                     phrase = segment.segmentSize() > 1 ?
-                            resources.getString(R.string.socialaction_type_latchon_multiple
-                                    , segment.segmentSize())
-                            : resources.getString(R.string.socialaction_type_latchon_single);
+                            resources.getString(R.string.socialaction_type_latchon_multiple,
+                                    userName, segment.segmentSize())
+                            : resources.getString(
+                                    R.string.socialaction_type_latchon_single, userName);
                 }
-                viewHolder.mTextView1.setText(
-                        socialAction.getUser().getName() + " " + phrase + ":");
+                viewHolder.mTextView1.setText(phrase + ":");
             }
             return view;
         } else {

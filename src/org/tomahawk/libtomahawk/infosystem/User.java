@@ -141,9 +141,9 @@ public class User implements TomahawkListItem {
     public void setName(String name) {
         mName = name;
         mPlaybackLog.setName(
-                name + TomahawkApp.getContext().getString(R.string.users_playbacklog_suffix));
+                TomahawkApp.getContext().getString(R.string.users_playbacklog_suffix, name));
         mFavorites.setName(
-                name + TomahawkApp.getContext().getString(R.string.users_favorites_suffix));
+                TomahawkApp.getContext().getString(R.string.users_favorites_suffix, name));
     }
 
     @Override
