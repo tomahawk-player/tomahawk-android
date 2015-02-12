@@ -113,29 +113,29 @@
   <!-- Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track) -->
   <string name="socialaction_type_love_track_single">%1$s loved a track</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks) -->
-  <string name="socialaction_type_love_track_multiple">%1$s loved %1$d tracks</string>
+  <string name="socialaction_type_love_track_multiple">%1$s loved %2$d tracks</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track) -->
   <string name="socialaction_type_collected_track_single">%1$s collected a track</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks) -->
-  <string name="socialaction_type_collected_track_multiple">%1$s collected %1$d tracks</string>
+  <string name="socialaction_type_collected_track_multiple">%1$s collected %2$d tracks</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album) -->
   <string name="socialaction_type_collected_album_single">%1$s collected an album</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums) -->
-  <string name="socialaction_type_collected_album_multiple">%1$s collected %1$d albums</string>
+  <string name="socialaction_type_collected_album_multiple">%1$s collected %2$d albums</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist) -->
   <string name="socialaction_type_collected_artist_single">%1$s collected an artist</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists) -->
-  <string name="socialaction_type_collected_artist_multiple">%1$s collected %1$d artists</string>
+  <string name="socialaction_type_collected_artist_multiple">%1$s collected %2$d artists</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen") -->
   <string name="socialaction_type_createcomment">%1$s commented on</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user) -->
   <string name="socialaction_type_latchon_single">%1$s listened along to a friend</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users) -->
-  <string name="socialaction_type_latchon_multiple">%1$s listened along to %1$d friends</string>
+  <string name="socialaction_type_latchon_multiple">%1$s listened along to %2$d friends</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist) -->
   <string name="socialaction_type_createplaylist_single">%1$s created a playlist</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists) -->
-  <string name="socialaction_type_createplaylist_multiple">%1$s created %1$d playlists</string>
+  <string name="socialaction_type_createplaylist_multiple">%1$s created %2$d playlists</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s by %2$s</string>
   <string name="time_afewseconds">a few seconds ago</string>
