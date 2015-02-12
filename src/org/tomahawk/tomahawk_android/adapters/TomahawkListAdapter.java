@@ -18,6 +18,10 @@
 package org.tomahawk.tomahawk_android.adapters;
 
 import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.swipe.implments.SwipeItemAdapterMangerImpl;
+import com.daimajia.swipe.interfaces.SwipeAdapterInterface;
+import com.daimajia.swipe.interfaces.SwipeItemMangerInterface;
+import com.daimajia.swipe.util.Attributes;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -51,9 +55,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
@@ -61,7 +63,9 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
 public class TomahawkListAdapter extends StickyBaseAdapter implements
-        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
+        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener,
+        SwipeItemMangerInterface,
+        SwipeAdapterInterface {
 
     private TomahawkMainActivity mActivity;
 
@@ -87,7 +91,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private ProgressBar mProgressBar;
 
-    private Set<SwipeLayout> mOpenSwipeLayouts = new HashSet<>();
+    private SwipeItemAdapterMangerImpl mItemManager = new SwipeItemAdapterMangerImpl(this);
 
     private Handler mProgressHandler = new Handler(new Handler.Callback() {
         @Override
@@ -118,6 +122,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         for (Segment segment : mSegments) {
             mRowCount += segment.size();
         }
+        mItemManager.setMode(Attributes.Mode.Single);
     }
 
     /**
@@ -131,6 +136,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         mSegments = new ArrayList<Segment>();
         mSegments.add(segment);
         mRowCount = segment.size();
+        mItemManager.setMode(Attributes.Mode.Single);
     }
 
     /**
@@ -268,6 +274,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 view = mLayoutInflater.inflate(viewType, parent, false);
                 ViewHolder viewHolder = new ViewHolder(view, viewType);
                 viewHolders.add(viewHolder);
+                if (viewType == R.layout.list_item_track) {
+                    // We have a SwipeLayout
+                    mItemManager.initialize(view, position);
+                }
             }
             // Set extra padding
             if (getSegment(position) != null && getSegment(position).getLeftExtraPadding() > 0) {
@@ -287,31 +297,37 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 }
             }
             view.setTag(viewHolders);
-        } else if (viewType == R.layout.list_item_track
-                || viewType == R.layout.grid_item
-                || viewType == R.layout.list_item_artistalbum
-                || viewType == R.layout.grid_item_user
-                || viewType == R.layout.list_item_user
-                || viewType == R.layout.grid_item_resolver
-                || viewType == R.layout.grid_item_playlist) {
-            for (ViewHolder viewHolder : viewHolders) {
-                if (viewType == R.layout.list_item_track) {
-                    viewHolder.mImageView1.setVisibility(View.GONE);
-                    viewHolder.mTextView1.setVisibility(View.GONE);
-                    viewHolder.mTextView3.setVisibility(View.GONE);
-                    viewHolder.mTextView4.setVisibility(View.GONE);
-                    viewHolder.mProgressBarContainer.removeAllViews();
-                } else if (viewType == R.layout.grid_item_resolver) {
-                    viewHolder.mImageView1.clearColorFilter();
-                } else if (viewType == R.layout.grid_item_playlist) {
-                    viewHolder.mMainClickArea.setBackgroundResource(0);
-                    viewHolder.mImageView1.setVisibility(View.GONE);
-                    viewHolder.mImageView2.setVisibility(View.VISIBLE);
-                    viewHolder.mImageView3.setVisibility(View.GONE);
-                    viewHolder.mAddIcon.setVisibility(View.GONE);
-                } else {
-                    viewHolder.mTextView2.setVisibility(View.GONE);
-                    viewHolder.mTextView3.setVisibility(View.GONE);
+        } else {
+            if (viewType == R.layout.list_item_track) {
+                // We have a SwipeLayout
+                mItemManager.updateConvertView(view, position);
+            }
+            if (viewType == R.layout.list_item_track
+                    || viewType == R.layout.grid_item
+                    || viewType == R.layout.list_item_artistalbum
+                    || viewType == R.layout.grid_item_user
+                    || viewType == R.layout.list_item_user
+                    || viewType == R.layout.grid_item_resolver
+                    || viewType == R.layout.grid_item_playlist) {
+                for (ViewHolder viewHolder : viewHolders) {
+                    if (viewType == R.layout.list_item_track) {
+                        viewHolder.mImageView1.setVisibility(View.GONE);
+                        viewHolder.mTextView1.setVisibility(View.GONE);
+                        viewHolder.mTextView3.setVisibility(View.GONE);
+                        viewHolder.mTextView4.setVisibility(View.GONE);
+                        viewHolder.mProgressBarContainer.removeAllViews();
+                    } else if (viewType == R.layout.grid_item_resolver) {
+                        viewHolder.mImageView1.clearColorFilter();
+                    } else if (viewType == R.layout.grid_item_playlist) {
+                        viewHolder.mMainClickArea.setBackgroundResource(0);
+                        viewHolder.mImageView1.setVisibility(View.GONE);
+                        viewHolder.mImageView2.setVisibility(View.VISIBLE);
+                        viewHolder.mImageView3.setVisibility(View.GONE);
+                        viewHolder.mAddIcon.setVisibility(View.GONE);
+                    } else {
+                        viewHolder.mTextView2.setVisibility(View.GONE);
+                        viewHolder.mTextView3.setVisibility(View.GONE);
+                    }
                 }
             }
         }
@@ -714,5 +730,60 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             return mClickListener.onItemLongClick(view, o);
         }
         return false;
+    }
+
+    @Override
+    public int getSwipeLayoutResourceId(int position) {
+        return R.id.swipelayout;
+    }
+
+    @Override
+    public void openItem(int position) {
+        mItemManager.openItem(position);
+    }
+
+    @Override
+    public void closeItem(int position) {
+        mItemManager.closeItem(position);
+    }
+
+    @Override
+    public void closeAllExcept(SwipeLayout layout) {
+        mItemManager.closeAllExcept(layout);
+    }
+
+    @Override
+    public void closeAllItems() {
+        mItemManager.closeAllItems();
+    }
+
+    @Override
+    public List<Integer> getOpenItems() {
+        return mItemManager.getOpenItems();
+    }
+
+    @Override
+    public List<SwipeLayout> getOpenLayouts() {
+        return mItemManager.getOpenLayouts();
+    }
+
+    @Override
+    public void removeShownLayouts(SwipeLayout layout) {
+        mItemManager.removeShownLayouts(layout);
+    }
+
+    @Override
+    public boolean isOpen(int position) {
+        return mItemManager.isOpen(position);
+    }
+
+    @Override
+    public Attributes.Mode getMode() {
+        return mItemManager.getMode();
+    }
+
+    @Override
+    public void setMode(Attributes.Mode mode) {
+        mItemManager.setMode(mode);
     }
 }
