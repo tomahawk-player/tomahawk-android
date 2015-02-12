@@ -24,7 +24,7 @@
   <string name="unknown">sconosciuto</string>
   <string name="no_track">nessuna traccia</string>
   <string name="save_playlist">Salva la playlist corrente</string>
-  <string name="name_playlist">Nome</string>
+  <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="login_name_label">Email/Username</string>
   <string name="login_username">Nome utente</string>
   <string name="login_password">Password</string>
@@ -37,8 +37,8 @@
   <string name="error_communication">Impossibile connettersi. Per favore controlla la connessione.</string>
   <string name="error_simultaneous_streams">Azione non permessa, l\'account è in uso altrove.</string>
   <string name="error_account_expired">Il tuo account è scaduto.</string>
-  <string name="auth_logged_in">Connesso a</string>
-  <string name="auth_logged_out">Disconnesso da</string>
+  <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Collezione Locale</string>
   <string name="local">In Locale</string>
   <string name="all">Tutte</string>
@@ -96,7 +96,6 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Segui</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
-  <string name="socialaction_type_follow">sta ora seguendo</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
@@ -106,15 +105,10 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
-  <string name="socialaction_type_createcomment">ha commentato</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
-  <string name="socialaction_type_latchon_single">ha ascoltato assieme a un amico</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
-  <string name="socialaction_type_latchon_multiple">ha ascoltato assieme a %1$d amici</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">ha creato una playlist</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">ha creato %1$d playlist</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="time_afewseconds">pochi secondi fa</string>
   <string name="time_aminute">un minuto fa</string>

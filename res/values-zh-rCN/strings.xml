@@ -25,7 +25,7 @@
   <string name="no_track">无曲目</string>
   <string name="save_playlist">保存当前播放列表</string>
   <string name="create_playlist">创建播放列表</string>
-  <string name="name_playlist">名称</string>
+  <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="login_name_label">邮箱/用户名</string>
   <string name="login_username">用户名</string>
   <string name="login_password">密码</string>
@@ -38,8 +38,8 @@
   <string name="error_communication">无法认证。请检查您的连接</string>
   <string name="error_simultaneous_streams">操作不允许，账户已在别处使用</string>
   <string name="error_account_expired">您的账户已过期</string>
-  <string name="auth_logged_in">登录到</string>
-  <string name="auth_logged_out">注销</string>
+  <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">本地收藏</string>
   <string name="local">本地</string>
   <string name="all">所有</string>
@@ -106,33 +106,19 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">关注</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
-  <string name="socialaction_type_follow">正在关注</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
-  <string name="socialaction_type_love_track_single">喜欢了一个曲目</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
-  <string name="socialaction_type_love_track_multiple">喜欢了 %1$d 个曲目</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
-  <string name="socialaction_type_collected_track_single">收藏了一个曲目</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
-  <string name="socialaction_type_collected_track_multiple">收藏了 %1$d 个曲目</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
-  <string name="socialaction_type_collected_album_single">收藏了一张专辑</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
-  <string name="socialaction_type_collected_album_multiple">收藏了%1$d 张专辑</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
-  <string name="socialaction_type_collected_artist_single">收藏了一位艺术家</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
-  <string name="socialaction_type_collected_artist_multiple">收藏了%1$d 个艺术家</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
-  <string name="socialaction_type_createcomment">评论</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
-  <string name="socialaction_type_latchon_single">跟随收听一个好友</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
-  <string name="socialaction_type_latchon_multiple">跟随收听 %1$d 个好友</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">创建了一个播放列表</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">创建了 %1$d 个播放列表</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s - %2$s</string>
   <string name="time_afewseconds">几秒前</string>
@@ -142,9 +128,6 @@
   <string name="time_minutes">%1$d 分钟前</string>
   <string name="time_hours">%1$d 小时前</string>
   <string name="time_days">%1$d 天前</string>
-  <string name="users_playbacklog_suffix">最近播放的</string>
-  <string name="users_favorites_suffix">喜欢的</string>
-  <string name="users_playlist_suffix">的播放列表</string>
   <string name="music">音乐</string>
   <string name="biography">简介</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -171,5 +154,4 @@
   <string name="connect_headertext">请选择要使用的服务。激活的服务更多，Tomahawk 工作的越好。</string>
   <string name="advanced">高级</string>
   <string name="info">信息</string>
-  <string name="equalizer">均衡器</string>
 </resources>

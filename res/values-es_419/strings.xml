@@ -26,7 +26,7 @@
   <string name="no_track">Ninguna pista</string>
   <string name="save_playlist">Guardar esta playlist</string>
   <string name="create_playlist">Crear Playlist</string>
-  <string name="name_playlist">Nombre</string>
+  <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="login_name_label">Correo/nombre de usuario</string>
   <string name="login_username">Nombre de usuario</string>
   <string name="login_password">Contraseña</string>
@@ -39,8 +39,8 @@
   <string name="error_communication">Imposible autenticar. por favor revisa tu conexión</string>
   <string name="error_simultaneous_streams">Acción no permitida, la cuenta está siendo utilizada</string>
   <string name="error_account_expired">Tu cuenta ha expirado</string>
-  <string name="auth_logged_in">Inició sesión en </string>
-  <string name="auth_logged_out">Cerrro sesión en </string>
+  <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Colección Local</string>
   <string name="local">Local</string>
   <string name="all">Todo</string>
@@ -107,33 +107,19 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Seguir</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
-  <string name="socialaction_type_follow">Esta ahora siguiendo</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
-  <string name="socialaction_type_love_track_single">Le gusto una canción</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
-  <string name="socialaction_type_love_track_multiple">Le gustó  %1$d Canciones</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
-  <string name="socialaction_type_collected_track_single">agregó una pista</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
-  <string name="socialaction_type_collected_track_multiple">agregó %1$d pistas</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
-  <string name="socialaction_type_collected_album_single">agregó un álbum</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
-  <string name="socialaction_type_collected_album_multiple">agregó %1$d álbumes</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
-  <string name="socialaction_type_collected_artist_single">agregó un artista</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
-  <string name="socialaction_type_collected_artist_multiple">agregó %1$d artistas</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
-  <string name="socialaction_type_createcomment">Comento en </string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
-  <string name="socialaction_type_latchon_single">Lo escucho junto a un amigo</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
-  <string name="socialaction_type_latchon_multiple">Lo escucho junto a %1$d amigos</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">creó una playlist</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">creó %1$d playlists</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s por %2$s</string>
   <string name="time_afewseconds">hace algunos segundos</string>
@@ -143,9 +129,6 @@
   <string name="time_minutes">hace %1$d minutos </string>
   <string name="time_hours">Hace %1$d horas atrás</string>
   <string name="time_days">Hace  %1$d día atrás</string>
-  <string name="users_playbacklog_suffix">reprodujo recientemente</string>
-  <string name="users_favorites_suffix">Las favoritas de</string>
-  <string name="users_playlist_suffix">Playlist de</string>
   <string name="music">Música</string>
   <string name="biography">Biografía </string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -172,5 +155,4 @@
   <string name="connect_headertext">Selecciona los serivicios que quieres usar, Tomahawk funciona mejor cuando más servicios estan activos.</string>
   <string name="advanced">Avanzado</string>
   <string name="info">Información</string>
-  <string name="equalizer">Ecualizador</string>
 </resources>

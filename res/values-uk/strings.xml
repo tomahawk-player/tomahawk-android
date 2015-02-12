@@ -21,7 +21,7 @@
   <string name="repeat_on_label">Повторення увімкнено</string>
   <string name="repeat_off_label">Повторення вимкнено</string>
   <string name="save_playlist">Зберегти поточний список відтворення</string>
-  <string name="name_playlist">Ім’я</string>
+  <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="login_name_label">Пошта/Ім’я користувача</string>
   <string name="login_username">Ім’я користувача</string>
   <string name="login_password">Пароль</string>
@@ -34,8 +34,8 @@
   <string name="error_communication">Неможливо автентифікуватися. Будь ласка, перевірте Ваше з’єднання.</string>
   <string name="error_simultaneous_streams">Дія не дозволена, обліковий запис вже використовується.</string>
   <string name="error_account_expired">Термін дії Вашого облікового запису минув.</string>
-  <string name="auth_logged_in">Під’єднаний до</string>
-  <string name="auth_logged_out">Від’єднаний від</string>
+  <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Локальна колекція</string>
   <string name="all">Всі</string>
   <string name="preferences_services">Сервіси</string>
@@ -87,9 +87,7 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
-  <string name="socialaction_type_love_track_single">сподобалася композиція:</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
-  <string name="socialaction_type_love_track_multiple">сподобалися %1$d композиції</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
@@ -97,13 +95,10 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
-  <string name="socialaction_type_createcomment">відкоментована</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">створив список відтворення</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">створив %1$d списки відтворення</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="time_afewseconds">декілька секунд тому</string>
   <string name="time_aminute">хвилина тому</string>
@@ -112,7 +107,6 @@
   <string name="time_minutes">%1$d хвилин тому</string>
   <string name="time_hours">%1$d годин тому</string>
   <string name="time_days">%1$d днів тому</string>
-  <string name="users_playbacklog_suffix">нещодавно слухав</string>
   <string name="music">Музика</string>
   <string name="biography">Біографія</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
