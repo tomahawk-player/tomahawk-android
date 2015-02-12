@@ -84,7 +84,8 @@ public class CloudCollectionFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter =
                         new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
-                                getActivity().getLayoutInflater(), new Segment(artists), this);
+                                getActivity().getLayoutInflater(), new Segment(artists),
+                                getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(new Segment(artists), getListView());

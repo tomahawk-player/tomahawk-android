@@ -163,7 +163,7 @@ public class AlbumsFragment extends TomahawkFragment {
             }
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                        layoutInflater, segments, this);
+                        layoutInflater, segments, getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments, getListView());
@@ -177,7 +177,7 @@ public class AlbumsFragment extends TomahawkFragment {
             segments.add(new Segment(items));
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                        layoutInflater, segments, this);
+                        layoutInflater, segments, getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments, getListView());
@@ -187,7 +187,7 @@ public class AlbumsFragment extends TomahawkFragment {
             segments.add(new Segment(items));
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                        layoutInflater, segments, this);
+                        layoutInflater, segments, getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments, getListView());
@@ -244,7 +244,7 @@ public class AlbumsFragment extends TomahawkFragment {
                     R.dimen.padding_superlarge));
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                        layoutInflater, segments, this);
+                        layoutInflater, segments, getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments, getListView());

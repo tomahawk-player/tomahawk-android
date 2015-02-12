@@ -399,7 +399,7 @@ public class PlaybackFragment extends TomahawkFragment {
             }
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                        layoutInflater, segments, this);
+                        layoutInflater, segments, getListView(), this);
                 tomahawkListAdapter.setShowPlaystate(true);
                 setListAdapter(tomahawkListAdapter);
             } else {

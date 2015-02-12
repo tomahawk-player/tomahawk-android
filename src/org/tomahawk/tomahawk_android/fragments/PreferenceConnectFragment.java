@@ -101,7 +101,7 @@ public class PreferenceConnectFragment extends TomahawkListFragment
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
                     (TomahawkMainActivity) getActivity(), getActivity().getLayoutInflater(),
-                    segments, this);
+                    segments, getListView(), this);
             setListAdapter(tomahawkListAdapter);
         } else {
             ((TomahawkListAdapter) getListAdapter()).setSegments(segments, getListView());

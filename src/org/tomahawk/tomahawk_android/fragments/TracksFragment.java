@@ -126,7 +126,7 @@ public class TracksFragment extends TomahawkFragment {
             segment.setShowNumeration(true, 1);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
-                        this);
+                        getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment, getListView());
@@ -139,7 +139,7 @@ public class TracksFragment extends TomahawkFragment {
             segment.setShowDuration(true);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
-                        this);
+                        getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segment, getListView());
@@ -152,7 +152,7 @@ public class TracksFragment extends TomahawkFragment {
             segment.setShowDuration(true);
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
-                        layoutInflater, segment, this);
+                        layoutInflater, segment, getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(new Segment(queries), getListView());
@@ -203,7 +203,7 @@ public class TracksFragment extends TomahawkFragment {
             segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, queries));
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segments,
-                        this);
+                        getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments, getListView());
