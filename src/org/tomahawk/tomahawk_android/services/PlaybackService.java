@@ -435,7 +435,7 @@ public class PlaybackService extends Service
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(InfoSystem.ResultsEvent event) {
+    public void onEventMainThread(InfoSystem.ResultsEvent event) {
         if (getCurrentEntry() != null && getCurrentQuery().getCacheKey()
                 .equals(mCorrespondingRequestIds.get(event.mInfoRequestData.getRequestId()))) {
             updateNotification();
