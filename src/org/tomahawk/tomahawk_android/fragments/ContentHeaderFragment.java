@@ -365,6 +365,7 @@ public class ContentHeaderFragment extends Fragment {
     }
 
     protected void setupAnimations(FrameLayout imageFrame, FrameLayout headerFrame) {
+        mAnimators.clear();
         if (isDynamicHeader()) {
             View header = headerFrame.findViewById(R.id.content_header);
             if (header == null) {
