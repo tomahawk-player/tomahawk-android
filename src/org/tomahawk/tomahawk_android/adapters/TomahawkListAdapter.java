@@ -394,6 +394,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                                 @Override
                                 public void onClick(View v) {
                                     mActivity.getPlaybackService().addQueryToQueue(query);
+                                    closeAllItems();
                                 }
                             }, getSegment(position).isShowAsQueued());
                 }
