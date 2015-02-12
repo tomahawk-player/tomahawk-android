@@ -529,7 +529,7 @@ public class PlaybackFragment extends TomahawkFragment {
                         (ImageView) getView().findViewById(R.id.background);
                 TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(), bgImageView,
                         playbackService.getCurrentQuery().getImage(),
-                        Image.getSmallImageSize(), R.drawable.album_placeholder_grid);
+                        Image.getSmallImageSize(), R.color.playerview_default_bg);
             } else {
                 // Make all buttons not clickable
                 getView().findViewById(R.id.imageButton_shuffle).setClickable(false);

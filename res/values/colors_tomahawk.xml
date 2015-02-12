@@ -32,6 +32,7 @@
     <color name="secondary_transparent">#99151515</color>
     <color name="tertiary_transparent">#99000000</color>
     <color name="playerview_transparent">#55000000</color>
+    <color name="playerview_default_bg">#333</color>
     <color name="navdrawer_background">#BB000000</color>
     <color name="disabled">#FF999999</color>
     <color name="disabled_resolver">#33FFFFFF</color>
