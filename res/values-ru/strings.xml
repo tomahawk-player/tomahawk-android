@@ -15,7 +15,7 @@
   <string name="repeat_on_label">Повтор включен</string>
   <string name="repeat_off_label">Повтор выключен</string>
   <string name="save_playlist">Сохранить в текущий список</string>
-  <string name="name_playlist">Имя</string>
+  <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="login_name_label">e-mail/имя пользователя</string>
   <string name="login_username">Имя пользователя</string>
   <string name="login_password">Пароль</string>
@@ -28,8 +28,8 @@
   <string name="error_communication">Невозможность аутентификации. Пожалуйста, проверьте ваше соединение.</string>
   <string name="error_simultaneous_streams">Действие не разрешено, аккаунт уже используется.</string>
   <string name="error_account_expired">Ваш аккаунт истёк.</string>
-  <string name="auth_logged_in">Подключен к</string>
-  <string name="auth_logged_out">Отключен от</string>
+  <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Локальная коллекция</string>
   <string name="preferences_hatchet_text">Синхронизируйте ваши данные с %1$s.</string>
   <string name="preferences_spotify_text">Играть вашу музыку из %1$s. Требуется Премиум аккаунт.</string>
@@ -79,13 +79,11 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
-  <string name="socialaction_type_createcomment">откомментирован</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
-  <string name="users_playbacklog_suffix">недавно слушал</string>
   <string name="music">Музыка</string>
   <string name="biography">Биография</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->

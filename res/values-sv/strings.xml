@@ -22,7 +22,7 @@
   <string name="unknown">Okänd</string>
   <string name="no_track">Ingen låt</string>
   <string name="save_playlist">Spara aktiv spellista</string>
-  <string name="name_playlist">Namn</string>
+  <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="login_name_label">E-post/Användarnamn</string>
   <string name="login_username">Användarnamn</string>
   <string name="login_password">Lösenord</string>
@@ -35,8 +35,8 @@
   <string name="error_communication">Kunde inte logga in. Se om du är uppkopplad.</string>
   <string name="error_simultaneous_streams">Kommandot är inte tillåtet, ditt konto används på en annan enhet/plats.</string>
   <string name="error_account_expired">Ditt konto har gått ut.</string>
-  <string name="auth_logged_in">Inloggad på</string>
-  <string name="auth_logged_out">Utloggad från</string>
+  <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Enhetens samling</string>
   <string name="preferences_services">Tjänster</string>
   <string name="preferences_hatchet_text">Synkroniserar med %1$s.</string>
@@ -97,13 +97,10 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
-  <string name="socialaction_type_createcomment">kommenterade</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">skapade en spellista</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">skapade %1$d spellistor</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s av %2$s</string>
   <string name="time_afewseconds">några sekunder sedan</string>
@@ -113,8 +110,6 @@
   <string name="time_minutes">%1$d minuter sedan</string>
   <string name="time_hours">%1$d timmar sedan</string>
   <string name="time_days">%1$d dagar sedan</string>
-  <string name="users_playbacklog_suffix">s Senaste spelade</string>
-  <string name="users_favorites_suffix">s Favoriter</string>
   <string name="music">Musik</string>
   <string name="biography">Biografi</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->

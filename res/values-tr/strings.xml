@@ -24,7 +24,7 @@
   <string name="unknown">bilinmeyen</string>
   <string name="no_track">parça yok</string>
   <string name="save_playlist">Mevcut çalma listesini kaydet</string>
-  <string name="name_playlist">İsim</string>
+  <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="login_name_label">E-Posta/Kullanıcı Adı</string>
   <string name="login_username">Kullanıcı Adı</string>
   <string name="login_password">Parola</string>
@@ -37,8 +37,8 @@
   <string name="error_communication">Kimlik doğrulanamadı. Lütfen bağlantınızı kontrol edin.</string>
   <string name="error_simultaneous_streams">Eylem gerçekleştirilemedi, hesap başka bir yerde kullanılıyor.</string>
   <string name="error_account_expired">Hesabınızın süresi doldu.</string>
-  <string name="auth_logged_in">Oturum açıldı:</string>
-  <string name="auth_logged_out">Oturum kapatıldı:</string>
+  <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Yerel Koleksiyon</string>
   <string name="local">Yerel</string>
   <string name="all">Tümü</string>
@@ -99,33 +99,19 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Tekip Et</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
-  <string name="socialaction_type_follow">şimdi takip ediliyor</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
-  <string name="socialaction_type_love_track_single">bir parçayı beğendi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
-  <string name="socialaction_type_love_track_multiple">%1$d parçayı beğendi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
-  <string name="socialaction_type_collected_track_single">koleksiyona bir parça ekledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
-  <string name="socialaction_type_collected_track_multiple">koleksiyona %1$d parça ekledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
-  <string name="socialaction_type_collected_album_single">koleksiyona bir albüm ekledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
-  <string name="socialaction_type_collected_album_multiple">koleksiyona %1$d albüm ekledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
-  <string name="socialaction_type_collected_artist_single">koleksiyona bir sanatçı ekledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
-  <string name="socialaction_type_collected_artist_multiple">koleksiyona %1$d sanatçı ekledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
-  <string name="socialaction_type_createcomment">yorum yaptı</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
-  <string name="socialaction_type_latchon_single">bir arkadaşıyla birlikte dinledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
-  <string name="socialaction_type_latchon_multiple">%1$d arkadaşıyla birlikte dinledi</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">bir çalma listesi oluşturdu</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">%1$d çalma listesi oluşturdu</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%2$s den %1$s</string>
   <string name="time_afewseconds">birkaç saniye önce</string>
@@ -135,8 +121,6 @@
   <string name="time_minutes">%1$d dakika önce</string>
   <string name="time_hours">%1$d saat önce</string>
   <string name="time_days">%1$d gün önce</string>
-  <string name="users_playbacklog_suffix">tarafından son çalınan</string>
-  <string name="users_favorites_suffix">\'in Favorileri</string>
   <string name="music">Müzik</string>
   <string name="biography">Biyografi</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->

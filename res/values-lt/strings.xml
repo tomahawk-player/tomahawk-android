@@ -25,6 +25,7 @@
   <string name="no_track">nėra takelio</string>
   <string name="save_playlist">Išsaugoti dabartinį grojaraštį</string>
   <string name="create_playlist">Sukurti grojaraštį</string>
+  <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="login_name_label">El. paštas/Vartotojo vardas</string>
   <string name="login_username">Vartotojo vardas</string>
   <string name="login_password">Slaptažodis</string>
@@ -37,8 +38,8 @@
   <string name="error_communication">Neįmanoma nustatyti tapatybę. Prašome patikrinti savo ryšį.</string>
   <string name="error_simultaneous_streams">Veiksmas neleidžiamas, paskyra yra naudojama kitur.</string>
   <string name="error_account_expired">Jūsų paskyra nebegalioja.</string>
-  <string name="auth_logged_in">Prisijungta prie</string>
-  <string name="auth_logged_out">Atsijungta nuo</string>
+  <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Vietinė Kolekcija</string>
   <string name="preferences_services">Paslaugos</string>
   <string name="preferences_local_collection_text">Pasirinkite katalogus, kurie turėtų būti peržvelgiami, ieškant vietinės medijos.</string>
@@ -86,9 +87,7 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Sekti</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
-  <string name="socialaction_type_follow">dabar seka</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
-  <string name="socialaction_type_love_track_single">patiko takelis</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
@@ -100,9 +99,7 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">sukūrė grojaraštį</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">sukūrė %1$d grojaraščius</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s pagal %2$s</string>
   <string name="time_afewseconds">prieš keletą sekundžių</string>
@@ -133,5 +130,4 @@
   <string name="view_album">Žiūrėti Albumą</string>
   <string name="connect_headertext">Pasirinkite paslaugas, kuriomis norite naudotis. Tomahawk veikia geriau, kuomet yra aktyvuota daugiau paslaugų.</string>
   <string name="info">Informacija</string>
-  <string name="equalizer">Glodintuvas</string>
 </resources>

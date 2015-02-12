@@ -20,7 +20,7 @@
   <string name="repeat_on_label">التّكرار يعمل</string>
   <string name="repeat_off_label">التّكرار لا يعمل</string>
   <string name="save_playlist">احفظ قائمة التّشغيل الحاليّة</string>
-  <string name="name_playlist">الاسم</string>
+  <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="login_name_label">البريد الإلكترونيّ/اسم المستخدم</string>
   <string name="login_username">اسم المستخدم</string>
   <string name="login_password">كلمة المرور</string>
@@ -33,6 +33,8 @@
   <string name="error_communication">تعذّر الاستيثاق. فضلًا تحقّق من اتّصالك.</string>
   <string name="error_simultaneous_streams">الإجراء غير مسموح به، الحساب مستخدم في مكان ما.</string>
   <string name="error_account_expired">انتهت صلاحيّة حسابك.</string>
+  <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">التّجميعة المحليّة</string>
   <string name="local">المحليّ</string>
   <string name="all">الكلّ</string>

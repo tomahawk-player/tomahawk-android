@@ -15,7 +15,7 @@
   <string name="unknown">necunoscut</string>
   <string name="no_track">nicio piesă</string>
   <string name="save_playlist">Salvează lista curentă</string>
-  <string name="name_playlist">Nume</string>
+  <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="login_name_label">Email/Utilizator</string>
   <string name="login_username">Utilizator</string>
   <string name="login_password">Parolă</string>
@@ -25,6 +25,8 @@
   <string name="error_passwords_dont_match">Parolele nu se potrivesc</string>
   <string name="error_invalid_credentials">Utilizator sau parolă incorecte.</string>
   <string name="error_invalid_account">Contul a fost respins de server.</string>
+  <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Colecție locală</string>
   <string name="local">Local</string>
   <string name="all">Tot</string>
