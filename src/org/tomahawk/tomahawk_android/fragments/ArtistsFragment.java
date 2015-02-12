@@ -115,7 +115,7 @@ public class ArtistsFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter =
                         new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
-                                layoutInflater, new Segment(artists), this);
+                                layoutInflater, new Segment(artists), getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(new Segment(artists), getListView());
@@ -125,7 +125,7 @@ public class ArtistsFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter =
                         new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
-                                layoutInflater, new Segment(artists), this);
+                                layoutInflater, new Segment(artists), getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(new Segment(artists), getListView());
@@ -180,7 +180,7 @@ public class ArtistsFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter =
                         new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
-                                layoutInflater, segments, this);
+                                layoutInflater, segments, getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(segments, getListView());

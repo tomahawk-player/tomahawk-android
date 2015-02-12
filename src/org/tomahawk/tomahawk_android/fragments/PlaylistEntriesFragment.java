@@ -136,7 +136,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 segment.setShowNumeration(true, 1);
                 if (getListAdapter() == null) {
                     tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
-                            segment, this);
+                            segment, getListView(), this);
                     setListAdapter(tomahawkListAdapter);
                 } else {
                     getListAdapter().setSegments(segment, getListView());

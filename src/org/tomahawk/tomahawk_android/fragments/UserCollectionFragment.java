@@ -157,7 +157,7 @@ public class UserCollectionFragment extends TomahawkFragment {
                 R.dimen.padding_superlarge));
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                    layoutInflater, segments, this);
+                    layoutInflater, segments, getListView(), this);
             setListAdapter(tomahawkListAdapter);
         } else {
             getListAdapter().setSegments(segments, getListView());

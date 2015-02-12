@@ -71,7 +71,7 @@ public class BiographyFragment extends TomahawkFragment {
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter =
                         new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
-                                layoutInflater, new Segment(bioText), this);
+                                layoutInflater, new Segment(bioText), getListView(), this);
                 setListAdapter(tomahawkListAdapter);
             } else {
                 getListAdapter().setSegments(new Segment(bioText), getListView());

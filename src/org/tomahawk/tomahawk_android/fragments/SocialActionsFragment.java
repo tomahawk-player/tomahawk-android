@@ -272,7 +272,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
             }
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
-                        segments, this);
+                        segments, getListView(), this);
                 int extraPadding = getResources().getDimensionPixelSize(R.dimen.padding_medium)
                         + TomahawkUtils.convertDpToPixel(32);
                 setListAdapter(tomahawkListAdapter);

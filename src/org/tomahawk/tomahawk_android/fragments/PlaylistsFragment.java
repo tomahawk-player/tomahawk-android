@@ -165,7 +165,8 @@ public class PlaylistsFragment extends TomahawkFragment {
         }
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
-                    (TomahawkMainActivity) getActivity(), layoutInflater, segment, this);
+                    (TomahawkMainActivity) getActivity(), layoutInflater, segment, getListView(),
+                    this);
             setListAdapter(tomahawkListAdapter);
         } else {
             getListAdapter().setSegments(segment, getListView());

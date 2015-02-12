@@ -113,7 +113,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
      * Constructs a new {@link TomahawkListAdapter}.
      */
     public TomahawkListAdapter(TomahawkMainActivity activity, LayoutInflater layoutInflater,
-            List<Segment> segments, MultiColumnClickListener clickListener) {
+            List<Segment> segments, StickyListHeadersListView listView,
+            MultiColumnClickListener clickListener) {
         mActivity = activity;
         mLayoutInflater = layoutInflater;
         mClickListener = clickListener;
@@ -122,6 +123,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         for (Segment segment : mSegments) {
             mRowCount += segment.size();
         }
+        updateFooterSpacerHeight(listView);
         mItemManager.setMode(Attributes.Mode.Single);
     }
 
@@ -129,13 +131,15 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
      * Constructs a new {@link TomahawkListAdapter}.
      */
     public TomahawkListAdapter(TomahawkMainActivity activity, LayoutInflater layoutInflater,
-            Segment segment, MultiColumnClickListener clickListener) {
+            Segment segment, StickyListHeadersListView listView,
+            MultiColumnClickListener clickListener) {
         mActivity = activity;
         mLayoutInflater = layoutInflater;
         mClickListener = clickListener;
         mSegments = new ArrayList<Segment>();
         mSegments.add(segment);
         mRowCount = segment.size();
+        updateFooterSpacerHeight(listView);
         mItemManager.setMode(Attributes.Mode.Single);
     }
 
