@@ -134,7 +134,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        getActivity().setTitle(getResources().getString(R.string.equalizer));
+        getActivity().setTitle(getResources().getString(R.string.preferences_equalizer));
 
         super.onCreateView(inflater, container, savedInstanceState);
         View v = inflater.inflate(R.layout.equalizerfragment_layout, container, false);

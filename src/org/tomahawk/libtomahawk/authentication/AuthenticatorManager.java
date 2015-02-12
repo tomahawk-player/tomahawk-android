@@ -89,12 +89,12 @@ public class AuthenticatorManager {
         String message;
         switch (event.mType) {
             case CONFIG_TEST_RESULT_TYPE_SUCCESS:
-                message = TomahawkApp.getContext().getString(R.string.auth_logged_in) + " "
-                        + componentName;
+                message = TomahawkApp.getContext()
+                        .getString(R.string.auth_logged_in, componentName);
                 break;
             case CONFIG_TEST_RESULT_TYPE_LOGOUT:
-                message = TomahawkApp.getContext().getString(R.string.auth_logged_out) + " "
-                        + componentName;
+                message = TomahawkApp.getContext()
+                        .getString(R.string.auth_logged_out, componentName);
                 break;
             case CONFIG_TEST_RESULT_TYPE_INVALIDCREDS:
                 message = componentName + ": " + TomahawkApp.getContext().getString(
