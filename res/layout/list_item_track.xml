@@ -23,12 +23,12 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/swipelayout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/list_item_track_height"
+        android:layout_height="wrap_content"
         swipe:show_mode="lay_down">
 
     <FrameLayout android:id="@+id/swipemenu_button1"
                  android:layout_width="wrap_content"
-                 android:layout_height="match_parent"
+                 android:layout_height="@dimen/list_item_track_height"
                  android:background="@color/primary_background">
 
         <ImageView android:layout_width="@dimen/list_item_track_height"
@@ -46,7 +46,7 @@
     </FrameLayout>
 
     <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="match_parent"
+                  android:layout_height="@dimen/list_item_track_height"
                   android:paddingLeft="@dimen/padding_superlarge"
                   android:paddingRight="@dimen/padding_superlarge"
                   android:baselineAligned="false"
