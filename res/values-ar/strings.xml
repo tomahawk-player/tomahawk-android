@@ -34,13 +34,16 @@
   <string name="error_simultaneous_streams">الإجراء غير مسموح به، الحساب مستخدم في مكان ما.</string>
   <string name="error_account_expired">انتهت صلاحيّة حسابك.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">ولجت إلى %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">خرجت من %1$s</string>
   <string name="local_collection_pretty_name">التّجميعة المحليّة</string>
   <string name="local">المحليّ</string>
   <string name="all">الكلّ</string>
   <string name="preferences_services">الخدمات</string>
   <string name="preferences_hatchet_text">زامن بياناتك مع %1$s.</string>
   <string name="preferences_spotify_text">شغّل موسيقاك من %1$s. يتطلّب حسابًا متميّزًا.</string>
+  <string name="preferences_equalizer_text">خصّص خرج الصّوت.</string>
   <string name="preferences_plug_and_play_text">يبدأ تشغيل الموسيقى بمجرّد اتّصال سمّاعة الرأس بلاقط صوت.</string>
   <string name="preferences_audio_quality">جودة الصّوت المحبّذة</string>
   <string name="preferences_audio_quality_text">جودة الصّوت المحبّذة عند عدم الاتّصال بِواي-⁠فاي.</string>
@@ -49,7 +52,7 @@
   <string name="preferences_app_uservoice">التّغذية الاسترجاعيّة</string>
   <string name="preferences_app_uservoice_text">شارك أفكارك أو اسأل عن الدّعم.</string>
   <string name="preferences_app_sendlog">أرسل سجلًّا</string>
-  <string name="preferences_app_sendlog_text">أرسل ملفّ سجلّك لأغراض تنقيح</string>
+  <string name="preferences_app_sendlog_text">أرسل ملفّ السّجلّ لأغراض تنقيحيّة.</string>
   <string name="preferences_app_sendlog_dialog_text">فضلًا صِف بإيجاز المشكلة الّتي تواجهها ووفّر بريدًا إلكترونيًّا لنتّصل بك إن لزم الأمر. شكرًا!</string>
   <string name="preferences_app_sendlog_email">عنوان بريدك الإلكترونيّ</string>
   <string name="preferences_app_sendlog_issue">المشكلة</string>
@@ -57,6 +60,7 @@
   <string name="crash_dialog_text">حدث خطأ غير متوقّع أجبر التّطبيق ليتوقّف. فضلًا ساعدنا لإصلاح هذا بإرسال بينات الخطأ. كلّ ما عليك فعله هو نقر حسنًا.</string>
   <string name="crash_dialog_comment_prompt">يمكنك إضافة تعليقات حول المشكلة أدناه:</string>
   <string name="crash_dialog_ok_toast">شكرًا لك!</string>
+  <string name="context_menu_play">شغّل</string>
   <string name="context_menu_add_to_playlist">أضف إلى قائمة تشغيل</string>
   <string name="context_menu_delete">احذف</string>
   <string name="context_menu_removefromplaylist">أزل من قائمة التّشغيل</string>
@@ -102,6 +106,13 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s لِـ %2$s</string>
+  <string name="time_afewseconds">بضع ثوانٍ مضت</string>
+  <string name="time_aminute">دقيقة مضت</string>
+  <string name="time_anhour">ساعة مضت</string>
+  <string name="time_aday">يوم مضى</string>
+  <string name="users_favorites_suffix">مفضّلة %1$s</string>
+  <string name="users_playlist_suffix">قائمة تشغيل %1$s</string>
   <string name="music">الموسيقى</string>
   <string name="biography">السّيرة الذّاتيّة</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->

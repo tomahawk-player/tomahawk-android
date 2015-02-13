@@ -58,7 +58,6 @@
   <string name="preferences_app_uservoice">Umpan balik</string>
   <string name="preferences_app_uservoice_text">Bagikan idemu atau bertanya mengenai bantuan.</string>
   <string name="preferences_app_sendlog">Kirim catatan</string>
-  <string name="preferences_app_sendlog_text">Kirim berkas catatan anda untuk keperluan debug</string>
   <string name="crash_dialog_title">Tomahawk berhenti beroperasi</string>
   <string name="crash_dialog_text">Terjadi kesalahan tak terduga yang memaksa aplikasi berhenti. Mohon bantu kami menyelesaikan ini dengan mengirimkan data kesalahan, yang harus Anda lakukan hanyalah klik OK.</string>
   <string name="crash_dialog_comment_prompt">Mungkin Anda ingin menambahkan komentar tentang masalah tersebut di bawah:</string>

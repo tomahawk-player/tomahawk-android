@@ -55,7 +55,6 @@
   <string name="preferences_app_uservoice">フィードバック</string>
   <string name="preferences_app_uservoice_text">ご意見を共有、お問い合わせ等。</string>
   <string name="preferences_app_sendlog">ログを送信</string>
-  <string name="preferences_app_sendlog_text">デバッグの為にログファイルを送信する</string>
   <string name="crash_dialog_title">トマホークがクラッシュしました</string>
   <string name="crash_dialog_text">予期しないエラーが発生した為、アプリケーションが終了しました。エラーデーターをトマホークチームに送信して、エラーの修正に協力して下さい。OKをクリックするだけで結構です。</string>
   <string name="crash_dialog_comment_prompt">問題のコメントを以下に入力して下さい</string>

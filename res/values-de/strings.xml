@@ -26,6 +26,7 @@
   <string name="save_playlist">Aktuelle Playlist speichern</string>
   <string name="create_playlist">Playlist erstellen</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Titel</string>
   <string name="login_name_label">E-Mail/Benutzername</string>
   <string name="login_username">Benutzername</string>
   <string name="login_password">Passwort</string>
@@ -39,7 +40,9 @@
   <string name="error_simultaneous_streams">Aktion nicht erlaubt, das Konto ist woanders in Benutzung.</string>
   <string name="error_account_expired">Dein Account ist abgelaufen.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Angemeldet bei %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Abgemeldet von %1$s</string>
   <string name="local_collection_pretty_name">Lokale Sammlung</string>
   <string name="local">Lokal</string>
   <string name="all">Alle</string>
@@ -61,7 +64,7 @@
   <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Teile deine Ideen oder frag nach Hilfe.</string>
   <string name="preferences_app_sendlog">Protokoll senden</string>
-  <string name="preferences_app_sendlog_text">Versende die Protokolldatei zu Debugzwecken</string>
+  <string name="preferences_app_sendlog_text">Versende die Protokolldatei zu Debugzwecken.</string>
   <string name="preferences_app_sendlog_dialog_text">Bitte beschreibe kurz dein Problem und gib eine E-Mail an, damit wird ich gegebenenfalls kontaktieren können. Danke!</string>
   <string name="preferences_app_sendlog_email">Deine E-Mail-Adresse</string>
   <string name="preferences_app_sendlog_issue">Problem</string>
@@ -106,19 +109,33 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Folgen</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">%1$s folgt nun</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
+  <string name="socialaction_type_love_track_single">%1$s hat ein Lied zu den Favoriten hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
+  <string name="socialaction_type_love_track_multiple">%1$s hat %2$d Lieder zu den Favoriten hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
+  <string name="socialaction_type_collected_track_single">%1$s hat ein Lied zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
+  <string name="socialaction_type_collected_track_multiple">%1$s hat %2$d Lieder zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
+  <string name="socialaction_type_collected_album_single">%1$s hat ein Album zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
+  <string name="socialaction_type_collected_album_multiple">%1$s hat %2$d Alben zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">%1$s hat einen Künstler zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">%1$s hat %2$d Künstler zur Sammlung hinzugefügt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">%1$s hat kommentiert</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
+  <string name="socialaction_type_latchon_single">%1$s hat einem Freund zugehört</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
+  <string name="socialaction_type_latchon_multiple">%1$s hat %2$d Freunden zugehört</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
+  <string name="socialaction_type_createplaylist_single">%1$s hat eine Playlist erstellt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
+  <string name="socialaction_type_createplaylist_multiple">%1$s hat %2$d Playlists erstellt</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s von %2$s</string>
   <string name="time_afewseconds">vor ein paar Sekunden</string>
@@ -128,6 +145,9 @@
   <string name="time_minutes">vor %1$d Minuten</string>
   <string name="time_hours">vor %1$d Stunden</string>
   <string name="time_days">vor %1$d Tagen</string>
+  <string name="users_playbacklog_suffix">%1$ss kürzlich gespielte Lieder</string>
+  <string name="users_favorites_suffix">%1$ss Favoriten</string>
+  <string name="users_playlist_suffix">%1$ss Playlist</string>
   <string name="music">Musik</string>
   <string name="biography">Biografie</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->

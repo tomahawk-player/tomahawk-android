@@ -58,7 +58,6 @@
   <string name="preferences_app_uservoice">Geribildirim</string>
   <string name="preferences_app_uservoice_text">Fikirlerinizi paylaşın veya destek isteyin.</string>
   <string name="preferences_app_sendlog">Kayıtları Gönder</string>
-  <string name="preferences_app_sendlog_text">Hata ayıklama işlemi için kayıtlarınızı gönderin</string>
   <string name="crash_dialog_title">Tomahawk çöktü</string>
   <string name="crash_dialog_text">Beklenmedik bir hata uygulamanın kapanmasına neden oldu. Lütfen hata verilerini bize göndererek bunu çözmemize yardımcı olun, tek yapmanız gereken Tamam\'a basmak.</string>
   <string name="crash_dialog_comment_prompt">Aşağıya problemle ilgili yorumlarınızı ekleyebilirsiniz:</string>

@@ -57,7 +57,6 @@
   <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Condividi le tue idee e chiedi supporto.</string>
   <string name="preferences_app_sendlog">Invia Log</string>
-  <string name="preferences_app_sendlog_text">Invia il tuo file di log per scopi di debug</string>
   <string name="crash_dialog_title">Tomahawk si è chiuso inaspettatamente</string>
   <string name="crash_dialog_text">Si è verificato un errore inatteso che ha forzato la chiusura dell\'applicazione. Per favore aiutaci a correggerlo inviandoci i dettagli, tutto ciò che devi fare è cliccare su OK.</string>
   <string name="crash_dialog_comment_prompt">Puoi aggiungere un commento sul problema qui in basso:</string>

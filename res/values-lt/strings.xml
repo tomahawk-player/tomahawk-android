@@ -51,7 +51,6 @@
   <string name="preferences_app_uservoice">Atsiliepimai</string>
   <string name="preferences_app_uservoice_text">Pasidalinkite savo idėjomis arba paprašykite palaikymo.</string>
   <string name="preferences_app_sendlog">Siųsti Žurnalą</string>
-  <string name="preferences_app_sendlog_text">Siųsti savo žurnalą derinimo tikslais</string>
   <string name="preferences_app_sendlog_dialog_text">Prašome trumpai aprašyti problemą, su kuria susiduriate, ir suteikti savo el. pašto adresą, kad, jei būtina, galėtume su jumis susisiekti. Ačiū!</string>
   <string name="preferences_app_sendlog_email">Jūsų el. pašto adresas</string>
   <string name="preferences_app_sendlog_issue">Problema</string>

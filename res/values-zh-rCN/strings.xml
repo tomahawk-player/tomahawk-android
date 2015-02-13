@@ -61,7 +61,6 @@
   <string name="preferences_app_uservoice">反馈</string>
   <string name="preferences_app_uservoice_text">分享您的想法或获取帮助</string>
   <string name="preferences_app_sendlog">发送日志</string>
-  <string name="preferences_app_sendlog_text">发送日志，用于诊断</string>
   <string name="preferences_app_sendlog_dialog_text">请简单描述您遇到的问题并留下您的邮箱，以便我们想更进一步了解问题信息时联系您。</string>
   <string name="preferences_app_sendlog_email">邮箱地址</string>
   <string name="preferences_app_sendlog_issue">问题描述</string>

@@ -39,6 +39,7 @@
   <string name="error_simultaneous_streams">Acción no permitida: la cuenta se está utilizando en otro sitio.</string>
   <string name="error_account_expired">La cuenta ha caducado.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Registrado en %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Colección local</string>
   <string name="local">Local</string>
@@ -61,7 +62,6 @@
   <string name="preferences_app_uservoice">Comentarios</string>
   <string name="preferences_app_uservoice_text">Comparte tus ideas o pide ayuda</string>
   <string name="preferences_app_sendlog">Enviar registros</string>
-  <string name="preferences_app_sendlog_text">Envía tu archivo de registros, con el fin de ayudar a corregir errores</string>
   <string name="preferences_app_sendlog_dialog_text">Describa brevemente el problema que está teniendo y proporcione una dirección de correo electrónico para que podamos contactar con usted si es necesario. Gracias!</string>
   <string name="preferences_app_sendlog_email">Su dirección de correo electrónico</string>
   <string name="preferences_app_sendlog_issue">Problema</string>
