@@ -3,7 +3,7 @@
 	"pluginName": "hatchet-metadata",
 	"author": "Enno Gottschalk",
 	"email": "mrmaffen@googlemail.com",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"website": "http://gettomahawk.com",
 	"description": "Supports loading/drag'n'drop of hatchet.is URLs.",
 	"type": "resolver/javascript",

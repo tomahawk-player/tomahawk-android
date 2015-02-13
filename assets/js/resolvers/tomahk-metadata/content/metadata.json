@@ -3,7 +3,7 @@
 	"pluginName": "tomahk-metadata",
 	"author": "Uwe L. Korn",
 	"email": "uwelk@xhochy.com",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"website": "http://gettomahawk.com",
 	"description": "Supports loading and drag and drop of toma.hk URLs.",
 	"type": "resolver/javascript",
