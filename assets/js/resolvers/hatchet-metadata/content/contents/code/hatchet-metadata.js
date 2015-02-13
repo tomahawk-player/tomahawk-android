@@ -53,9 +53,12 @@ var HatchetMetadataResolver = Tomahawk.extend(TomahawkResolver, {
 
     lookupUrl: function (url) {
         Tomahawk.log("lookupUrl: "+url);
-        var urlParts = url.split('/').filter(function (item) {
-            return item.length != 0;
-        }).map(decodeURIComponent);
+        var urlParts =
+            url.split('/').filter(function (item) {
+                return item.length != 0;
+            }).map(function (s) {
+                return decodeURIComponent(s.replace(/\+/g, '%20'));
+            });
         if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/[^\/\n]+$/.test(url)) {
             Tomahawk.log("Found an album");
             // We have to deal with an Album

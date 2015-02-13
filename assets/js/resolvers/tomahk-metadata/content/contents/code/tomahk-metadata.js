@@ -51,7 +51,12 @@ var TomaHKMetadataResolver = Tomahawk.extend(TomahawkResolver, {
 
     lookupUrl: function (url) {
         var that = this;
-        var urlParts = url.split('/').filter(function (item) { return item.length != 0; }).map(decodeURIComponent);
+        var urlParts =
+            url.split('/').filter(function (item) {
+                return item.length != 0;
+            }).map(function (s) {
+                return decodeURIComponent(s.replace(/\+/g, '%20'));
+            });
         if (/https?:\/\/(www\.)?toma.hk\/album\//.test(url)) {
             // We have to deal with an Album
             Tomahawk.addUrlResult(url, {
