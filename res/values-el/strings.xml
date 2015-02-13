@@ -1,8 +1,45 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ok">OK</string>
+  <string name="cancel">Ακύρωση</string>
+  <string name="login">Είσοδος</string>
+  <string name="logout">Έξοδος</string>
+  <string name="register">Εγγραφή</string>
+  <string name="rescan">Σάρωση τώρα</string>
+  <string name="internal_storage">Εσωτ. αποθηκευτικός χώρος</string>
+  <string name="tracks">Κομμάτια</string>
+  <string name="albums">Άλμπουμ</string>
+  <string name="artists">Καλλιτέχνες</string>
+  <string name="users">Χρήστες</string>
+  <string name="playlist_details">Στοιχεία Λίστας</string>
+  <string name="album_details">Στοιχεία Άλμπουμ</string>
+  <string name="search">Εύρεση</string>
+  <string name="playlist">Λίστα</string>
+  <string name="unknown">άγνωστο</string>
+  <string name="no_track">κανένα κομμάτι</string>
+  <string name="save_playlist">Αποθήκευση τρέχουσας λίστας</string>
+  <string name="create_playlist">Δημιουργία λίστας</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Τίτλος</string>
+  <string name="login_name_label">E-mail/Όνομα χρήστη</string>
+  <string name="login_username">Όνομα χρήστη</string>
+  <string name="login_password">Κωδικός</string>
+  <string name="login_password_confirmation">Επιβεβαίωση κωδικού</string>
+  <string name="account_email_label">E-mail (προαιρετικό)</string>
+  <string name="error_field_required">Αυτό το πεδίο είναι υποχρεωτικό</string>
+  <string name="error_passwords_dont_match">Οι κωδικοί δεν ταιριάζουν</string>
+  <string name="error_invalid_credentials">Όνομα χρήστη ή κωδικός λανθασμένος.</string>
+  <string name="error_invalid_account">Ο λογαριασμός απορρίφθηκε από τον server.</string>
+  <string name="error_communication">Η πιστοποίηση απέτυχε. Παρακαλώ ελέγξτε τη σύνδεσή σας.</string>
+  <string name="error_account_expired">Ο λογαριασμός σας έχει λήξει.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Συνδέθηκε στο %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Αποσυνδέθηκε από το %1$s</string>
+  <string name="local_collection_pretty_name">Τοπική Συλλογή</string>
+  <string name="local">Τοπικό</string>
+  <string name="all">Όλα</string>
+  <string name="preferences_services">Υπηρεσίες</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
