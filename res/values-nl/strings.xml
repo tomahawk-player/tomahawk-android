@@ -61,7 +61,6 @@
   <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Ideeen met ons delen or om ondersteuning vragen.</string>
   <string name="preferences_app_sendlog">Log versturen</string>
-  <string name="preferences_app_sendlog_text">Verstuur uw logbestand voor foutopsporingsdoeleinden</string>
   <string name="preferences_app_sendlog_dialog_text">Omschrijf het probleem dat u ervaart en geef een e-mailadres op zodat we contact op kunnen nemen indien nodig. Bedankt!</string>
   <string name="preferences_app_sendlog_email">Uw e-mailadres</string>
   <string name="preferences_app_sendlog_issue">Probleem</string>

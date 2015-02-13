@@ -62,7 +62,6 @@
   <string name="preferences_app_uservoice">retroalimentación</string>
   <string name="preferences_app_uservoice_text">Comparte tus ideas o pide ayuda.</string>
   <string name="preferences_app_sendlog">Enviar Log</string>
-  <string name="preferences_app_sendlog_text">Enviar tu log  de errores con propósitos de depuración</string>
   <string name="preferences_app_sendlog_dialog_text">Por favor describa brevemente el inconveniente que estás teniendo e indicanos una dirección de correo donde podamos contactarte en caso de ser necesario. Gracias.</string>
   <string name="preferences_app_sendlog_email">Tu dirección de correo </string>
   <string name="preferences_app_sendlog_issue">Problema</string>
