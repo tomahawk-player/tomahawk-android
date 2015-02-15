@@ -50,7 +50,7 @@ import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.dialogs.ConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.SendLogConfigDialog;
-import org.tomahawk.tomahawk_android.fragments.AlbumsFragment;
+import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.CloudCollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
@@ -312,8 +312,10 @@ public class TomahawkMainActivity extends ActionBarActivity
             bundle.putString(TomahawkFragment.ARTIST,
                     Artist.get(event.mResult.name).getCacheKey());
             bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                    ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-            FragmentUtils.replace(TomahawkMainActivity.this, AlbumsFragment.class, bundle);
+                    ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+            bundle.putLong(TomahawkFragment.CONTAINER_FRAGMENT_ID,
+                    TomahawkMainActivity.getSessionUniqueId());
+            FragmentUtils.replace(TomahawkMainActivity.this, ArtistPagerFragment.class, bundle);
         } else if (event.mResult.type.equals(PipeLine.URL_TYPE_ALBUM)) {
             Artist artist = Artist.get(event.mResult.artist);
             bundle.putString(TomahawkFragment.ALBUM,
