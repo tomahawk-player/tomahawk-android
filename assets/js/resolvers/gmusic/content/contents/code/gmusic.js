@@ -648,8 +648,8 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
             }, {
                 method: 'POST',
                 data: "accountType=HOSTED_OR_GOOGLE&Email=" + that._email.trim()
-                    + "&Passwd=" + that._password.trim() + "&service=sj&source=tomahawk-gmusic-"
-                    + that._version,
+                    + "&Passwd=" + encodeURIComponent(that._password.trim()) 
+                    + "&service=sj&source=tomahawk-gmusic-" + that._version,
                 errorHandler: function (request) {
                     Tomahawk.log(name + " login failed:\n"
                         + request.status + " "
