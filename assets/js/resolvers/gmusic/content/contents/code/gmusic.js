@@ -509,31 +509,38 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                 var devices = response.settings.devices;
                 for (var i = 0; i < devices.length; i++) {
                     var entry = devices[ i ];
-                    if ('PHONE' == entry.type) {
+                    if ('PHONE' == entry.type || 'IOS' == entry.type) {
                         device = entry;
                         break;
                     }
                 }
 
                 if (device) {
-                    that._deviceId = device.id.slice( 2 );
-                    Tomahawk.log(that.settings.name + " using device ID '" + that._deviceId
-                        + "' from " + device.carrier + " " + device.manufacturer + " "
-                        + device.model);
-
+                    if ('PHONE' == device.type) {
+                        // We have an Android device id
+                        that._deviceId = device.id.slice( 2 );
+                        Tomahawk.log(that.settings.name + " using Android device ID '"
+                            + that._deviceId + "' from " + device.carrier + " "
+                            + device.manufacturer + " " + device.model);
+                    } else {
+                        // We have an iOS device id
+                        that._deviceId = device.id;
+                        Tomahawk.log(that.settings.name + " using iOS device ID '"
+                            + that._deviceId + "' from " + device.name);
+                    }
                     callback.call( window );
                 } else {
                     if (doConfigTest) {
                         Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other,
-                                "No Android devices associated with Google account."
+                                "No Android/iOS devices associated with Google account."
                                 + " Please open the 'Play Music' App, log in and play a song");
                     }
                     Tomahawk.log( that.settings.name
-                            + ": there aren't any Android devices"
+                            + ": there aren't any Android/iOS devices"
                             + " associated with your Google account."
-                            + " This resolver needs an Android device"
+                            + " This resolver needs an Android/iOS device"
                             + " ID to function. Please open the Google"
-                            + " Music application on an Android device"
+                            + " Music application on an Android/iOS device"
                             + " and log in to your account."
                         );
                 }
