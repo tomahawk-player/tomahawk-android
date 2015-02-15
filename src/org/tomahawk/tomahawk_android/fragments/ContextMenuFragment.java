@@ -246,7 +246,9 @@ public class ContextMenuFragment extends Fragment {
                     Bundle bundle = new Bundle();
                     bundle.putString(TomahawkFragment.ALBUM,
                             mTomahawkListItem.getCacheKey());
-                    bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
+                    if (mCollection != null) {
+                        bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
+                    }
                     bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                     FragmentUtils.replace((TomahawkMainActivity) getActivity(),
