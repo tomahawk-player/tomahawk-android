@@ -84,7 +84,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.TransitionDrawable;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
@@ -1089,18 +1088,12 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     public void showFilledActionBar() {
-        getSupportActionBar().setBackgroundDrawable(
-                new ColorDrawable(getResources().getColor(R.color.primary_background_inverted)));
-        // workaround (details at http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-then-once)
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        findViewById(R.id.action_bar_background_filled).setVisibility(View.VISIBLE);
+        findViewById(R.id.action_bar_background_gradient).setVisibility(View.GONE);
     }
 
     public void showGradientActionBar() {
-        getSupportActionBar().setBackgroundDrawable(
-                getResources().getDrawable(R.drawable.below_shadow));
-        // workaround (details at http://stackoverflow.com/questions/17076958/change-actionbar-color-programmatically-more-then-once)
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayShowTitleEnabled(true);
+        findViewById(R.id.action_bar_background_filled).setVisibility(View.GONE);
+        findViewById(R.id.action_bar_background_gradient).setVisibility(View.VISIBLE);
     }
 }
