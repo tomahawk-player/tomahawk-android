@@ -45,6 +45,8 @@ public class RedirectConfigDialog extends ConfigDialog {
 
     private ScriptResolver mScriptResolver;
 
+    private AuthenticatorUtils mAuthenticatorUtils;
+
     private TextView mRedirectButtonTextView;
 
     private class RedirectButtonListener implements View.OnClickListener {
@@ -57,13 +59,10 @@ public class RedirectConfigDialog extends ConfigDialog {
 
         @Override
         public void onClick(View v) {
-            AuthenticatorUtils authenticatorUtils = AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(mPluginName);
-            boolean rdioLoggedIn = authenticatorUtils.isLoggedIn();
-            if (rdioLoggedIn) {
-                authenticatorUtils.logout(getActivity());
+            if (mAuthenticatorUtils.isLoggedIn()) {
+                mAuthenticatorUtils.logout(getActivity());
             } else {
-                authenticatorUtils.login(getActivity(), null, null);
+                mAuthenticatorUtils.login(getActivity(), null, null);
             }
         }
     }
@@ -74,10 +73,10 @@ public class RedirectConfigDialog extends ConfigDialog {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        if (getArguments() != null && getArguments()
-                .containsKey(TomahawkFragment.PREFERENCEID)) {
-            mScriptResolver = (ScriptResolver) PipeLine.getInstance().getResolver(
-                    getArguments().getString(TomahawkFragment.PREFERENCEID));
+        if (getArguments() != null && getArguments().containsKey(TomahawkFragment.PREFERENCEID)) {
+            String id = getArguments().getString(TomahawkFragment.PREFERENCEID);
+            mScriptResolver = (ScriptResolver) PipeLine.getInstance().getResolver(id);
+            mAuthenticatorUtils = AuthenticatorManager.getInstance().getAuthenticatorUtils(id);
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -88,36 +87,34 @@ public class RedirectConfigDialog extends ConfigDialog {
         addScrollingViewToFrame(headerTextLayout);
 
         int buttonBackgroundResId;
-        int buttonImageResId;
         int buttonTextColor;
         View.OnClickListener onClickListener;
         if (mScriptResolver.getId().equals(TomahawkApp.PLUGINNAME_RDIO)) {
             buttonBackgroundResId = R.drawable.selectable_background_tomahawk;
-            buttonImageResId = R.drawable.logo_rdio;
             buttonTextColor = getResources().getColor(R.color.primary_textcolor);
             onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_RDIO);
+        } else if (mScriptResolver.getId().equals(TomahawkApp.PLUGINNAME_SPOTIFY)) {
+            buttonBackgroundResId = R.drawable.selectable_background_tomahawk;
+            buttonTextColor = getResources().getColor(R.color.primary_textcolor);
+            onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_SPOTIFY);
         } else {
             buttonBackgroundResId = R.drawable.selectable_background_deezer_button;
-            buttonImageResId = R.drawable.logo_deezer;
             buttonTextColor = getResources().getColor(R.color.primary_textcolor_inverted);
             onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_DEEZER);
         }
 
         View buttonLayout = inflater.inflate(R.layout.config_redirect_button, null);
         addScrollingViewToFrame(buttonLayout);
-        AuthenticatorUtils utils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(mScriptResolver.getId());
-        boolean loggedIn = utils.isLoggedIn();
         LinearLayout button = ((LinearLayout) buttonLayout
                 .findViewById(R.id.config_redirect_button));
         button.setBackgroundResource(buttonBackgroundResId);
         ImageView buttonImage = (ImageView) buttonLayout
                 .findViewById(R.id.config_redirect_button_image);
-        buttonImage.setImageResource(buttonImageResId);
+        mScriptResolver.loadIcon(buttonImage, false);
         mRedirectButtonTextView = (TextView) button
                 .findViewById(R.id.config_redirect_button_text);
         mRedirectButtonTextView.setTextColor(buttonTextColor);
-        mRedirectButtonTextView.setText(loggedIn
+        mRedirectButtonTextView.setText(mAuthenticatorUtils.isLoggedIn()
                 ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                 : getString(R.string.resolver_config_redirect_button_text_log_into));
         button.setOnClickListener(onClickListener);
@@ -136,11 +133,8 @@ public class RedirectConfigDialog extends ConfigDialog {
     public void onResume() {
         super.onResume();
 
-        AuthenticatorUtils utils = AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(mScriptResolver.getId());
-        if (utils != null) {
-            boolean loggedIn = utils.isLoggedIn();
-            mRedirectButtonTextView.setText(loggedIn
+        if (mAuthenticatorUtils != null) {
+            mRedirectButtonTextView.setText(mAuthenticatorUtils.isLoggedIn()
                     ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                     : getString(R.string.resolver_config_redirect_button_text_log_into));
         }
@@ -153,7 +147,7 @@ public class RedirectConfigDialog extends ConfigDialog {
 
     @Override
     protected void onConfigTestResult(Object component, int type, String message) {
-        if (mScriptResolver == component) {
+        if (mAuthenticatorUtils == component) {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
                 mRedirectButtonTextView.setText(
                         getString(R.string.resolver_config_redirect_button_text_log_out_of));

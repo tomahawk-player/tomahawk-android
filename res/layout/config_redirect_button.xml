@@ -34,39 +34,35 @@
               android:layout_height="1px"
               android:background="@color/divider"/>
 
-        <LinearLayout android:layout_width="wrap_content"
-                      android:layout_height="wrap_content">
+        <LinearLayout android:id="@+id/config_redirect_button"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:background="@drawable/selectable_background_tomahawk">
 
             <View android:layout_width="1px"
                   android:layout_height="match_parent"
                   android:background="@color/divider"/>
 
-            <LinearLayout
-                    android:id="@+id/config_redirect_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:padding="@dimen/padding_medium"
-                    android:background="@drawable/selectable_background_tomahawk">
+            <LinearLayout android:layout_width="wrap_content"
+                          android:layout_height="@dimen/row_height_medium"
+                          android:layout_gravity="center"
+                          android:layout_margin="@dimen/padding_medium">
 
-                <TextView
-                        android:id="@+id/config_redirect_button_text"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_gravity="center_vertical"
-                        android:paddingRight="@dimen/padding_verysmall"
-                        android:textSize="@dimen/text_size_verylarge"
-                        android:textColor="@color/primary_textcolor"
-                        android:text="@string/resolver_config_redirect_button_text_log_into"/>
+                <TextView android:id="@+id/config_redirect_button_text"
+                          android:layout_width="0dp"
+                          android:layout_height="wrap_content"
+                          android:layout_weight="1"
+                          android:layout_gravity="center_vertical"
+                          android:paddingRight="@dimen/padding_small"
+                          android:textSize="@dimen/text_size_verylarge"
+                          android:textColor="@color/primary_textcolor"
+                          android:text="@string/resolver_config_redirect_button_text_log_into"/>
 
-                <ImageView
-                        android:id="@+id/config_redirect_button_image"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:layout_gravity="center_vertical"
-                        android:src="@drawable/logo_rdio"/>
+                <ImageView android:id="@+id/config_redirect_button_image"
+                           android:layout_width="@dimen/row_height_medium"
+                           android:layout_height="@dimen/row_height_medium"
+                           android:layout_gravity="center_vertical"
+                           android:src="@drawable/ic_spotify"/>
 
             </LinearLayout>
 

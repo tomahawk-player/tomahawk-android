@@ -890,4 +890,8 @@ public class ScriptResolver extends Resolver {
         EventBus.getDefault().post(event);
         AuthenticatorManager.showToast(getPrettyName(), event);
     }
+
+    public void setAccessToken(String accessToken) {
+        loadUrl("javascript: Tomahawk.resolver.instance.setAccessToken('" + accessToken + "')");
+    }
 }

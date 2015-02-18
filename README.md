@@ -22,12 +22,6 @@ First of all you have to properly setup your Android SDK/NDK:
         - "/Tools"
         - the newest Android SDK Platform folder (e.g. "/Android 4.4 (API 19)")
         - "/Extras/Android Support Repository" and "/Extras/Android Support Library"
-- Download and install the Android NDK http://developer.android.com/tools/sdk/ndk/index.html
-    - Make sure you setup your environment variables correctly:
-        - $ANDROID_HOME should point to your Android SDK root
-          (e.g. /home/maffen/android-sdk/)
-        - $ANDROID_NDK_HOME should point to your Android NDK root
-          (e.g. /home/maffen/android-ndk-r8e/)
 
 Build it on the commandline with gradle:
 
@@ -48,12 +42,6 @@ Setup using other IDEs without gradle:
 - tomahawk-android depends on the several 3rd party libraries. You can look up a list of those in ./build.gradle under dependencies{...}
 - Make sure you setup the support libraries correctly (http://developer.android.com/tools/support-library/setup.html)
 - Add all dependencies to your tomahawk-android project
-- Since libspotify is only available as a c-library, we have to use the NDK
-  in order to connect the native c/c++ stuff with our Java/Android code:
-    - Run the ndk-build script inside the tomahawk-android project folder before every new build
-      The desired outcome shows these two lines in its console output:
-      - Install        : libspotify.so => libs/armeabi/libspotify.so
-      - Install        : libspotifywrapper.so => libs/armeabi/libspotifywrapper.so
 - tomahawk-android should now compile successfully.
 
 If you have any further problems, feel free to join the #tomahawk.mobile irc channel on irc.freenode.org

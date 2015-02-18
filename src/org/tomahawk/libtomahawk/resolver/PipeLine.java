@@ -25,7 +25,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -128,8 +127,6 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
         }
         mResolvers.add(new DataBaseResolver(
                 TomahawkApp.getContext().getString(R.string.local_collection_pretty_name), this));
-        SpotifyResolver spotifyResolver = new SpotifyResolver(this);
-        mResolvers.add(spotifyResolver);
         setAllResolversAdded(true);
     }
 

@@ -490,6 +490,14 @@
 
         <activity android:name=".activities.AskAccessActivity"/>
 
+        <activity android:name=".services.SpotifyActivity"
+                  android:process=":SpotifyService"
+                  android:theme="@android:style/Theme.NoDisplay"/>
+
+        <activity android:name="com.spotify.sdk.android.authentication.LoginActivity"
+                  android:theme="@android:style/Theme.Translucent.NoTitleBar"
+                  android:process=":SpotifyService"/>
+
         <service
                 android:name=".services.PlaybackService"
                 android:stopWithTask="true"

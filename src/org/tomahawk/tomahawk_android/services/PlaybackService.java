@@ -34,8 +34,6 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyResolver;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -361,20 +359,13 @@ public class PlaybackService extends Service
 
         @Override
         public void setToSpotifyMessenger(Messenger messenger) {
-            SpotifyResolver spotifyResolver = (SpotifyResolver) PipeLine.getInstance()
-                    .getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
-            spotifyResolver.setToSpotifyMessenger(messenger);
             SpotifyAuthenticatorUtils authUtils = (SpotifyAuthenticatorUtils)
                     AuthenticatorManager.getInstance()
                             .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_SPOTIFY);
             authUtils.setToSpotifyMessenger(messenger);
             SpotifyMediaPlayer spotifyMediaPlayer = SpotifyMediaPlayer.getInstance();
             spotifyMediaPlayer.setToSpotifyMessenger(messenger);
-            //Now that every client has its messenger reference and registered itself to the
-            //SpotifyService's messenger, we can initialize libspotify through the wrapper
-            if (messenger != null) {
-                SpotifyServiceUtils.sendMsg(messenger, SpotifyService.MSG_INIT);
-            }
+
             mIsBindingToSpotifyService = false;
         }
     }
