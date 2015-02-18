@@ -77,17 +77,11 @@
 
     </LinearLayout>
 
-    <View android:id="@+id/action_bar_background_filled"
-          android:layout_width="match_parent"
-          android:layout_height="@dimen/abc_action_bar_default_height_material"
-          android:background="@color/primary_background_inverted"
-          android:visibility="gone"/>
-
-    <View android:id="@+id/action_bar_background_gradient"
+    <View android:id="@+id/action_bar_background"
           android:layout_width="match_parent"
           android:layout_height="@dimen/abc_action_bar_default_height_material"
           android:background="@drawable/below_shadow"
-          android:visibility="gone"/>
+          android:visibility="visible"/>
 
     <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
             xmlns:app="http://schemas.android.com/apk/res-auto"

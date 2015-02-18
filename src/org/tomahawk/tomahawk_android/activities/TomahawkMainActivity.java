@@ -19,6 +19,8 @@
 package org.tomahawk.tomahawk_android.activities;
 
 import com.nineoldandroids.animation.Animator;
+import com.nineoldandroids.animation.ObjectAnimator;
+import com.nineoldandroids.animation.ValueAnimator;
 import com.rdio.android.api.OAuth1WebViewActivity;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.uservoice.uservoicesdk.Config;
@@ -69,6 +71,7 @@ import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceCon
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 import org.tomahawk.tomahawk_android.services.RemoteControllerService;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
+import org.tomahawk.tomahawk_android.utils.CubicInterpolator;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
@@ -82,6 +85,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.graphics.drawable.TransitionDrawable;
@@ -201,6 +205,8 @@ public class TomahawkMainActivity extends ActionBarActivity
             mShouldShowAnimationHandler.postDelayed(mShouldShowAnimationRunnable, 500);
         }
     };
+
+    private ValueAnimator mActionBarBgAnimation;
 
     /**
      * Handles incoming broadcasts.
@@ -459,6 +465,15 @@ public class TomahawkMainActivity extends ActionBarActivity
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
+        // set up custom ActionBar background animation
+        Resources resources = TomahawkApp.getContext().getResources();
+        int actionBarHeight = resources.getDimensionPixelSize(
+                R.dimen.abc_action_bar_default_height_material);
+        mActionBarBgAnimation = ObjectAnimator
+                .ofFloat(findViewById(R.id.action_bar_background), "y", 0, -actionBarHeight)
+                .setDuration(250);
+        mActionBarBgAnimation.setInterpolator(new CubicInterpolator());
+
         // Set default preferences
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
         if (!preferences.contains(
@@ -644,6 +659,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                         .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
                 if (actionBarHidden) {
                     getSupportActionBar().hide();
+                    if (mActionBarBgAnimation.getAnimatedFraction() == 0) {
+                        mActionBarBgAnimation.start();
+                    }
                 }
             }
         }
@@ -967,10 +985,20 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onPanelSlide(View view, float v) {
-        if (v > 0.5f && getSupportActionBar().isShowing()) {
-            getSupportActionBar().hide();
-        } else if (v < 0.5f && !getSupportActionBar().isShowing()) {
-            getSupportActionBar().show();
+        if (v > 0.5f) {
+            if (getSupportActionBar().isShowing()) {
+                getSupportActionBar().hide();
+            }
+            if (mActionBarBgAnimation.getAnimatedFraction() == 0) {
+                mActionBarBgAnimation.start();
+            }
+        } else if (v < 0.5f) {
+            if (!getSupportActionBar().isShowing()) {
+                getSupportActionBar().show();
+            }
+            if (mActionBarBgAnimation.getAnimatedFraction() == 1) {
+                mActionBarBgAnimation.reverse();
+            }
         }
         final View topPanel = mSlidingUpPanelLayout.findViewById(R.id.top_buttonpanel);
         if (v > 0.15f) {
@@ -1032,7 +1060,12 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onPanelCollapsed(View view) {
-        getSupportActionBar().show();
+        if (!getSupportActionBar().isShowing()) {
+            getSupportActionBar().show();
+        }
+        if (mActionBarBgAnimation.getAnimatedFraction() == 1) {
+            mActionBarBgAnimation.reverse();
+        }
         sendSlidingLayoutChangedEvent();
     }
 
@@ -1090,12 +1123,11 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     public void showFilledActionBar() {
-        findViewById(R.id.action_bar_background_filled).setVisibility(View.VISIBLE);
-        findViewById(R.id.action_bar_background_gradient).setVisibility(View.GONE);
+        findViewById(R.id.action_bar_background).setBackgroundResource(
+                R.color.primary_background_inverted);
     }
 
     public void showGradientActionBar() {
-        findViewById(R.id.action_bar_background_filled).setVisibility(View.GONE);
-        findViewById(R.id.action_bar_background_gradient).setVisibility(View.VISIBLE);
+        findViewById(R.id.action_bar_background).setBackgroundResource(R.drawable.below_shadow);
     }
 }
