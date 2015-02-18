@@ -1,20 +1,21 @@
 {
-    "name": "Spotify Metadata",
-    "pluginName": "spotify-metadata",
+    "name": "Spotify",
+    "pluginName": "spotify",
     "author": "Uwe L. Korn",
     "email": "uwelk@xhochy.com",
-    "version": "0.1.2",
+    "version": "0.1.0",
     "website": "http://gettomahawk.com",
-    "description": "Supports drag and drop of Spotify artist and track URLs (no Spotify account required)",
+    "description": "Stream music from Spotify.",
     "type": "resolver/javascript",
     "manifest": {
-        "main": "contents/code/spotify-metadata.js",
-        "scripts": [],
+        "main": "contents/code/spotify.js",
         "icon": "contents/images/icon.png",
         "iconWhite": "contents/images/iconWhite.png",
         "iconBackground": "contents/images/iconBackground.png",
+        "scripts": [],
         "resources": [
-            "contents/code/spotify-metadata.png"
+            "contents/code/config.ui",
+            "contents/code/spotify.png"
         ]
     }
 }

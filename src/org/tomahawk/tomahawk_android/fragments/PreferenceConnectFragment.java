@@ -88,7 +88,6 @@ public class PreferenceConnectFragment extends TomahawkListFragment
         List resolvers = new ArrayList();
         resolvers.add(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION));
         resolvers.add(new HatchetStubResolver(HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME, null));
-        resolvers.add(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY));
         for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {
             if (!scriptResolver.getId().contains("-metadata")) {
                 resolvers.add(scriptResolver);
@@ -118,13 +117,13 @@ public class PreferenceConnectFragment extends TomahawkListFragment
             switch (id) {
                 case TomahawkApp.PLUGINNAME_RDIO:
                 case TomahawkApp.PLUGINNAME_DEEZER:
+                case TomahawkApp.PLUGINNAME_SPOTIFY:
                     dialog = new RedirectConfigDialog();
                     break;
                 case TomahawkApp.PLUGINNAME_USERCOLLECTION:
                     dialog = new DirectoryChooserConfigDialog();
                     break;
                 case TomahawkApp.PLUGINNAME_HATCHET:
-                case TomahawkApp.PLUGINNAME_SPOTIFY:
                     dialog = new LoginConfigDialog();
                     break;
                 default:

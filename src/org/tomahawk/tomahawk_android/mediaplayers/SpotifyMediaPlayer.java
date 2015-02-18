@@ -18,7 +18,7 @@
 package org.tomahawk.tomahawk_android.mediaplayers;
 
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.spotify.SpotifyServiceUtils;
+import org.tomahawk.libtomahawk.authentication.SpotifyServiceUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
@@ -59,8 +59,6 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
 
     private int mSpotifyCurrentPosition = 0;
 
-    private boolean mSpotifyIsInitialized;
-
     private Messenger mToSpotifyMessenger = null;
 
     private Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
@@ -80,9 +78,6 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
-                case SpotifyService.MSG_ONINIT:
-                    mSpotifyIsInitialized = true;
-                    break;
                 case SpotifyService.MSG_ONPREPARED:
                     onPrepared(null);
                     break;
@@ -119,9 +114,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         Log.d(TAG, "start()");
         mIsPlaying = true;
         if (mToSpotifyMessenger != null) {
-            if (mSpotifyIsInitialized) {
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PLAY);
-            }
+            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PLAY);
         } else {
             TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
@@ -136,9 +129,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         Log.d(TAG, "pause()");
         mIsPlaying = false;
         if (mToSpotifyMessenger != null) {
-            if (mSpotifyIsInitialized) {
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
-            }
+            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
         } else {
             TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
@@ -152,18 +143,16 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
     public void seekTo(int msec) {
         Log.d(TAG, "seekTo()");
         if (mToSpotifyMessenger != null) {
-            if (mSpotifyIsInitialized) {
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SEEK, msec);
-                mSpotifyCurrentPosition = msec;
-                mOverrideCurrentPosition = true;
-                // After 1 second, we set mOverrideCurrentPosition to false again
-                new Handler() {
-                    @Override
-                    public void handleMessage(Message msg) {
-                        mOverrideCurrentPosition = false;
-                    }
-                }.sendEmptyMessageDelayed(1337, 1000);
-            }
+            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SEEK, msec);
+            mSpotifyCurrentPosition = msec;
+            mOverrideCurrentPosition = true;
+            // After 1 second, we set mOverrideCurrentPosition to false again
+            new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    mOverrideCurrentPosition = false;
+                }
+            }.sendEmptyMessageDelayed(1337, 1000);
         } else {
             TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
@@ -185,10 +174,9 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         mPreparedQuery = null;
         mPreparingQuery = query;
         if (mToSpotifyMessenger != null) {
-            if (mSpotifyIsInitialized) {
-                SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PREPARE,
-                        query.getPreferredTrackResult().getPath());
-            }
+            String[] pathParts = query.getPreferredTrackResult().getPath().split("/");
+            String uri = "spotify:track:" + pathParts[pathParts.length - 1];
+            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PREPARE, uri);
         } else {
             TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
