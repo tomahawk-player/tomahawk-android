@@ -127,8 +127,12 @@ public class PlaybackFragment extends TomahawkFragment {
         switch (event.mSlideState) {
             case COLLAPSED:
             case EXPANDED:
-                mAlbumArtSwipeAdapter.notifyDataSetChanged();
-                getListView().smoothScrollToPosition(0);
+                if (mAlbumArtSwipeAdapter != null) {
+                    mAlbumArtSwipeAdapter.notifyDataSetChanged();
+                }
+                if (getListView() != null) {
+                    getListView().smoothScrollToPosition(0);
+                }
                 break;
         }
     }
