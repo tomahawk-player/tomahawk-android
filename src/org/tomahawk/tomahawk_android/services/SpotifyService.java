@@ -26,6 +26,8 @@ import com.spotify.sdk.android.playback.PlayerNotificationCallback;
 import com.spotify.sdk.android.playback.PlayerState;
 import com.spotify.sdk.android.playback.PlayerStateCallback;
 
+import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
+
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
@@ -33,7 +35,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -91,10 +92,6 @@ public class SpotifyService extends Service implements
 
     public static final int MSG_ONPLAYERPOSITIONCHANGED = 105;
 
-    private ArrayList<Messenger> mFromSpotifyMessengers = new ArrayList<Messenger>();
-
-    private final Messenger mToSpotifyMessenger = new Messenger(new ToSpotifyHandler());
-
     private WifiManager.WifiLock mWifiLock;
 
     private Player mPlayer;
@@ -103,58 +100,86 @@ public class SpotifyService extends Service implements
 
     private String mPreparedUri;
 
-    private Handler mReportPositionHandler = new Handler() {
+    private ReportPositionHandler mReportPositionHandler = new ReportPositionHandler(this);
+
+    private static class ReportPositionHandler extends WeakReferenceHandler<SpotifyService> {
+
+        public ReportPositionHandler(SpotifyService spotifyService) {
+            super(spotifyService);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            if (msg.what == MSG_UPDATE_PROGRESS) {
-                mPlayer.getPlayerState(new PlayerStateCallback() {
-                    @Override
-                    public void onPlayerState(PlayerState playerState) {
-                        sendMsg(MSG_ONPLAYERPOSITIONCHANGED, playerState.positionInMs);
-                        sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, MSG_UPDATE_PROGRESS_INTERVAL);
-                    }
-                });
+            SpotifyService service = getReferencedObject();
+            if (service != null) {
+                switch (msg.what) {
+                    case MSG_UPDATE_PROGRESS:
+                        service.mPlayer.getPlayerState(new PlayerStateCallback() {
+                            @Override
+                            public void onPlayerState(PlayerState playerState) {
+                                SpotifyService service = getReferencedObject();
+                                if (service != null) {
+                                    service.sendMsg(MSG_ONPLAYERPOSITIONCHANGED,
+                                            playerState.positionInMs);
+                                }
+                                sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS,
+                                        MSG_UPDATE_PROGRESS_INTERVAL);
+                            }
+                        });
+                        break;
+                }
             }
         }
-    };
+    }
 
     /**
      * Handler of incoming messages from clients.
      */
-    private class ToSpotifyHandler extends Handler {
+    private ToSpotifyHandler mToSpotifyHandler = new ToSpotifyHandler(this);
+
+    private static class ToSpotifyHandler extends WeakReferenceHandler<SpotifyService> {
+
+        public ToSpotifyHandler(SpotifyService spotifyService) {
+            super(spotifyService);
+        }
 
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_REGISTERCLIENT:
-                    mFromSpotifyMessengers.add(msg.replyTo);
-                    break;
-                case MSG_LOGIN:
-                    login();
-                    break;
-                case MSG_LOGOUT:
-                    logout();
-                    break;
-                case MSG_PREPARE:
-                    prepare(msg.getData().getString(SpotifyService.STRING_KEY));
-                    break;
-                case MSG_PLAY:
-                    play();
-                    break;
-                case MSG_PAUSE:
-                    pause();
-                    break;
-                case MSG_SEEK:
-                    seek(msg.arg1);
-                    break;
-                case MSG_SETBITRATE:
-                    setBitrate(msg.arg1);
-                    break;
-                default:
-                    super.handleMessage(msg);
+            SpotifyService service = getReferencedObject();
+            if (service != null) {
+                switch (msg.what) {
+                    case MSG_REGISTERCLIENT:
+                        service.mFromSpotifyMessengers.add(msg.replyTo);
+                        break;
+                    case MSG_LOGIN:
+                        service.login();
+                        break;
+                    case MSG_LOGOUT:
+                        service.logout();
+                        break;
+                    case MSG_PREPARE:
+                        service.prepare(msg.getData().getString(SpotifyService.STRING_KEY));
+                        break;
+                    case MSG_PLAY:
+                        service.play();
+                        break;
+                    case MSG_PAUSE:
+                        service.pause();
+                        break;
+                    case MSG_SEEK:
+                        service.seek(msg.arg1);
+                        break;
+                    case MSG_SETBITRATE:
+                        service.setBitrate(msg.arg1);
+                        break;
+                }
             }
         }
     }
+
+    private ArrayList<Messenger> mFromSpotifyMessengers = new ArrayList<>();
+
+    private final Messenger mToSpotifyMessenger = new Messenger(mToSpotifyHandler);
 
     public static class SpotifyServiceConnection implements ServiceConnection {
 

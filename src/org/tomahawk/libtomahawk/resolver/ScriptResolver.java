@@ -46,6 +46,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
+import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -141,13 +142,22 @@ public class ScriptResolver extends Resolver {
 
     // Handler which sets the mStopped bool to true after the timeout has occured.
     // Meaning this resolver is no longer being shown as resolving.
-    private final Handler mTimeOutHandler = new Handler(Looper.getMainLooper()) {
+    private TimeOutHandler mTimeOutHandler = new TimeOutHandler(this);
+
+    private static class TimeOutHandler extends WeakReferenceHandler<ScriptResolver> {
+
+        public TimeOutHandler(ScriptResolver scriptResolver) {
+            super(Looper.getMainLooper(), scriptResolver);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            removeMessages(msg.what);
-            mStopped = true;
+            if (getReferencedObject() != null) {
+                removeMessages(msg.what);
+                getReferencedObject().mStopped = true;
+            }
         }
-    };
+    }
 
     /**
      * Construct a new {@link ScriptResolver}

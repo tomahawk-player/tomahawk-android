@@ -41,9 +41,9 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.content.res.Resources;
-import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -93,21 +93,31 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private SwipeItemAdapterMangerImpl mItemManager = new SwipeItemAdapterMangerImpl(this);
 
-    private Handler mProgressHandler = new Handler(new Handler.Callback() {
+    private ProgressHandler mProgressHandler = new ProgressHandler(this);
+
+    private static class ProgressHandler extends WeakReferenceHandler<TomahawkListAdapter> {
+
+        public ProgressHandler(TomahawkListAdapter referencedObject) {
+            super(referencedObject);
+        }
+
         @Override
-        public boolean handleMessage(Message msg) {
-            if (mProgressBar != null) {
-                float pos = mActivity.getPlaybackService().getPosition();
-                float duration = mActivity.getPlaybackService().getCurrentTrack().getDuration();
-                mProgressBar.setProgress((int) (pos / duration * mProgressBar.getMax()));
-                mProgressHandler.sendEmptyMessageDelayed(0, 500);
-                return false;
-            } else {
-                mProgressHandler.removeCallbacksAndMessages(null);
-                return true;
+        public void handleMessage(Message msg) {
+            TomahawkListAdapter adapter = getReferencedObject();
+            if (adapter != null) {
+                if (adapter.mProgressBar != null) {
+                    float pos = adapter.mActivity.getPlaybackService().getPosition();
+                    float duration =
+                            adapter.mActivity.getPlaybackService().getCurrentTrack().getDuration();
+                    adapter.mProgressBar
+                            .setProgress((int) (pos / duration * adapter.mProgressBar.getMax()));
+                    sendEmptyMessageDelayed(0, 500);
+                } else {
+                    removeCallbacksAndMessages(null);
+                }
             }
         }
-    });
+    }
 
     /**
      * Constructs a new {@link TomahawkListAdapter}.
