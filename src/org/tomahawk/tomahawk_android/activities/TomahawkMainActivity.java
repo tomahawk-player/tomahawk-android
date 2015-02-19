@@ -152,6 +152,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     }
 
+    private float mSlidingOffset = -1f;
+
     private static long mSessionIdCounter = 0;
 
     protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
@@ -983,8 +985,13 @@ public class TomahawkMainActivity extends ActionBarActivity
         return String.valueOf(System.currentTimeMillis()) + getSessionUniqueStringId();
     }
 
+    public float getSlidingOffset() {
+        return mSlidingOffset;
+    }
+
     @Override
     public void onPanelSlide(View view, float v) {
+        mSlidingOffset = v;
         if (v > 0.5f) {
             if (getSupportActionBar().isShowing()) {
                 getSupportActionBar().hide();
