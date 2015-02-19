@@ -587,8 +587,7 @@ public class PlaybackFragment extends TomahawkFragment {
     public void animate(int position) {
         super.animate(position);
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        if (activity.getSlidingUpPanelLayout().getPanelState()
-                != SlidingUpPanelLayout.PanelState.COLLAPSED) {
+        if (activity.getSlidingOffset() > 0f) {
             activity.getPlaybackPanel().animate(position + 10000);
         }
     }
