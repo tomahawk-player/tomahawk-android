@@ -51,6 +51,7 @@ import org.tomahawk.tomahawk_android.utils.RemoteControlClientCompat;
 import org.tomahawk.tomahawk_android.utils.RemoteControlHelper;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
+import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 import org.videolan.libvlc.EventHandler;
 
 import android.annotation.TargetApi;
@@ -396,20 +397,30 @@ public class PlaybackService extends Service
     }
 
     // Stops this service if it doesn't have any bound services
-    private Handler mKillTimerHandler = new Handler() {
+    private KillTimerHandler mKillTimerHandler = new KillTimerHandler(this);
+
+    private static class KillTimerHandler extends WeakReferenceHandler<PlaybackService> {
+
+        public KillTimerHandler(PlaybackService referencedObject) {
+            super(referencedObject);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            if (isPlaying()) {
-                mKillTimerHandler.removeCallbacksAndMessages(null);
-                Message msgx = mKillTimerHandler.obtainMessage();
-                mKillTimerHandler.sendMessageDelayed(msgx, DELAY_TO_KILL);
-                Log.d(TAG, "Killtimer checked if I should die, but I survived *cheer*");
-            } else {
-                Log.d(TAG, "Killtimer called stopSelf() on me");
-                stopSelf();
+            PlaybackService service = getReferencedObject();
+            if (service != null) {
+                if (service.isPlaying()) {
+                    removeCallbacksAndMessages(null);
+                    Message msgx = obtainMessage();
+                    sendMessageDelayed(msgx, DELAY_TO_KILL);
+                    Log.d(TAG, "Killtimer checked if I should die, but I survived *cheer*");
+                } else {
+                    Log.d(TAG, "Killtimer called stopSelf() on me");
+                    service.stopSelf();
+                }
             }
         }
-    };
+    }
 
     @SuppressWarnings("unused")
     public void onEventMainThread(PipeLine.ResultsEvent event) {

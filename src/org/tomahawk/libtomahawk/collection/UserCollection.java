@@ -27,12 +27,12 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.MediaWithDate;
+import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 
 import android.content.SharedPreferences;
 import android.os.Environment;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -44,7 +44,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -537,31 +536,26 @@ public class UserCollection extends Collection {
                 if (mRestart) {
                     Log.d(TAG, "Restarting scan");
                     mRestart = false;
-                    restartHandler.sendEmptyMessageDelayed(1, 200);
+                    mRestartHandler.sendEmptyMessageDelayed(1, 200);
                 }
                 EventBus.getDefault().post(new CollectionManager.UpdatedEvent());
             }
         }
     }
 
-    private Handler restartHandler = new RestartHandler(this);
+    private RestartHandler mRestartHandler = new RestartHandler(this);
 
-    private static class RestartHandler extends Handler {
+    private static class RestartHandler extends WeakReferenceHandler<UserCollection> {
 
-        private WeakReference<UserCollection> mOwner;
-
-        public RestartHandler(UserCollection owner) {
-            super(Looper.getMainLooper());
-
-            mOwner = new WeakReference<>(owner);
+        public RestartHandler(UserCollection userCollection) {
+            super(Looper.getMainLooper(), userCollection);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            if (mOwner == null) {
-                return;
+            if (getReferencedObject() != null) {
+                getReferencedObject().loadMediaItems();
             }
-            mOwner.get().loadMediaItems();
         }
     }
 

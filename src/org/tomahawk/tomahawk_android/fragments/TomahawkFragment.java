@@ -41,6 +41,7 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.os.Handler;
 import android.os.Message;
@@ -167,22 +168,42 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected int mShowMode;
 
-    protected final Handler mResolveQueriesHandler = new Handler() {
+    protected final Handler mResolveQueriesHandler = new ResolveQueriesHandler(this);
+
+    private static class ResolveQueriesHandler extends WeakReferenceHandler<TomahawkFragment> {
+
+        public ResolveQueriesHandler(TomahawkFragment referencedObject) {
+            super(referencedObject);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            removeMessages(msg.what);
-            resolveVisibleItems();
+            TomahawkFragment fragment = getReferencedObject();
+            if (fragment != null) {
+                removeMessages(msg.what);
+                fragment.resolveVisibleItems();
+            }
         }
-    };
+    }
 
     // Handler which reports the PipeLine's and InfoSystem's results in intervals
-    protected final Handler mAdapterUpdateHandler = new Handler() {
+    protected final Handler mAdapterUpdateHandler = new AdapterUpdateHandler(this);
+
+    private static class AdapterUpdateHandler extends WeakReferenceHandler<TomahawkFragment> {
+
+        public AdapterUpdateHandler(TomahawkFragment referencedObject) {
+            super(referencedObject);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            removeMessages(msg.what);
-            updateAdapter();
+            TomahawkFragment fragment = getReferencedObject();
+            if (fragment != null) {
+                removeMessages(msg.what);
+                fragment.updateAdapter();
+            }
         }
-    };
+    }
 
     @SuppressWarnings("unused")
     public void onEvent(PipeLine.ResultsEvent event) {
