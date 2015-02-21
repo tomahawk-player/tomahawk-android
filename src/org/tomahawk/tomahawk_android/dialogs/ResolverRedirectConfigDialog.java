@@ -53,6 +53,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         @Override
         public void onClick(View v) {
             if (mPluginName.equals(TomahawkApp.PLUGINNAME_SPOTIFY)) {
+                startLoadingAnimation();
                 if (mScriptResolver.isEnabled()) {
                     mScriptResolver.logout();
                 } else {
@@ -133,11 +134,12 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
                 mRedirectButtonTextView.setText(
                         getString(R.string.resolver_config_redirect_button_text_log_out_of));
-            } else if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT) {
+            } else {
                 mRedirectButtonTextView.setText(
                         getString(R.string.resolver_config_redirect_button_text_log_into));
             }
         }
+        stopLoadingAnimation();
     }
 
     @Override
