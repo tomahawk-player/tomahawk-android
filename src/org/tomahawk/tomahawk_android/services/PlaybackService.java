@@ -24,7 +24,6 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -360,10 +359,6 @@ public class PlaybackService extends Service
 
         @Override
         public void setToSpotifyMessenger(Messenger messenger) {
-            SpotifyAuthenticatorUtils authUtils = (SpotifyAuthenticatorUtils)
-                    AuthenticatorManager.getInstance()
-                            .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_SPOTIFY);
-            authUtils.setToSpotifyMessenger(messenger);
             SpotifyMediaPlayer spotifyMediaPlayer = SpotifyMediaPlayer.getInstance();
             spotifyMediaPlayer.setToSpotifyMessenger(messenger);
 

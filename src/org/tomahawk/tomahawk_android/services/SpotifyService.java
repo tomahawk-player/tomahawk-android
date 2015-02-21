@@ -49,10 +49,14 @@ public class SpotifyService extends Service implements
     // Used for debug logging
     private static final String TAG = SpotifyService.class.getSimpleName();
 
+    public static final String CLIENT_ID = "d3e9c989687c496ab2f92c9e84f779dc";
+
     public static final String REQUEST_SPOTIFYSERVICE
             = "org.tomahawk.tomahawk_android.request_spotifyservice";
 
     public static final String STRING_KEY = "org.tomahawk.tomahawk_android.string_key";
+
+    public static final String STRING_KEY2 = "org.tomahawk.tomahawk_android.string_key2";
 
     private static final int MSG_UPDATE_PROGRESS = 0x1;
 
@@ -62,10 +66,6 @@ public class SpotifyService extends Service implements
      * Message ids for messages _to_ libspotify
      */
     public static final int MSG_REGISTERCLIENT = 0;
-
-    public static final int MSG_LOGIN = 1;
-
-    public static final int MSG_LOGOUT = 2;
 
     public static final int MSG_PREPARE = 3;
 
@@ -81,12 +81,6 @@ public class SpotifyService extends Service implements
      * Message ids for messages _from_ libspotify
      */
     public static final int MSG_ONPREPARED = 100;
-
-    public static final int MSG_ONLOGIN = 101;
-
-    public static final int MSG_ONLOGINFAILED = 102;
-
-    public static final int MSG_ONLOGOUT = 103;
 
     public static final int MSG_ONPLAYERENDOFTRACK = 104;
 
@@ -145,19 +139,18 @@ public class SpotifyService extends Service implements
 
         @Override
         public void handleMessage(Message msg) {
-            SpotifyService service = getReferencedObject();
+            final SpotifyService service = getReferencedObject();
             if (service != null) {
                 switch (msg.what) {
                     case MSG_REGISTERCLIENT:
                         service.mFromSpotifyMessengers.add(msg.replyTo);
                         break;
-                    case MSG_LOGIN:
-                        service.login();
-                        break;
-                    case MSG_LOGOUT:
-                        service.logout();
-                        break;
                     case MSG_PREPARE:
+                        String newToken = msg.getData().getString(STRING_KEY2);
+                        if (newToken != null && !newToken.equals(service.mAccessToken)) {
+                            service.mAccessToken = newToken;
+                            service.initializePlayer();
+                        }
                         service.prepare(msg.getData().getString(SpotifyService.STRING_KEY));
                         break;
                     case MSG_PLAY:
@@ -216,28 +209,6 @@ public class SpotifyService extends Service implements
     }
 
     @Override
-    public int onStartCommand(Intent i, int j, int k) {
-        if (i != null && i.hasExtra(SpotifyActivity.ACCESS_TOKEN)) {
-            mAccessToken = i.getStringExtra(SpotifyActivity.ACCESS_TOKEN);
-            Config playerConfig = new Config(this, mAccessToken, SpotifyActivity.CLIENT_ID);
-            mPlayer = Spotify.getPlayer(playerConfig, this, new Player.InitializationObserver() {
-                @Override
-                public void onInitialized(Player player) {
-                    mPlayer.addConnectionStateCallback(SpotifyService.this);
-                    mPlayer.addPlayerNotificationCallback(SpotifyService.this);
-                }
-
-                @Override
-                public void onError(Throwable throwable) {
-                    Log.e(TAG, "Could not initialize player: " + throwable.getMessage());
-                }
-            });
-        }
-
-        return START_STICKY;
-    }
-
-    @Override
     public void onDestroy() {
         Spotify.destroyPlayer(this);
         mWifiLock.release();
@@ -293,23 +264,22 @@ public class SpotifyService extends Service implements
         }
     }
 
-    /**
-     * Use loginUser(...) instead, if you want a proper callback. Login Spotify account. Does only
-     * need blob OR password. Not both
-     */
-    private void login() {
-        Intent intent = new Intent(this, SpotifyActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-    }
+    private void initializePlayer(){
+        Config playerConfig = new Config(this, mAccessToken, CLIENT_ID);
+        mPlayer = Spotify.getPlayer(playerConfig, this,
+                new Player.InitializationObserver() {
+                    @Override
+                    public void onInitialized(Player player) {
+                        mPlayer.addConnectionStateCallback(SpotifyService.this);
+                        mPlayer.addPlayerNotificationCallback(SpotifyService.this);
+                    }
 
-    /**
-     * Use logoutUser(...) instead, if you want a proper callback. Logout Spotify account
-     */
-    private void logout() {
-        mPlayer.logout();
-        Spotify.destroyPlayer(this);
-        sendMsg(MSG_ONLOGOUT, null);
+                    @Override
+                    public void onError(Throwable throwable) {
+                        Log.e(TAG, "Could not initialize player: " + throwable
+                                .getMessage());
+                    }
+                });
     }
 
     /**
@@ -399,7 +369,6 @@ public class SpotifyService extends Service implements
     @Override
     public void onLoggedIn() {
         Log.d(TAG, "User logged in");
-        sendMsg(MSG_ONLOGIN, mAccessToken);
     }
 
     @Override
@@ -410,7 +379,6 @@ public class SpotifyService extends Service implements
     @Override
     public void onLoginFailed(Throwable error) {
         Log.d(TAG, "Login failed");
-        sendMsg(MSG_ONLOGINFAILED, error.getLocalizedMessage());
     }
 
     @Override

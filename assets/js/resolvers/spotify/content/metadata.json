@@ -1,11 +1,11 @@
 {
     "name": "Spotify",
     "pluginName": "spotify",
-    "author": "Uwe L. Korn",
+    "author": "Uwe L. Korn, Enno Gottschalk",
     "email": "uwelk@xhochy.com",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "website": "http://gettomahawk.com",
-    "description": "Stream music from Spotify.",
+    "description": "Stream music from Spotify. Requires a Premium account.",
     "type": "resolver/javascript",
     "manifest": {
         "main": "contents/code/spotify.js",
@@ -17,5 +17,8 @@
             "contents/code/config.ui",
             "contents/code/spotify.png"
         ]
-    }
+    },
+     "staticCapabilities": [
+         "configTestable"
+     ]
 }

@@ -138,6 +138,8 @@ public class ScriptResolver extends Resolver {
 
     private String mFuzzyIndexPath;
 
+    private String mAccessToken;
+
     private static final int TIMEOUT_HANDLER_MSG = 1337;
 
     // Handler which sets the mStopped bool to true after the timeout has occured.
@@ -676,6 +678,21 @@ public class ScriptResolver extends Resolver {
         }
     }
 
+    public void login() {
+        loadUrl("javascript: Tomahawk.resolver.instance.login()");
+    }
+
+    public void logout() {
+        loadUrl("javascript: Tomahawk.resolver.instance.logout()");
+    }
+
+    public void onRedirectCallback(String callbackFuncName, String url) {
+        if (url != null) {
+            loadUrl("javascript: Tomahawk.resolver.instance." + callbackFuncName + "( '"
+                    + StringEscapeUtils.escapeJavaScript(url) + "' )");
+        }
+    }
+
     /**
      * Parses the given {@link JSONArray} into a {@link ArrayList} of {@link Result}s.
      *
@@ -901,7 +918,11 @@ public class ScriptResolver extends Resolver {
         AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
+    public String getAccessToken() {
+        return mAccessToken;
+    }
+
     public void setAccessToken(String accessToken) {
-        loadUrl("javascript: Tomahawk.resolver.instance.setAccessToken('" + accessToken + "')");
+        mAccessToken = accessToken;
     }
 }

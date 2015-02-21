@@ -13,6 +13,7 @@ import org.tomahawk.libtomahawk.resolver.models.ScriptResolverData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverFuzzyIndex;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -24,6 +25,8 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * This class contains all methods that are being exposed to the javascript script inside a {@link
@@ -350,5 +353,17 @@ public class ScriptInterface {
     @JavascriptInterface
     public void addUrlResultString(String url, String resultString) {
         mScriptResolver.addUrlResultString(url, resultString);
+    }
+
+    @JavascriptInterface
+    public void showWebView(String url) {
+        TomahawkMainActivity.ShowWebViewEvent event = new TomahawkMainActivity.ShowWebViewEvent();
+        event.mUrl = url;
+        EventBus.getDefault().post(event);
+    }
+
+    @JavascriptInterface
+    public void reportAccessToken(String accessToken) {
+        mScriptResolver.setAccessToken(accessToken);
     }
 }

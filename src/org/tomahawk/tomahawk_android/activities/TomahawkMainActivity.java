@@ -44,6 +44,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.resolver.ResolverUrlHandler;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.tomahawk_android.R;
@@ -209,6 +210,11 @@ public class TomahawkMainActivity extends ActionBarActivity
     };
 
     private ValueAnimator mActionBarBgAnimation;
+
+    public static class ShowWebViewEvent {
+
+        public String mUrl;
+    }
 
     /**
      * Handles incoming broadcasts.
@@ -413,6 +419,13 @@ public class TomahawkMainActivity extends ActionBarActivity
         dialog.show(getSupportFragmentManager(), null);
     }
 
+    @SuppressWarnings("unused")
+    public void onEventMainThread(ShowWebViewEvent event) {
+        Intent intent = new Intent(this, WebViewActivity.class);
+        intent.putExtra(WebViewActivity.URL_EXTRA, event.mUrl);
+        startActivity(intent);
+    }
+
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -534,7 +547,15 @@ public class TomahawkMainActivity extends ActionBarActivity
             intent.setData(null);
             List<String> pathSegments = data.getPathSegments();
             String host = data.getHost();
-            if (host.contains("hatchet.is") || host.contains("toma.hk") || host.contains("spotify")
+            String scheme = data.getScheme();
+            if (scheme.equals("tomahawkspotifyresolver")) {
+                ResolverUrlHandler urlHandler = PipeLine.getInstance().getCustomUrlHandler(scheme);
+                if (urlHandler != null) {
+                    urlHandler.getResolver().onRedirectCallback(
+                            urlHandler.getCallbackFunctionName(), data.toString());
+                }
+            } else if (host.contains("hatchet.is") || host.contains("toma.hk") || host
+                    .contains("spotify")
                     || host.contains("tomahawk") || host.contains("beatsmusic.com")
                     || host.contains("deezer.com") || host.contains("rdio.com")
                     || host.contains("soundcloud.com")) {
