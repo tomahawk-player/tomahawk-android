@@ -131,11 +131,9 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
     protected void onConfigTestResult(Object component, int type, String message) {
         if (mScriptResolver == component && mScriptResolver.isConfigTestable()) {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
-                mScriptResolver.setEnabled(true);
                 mRedirectButtonTextView.setText(
                         getString(R.string.resolver_config_redirect_button_text_log_out_of));
             } else if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT) {
-                mScriptResolver.setEnabled(false);
                 mRedirectButtonTextView.setText(
                         getString(R.string.resolver_config_redirect_button_text_log_into));
             }

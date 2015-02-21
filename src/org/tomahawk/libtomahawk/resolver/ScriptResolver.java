@@ -909,6 +909,11 @@ public class ScriptResolver extends Resolver {
     public void onConfigTestResult(final int type, final String message) {
         Log.d(TAG, getName() + ": Config test result received. type: " + type + ", message:"
                 + message);
+        if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
+            setEnabled(true);
+        } else if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT) {
+            setEnabled(false);
+        }
         AuthenticatorManager.ConfigTestResultEvent event
                 = new AuthenticatorManager.ConfigTestResultEvent();
         event.mComponent = this;
