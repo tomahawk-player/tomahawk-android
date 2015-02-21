@@ -51,6 +51,20 @@ public class SpotifyServiceUtils {
         }
     }
 
+
+    public static void sendMsg(Messenger messenger, int msg, String value, String value2) {
+        try {
+            Bundle bundle = new Bundle();
+            bundle.putString(SpotifyService.STRING_KEY, value);
+            bundle.putString(SpotifyService.STRING_KEY2, value2);
+            Message message = Message.obtain(null, msg);
+            message.setData(bundle);
+            messenger.send(message);
+        } catch (RemoteException e) {
+            Log.e(TAG, "sendMsg: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+    }
+
     public static void sendMsg(Messenger messenger, int msg, int value) {
         try {
             messenger.send(Message.obtain(null, msg, value, 0));

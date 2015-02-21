@@ -35,6 +35,7 @@ import org.tomahawk.tomahawk_android.dialogs.DirectoryChooserConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.LoginConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.RedirectConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
+import org.tomahawk.tomahawk_android.dialogs.ResolverRedirectConfigDialog;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 
 import android.os.Bundle;
@@ -117,8 +118,10 @@ public class PreferenceConnectFragment extends TomahawkListFragment
             switch (id) {
                 case TomahawkApp.PLUGINNAME_RDIO:
                 case TomahawkApp.PLUGINNAME_DEEZER:
-                case TomahawkApp.PLUGINNAME_SPOTIFY:
                     dialog = new RedirectConfigDialog();
+                    break;
+                case TomahawkApp.PLUGINNAME_SPOTIFY:
+                    dialog = new ResolverRedirectConfigDialog();
                     break;
                 case TomahawkApp.PLUGINNAME_USERCOLLECTION:
                     dialog = new DirectoryChooserConfigDialog();

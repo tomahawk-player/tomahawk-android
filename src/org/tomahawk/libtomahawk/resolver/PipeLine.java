@@ -383,7 +383,7 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
         mAllResolversAdded = allResolversAdded;
     }
 
-    public void addCustomUrlHandler(String protocol, Resolver resolver, String callbackFuncName) {
+    public void addCustomUrlHandler(String protocol, ScriptResolver resolver, String callbackFuncName) {
         mUrlHandlerMap.put(protocol, new ResolverUrlHandler(resolver, callbackFuncName));
     }
 

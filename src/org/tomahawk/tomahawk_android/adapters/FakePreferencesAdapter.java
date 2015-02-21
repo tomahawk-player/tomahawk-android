@@ -19,12 +19,12 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
-import org.tomahawk.libtomahawk.authentication.SpotifyAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 
 import android.content.Context;
@@ -41,9 +41,8 @@ import java.util.List;
 
 /**
  * Since {@link android.preference.PreferenceFragment} is not supported with the official support
- * library, and also not within ActionBarSherlock, we have to create our own {@link
- * org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment} with our own {@link
- * FakePreferencesAdapter}
+ * library, and also not within ActionBarSherlock, we have to create our own Fragment with our own
+ * {@link FakePreferencesAdapter}
  */
 public class FakePreferencesAdapter extends StickyBaseAdapter {
 
@@ -67,14 +66,11 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
         public void onItemSelected(AdapterView<?> parent, View view,
                 int position, long id) {
             if (mSharedPreferences.getInt(mKey,
-                    SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM) != position) {
+                    SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_MEDIUM) != position) {
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putInt(mKey, position);
                 editor.commit();
-                SpotifyAuthenticatorUtils authUtils
-                        = (SpotifyAuthenticatorUtils) AuthenticatorManager
-                        .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_SPOTIFY);
-                authUtils.setBitrate(position);
+                SpotifyMediaPlayer.getInstance().setBitRate(position);
             }
         }
 
@@ -198,7 +194,7 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                 viewHolder.mSpinner1.setAdapter(adapter);
                 String key = item.getStorageKey();
                 viewHolder.mSpinner1.setSelection(mSharedPreferences
-                        .getInt(key, SpotifyAuthenticatorUtils.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
+                        .getInt(key, SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
                 viewHolder.mSpinner1.setOnItemSelectedListener(new SpinnerListener(key));
             }
             viewHolder.mTextView1.setText(item.getTitle());

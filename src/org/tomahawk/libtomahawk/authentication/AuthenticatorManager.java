@@ -63,9 +63,6 @@ public class AuthenticatorManager {
             = new HashMap<String, AuthenticatorUtils>();
 
     private AuthenticatorManager() {
-        SpotifyAuthenticatorUtils spotifyAuthenticatorUtils = new SpotifyAuthenticatorUtils();
-        mAuthenticatorUtils.put(spotifyAuthenticatorUtils.getId(),
-                spotifyAuthenticatorUtils);
         HatchetAuthenticatorUtils hatchetAuthenticatorUtils = new HatchetAuthenticatorUtils();
         mAuthenticatorUtils.put(hatchetAuthenticatorUtils.getId(),
                 hatchetAuthenticatorUtils);

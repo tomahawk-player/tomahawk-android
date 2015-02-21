@@ -64,6 +64,13 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
+                <data android:scheme="tomahawkspotifyresolver"/>
+                <data android:host="callback"/>
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
                 <category android:name="android.intent.category.APP_MUSIC"/>
                 <data android:scheme="https"/>
                 <data android:scheme="http"/>
@@ -490,13 +497,8 @@
 
         <activity android:name=".activities.AskAccessActivity"/>
 
-        <activity android:name=".services.SpotifyActivity"
-                  android:process=":SpotifyService"
-                  android:theme="@android:style/Theme.NoDisplay"/>
-
-        <activity android:name="com.spotify.sdk.android.authentication.LoginActivity"
-                  android:theme="@android:style/Theme.Translucent.NoTitleBar"
-                  android:process=":SpotifyService"/>
+        <activity android:name=".activities.WebViewActivity"
+                  android:theme="@style/Theme.Tomahawk"/>
 
         <service
                 android:name=".services.PlaybackService"

@@ -17,18 +17,25 @@
  */
 package org.tomahawk.tomahawk_android.mediaplayers;
 
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.authentication.SpotifyServiceUtils;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 
 import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
@@ -38,6 +45,16 @@ import android.util.Log;
 public class SpotifyMediaPlayer implements MediaPlayerInterface {
 
     private static String TAG = SpotifyMediaPlayer.class.getSimpleName();
+
+    // String tags used to store Spotify's preferred bitrate
+    private static final String SPOTIFY_PREF_BITRATE
+            = "org.tomahawk.tomahawk_android.spotify_pref_bitrate";
+
+    public static final int SPOTIFY_PREF_BITRATE_MODE_LOW = 0;
+
+    public static final int SPOTIFY_PREF_BITRATE_MODE_MEDIUM = 1;
+
+    public static final int SPOTIFY_PREF_BITRATE_MODE_HIGH = 2;
 
     private static class Holder {
 
@@ -99,6 +116,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         mToSpotifyMessenger = toSpotifyMessenger;
         if (mToSpotifyMessenger != null) {
             SpotifyServiceUtils.registerMsg(mToSpotifyMessenger, mFromSpotifyMessenger);
+            updateBitrate();
         }
     }
 
@@ -176,7 +194,10 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         if (mToSpotifyMessenger != null) {
             String[] pathParts = query.getPreferredTrackResult().getPath().split("/");
             String uri = "spotify:track:" + pathParts[pathParts.length - 1];
-            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PREPARE, uri);
+            String accessToken = ((ScriptResolver) PipeLine.getInstance()
+                    .getResolver(TomahawkApp.PLUGINNAME_SPOTIFY)).getAccessToken();
+            SpotifyServiceUtils
+                    .sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PREPARE, uri, accessToken);
         } else {
             TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
@@ -230,5 +251,35 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
         return false;
+    }
+
+    public void setBitRate(int bitrateMode) {
+        SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SETBITRATE,
+                bitrateMode);
+    }
+
+    public void updateBitrate() {
+        ConnectivityManager conMan = (ConnectivityManager) TomahawkApp.getContext()
+                .getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = conMan.getActiveNetworkInfo();
+        if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
+            Log.d(TAG, "Updating bitrate to HIGH, because we have a Wifi connection");
+            setBitrate(SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_HIGH);
+        } else {
+            Log.d(TAG, "Updating bitrate to user setting, because we don't have a Wifi connection");
+            SharedPreferences preferences = PreferenceManager
+                    .getDefaultSharedPreferences(TomahawkApp.getContext());
+            int prefbitrate = preferences.getInt(
+                    SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE,
+                    SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
+            setBitrate(prefbitrate);
+        }
+    }
+
+    public void setBitrate(int bitrate) {
+        if (mToSpotifyMessenger != null) {
+            SpotifyServiceUtils
+                    .sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SETBITRATE, bitrate);
+        }
     }
 }

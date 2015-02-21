@@ -196,8 +196,6 @@ var TomahawkResolver = {
     },
     collection: function () {
         return {};
-    },
-    setAccessToken: function() {
     }
 };
 

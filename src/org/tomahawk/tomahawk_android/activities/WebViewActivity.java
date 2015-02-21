@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,24 +15,26 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk.resolver;
+package org.tomahawk.tomahawk_android.activities;
 
-public class ResolverUrlHandler {
+import org.tomahawk.tomahawk_android.R;
 
-    private ScriptResolver mResolver;
+import android.app.Activity;
+import android.os.Bundle;
+import android.webkit.WebView;
 
-    private String mCallbackFunctionName;
+public class WebViewActivity extends Activity {
 
-    public ResolverUrlHandler(ScriptResolver resolver, String callbackFunctionName) {
-        mResolver = resolver;
-        mCallbackFunctionName = callbackFunctionName;
-    }
+    public static final String URL_EXTRA = "url";
 
-    public ScriptResolver getResolver() {
-        return mResolver;
-    }
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-    public String getCallbackFunctionName() {
-        return mCallbackFunctionName;
+        setContentView(R.layout.web_view_activity);
+
+        WebView webView = (WebView) findViewById(R.id.webview);
+        webView.getSettings().setJavaScriptEnabled(true);
+        webView.loadUrl(getIntent().getStringExtra(URL_EXTRA));
     }
 }
