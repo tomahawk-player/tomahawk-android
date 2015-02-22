@@ -135,7 +135,7 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Canciones</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
-  <string name="songs_with_count">Canciones</string>
+  <!--The singular version of the "x Songs" count string. E.g.: "1 song".-->
   <string name="activity">Actividad</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Seguidores</string>
