@@ -399,7 +399,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     }
                     viewHolder.fillView(query, numerationString,
                             mHighlightedItemIsPlaying && shouldBeHighlighted,
-                            getSegment(position).isShowNumeration(),
+                            getSegment(position).isShowDuration(),
                             getSegment(position).isHideArtistName(), new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
