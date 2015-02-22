@@ -669,11 +669,8 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
                         that.doConfigTest = false;
                         if (request.status == 403) {
                             Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.InvalidCredentials);
-                        } else if (request.status == 404) {
-                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
                         } else {
-                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other,
-                                request.responseText.trim());
+                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
                         }
                     }
                     that._loginCallbacks = null;
