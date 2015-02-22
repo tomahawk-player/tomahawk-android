@@ -118,6 +118,7 @@
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <!--Shown as a title for a list of songs in the search results view.-->
   <!--Shown as part of a count string. E.g.: "3 songs".-->
+  <!--The singular version of the "x Songs" count string. E.g.: "1 song".-->
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">المتابِعين</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
