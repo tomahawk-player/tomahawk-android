@@ -138,18 +138,12 @@ public class AlbumsFragment extends TomahawkFragment {
                         mCollection.getName() + " " + getString(R.string.albums),
                         items, R.integer.grid_column_count, R.dimen.padding_superlarge,
                         R.dimen.padding_superlarge);
-                segment.setShowNumeration(true, 1);
-                segment.setHideArtistName(true);
-                segment.setShowDuration(true);
                 segments.add(segment);
             } else {
                 items.addAll(CollectionUtils.getArtistAlbums(mArtist, null));
                 Segment segment = new Segment(R.string.top_albums, items,
                         R.integer.grid_column_count, R.dimen.padding_superlarge,
                         R.dimen.padding_superlarge);
-                segment.setShowNumeration(true, 1);
-                segment.setHideArtistName(true);
-                segment.setShowDuration(true);
                 segments.add(segment);
                 ArrayList<Query> topHits = CollectionUtils.getArtistTopHits(mArtist);
                 items = new ArrayList<Object>();
