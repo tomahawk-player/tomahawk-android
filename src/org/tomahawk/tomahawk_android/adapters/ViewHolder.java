@@ -362,9 +362,11 @@ public class ViewHolder {
             if (showAsPlaying) {
                 mTextView1.setVisibility(View.INVISIBLE);
                 mTextView1.setText(numerationString);
-                mImageView1.setVisibility(View.VISIBLE);
-                Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
-                resolver.loadIcon(mImageView1, false);
+                if (query.getPreferredTrackResult() != null) {
+                    mImageView1.setVisibility(View.VISIBLE);
+                    Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
+                    resolver.loadIcon(mImageView1, false);
+                }
             } else {
                 mTextView1.setVisibility(View.VISIBLE);
                 mTextView1.setText(numerationString);
