@@ -911,7 +911,7 @@ public class ScriptResolver extends Resolver {
                 + message);
         if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
             setEnabled(true);
-        } else if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_LOGOUT) {
+        } else {
             setEnabled(false);
         }
         AuthenticatorManager.ConfigTestResultEvent event
