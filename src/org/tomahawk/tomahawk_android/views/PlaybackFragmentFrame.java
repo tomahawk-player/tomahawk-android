@@ -90,7 +90,7 @@ public class PlaybackFragmentFrame extends FrameLayout {
             mVerticallyScrolled = mGestureDetector.onTouchEvent(event);
         }
 
-        if (!mPanelLayout.isPanelExpanded()
+        if ((mPanelLayout != null && !mPanelLayout.isPanelExpanded())
                 || (mVerticallyScrolled && isListViewScrolledUp())) {
             getParent().requestDisallowInterceptTouchEvent(false);
             if (mDownMotionEvent != null) {
@@ -109,7 +109,7 @@ public class PlaybackFragmentFrame extends FrameLayout {
     }
 
     private boolean isListViewScrolledUp() {
-        return mListView.getFirstVisiblePosition() == 0
+        return mListView != null && mListView.getFirstVisiblePosition() == 0
                 && (mListView.getListChildAt(0) == null
                 || mListView.getListChildAt(0).getTop() >= 0);
     }
