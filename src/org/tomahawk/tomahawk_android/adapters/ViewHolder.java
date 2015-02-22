@@ -411,10 +411,14 @@ public class ViewHolder {
             songCount = CollectionManager.getInstance().getCollection(
                     TomahawkApp.PLUGINNAME_HATCHET).getAlbumTracks(album, false).size();
         }
-        if (songCount > 0) {
-            String songs = TomahawkApp.getContext().getResources().getString(R.string.songs);
+        if (songCount == 1) {
             mTextView3.setVisibility(View.VISIBLE);
-            mTextView3.setText(songCount + " " + songs);
+            mTextView3.setText(TomahawkApp.getContext()
+                    .getString(R.string.songs_with_count_singular, songCount));
+        } else if (songCount > 1) {
+            mTextView3.setVisibility(View.VISIBLE);
+            mTextView3.setText(
+                    TomahawkApp.getContext().getString(R.string.songs_with_count, songCount));
         }
     }
 
@@ -475,8 +479,13 @@ public class ViewHolder {
             mTextView2.setText(topArtistsString);
         }
         if (mTextView3 != null) {
-            mTextView3.setText(playlist.getCount() + " "
-                    + TomahawkApp.getContext().getString(R.string.songs_with_count));
+            if (playlist.getCount() == 1) {
+                mTextView3.setText(TomahawkApp.getContext()
+                        .getString(R.string.songs_with_count_singular, playlist.getCount()));
+            } else {
+                mTextView3.setText(TomahawkApp.getContext()
+                        .getString(R.string.songs_with_count, playlist.getCount()));
+            }
         }
     }
 
