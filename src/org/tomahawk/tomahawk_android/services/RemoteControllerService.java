@@ -17,12 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.services;
 
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.AskAccessActivity;
-
 import android.annotation.TargetApi;
-import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
@@ -30,7 +25,6 @@ import android.media.MediaMetadataRetriever;
 import android.media.RemoteController;
 import android.os.Build;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -81,8 +75,6 @@ public class RemoteControllerService extends NotificationListenerService
             mRemoteController.setArtworkConfiguration(BITMAP_WIDTH, BITMAP_HEIGHT);
             setSynchronizationMode(mRemoteController,
                     RemoteController.POSITION_SYNCHRONIZATION_CHECK);
-        } else {
-            attemptAskAccess();
         }
     }
 
@@ -215,47 +207,5 @@ public class RemoteControllerService extends NotificationListenerService
         boolean second = mRemoteController.sendMediaKeyEvent(keyEvent);
 
         return first && second;
-    }
-
-    /**
-     * Starts the AskAccessActivity in order to ask the user for permission to the notification
-     * listener, if the user hasn't been asked before and is logged into hatchet
-     */
-    public static void attemptAskAccess() {
-        if (!PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext())
-                .getBoolean(AskAccessActivity.ASKED_FOR_ACCESS, false)) {
-            askAccess();
-        }
-    }
-
-    /**
-     * Starts the AskAccessActivity in order to ask the user for permission to the notification
-     * listener, if the user is logged into Hatchet and we don't already have access
-     */
-    public static void askAccess() {
-        if (AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).isLoggedIn()
-                && !isRemoteControllerServiceRunning()) {
-            TomahawkApp.getContext().startActivity(
-                    new Intent(TomahawkApp.getContext(), AskAccessActivity.class)
-                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            );
-        }
-    }
-
-    /**
-     * @return true if the RemoteControllerService is already running, therefore indicating that the
-     * user has already granted us NotificationListener access
-     */
-    private static boolean isRemoteControllerServiceRunning() {
-        ActivityManager manager = (ActivityManager) TomahawkApp.getContext().getSystemService(
-                Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager
-                .getRunningServices(Integer.MAX_VALUE)) {
-            if (RemoteControllerService.class.getName().equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
     }
 }

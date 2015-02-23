@@ -184,6 +184,10 @@ public abstract class ConfigDialog extends DialogFragment {
         mStatusImageView.setVisibility(View.GONE);
     }
 
+    protected void hideConnectImage() {
+        mConnectImageView.setVisibility(View.GONE);
+    }
+
     protected void setConnectImageViewClickable() {
         mConnectBgImageView.setOnClickListener(new View.OnClickListener() {
             @Override

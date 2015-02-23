@@ -495,8 +495,6 @@
 
         <activity android:name="com.rdio.android.api.OAuth1WebViewActivity"/>
 
-        <activity android:name=".activities.AskAccessActivity"/>
-
         <activity android:name=".activities.WebViewActivity"
                   android:theme="@style/Theme.Tomahawk"/>
 
