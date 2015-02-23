@@ -242,8 +242,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             viewHolders = (List<ViewHolder>) convertView.getTag();
             view = convertView;
         }
-        int viewType = getViewType(o, mHeaderSpacerHeight > 0 && position == 0,
-                position == getCount() - 1);
+        int viewType = getViewType(o, getSegment(position),
+                mHeaderSpacerHeight > 0 && position == 0, position == getCount() - 1);
         int expectedViewHoldersCount = 1;
         if (o instanceof List) {
             expectedViewHoldersCount = 0;
@@ -288,14 +288,16 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 view = mLayoutInflater.inflate(viewType, parent, false);
                 ViewHolder viewHolder = new ViewHolder(view, viewType);
                 viewHolders.add(viewHolder);
-                if (viewType == R.layout.list_item_track) {
+                if (viewType == R.layout.list_item_track
+                        || viewType == R.layout.list_item_track_short) {
                     // We have a SwipeLayout
                     mItemManager.initialize(view, position);
                 }
             }
             // Set extra padding
             if (getSegment(position) != null && getSegment(position).getLeftExtraPadding() > 0) {
-                if (viewType == R.layout.list_item_track) {
+                if (viewType == R.layout.list_item_track
+                        || viewType == R.layout.list_item_track_short) {
                     // if it's a list_item_track, we have to set the padding on the foreground
                     // layout in the SwipeLayout instead
                     View foreground = ((ViewGroup) view).getChildAt(1);
@@ -312,11 +314,13 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             }
             view.setTag(viewHolders);
         } else {
-            if (viewType == R.layout.list_item_track) {
+            if (viewType == R.layout.list_item_track
+                    || viewType == R.layout.list_item_track_short) {
                 // We have a SwipeLayout
                 mItemManager.updateConvertView(view, position);
             }
             if (viewType == R.layout.list_item_track
+                    || viewType == R.layout.list_item_track_short
                     || viewType == R.layout.grid_item
                     || viewType == R.layout.list_item_artistalbum
                     || viewType == R.layout.grid_item_user
@@ -328,6 +332,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                         viewHolder.mImageView1.setVisibility(View.GONE);
                         viewHolder.mTextView1.setVisibility(View.GONE);
                         viewHolder.mTextView3.setVisibility(View.GONE);
+                        viewHolder.mTextView4.setVisibility(View.GONE);
+                        viewHolder.mProgressBarContainer.removeAllViews();
+                    } else if (viewType == R.layout.list_item_track_short) {
+                        viewHolder.mImageView1.setVisibility(View.GONE);
+                        viewHolder.mTextView1.setVisibility(View.GONE);
                         viewHolder.mTextView4.setVisibility(View.GONE);
                         viewHolder.mProgressBarContainer.removeAllViews();
                     } else if (viewType == R.layout.grid_item_resolver) {
@@ -383,7 +392,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 viewHolder.fillView(((TomahawkListItem) item).getName());
             } else if (viewHolder.mLayoutId == R.layout.list_item_text) {
                 viewHolder.fillView(((TomahawkListItem) item).getName());
-            } else if (viewHolder.mLayoutId == R.layout.list_item_track) {
+            } else if (viewHolder.mLayoutId == R.layout.list_item_track
+                    || viewType == R.layout.list_item_track_short) {
                 if (item instanceof Query || item instanceof PlaylistEntry) {
                     String numerationString = null;
                     if (!getSegment(position).isShowAsQueued() && getSegment(position)
@@ -628,7 +638,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         }
     }
 
-    private int getViewType(Object item, boolean isContentHeaderItem, boolean isFooter) {
+    private int getViewType(Object item, Segment segment, boolean isContentHeaderItem,
+            boolean isFooter) {
         if (item instanceof List) {
             // We have a grid item
             // Don't display the socialAction item directly, but rather the item that is its target
@@ -669,6 +680,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             return R.layout.list_item_artistalbum;
         } else if (item instanceof User) {
             return R.layout.list_item_user;
+        } else if (segment.isHideArtistName()) {
+            return R.layout.list_item_track_short;
         } else {
             return R.layout.list_item_track;
         }

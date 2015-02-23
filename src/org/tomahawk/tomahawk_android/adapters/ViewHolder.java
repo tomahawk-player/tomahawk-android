@@ -108,7 +108,8 @@ public class ViewHolder {
                     .findViewById(R.id.userimageview1);
             mUserTextView1 = (TextView) rootView
                     .findViewById(R.id.usertextview1);
-        } else if (layoutId == R.layout.list_item_track) {
+        } else if (layoutId == R.layout.list_item_track
+                || layoutId == R.layout.list_item_track_short) {
             mImageView1 = (ImageView) rootView
                     .findViewById(R.id.imageview1);
             mTextView1 = (TextView) rootView
@@ -350,10 +351,10 @@ public class ViewHolder {
         if (!hideArtistName) {
             mTextView3.setVisibility(View.VISIBLE);
             mTextView3.setText(query.getArtist().getName());
+            setTextViewEnabled(mTextView3, query.isPlayable(), false);
         }
         mTextView2.setText(query.getName());
         setTextViewEnabled(mTextView2, query.isPlayable(), false);
-        setTextViewEnabled(mTextView3, query.isPlayable(), false);
         if (showAsQueued) {
             mImageView1.setVisibility(View.VISIBLE);
             TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), mImageView1,

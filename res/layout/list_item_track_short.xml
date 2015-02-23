@@ -95,40 +95,22 @@
                 <TextView android:id="@+id/textview2"
                           android:layout_width="0dp"
                           android:layout_height="match_parent"
-                          android:layout_weight="0.49"
+                          android:layout_weight="0.55"
                           android:gravity="center_vertical"
                           android:singleLine="true"
                           android:textStyle="bold"
                           android:textColor="@color/primary_textcolor"
                           android:textSize="@dimen/text_size_medium"/>
 
-                <LinearLayout android:layout_width="0dp"
-                              android:layout_height="match_parent"
-                              android:paddingLeft="@dimen/padding_small"
-                              android:orientation="horizontal"
-                              android:layout_weight="0.51">
-
-                    <TextView android:id="@+id/textview3"
-                              android:layout_width="0dp"
-                              android:layout_height="match_parent"
-                              android:layout_weight="1"
-                              android:gravity="center_vertical"
-                              android:singleLine="true"
-                              android:textColor="@color/primary_textcolor"
-                              android:textSize="@dimen/text_size_medium"
-                              android:visibility="gone"/>
-
-                    <TextView android:id="@+id/textview4"
-                              android:layout_width="wrap_content"
-                              android:layout_height="match_parent"
-                              android:paddingLeft="@dimen/padding_small"
-                              android:gravity="center_vertical|right"
-                              android:singleLine="true"
-                              android:textColor="@color/secondary_textcolor"
-                              android:textSize="@dimen/text_size_medium"
-                              android:visibility="gone"/>
-
-                </LinearLayout>
+                <TextView android:id="@+id/textview4"
+                          android:layout_width="wrap_content"
+                          android:layout_height="match_parent"
+                          android:paddingLeft="@dimen/padding_small"
+                          android:gravity="center_vertical|right"
+                          android:singleLine="true"
+                          android:textColor="@color/secondary_textcolor"
+                          android:textSize="@dimen/text_size_small"
+                          android:visibility="gone"/>
 
             </LinearLayout>
 
