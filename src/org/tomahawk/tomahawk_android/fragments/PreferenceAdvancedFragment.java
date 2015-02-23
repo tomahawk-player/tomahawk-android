@@ -21,7 +21,6 @@ import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
-import org.tomahawk.tomahawk_android.services.RemoteControllerService;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
@@ -98,8 +97,14 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
                 FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY,
                 getString(R.string.preferences_plug_and_play),
                 getString(R.string.preferences_plug_and_play_text)));
+        int scrobblePrefType;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            scrobblePrefType = FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN;
+        } else {
+            scrobblePrefType = FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX;
+        }
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX,
+                scrobblePrefType,
                 FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING,
                 FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING,
                 getString(R.string.preferences_playback_data),
@@ -155,16 +160,17 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
                     .getBoolean(fakePreference.getStorageKey(), false);
             editor.putBoolean(fakePreference.getStorageKey(), !preferenceState);
             editor.commit();
-            if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING)
-                    && !preferenceState && Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                RemoteControllerService.askAccess();
+        } else if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN) {
+            String key = fakePreference.getKey();
+            if (key.equals(FAKEPREFERENCEFRAGMENT_ID_EQUALIZER)) {
+                Bundle bundle = new Bundle();
+                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                        ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
+                FragmentUtils.replace((TomahawkMainActivity) getActivity(), EqualizerFragment.class,
+                        bundle);
+            } else if (key.equals(FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING)) {
+                ((TomahawkMainActivity) getActivity()).askAccess();
             }
-        } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_EQUALIZER)) {
-            Bundle bundle = new Bundle();
-            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                    ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
-            FragmentUtils.replace((TomahawkMainActivity) getActivity(), EqualizerFragment.class,
-                    bundle);
         }
     }
 

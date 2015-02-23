@@ -51,6 +51,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
+import org.tomahawk.tomahawk_android.dialogs.AskAccessConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.SendLogConfigDialog;
 import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
@@ -70,7 +71,6 @@ import org.tomahawk.tomahawk_android.fragments.UserPagerFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
-import org.tomahawk.tomahawk_android.services.RemoteControllerService;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.CubicInterpolator;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
@@ -654,6 +654,11 @@ public class TomahawkMainActivity extends ActionBarActivity
         mCorrespondingRequestIds.add(
                 InfoSystem.getInstance().resolve(hatchetAuthUtils.getLoggedInUser()));
 
+        //Ask for notification service access if hatchet user logged in
+        if (hatchetAuthUtils.isLoggedIn()) {
+            attemptAskAccess();
+        }
+
         if (!mRootViewsInitialized) {
             mRootViewsInitialized = true;
 
@@ -883,7 +888,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onHatchetLoggedInOut(boolean loggedIn) {
         if (loggedIn) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                RemoteControllerService.attemptAskAccess();
+                attemptAskAccess();
             }
             HatchetAuthenticatorUtils authenticatorUtils
                     = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
@@ -1157,5 +1162,31 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public void showGradientActionBar() {
         findViewById(R.id.action_bar_background).setBackgroundResource(R.drawable.below_shadow);
+    }
+
+    /**
+     * Starts the AskAccessActivity in order to ask the user for permission to the notification
+     * listener, if the user hasn't been asked before and is logged into hatchet
+     */
+    public void attemptAskAccess() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
+                && !PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext())
+                .getBoolean(AskAccessConfigDialog.ASKED_FOR_ACCESS, false)) {
+            askAccess();
+        }
+    }
+
+    /**
+     * Starts the AskAccessActivity in order to ask the user for permission to the notification
+     * listener, if the user is logged into Hatchet and we don't already have access
+     */
+    public void askAccess() {
+        if (AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).isLoggedIn()) {
+            SharedPreferences preferences = PreferenceManager
+                    .getDefaultSharedPreferences(TomahawkApp.getContext());
+            preferences.edit().putBoolean(AskAccessConfigDialog.ASKED_FOR_ACCESS, true).commit();
+            new AskAccessConfigDialog().show(getSupportFragmentManager(), null);
+        }
     }
 }

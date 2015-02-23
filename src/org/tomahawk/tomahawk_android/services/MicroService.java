@@ -224,7 +224,8 @@ public class MicroService extends Service {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
                 TomahawkApp.getContext());
         boolean scrobbleEverything = preferences.getBoolean(
-                PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, false);
+                PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, false)
+                || Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         if (scrobbleEverything && !TextUtils.isEmpty(trackName) && (!TextUtils.isEmpty(artistName)
                 || !TextUtils.isEmpty(albumArtistName))) {
             Artist artist;
