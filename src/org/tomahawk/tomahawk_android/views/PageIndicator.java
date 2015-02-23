@@ -30,7 +30,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.Animation;
@@ -48,7 +47,7 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
 
     private List<PagerFragment.FragmentInfoList> mFragmentInfosList;
 
-    private List<LinearLayout> mItems = new ArrayList<LinearLayout>();
+    private List<View> mItems = new ArrayList<>();
 
     private View mRootview;
 
@@ -80,15 +79,9 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
         for (int i = 0; i < mViewPager.getAdapter().getCount(); i++) {
             LayoutInflater inflater =
                     (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            final LinearLayout item =
-                    (LinearLayout) inflater.inflate(R.layout.page_indicator_item, this, false);
+            final View item = inflater.inflate(R.layout.page_indicator_item, this, false);
             final TextView textView = (TextView) item.findViewById(R.id.textview);
             textView.setText(mViewPager.getAdapter().getPageTitle(i));
-            if (i == mViewPager.getAdapter().getCount() - 1) {
-                item.setGravity(Gravity.RIGHT);
-            } else if (i != 0) {
-                item.setGravity(Gravity.CENTER_HORIZONTAL);
-            }
             final int j = i;
             if (mFragmentInfosList.get(i).size() > 1) {
                 final ImageView arrow = (ImageView) item.findViewById(R.id.arrow);
@@ -149,6 +142,10 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
                 imageView.setVisibility(VISIBLE);
                 imageView.setImageResource(
                         mFragmentInfosList.get(i).getCurrentFragmentInfo().mIconResId);
+            }
+            if (i != 0) {
+                View spacer = inflater.inflate(R.layout.page_indicator_spacer, this, false);
+                addView(spacer);
             }
             addView(item);
             mItems.add(item);
