@@ -76,18 +76,39 @@ public class AnimationUtils {
             final boolean isFadeIn, Animator.AnimatorListener listener) {
         if (view != null) {
             view.setVisibility(View.VISIBLE);
-            if (!(view.getTag(R.id.animation_fade_state) instanceof Boolean)
-                    || (Boolean) view.getTag(R.id.animation_fade_state) != isFadeIn) {
-                view.setTag(R.id.animation_fade_state, isFadeIn);
+            if (!(view.getTag(R.id.animation_state) instanceof Boolean)
+                    || (Boolean) view.getTag(R.id.animation_state) != isFadeIn) {
+                view.setTag(R.id.animation_state, isFadeIn);
                 ValueAnimator animator = ObjectAnimator.ofFloat(view, "alpha", from, to);
-                if (view.getTag(R.id.animation_fade_animator) instanceof ValueAnimator) {
+                if (view.getTag(R.id.animation_animator) instanceof ValueAnimator) {
                     ValueAnimator previousAnimator =
-                            (ValueAnimator) view.getTag(R.id.animation_fade_animator);
+                            (ValueAnimator) view.getTag(R.id.animation_animator);
                     previousAnimator.cancel();
                 }
-                view.setTag(R.id.animation_fade_animator, animator);
+                view.setTag(R.id.animation_animator, animator);
                 animator.setDuration(duration);
                 animator.addListener(listener);
+                animator.start();
+            }
+        }
+    }
+
+    public static void moveY(final View view, float from, float to, int duration,
+            final boolean isReversed) {
+        if (view != null) {
+            view.setVisibility(View.VISIBLE);
+            if (!(view.getTag(R.id.animation_state) instanceof Boolean)
+                    || (Boolean) view.getTag(R.id.animation_state) != isReversed) {
+                view.setTag(R.id.animation_state, isReversed);
+                ValueAnimator animator = ObjectAnimator
+                        .ofFloat(view, "y", isReversed ? to : from, isReversed ? from : to);
+                if (view.getTag(R.id.animation_animator) instanceof ValueAnimator) {
+                    ValueAnimator previousAnimator =
+                            (ValueAnimator) view.getTag(R.id.animation_animator);
+                    previousAnimator.cancel();
+                }
+                view.setTag(R.id.animation_animator, animator);
+                animator.setDuration(duration);
                 animator.start();
             }
         }
