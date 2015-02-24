@@ -159,6 +159,7 @@ public class PlaylistsFragment extends TomahawkFragment {
             segment = new Segment(playlists);
         } else {
             playlists.add(CREATE_PLAYLIST_BUTTON_ID);
+            mPlaylists = DatabaseHelper.getInstance().getCachedPlaylists();
             playlists.addAll(mPlaylists);
             segment = new Segment(playlists, R.integer.grid_column_count,
                     R.dimen.padding_superlarge, R.dimen.padding_superlarge);
