@@ -42,6 +42,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.concurrent.RejectedExecutionException;
 
 public class SpotifyService extends Service implements
         PlayerNotificationCallback, ConnectionStateCallback {
@@ -108,18 +109,22 @@ public class SpotifyService extends Service implements
             if (service != null) {
                 switch (msg.what) {
                     case MSG_UPDATE_PROGRESS:
-                        service.mPlayer.getPlayerState(new PlayerStateCallback() {
-                            @Override
-                            public void onPlayerState(PlayerState playerState) {
-                                SpotifyService service = getReferencedObject();
-                                if (service != null) {
-                                    service.sendMsg(MSG_ONPLAYERPOSITIONCHANGED,
-                                            playerState.positionInMs);
+                        try {
+                            service.mPlayer.getPlayerState(new PlayerStateCallback() {
+                                @Override
+                                public void onPlayerState(PlayerState playerState) {
+                                    SpotifyService service = getReferencedObject();
+                                    if (service != null) {
+                                        service.sendMsg(MSG_ONPLAYERPOSITIONCHANGED,
+                                                playerState.positionInMs);
+                                    }
+                                    sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS,
+                                            MSG_UPDATE_PROGRESS_INTERVAL);
                                 }
-                                sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS,
-                                        MSG_UPDATE_PROGRESS_INTERVAL);
-                            }
-                        });
+                            });
+                        } catch (RejectedExecutionException e) {
+                            Log.e(TAG, "handleMessage - " + e.getLocalizedMessage());
+                        }
                         break;
                 }
             }
@@ -264,7 +269,7 @@ public class SpotifyService extends Service implements
         }
     }
 
-    private void initializePlayer(){
+    private void initializePlayer() {
         Config playerConfig = new Config(this, mAccessToken, CLIENT_ID);
         mPlayer = Spotify.getPlayer(playerConfig, this,
                 new Player.InitializationObserver() {
@@ -297,17 +302,21 @@ public class SpotifyService extends Service implements
      */
     public void play() {
         if (mPlayer != null) {
-            mPlayer.getPlayerState(new PlayerStateCallback() {
-                @Override
-                public void onPlayerState(PlayerState playerState) {
-                    mReportPositionHandler.sendEmptyMessage(MSG_UPDATE_PROGRESS);
-                    if (!playerState.trackUri.equals(mPreparedUri)) {
-                        mPlayer.play(mPreparedUri);
-                    } else if (!playerState.playing) {
-                        mPlayer.resume();
+            try {
+                mPlayer.getPlayerState(new PlayerStateCallback() {
+                    @Override
+                    public void onPlayerState(PlayerState playerState) {
+                        mReportPositionHandler.sendEmptyMessage(MSG_UPDATE_PROGRESS);
+                        if (!playerState.trackUri.equals(mPreparedUri)) {
+                            mPlayer.play(mPreparedUri);
+                        } else if (!playerState.playing) {
+                            mPlayer.resume();
+                        }
                     }
-                }
-            });
+                });
+            } catch (RejectedExecutionException e) {
+                Log.e(TAG, "play - " + e.getLocalizedMessage());
+            }
         }
     }
 
@@ -316,15 +325,19 @@ public class SpotifyService extends Service implements
      */
     public void pause() {
         if (mPlayer != null) {
-            mPlayer.getPlayerState(new PlayerStateCallback() {
-                @Override
-                public void onPlayerState(PlayerState playerState) {
-                    mReportPositionHandler.removeCallbacksAndMessages(null);
-                    if (playerState.playing) {
-                        mPlayer.pause();
+            try {
+                mPlayer.getPlayerState(new PlayerStateCallback() {
+                    @Override
+                    public void onPlayerState(PlayerState playerState) {
+                        mReportPositionHandler.removeCallbacksAndMessages(null);
+                        if (playerState.playing) {
+                            mPlayer.pause();
+                        }
                     }
-                }
-            });
+                });
+            } catch (RejectedExecutionException e) {
+                Log.e(TAG, "pause - " + e.getLocalizedMessage());
+            }
         }
     }
 
