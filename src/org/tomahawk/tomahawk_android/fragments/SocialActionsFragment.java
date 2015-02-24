@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
@@ -274,9 +275,9 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         } else {
                             segment = new Segment(mergedActions);
                         }
-                        int extraPadding =
-                                getResources().getDimensionPixelSize(R.dimen.padding_medium)
-                                        + TomahawkUtils.convertDpToPixel(32);
+                        int extraPadding = TomahawkApp.getContext().getResources()
+                                .getDimensionPixelSize(R.dimen.padding_medium)
+                                + TomahawkUtils.convertDpToPixel(32);
                         segment.setLeftExtraPadding(extraPadding);
                         segments.add(segment);
                     }
@@ -284,21 +285,24 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         @Override
                         public void run() {
                             TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-                            LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-                            if (getListAdapter() == null) {
-                                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
-                                        activity, layoutInflater, segments, getListView(),
-                                        SocialActionsFragment.this);
-                                setListAdapter(tomahawkListAdapter);
-                            } else {
-                                getListAdapter().setSegments(segments, getListView());
-                            }
-                            if (mShowMode == SHOW_MODE_DASHBOARD
-                                    && !getResources().getBoolean(R.bool.is_landscape)) {
-                                getListView().setAreHeadersSticky(true);
-                            }
+                            if (activity != null) {
+                                LayoutInflater layoutInflater = getActivity().getLayoutInflater();
+                                if (getListAdapter() == null) {
+                                    TomahawkListAdapter tomahawkListAdapter
+                                            = new TomahawkListAdapter(
+                                            activity, layoutInflater, segments, getListView(),
+                                            SocialActionsFragment.this);
+                                    setListAdapter(tomahawkListAdapter);
+                                } else {
+                                    getListAdapter().setSegments(segments, getListView());
+                                }
+                                if (mShowMode == SHOW_MODE_DASHBOARD
+                                        && !getResources().getBoolean(R.bool.is_landscape)) {
+                                    getListView().setAreHeadersSticky(true);
+                                }
 
-                            onUpdateAdapterFinished();
+                                onUpdateAdapterFinished();
+                            }
                         }
                     });
                 }
