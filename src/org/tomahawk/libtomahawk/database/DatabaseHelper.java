@@ -82,6 +82,8 @@ public class DatabaseHelper {
 
     public static final int CHUNK_SIZE = 50;
 
+    private TreeSet<Playlist> mCachedPlaylists = new TreeSet<>();
+
     private static class Holder {
 
         private static final DatabaseHelper instance = new DatabaseHelper();
@@ -313,7 +315,18 @@ public class DatabaseHelper {
             playlistsCursor.moveToNext();
         }
         playlistsCursor.close();
-        return playListList;
+        mCachedPlaylists = playListList;
+        return mCachedPlaylists;
+    }
+
+    /**
+     * This method doesn't return the actual data from the database, but rather the last set that
+     * has been read. Used for performance reasons.
+     *
+     * @return the cached TreeSet of Playlists
+     */
+    public TreeSet<Playlist> getCachedPlaylists() {
+        return mCachedPlaylists;
     }
 
     /**
