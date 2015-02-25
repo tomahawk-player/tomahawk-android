@@ -29,6 +29,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Parcelable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,6 +47,8 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  */
 public abstract class TomahawkListFragment extends ContentHeaderFragment implements
         AbsListView.OnScrollListener {
+
+    private static final String TAG = TomahawkListFragment.class.getSimpleName();
 
     private StickyBaseAdapter mStickyBaseAdapter;
 
@@ -276,7 +279,12 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         View root = getView();
         LayoutInflater layoutInflater = (LayoutInflater)
                 TomahawkApp.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (root == null || layoutInflater == null) {
+        if (root == null) {
+            Log.e(TAG, "Couldn't inflate listview! root is null");
+            return;
+        }
+        if (layoutInflater == null) {
+            Log.e(TAG, "Couldn't inflate listview! layoutInflater is null");
             return;
         }
         View container = root
@@ -284,6 +292,9 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         mList = (StickyListHeadersListView) layoutInflater
                 .inflate(R.layout.stickylistheaderslistview, (ViewGroup) container,
                         false);
+        if (mList == null) {
+            Log.e(TAG, "Something went wrong, listview is null");
+        }
         if (container instanceof FrameLayout) {
             ((FrameLayout) container).addView(mList);
         }
