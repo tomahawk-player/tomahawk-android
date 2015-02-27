@@ -73,8 +73,7 @@ public class TomahawkApp extends MultiDexApplication {
         }
         StrictMode.setThreadPolicy(
                 new StrictMode.ThreadPolicy.Builder().detectCustomSlowCalls().detectDiskReads()
-                        .detectDiskWrites().detectNetwork().penaltyLog().penaltyFlashScreen()
-                        .build());
+                        .detectDiskWrites().detectNetwork().penaltyLog().build());
         try {
             StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects()
                     .detectLeakedClosableObjects()
