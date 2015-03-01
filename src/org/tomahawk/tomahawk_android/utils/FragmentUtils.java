@@ -130,38 +130,16 @@ public class FragmentUtils {
     }
 
     /**
-     * Show the context menu for the given item in the given context. This method also automatically
-     * collapses the SlidingPanel.
-     *
-     * @param activity     TomahawkMainActivity needed as a context object and to make sure the
-     *                     SlidingLayoutPanel is collapsed
-     * @param item         The Object for which to show the context menu
-     * @param contextItem  The TomahawkListItem which indicates the context of the given item. E.g.
-     *                     a Track (item) in an Album (contextItem)
-     * @param collectionId the id of the corresponding collection (this is being used to e.g. get an
-     *                     album's tracklist from a specific collection)
-     */
-    public static boolean showContextMenu(TomahawkMainActivity activity, Object item,
-            TomahawkListItem contextItem, String collectionId) {
-        activity.collapsePanel();
-        return showContextMenu(activity, item, contextItem, R.id.content_viewer_frame,
-                collectionId);
-    }
-
-    /**
      * Show the context menu for the given item in the given context.
      *
      * @param activity     TomahawkMainActivity needed as a context object and to make sure the
      *                     SlidingLayoutPanel is collapsed
      * @param item         The TomahawkListItem for which to show the context menu
-     * @param contextItem  The TomahawkListItem which indicates the context of the given item. E.g.
-     *                     a Track (item) in an Album (contextItem)
-     * @param frameResId   the resource id of the ViewGroup in which the Fragment will be replaced
      * @param collectionId the id of the corresponding collection (this is being used to e.g. get an
      *                     album's tracklist from a specific collection)
      */
     public static boolean showContextMenu(TomahawkMainActivity activity, Object item,
-            TomahawkListItem contextItem, int frameResId, String collectionId) {
+            String collectionId, boolean isFromPlaybackFragment) {
         if (item == null
                 || (item instanceof SocialAction
                 && ((SocialAction) item).getTargetObject() instanceof User)
@@ -173,13 +151,8 @@ public class FragmentUtils {
         if (collectionId != null) {
             args.putString(TomahawkFragment.COLLECTION_ID, collectionId);
         }
-        if (contextItem instanceof Album) {
-            args.putString(TomahawkFragment.ALBUM, contextItem.getCacheKey());
-        } else if (contextItem instanceof Playlist) {
-            args.putString(TomahawkFragment.PLAYLIST,
-                    ((Playlist) contextItem).getId());
-        } else if (contextItem instanceof Artist) {
-            args.putString(TomahawkFragment.ARTIST, contextItem.getCacheKey());
+        if (isFromPlaybackFragment) {
+            args.putBoolean(TomahawkFragment.FROM_PLAYBACKFRAGMENT, true);
         }
         if (item instanceof Query) {
             args.putString(TomahawkFragment.TOMAHAWKLISTITEM,
@@ -212,7 +185,7 @@ public class FragmentUtils {
             args.putString(TomahawkFragment.TOMAHAWKLISTITEM_TYPE,
                     TomahawkFragment.PLAYLIST);
         }
-        add(activity, ContextMenuFragment.class, args, frameResId);
+        add(activity, ContextMenuFragment.class, args, R.id.context_menu_frame);
         return true;
     }
 }

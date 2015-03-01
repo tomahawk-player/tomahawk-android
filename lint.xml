@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <lint>
     <!-- Disable the check for missing translations in this project -->
-    <issue id="MissingTranslation" severity="ignore" />
+    <issue id="MissingTranslation" severity="ignore"/>
+    <issue id="ContentDescription" severity="ignore"/>
 </lint>

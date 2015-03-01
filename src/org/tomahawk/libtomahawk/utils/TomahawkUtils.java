@@ -39,6 +39,7 @@ import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewStub;
 import android.view.ViewTreeObserver;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
@@ -86,6 +87,33 @@ public class TomahawkUtils {
     public static String HTTP_CONTENT_TYPE_JSON = "application/json; charset=utf-8";
 
     public static String HTTP_CONTENT_TYPE_FORM = "application/x-www-form-urlencoded";
+
+    public static View inflateMenuItem(ViewStub viewStub, int drawableResId, int stringResId,
+            View.OnClickListener listener) {
+        View view = viewStub.inflate();
+        TextView textView = (TextView) view.findViewById(R.id.textview);
+        ImageView imageView = (ImageView) view.findViewById(R.id.imageview);
+        imageView.setImageResource(drawableResId);
+        textView.setText(stringResId);
+        view.setOnClickListener(listener);
+        return view;
+    }
+
+    public static View inflateWhiteButton(ViewStub viewStub, String string,
+            View.OnClickListener listener) {
+        View view = viewStub.inflate();
+        TextView textView = (TextView) view.findViewById(R.id.textview);
+        textView.setText(string);
+        view.setOnClickListener(listener);
+        return view;
+    }
+
+    public static View inflateWhiteButton(ViewStub viewStub, String string) {
+        View view = viewStub.inflate();
+        TextView textView = (TextView) view.findViewById(R.id.textview);
+        textView.setText(string);
+        return view;
+    }
 
     public static class HttpResponse {
 

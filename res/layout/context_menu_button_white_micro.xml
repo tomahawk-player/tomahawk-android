@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:paddingLeft="@dimen/padding_superlarge"
+             android:paddingRight="@dimen/padding_superlarge"
+             android:paddingBottom="@dimen/padding_verysmall"
+             android:paddingTop="@dimen/padding_verysmall"
+             android:background="@drawable/selectable_background_button_white"
+             android:clickable="true">
+
+    <TextView android:id="@+id/textview"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_vertical"
+              android:singleLine="true"
+              android:textSize="@dimen/text_size_micro"
+              android:textColor="@color/primary_textcolor_inverted"/>
+
+</FrameLayout>

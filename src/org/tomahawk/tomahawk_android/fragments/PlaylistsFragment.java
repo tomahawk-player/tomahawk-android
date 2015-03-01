@@ -128,7 +128,7 @@ public class PlaylistsFragment extends TomahawkFragment {
     @Override
     public boolean onItemLongClick(View view, Object item) {
         return item.equals(CREATE_PLAYLIST_BUTTON_ID) || FragmentUtils
-                .showContextMenu((TomahawkMainActivity) getActivity(), item, null, null);
+                .showContextMenu((TomahawkMainActivity) getActivity(), item, null, false);
     }
 
     /**

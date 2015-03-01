@@ -34,13 +34,10 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.AlbumArtViewPager;
 import org.tomahawk.tomahawk_android.views.PlaybackFragmentFrame;
 
-import android.graphics.drawable.TransitionDrawable;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -77,48 +74,7 @@ public class PlaybackFragment extends TomahawkFragment {
 
         @Override
         public void onShowContextMenu(Query query) {
-            ContextMenuFragment.setupClickListeners((TomahawkMainActivity) getActivity(),
-                    getView(), query, null, true,
-                    new ContextMenuFragment.Action() {
-                        @Override
-                        public void run() {
-                            AnimationUtils.fade(getView().findViewById(
-                                            R.id.context_menu_framelayout),
-                                    AnimationUtils.DURATION_CONTEXTMENU, false);
-                            AnimationUtils
-                                    .fade(getView().findViewById(R.id.view_album_button),
-                                            AnimationUtils.DURATION_CONTEXTMENU, false);
-                            TomahawkMainActivity activity
-                                    = ((TomahawkMainActivity) getActivity());
-                            AnimationUtils.fade(activity.getPlaybackPanel().findViewById(
-                                            R.id.textview_container),
-                                    AnimationUtils.DURATION_CONTEXTMENU, true);
-                            View artistTextViewButton = activity.getPlaybackPanel()
-                                    .findViewById(R.id.artist_name_button);
-                            artistTextViewButton.setClickable(false);
-                            TransitionDrawable drawable
-                                    = (TransitionDrawable) artistTextViewButton
-                                    .getBackground();
-                            drawable.reverseTransition(AnimationUtils.DURATION_CONTEXTMENU);
-                        }
-                    });
-            AnimationUtils.fade(getView().findViewById(R.id.context_menu_framelayout),
-                    AnimationUtils.DURATION_CONTEXTMENU, true);
-            if (!TextUtils.isEmpty(query.getAlbum().getName())) {
-                AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
-                        AnimationUtils.DURATION_CONTEXTMENU, true);
-            }
-            View artistTextViewButton = ((TomahawkMainActivity) getActivity())
-                    .getPlaybackPanel().findViewById(R.id.artist_name_button);
-            artistTextViewButton.setClickable(true);
-            TransitionDrawable drawable =
-                    (TransitionDrawable) artistTextViewButton.getBackground();
-            drawable.startTransition(AnimationUtils.DURATION_CONTEXTMENU);
-            if (getResources().getBoolean(R.bool.is_landscape)) {
-                AnimationUtils.fade(((TomahawkMainActivity) getActivity()).getPlaybackPanel()
-                                .findViewById(R.id.textview_container),
-                        AnimationUtils.DURATION_CONTEXTMENU, false);
-            }
+            FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), query, null, true);
         }
     };
 
@@ -188,25 +144,9 @@ public class PlaybackFragment extends TomahawkFragment {
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                View contextMenu = getView().findViewById(R.id.context_menu_framelayout);
-                if (contextMenu.getVisibility() == View.VISIBLE) {
-                    AnimationUtils.fade(contextMenu, AnimationUtils.DURATION_CONTEXTMENU, false);
-                    AnimationUtils.fade(getView().findViewById(R.id.view_album_button),
-                            AnimationUtils.DURATION_CONTEXTMENU, false);
-                    AnimationUtils.fade(((TomahawkMainActivity) getActivity()).getPlaybackPanel()
-                                    .findViewById(R.id.textview_container),
-                            AnimationUtils.DURATION_CONTEXTMENU, true);
-                    View artistTextViewButton = ((TomahawkMainActivity) getActivity())
-                            .getPlaybackPanel().findViewById(R.id.artist_name_button);
-                    artistTextViewButton.setClickable(false);
-                    TransitionDrawable drawable =
-                            (TransitionDrawable) artistTextViewButton.getBackground();
-                    drawable.reverseTransition(AnimationUtils.DURATION_CONTEXTMENU);
-                } else {
-                    SlidingUpPanelLayout slidingLayout =
-                            ((TomahawkMainActivity) getActivity()).getSlidingUpPanelLayout();
-                    slidingLayout.collapsePanel();
-                }
+                SlidingUpPanelLayout slidingLayout =
+                        ((TomahawkMainActivity) getActivity()).getSlidingUpPanelLayout();
+                slidingLayout.collapsePanel();
             }
         });
         TextView closeButtonText = (TextView) closeButton.findViewById(R.id.close_button_text);
@@ -268,19 +208,11 @@ public class PlaybackFragment extends TomahawkFragment {
     @Override
     public boolean onItemLongClick(View view, Object item) {
         if (item != null) {
-            TomahawkListItem contextItem = null;
-            if (mAlbum != null) {
-                contextItem = mAlbum;
-            } else if (mArtist != null) {
-                contextItem = mArtist;
-            } else if (mPlaylist != null) {
-                contextItem = mPlaylist;
-            }
             TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
             AnimationUtils
                     .fade(activity.getPlaybackPanel(), AnimationUtils.DURATION_CONTEXTMENU, false);
-            return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
-                    contextItem, R.id.context_menu_framelayout2, null);
+            return FragmentUtils
+                    .showContextMenu((TomahawkMainActivity) getActivity(), item, null, false);
         }
         return false;
     }
