@@ -33,6 +33,7 @@ import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
+import android.graphics.drawable.TransitionDrawable;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
@@ -57,6 +58,8 @@ public class PlaybackPanel extends FrameLayout {
     private FrameLayout mTextViewContainer;
 
     private LinearLayout mPanelContainer;
+
+    private FrameLayout mArtistNameButton;
 
     private TextView mArtistTextView;
 
@@ -126,7 +129,8 @@ public class PlaybackPanel extends FrameLayout {
 
         mTextViewContainer = (FrameLayout) findViewById(R.id.textview_container);
         mPanelContainer = (LinearLayout) findViewById(R.id.panel_container);
-        mArtistTextView = (TextView) mTextViewContainer.findViewById(R.id.artist_textview);
+        mArtistNameButton = (FrameLayout) mTextViewContainer.findViewById(R.id.artist_name_button);
+        mArtistTextView = (TextView) mArtistNameButton.findViewById(R.id.artist_textview);
         mTrackTextView = (TextView) mTextViewContainer.findViewById(R.id.track_textview);
         mCompletionTimeTextView = (TextView) findViewById(R.id.completiontime_textview);
         mCurrentTimeTextView = (TextView) findViewById(R.id.currenttime_textview);
@@ -415,5 +419,17 @@ public class PlaybackPanel extends FrameLayout {
                 animator.setCurrentPlayTime(position);
             }
         }
+    }
+
+    public void showButtons() {
+        mArtistNameButton.setClickable(true);
+        TransitionDrawable drawable = (TransitionDrawable) mArtistNameButton.getBackground();
+        drawable.startTransition(AnimationUtils.DURATION_CONTEXTMENU);
+    }
+
+    public void hideButtons() {
+        mArtistNameButton.setClickable(false);
+        TransitionDrawable drawable = (TransitionDrawable) mArtistNameButton.getBackground();
+        drawable.reverseTransition(AnimationUtils.DURATION_CONTEXTMENU);
     }
 }

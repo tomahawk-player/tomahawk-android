@@ -301,8 +301,8 @@ public class ContentHeaderFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     String collectionId = mCollection != null ? mCollection.getId() : null;
-                    FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item, null,
-                            collectionId);
+                    FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
+                            collectionId, false);
                 }
             };
             if (item instanceof Album) {

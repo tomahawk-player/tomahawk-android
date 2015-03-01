@@ -411,17 +411,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
      */
     @Override
     public boolean onItemLongClick(View view, Object item) {
-        TomahawkListItem contextItem = null;
-        if (mAlbum != null) {
-            contextItem = mAlbum;
-        } else if (mArtist != null) {
-            contextItem = mArtist;
-        } else if (mPlaylist != null) {
-            contextItem = mPlaylist;
-        }
         String collectionId = mCollection != null ? mCollection.getId() : null;
         return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
-                contextItem, collectionId);
+                collectionId, false);
     }
 
     /**

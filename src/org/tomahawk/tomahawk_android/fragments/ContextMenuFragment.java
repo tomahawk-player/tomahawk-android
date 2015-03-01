@@ -38,6 +38,7 @@ import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -48,6 +49,8 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -62,27 +65,22 @@ import de.greenrobot.event.EventBus;
  */
 public class ContextMenuFragment extends Fragment {
 
-    //the {@link TomahawkListItem} this {@link FakeContextMenuDialog} is associated with
     private TomahawkListItem mTomahawkListItem;
 
-    protected Collection mCollection;
+    private Collection mCollection;
 
-    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
+    private boolean mFromPlaybackFragment;
 
-    public static interface Action {
-
-        public void run();
-    }
+    private HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
     @SuppressWarnings("unused")
     public void onEventMainThread(InfoSystem.ResultsEvent event) {
         if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())
                 && getView() != null) {
-            ImageView albumImageView =
-                    (ImageView) getView().findViewById(R.id.album_imageview);
+            ImageView albumImageView = (ImageView) getView().findViewById(R.id.album_imageview);
             TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
-                    mTomahawkListItem.getAlbum().getImage(), Image.getLargeImageSize(),
-                    true, false);
+                    mTomahawkListItem.getAlbum().getImage(), Image.getLargeImageSize(), true,
+                    false);
         }
     }
 
@@ -96,54 +94,55 @@ public class ContextMenuFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        activity.hideActionbar();
+
         EventBus.getDefault().register(this);
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onViewCreated(final View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        Object contextItem = null;
-        boolean showDelete = false;
-        boolean fromPlaybackFragment = false;
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        activity.hideActionbar();
 
+        unpackArgs();
+
+        setupCloseButton(view);
+        setupContextMenuItems(view);
+        setupBlurredBackground(view);
+
+        if (mFromPlaybackFragment) {
+            setupPlaybackTextViews(view, activity.getPlaybackPanel());
+            activity.getPlaybackPanel().showButtons();
+        } else {
+            setupTextViews(view);
+            setupAlbumArt(view);
+            activity.hidePlaybackPanel();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        activity.showActionBar(false);
+
+        if (mFromPlaybackFragment) {
+            activity.getPlaybackPanel().hideButtons();
+        } else {
+            activity.showPlaybackPanel(false);
+        }
+
+        EventBus.getDefault().unregister(this);
+
+        super.onStop();
+    }
+
+    private void unpackArgs() {
         if (getArguments() != null) {
-            if (getArguments().containsKey(TomahawkFragment.ALBUM)) {
-                contextItem = Album.getAlbumByKey(
-                        getArguments().getString(TomahawkFragment.ALBUM));
-                if (contextItem == null) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                    return;
-                }
-            } else if (getArguments().containsKey(TomahawkFragment.PLAYLIST)) {
-                contextItem = Playlist.getPlaylistById(getArguments()
-                        .getString(TomahawkFragment.PLAYLIST));
-                if (contextItem == null) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                    return;
-                }
-                String playlistId = getArguments().getString(TomahawkFragment.PLAYLIST);
-                contextItem = DatabaseHelper.getInstance().getPlaylist(playlistId);
-                if (contextItem == null) {
-                    contextItem = Playlist.getPlaylistById(playlistId);
-                    if (contextItem == null) {
-                        getActivity().getSupportFragmentManager().popBackStack();
-                        return;
-                    }
-                }
-            } else if (getArguments().containsKey(TomahawkFragment.ARTIST)) {
-                contextItem = Artist.getArtistByKey(
-                        getArguments().getString(TomahawkFragment.ARTIST));
-                if (contextItem == null) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                    return;
-                }
-            }
-            if (getArguments().containsKey(TomahawkFragment.SHOWDELETE)) {
-                showDelete = getArguments().getBoolean(TomahawkFragment.SHOWDELETE);
-            }
             if (getArguments().containsKey(TomahawkFragment.FROM_PLAYBACKFRAGMENT)) {
-                fromPlaybackFragment = getArguments()
+                mFromPlaybackFragment = getArguments()
                         .getBoolean(TomahawkFragment.FROM_PLAYBACKFRAGMENT);
             }
             if (getArguments().containsKey(TomahawkFragment.TOMAHAWKLISTITEM_TYPE)
@@ -180,39 +179,48 @@ public class ContextMenuFragment extends Fragment {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 }
+                if (mTomahawkListItem instanceof SocialAction) {
+                    mTomahawkListItem = ((SocialAction) mTomahawkListItem).getTargetObject();
+                }
             }
             if (getArguments().containsKey(TomahawkFragment.COLLECTION_ID)) {
                 mCollection = CollectionManager.getInstance()
                         .getCollection(getArguments().getString(TomahawkFragment.COLLECTION_ID));
             }
         }
-        if (mTomahawkListItem instanceof SocialAction) {
-            mTomahawkListItem = ((SocialAction) mTomahawkListItem).getTargetObject();
-        }
+    }
 
-        //Set blurred background image
-        if (getView() != null) {
-            final View rootView = getActivity().findViewById(R.id.sliding_layout);
-            TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(rootView) {
-                @Override
-                public void run() {
-                    Bitmap bm = Bitmap.createBitmap(rootView.getWidth(),
-                            rootView.getHeight(), Bitmap.Config.ARGB_8888);
-                    Canvas canvas = new Canvas(bm);
-                    rootView.draw(canvas);
-                    bm = Bitmap.createScaledBitmap(bm, bm.getWidth() / 4,
-                            bm.getHeight() / 4, true);
-                    bm = BlurTransformation.staticTransform(bm, 25f);
+    private void setupBlurredBackground(final View view) {
+        final View rootView = getActivity().findViewById(R.id.sliding_layout);
+        TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(rootView) {
+            @Override
+            public void run() {
+                Bitmap bm = Bitmap.createBitmap(rootView.getWidth(),
+                        rootView.getHeight(), Bitmap.Config.ARGB_8888);
+                Canvas canvas = new Canvas(bm);
+                rootView.draw(canvas);
+                bm = Bitmap.createScaledBitmap(bm, bm.getWidth() / 4,
+                        bm.getHeight() / 4, true);
+                bm = BlurTransformation.staticTransform(bm, 25f);
 
-                    ImageView bgImageView =
-                            (ImageView) getView().findViewById(R.id.background);
-                    bgImageView.setImageBitmap(bm);
+                ImageView bgImageView =
+                        (ImageView) view.findViewById(R.id.background);
+                bgImageView.setImageBitmap(bm);
+
+                if (mFromPlaybackFragment) {
+                    FrameLayout.LayoutParams params =
+                            (FrameLayout.LayoutParams) bgImageView.getLayoutParams();
+                    params.bottomMargin = TomahawkApp.getContext().getResources()
+                            .getDimensionPixelSize(R.dimen.playback_clear_space_bottom);
+                    params.topMargin = TomahawkApp.getContext().getResources()
+                            .getDimensionPixelSize(R.dimen.playback_panel_height);
                 }
-            });
-        }
+            }
+        });
+    }
 
-        //Set up button click listeners
-        View closeButton = getView().findViewById(R.id.close_button);
+    private void setupCloseButton(View view) {
+        View closeButton = view.findViewById(R.id.close_button);
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -226,56 +234,183 @@ public class ContextMenuFragment extends Fragment {
         });
         TextView closeButtonText = (TextView) closeButton.findViewById(R.id.close_button_text);
         closeButtonText.setText(getString(R.string.button_close).toUpperCase());
+    }
 
-        setupClickListeners((TomahawkMainActivity) getActivity(), getView(), mTomahawkListItem,
-                mCollection, false, new Action() {
-                    @Override
-                    public void run() {
-                        getActivity().getSupportFragmentManager().popBackStack();
-                    }
-                });
+    private void setupContextMenuItems(View view) {
+        final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        ViewStub viewStub;
+        View.OnClickListener listener;
 
-        //Set up textviews
-        if (mTomahawkListItem instanceof Album) {
-            View albumNameButton = getView().findViewById(R.id.album_name_button);
-            albumNameButton.setVisibility(View.VISIBLE);
-            albumNameButton.setOnClickListener(new View.OnClickListener() {
+        // set up "Add to playlist" context menu item
+        if (!(mTomahawkListItem instanceof Artist)) {
+            viewStub = (ViewStub) view.findViewById(R.id.context_menu_addtoplaylist_stub);
+            listener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
-                    Bundle bundle = new Bundle();
-                    bundle.putString(TomahawkFragment.ALBUM,
-                            mTomahawkListItem.getCacheKey());
-                    if (mCollection != null) {
-                        bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
+                    ArrayList<Query> queries;
+                    if (mTomahawkListItem instanceof Album) {
+                        Album album = (Album) mTomahawkListItem;
+                        queries = CollectionUtils.getAlbumTracks(album, mCollection);
+                    } else {
+                        queries = mTomahawkListItem.getQueries();
                     }
+                    ArrayList<String> queryKeys = new ArrayList<>();
+                    for (Query query : queries) {
+                        queryKeys.add(query.getCacheKey());
+                    }
+                    Bundle bundle = new Bundle();
                     bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-                    FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                            TracksFragment.class, bundle);
+                            ContentHeaderFragment.MODE_HEADER_STATIC);
+                    bundle.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
+                    FragmentUtils.replace(activity, PlaylistsFragment.class, bundle);
                 }
-            });
-            TextView albumTextView = (TextView) albumNameButton.findViewById(R.id.album_name);
-            albumTextView.setText(mTomahawkListItem.getName());
+            };
+            TomahawkUtils.inflateMenuItem(viewStub, R.drawable.ic_action_playlist_light,
+                    R.string.context_menu_add_to_playlist, listener);
+        }
+
+        // set up "Add to collection" context menu item
+        if (mTomahawkListItem instanceof Album || mTomahawkListItem instanceof Artist) {
+            viewStub = (ViewStub) view.findViewById(R.id.context_menu_addtocollection_stub);
+            listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                    if (mTomahawkListItem instanceof Album) {
+                        CollectionManager.getInstance().toggleLovedItem((Album) mTomahawkListItem);
+                    } else {
+                        CollectionManager.getInstance().toggleLovedItem((Artist) mTomahawkListItem);
+                    }
+                }
+            };
+            if ((mTomahawkListItem instanceof Album
+                    && DatabaseHelper.getInstance().isItemLoved((Album) mTomahawkListItem))
+                    || (mTomahawkListItem instanceof Artist
+                    && DatabaseHelper.getInstance().isItemLoved((Artist) mTomahawkListItem))) {
+                TomahawkUtils.inflateMenuItem(viewStub, R.drawable.ic_action_collection_underlined,
+                        R.string.context_menu_removefromcollection, listener);
+            } else {
+                TomahawkUtils.inflateMenuItem(viewStub, R.drawable.ic_action_collection,
+                        R.string.context_menu_addtocollection, listener);
+            }
+        }
+
+        // set up "Add to favorites" context menu item
+        if (mTomahawkListItem instanceof Query || mTomahawkListItem instanceof PlaylistEntry) {
+            viewStub = (ViewStub) view.findViewById(R.id.context_menu_favorite_stub);
+            final Query query;
+            if (mTomahawkListItem instanceof Query) {
+                query = (Query) mTomahawkListItem;
+            } else {
+                query = ((PlaylistEntry) mTomahawkListItem).getQuery();
+            }
+            listener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                    CollectionManager.getInstance().toggleLovedItem(query);
+                }
+            };
+            if (DatabaseHelper.getInstance().isItemLoved(query)) {
+                TomahawkUtils.inflateMenuItem(viewStub, R.drawable.ic_action_favorites_underlined,
+                        R.string.context_menu_unlove, listener);
+            } else {
+                TomahawkUtils.inflateMenuItem(viewStub, R.drawable.ic_action_favorites,
+                        R.string.context_menu_love, listener);
+            }
+        }
+
+        // set up "Share" context menu item
+        viewStub = (ViewStub) view.findViewById(R.id.context_menu_share_stub);
+        listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().popBackStack();
+                ShareUtils.sendShareIntent(activity, mTomahawkListItem);
+            }
+        };
+        TomahawkUtils.inflateMenuItem(viewStub, R.drawable.ic_action_share,
+                R.string.context_menu_share, listener);
+
+        // set up "Remove" context menu item
+        if (mTomahawkListItem instanceof PlaylistEntry || mTomahawkListItem instanceof Playlist) {
+            final String playlistId = mTomahawkListItem instanceof Playlist
+                    ? ((Playlist) mTomahawkListItem).getId()
+                    : ((PlaylistEntry) mTomahawkListItem).getPlaylistId();
+            if (!DatabaseHelper.LOVEDITEMS_PLAYLIST_ID.equals(playlistId)
+                    && DatabaseHelper.getInstance().getEmptyPlaylist(playlistId) != null) {
+                viewStub = (ViewStub) view.findViewById(R.id.context_menu_remove_stub);
+                listener = new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getActivity().getSupportFragmentManager().popBackStack();
+                        if (mTomahawkListItem instanceof PlaylistEntry) {
+                            CollectionManager.getInstance().deletePlaylistEntry(playlistId,
+                                    ((PlaylistEntry) mTomahawkListItem).getId());
+                        } else {
+                            CollectionManager.getInstance().deletePlaylist(playlistId);
+                        }
+                    }
+                };
+                if (mTomahawkListItem instanceof PlaylistEntry) {
+                    TomahawkUtils.inflateMenuItem(viewStub, R.drawable.ic_player_exit_light,
+                            R.string.context_menu_removefromplaylist, listener);
+                } else {
+                    TomahawkUtils.inflateMenuItem(viewStub, R.drawable.ic_player_exit_light,
+                            R.string.context_menu_delete, listener);
+                }
+            }
+        }
+    }
+
+    private void setupTextViews(View view) {
+        if (mTomahawkListItem instanceof Album) {
+            ViewStub viewStub = (ViewStub) view.findViewById(R.id.album_name_button_stub);
+            TomahawkUtils.inflateWhiteButton(viewStub, mTomahawkListItem.getName(),
+                    constructAlbumNameClickListener());
         } else if (mTomahawkListItem instanceof Query
                 || mTomahawkListItem instanceof PlaylistEntry
                 || mTomahawkListItem instanceof Playlist) {
-            TextView itemTextView = (TextView) getView().findViewById(R.id.track_name);
-            itemTextView.setVisibility(View.VISIBLE);
-            itemTextView.setText(mTomahawkListItem.getName());
+            ViewStub viewStub = (ViewStub) view.findViewById(R.id.track_name_stub);
+            TextView textView = (TextView) viewStub.inflate();
+            textView.setText(mTomahawkListItem.getName());
         }
         if (!(mTomahawkListItem instanceof Playlist)) {
-            TextView artistTextView = (TextView) getView().findViewById(R.id.artist_name);
-            artistTextView.setText(mTomahawkListItem.getArtist().getName());
+            ViewStub viewStub = (ViewStub) view.findViewById(R.id.artist_name_button_stub);
+            TomahawkUtils.inflateWhiteButton(viewStub, mTomahawkListItem.getArtist().getName());
         }
+    }
 
-        //Set up album image and stuff
+    private void setupPlaybackTextViews(View view, PlaybackPanel playbackPanel) {
         if (mTomahawkListItem instanceof Album
                 || ((mTomahawkListItem instanceof Query
                 || mTomahawkListItem instanceof PlaylistEntry)
                 && !TextUtils.isEmpty(mTomahawkListItem.getAlbum().getName()))) {
-            View viewAlbumContainer = getView().findViewById(R.id.view_album_container);
-            viewAlbumContainer.setVisibility(View.VISIBLE);
+            ViewStub viewStub = (ViewStub) view.findViewById(R.id.view_album_button_stub);
+            View inflatedView = viewStub.inflate();
+            View viewAlbumButton = inflatedView.findViewById(R.id.view_album_button);
+            TextView viewAlbumButtonText =
+                    (TextView) viewAlbumButton.findViewById(R.id.textview);
+            viewAlbumButtonText.setText(
+                    TomahawkApp.getContext().getString(R.string.view_album).toUpperCase());
+            viewAlbumButton.setOnClickListener(constructAlbumNameClickListener());
+        }
+        if (!(mTomahawkListItem instanceof Playlist)) {
+            View artistNameButton = playbackPanel.findViewById(R.id.artist_name_button);
+            artistNameButton.setOnClickListener(constructArtistNameClickListener());
+        }
+    }
+
+    private void setupAlbumArt(View view) {
+        if (mTomahawkListItem instanceof Album
+                || ((mTomahawkListItem instanceof Query
+                || mTomahawkListItem instanceof PlaylistEntry)
+                && !TextUtils.isEmpty(mTomahawkListItem.getAlbum().getName()))) {
+            ViewStub viewStub = (ViewStub) view.findViewById(R.id.context_menu_albumart_stub);
+            View viewAlbumContainer = viewStub.inflate();
+
+            // load albumart image
             ImageView albumImageView =
                     (ImageView) viewAlbumContainer.findViewById(R.id.album_imageview);
             if (mTomahawkListItem.getAlbum().getImage() != null) {
@@ -286,185 +421,54 @@ public class ContextMenuFragment extends Fragment {
                 mCorrespondingRequestIds
                         .add(InfoSystem.getInstance().resolve(mTomahawkListItem.getAlbum()));
             }
-        }
-    }
 
-    @Override
-    public void onStop() {
-        EventBus.getDefault().unregister(this);
-
-        super.onStop();
-    }
-
-    public static void setupClickListeners(final TomahawkMainActivity activity, View view,
-            final TomahawkListItem item, final Collection collection,
-            final boolean isPlaybackContextMenu, final Action actionOnDone) {
-        if (item instanceof Album || item instanceof Artist) {
-            View addToCollectionButton = view.findViewById(R.id.addtocollection_button);
-            addToCollectionButton.setVisibility(View.VISIBLE);
-            if ((item instanceof Album
-                    && DatabaseHelper.getInstance().isItemLoved((Album) item))
-                    || (item instanceof Artist
-                    && DatabaseHelper.getInstance().isItemLoved((Artist) item))) {
-                addToCollectionButton.findViewById(R.id.addtocollection_button_underline)
-                        .setVisibility(View.VISIBLE);
-                TextView textView = (TextView) addToCollectionButton
-                        .findViewById(R.id.addtocollection_button_textview);
-                textView.setText(R.string.context_menu_removefromcollection);
-            }
-            addToCollectionButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    actionOnDone.run();
-                    if (item instanceof Album) {
-                        CollectionManager.getInstance().toggleLovedItem((Album) item);
-                    } else {
-                        CollectionManager.getInstance().toggleLovedItem((Artist) item);
-                    }
-                }
-            });
-        }
-        if (item instanceof Query || item instanceof PlaylistEntry) {
-            View favoriteButton = view.findViewById(R.id.favorite_button);
-            favoriteButton.setVisibility(View.VISIBLE);
-            final Query query;
-            if (item instanceof Query) {
-                query = (Query) item;
-            } else {
-                query = ((PlaylistEntry) item).getQuery();
-            }
-            if (DatabaseHelper.getInstance().isItemLoved(query)) {
-                favoriteButton.findViewById(R.id.favorite_button_underline)
-                        .setVisibility(View.VISIBLE);
-                TextView textView = (TextView) favoriteButton
-                        .findViewById(R.id.favorite_button_textview);
-                textView.setText(R.string.context_menu_unlove);
-            }
-            favoriteButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    actionOnDone.run();
-                    CollectionManager.getInstance().toggleLovedItem(query);
-                }
-            });
-        }
-        if (!(item instanceof Artist)) {
-            View addToPlaylistButton = view.findViewById(R.id.addtoplaylist_button);
-            addToPlaylistButton.setVisibility(View.VISIBLE);
-            addToPlaylistButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    actionOnDone.run();
-                    ArrayList<Query> queries;
-                    if (item instanceof Album) {
-                        Album album = (Album) item;
-                        queries = CollectionUtils.getAlbumTracks(album, collection);
-                    } else {
-                        queries = item.getQueries();
-                    }
-                    ArrayList<String> queryKeys = new ArrayList<String>();
-                    for (Query query : queries) {
-                        queryKeys.add(query.getCacheKey());
-                    }
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                            ContentHeaderFragment.MODE_HEADER_STATIC);
-                    bundle.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
-                    FragmentUtils.replace(activity, PlaylistsFragment.class, bundle);
-                }
-            });
-        }
-        View shareButton = view.findViewById(R.id.share_button);
-        shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                actionOnDone.run();
-                ShareUtils.sendShareIntent(activity, item);
-            }
-        });
-        if (item instanceof PlaylistEntry || item instanceof Playlist) {
-            final String playlistId = item instanceof Playlist
-                    ? ((Playlist) item).getId()
-                    : ((PlaylistEntry) item).getPlaylistId();
-            if (!DatabaseHelper.LOVEDITEMS_PLAYLIST_ID.equals(playlistId)
-                    && DatabaseHelper.getInstance().getEmptyPlaylist(playlistId) != null) {
-                View removeButton = view.findViewById(R.id.remove_button);
-                TextView removeButtonTextView =
-                        (TextView) removeButton.findViewById(R.id.remove_button_textview);
-                if (item instanceof PlaylistEntry) {
-                    removeButtonTextView.setText(R.string.context_menu_removefromplaylist);
-                } else {
-                    removeButtonTextView.setText(R.string.context_menu_delete);
-                }
-                removeButton.setVisibility(View.VISIBLE);
-                removeButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        actionOnDone.run();
-                        if (item instanceof PlaylistEntry) {
-                            CollectionManager.getInstance().deletePlaylistEntry(playlistId,
-                                    ((PlaylistEntry) item).getId());
-                        } else {
-                            CollectionManager.getInstance().deletePlaylist(playlistId);
-                        }
-                    }
-                });
-            }
-        }
-
-        if (item instanceof Album
-                || ((item instanceof Query || item instanceof PlaylistEntry)
-                && !TextUtils.isEmpty(item.getAlbum().getName()))) {
+            // set text on "view album"-button and set up click listener
             View viewAlbumButton = view.findViewById(R.id.view_album_button);
             TextView viewAlbumButtonText =
-                    (TextView) viewAlbumButton.findViewById(R.id.view_album_button_text);
-            viewAlbumButtonText.setText(activity.getString(R.string.view_album).toUpperCase());
-            viewAlbumButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    actionOnDone.run();
-                    Bundle bundle = new Bundle();
-                    bundle.putString(TomahawkFragment.ALBUM,
-                            item.getAlbum().getCacheKey());
-                    if (collection != null) {
-                        bundle.putString(TomahawkFragment.COLLECTION_ID, collection.getId());
-                    }
-                    bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-                    FragmentUtils.replace(activity, TracksFragment.class, bundle);
-                }
-            });
-        }
-        if (!(item instanceof Playlist)) {
-            View.OnClickListener artistNameButtonListener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    actionOnDone.run();
-                    Bundle bundle = new Bundle();
-                    bundle.putString(TomahawkFragment.ARTIST,
-                            item.getArtist().getCacheKey());
-                    if (collection != null) {
-                        bundle.putString(TomahawkFragment.COLLECTION_ID, collection.getId());
-                    }
-                    bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                            ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
-                    bundle.putLong(TomahawkFragment.CONTAINER_FRAGMENT_ID,
-                            TomahawkMainActivity.getSessionUniqueId());
-                    FragmentUtils.replace(activity, ArtistPagerFragment.class, bundle);
-                }
-            };
-            View artistNameButton;
-            if (isPlaybackContextMenu) {
-                artistNameButton = activity.getPlaybackPanel()
-                        .findViewById(R.id.artist_name_button);
-            } else {
-                artistNameButton = view.findViewById(R.id.artist_name_button);
-                artistNameButton.setVisibility(View.VISIBLE);
-            }
-            if (artistNameButton != null) {
-                artistNameButton.setOnClickListener(artistNameButtonListener);
-            }
+                    (TextView) viewAlbumButton.findViewById(R.id.textview);
+            viewAlbumButtonText.setText(
+                    TomahawkApp.getContext().getString(R.string.view_album).toUpperCase());
+            viewAlbumButton.setOnClickListener(constructAlbumNameClickListener());
         }
     }
 
+    private View.OnClickListener constructArtistNameClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().popBackStack();
+                Bundle bundle = new Bundle();
+                bundle.putString(TomahawkFragment.ARTIST,
+                        mTomahawkListItem.getArtist().getCacheKey());
+                if (mCollection != null) {
+                    bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
+                }
+                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                        ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+                bundle.putLong(TomahawkFragment.CONTAINER_FRAGMENT_ID,
+                        TomahawkMainActivity.getSessionUniqueId());
+                FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                        ArtistPagerFragment.class, bundle);
+            }
+        };
+    }
+
+    private View.OnClickListener constructAlbumNameClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().popBackStack();
+                Bundle bundle = new Bundle();
+                bundle.putString(TomahawkFragment.ALBUM,
+                        mTomahawkListItem.getAlbum().getCacheKey());
+                if (mCollection != null) {
+                    bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
+                }
+                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                        ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                        TracksFragment.class, bundle);
+            }
+        };
+    }
 }

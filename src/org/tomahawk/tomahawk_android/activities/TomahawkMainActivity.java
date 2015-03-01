@@ -85,7 +85,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
-import android.graphics.drawable.TransitionDrawable;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.net.ConnectivityManager;
@@ -678,8 +677,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 boolean actionBarHidden = mSavedInstanceState
                         .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
                 if (actionBarHidden) {
-                    getSupportActionBar().hide();
-                    AnimationUtils.moveY(mActionBarBg, 0, -ACTIONBAR_HEIGHT, 250, false);
+                    hideActionbar();
                 }
             }
         }
@@ -962,25 +960,10 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onBackPressed() {
-        if (mSlidingUpPanelLayout.findViewById(R.id.context_menu_fragment) == null
-                && mSlidingUpPanelLayout.isEnabled() && (mSlidingUpPanelLayout.isPanelExpanded()
+        if (findViewById(R.id.context_menu_fragment) == null && mSlidingUpPanelLayout.isEnabled()
+                && (mSlidingUpPanelLayout.isPanelExpanded()
                 || mSlidingUpPanelLayout.isPanelAnchored())) {
-            final View contextMenu = mSlidingUpPanelLayout
-                    .findViewById(R.id.context_menu_framelayout);
-            if (contextMenu.getVisibility() == View.VISIBLE) {
-                AnimationUtils.fade(contextMenu, AnimationUtils.DURATION_CONTEXTMENU, false);
-                AnimationUtils.fade(mSlidingUpPanelLayout.findViewById(R.id.view_album_button),
-                        AnimationUtils.DURATION_CONTEXTMENU, false);
-                AnimationUtils.fade(mPlaybackPanel.findViewById(R.id.textview_container),
-                        AnimationUtils.DURATION_CONTEXTMENU, true);
-                View artistTextViewButton = mPlaybackPanel.findViewById(R.id.artist_name_button);
-                artistTextViewButton.setClickable(false);
-                TransitionDrawable drawable =
-                        (TransitionDrawable) artistTextViewButton.getBackground();
-                drawable.reverseTransition(AnimationUtils.DURATION_CONTEXTMENU);
-            } else {
-                mSlidingUpPanelLayout.collapsePanel();
-            }
+            mSlidingUpPanelLayout.collapsePanel();
         } else {
             if (!mSlidingUpPanelLayout.isPanelHidden()) {
                 AnimationUtils.fade(mPlaybackPanel, AnimationUtils.DURATION_CONTEXTMENU, true);
@@ -1009,15 +992,9 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onPanelSlide(View view, float v) {
         mSlidingOffset = v;
         if (v > 0.5f) {
-            if (getSupportActionBar().isShowing()) {
-                getSupportActionBar().hide();
-            }
-            AnimationUtils.moveY(mActionBarBg, 0, -ACTIONBAR_HEIGHT, 250, false);
+            hideActionbar();
         } else if (v < 0.5f) {
-            if (!getSupportActionBar().isShowing()) {
-                getSupportActionBar().show();
-            }
-            AnimationUtils.moveY(mActionBarBg, 0, -ACTIONBAR_HEIGHT, 250, true);
+            showActionBar(true);
         }
         final View topPanel = mSlidingUpPanelLayout.findViewById(R.id.top_buttonpanel);
         if (v > 0.15f) {
@@ -1079,10 +1056,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onPanelCollapsed(View view) {
-        if (!getSupportActionBar().isShowing()) {
-            getSupportActionBar().show();
-        }
-        AnimationUtils.moveY(mActionBarBg, 0, -ACTIONBAR_HEIGHT, 250, true);
+        showActionBar(true);
         sendSlidingLayoutChangedEvent();
     }
 
@@ -1110,15 +1084,44 @@ public class TomahawkMainActivity extends ActionBarActivity
             mSlidingUpPanelLayout.showPanel();
             mPlaybackPanel.setup(mSlidingUpPanelLayout.isPanelExpanded());
             mPlaybackPanel.update(mPlaybackService);
-            mPlaybackPanel.setVisibility(View.VISIBLE);
+            showPlaybackPanel(true);
         }
     }
 
     public void hidePanel() {
         if (!mSlidingUpPanelLayout.isPanelHidden()) {
             mSlidingUpPanelLayout.hidePanel();
-            mPlaybackPanel.setVisibility(View.GONE);
+            hidePlaybackPanel();
         }
+    }
+
+    public void showActionBar(boolean forced) {
+        if (forced || mSlidingUpPanelLayout.getPanelState()
+                == SlidingUpPanelLayout.PanelState.COLLAPSED
+                || mSlidingUpPanelLayout.getPanelState()
+                == SlidingUpPanelLayout.PanelState.HIDDEN) {
+            if (!getSupportActionBar().isShowing()) {
+                getSupportActionBar().show();
+            }
+            AnimationUtils.moveY(mActionBarBg, 0, -ACTIONBAR_HEIGHT, 250, true);
+        }
+    }
+
+    public void hideActionbar() {
+        if (getSupportActionBar().isShowing()) {
+            getSupportActionBar().hide();
+        }
+        AnimationUtils.moveY(mActionBarBg, 0, -ACTIONBAR_HEIGHT, 250, false);
+    }
+
+    public void showPlaybackPanel(boolean forced) {
+        if (forced || !mSlidingUpPanelLayout.isPanelHidden()) {
+            AnimationUtils.fade(mPlaybackPanel, AnimationUtils.DURATION_CONTEXTMENU, true);
+        }
+    }
+
+    public void hidePlaybackPanel() {
+        AnimationUtils.fade(mPlaybackPanel, AnimationUtils.DURATION_CONTEXTMENU, false);
     }
 
     private void sendSlidingLayoutChangedEvent() {

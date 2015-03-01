@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:padding="@dimen/padding_medium">
+
+    <ImageView android:id="@+id/album_imageview"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:adjustViewBounds="true"
+               android:src="@drawable/album_placeholder_grid"/>
+
+    <View android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:background="@color/tertiary_transparent"/>
+
+    <include android:id="@+id/view_album_button"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center_horizontal"
+             android:layout_marginTop="32dp"
+             layout="@layout/context_menu_button_white_micro"/>
+
+</FrameLayout>
