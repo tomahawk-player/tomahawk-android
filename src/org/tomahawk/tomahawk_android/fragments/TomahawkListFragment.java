@@ -33,6 +33,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
@@ -171,7 +172,10 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         int playTime;
         if (getListView().getFirstVisiblePosition() == 0
                 && getListView().getListChildAt(0) != null) {
-            float delta = getListView().getListChildAt(0).getBottom() - getListView().getTop();
+            FrameLayout.LayoutParams params =
+                    (FrameLayout.LayoutParams) getListView().getLayoutParams();
+            float delta = getListView().getListChildAt(0).getBottom() - getListView().getTop()
+                    + params.topMargin;
             playTime = (int)
                     (10000f - delta / getListView().getListChildAt(0).getHeight() * 10000f);
         } else {
@@ -253,8 +257,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     }
 
     protected void setupNonScrollableSpacer() {
-        setupNonScrollableSpacer(
-                getView().findViewById(R.id.fragmentLayout_listLayout_frameLayout));
+        setupNonScrollableSpacer(getListView());
     }
 
     protected void setupScrollableSpacer() {
@@ -287,16 +290,17 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
             Log.e(TAG, "Couldn't inflate listview! layoutInflater is null");
             return;
         }
-        View container = root
-                .findViewById(R.id.fragmentLayout_listLayout_frameLayout);
-        mList = (StickyListHeadersListView) layoutInflater
-                .inflate(R.layout.stickylistheaderslistview, (ViewGroup) container,
-                        false);
+        View view = root.findViewById(R.id.listview_stub);
+        if (view instanceof ViewStub) {
+            mList = (StickyListHeadersListView) ((ViewStub) view).inflate();
+        } else {
+            view = root.findViewById(R.id.listview);
+            if (view instanceof StickyListHeadersListView) {
+                mList = (StickyListHeadersListView) view;
+            }
+        }
         if (mList == null) {
             Log.e(TAG, "Something went wrong, listview is null");
-        }
-        if (container instanceof FrameLayout) {
-            ((FrameLayout) container).addView(mList);
         }
         if (mStickyBaseAdapter != null) {
             setListAdapter(mStickyBaseAdapter);

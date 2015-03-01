@@ -345,9 +345,7 @@ public class ContentHeaderFragment extends Fragment {
     protected void setupNonScrollableSpacer(View view) {
         //Add a non-scrollable spacer to the top of the given view
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) view.getLayoutParams();
-        params.setMargins(params.leftMargin, mHeaderNonscrollableHeight, params.rightMargin,
-                params.bottomMargin);
-        view.setLayoutParams(params);
+        params.topMargin = mHeaderNonscrollableHeight;
     }
 
     protected void setupScrollableSpacer(TomahawkListAdapter adapter,
