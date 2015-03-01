@@ -46,10 +46,8 @@
   <string name="local_collection_pretty_name">Local Collection</string>
   <string name="local">Local</string>
   <string name="all">All</string>
-  <string name="preferences_services">Services</string>
   <string name="preferences_local_collection_text">Choose the directories which should be scanned for local media.</string>
   <string name="preferences_hatchet_text">Sync your data with %1$s.</string>
-  <string name="preferences_spotify_text">Play your music from %1$s. Requires a Premium account.</string>
   <string name="preferences_playback">Playback</string>
   <string name="preferences_equalizer">Equalizer</string>
   <string name="preferences_equalizer_text">Customize the audio output.</string>
@@ -86,7 +84,6 @@
   <!-- Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks) -->
   <string name="context_menu_unlove">Unlove</string>
   <string name="context_menu_share">Share</string>
-  <string name="context_menu_gotoartist">Go to Artist</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Collection</string>
   <string name="drawer_title_playlists">Playlists</string>
@@ -167,9 +164,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
   <string name="ask_access_activity_header">Want to automatically save data about all the tracks you play on Hatchet?</string>
   <string name="ask_access_activity_text1">We\'ll do that for you! Please enable our service in your system settings.</string>
-  <string name="ask_access_activity_text2">(You can disable this whenever you want in Tomahawk\'s settings)</string>
-  <string name="ask_access_activity_button_text">Go to Settings</string>
-  <string name="button_open_queue_text">Queue</string>
   <string name="button_close">Close</string>
   <string name="view_album">View Album</string>
   <string name="authenticator_label" translate="false">Hatchet</string>
