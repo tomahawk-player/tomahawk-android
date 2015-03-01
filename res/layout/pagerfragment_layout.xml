@@ -27,20 +27,15 @@
                  android:layout_width="match_parent"
                  android:layout_height="match_parent"/>
 
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="match_parent">
+    <android.support.v4.view.ViewPager
+            android:id="@+id/fragmentpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
-        <android.support.v4.view.ViewPager
-                android:id="@+id/fragmentpager"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
-
-        <org.tomahawk.tomahawk_android.views.Selector
-                android:id="@+id/selector"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-    </FrameLayout>
+    <org.tomahawk.tomahawk_android.views.Selector
+            android:id="@+id/selector"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
 
     <FrameLayout android:id="@+id/content_header_frame_pager"
                  android:layout_width="match_parent"
