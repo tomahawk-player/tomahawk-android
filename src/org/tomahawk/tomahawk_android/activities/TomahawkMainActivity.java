@@ -611,8 +611,10 @@ public class TomahawkMainActivity extends ActionBarActivity
             }
         }
 
-        mShouldShowAnimationHandler = new Handler();
-        mShouldShowAnimationHandler.post(mShouldShowAnimationRunnable);
+        if (mShouldShowAnimationHandler == null) {
+            mShouldShowAnimationHandler = new Handler();
+            mShouldShowAnimationHandler.post(mShouldShowAnimationRunnable);
+        }
 
         if (mTomahawkMainReceiver == null) {
             mTomahawkMainReceiver = new TomahawkMainReceiver();
@@ -692,8 +694,10 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onPause() {
         super.onPause();
 
-        mShouldShowAnimationHandler.removeCallbacks(mShouldShowAnimationRunnable);
-        mShouldShowAnimationHandler = null;
+        if (mShouldShowAnimationHandler != null) {
+            mShouldShowAnimationHandler.removeCallbacks(mShouldShowAnimationRunnable);
+            mShouldShowAnimationHandler = null;
+        }
 
         if (mTomahawkMainReceiver != null) {
             unregisterReceiver(mTomahawkMainReceiver);
