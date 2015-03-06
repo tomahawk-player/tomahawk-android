@@ -18,10 +18,10 @@
 package org.tomahawk.tomahawk_android.ui.widgets;
 
 import android.content.Context;
+import android.support.v7.internal.widget.TintEditText;
 import android.util.AttributeSet;
-import android.widget.EditText;
 
-public class ConfigEdittext extends EditText implements StringView {
+public class ConfigEdittext extends TintEditText implements StringView {
 
     public String mFieldName;
 

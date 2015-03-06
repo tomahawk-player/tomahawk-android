@@ -3,25 +3,6 @@
 <!-- Generated with http://android-holo-colors.com -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="EditTextTomahawk" parent="android:Widget.EditText">
-        <item name="android:background">@drawable/tomahawk_edit_text_holo_light</item>
-        <item name="android:textColor">#000000</item>
-    </style>
-
-    <style name="AutoCompleteTextViewTomahawk" parent="android:Widget.AutoCompleteTextView">
-        <item name="android:dropDownSelector">@drawable/tomahawk_list_selector_holo_light</item>
-        <item name="android:background">@drawable/tomahawk_edit_text_holo_light</item>
-        <item name="android:textColor">#000000</item>
-    </style>
-
-    <style name="CheckBoxTomahawk" parent="android:Widget.CompoundButton.CheckBox">
-        <item name="android:button">@drawable/tomahawk_btn_check_holo_light</item>
-    </style>
-
-    <style name="CheckBoxTomahawkFakeDisabled" parent="android:Widget.CompoundButton.CheckBox">
-        <item name="android:button">@drawable/tomahawk_btn_check_holo_light_fakedisabled</item>
-    </style>
-
     <style name="ProgressBarTomahawk" parent="android:Widget.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/tomahawk_progress_horizontal_holo_light
         </item>
@@ -31,6 +12,7 @@
         <item name="android:minHeight">16dip</item>
         <item name="android:maxHeight">16dip</item>
     </style>
+
     <style name="ProgressBarWhiteTomahawk" parent="android:Widget.ProgressBar.Horizontal">
         <item name="android:progressDrawable">@drawable/tomahawk_progress_horizontal_white
         </item>
@@ -41,25 +23,32 @@
         <item name="android:maxHeight">16dip</item>
     </style>
 
-    <style name="ListViewTomahawk" parent="android:Widget.ListView">
-        <item name="android:listSelector">@drawable/tomahawk_list_selector_holo_light</item>
-    </style>
-
-    <style name="ListViewTomahawk.White" parent="android:Widget.ListView.White">
-        <item name="android:listSelector">@drawable/tomahawk_list_selector_holo_light</item>
+    <style name="SeekBarAppTheme" parent="android:Widget.Holo.Light.SeekBar">
+        <item name="android:progressDrawable">
+            @drawable/apptheme_scrubber_progress_horizontal_holo_light
+        </item>
+        <item name="android:indeterminateDrawable">
+            @drawable/apptheme_scrubber_progress_horizontal_holo_light
+        </item>
+        <item name="android:thumb">@drawable/apptheme_scrubber_control_selector_holo_light</item>
     </style>
 
     <style name="ActionBar.Solid.Tomahawk"
            parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@drawable/ab_solid_tomahawk</item>
-        <item name="backgroundStacked">@drawable/ab_stacked_solid_tomahawk</item>
-        <item name="backgroundSplit">@drawable/ab_bottom_solid_tomahawk</item>
-        <item name="progressBarStyle">@style/ProgressBar.Tomahawk</item>
+        <item name="android:background">@color/primary_background_inverted</item>
+        <item name="android:backgroundStacked">@drawable/ab_stacked_solid_tomahawk</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid_tomahawk</item>
+        <item name="android:progressBarStyle">@style/ProgressBar.Tomahawk</item>
     </style>
 
     <style name="ActionBar.Transparent.Tomahawk" parent="@style/Widget.AppCompat.ActionBar">
         <item name="background">@android:color/transparent</item>
         <item name="progressBarStyle">@style/ProgressBar.Tomahawk</item>
+        <item name="titleTextStyle">@style/TitleBarTextColor</item>
+    </style>
+
+    <style name="TitleBarTextColor" parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/primary_textcolor_inverted</item>
     </style>
 
     <style name="PopupMenu.Tomahawk" parent="@style/Widget.AppCompat.PopupMenu">
