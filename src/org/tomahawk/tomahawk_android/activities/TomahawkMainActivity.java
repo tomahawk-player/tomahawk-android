@@ -769,9 +769,6 @@ public class TomahawkMainActivity extends ActionBarActivity
                 = (SearchView.SearchAutoComplete) searchView
                 .findViewById(android.support.v7.appcompat.R.id.search_src_text);
         searchAutoComplete.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
-        View searchEditText = searchView
-                .findViewById(android.support.v7.appcompat.R.id.search_plate);
-        searchEditText.setBackgroundResource(R.drawable.tomahawk_textfield_activated_holo_light);
         searchView.setQueryHint(getString(R.string.search));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
