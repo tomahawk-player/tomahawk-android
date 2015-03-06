@@ -114,7 +114,14 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
                     R.layout.content_header_user_navdrawer, null);
             ViewHolder viewHolder = new ViewHolder(contentHeaderView,
                     R.layout.content_header_user_navdrawer);
-            viewHolder.fillContentHeaderSmall(holder.title, holder.user);
+            TextView textView = (TextView) contentHeaderView.findViewById(R.id.textview1);
+            textView.setText(holder.title.toUpperCase());
+            TextView userTextView = (TextView) contentHeaderView.findViewById(R.id.usertextview1);
+            ImageView userImageView =
+                    (ImageView) contentHeaderView.findViewById(R.id.userimageview1);
+            TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(), userImageView,
+                    holder.user, Image.getSmallImageSize(), userTextView);
+            userImageView.setVisibility(View.VISIBLE);
             return contentHeaderView;
         } else {
             View view = mLayoutInflater.inflate(R.layout.single_line_list_menu, parent, false);

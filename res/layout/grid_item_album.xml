@@ -26,29 +26,7 @@
               android:layout_weight="1"
               android:background="@drawable/selectable_background_tomahawk_opaque">
 
-    <ViewStub android:id="@+id/imageview_create_playlist_stub"
-              android:inflatedId="@+id/imageview_create_playlist"
-              android:layout="@layout/imageview_create_playlist"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"/>
-
-    <ViewStub android:id="@+id/imageview_grid_one_stub"
-              android:inflatedId="@+id/imageview_grid_one"
-              android:layout="@layout/imageview_grid_one"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"/>
-
-    <ViewStub android:id="@+id/imageview_grid_two_stub"
-              android:inflatedId="@+id/imageview_grid_two"
-              android:layout="@layout/imageview_grid_two"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"/>
-
-    <ViewStub android:id="@+id/imageview_grid_three_stub"
-              android:inflatedId="@+id/imageview_grid_three"
-              android:layout="@layout/imageview_grid_three"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"/>
+    <include layout="@layout/imageview_grid_one"/>
 
     <TextView android:id="@+id/textview1"
               android:layout_width="wrap_content"

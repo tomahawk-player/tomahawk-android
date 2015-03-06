@@ -31,58 +31,53 @@
             android:scaleType="centerInside"/>
     <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_weight="0.5"
-                android:orientation="vertical"
-                android:padding="@dimen/padding_small"
-                android:gravity="center_vertical">
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:orientation="vertical"
+            android:padding="@dimen/padding_small"
+            android:gravity="center_vertical">
 
-            <TextView
-                    android:id="@+id/notification_small_textview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:textColor="@color/primary_textcolor_inverted"
-                    android:textSize="@dimen/text_size_large"/>
+        <TextView
+                android:id="@+id/notification_small_textview"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textColor="@color/primary_textcolor_inverted"
+                android:textSize="@dimen/text_size_large"/>
 
-            <TextView
-                    android:id="@+id/notification_small_textview2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:textColor="@color/secondary_textcolor_inverted"
-                    android:textSize="@dimen/text_size_small"/>
-        </LinearLayout>
-        <ImageView
-                android:id="@+id/notification_small_imageview_playpause"
-                android:layout_height="match_parent"
+        <TextView
+                android:id="@+id/notification_small_textview2"
                 android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:paddingTop="@dimen/padding_large"
-                android:paddingBottom="@dimen/padding_large"
-                android:src="@drawable/ic_player_play_light"
-                android:background="@drawable/selectable_background_tomahawk"/>
-        <ImageView
-                android:id="@+id/notification_small_imageview_next"
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:paddingTop="@dimen/padding_large"
-                android:paddingBottom="@dimen/padding_large"
-                android:src="@drawable/ic_player_next_light"
-                android:background="@drawable/selectable_background_tomahawk"/>
-        <ImageView
-                android:id="@+id/notification_small_imageview_exit"
-                android:layout_height="match_parent"
-                android:layout_width="match_parent"
-                android:layout_weight="1"
-                android:paddingTop="@dimen/padding_large"
-                android:paddingBottom="@dimen/padding_large"
-                android:src="@drawable/ic_player_exit_light"
-                android:background="@drawable/selectable_background_tomahawk"/>
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textColor="@color/secondary_textcolor_inverted"
+                android:textSize="@dimen/text_size_small"/>
     </LinearLayout>
-
+    <ImageView
+            android:id="@+id/notification_small_imageview_playpause"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:paddingTop="@dimen/padding_large"
+            android:paddingBottom="@dimen/padding_large"
+            android:src="@drawable/ic_player_play_light"
+            android:background="@drawable/selectable_background_tomahawk"/>
+    <ImageView
+            android:id="@+id/notification_small_imageview_next"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:paddingTop="@dimen/padding_large"
+            android:paddingBottom="@dimen/padding_large"
+            android:src="@drawable/ic_player_next_light"
+            android:background="@drawable/selectable_background_tomahawk"/>
+    <ImageView
+            android:id="@+id/notification_small_imageview_exit"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"
+            android:layout_weight="1"
+            android:paddingTop="@dimen/padding_large"
+            android:paddingBottom="@dimen/padding_large"
+            android:src="@drawable/ic_player_exit_light"
+            android:background="@drawable/selectable_background_tomahawk"/>
 </LinearLayout>

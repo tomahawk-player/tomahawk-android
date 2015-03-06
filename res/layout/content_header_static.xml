@@ -19,26 +19,17 @@
  */
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/content_header_static"
              android:layout_width="match_parent"
              android:layout_height="@dimen/header_clear_space_nonscrollable_static">
 
-    <LinearLayout android:id="@+id/page_indicator_container"
-                  android:layout_width="match_parent"
-                  android:layout_height="@dimen/pager_indicator_height"
-                  android:layout_gravity="bottom"
-                  android:orientation="vertical"
-                  android:visibility="gone"
-                  android:background="@drawable/above_shadow_page_indicator">
-
-        <org.tomahawk.tomahawk_android.views.PageIndicator
-                android:id="@+id/page_indicator"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:paddingLeft="@dimen/padding_large"
-                android:paddingRight="@dimen/padding_large"/>
-
-    </LinearLayout>
+    <org.tomahawk.tomahawk_android.views.PageIndicator
+            android:id="@+id/page_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/pager_indicator_height"
+            android:layout_gravity="bottom"
+            android:paddingLeft="@dimen/padding_large"
+            android:paddingRight="@dimen/padding_large"
+            android:background="@drawable/above_shadow_page_indicator"
+            android:visibility="gone"/>
 
 </FrameLayout>

@@ -80,11 +80,9 @@ public class RedirectConfigDialog extends ConfigDialog {
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        LinearLayout headerTextLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_textview, null);
-        TextView headerTextView = (TextView) headerTextLayout.findViewById(R.id.config_textview);
+        TextView headerTextView = (TextView) inflater.inflate(R.layout.config_textview, null);
         headerTextView.setText(mScriptResolver.getDescription());
-        addScrollingViewToFrame(headerTextLayout);
+        addScrollingViewToFrame(headerTextView);
 
         int buttonBackgroundResId;
         int buttonTextColor;

@@ -20,68 +20,57 @@
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
-             android:layout_height="match_parent">
+             android:layout_height="match_parent"
+             android:background="@color/primary_background">
 
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:baselineAligned="false"
-                  android:orientation="horizontal"
-                  android:background="@color/primary_background">
+    <!-- The navigation drawer -->
+    <se.emilsjolander.stickylistheaders.StickyListHeadersListView
+            android:id="@+id/left_drawer"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:paddingTop="?attr/actionBarSize"
+            android:layout_gravity="start"
+            android:choiceMode="singleChoice"
+            android:dividerHeight="0px"
+            android:background="@color/navdrawer_background"/>
 
-        <!-- The navigation drawer -->
-        <se.emilsjolander.stickylistheaders.StickyListHeadersListView
-                android:id="@+id/left_drawer"
-                android:layout_width="240dp"
-                android:layout_height="match_parent"
-                android:paddingTop="?attr/actionBarSize"
-                android:layout_gravity="start"
-                android:choiceMode="singleChoice"
-                android:dividerHeight="0px"
-                android:background="@color/navdrawer_background"/>
+    <!-- The main content view -->
+    <com.sothree.slidinguppanel.SlidingUpPanelLayout
+            xmlns:sothree="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/sliding_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="240dp"
+            android:gravity="bottom"
+            sothree:panelHeight="@dimen/playback_panel_height"
+            sothree:shadowHeight="4dp">
 
-        <View android:layout_width="1px"
-              android:layout_height="match_parent"
-              android:background="@color/divider"/>
+        <FrameLayout android:id="@+id/content_viewer_frame"
+                     android:layout_width="match_parent"
+                     android:layout_height="match_parent"/>
 
-        <!-- The main content view -->
-        <FrameLayout android:layout_width="match_parent"
-                     android:layout_height="match_parent">
+        <org.tomahawk.tomahawk_android.views.PlaybackFragmentFrame
+                android:id="@+id/playback_fragment_frame"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
-            <com.sothree.slidinguppanel.SlidingUpPanelLayout
-                    xmlns:sothree="http://schemas.android.com/apk/res-auto"
-                    android:id="@+id/sliding_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="bottom"
-                    sothree:panelHeight="@dimen/playback_panel_height"
-                    sothree:shadowHeight="4dp">
+    </com.sothree.slidinguppanel.SlidingUpPanelLayout>
 
-                <FrameLayout android:id="@+id/content_viewer_frame"
-                             android:layout_width="match_parent"
-                             android:layout_height="match_parent"/>
+    <org.tomahawk.tomahawk_android.views.PlaybackPanel
+            android:id="@+id/playback_panel"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="240dp"/>
 
-                <org.tomahawk.tomahawk_android.views.PlaybackFragmentFrame
-                        android:id="@+id/playback_fragment_frame"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"/>
-
-            </com.sothree.slidinguppanel.SlidingUpPanelLayout>
-
-            <org.tomahawk.tomahawk_android.views.PlaybackPanel
-                    android:id="@+id/playback_panel"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:visibility="gone"/>
-
-        </FrameLayout>
-
-    </LinearLayout>
+    <View android:layout_width="1px"
+          android:layout_height="match_parent"
+          android:layout_marginLeft="240dp"
+          android:background="@color/divider"/>
 
     <View android:id="@+id/action_bar_background"
           android:layout_width="match_parent"
           android:layout_height="@dimen/abc_action_bar_default_height_material"
-          android:background="@drawable/below_shadow"
-          android:visibility="visible"/>
+          android:background="@drawable/below_shadow"/>
 
     <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
             xmlns:app="http://schemas.android.com/apk/res-auto"

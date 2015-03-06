@@ -39,17 +39,16 @@ import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
-import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.HashSet;
 import java.util.List;
@@ -225,16 +224,26 @@ public class ContentHeaderFragment extends Fragment {
         return mHeaderScrollableHeight > 0;
     }
 
-    protected void showFancyDropDown(FrameLayout headerFrame, String text) {
-        ViewHolder viewHolder = new ViewHolder(null, headerFrame, R.layout.content_header);
-        viewHolder.setupFancyDropDown(text);
+    protected void showFancyDropDown(String text) {
+        if (getView() == null) {
+            Log.e(TAG, "Couldn't setup FancyDropDown, because getView() is null!");
+            return;
+        }
+
+        FancyDropDown fancyDropDown = (FancyDropDown) getView().findViewById(R.id.fancydropdown);
+        fancyDropDown.setup(text);
     }
 
-    protected void showFancyDropDown(FrameLayout headerFrame, int initialSelection, String text,
+    protected void showFancyDropDown(int initialSelection, String text,
             List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
             FancyDropDown.DropDownListener dropDownListener) {
-        ViewHolder viewHolder = new ViewHolder(null, headerFrame, R.layout.content_header);
-        viewHolder.setupFancyDropDown(initialSelection, text, dropDownItemInfos, dropDownListener);
+        if (getView() == null) {
+            Log.e(TAG, "Couldn't setup FancyDropDown, because getView() is null!");
+            return;
+        }
+
+        FancyDropDown fancyDropDown = (FancyDropDown) getView().findViewById(R.id.fancydropdown);
+        fancyDropDown.setup(initialSelection, text, dropDownItemInfos, dropDownListener);
     }
 
     /**
@@ -247,55 +256,56 @@ public class ContentHeaderFragment extends Fragment {
      * @param item the {@link org.tomahawk.tomahawk_android.utils.TomahawkListItem}'s information to
      *             show in the header view
      */
-    protected void showContentHeader(FrameLayout imageFrame, FrameLayout headerFrame,
-            final Object item) {
-        //Inflate views and add them into our frames
-        LayoutInflater inflater = (LayoutInflater)
-                TomahawkApp.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        int layoutId;
-        int viewId;
-        if (item instanceof Playlist) {
-            layoutId = R.layout.content_header_imagegrid;
-            viewId = R.id.content_header_imagegrid;
-        } else {
-            layoutId = R.layout.content_header_imagesingle;
-            viewId = R.id.content_header_imagesingle;
-        }
-        if (imageFrame.findViewById(viewId) == null) {
-            imageFrame.removeAllViews();
-            View headerImage = inflater.inflate(layoutId, imageFrame, false);
-            headerImage.setLayoutParams(new FrameLayout.LayoutParams(
-                    ViewGroup.LayoutParams.MATCH_PARENT,
-                    mHeaderNonscrollableHeight + mHeaderScrollableHeight));
-            imageFrame.addView(headerImage);
+    protected void showContentHeader(final Object item) {
+        if (getView() == null) {
+            Log.e(TAG, "Couldn't setup content header, because getView() is null!");
+            return;
         }
 
+        boolean isPagerFragment = this instanceof PagerFragment;
+
+        //Inflate content header
+        int stubResId;
+        int inflatedId;
         if (item instanceof User) {
-            layoutId = R.layout.content_header_user;
-            viewId = R.id.content_header_user;
+            stubResId = isPagerFragment ? R.id.content_header_user_pager_stub
+                    : R.id.content_header_user_stub;
+            inflatedId = isPagerFragment ? R.id.content_header_user_pager
+                    : R.id.content_header_user;
         } else {
             if (mHeaderScrollableHeight > 0) {
-                layoutId = R.layout.content_header;
-                viewId = R.id.content_header;
+                stubResId = isPagerFragment ? R.id.content_header_pager_stub
+                        : R.id.content_header_stub;
+                inflatedId = isPagerFragment ? R.id.content_header_pager
+                        : R.id.content_header;
             } else {
-                layoutId = R.layout.content_header_static;
-                viewId = R.id.content_header_static;
+                stubResId = isPagerFragment ? R.id.content_header_static_pager_stub
+                        : R.id.content_header_static_stub;
+                inflatedId = isPagerFragment ? R.id.content_header_static_pager
+                        : R.id.content_header_static;
             }
         }
-        if (headerFrame.findViewById(viewId) == null) {
-            headerFrame.removeAllViews();
-            View header = inflater.inflate(layoutId, headerFrame, false);
-            headerFrame.addView(header);
-            header.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    mHeaderScrollableHeight + mHeaderNonscrollableHeight));
-        }
+        View contentHeader = TomahawkUtils.ensureInflation(getView(), stubResId, inflatedId);
+        contentHeader.getLayoutParams().height =
+                mHeaderNonscrollableHeight + mHeaderScrollableHeight;
 
-        //Now we fill the added views with data
-        ViewHolder viewHolder = new ViewHolder(imageFrame, headerFrame, layoutId);
+        //Now we fill the added views with data and inflate the correct imageview_grid depending on
+        //what we need
+        int gridOneStubId = isPagerFragment ? R.id.imageview_grid_one_pager_stub
+                : R.id.imageview_grid_one_stub;
+        int gridOneResId = isPagerFragment ? R.id.imageview_grid_one_pager
+                : R.id.imageview_grid_one;
         if (item instanceof Integer) {
-            viewHolder.fillContentHeader((Integer) item);
+            View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+            v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
+            ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
+            TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                    (Integer) item);
         } else if (item instanceof ColorDrawable) {
-            viewHolder.fillContentHeader((ColorDrawable) item);
+            View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+            v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
+            ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
+            imageView.setImageDrawable((ColorDrawable) item);
         } else if (mHeaderScrollableHeight > 0) {
             View.OnClickListener moreButtonListener = new View.OnClickListener() {
                 @Override
@@ -306,17 +316,49 @@ public class ContentHeaderFragment extends Fragment {
                 }
             };
             if (item instanceof Album) {
-                viewHolder.fillContentHeader((Album) item, moreButtonListener);
+                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+                v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
+                ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
+                TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
+                        ((Album) item).getImage(), Image.getLargeImageSize(), false);
+                View moreButton = getView().findViewById(R.id.more_button);
+                moreButton.setOnClickListener(moreButtonListener);
             } else if (item instanceof Artist) {
-                viewHolder.fillContentHeader((Artist) item, moreButtonListener);
+                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+                v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
+                ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
+                TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
+                        ((Artist) item).getImage(), Image.getLargeImageSize(), true);
+                View moreButton = getView().findViewById(R.id.more_button);
+                moreButton.setOnClickListener(moreButtonListener);
             } else if (item instanceof Playlist) {
-                viewHolder.fillContentHeader((Playlist) item, moreButtonListener);
+                ViewHolder.fillView(getView(), (Playlist) item,
+                        mHeaderNonscrollableHeight + mHeaderScrollableHeight, isPagerFragment);
+                View moreButton = getView().findViewById(R.id.more_button);
+                moreButton.setOnClickListener(moreButtonListener);
             } else if (item instanceof Query) {
-                viewHolder.fillContentHeader((Query) item, moreButtonListener);
+                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+                v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
+                ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
+                TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
+                        ((Query) item).getImage(), Image.getLargeImageSize(),
+                        ((Query) item).hasArtistImage());
+                View moreButton = getView().findViewById(R.id.more_button);
+                moreButton.setOnClickListener(moreButtonListener);
             }
         } else {
-            if (item instanceof Image) {
-                viewHolder.fillContentHeader((Image) item);
+            if (item == null) {
+                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+                v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
+                ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
+                imageView.setImageDrawable(new ColorDrawable(
+                        getResources().getColor(R.color.userpage_default_background)));
+            } else if (item instanceof Image) {
+                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+                v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
+                TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(),
+                        (ImageView) v.findViewById(R.id.imageview1), (Image) item,
+                        Image.getSmallImageSize(), R.color.userpage_default_background);
             } else if (item instanceof User) {
                 HatchetAuthenticatorUtils authUtils =
                         (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
@@ -333,8 +375,36 @@ public class ContentHeaderFragment extends Fragment {
                     showNotFollowing = item != user && user.getFollowings() != null
                             && !user.getFollowings().containsKey(item);
                 }
-                viewHolder.fillContentHeader((User) item, showFollowing, showNotFollowing,
-                        mFollowButtonListener);
+                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+                v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
+                TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(),
+                        (ImageView) v.findViewById(R.id.imageview1),
+                        ((User) item).getImage(), Image.getSmallImageSize(),
+                        R.color.userpage_default_background);
+                TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
+                        (ImageView) contentHeader.findViewById(R.id.userimageview1),
+                        (User) item, Image.getSmallImageSize(),
+                        (TextView) contentHeader.findViewById(R.id.usertextview1));
+                TextView textView = (TextView) contentHeader.findViewById(R.id.textview1);
+                textView.setText(((User) item).getName().toUpperCase());
+                TextView followButton = (TextView) contentHeader.findViewById(R.id.followbutton1);
+                if (showFollowing) {
+                    followButton.setVisibility(View.VISIBLE);
+                    followButton.setBackgroundResource(
+                            R.drawable.selectable_background_button_green_filled);
+                    followButton.setOnClickListener(mFollowButtonListener);
+                    followButton.setText(TomahawkApp.getContext().getString(
+                            R.string.content_header_following).toUpperCase());
+                } else if (showNotFollowing) {
+                    followButton.setVisibility(View.VISIBLE);
+                    followButton.setBackgroundResource(
+                            R.drawable.selectable_background_button_green);
+                    followButton.setOnClickListener(mFollowButtonListener);
+                    followButton.setText(TomahawkApp.getContext().getString(
+                            R.string.content_header_follow).toUpperCase());
+                } else {
+                    followButton.setVisibility(View.GONE);
+                }
             }
         }
     }
@@ -362,21 +432,39 @@ public class ContentHeaderFragment extends Fragment {
         mAnimators.add(animator);
     }
 
-    protected void setupAnimations(FrameLayout imageFrame, FrameLayout headerFrame) {
+    protected void setupAnimations() {
+        if (getView() == null) {
+            Log.e(TAG, "Couldn't setup animations, because getView() is null!");
+            return;
+        }
+
         mAnimators.clear();
         if (isDynamicHeader()) {
-            View header = headerFrame.findViewById(R.id.content_header);
+            boolean isPagerFragment = this instanceof PagerFragment;
+            View header = getView().findViewById(isPagerFragment ? R.id.content_header_pager
+                    : R.id.content_header);
             if (header == null) {
-                header = headerFrame.findViewById(R.id.content_header_user);
+                header = getView().findViewById(isPagerFragment ? R.id.content_header_user_pager
+                        : R.id.content_header_user);
             }
             setupFancyDropDownAnimation(header);
             setupButtonAnimation(header);
             setupPageIndicatorAnimation(header);
 
-            View headerImage = imageFrame.findViewById(R.id.content_header_imagegrid);
+            View headerImage = getView()
+                    .findViewById(isPagerFragment ? R.id.imageview_grid_one_pager
+                            : R.id.imageview_grid_one);
             if (headerImage == null) {
-                headerImage = imageFrame.findViewById(R.id.content_header_imagesingle);
+                headerImage = getView()
+                        .findViewById(isPagerFragment ? R.id.imageview_grid_two_pager
+                                : R.id.imageview_grid_two);
             }
+            if (headerImage == null) {
+                headerImage = getView()
+                        .findViewById(isPagerFragment ? R.id.imageview_grid_three_pager
+                                : R.id.imageview_grid_three);
+            }
+
             setupImageViewAnimation(headerImage);
 
             if (mContainerFragmentId >= 0) {
@@ -429,9 +517,9 @@ public class ContentHeaderFragment extends Fragment {
 
     private void setupButtonAnimation(final View view) {
         if (view != null) {
-            View buttonView = view.findViewById(R.id.morebutton1);
-            if (buttonView != null) {
-                TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(buttonView) {
+            View moreButton = view.findViewById(R.id.more_button);
+            if (moreButton != null) {
+                TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(moreButton) {
                     @Override
                     public void run() {
                         // get resources first
@@ -445,7 +533,7 @@ public class ContentHeaderFragment extends Fragment {
                                 .getDimensionPixelSize(R.dimen.padding_small);
                         int actionBarHeight = resources.getDimensionPixelSize(
                                 R.dimen.abc_action_bar_default_height_material);
-                        View pageIndicator = view.findViewById(R.id.page_indicator_container);
+                        View pageIndicator = view.findViewById(R.id.page_indicator);
                         int pageIndicatorHeight = 0;
                         if (pageIndicator != null
                                 && pageIndicator.getVisibility() == View.VISIBLE) {
@@ -485,7 +573,7 @@ public class ContentHeaderFragment extends Fragment {
 
     private void setupPageIndicatorAnimation(final View view) {
         if (view != null) {
-            View indicatorView = view.findViewById(R.id.page_indicator_container);
+            View indicatorView = view.findViewById(R.id.page_indicator);
             if (indicatorView != null) {
                 TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(indicatorView) {
                     @Override

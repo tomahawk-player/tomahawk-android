@@ -77,12 +77,9 @@ public class ResolverConfigDialog extends ConfigDialog {
         EditText showKeyboardEditText = null;
         EditText lastEditText = null;
         if (mScriptResolver.getConfigUi() != null && mScriptResolver.getConfigUi().fields != null) {
-            LinearLayout headerTextLayout = (LinearLayout) inflater
-                    .inflate(R.layout.config_textview, null);
-            TextView headerTextView = (TextView) headerTextLayout
-                    .findViewById(R.id.config_textview);
+            TextView headerTextView = (TextView) inflater.inflate(R.layout.config_textview, null);
             headerTextView.setText(mScriptResolver.getDescription());
-            addScrollingViewToFrame(headerTextLayout);
+            addScrollingViewToFrame(headerTextView);
             for (ScriptResolverConfigUiField field : mScriptResolver.getConfigUi().fields) {
                 Map<String, Object> config = mScriptResolver.getConfig();
                 if (PROPERTY_CHECKED.equals(field.property)) {
@@ -100,10 +97,8 @@ public class ResolverConfigDialog extends ConfigDialog {
                     }
                     addScrollingViewToFrame(checkboxLayout);
                 } else if (PROPERTY_TEXT.equals(field.property)) {
-                    LinearLayout textLayout = (LinearLayout) inflater
+                    ConfigEdittext editText = (ConfigEdittext) inflater
                             .inflate(R.layout.config_edittext, null);
-                    ConfigEdittext editText = (ConfigEdittext) textLayout
-                            .findViewById(R.id.config_edittext);
                     editText.mFieldName = field.name;
                     editText.setHint(field.name);
                     mStringViews.add(editText);
@@ -114,7 +109,7 @@ public class ResolverConfigDialog extends ConfigDialog {
                         editText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
                         editText.setTransformationMethod(new PasswordTransformationMethod());
                     }
-                    addScrollingViewToFrame(textLayout);
+                    addScrollingViewToFrame(editText);
                     if (showKeyboardEditText == null) {
                         showKeyboardEditText = editText;
                     }

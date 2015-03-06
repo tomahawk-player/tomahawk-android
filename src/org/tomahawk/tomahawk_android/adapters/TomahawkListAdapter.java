@@ -25,31 +25,27 @@ import com.daimajia.swipe.util.Attributes;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
-import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
-import android.content.res.Resources;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -66,6 +62,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener,
         SwipeItemMangerInterface,
         SwipeAdapterInterface {
+
+    private static final String TAG = TomahawkListAdapter.class.getSimpleName();
 
     private TomahawkMainActivity mActivity;
 
@@ -237,7 +235,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     && o == mHighlightedQuery;
         }
 
-        List<ViewHolder> viewHolders = new ArrayList<ViewHolder>();
+        List<ViewHolder> viewHolders = new ArrayList<>();
         if (convertView != null) {
             viewHolders = (List<ViewHolder>) convertView.getTag();
             view = convertView;
@@ -258,7 +256,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             // If the viewHolder is null or the old viewType is different than the new one,
             // we need to inflate a new view and construct a new viewHolder,
             // which we set as the view's tag
-            viewHolders = new ArrayList<ViewHolder>();
+            viewHolders = new ArrayList<>();
             if (o instanceof List) {
                 LinearLayout rowContainer = (LinearLayout) mLayoutInflater
                         .inflate(R.layout.row_container, parent, false);
@@ -288,18 +286,15 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 view = mLayoutInflater.inflate(viewType, parent, false);
                 ViewHolder viewHolder = new ViewHolder(view, viewType);
                 viewHolders.add(viewHolder);
-                if (viewType == R.layout.list_item_track
-                        || viewType == R.layout.list_item_track_short) {
-                    // We have a SwipeLayout
+                if (view instanceof SwipeLayout) {
                     mItemManager.initialize(view, position);
                 }
             }
             // Set extra padding
             if (getSegment(position) != null && getSegment(position).getLeftExtraPadding() > 0) {
-                if (viewType == R.layout.list_item_track
-                        || viewType == R.layout.list_item_track_short) {
-                    // if it's a list_item_track, we have to set the padding on the foreground
-                    // layout in the SwipeLayout instead
+                if (view instanceof SwipeLayout) {
+                    // if it's a SwipeLayout, we have to set the padding on the foreground
+                    // layout within the SwipeLayout instead
                     View foreground = ((ViewGroup) view).getChildAt(1);
                     foreground.setPadding(foreground.getPaddingLeft() + getSegment(position)
                                     .getLeftExtraPadding(),
@@ -314,44 +309,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             }
             view.setTag(viewHolders);
         } else {
-            if (viewType == R.layout.list_item_track
-                    || viewType == R.layout.list_item_track_short) {
+            if (view instanceof SwipeLayout) {
                 // We have a SwipeLayout
                 mItemManager.updateConvertView(view, position);
-            }
-            if (viewType == R.layout.list_item_track
-                    || viewType == R.layout.list_item_track_short
-                    || viewType == R.layout.grid_item
-                    || viewType == R.layout.list_item_artistalbum
-                    || viewType == R.layout.grid_item_user
-                    || viewType == R.layout.list_item_user
-                    || viewType == R.layout.grid_item_resolver
-                    || viewType == R.layout.grid_item_playlist) {
-                for (ViewHolder viewHolder : viewHolders) {
-                    if (viewType == R.layout.list_item_track) {
-                        viewHolder.mImageView1.setVisibility(View.GONE);
-                        viewHolder.mTextView1.setVisibility(View.GONE);
-                        viewHolder.mTextView3.setVisibility(View.GONE);
-                        viewHolder.mTextView4.setVisibility(View.GONE);
-                        viewHolder.mProgressBarContainer.removeAllViews();
-                    } else if (viewType == R.layout.list_item_track_short) {
-                        viewHolder.mImageView1.setVisibility(View.GONE);
-                        viewHolder.mTextView1.setVisibility(View.GONE);
-                        viewHolder.mTextView4.setVisibility(View.GONE);
-                        viewHolder.mProgressBarContainer.removeAllViews();
-                    } else if (viewType == R.layout.grid_item_resolver) {
-                        viewHolder.mImageView1.clearColorFilter();
-                    } else if (viewType == R.layout.grid_item_playlist) {
-                        viewHolder.mMainClickArea.setBackgroundResource(0);
-                        viewHolder.mImageView1.setVisibility(View.GONE);
-                        viewHolder.mImageView2.setVisibility(View.VISIBLE);
-                        viewHolder.mImageView3.setVisibility(View.GONE);
-                        viewHolder.mAddIcon.setVisibility(View.GONE);
-                    } else {
-                        viewHolder.mTextView2.setVisibility(View.GONE);
-                        viewHolder.mTextView3.setVisibility(View.GONE);
-                    }
-                }
             }
         }
 
@@ -360,41 +320,46 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         for (int i = 0; i < viewHolders.size(); i++) {
             ViewHolder viewHolder = viewHolders.get(i);
             Object item = o instanceof List ? ((List) o).get(i) : o;
-            // Don't display the socialAction item directly, but rather the item that is its target
-            if (item instanceof SocialAction && ((SocialAction) item).getTargetObject() != null) {
-                item = ((SocialAction) item).getTargetObject();
-            }
-            if (viewHolder.mLayoutId == R.layout.content_footer_spacer) {
-                view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        mFooterSpacerHeight));
-            } else if (viewHolder.mLayoutId == R.layout.content_header_spacer) {
-                view.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                        mHeaderSpacerHeight));
-            } else if (viewHolder.mLayoutId == R.layout.grid_item
-                    || viewHolder.mLayoutId == R.layout.list_item_artistalbum) {
-                if (item instanceof Album) {
-                    viewHolder.fillView((Album) item);
-                } else if (item instanceof Artist) {
+            if (item == null) {
+                if (viewHolder.mLayoutId == R.layout.content_footer_spacer) {
+                    view.setLayoutParams(
+                            new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                    mFooterSpacerHeight));
+                } else if (viewHolder.mLayoutId == R.layout.content_header_spacer) {
+                    view.setLayoutParams(
+                            new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                                    mHeaderSpacerHeight));
+                }
+            } else {
+                // Don't display the socialAction item directly, but rather the item that is its target
+                if (item instanceof SocialAction
+                        && ((SocialAction) item).getTargetObject() != null) {
+                    item = ((SocialAction) item).getTargetObject();
+                }
+                if (viewHolder.mLayoutId == R.layout.grid_item_artist
+                        || viewHolder.mLayoutId == R.layout.list_item_artist) {
                     viewHolder.fillView((Artist) item);
-                }
-            } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
-                viewHolder.fillView((Resolver) item);
-            } else if (viewHolder.mLayoutId == R.layout.grid_item_playlist) {
-                if (item instanceof Playlist) {
-                    viewHolder.fillView((Playlist) item);
-                } else if (item instanceof Integer) {
-                    viewHolder.fillView((int) item);
-                }
-            } else if (viewHolder.mLayoutId == R.layout.grid_item_user
-                    || viewHolder.mLayoutId == R.layout.list_item_user) {
-                viewHolder.fillView((User) item);
-            } else if (viewHolder.mLayoutId == R.layout.single_line_list_item) {
-                viewHolder.fillView(((TomahawkListItem) item).getName());
-            } else if (viewHolder.mLayoutId == R.layout.list_item_text) {
-                viewHolder.fillView(((TomahawkListItem) item).getName());
-            } else if (viewHolder.mLayoutId == R.layout.list_item_track
-                    || viewType == R.layout.list_item_track_short) {
-                if (item instanceof Query || item instanceof PlaylistEntry) {
+                } else if (viewHolder.mLayoutId == R.layout.grid_item_album
+                        || viewHolder.mLayoutId == R.layout.list_item_album) {
+                    viewHolder.fillView((Album) item);
+                } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
+                    viewHolder.fillView((Resolver) item);
+                } else if (viewHolder.mLayoutId == R.layout.grid_item_playlist) {
+                    if (item instanceof Playlist) {
+                        viewHolder.fillView((Playlist) item);
+                    } else if (item instanceof Integer) {
+                        viewHolder.fillView((int) item);
+                    }
+                } else if (viewHolder.mLayoutId == R.layout.grid_item_user
+                        || viewHolder.mLayoutId == R.layout.list_item_user) {
+                    viewHolder.fillView((User) item);
+                } else if (viewHolder.mLayoutId == R.layout.single_line_list_item) {
+                    viewHolder.fillView(((TomahawkListItem) item).getName());
+                } else if (viewHolder.mLayoutId == R.layout.list_item_text) {
+                    viewHolder.fillView(((TomahawkListItem) item).getName());
+                } else if (viewHolder.mLayoutId == R.layout.list_item_track_artist
+                        || viewType == R.layout.list_item_numeration_track_artist
+                        || viewType == R.layout.list_item_numeration_track_duration) {
                     String numerationString = null;
                     if (!getSegment(position).isShowAsQueued() && getSegment(position)
                             .isShowNumeration()) {
@@ -409,31 +374,36 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     }
                     viewHolder.fillView(query, numerationString,
                             mHighlightedItemIsPlaying && shouldBeHighlighted,
-                            getSegment(position).isShowDuration(),
-                            getSegment(position).isHideArtistName(), new View.OnClickListener() {
+                            new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     mActivity.getPlaybackService().addQueryToQueue(query);
                                     closeAllItems();
                                 }
                             }, getSegment(position).isShowAsQueued());
-                }
-                if (mHighlightedItemIsPlaying && shouldBeHighlighted) {
-                    if (mProgressBar == null) {
-                        mProgressBar = (ProgressBar) mLayoutInflater.inflate(R.layout.progressbar,
-                                viewHolder.mProgressBarContainer, false);
-                    }
-                    if (mProgressBar.getParent() instanceof FrameLayout) {
-                        ((FrameLayout) mProgressBar.getParent()).removeView(mProgressBar);
-                    }
-                    viewHolder.mProgressBarContainer.addView(mProgressBar);
-                    mProgressHandler.sendEmptyMessage(0);
-                }
-            }
 
-            //Set up the click listeners
-            if (item != null && viewHolder.mMainClickArea != null) {
-                viewHolder.setMainClickListener(new ClickListener(item, mClickListener));
+                    FrameLayout progressBarContainer = (FrameLayout) viewHolder
+                            .findViewById(R.id.progressbar_container);
+                    if (mHighlightedItemIsPlaying && shouldBeHighlighted) {
+                        if (mProgressBar == null) {
+                            mProgressBar = (ProgressBar) mLayoutInflater
+                                    .inflate(R.layout.progressbar,
+                                            progressBarContainer, false);
+                        }
+                        if (mProgressBar.getParent() instanceof FrameLayout) {
+                            ((FrameLayout) mProgressBar.getParent()).removeView(mProgressBar);
+                        }
+                        progressBarContainer.addView(mProgressBar);
+                        mProgressHandler.sendEmptyMessage(0);
+                    } else {
+                        progressBarContainer.removeAllViews();
+                    }
+                }
+
+                //Set up the click listeners
+                if (viewHolder.findViewById(R.id.mainclickarea) != null) {
+                    viewHolder.setMainClickListener(new ClickListener(item, mClickListener));
+                }
             }
         }
         return view;
@@ -547,73 +517,17 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             }
 
             if (layoutId == R.layout.dropdown_header) {
-                ArrayList<CharSequence> list = new ArrayList<CharSequence>();
+                ArrayList<CharSequence> spinnerItems = new ArrayList<CharSequence>();
                 for (String headerString : segment.getHeaderStrings()) {
-                    list.add(headerString.toUpperCase());
+                    spinnerItems.add(headerString.toUpperCase());
                 }
-                ArrayAdapter<CharSequence> adapter =
-                        new ArrayAdapter<CharSequence>(TomahawkApp.getContext(),
-                                R.layout.dropdown_header_textview, list);
-                adapter.setDropDownViewResource(R.layout.dropdown_header_dropdown_textview);
-                viewHolder.mSpinner1.setAdapter(adapter);
-                viewHolder.mSpinner1.setSelection(segment.getInitialPos());
-                viewHolder.mSpinner1.setOnItemSelectedListener(segment.getSpinnerClickListener());
+                viewHolder.fillHeaderView(spinnerItems, segment.getInitialPos(),
+                        segment.getSpinnerClickListener());
             } else if (layoutId == R.layout.single_line_list_header) {
-                viewHolder.mTextView1.setText(segment.getHeaderString().toUpperCase());
+                viewHolder.fillHeaderView(segment.getHeaderString());
             } else if (layoutId == R.layout.list_header_socialaction) {
                 SocialAction socialAction = (SocialAction) segment.getFirstSegmentItem();
-                TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
-                        viewHolder.mUserImageView1, socialAction.getUser(),
-                        Image.getSmallImageSize(), viewHolder.mUserTextView1);
-                TomahawkListItem targetObject = socialAction.getTargetObject();
-                Resources resources = view.getResources();
-                String userName = socialAction.getUser().getName();
-                String phrase = "!FIXME! type: " + socialAction.getType()
-                        + ", action: " + socialAction.getAction() + ", user: " + userName;
-                if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
-                        .equals(socialAction.getType())) {
-                    if (targetObject instanceof Query) {
-                        phrase = segment.segmentSize() > 1 ?
-                                resources.getString(R.string.socialaction_type_love_track_multiple,
-                                        userName, segment.segmentSize())
-                                : resources.getString(R.string.socialaction_type_love_track_single,
-                                        userName);
-                    } else if (targetObject instanceof Album) {
-                        phrase = segment.segmentSize() > 1 ?
-                                resources.getString(
-                                        R.string.socialaction_type_collected_album_multiple,
-                                        userName, segment.segmentSize())
-                                : resources.getString(
-                                        R.string.socialaction_type_collected_album_single,
-                                        userName);
-                    } else if (targetObject instanceof Artist) {
-                        phrase = segment.segmentSize() > 1 ?
-                                resources.getString(
-                                        R.string.socialaction_type_collected_artist_multiple,
-                                        userName, segment.segmentSize())
-                                : resources.getString(
-                                        R.string.socialaction_type_collected_artist_single,
-                                        userName);
-                    }
-                } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW
-                        .equals(socialAction.getType())) {
-                    phrase = resources.getString(R.string.socialaction_type_follow, userName);
-                } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST
-                        .equals(socialAction.getType())) {
-                    phrase = segment.segmentSize() > 1 ?
-                            resources.getString(R.string.socialaction_type_createplaylist_multiple,
-                                    userName, segment.segmentSize())
-                            : resources.getString(R.string.socialaction_type_createplaylist_single,
-                                    userName);
-                } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON
-                        .equals(socialAction.getType())) {
-                    phrase = segment.segmentSize() > 1 ?
-                            resources.getString(R.string.socialaction_type_latchon_multiple,
-                                    userName, segment.segmentSize())
-                            : resources.getString(
-                                    R.string.socialaction_type_latchon_single, userName);
-                }
-                viewHolder.mTextView1.setText(phrase + ":");
+                viewHolder.fillHeaderView(socialAction, segment.segmentSize());
             }
             return view;
         } else {
@@ -653,6 +567,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     return R.layout.grid_item_user;
                 } else if (firstItem instanceof Resolver) {
                     return R.layout.grid_item_resolver;
+                } else if (firstItem instanceof Artist) {
+                    return R.layout.grid_item_artist;
+                } else if (firstItem instanceof Album) {
+                    return R.layout.grid_item_album;
                 } else if (firstItem instanceof Playlist) {
                     return R.layout.grid_item_playlist;
                 } else if (firstItem instanceof Integer) {
@@ -661,7 +579,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                             return R.layout.grid_item_playlist;
                     }
                 } else {
-                    return R.layout.grid_item;
+                    Log.e(TAG, "getViewType - Couldn't find appropriate viewType!");
+                    return 0;
                 }
             }
         }
@@ -676,14 +595,18 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             return R.layout.single_line_list_item;
         } else if (item instanceof ListItemString) {
             return R.layout.list_item_text;
-        } else if (item instanceof Album || item instanceof Artist) {
-            return R.layout.list_item_artistalbum;
+        } else if (item instanceof Album) {
+            return R.layout.list_item_album;
+        } else if (item instanceof Artist) {
+            return R.layout.list_item_artist;
         } else if (item instanceof User) {
             return R.layout.list_item_user;
         } else if (segment.isHideArtistName()) {
-            return R.layout.list_item_track_short;
+            return R.layout.list_item_numeration_track_duration;
+        } else if (segment.isShowNumeration()) {
+            return R.layout.list_item_numeration_track_artist;
         } else {
-            return R.layout.list_item_track;
+            return R.layout.list_item_track_artist;
         }
     }
 

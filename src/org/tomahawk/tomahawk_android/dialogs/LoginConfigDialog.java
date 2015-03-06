@@ -40,7 +40,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -91,11 +90,9 @@ public class LoginConfigDialog extends ConfigDialog {
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
         boolean isLoggedIn = mAuthenticatorUtils.isLoggedIn();
-        LinearLayout headerTextLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_textview, null);
-        TextView headerTextView = (TextView) headerTextLayout.findViewById(R.id.config_textview);
+        TextView headerTextView = (TextView) inflater.inflate(R.layout.config_textview, null);
         headerTextView.setText(mAuthenticatorUtils.getDescription());
-        addScrollingViewToFrame(headerTextLayout);
+        addScrollingViewToFrame(headerTextView);
         if (mAuthenticatorUtils.doesAllowRegistration() && !isLoggedIn) {
             FrameLayout buttonLayout =
                     (FrameLayout) inflater.inflate(R.layout.config_button, null);
@@ -105,21 +102,17 @@ public class LoginConfigDialog extends ConfigDialog {
             buttonText.setOnClickListener(new RegisterButtonListener());
             addScrollingViewToFrame(buttonLayout);
         }
-        LinearLayout usernameLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
-        mUsernameEditText = (ConfigEdittext) usernameLayout.findViewById(R.id.config_edittext);
+        mUsernameEditText = (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
         mUsernameEditText.setHint(mAuthenticatorUtils.getUserIdEditTextHintResId());
         mUsernameEditText.setText(isLoggedIn ? mAuthenticatorUtils.getUserName() : "");
-        addScrollingViewToFrame(usernameLayout);
-        LinearLayout passwordLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
-        mPasswordEditText = (ConfigEdittext) passwordLayout.findViewById(R.id.config_edittext);
+        addScrollingViewToFrame(mUsernameEditText);
+        mPasswordEditText = (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
         mPasswordEditText.setHint(R.string.login_password);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
         mPasswordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
-        addScrollingViewToFrame(passwordLayout);
+        addScrollingViewToFrame(mPasswordEditText);
 
         showSoftKeyboard(mUsernameEditText);
 

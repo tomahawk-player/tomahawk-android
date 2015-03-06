@@ -27,7 +27,9 @@ import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.TextView;
 
 import java.io.File;
 import java.util.List;
@@ -122,15 +124,15 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
         final CustomDirectory dir = (CustomDirectory) getItem(position);
 
         // Init checkbox
+        CheckBox checkBox = (CheckBox) viewHolder.findViewById(R.id.checkbox1);
         if (!dir.isMediaDirComplete) {
-            viewHolder.mCheckBox1.setButtonDrawable(
-                    R.drawable.abc_btn_check_to_on_mtrl_015_disabled);
+            checkBox.setButtonDrawable(R.drawable.abc_btn_check_to_on_mtrl_015_disabled);
         } else {
-            viewHolder.mCheckBox1.setButtonDrawable(R.drawable.abc_btn_check_material);
+            checkBox.setButtonDrawable(R.drawable.abc_btn_check_material);
         }
-        viewHolder.mCheckBox1.setOnCheckedChangeListener(null);
-        viewHolder.mCheckBox1.setChecked(dir.isWhitelisted || !dir.isMediaDirComplete);
-        viewHolder.mCheckBox1.setOnCheckedChangeListener(
+        checkBox.setOnCheckedChangeListener(null);
+        checkBox.setChecked(dir.isWhitelisted || !dir.isMediaDirComplete);
+        checkBox.setOnCheckedChangeListener(
                 new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -139,15 +141,16 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
                 });
 
         // Init textviews and main click listener
-        viewHolder.mTextView1.setText(getVisibleName(dir.file));
-        viewHolder.mTextView1.setTypeface(null, Typeface.NORMAL);
+        TextView textView = (TextView) viewHolder.findViewById(R.id.textview1);
+        textView.setText(getVisibleName(dir.file));
+        textView.setTypeface(null, Typeface.NORMAL);
         view.findViewById(R.id.browsable_indicator).setVisibility(View.GONE);
         view.setOnClickListener(null);
         if (dir.file.listFiles() != null
                 && dir.file.listFiles().length > 0) {
             for (File file : dir.file.listFiles()) {
                 if (file.isDirectory()) {
-                    viewHolder.mTextView1.setTypeface(null, Typeface.BOLD);
+                    textView.setTypeface(null, Typeface.BOLD);
                     view.findViewById(R.id.browsable_indicator).setVisibility(View.VISIBLE);
                     view.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -187,12 +190,13 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
                 view.setTag(viewHolder);
             }
 
+            TextView textView = (TextView) viewHolder.findViewById(R.id.textview1);
             final CustomDirectory dir = (CustomDirectory) getItem(position);
             if (dir != null) {
-                viewHolder.mTextView1.setText("../" + getVisibleName(dir.file.getParentFile()));
-                viewHolder.mTextView1.setTypeface(null, Typeface.BOLD);
+                textView.setText("../" + getVisibleName(dir.file.getParentFile()));
+                textView.setTypeface(null, Typeface.BOLD);
             }
-            viewHolder.mCheckBox1.setVisibility(View.GONE);
+            textView.setVisibility(View.GONE);
 
             return view;
         } else {

@@ -18,64 +18,29 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:orientation="vertical"
-             android:padding="@dimen/padding_medium">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/config_redirect_button"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_horizontal"
+              android:background="@drawable/rectangle_gray"
+              android:padding="@dimen/padding_large"
+              android:layout_margin="@dimen/padding_medium">
 
-    <LinearLayout android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_gravity="center_horizontal"
-                  android:orientation="vertical"
-                  android:padding="@dimen/padding_medium">
+    <TextView android:id="@+id/config_redirect_button_text"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:layout_gravity="center_vertical"
+              android:paddingRight="@dimen/padding_small"
+              android:textSize="@dimen/text_size_verylarge"
+              android:textColor="@color/primary_textcolor"
+              android:text="@string/resolver_config_redirect_button_text_log_into"/>
 
-        <View android:layout_width="match_parent"
-              android:layout_height="1px"
-              android:background="@color/divider"/>
+    <ImageView android:id="@+id/config_redirect_button_image"
+               android:layout_width="@dimen/row_height_medium"
+               android:layout_height="@dimen/row_height_medium"
+               android:layout_gravity="center_vertical"
+               android:src="@drawable/ic_spotify"/>
 
-        <LinearLayout android:id="@+id/config_redirect_button"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:background="@drawable/selectable_background_tomahawk">
-
-            <View android:layout_width="1px"
-                  android:layout_height="match_parent"
-                  android:background="@color/divider"/>
-
-            <LinearLayout android:layout_width="wrap_content"
-                          android:layout_height="@dimen/row_height_medium"
-                          android:layout_gravity="center"
-                          android:layout_margin="@dimen/padding_medium">
-
-                <TextView android:id="@+id/config_redirect_button_text"
-                          android:layout_width="0dp"
-                          android:layout_height="wrap_content"
-                          android:layout_weight="1"
-                          android:layout_gravity="center_vertical"
-                          android:paddingRight="@dimen/padding_small"
-                          android:textSize="@dimen/text_size_verylarge"
-                          android:textColor="@color/primary_textcolor"
-                          android:text="@string/resolver_config_redirect_button_text_log_into"/>
-
-                <ImageView android:id="@+id/config_redirect_button_image"
-                           android:layout_width="@dimen/row_height_medium"
-                           android:layout_height="@dimen/row_height_medium"
-                           android:layout_gravity="center_vertical"
-                           android:src="@drawable/ic_spotify"/>
-
-            </LinearLayout>
-
-            <View android:layout_width="1px"
-                  android:layout_height="match_parent"
-                  android:background="@color/divider"/>
-
-        </LinearLayout>
-
-        <View android:layout_width="match_parent"
-              android:layout_height="1px"
-              android:background="@color/divider"/>
-
-    </LinearLayout>
-
-</FrameLayout>
+</LinearLayout>

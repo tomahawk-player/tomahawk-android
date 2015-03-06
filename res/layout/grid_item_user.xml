@@ -23,68 +23,36 @@
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:orientation="vertical"
-              android:layout_weight="1">
+              android:layout_weight="1"
+              android:background="@drawable/selectable_background_tomahawk_opaque">
 
-    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthFrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        <FrameLayout android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_gravity="center">
+        <ImageView android:id="@+id/userimageview1"
+                   android:layout_width="match_parent"
+                   android:layout_height="match_parent"
+                   android:src="@drawable/circle_black"/>
 
-            <ImageView android:id="@+id/userimageview1"
-                       android:layout_width="match_parent"
-                       android:layout_height="match_parent"
-                       android:src="@drawable/circle_black"/>
-
-            <TextView android:id="@+id/usertextview1"
-                      android:layout_width="match_parent"
-                      android:layout_height="match_parent"
-                      android:gravity="center"
-                      android:textSize="@dimen/text_size_verylarge"
-                      android:textColor="@color/primary_textcolor_inverted"/>
-
-        </FrameLayout>
-
-    </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
-
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="@dimen/padding_small"
-            android:paddingBottom="@dimen/padding_small"
-            android:background="@drawable/selectable_background_tomahawk_opaque"
-            android:gravity="center_vertical"
-            android:orientation="vertical">
-
-        <TextView android:id="@+id/textview1"
+        <TextView android:id="@+id/usertextview1"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"
-                  android:ellipsize="marquee"
-                  android:singleLine="true"
-                  android:textColor="@color/primary_textcolor"
-                  android:textSize="@dimen/text_size_medium"
-                  android:textStyle="bold"/>
+                  android:layout_gravity="center"
+                  android:textSize="@dimen/text_size_verylarge"
+                  android:textColor="@color/primary_textcolor_inverted"/>
 
-        <TextView android:id="@+id/textview2"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:ellipsize="marquee"
-                  android:singleLine="true"
-                  android:textColor="@color/primary_textcolor"
-                  android:textSize="@dimen/text_size_micro"
-                  android:visibility="gone"/>
+    </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthFrameLayout>
 
-        <TextView android:id="@+id/textview3"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:ellipsize="marquee"
-                  android:singleLine="true"
-                  android:textColor="@color/secondary_textcolor"
-                  android:textSize="@dimen/text_size_micro"
-                  android:visibility="gone"/>
-
-    </LinearLayout>
+    <TextView android:id="@+id/textview1"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:paddingTop="@dimen/padding_small"
+              android:paddingBottom="@dimen/padding_small"
+              android:ellipsize="marquee"
+              android:singleLine="true"
+              android:textColor="@color/primary_textcolor"
+              android:textSize="@dimen/text_size_small"
+              android:textStyle="bold"/>
 
 </LinearLayout>

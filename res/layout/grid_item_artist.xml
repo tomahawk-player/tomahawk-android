@@ -2,7 +2,7 @@
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -19,19 +19,24 @@
  */
 -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/mainclickarea"
               android:layout_width="match_parent"
-              android:layout_height="@dimen/row_height_large"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:layout_weight="1"
               android:background="@drawable/selectable_background_tomahawk_opaque">
 
-    <TextView
-            android:id="@+id/single_line_list_context_menu_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/row_height_large"
-            android:gravity="center_vertical"
-            android:ellipsize="marquee"
-            android:padding="@dimen/padding_small"
-            android:singleLine="true"
-            android:textColor="@color/primary_textcolor"
-            android:textSize="@dimen/text_size_large"/>
+    <include layout="@layout/imageview_grid_one"/>
+
+    <TextView android:id="@+id/textview1"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:paddingTop="@dimen/padding_small"
+              android:paddingBottom="@dimen/padding_small"
+              android:ellipsize="marquee"
+              android:singleLine="true"
+              android:textColor="@color/primary_textcolor"
+              android:textSize="@dimen/text_size_small"
+              android:textStyle="bold"/>
 
 </LinearLayout>
