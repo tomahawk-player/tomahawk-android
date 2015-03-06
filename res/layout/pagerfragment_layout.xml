@@ -23,9 +23,23 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
-    <FrameLayout android:id="@+id/content_header_image_frame_pager"
-                 android:layout_width="match_parent"
-                 android:layout_height="match_parent"/>
+    <ViewStub android:id="@+id/imageview_grid_one_pager_stub"
+              android:inflatedId="@+id/imageview_grid_one_pager"
+              android:layout="@layout/imageview_grid_one_content_header"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/imageview_grid_two_pager_stub"
+              android:inflatedId="@+id/imageview_grid_two_pager"
+              android:layout="@layout/imageview_grid_two_content_header"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/imageview_grid_three_pager_stub"
+              android:inflatedId="@+id/imageview_grid_three_pager"
+              android:layout="@layout/imageview_grid_three_content_header"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
 
     <android.support.v4.view.ViewPager
             android:id="@+id/fragmentpager"
@@ -37,8 +51,22 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-    <FrameLayout android:id="@+id/content_header_frame_pager"
-                 android:layout_width="match_parent"
-                 android:layout_height="match_parent"/>
+    <ViewStub android:id="@+id/content_header_pager_stub"
+              android:inflatedId="@+id/content_header_pager"
+              android:layout="@layout/content_header"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/content_header_static_pager_stub"
+              android:inflatedId="@+id/content_header_static_pager"
+              android:layout="@layout/content_header_static"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/content_header_user_pager_stub"
+              android:inflatedId="@+id/content_header_user_pager"
+              android:layout="@layout/content_header_user"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
 
 </FrameLayout>

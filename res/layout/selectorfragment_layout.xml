@@ -18,70 +18,62 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:id="@+id/fragment_layout"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical"
-              android:background="@color/primary_background_inverted">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/fragment_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:background="@color/primary_background_inverted">
 
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="@dimen/header_clear_space_nonscrollable_selector"
-                 android:background="@color/primary_background_inverted">
+    <LinearLayout android:id="@+id/selectorHeader"
+                  android:layout_width="match_parent"
+                  android:layout_height="@dimen/header_clear_space_nonscrollable_selector"
+                  android:layout_gravity="center"
+                  android:orientation="vertical"
+                  android:background="@color/primary_background_inverted">
 
-        <LinearLayout android:id="@+id/selectorHeader"
+        <ImageView android:id="@+id/arrow_top_header"
+                   android:layout_width="12dp"
+                   android:layout_height="12dp"
+                   android:layout_marginBottom="@dimen/padding_verysmall"
+                   android:layout_gravity="center"
+                   android:background="@drawable/ic_action_navigation_collapse"/>
+
+        <LinearLayout android:layout_width="wrap_content"
+                      android:layout_height="wrap_content">
+
+            <ImageView android:id="@+id/imageview_header"
+                       android:layout_width="@dimen/selector_icon_height"
+                       android:layout_height="@dimen/selector_icon_height"/>
+
+            <TextView android:id="@+id/textview_header"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"
+                      android:layout_marginLeft="@dimen/padding_large"
                       android:layout_gravity="center"
-                      android:orientation="vertical">
-
-            <ImageView android:id="@+id/arrow_top_header"
-                       android:layout_width="12dp"
-                       android:layout_height="12dp"
-                       android:layout_marginBottom="@dimen/padding_verysmall"
-                       android:layout_gravity="center"
-                       android:background="@drawable/ic_action_navigation_collapse"/>
-
-            <LinearLayout android:layout_width="wrap_content"
-                          android:layout_height="wrap_content">
-
-                <ImageView android:id="@+id/imageview_header"
-                           android:layout_width="@dimen/selector_icon_height"
-                           android:layout_height="@dimen/selector_icon_height"/>
-
-                <TextView android:id="@+id/textview_header"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:layout_marginLeft="@dimen/padding_large"
-                          android:layout_gravity="center"
-                          android:textColor="@color/primary_textcolor_inverted"
-                          android:textSize="@dimen/text_size_small"/>
-
-            </LinearLayout>
-
-            <ImageView android:id="@+id/arrow_bottom_header"
-                       android:layout_width="12dp"
-                       android:layout_height="12dp"
-                       android:layout_marginTop="@dimen/padding_verysmall"
-                       android:layout_gravity="center"
-                       android:background="@drawable/ic_action_navigation_expand"/>
+                      android:textColor="@color/primary_textcolor_inverted"
+                      android:textSize="@dimen/text_size_small"/>
 
         </LinearLayout>
 
-    </FrameLayout>
+        <ImageView android:id="@+id/arrow_bottom_header"
+                   android:layout_width="12dp"
+                   android:layout_height="12dp"
+                   android:layout_marginTop="@dimen/padding_verysmall"
+                   android:layout_gravity="center"
+                   android:background="@drawable/ic_action_navigation_expand"/>
 
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="match_parent">
+    </LinearLayout>
 
-        <FrameLayout android:id="@+id/content_frame"
-                     android:layout_width="match_parent"
-                     android:layout_height="match_parent"/>
+    <FrameLayout android:id="@+id/content_frame"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:layout_below="@id/selectorHeader"/>
 
-        <org.tomahawk.tomahawk_android.views.Selector
-                android:id="@+id/selector"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+    <org.tomahawk.tomahawk_android.views.Selector
+            android:id="@+id/selector"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/selectorHeader"/>
 
-    </FrameLayout>
-
-</LinearLayout>
+</RelativeLayout>

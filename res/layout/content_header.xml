@@ -18,65 +18,44 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/content_header"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-    <LinearLayout android:layout_width="match_parent"
-                  android:layout_height="match_parent"
-                  android:orientation="vertical">
+    <android.support.v7.widget.Space
+            android:id="@+id/space"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/pager_indicator_height"
+            android:layout_alignParentBottom="true"/>
 
-        <View android:layout_width="match_parent"
-              android:layout_height="0dp"
-              android:layout_weight="1"/>
+    <org.tomahawk.tomahawk_android.views.PageIndicator
+            android:id="@+id/page_indicator"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/pager_indicator_height"
+            android:paddingLeft="@dimen/padding_large"
+            android:paddingRight="@dimen/padding_large"
+            android:background="@drawable/above_shadow_page_indicator"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"/>
 
-        <FrameLayout
-                android:id="@+id/morebutton1"
-                android:layout_width="@dimen/show_context_menu_icon_height"
-                android:layout_height="@dimen/show_context_menu_icon_height"
-                android:layout_gravity="bottom|right"
-                android:layout_marginRight="@dimen/padding_large"
-                android:layout_marginBottom="@dimen/padding_large"
-                android:clickable="true"
-                android:background="@drawable/selectable_circle">
-
-            <ImageView android:layout_width="@dimen/show_context_menu_icon_height_more"
-                       android:layout_height="@dimen/show_context_menu_icon_height_more"
-                       android:layout_gravity="center"
-                       android:src="@drawable/ic_action_more"/>
-
-        </FrameLayout>
-
-        <LinearLayout android:id="@+id/page_indicator_container"
-                      android:layout_width="match_parent"
-                      android:layout_height="@dimen/pager_indicator_height"
-                      android:orientation="vertical"
-                      android:visibility="gone">
-
-            <org.tomahawk.tomahawk_android.views.PageIndicator
-                    android:id="@+id/page_indicator"
-                    android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:paddingLeft="@dimen/padding_large"
-                    android:paddingRight="@dimen/padding_large"/>
-
-            <View android:layout_width="match_parent"
-                  android:layout_height="@dimen/divider_height_thick"
-                  android:background="@drawable/above_shadow"/>
-
-        </LinearLayout>
-
-    </LinearLayout>
+    <ImageView android:id="@+id/more_button"
+               android:layout_width="@dimen/show_context_menu_icon_height"
+               android:layout_height="@dimen/show_context_menu_icon_height"
+               android:padding="@dimen/padding_large"
+               android:layout_marginRight="@dimen/padding_large"
+               android:layout_marginBottom="@dimen/padding_large"
+               android:clickable="true"
+               android:src="@drawable/ic_action_more"
+               android:background="@drawable/selectable_circle"
+               android:layout_above="@id/space"
+               android:layout_alignParentRight="true"/>
 
     <org.tomahawk.tomahawk_android.views.FancyDropDown
             android:id="@+id/fancydropdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginLeft="@dimen/padding_megalarge"
-            android:layout_marginRight="@dimen/padding_megalarge"/>
+            android:layout_marginRight="@dimen/padding_megalarge"
+            android:layout_centerInParent="true"/>
 
-</FrameLayout>
+</RelativeLayout>

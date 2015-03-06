@@ -18,6 +18,7 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.StickyBaseAdapter;
@@ -33,7 +34,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
@@ -219,9 +219,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
 
     protected void showFancyDropDown(TomahawkListItem item) {
         if (mContainerFragmentClass == null) {
-            FrameLayout headerFrame =
-                    (FrameLayout) getView().findViewById(R.id.content_header_frame);
-            super.showFancyDropDown(headerFrame, item.getName().toUpperCase());
+            super.showFancyDropDown(item.getName().toUpperCase());
         }
     }
 
@@ -229,30 +227,20 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
             List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
             FancyDropDown.DropDownListener dropDownListener) {
         if (mContainerFragmentClass == null) {
-            FrameLayout headerFrame =
-                    (FrameLayout) getView().findViewById(R.id.content_header_frame);
-            super.showFancyDropDown(headerFrame, initialSelection, item.getName().toUpperCase(),
+            super.showFancyDropDown(initialSelection, item.getName().toUpperCase(),
                     dropDownItemInfos, dropDownListener);
         }
     }
 
     protected void showContentHeader(Object item) {
         if (mContainerFragmentClass == null) {
-            FrameLayout headerImageFrame =
-                    (FrameLayout) getView().findViewById(R.id.content_header_image_frame);
-            FrameLayout headerFrame =
-                    (FrameLayout) getView().findViewById(R.id.content_header_frame);
-            super.showContentHeader(headerImageFrame, headerFrame, item);
+            super.showContentHeader(item);
         }
     }
 
     protected void setupAnimations() {
         if (mContainerFragmentClass == null) {
-            FrameLayout headerImageFrame =
-                    (FrameLayout) getView().findViewById(R.id.content_header_image_frame);
-            FrameLayout headerFrame =
-                    (FrameLayout) getView().findViewById(R.id.content_header_frame);
-            super.setupAnimations(headerImageFrame, headerFrame);
+            super.setupAnimations();
         }
     }
 
@@ -290,14 +278,9 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
             Log.e(TAG, "Couldn't inflate listview! layoutInflater is null");
             return;
         }
-        View view = root.findViewById(R.id.listview_stub);
-        if (view instanceof ViewStub) {
-            mList = (StickyListHeadersListView) ((ViewStub) view).inflate();
-        } else {
-            view = root.findViewById(R.id.listview);
-            if (view instanceof StickyListHeadersListView) {
-                mList = (StickyListHeadersListView) view;
-            }
+        View view = TomahawkUtils.ensureInflation(root, R.id.listview_stub, R.id.listview);
+        if (view instanceof StickyListHeadersListView) {
+            mList = (StickyListHeadersListView) view;
         }
         if (mList == null) {
             Log.e(TAG, "Something went wrong, listview is null");

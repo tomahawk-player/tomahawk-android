@@ -75,11 +75,9 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        LinearLayout headerTextLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_textview, null);
-        TextView headerTextView = (TextView) headerTextLayout.findViewById(R.id.config_textview);
+        TextView headerTextView = (TextView) inflater.inflate(R.layout.config_textview, null);
         headerTextView.setText(mScriptResolver.getDescription());
-        addScrollingViewToFrame(headerTextLayout);
+        addScrollingViewToFrame(headerTextView);
 
         int buttonBackgroundResId = R.drawable.selectable_background_tomahawk;
         int buttonTextColor = getResources().getColor(R.color.primary_textcolor);

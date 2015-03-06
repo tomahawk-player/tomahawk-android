@@ -88,33 +88,6 @@ public class TomahawkUtils {
 
     public static String HTTP_CONTENT_TYPE_FORM = "application/x-www-form-urlencoded";
 
-    public static View inflateMenuItem(ViewStub viewStub, int drawableResId, int stringResId,
-            View.OnClickListener listener) {
-        View view = viewStub.inflate();
-        TextView textView = (TextView) view.findViewById(R.id.textview);
-        ImageView imageView = (ImageView) view.findViewById(R.id.imageview);
-        imageView.setImageResource(drawableResId);
-        textView.setText(stringResId);
-        view.setOnClickListener(listener);
-        return view;
-    }
-
-    public static View inflateWhiteButton(ViewStub viewStub, String string,
-            View.OnClickListener listener) {
-        View view = viewStub.inflate();
-        TextView textView = (TextView) view.findViewById(R.id.textview);
-        textView.setText(string);
-        view.setOnClickListener(listener);
-        return view;
-    }
-
-    public static View inflateWhiteButton(ViewStub viewStub, String string) {
-        View view = viewStub.inflate();
-        TextView textView = (TextView) view.findViewById(R.id.textview);
-        textView.setText(string);
-        return view;
-    }
-
     public static class HttpResponse {
 
         public HttpResponse() {
@@ -140,6 +113,15 @@ public class TomahawkUtils {
 
         public View getLayedOutView() {
             return mView;
+        }
+    }
+
+    public static View ensureInflation(View view, int stubResId, int inflatedId) {
+        View stub = view.findViewById(stubResId);
+        if (stub instanceof ViewStub) {
+            return ((ViewStub) stub).inflate();
+        } else {
+            return view.findViewById(inflatedId);
         }
     }
 

@@ -18,24 +18,17 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:paddingLeft="@dimen/padding_superlarge"
-              android:paddingRight="@dimen/padding_superlarge"
-              android:paddingTop="@dimen/padding_medium"
-              android:paddingBottom="@dimen/padding_medium"
-              android:background="@drawable/selectable_background_tomahawk_opaque"
-              android:descendantFocusability="blocksDescendants">
-
-    <TextView
-            android:id="@+id/textview1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_vertical"
-            android:ellipsize="marquee"
-            android:singleLine="true"
-            android:textColor="@color/primary_textcolor"
-            android:textSize="@dimen/text_size_large"/>
-
-</LinearLayout>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/textview1"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingLeft="@dimen/padding_superlarge"
+          android:paddingRight="@dimen/padding_superlarge"
+          android:paddingTop="@dimen/padding_medium"
+          android:paddingBottom="@dimen/padding_medium"
+          android:gravity="center_vertical"
+          android:ellipsize="marquee"
+          android:singleLine="true"
+          android:textColor="@color/primary_textcolor"
+          android:textSize="@dimen/text_size_large"
+          android:background="@drawable/selectable_background_tomahawk_opaque"/>

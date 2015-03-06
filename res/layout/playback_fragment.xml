@@ -89,7 +89,7 @@
     </FrameLayout>
 
     <ViewStub android:id="@+id/listview_stub"
-              android:layout="@layout/stickylistheaderslistview"
+              android:layout="@layout/listview"
               android:inflatedId="@+id/listview"
               android:layout_width="match_parent"
               android:layout_height="match_parent"/>

@@ -2,7 +2,7 @@
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,11 +18,16 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext
+<org.tomahawk.tomahawk_android.ui.widgets.SquareWidthFrameLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/config_edittext"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="@dimen/padding_medium"
-        android:background="@drawable/selectable_background_tomahawk"
-        android:imeOptions="flagNoExtractUi"/>
+        android:layout_height="wrap_content">
+
+    <ImageView android:id="@+id/imageview1"
+               android:layout_width="match_parent"
+               android:layout_height="match_parent"
+               android:scaleType="centerCrop"
+               android:adjustViewBounds="true"
+               android:src="@drawable/album_placeholder_grid"/>
+
+</org.tomahawk.tomahawk_android.ui.widgets.SquareWidthFrameLayout>

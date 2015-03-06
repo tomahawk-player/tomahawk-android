@@ -36,7 +36,6 @@ import android.text.method.PasswordTransformationMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 /**
@@ -81,40 +80,31 @@ public class RegisterConfigDialog extends ConfigDialog {
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        LinearLayout headerTextLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_textview, null);
-        TextView headerTextView = (TextView) headerTextLayout.findViewById(R.id.config_textview);
+        TextView headerTextView = (TextView) inflater.inflate(R.layout.config_textview, null);
         headerTextView.setText(mAuthenticatorUtils.getDescription());
-        addScrollingViewToFrame(headerTextLayout);
-        LinearLayout usernameLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
-        mUsernameEditText = (ConfigEdittext) usernameLayout.findViewById(R.id.config_edittext);
+        addScrollingViewToFrame(headerTextView);
+        mUsernameEditText = (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
         mUsernameEditText.setHint(mAuthenticatorUtils.getUserIdEditTextHintResId());
         mUsernameEditText.setText(username);
-        addScrollingViewToFrame(usernameLayout);
-        LinearLayout passwordLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
-        mPasswordEditText = (ConfigEdittext) passwordLayout.findViewById(R.id.config_edittext);
+        addScrollingViewToFrame(mUsernameEditText);
+        mPasswordEditText = (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
         mPasswordEditText.setHint(R.string.login_password);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
         mPasswordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setText(password);
-        addScrollingViewToFrame(passwordLayout);
-        LinearLayout passwordConfirmationLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
+        addScrollingViewToFrame(mPasswordEditText);
         mPasswordConfirmationEditText =
-                (ConfigEdittext) passwordConfirmationLayout.findViewById(R.id.config_edittext);
+                (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
         mPasswordConfirmationEditText.setHint(
                 R.string.login_password_confirmation);
         mPasswordConfirmationEditText.setTypeface(Typeface.DEFAULT);
         mPasswordConfirmationEditText.setTransformationMethod(new PasswordTransformationMethod());
-        addScrollingViewToFrame(passwordConfirmationLayout);
-        LinearLayout emailLayout = (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
-        mMailEditText = (ConfigEdittext) emailLayout.findViewById(R.id.config_edittext);
+        addScrollingViewToFrame(mPasswordConfirmationEditText);
+        mMailEditText = (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
         mMailEditText.setHint(R.string.account_email_label);
         mMailEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
-        addScrollingViewToFrame(emailLayout);
+        addScrollingViewToFrame(mMailEditText);
 
         showSoftKeyboard(mUsernameEditText);
 

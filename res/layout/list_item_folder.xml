@@ -26,19 +26,13 @@
               android:descendantFocusability="afterDescendants"
               android:background="@drawable/selectable_background_tomahawk">
 
-    <FrameLayout android:layout_width="@dimen/directory_chooser_arrow_size"
-                 android:layout_height="@dimen/directory_chooser_arrow_size"
-                 android:layout_gravity="center"
-                 android:layout_marginRight="@dimen/padding_medium"
-                 android:layout_marginLeft="@dimen/padding_small">
-
-        <ImageView android:id="@+id/browsable_indicator"
-                   android:layout_width="@dimen/directory_chooser_arrow_size"
-                   android:layout_height="@dimen/directory_chooser_arrow_size"
-                   android:src="@drawable/ic_player_next"
-                   android:visibility="gone"/>
-
-    </FrameLayout>
+    <ImageView android:id="@+id/browsable_indicator"
+               android:layout_width="@dimen/directory_chooser_arrow_size"
+               android:layout_height="@dimen/directory_chooser_arrow_size"
+               android:layout_gravity="center"
+               android:layout_marginRight="@dimen/padding_medium"
+               android:layout_marginLeft="@dimen/padding_small"
+               android:src="@drawable/ic_player_next"/>
 
     <TextView android:id="@+id/textview1"
               android:layout_width="0dp"

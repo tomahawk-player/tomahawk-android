@@ -2,7 +2,7 @@
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,15 +18,26 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/content_header_imagesingle"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<org.tomahawk.tomahawk_android.ui.widgets.SquareWidthLinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
     <ImageView android:id="@+id/imageview1"
-               android:layout_width="match_parent"
+               android:layout_width="0dp"
                android:layout_height="match_parent"
+               android:layout_weight="1"
                android:scaleType="centerCrop"
+               android:adjustViewBounds="true"
                android:src="@drawable/album_placeholder_grid"/>
 
-</FrameLayout>
+    <ImageView android:id="@+id/imageview2"
+               android:layout_width="0dp"
+               android:layout_height="match_parent"
+               android:layout_weight="1"
+               android:layout_marginLeft="5dp"
+               android:scaleType="centerCrop"
+               android:adjustViewBounds="true"
+               android:src="@drawable/album_placeholder_grid"/>
+
+</org.tomahawk.tomahawk_android.ui.widgets.SquareWidthLinearLayout>

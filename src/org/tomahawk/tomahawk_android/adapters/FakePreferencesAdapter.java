@@ -17,11 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
-import org.tomahawk.libtomahawk.resolver.Resolver;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
@@ -35,6 +30,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.Spinner;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,8 +44,6 @@ import java.util.List;
  * {@link FakePreferencesAdapter}
  */
 public class FakePreferencesAdapter extends StickyBaseAdapter {
-
-    private Context mContext;
 
     private final LayoutInflater mLayoutInflater;
 
@@ -84,9 +81,8 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
      */
     public FakePreferencesAdapter(Context context, LayoutInflater layoutInflater,
             List<FakePreferenceGroup> fakePreferenceGroups) {
-        mContext = context;
         mLayoutInflater = layoutInflater;
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         mFakePreferenceGroups = fakePreferenceGroups;
     }
 
@@ -158,8 +154,9 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                 viewHolder = new ViewHolder(view, viewType);
                 view.setTag(viewHolder);
             } else {
-                if (viewHolder.mImageView1 != null) {
-                    viewHolder.mImageView1.setVisibility(View.GONE);
+                ImageView imageView = (ImageView) viewHolder.findViewById(R.id.imageview1);
+                if (imageView != null) {
+                    imageView.setVisibility(View.GONE);
                 }
             }
 
@@ -168,19 +165,8 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
             if (viewHolder.mLayoutId == R.layout.fake_preferences_checkbox) {
                 boolean preferenceState = mSharedPreferences
                         .getBoolean(item.getStorageKey(), false);
-                viewHolder.mCheckBox1.setChecked(preferenceState);
-            } else if (viewHolder.mLayoutId == R.layout.fake_preferences_configauth) {
-                if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH) {
-                    viewHolder.mImageView1.setVisibility(View.VISIBLE);
-                    AuthenticatorUtils authenticatorUtils =
-                            AuthenticatorManager.getInstance().getAuthenticatorUtils(item.getKey());
-                    TomahawkUtils.loadDrawableIntoImageView(mContext, viewHolder.mImageView1,
-                            item.getDrawableResId(), !authenticatorUtils.isLoggedIn());
-                } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
-                    viewHolder.mImageView1.setVisibility(View.VISIBLE);
-                    Resolver resolver = PipeLine.getInstance().getResolver(item.getKey());
-                    resolver.loadIcon(viewHolder.mImageView1, !resolver.isEnabled());
-                }
+                CheckBox checkBox = (CheckBox) viewHolder.findViewById(R.id.checkbox1);
+                checkBox.setChecked(preferenceState);
             } else if (viewHolder.mLayoutId == R.layout.fake_preferences_spinner) {
                 ArrayList<CharSequence> list = new ArrayList<CharSequence>();
                 for (String headerString : TomahawkApp.getContext().getResources()
@@ -191,14 +177,17 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                         new ArrayAdapter<CharSequence>(TomahawkApp.getContext(),
                                 R.layout.spinner_textview, list);
                 adapter.setDropDownViewResource(R.layout.spinner_dropdown_textview);
-                viewHolder.mSpinner1.setAdapter(adapter);
+                Spinner spinner = (Spinner) viewHolder.findViewById(R.id.spinner1);
+                spinner.setAdapter(adapter);
                 String key = item.getStorageKey();
-                viewHolder.mSpinner1.setSelection(mSharedPreferences
+                spinner.setSelection(mSharedPreferences
                         .getInt(key, SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
-                viewHolder.mSpinner1.setOnItemSelectedListener(new SpinnerListener(key));
+                spinner.setOnItemSelectedListener(new SpinnerListener(key));
             }
-            viewHolder.mTextView1.setText(item.getTitle());
-            viewHolder.mTextView2.setText(item.getSummary());
+            TextView textView1 = (TextView) viewHolder.findViewById(R.id.textview1);
+            textView1.setText(item.getTitle());
+            TextView textView2 = (TextView) viewHolder.findViewById(R.id.textview2);
+            textView2.setText(item.getSummary());
         }
 
         // Finally we can return the correct view
@@ -234,9 +223,6 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
     private int getViewType(FakePreferenceGroup.FakePreference item) {
         if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
             return R.layout.fake_preferences_checkbox;
-        } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_AUTH
-                || item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CONFIG) {
-            return R.layout.fake_preferences_configauth;
         } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER) {
             return R.layout.fake_preferences_spinner;
         }

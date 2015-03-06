@@ -34,7 +34,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -218,11 +217,8 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         }
         mViewPager.setAdapter(mPagerAdapter);
 
-        LinearLayout pageIndicatorContainer =
-                (LinearLayout) getView().findViewById(R.id.page_indicator_container);
-        pageIndicatorContainer.setVisibility(View.VISIBLE);
-        mPageIndicator =
-                (PageIndicator) pageIndicatorContainer.findViewById(R.id.page_indicator);
+        mPageIndicator = (PageIndicator) getView().findViewById(R.id.page_indicator);
+        mPageIndicator.setVisibility(View.VISIBLE);
         mPageIndicator.setup(mViewPager, fragmentInfoLists,
                 getActivity().findViewById(R.id.sliding_layout),
                 (Selector) getView().findViewById(R.id.selector), selectorPosStorageKey);
@@ -241,19 +237,13 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
     protected void showFancyDropDown(TomahawkListItem item, int initialSelection,
             List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
             FancyDropDown.DropDownListener dropDownListener) {
-        super.showFancyDropDown(
-                (FrameLayout) getView().findViewById(R.id.content_header_frame_pager),
-                initialSelection, item.getName().toUpperCase(), dropDownItemInfos,
+        super.showFancyDropDown(initialSelection, item.getName().toUpperCase(), dropDownItemInfos,
                 dropDownListener);
     }
 
     protected void showContentHeader(Object item) {
-        FrameLayout headerImageFrame = (FrameLayout) getView()
-                .findViewById(R.id.content_header_image_frame_pager);
-        FrameLayout headerFrame = (FrameLayout) getView()
-                .findViewById(R.id.content_header_frame_pager);
-        super.showContentHeader(headerImageFrame, headerFrame, item);
-        super.setupAnimations(headerImageFrame, headerFrame);
+        super.showContentHeader(item);
+        super.setupAnimations();
         super.setupNonScrollableSpacer(getView().findViewById(R.id.selector));
     }
 
@@ -290,7 +280,8 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
                     getArguments().getString(TomahawkFragment.COLLECTION_ID));
         }
         if (getArguments().containsKey(TomahawkFragment.CONTENT_HEADER_MODE)) {
-            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE, getArguments().getInt(TomahawkFragment.CONTENT_HEADER_MODE));
+            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                    getArguments().getInt(TomahawkFragment.CONTENT_HEADER_MODE));
         }
         return bundle;
     }

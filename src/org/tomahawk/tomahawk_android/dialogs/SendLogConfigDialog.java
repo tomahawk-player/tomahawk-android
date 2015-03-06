@@ -35,7 +35,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -68,21 +67,16 @@ public class SendLogConfigDialog extends ConfigDialog {
         }
 
         LayoutInflater inflater = getActivity().getLayoutInflater();
-        LinearLayout headerTextLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_textview, null);
-        TextView headerTextView = (TextView) headerTextLayout.findViewById(R.id.config_textview);
+        TextView headerTextView = (TextView) inflater.inflate(R.layout.config_textview, null);
         headerTextView.setText(R.string.preferences_app_sendlog_dialog_text);
-        addScrollingViewToFrame(headerTextLayout);
-        LinearLayout emailLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
-        mEmailEditText = (ConfigEdittext) emailLayout.findViewById(R.id.config_edittext);
+        addScrollingViewToFrame(headerTextView);
+        mEmailEditText = (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
         mEmailEditText.setHint(R.string.preferences_app_sendlog_email);
-        addScrollingViewToFrame(emailLayout);
-        LinearLayout usernameLayout =
-                (LinearLayout) inflater.inflate(R.layout.config_edittext_multiplelines, null);
-        mUserMessageEditText = (ConfigEdittext) usernameLayout.findViewById(R.id.config_edittext);
+        addScrollingViewToFrame(mEmailEditText);
+        mUserMessageEditText =
+                (ConfigEdittext) inflater.inflate(R.layout.config_edittext_multiplelines, null);
         mUserMessageEditText.setHint(R.string.preferences_app_sendlog_issue);
-        addScrollingViewToFrame(usernameLayout);
+        addScrollingViewToFrame(mUserMessageEditText);
 
         showSoftKeyboard(mEmailEditText);
 

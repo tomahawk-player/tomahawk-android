@@ -17,396 +17,162 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
-import com.daimajia.swipe.SwipeLayout;
-
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
-import org.tomahawk.tomahawk_android.views.FancyDropDown;
+import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
 
 import android.content.res.Resources;
-import android.graphics.drawable.ColorDrawable;
-import android.support.v7.internal.widget.TintCheckBox;
 import android.view.View;
-import android.widget.FrameLayout;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class ViewHolder {
 
     int mLayoutId;
 
-    ImageView mUserImageView1;
+    private View mRootView;
 
-    TextView mUserTextView1;
-
-    ImageView mImageView1;
-
-    ImageView mImageView2;
-
-    ImageView mImageView3;
-
-    View mAddIcon;
-
-    View mConnectImageViewContainer;
-
-    TintCheckBox mCheckBox1;
-
-    Spinner mSpinner1;
-
-    FancyDropDown mFancyDropDown;
-
-    TextView mTextView1;
-
-    TextView mTextView2;
-
-    TextView mTextView3;
-
-    TextView mTextView4;
-
-    FrameLayout mFollowButton;
-
-    TextView mFollowButtonTextView;
-
-    FrameLayout mMoreButton;
-
-    View mMainClickArea;
-
-    View mSwipeMenuButton1;
-
-    SwipeLayout mSwipeLayout;
-
-    FrameLayout mProgressBarContainer;
+    private Map<Integer, View> mCachedViews = new HashMap<>();
 
     public ViewHolder(View rootView, int layoutId) {
-        this.mLayoutId = layoutId;
-        if (layoutId == R.layout.single_line_list_item) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-        } else if (layoutId == R.layout.list_item_text) {
-            mTextView1 = (TextView) rootView;
-        } else if (layoutId == R.layout.content_header_user_navdrawer) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mUserImageView1 = (ImageView) rootView
-                    .findViewById(R.id.userimageview1);
-            mUserTextView1 = (TextView) rootView
-                    .findViewById(R.id.usertextview1);
-        } else if (layoutId == R.layout.list_item_track
-                || layoutId == R.layout.list_item_track_short) {
-            mImageView1 = (ImageView) rootView
-                    .findViewById(R.id.imageview1);
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mTextView2 = (TextView) rootView
-                    .findViewById(R.id.textview2);
-            mTextView3 = (TextView) rootView
-                    .findViewById(R.id.textview3);
-            mTextView4 = (TextView) rootView
-                    .findViewById(R.id.textview4);
-            mProgressBarContainer = (FrameLayout) rootView
-                    .findViewById(R.id.progressbar_container);
-            mSwipeMenuButton1 = rootView
-                    .findViewById(R.id.swipemenu_button1);
-            mSwipeLayout = (SwipeLayout) rootView.
-                    findViewById(R.id.swipelayout);
-        } else if (layoutId == R.layout.list_item_folder) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mCheckBox1 = (TintCheckBox) rootView
-                    .findViewById(R.id.checkbox1);
-        } else if (layoutId == R.layout.single_line_list_header) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-        } else if (layoutId == R.layout.list_header_socialaction) {
-            mUserImageView1 = (ImageView) rootView
-                    .findViewById(R.id.userimageview1);
-            mUserTextView1 = (TextView) rootView
-                    .findViewById(R.id.usertextview1);
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-        } else if (layoutId == R.layout.dropdown_header) {
-            mSpinner1 = (Spinner) rootView
-                    .findViewById(R.id.spinner1);
-        } else if (layoutId == R.layout.fake_preferences_plain) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mTextView2 = (TextView) rootView
-                    .findViewById(R.id.textview2);
-        } else if (layoutId == R.layout.fake_preferences_checkbox) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mTextView2 = (TextView) rootView
-                    .findViewById(R.id.textview2);
-            mCheckBox1 = (TintCheckBox) rootView
-                    .findViewById(R.id.checkbox1);
-        } else if (layoutId == R.layout.fake_preferences_spinner) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mTextView2 = (TextView) rootView
-                    .findViewById(R.id.textview2);
-            mSpinner1 = (Spinner) rootView
-                    .findViewById(R.id.spinner1);
-        } else if (layoutId == R.layout.fake_preferences_configauth) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mTextView2 = (TextView) rootView
-                    .findViewById(R.id.textview2);
-            mImageView1 = (ImageView) rootView
-                    .findViewById(R.id.imageview1);
-        } else if (layoutId == R.layout.fake_preferences_header) {
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-        } else if (layoutId == R.layout.grid_item || layoutId == R.layout.list_item_artistalbum) {
-            mImageView1 = (ImageView) rootView
-                    .findViewById(R.id.imageview1);
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mTextView2 = (TextView) rootView
-                    .findViewById(R.id.textview2);
-            mTextView3 = (TextView) rootView
-                    .findViewById(R.id.textview3);
-        } else if (layoutId == R.layout.grid_item_user || layoutId == R.layout.list_item_user) {
-            mUserImageView1 = (ImageView) rootView
-                    .findViewById(R.id.userimageview1);
-            mUserTextView1 = (TextView) rootView
-                    .findViewById(R.id.usertextview1);
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mTextView2 = (TextView) rootView
-                    .findViewById(R.id.textview2);
-            mTextView3 = (TextView) rootView
-                    .findViewById(R.id.textview3);
-        } else if (layoutId == R.layout.grid_item_resolver) {
-            mImageView1 = (ImageView) rootView
-                    .findViewById(R.id.imageview1);
-            mImageView2 = (ImageView) rootView
-                    .findViewById(R.id.imageview2);
-            mConnectImageViewContainer = rootView
-                    .findViewById(R.id.connect_imageview_container);
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-        } else if (layoutId == R.layout.grid_item_playlist) {
-            mImageView1 = (ImageView) rootView
-                    .findViewById(R.id.imageview1);
-            mImageView2 = (ImageView) rootView
-                    .findViewById(R.id.imageview2);
-            mImageView3 = (ImageView) rootView
-                    .findViewById(R.id.imageview3);
-            mTextView1 = (TextView) rootView
-                    .findViewById(R.id.textview1);
-            mTextView2 = (TextView) rootView
-                    .findViewById(R.id.textview2);
-            mTextView3 = (TextView) rootView
-                    .findViewById(R.id.textview3);
-            mAddIcon = rootView
-                    .findViewById(R.id.add_icon);
-        }
-        mMainClickArea = rootView.findViewById(R.id.mainclickarea);
+        mLayoutId = layoutId;
+        mRootView = rootView;
     }
 
-    public ViewHolder(View imageFrame, View headerFrame, int layoutId) {
-        mLayoutId = layoutId;
-        if (layoutId == R.layout.content_header_user) {
-            mTextView1 = (TextView) headerFrame
-                    .findViewById(R.id.textview1);
-            mUserImageView1 = (ImageView) headerFrame
-                    .findViewById(R.id.userimageview1);
-            mUserTextView1 = (TextView) headerFrame
-                    .findViewById(R.id.usertextview1);
-            mFollowButton = (FrameLayout) headerFrame
-                    .findViewById(R.id.followbutton1);
-            mFollowButtonTextView = (TextView) headerFrame
-                    .findViewById(R.id.followbutton1_textview);
-        } else if (layoutId == R.layout.content_header) {
-            mMoreButton = (FrameLayout) headerFrame
-                    .findViewById(R.id.morebutton1);
-            mFancyDropDown = (FancyDropDown) headerFrame
-                    .findViewById(R.id.fancydropdown);
-        }
-        if (imageFrame != null) {
-            mImageView1 = (ImageView) imageFrame
-                    .findViewById(R.id.imageview1);
-            mImageView2 = (ImageView) imageFrame
-                    .findViewById(R.id.imageview2);
-            mImageView3 = (ImageView) imageFrame
-                    .findViewById(R.id.imageview3);
-        }
-        if (mMainClickArea == null) {
-            mMainClickArea = headerFrame;
+    public View ensureInflation(int stubResId, int inflatedId) {
+        return TomahawkUtils.ensureInflation(mRootView, stubResId, inflatedId);
+    }
+
+    public View findViewById(int id) {
+        if (mCachedViews.containsKey(id)) {
+            return mCachedViews.get(id);
+        } else {
+            View view = mRootView.findViewById(id);
+            if (view != null) {
+                mCachedViews.put(id, view);
+            }
+            return view;
         }
     }
 
     public void setMainClickListener(ClickListener listener) {
-        mMainClickArea.setOnClickListener(listener);
-        mMainClickArea.setOnLongClickListener(listener);
-    }
-
-    public void setupFancyDropDown(String text) {
-        mFancyDropDown.setup(text);
-    }
-
-    public void setupFancyDropDown(int initialSelection, String text,
-            List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
-            FancyDropDown.DropDownListener dropDownListener) {
-        mFancyDropDown.setup(initialSelection, text, dropDownItemInfos, dropDownListener);
-    }
-
-    public void fillContentHeader(final Album album, View.OnClickListener moreButtonListener) {
-        mImageView1.setVisibility(View.VISIBLE);
-        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
-                album.getImage(), Image.getLargeImageSize(), false);
-        mMoreButton.setVisibility(View.VISIBLE);
-        mMoreButton.setOnClickListener(moreButtonListener);
-    }
-
-    public void fillContentHeader(final Artist artist, View.OnClickListener moreButtonListener) {
-        mImageView1.setVisibility(View.VISIBLE);
-        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
-                artist.getImage(), Image.getLargeImageSize(), true);
-        mMoreButton.setVisibility(View.VISIBLE);
-        mMoreButton.setOnClickListener(moreButtonListener);
-    }
-
-    public void fillContentHeader(final Playlist playlist,
-            View.OnClickListener moreButtonListener) {
-        fillView(playlist);
-        mMoreButton.setVisibility(View.VISIBLE);
-        mMoreButton.setOnClickListener(moreButtonListener);
-    }
-
-    public void fillContentHeaderSmall(String text, User user) {
-        mTextView1.setText(text.toUpperCase());
-        TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(), mUserImageView1,
-                user, Image.getSmallImageSize(), mUserTextView1);
-        mUserImageView1.setVisibility(View.VISIBLE);
-    }
-
-    public void fillContentHeader(final User user, boolean showFollowing,
-            boolean showNotFollowing, View.OnClickListener followButtonListener) {
-        TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(), mImageView1,
-                user.getImage(), Image.getSmallImageSize(), R.color.userpage_default_background);
-        TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(), mUserImageView1,
-                user, Image.getSmallImageSize(), mUserTextView1);
-        mTextView1.setText(user.getName().toUpperCase());
-        if (showFollowing) {
-            mFollowButton.setVisibility(View.VISIBLE);
-            mFollowButton
-                    .setBackgroundResource(R.drawable.selectable_background_button_green_filled);
-            mFollowButton.setOnClickListener(followButtonListener);
-            mFollowButtonTextView.setText(TomahawkApp.getContext().getString(
-                    R.string.content_header_following).toUpperCase());
-        } else if (showNotFollowing) {
-            mFollowButton.setVisibility(View.VISIBLE);
-            mFollowButton
-                    .setBackgroundResource(R.drawable.selectable_background_button_green);
-            mFollowButton.setOnClickListener(followButtonListener);
-            mFollowButtonTextView.setText(TomahawkApp.getContext().getString(
-                    R.string.content_header_follow).toUpperCase());
-        } else {
-            mFollowButton.setVisibility(View.GONE);
-        }
-    }
-
-    public void fillContentHeader(Query query, View.OnClickListener moreButtonListener) {
-        mImageView1.setVisibility(View.VISIBLE);
-        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
-                query.getImage(), Image.getLargeImageSize(), query.hasArtistImage());
-        mMoreButton.setVisibility(View.VISIBLE);
-        mMoreButton.setOnClickListener(moreButtonListener);
-    }
-
-    public void fillContentHeader(Image image) {
-        TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(), mImageView1, image,
-                Image.getSmallImageSize(), R.drawable.album_placeholder_grid);
-    }
-
-    public void fillContentHeader(Integer integer) {
-        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), mImageView1, integer);
-    }
-
-    public void fillContentHeader(ColorDrawable drawable) {
-        mImageView1.setImageDrawable(drawable);
+        View mainClickArea = findViewById(R.id.mainclickarea);
+        mainClickArea.setOnClickListener(listener);
+        mainClickArea.setOnLongClickListener(listener);
     }
 
     public void fillView(Query query, String numerationString, boolean showAsPlaying,
-            boolean showDuration, boolean hideArtistName,
             View.OnClickListener swipeMenuButton1Listener, boolean showAsQueued) {
-        if (!hideArtistName) {
-            mTextView3.setVisibility(View.VISIBLE);
-            mTextView3.setText(query.getArtist().getName());
-            setTextViewEnabled(mTextView3, query.isPlayable(), false);
-        }
-        mTextView2.setText(query.getName());
-        setTextViewEnabled(mTextView2, query.isPlayable(), false);
+        TextView trackNameTextView = (TextView) findViewById(R.id.track_textview);
+        trackNameTextView.setText(query.getName());
+        setTextViewEnabled(trackNameTextView, query.isPlayable(), false);
+
+        ImageView resolverImageView = (ImageView) ensureInflation(R.id.resolver_imageview_stub,
+                R.id.resolver_imageview);
+        TextView numerationTextView = (TextView) findViewById(R.id.numeration_textview);
         if (showAsQueued) {
-            mImageView1.setVisibility(View.VISIBLE);
-            TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), mImageView1,
-                    R.drawable.ic_action_queue_red);
-        } else if (numerationString != null) {
-            if (showAsPlaying) {
-                mTextView1.setVisibility(View.INVISIBLE);
-                mTextView1.setText(numerationString);
+            if (numerationTextView != null) {
+                numerationTextView.setVisibility(View.GONE);
+            }
+            if (resolverImageView != null) {
+                resolverImageView.setVisibility(View.VISIBLE);
+                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), resolverImageView,
+                        R.drawable.ic_action_queue_red);
+            }
+        } else if (showAsPlaying) {
+            if (numerationTextView != null) {
+                numerationTextView.setVisibility(View.GONE);
+            }
+            if (resolverImageView != null) {
+                resolverImageView.setVisibility(View.VISIBLE);
                 if (query.getPreferredTrackResult() != null) {
-                    mImageView1.setVisibility(View.VISIBLE);
                     Resolver resolver = query.getPreferredTrackResult().getResolvedBy();
-                    resolver.loadIcon(mImageView1, false);
+                    resolver.loadIcon(resolverImageView, false);
                 }
-            } else {
-                mTextView1.setVisibility(View.VISIBLE);
-                mTextView1.setText(numerationString);
+            }
+        } else if (numerationString != null) {
+            if (resolverImageView != null) {
+                resolverImageView.setVisibility(View.GONE);
+            }
+            if (numerationTextView != null) {
+                numerationTextView.setVisibility(View.VISIBLE);
+                numerationTextView.setText(numerationString);
+                setTextViewEnabled(numerationTextView, query.isPlayable(), false);
             }
         }
-        if (showDuration) {
-            mTextView4.setVisibility(View.VISIBLE);
+        if (mLayoutId == R.layout.list_item_numeration_track_artist
+                || mLayoutId == R.layout.list_item_track_artist) {
+            TextView artistNameTextView = (TextView) findViewById(R.id.artist_textview);
+            artistNameTextView.setText(query.getArtist().getName());
+            setTextViewEnabled(artistNameTextView, query.isPlayable(), false);
+        }
+        if (mLayoutId == R.layout.list_item_numeration_track_duration) {
+            TextView durationTextView = (TextView) findViewById(R.id.duration_textview);
             if (query.getPreferredTrack().getDuration() > 0) {
-                mTextView4.setText(TomahawkUtils.durationToString(
+                durationTextView.setText(TomahawkUtils.durationToString(
                         (query.getPreferredTrack().getDuration())));
             } else {
-                mTextView4.setText(PlaybackSeekBar.COMPLETION_STRING_DEFAULT);
+                durationTextView.setText(PlaybackSeekBar.COMPLETION_STRING_DEFAULT);
             }
+            setTextViewEnabled(durationTextView, query.isPlayable(), false);
         }
-        mSwipeMenuButton1.setOnClickListener(swipeMenuButton1Listener);
+        View swipeMenuButton1 = findViewById(R.id.swipemenu_button1);
+        swipeMenuButton1.setOnClickListener(swipeMenuButton1Listener);
     }
 
     public void fillView(String string) {
-        mTextView1.setText(string);
+        TextView textView1 = (TextView) findViewById(R.id.textview1);
+        textView1.setText(string);
     }
 
     public void fillView(User user) {
-        mTextView1.setText(user.getName());
+        TextView textView1 = (TextView) findViewById(R.id.textview1);
+        textView1.setText(user.getName());
+        TextView userTextView1 = (TextView) findViewById(R.id.usertextview1);
+        ImageView userImageView1 = (ImageView) findViewById(R.id.userimageview1);
         TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
-                mUserImageView1, user, Image.getSmallImageSize(),
-                mUserTextView1);
+                userImageView1, user, Image.getSmallImageSize(),
+                userTextView1);
     }
 
     public void fillView(Artist artist) {
-        mTextView1.setText(artist.getName());
-        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
+        TextView textView1 = (TextView) findViewById(R.id.textview1);
+        textView1.setText(artist.getName());
+        ImageView imageView1 = (ImageView) findViewById(R.id.imageview1);
+        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView1,
                 artist.getImage(), Image.getSmallImageSize(), true);
     }
 
     public void fillView(Album album) {
-        mTextView1.setText(album.getName());
-        mTextView2.setVisibility(View.VISIBLE);
-        mTextView2.setText(album.getArtist().getName());
-        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
+        TextView textView1 = (TextView) findViewById(R.id.textview1);
+        textView1.setText(album.getName());
+        TextView textView2 = (TextView) findViewById(R.id.textview2);
+        textView2.setText(album.getArtist().getName());
+        ImageView imageView1 = (ImageView) findViewById(R.id.imageview1);
+        TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView1,
                 album.getImage(), Image.getSmallImageSize(), false);
         int songCount = CollectionManager.getInstance().getCollection(
                 TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbumTracks(album, false).size();
@@ -414,26 +180,31 @@ public class ViewHolder {
             songCount = CollectionManager.getInstance().getCollection(
                     TomahawkApp.PLUGINNAME_HATCHET).getAlbumTracks(album, false).size();
         }
+        TextView textView3 = (TextView) findViewById(R.id.textview3);
         if (songCount == 1) {
-            mTextView3.setVisibility(View.VISIBLE);
-            mTextView3.setText(TomahawkApp.getContext()
+            textView3.setVisibility(View.VISIBLE);
+            textView3.setText(TomahawkApp.getContext()
                     .getString(R.string.songs_with_count_singular, songCount));
         } else if (songCount > 1) {
-            mTextView3.setVisibility(View.VISIBLE);
-            mTextView3.setText(
+            textView3.setVisibility(View.VISIBLE);
+            textView3.setText(
                     TomahawkApp.getContext().getString(R.string.songs_with_count, songCount));
         }
     }
 
     public void fillView(Resolver resolver) {
-        mTextView1.setText(resolver.getPrettyName());
-        mImageView1.clearColorFilter();
-        resolver.loadIconBackground(mImageView1, !resolver.isEnabled());
-        resolver.loadIconWhite(mImageView2);
+        TextView textView1 = (TextView) findViewById(R.id.textview1);
+        textView1.setText(resolver.getPrettyName());
+        ImageView imageView1 = (ImageView) findViewById(R.id.imageview1);
+        imageView1.clearColorFilter();
+        resolver.loadIconBackground(imageView1, !resolver.isEnabled());
+        ImageView imageView2 = (ImageView) findViewById(R.id.imageview2);
+        resolver.loadIconWhite(imageView2);
+        View connectImageViewContainer = findViewById(R.id.connect_imageview_container);
         if (resolver.isEnabled()) {
-            mConnectImageViewContainer.setVisibility(View.VISIBLE);
+            connectImageViewContainer.setVisibility(View.VISIBLE);
         } else {
-            mConnectImageViewContainer.setVisibility(View.GONE);
+            connectImageViewContainer.setVisibility(View.GONE);
         }
     }
 
@@ -453,58 +224,209 @@ public class ViewHolder {
                 }
             }
         }
-        if (artistImages.size() > 2) {
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView1,
-                    artistImages.get(0), Image.getLargeImageSize(), false);
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView2,
-                    artistImages.get(1), Image.getSmallImageSize(), false);
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView3,
-                    artistImages.get(2), Image.getSmallImageSize(), false);
-            mImageView1.setVisibility(View.VISIBLE);
-            mImageView3.setVisibility(View.VISIBLE);
-        } else if (artistImages.size() > 1) {
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView2,
-                    artistImages.get(0), Image.getLargeImageSize(), false);
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView3,
-                    artistImages.get(1), Image.getLargeImageSize(), false);
-            mImageView3.setVisibility(View.VISIBLE);
-        } else if (artistImages.size() > 0) {
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), mImageView2,
-                    artistImages.get(0), Image.getLargeImageSize(), false);
-        } else {
-            TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), mImageView2,
-                    R.drawable.album_placeholder_grid);
+        fillView(mRootView, artistImages, 0, false);
+        TextView textView1 = (TextView) findViewById(R.id.textview1);
+        if (textView1 != null) {
+            textView1.setText(playlist.getName());
         }
-        if (mTextView1 != null) {
-            mTextView1.setText(playlist.getName());
+        TextView textView2 = (TextView) findViewById(R.id.textview2);
+        if (textView2 != null) {
+            textView2.setText(topArtistsString);
         }
-        if (mTextView2 != null) {
-            mTextView2.setText(topArtistsString);
-        }
-        if (mTextView3 != null) {
+        TextView textView3 = (TextView) findViewById(R.id.textview3);
+        if (textView3 != null) {
             if (playlist.getCount() == 1) {
-                mTextView3.setText(TomahawkApp.getContext()
+                textView3.setText(TomahawkApp.getContext()
                         .getString(R.string.songs_with_count_singular, playlist.getCount()));
             } else {
-                mTextView3.setText(TomahawkApp.getContext()
+                textView3.setText(TomahawkApp.getContext()
                         .getString(R.string.songs_with_count, playlist.getCount()));
             }
+        }
+    }
+
+    public static void fillView(View view, Playlist playlist, int height, boolean isPagerFragment) {
+        ArrayList<Image> artistImages = new ArrayList<>();
+        String[] artists = playlist.getTopArtistNames();
+        if (artists != null) {
+            for (int i = 0; i < artists.length && i < 5 && artistImages.size() < 3; i++) {
+                Artist artist = Artist.get(artists[i]);
+                if (artist.getImage() != null) {
+                    artistImages.add(artist.getImage());
+                }
+            }
+        }
+        fillView(view, artistImages, height, isPagerFragment);
+    }
+
+    private static void fillView(View view, List<Image> artistImages, int height,
+            boolean isPagerFragment) {
+        View v;
+        int gridOneResId = isPagerFragment ? R.id.imageview_grid_one_pager
+                : R.id.imageview_grid_one;
+        int gridTwoResId = isPagerFragment ? R.id.imageview_grid_two_pager
+                : R.id.imageview_grid_two;
+        int gridThreeResId = isPagerFragment ? R.id.imageview_grid_three_pager
+                : R.id.imageview_grid_three;
+        int gridOneStubId = isPagerFragment ? R.id.imageview_grid_one_pager_stub
+                : R.id.imageview_grid_one_stub;
+        int gridTwoStubId = isPagerFragment ? R.id.imageview_grid_two_pager_stub
+                : R.id.imageview_grid_two_stub;
+        int gridThreeStubId = isPagerFragment ? R.id.imageview_grid_three_pager_stub
+                : R.id.imageview_grid_three_stub;
+        if (artistImages.size() > 2) {
+            v = view.findViewById(gridOneResId);
+            if (v != null) {
+                v.setVisibility(View.GONE);
+            }
+            v = view.findViewById(gridTwoResId);
+            if (v != null) {
+                v.setVisibility(View.GONE);
+            }
+            v = TomahawkUtils.ensureInflation(view, gridThreeStubId, gridThreeResId);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(),
+                    (ImageView) v.findViewById(R.id.imageview1),
+                    artistImages.get(0), Image.getLargeImageSize(), false);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(),
+                    (ImageView) v.findViewById(R.id.imageview2),
+                    artistImages.get(1), Image.getSmallImageSize(), false);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(),
+                    (ImageView) v.findViewById(R.id.imageview3),
+                    artistImages.get(2), Image.getSmallImageSize(), false);
+        } else if (artistImages.size() > 1) {
+            v = view.findViewById(gridOneResId);
+            if (v != null) {
+                v.setVisibility(View.GONE);
+            }
+            v = view.findViewById(gridThreeResId);
+            if (v != null) {
+                v.setVisibility(View.GONE);
+            }
+            v = TomahawkUtils
+                    .ensureInflation(view, gridTwoStubId, gridTwoResId);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(),
+                    (ImageView) v.findViewById(R.id.imageview1),
+                    artistImages.get(0), Image.getLargeImageSize(), false);
+            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(),
+                    (ImageView) v.findViewById(R.id.imageview2),
+                    artistImages.get(1), Image.getSmallImageSize(), false);
+        } else {
+            v = view.findViewById(gridTwoResId);
+            if (v != null) {
+                v.setVisibility(View.GONE);
+            }
+            v = view.findViewById(gridThreeResId);
+            if (v != null) {
+                v.setVisibility(View.GONE);
+            }
+            v = TomahawkUtils.ensureInflation(view, gridOneStubId, gridOneResId);
+            if (artistImages.size() > 0) {
+                TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(),
+                        (ImageView) v.findViewById(R.id.imageview1),
+                        artistImages.get(0), Image.getLargeImageSize(), false);
+            } else {
+                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                        (ImageView) v.findViewById(R.id.imageview1),
+                        R.drawable.album_placeholder_grid);
+            }
+        }
+        if (height > 0) {
+            v.getLayoutParams().height = height;
         }
     }
 
     public void fillView(int id) {
         switch (id) {
             case PlaylistsFragment.CREATE_PLAYLIST_BUTTON_ID:
-                mMainClickArea.setBackgroundColor(TomahawkApp.getContext().getResources()
-                        .getColor(R.color.primary_textcolor));
-                mImageView2.setVisibility(View.GONE);
-                mAddIcon.setVisibility(View.VISIBLE);
-                mTextView1.setText(
+                View v = mRootView.findViewById(R.id.imageview_grid_one);
+                if (v != null) {
+                    v.setVisibility(View.GONE);
+                }
+                v = mRootView.findViewById(R.id.imageview_grid_two);
+                if (v != null) {
+                    v.setVisibility(View.GONE);
+                }
+                v = mRootView.findViewById(R.id.imageview_grid_three);
+                if (v != null) {
+                    v.setVisibility(View.GONE);
+                }
+                TomahawkUtils.ensureInflation(mRootView, R.id.imageview_create_playlist_stub,
+                        R.id.imageview_create_playlist);
+                TextView textView1 = (TextView) findViewById(R.id.textview1);
+                textView1.setText(
                         TomahawkApp.getContext().getString(R.string.create_playlist).toUpperCase());
-                mTextView2.setText("");
-                mTextView3.setText("");
                 break;
         }
+    }
+
+    public void fillHeaderView(ArrayList<CharSequence> spinnerItems,
+            int initialSelection, AdapterView.OnItemSelectedListener listener) {
+        ArrayAdapter<CharSequence> adapter =
+                new ArrayAdapter<>(TomahawkApp.getContext(),
+                        R.layout.dropdown_header_textview, spinnerItems);
+        adapter.setDropDownViewResource(R.layout.dropdown_header_dropdown_textview);
+        Spinner spinner = (Spinner) findViewById(R.id.spinner1);
+        spinner.setAdapter(adapter);
+        spinner.setSelection(initialSelection);
+        spinner.setOnItemSelectedListener(listener);
+    }
+
+    public void fillHeaderView(String text) {
+        TextView textView1 = (TextView) findViewById(R.id.textview1);
+        textView1.setText(text.toUpperCase());
+    }
+
+    public void fillHeaderView(SocialAction socialAction, int segmentSize) {
+        ImageView userImageView1 = (ImageView) findViewById(R.id.userimageview1);
+        TextView userTextView = (TextView) findViewById(R.id.usertextview1);
+        TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
+                userImageView1, socialAction.getUser(),
+                Image.getSmallImageSize(), userTextView);
+        TomahawkListItem targetObject = socialAction.getTargetObject();
+        Resources resources = TomahawkApp.getContext().getResources();
+        String userName = socialAction.getUser().getName();
+        String phrase = "!FIXME! type: " + socialAction.getType()
+                + ", action: " + socialAction.getAction() + ", user: " + userName;
+        if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
+                .equals(socialAction.getType())) {
+            if (targetObject instanceof Query) {
+                phrase = segmentSize > 1 ?
+                        resources.getString(R.string.socialaction_type_love_track_multiple,
+                                userName, segmentSize)
+                        : resources.getString(R.string.socialaction_type_love_track_single,
+                                userName);
+            } else if (targetObject instanceof Album) {
+                phrase = segmentSize > 1 ?
+                        resources.getString(R.string.socialaction_type_collected_album_multiple,
+                                userName, segmentSize)
+                        : resources.getString(R.string.socialaction_type_collected_album_single,
+                                userName);
+            } else if (targetObject instanceof Artist) {
+                phrase = segmentSize > 1 ?
+                        resources.getString(R.string.socialaction_type_collected_artist_multiple,
+                                userName, segmentSize)
+                        : resources.getString(R.string.socialaction_type_collected_artist_single,
+                                userName);
+            }
+        } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW
+                .equals(socialAction.getType())) {
+            phrase = resources.getString(R.string.socialaction_type_follow, userName);
+        } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST
+                .equals(socialAction.getType())) {
+            phrase = segmentSize > 1 ?
+                    resources.getString(R.string.socialaction_type_createplaylist_multiple,
+                            userName, segmentSize)
+                    : resources.getString(R.string.socialaction_type_createplaylist_single,
+                            userName);
+        } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON
+                .equals(socialAction.getType())) {
+            phrase = segmentSize > 1 ?
+                    resources.getString(R.string.socialaction_type_latchon_multiple,
+                            userName, segmentSize)
+                    : resources.getString(R.string.socialaction_type_latchon_single, userName);
+        }
+        TextView textView1 = (TextView) findViewById(R.id.textview1);
+        textView1.setText(phrase + ":");
     }
 
     private static String dateToString(Resources resources, Date date) {

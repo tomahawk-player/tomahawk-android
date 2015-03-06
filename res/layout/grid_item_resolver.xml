@@ -26,29 +26,29 @@
               android:layout_weight="1"
               android:background="@drawable/selectable_background_tomahawk">
 
-    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout
+    <org.tomahawk.tomahawk_android.ui.widgets.SquareWidthFrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
         <ImageView android:id="@+id/imageview1"
                    android:layout_width="match_parent"
                    android:layout_height="match_parent"
-                   android:src="@color/hatchet_resolver_bg"/>
+                   android:scaleType="centerCrop"
+                   android:adjustViewBounds="true"/>
 
         <ImageView android:id="@+id/imageview2"
                    android:layout_width="@dimen/grid_item_resolver_icon_size"
                    android:layout_height="@dimen/grid_item_resolver_icon_size"
-                   android:layout_centerInParent="true"
-                   android:src="@drawable/ic_hatchet_white"/>
+                   android:layout_gravity="center"/>
 
-    </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthRelativeLayout>
+    </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthFrameLayout>
 
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
                   android:paddingTop="@dimen/padding_small"
                   android:paddingBottom="@dimen/padding_small">
 
-        <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout
+        <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightFrameLayout
                 android:id="@+id/connect_imageview_container"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
@@ -58,7 +58,7 @@
                        android:layout_height="match_parent"
                        android:src="@drawable/ic_connected"/>
 
-        </org.tomahawk.tomahawk_android.ui.widgets.SquareHeightRelativeLayout>
+        </org.tomahawk.tomahawk_android.ui.widgets.SquareHeightFrameLayout>
 
         <TextView android:id="@+id/textview1"
                   android:layout_width="match_parent"
@@ -67,8 +67,7 @@
                   android:ellipsize="marquee"
                   android:singleLine="true"
                   android:textColor="@color/primary_textcolor"
-                  android:textSize="@dimen/text_size_small"
-                  android:text="Hatchet"/>
+                  android:textSize="@dimen/text_size_small"/>
 
     </LinearLayout>
 

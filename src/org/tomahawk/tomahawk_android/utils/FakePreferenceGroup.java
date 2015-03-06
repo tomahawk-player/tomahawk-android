@@ -24,8 +24,6 @@ import java.util.ArrayList;
  */
 public class FakePreferenceGroup {
 
-    public static final int FAKEPREFERENCE_TYPE_AUTH = 0;
-
     public static final int FAKEPREFERENCE_TYPE_CHECKBOX = 1;
 
     public static final int FAKEPREFERENCE_TYPE_PLAIN = 2;
