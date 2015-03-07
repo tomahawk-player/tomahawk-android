@@ -29,7 +29,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -79,10 +78,8 @@ public class RedirectConfigDialog extends ConfigDialog {
             mAuthenticatorUtils = AuthenticatorManager.getInstance().getAuthenticatorUtils(id);
         }
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        TextView headerTextView = (TextView) inflater.inflate(R.layout.config_textview, null);
+        TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
         headerTextView.setText(mScriptResolver.getDescription());
-        addScrollingViewToFrame(headerTextView);
 
         int buttonBackgroundResId;
         int buttonTextColor;
@@ -101,8 +98,7 @@ public class RedirectConfigDialog extends ConfigDialog {
             onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_DEEZER);
         }
 
-        View buttonLayout = inflater.inflate(R.layout.config_redirect_button, null);
-        addScrollingViewToFrame(buttonLayout);
+        View buttonLayout = addScrollingViewToFrame(R.layout.config_redirect_button);
         LinearLayout button = ((LinearLayout) buttonLayout
                 .findViewById(R.id.config_redirect_button));
         button.setBackgroundResource(buttonBackgroundResId);

@@ -23,5 +23,7 @@
         android:id="@+id/directory_chooser"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="@dimen/padding_medium"
-        android:paddingRight="@dimen/padding_medium"/>
+        android:layout_marginTop="@dimen/padding_small"
+        android:layout_marginBottom="@dimen/padding_small"
+        android:layout_marginLeft="@dimen/padding_superlarge"
+        android:layout_marginRight="@dimen/padding_superlarge"/>

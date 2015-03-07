@@ -33,7 +33,6 @@ import android.support.annotation.NonNull;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -79,32 +78,26 @@ public class RegisterConfigDialog extends ConfigDialog {
             }
         }
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        TextView headerTextView = (TextView) inflater.inflate(R.layout.config_textview, null);
+        TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
         headerTextView.setText(mAuthenticatorUtils.getDescription());
-        addScrollingViewToFrame(headerTextView);
-        mUsernameEditText = (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
+        mUsernameEditText = (ConfigEdittext) addScrollingViewToFrame(R.layout.config_edittext);
         mUsernameEditText.setHint(mAuthenticatorUtils.getUserIdEditTextHintResId());
         mUsernameEditText.setText(username);
-        addScrollingViewToFrame(mUsernameEditText);
-        mPasswordEditText = (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
+        mPasswordEditText = (ConfigEdittext) addScrollingViewToFrame(R.layout.config_edittext);
         mPasswordEditText.setHint(R.string.login_password);
         mPasswordEditText.setTypeface(Typeface.DEFAULT);
         mPasswordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         mPasswordEditText.setTransformationMethod(new PasswordTransformationMethod());
         mPasswordEditText.setText(password);
-        addScrollingViewToFrame(mPasswordEditText);
         mPasswordConfirmationEditText =
-                (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
+                (ConfigEdittext) addScrollingViewToFrame(R.layout.config_edittext);
         mPasswordConfirmationEditText.setHint(
                 R.string.login_password_confirmation);
         mPasswordConfirmationEditText.setTypeface(Typeface.DEFAULT);
         mPasswordConfirmationEditText.setTransformationMethod(new PasswordTransformationMethod());
-        addScrollingViewToFrame(mPasswordConfirmationEditText);
-        mMailEditText = (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
+        mMailEditText = (ConfigEdittext) addScrollingViewToFrame(R.layout.config_edittext);
         mMailEditText.setHint(R.string.account_email_label);
         mMailEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
-        addScrollingViewToFrame(mMailEditText);
 
         showSoftKeyboard(mUsernameEditText);
 

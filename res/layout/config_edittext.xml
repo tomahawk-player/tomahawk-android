@@ -23,8 +23,10 @@
         android:id="@+id/config_edittext"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimen/padding_medium"
-        android:background="@drawable/selectable_background_tomahawk"
+        android:layout_marginTop="@dimen/padding_small"
+        android:layout_marginBottom="@dimen/padding_small"
+        android:layout_marginLeft="@dimen/padding_superlarge"
+        android:layout_marginRight="@dimen/padding_superlarge"
         android:imeOptions="flagNoExtractUi"
         android:singleLine="true"
         android:inputType="textEmailAddress"/>

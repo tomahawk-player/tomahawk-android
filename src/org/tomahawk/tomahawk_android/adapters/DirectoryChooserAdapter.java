@@ -144,7 +144,7 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
         TextView textView = (TextView) viewHolder.findViewById(R.id.textview1);
         textView.setText(getVisibleName(dir.file));
         textView.setTypeface(null, Typeface.NORMAL);
-        view.findViewById(R.id.browsable_indicator).setVisibility(View.GONE);
+        view.findViewById(R.id.browsable_indicator).setVisibility(View.INVISIBLE);
         view.setOnClickListener(null);
         if (dir.file.listFiles() != null
                 && dir.file.listFiles().length > 0) {
@@ -196,7 +196,7 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
                 textView.setText("../" + getVisibleName(dir.file.getParentFile()));
                 textView.setTypeface(null, Typeface.BOLD);
             }
-            textView.setVisibility(View.GONE);
+            view.findViewById(R.id.browsable_indicator).setVisibility(View.INVISIBLE);
 
             return view;
         } else {

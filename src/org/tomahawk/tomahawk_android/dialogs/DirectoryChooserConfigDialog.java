@@ -28,7 +28,6 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
 
 /**
  * A {@link org.tomahawk.tomahawk_android.dialogs.ConfigDialog} which shows a textfield to enter a
@@ -45,11 +44,9 @@ public class DirectoryChooserConfigDialog extends ConfigDialog {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
         DirectoryChooser directoryChooser =
-                (DirectoryChooser) inflater.inflate(R.layout.config_directorychooser, null);
+                (DirectoryChooser) addViewToFrame(R.layout.config_directorychooser);
         directoryChooser.setup();
-        addViewToFrame(directoryChooser);
 
         setDialogTitle(getString(R.string.local_collection_pretty_name));
         setStatus(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION));
