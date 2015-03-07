@@ -76,7 +76,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
         headerTextView.setText(mScriptResolver.getDescription());
 
-        int buttonBackgroundResId = R.drawable.selectable_background_tomahawk;
+        int buttonBackgroundResId = R.drawable.selectable_background_tomahawk_rectangle_gray;
         int buttonTextColor = getResources().getColor(R.color.primary_textcolor);
         View.OnClickListener onClickListener =
                 new RedirectButtonListener(TomahawkApp.PLUGINNAME_SPOTIFY);
