@@ -44,7 +44,6 @@ dependencies {
     compile "net.sourceforge.findbugs:jsr305:1.3.7"
     compile "com.squareup.retrofit:retrofit:1.8.0"
     compile 'com.sothree.slidinguppanel:library:2.0.3'
-    compile "com.nineoldandroids:library:2.4.0"
     compile('com.uservoice:uservoice-android-sdk:1.1.2') {
         transitive = false
     }

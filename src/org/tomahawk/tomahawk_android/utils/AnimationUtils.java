@@ -17,12 +17,11 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import com.nineoldandroids.animation.Animator;
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.ValueAnimator;
-
 import org.tomahawk.tomahawk_android.R;
 
+import android.animation.Animator;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.view.View;
 
 public class AnimationUtils {

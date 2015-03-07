@@ -18,7 +18,6 @@
  */
 package org.tomahawk.tomahawk_android.activities;
 
-import com.nineoldandroids.animation.Animator;
 import com.rdio.android.api.OAuth1WebViewActivity;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.uservoice.uservoicesdk.Config;
@@ -77,6 +76,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.accounts.AccountManager;
+import android.animation.Animator;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
