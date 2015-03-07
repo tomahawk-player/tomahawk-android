@@ -7,18 +7,10 @@
 
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarTomahawk</item>
         <item name="android:fastScrollThumbDrawable">@drawable/apptheme_fastscroll_thumb_holo</item>
-        <item name="android:popupMenuStyle">@style/PopupMenu.Tomahawk</item>
-        <item name="android:dropDownListViewStyle">@style/DropDownListView.Tomahawk</item>
 
         <item name="actionBarItemBackground">@drawable/selectable_background_tomahawk</item>
         <item name="popupMenuStyle">@style/PopupMenu.Tomahawk</item>
-        <item name="dropDownListViewStyle">@style/DropDownListView.Tomahawk</item>
-        <item name="actionBarTabStyle">@style/ActionBarTabStyle.Tomahawk</item>
-        <item name="actionDropDownStyle">@style/DropDownNav.Tomahawk</item>
         <item name="actionBarStyle">@style/ActionBar.Solid.Tomahawk</item>
-        <item name="actionModeBackground">@drawable/cab_background_top_tomahawk</item>
-        <item name="actionModeSplitBackground">@drawable/cab_background_bottom_tomahawk</item>
-        <item name="actionModeCloseButtonStyle">@style/ActionButton.CloseMode.Tomahawk</item>
         <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
         <item name="actionBarWidgetTheme">@style/Theme.Tomahawk.Widget</item>
         <item name="colorPrimary">@color/tomahawk_red</item>
