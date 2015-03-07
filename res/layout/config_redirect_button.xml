@@ -23,7 +23,7 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"
               android:layout_gravity="center_horizontal"
-              android:background="@drawable/rectangle_gray"
+              android:background="@drawable/selectable_background_tomahawk_rectangle_gray"
               android:padding="@dimen/padding_large"
               android:layout_margin="@dimen/padding_medium">
 
