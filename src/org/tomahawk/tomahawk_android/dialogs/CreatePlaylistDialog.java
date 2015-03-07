@@ -35,7 +35,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
 /**
  * A {@link DialogFragment} which is presented for the user so that he can choose a name for the
@@ -64,8 +63,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
         }
 
         //set the proper flags for our edittext
-        LinearLayout textLayout = (LinearLayout) addScrollingViewToFrame(R.layout.config_edittext);
-        mNameEditText = (ConfigEdittext) textLayout.findViewById(R.id.config_edittext);
+        mNameEditText = (ConfigEdittext) addScrollingViewToFrame(R.layout.config_edittext);
         mNameEditText.setHint(R.string.name_playlist);
         mNameEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
 
