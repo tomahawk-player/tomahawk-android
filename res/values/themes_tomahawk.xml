@@ -6,7 +6,7 @@
     <style name="Theme.Tomahawk" parent="@style/Theme.AppCompat.Light.DarkActionBar">
 
         <item name="android:progressBarStyleHorizontal">@style/ProgressBarTomahawk</item>
-        <item name="android:fastScrollThumbDrawable">@drawable/tomahawk_fastscroll_thumb_holo</item>
+        <item name="android:fastScrollThumbDrawable">@drawable/apptheme_fastscroll_thumb_holo</item>
         <item name="android:popupMenuStyle">@style/PopupMenu.Tomahawk</item>
         <item name="android:dropDownListViewStyle">@style/DropDownListView.Tomahawk</item>
 
