@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import com.nineoldandroids.animation.ObjectAnimator;
-import com.nineoldandroids.animation.ValueAnimator;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.tomahawk.libtomahawk.collection.Image;
@@ -37,6 +35,8 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.views.AlbumArtViewPager;
 import org.tomahawk.tomahawk_android.views.PlaybackFragmentFrame;
 
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
