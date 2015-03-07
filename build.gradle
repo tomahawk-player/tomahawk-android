@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.0.0'
+        classpath 'com.android.tools.build:gradle:1.1.0'
     }
 }
 
@@ -33,7 +33,6 @@ dependencies {
     compile "com.squareup.picasso:picasso:2.4.0"
     compile "com.squareup.okhttp:okhttp:2.1.0"
     compile "com.squareup.okhttp:okhttp-urlconnection:2.1.0"
-    compile "com.github.castorflex.verticalviewpager:library:19.0.0"
     compile "com.github.castorflex.smoothprogressbar:library:1.0.0"
     compile "de.mrmaffen:vlc-android-sdk:1.0.4"
     compile "de.mrmaffen:rdio-android-sdk:1.0.0"
@@ -144,9 +143,6 @@ android {
         arm {
             versionName getNewVersionName() + "_arm"
             versionCode Integer.parseInt("1" + defaultConfig.versionCode)
-            ndk {
-                abiFilters "armeabi", "armeabi-v7a"
-            }
         }
     }
 }
