@@ -26,7 +26,6 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.view.LayoutInflater;
 
 /**
  * A {@link android.support.v4.app.DialogFragment} which is being shown to the user to ask him to
@@ -45,8 +44,7 @@ public class AskAccessConfigDialog extends ConfigDialog {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        addScrollingViewToFrame(inflater.inflate(R.layout.config_ask_access, null));
+        addScrollingViewToFrame(R.layout.config_ask_access);
         setDialogTitle(HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME);
         setStatus(new HatchetStubResolver(HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME, null));
         hideConnectImage();

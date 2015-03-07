@@ -32,7 +32,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -66,17 +65,13 @@ public class SendLogConfigDialog extends ConfigDialog {
             mLogData = getArguments().getString(TomahawkFragment.LOG_DATA);
         }
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        TextView headerTextView = (TextView) inflater.inflate(R.layout.config_textview, null);
+        TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
         headerTextView.setText(R.string.preferences_app_sendlog_dialog_text);
-        addScrollingViewToFrame(headerTextView);
-        mEmailEditText = (ConfigEdittext) inflater.inflate(R.layout.config_edittext, null);
+        mEmailEditText = (ConfigEdittext) addScrollingViewToFrame(R.layout.config_edittext);
         mEmailEditText.setHint(R.string.preferences_app_sendlog_email);
-        addScrollingViewToFrame(mEmailEditText);
         mUserMessageEditText =
-                (ConfigEdittext) inflater.inflate(R.layout.config_edittext_multiplelines, null);
+                (ConfigEdittext) addScrollingViewToFrame(R.layout.config_edittext_multiplelines);
         mUserMessageEditText.setHint(R.string.preferences_app_sendlog_issue);
-        addScrollingViewToFrame(mUserMessageEditText);
 
         showSoftKeyboard(mEmailEditText);
 

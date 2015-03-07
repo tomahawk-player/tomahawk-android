@@ -34,7 +34,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.text.TextUtils;
-import android.view.LayoutInflater;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 
@@ -65,12 +64,10 @@ public class CreatePlaylistDialog extends ConfigDialog {
         }
 
         //set the proper flags for our edittext
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        LinearLayout textLayout = (LinearLayout) inflater.inflate(R.layout.config_edittext, null);
+        LinearLayout textLayout = (LinearLayout) addScrollingViewToFrame(R.layout.config_edittext);
         mNameEditText = (ConfigEdittext) textLayout.findViewById(R.id.config_edittext);
         mNameEditText.setHint(R.string.name_playlist);
         mNameEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
-        addScrollingViewToFrame(textLayout);
 
         showSoftKeyboard(mNameEditText);
 

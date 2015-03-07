@@ -35,7 +35,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.InputType;
 import android.text.method.PasswordTransformationMethod;
-import android.view.LayoutInflater;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -73,18 +72,16 @@ public class ResolverConfigDialog extends ConfigDialog {
             mScriptResolver = (ScriptResolver) PipeLine.getInstance().getResolver(resolverId);
         }
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
         EditText showKeyboardEditText = null;
         EditText lastEditText = null;
         if (mScriptResolver.getConfigUi() != null && mScriptResolver.getConfigUi().fields != null) {
-            TextView headerTextView = (TextView) inflater.inflate(R.layout.config_textview, null);
+            TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
             headerTextView.setText(mScriptResolver.getDescription());
-            addScrollingViewToFrame(headerTextView);
             for (ScriptResolverConfigUiField field : mScriptResolver.getConfigUi().fields) {
                 Map<String, Object> config = mScriptResolver.getConfig();
                 if (PROPERTY_CHECKED.equals(field.property)) {
-                    LinearLayout checkboxLayout = (LinearLayout) inflater
-                            .inflate(R.layout.config_checkbox, null);
+                    LinearLayout checkboxLayout =
+                            (LinearLayout) addScrollingViewToFrame(R.layout.config_checkbox);
                     TextView textView = (TextView) checkboxLayout
                             .findViewById(R.id.config_textview);
                     textView.setText(field.name);
@@ -95,10 +92,9 @@ public class ResolverConfigDialog extends ConfigDialog {
                     if (config.get(field.name) != null) {
                         checkBox.setChecked((Boolean) config.get(field.name));
                     }
-                    addScrollingViewToFrame(checkboxLayout);
                 } else if (PROPERTY_TEXT.equals(field.property)) {
-                    ConfigEdittext editText = (ConfigEdittext) inflater
-                            .inflate(R.layout.config_edittext, null);
+                    ConfigEdittext editText =
+                            (ConfigEdittext) addScrollingViewToFrame(R.layout.config_edittext);
                     editText.mFieldName = field.name;
                     editText.setHint(field.name);
                     mStringViews.add(editText);
@@ -109,14 +105,13 @@ public class ResolverConfigDialog extends ConfigDialog {
                         editText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
                         editText.setTransformationMethod(new PasswordTransformationMethod());
                     }
-                    addScrollingViewToFrame(editText);
                     if (showKeyboardEditText == null) {
                         showKeyboardEditText = editText;
                     }
                     lastEditText = editText;
                 } else if (PROPERTY_VALUE.equals(field.property)) {
-                    LinearLayout numberpickerLayout = (LinearLayout) inflater
-                            .inflate(R.layout.config_numberpicker, null);
+                    LinearLayout numberpickerLayout =
+                            (LinearLayout) addScrollingViewToFrame(R.layout.config_numberpicker);
                     TextView textView = (TextView) numberpickerLayout
                             .findViewById(R.id.config_textview);
                     textView.setText(field.name);
@@ -128,7 +123,6 @@ public class ResolverConfigDialog extends ConfigDialog {
                     if (config.get(field.name) != null) {
                         editText.setText(String.valueOf(config.get(field.name)));
                     }
-                    addScrollingViewToFrame(numberpickerLayout);
                     if (showKeyboardEditText == null) {
                         showKeyboardEditText = editText;
                     }
