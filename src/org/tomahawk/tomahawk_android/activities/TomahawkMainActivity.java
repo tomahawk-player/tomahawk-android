@@ -71,6 +71,7 @@ import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceCon
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.SearchViewStyle;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
@@ -762,13 +763,13 @@ public class TomahawkMainActivity extends ActionBarActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         menu.clear();
         getMenuInflater().inflate(R.menu.tomahawk_main_menu, menu);
+
         // customize the searchView
         mSearchItem = menu.findItem(R.id.action_search);
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(mSearchItem);
-        SearchView.SearchAutoComplete searchAutoComplete
-                = (SearchView.SearchAutoComplete) searchView
-                .findViewById(android.support.v7.appcompat.R.id.search_src_text);
-        searchAutoComplete.setDropDownBackgroundResource(R.drawable.menu_dropdown_panel_tomahawk);
+        SearchViewStyle.on(searchView)
+                .setSearchPlateDrawableId(R.drawable.edittext_background)
+                .setCursorColor(getResources().getColor(R.color.tomahawk_red));
         searchView.setQueryHint(getString(R.string.search));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
