@@ -38,7 +38,7 @@
                       android:layout_gravity="center"
                       android:paddingLeft="@dimen/padding_medium"
                       android:paddingRight="@dimen/padding_medium"
-                      android:background="@color/tertiary_transparent">
+                      android:background="@color/tertiary_transparent_playbackpanel">
 
             <TextView android:id="@+id/track_textview"
                       android:layout_width="wrap_content"

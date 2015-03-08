@@ -32,7 +32,6 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Color;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Handler;
 import android.os.Message;
@@ -381,16 +380,15 @@ public class PlaybackPanel extends FrameLayout {
                 // Setup mTextViewContainer backgroundColor alpha animation
                 Keyframe kfColor1 = Keyframe.ofInt(0f, 0x0);
                 Keyframe kfColor2 = Keyframe.ofInt(0.5f, 0x0);
-                Keyframe kfColor3 = Keyframe.ofInt(1f, 0x99);
+                Keyframe kfColor3 = Keyframe.ofInt(1f, 0xFF);
                 PropertyValuesHolder pvhColor = PropertyValuesHolder
                         .ofKeyframe("color", kfColor1, kfColor2, kfColor3);
                 animator = ValueAnimator.ofPropertyValuesHolder(pvhColor).setDuration(20000);
                 animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                     @Override
                     public void onAnimationUpdate(ValueAnimator animation) {
-                        int color = Color.argb((Integer) animation.getAnimatedValue(), 0, 0, 0);
                         mTextViewContainer.findViewById(R.id.textview_container_inner)
-                                .setBackgroundColor(color);
+                                .getBackground().setAlpha((Integer) animation.getAnimatedValue());
                     }
                 });
                 animator.setInterpolator(new LinearInterpolator());
