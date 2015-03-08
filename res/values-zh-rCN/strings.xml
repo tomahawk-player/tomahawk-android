@@ -46,10 +46,8 @@
   <string name="local_collection_pretty_name">本地收藏</string>
   <string name="local">本地</string>
   <string name="all">所有</string>
-  <string name="preferences_services">服务</string>
   <string name="preferences_local_collection_text">请选择需要扫描的本地文件夹</string>
   <string name="preferences_hatchet_text">使用 %1$s 同步数据</string>
-  <string name="preferences_spotify_text">从 %1$s 播放音乐。需要 Premium 账号</string>
   <string name="preferences_playback">回放</string>
   <string name="preferences_equalizer">均衡器</string>
   <string name="preferences_equalizer_text">自定义音频输出。</string>
@@ -86,7 +84,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">不喜欢</string>
   <string name="context_menu_share">分享</string>
-  <string name="context_menu_gotoartist">转到艺术家</string>
   <string name="drawer_title_feed">订阅</string>
   <string name="drawer_title_collection">收藏</string>
   <string name="drawer_title_playlists">播放列表</string>
@@ -167,9 +164,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">注销</string>
   <string name="ask_access_activity_header">自动保存您在 Hatchet 上播放的曲目的数据？</string>
   <string name="ask_access_activity_text1">只需要在系统设置中启用此服务</string>
-  <string name="ask_access_activity_text2">（你可以随时在 Tomahawk 设置中禁用此服务）</string>
-  <string name="ask_access_activity_button_text">前往设置</string>
-  <string name="button_open_queue_text">队列</string>
   <string name="button_close">关闭</string>
   <string name="view_album">查看专辑</string>
   <string name="connect">连接</string>

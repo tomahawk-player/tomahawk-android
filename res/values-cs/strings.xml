@@ -42,10 +42,8 @@
   <string name="local_collection_pretty_name">Místní sbírka</string>
   <string name="local">Místní</string>
   <string name="all">Vše</string>
-  <string name="preferences_services">Služby</string>
   <string name="preferences_local_collection_text">Vyberte adresáře, které se mají prohledat kvůli nalezení místních souborů.</string>
   <string name="preferences_hatchet_text">Seřídit data s %1$s.</string>
-  <string name="preferences_spotify_text">Přehrávejte svoji hudbu ze %1$s. Vyžaduje účet Premium.</string>
   <string name="preferences_playback">Přehrávání</string>
   <string name="preferences_playback_data">Odesílat údaje o všem</string>
   <string name="preferences_playback_data_text">Odesílat údaje o každé skladbě z každého hudebního přehrávače v telefonu %1$s.</string>
@@ -80,7 +78,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Zrušit oblibu skladby</string>
   <string name="context_menu_share">Sdílet</string>
-  <string name="context_menu_gotoartist">Jít na umělce</string>
   <string name="drawer_title_feed">Kanál</string>
   <string name="drawer_title_collection">Sbírka</string>
   <string name="drawer_title_playlists">Seznamy skladeb</string>
@@ -142,9 +139,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Odhlásit se</string>
   <string name="ask_access_activity_header">Chcete automaticky odesílat informace o všech skladbách, které jsou přehrávány, Hatchet?</string>
   <string name="ask_access_activity_text1">Uděláme to za vás! povolte, prosím, naši službu v nastavení sytému.</string>
-  <string name="ask_access_activity_text2">(Kdykoli můžete toto nastavení zakázat v nastavení Tomahawku)</string>
-  <string name="ask_access_activity_button_text">Jít do nastavení</string>
-  <string name="button_open_queue_text">Řada</string>
   <string name="button_close">Zavřít</string>
   <string name="view_album">Zobrazit album</string>
   <string name="connect">Připojit</string>

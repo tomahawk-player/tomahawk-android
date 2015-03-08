@@ -37,10 +37,8 @@
   <string name="local_collection_pretty_name">Coleção Local</string>
   <string name="local">Local</string>
   <string name="all">Todos</string>
-  <string name="preferences_services">Serviços</string>
   <string name="preferences_local_collection_text">Escolha os diretórios que deverão ser examinados para mídia local.</string>
   <string name="preferences_hatchet_text">Sincronizar seus dados com %1$s.</string>
-  <string name="preferences_spotify_text">Toque sua música de %1$s. É necessária uma Conta Premium.</string>
   <string name="preferences_plug_and_play">Conectar para Tocar</string>
   <string name="preferences_plug_and_play_text">Iniciar música assim que o fone de ouvido é conectado.</string>
   <string name="preferences_audio_quality">Qualidade Preferencial do Áudio </string>
@@ -64,7 +62,6 @@
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Compartilhar</string>
-  <string name="context_menu_gotoartist">Ir ao Artista</string>
   <string name="drawer_title_collection">Coleção</string>
   <string name="drawer_title_playlists">Playlists</string>
   <string name="drawer_title_lovedtracks">Favoritos</string>
@@ -122,8 +119,6 @@
   <string name="following">Seguindo</string>
   <string name="ask_access_activity_header">Você quer salvar automaticamente dados sobre todas as faixas que você toca no Hatchet?</string>
   <string name="ask_access_activity_text1">Faremos isso para você! Por favor, habilite nosso serviço nos ajustes do seu sistema.</string>
-  <string name="ask_access_activity_text2">(Você pode desabilitar isso nos ajustes do Tomahawk quando desejar)</string>
-  <string name="ask_access_activity_button_text">Ir para Ajustes</string>
   <string name="button_close">Fechar</string>
   <string name="view_album">Visualizar Álbum</string>
   <string name="connect">Conectar</string>

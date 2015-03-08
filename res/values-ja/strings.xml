@@ -40,9 +40,7 @@
   <string name="local_collection_pretty_name">ローカルコレックション</string>
   <string name="local">ローカル</string>
   <string name="all">全部</string>
-  <string name="preferences_services">サービス</string>
   <string name="preferences_hatchet_text">%1$sにデータを同期する。</string>
-  <string name="preferences_spotify_text">%1$sから音楽を再生する。プレミアムアカウントが必要です。</string>
   <string name="preferences_playback">再生</string>
   <string name="preferences_playback_data">全てをScrobbleする</string>
   <string name="preferences_playback_data_text">全ての音楽プレーヤーで再生された全てのトラックを%1$sにScrobbleする。</string>
@@ -72,7 +70,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Loveを取り消す</string>
   <string name="context_menu_share">共有</string>
-  <string name="context_menu_gotoartist">アーティストへ</string>
   <string name="drawer_title_feed">フィード</string>
   <string name="drawer_title_collection">コレックション</string>
   <string name="drawer_title_playlists">プレイリスト</string>
@@ -134,9 +131,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">ログアウトする</string>
   <string name="ask_access_activity_header">Hatchetで再生したトラックの全てのデータを自動保存しますか？</string>
   <string name="ask_access_activity_text1">やらせて下さい。システム設定にサービスをオンにして下さい。</string>
-  <string name="ask_access_activity_text2">(トマホークの設定でいつでも無効果に出来ます)</string>
-  <string name="ask_access_activity_button_text">設定へ</string>
-  <string name="button_open_queue_text">キュー</string>
   <string name="button_close">閉じる</string>
   <string name="view_album">アルバムを表示</string>
 </resources>

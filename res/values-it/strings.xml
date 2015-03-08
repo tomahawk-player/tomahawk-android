@@ -42,10 +42,8 @@
   <string name="local_collection_pretty_name">Collezione Locale</string>
   <string name="local">In Locale</string>
   <string name="all">Tutte</string>
-  <string name="preferences_services">Servizi</string>
   <string name="preferences_local_collection_text">Scegli le cartelle dove effettuare la ricerca per i media in locale.</string>
   <string name="preferences_hatchet_text">Sincronizza i tuoi dati con %1$s.</string>
-  <string name="preferences_spotify_text">Ascolta la tua musica da %1$s. Richiede un account premium.</string>
   <string name="preferences_playback">Riproduzione</string>
   <string name="preferences_playback_data">Scrobbla tutto</string>
   <string name="preferences_playback_data_text">Scrobbla a %1$s tutte le tracce da tutti i lettori musicali sul telefono.</string>
@@ -72,7 +70,6 @@
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Condividi</string>
-  <string name="context_menu_gotoartist">Vai a Artista</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Collezione</string>
   <string name="drawer_title_playlists">Playlist</string>
@@ -133,9 +130,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Disconnesso da</string>
   <string name="ask_access_activity_header">Vuoi che siano automaticamente salvati su Hatchet i dati di tutti i brani che riproduci?</string>
   <string name="ask_access_activity_text1">A questo penseremo noi! Per favore abilita il nostro servizio nelle impostazioni di sistema.</string>
-  <string name="ask_access_activity_text2">(Puoi disabilitare questa impostazione in qualsiasi momento dalle impostazioni di Tomahawk)</string>
-  <string name="ask_access_activity_button_text">Vai a Impostazioni</string>
-  <string name="button_open_queue_text">Coda</string>
   <string name="button_close">Chiudi</string>
   <string name="view_album">Vedi Album</string>
   <string name="connect_headertext">Seleziona i servizi che vuoi utilizzare. Tomahawk funziona meglio se più servizi sono attivati.</string>

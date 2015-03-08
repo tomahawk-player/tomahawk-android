@@ -42,10 +42,8 @@
   <string name="local_collection_pretty_name">Koleksi Lokal</string>
   <string name="local">Lokal</string>
   <string name="all">Semua</string>
-  <string name="preferences_services">Layanan</string>
   <string name="preferences_local_collection_text">Pilih direktori yang harus dipindai sebagai media lokal.</string>
   <string name="preferences_hatchet_text">Selaraskan data Anda dengan %1$s.</string>
-  <string name="preferences_spotify_text">Mainkan musik Anda mulai dari %1$s. Memerlukan akun Premium</string>
   <string name="preferences_playback">Pemutaran</string>
   <string name="preferences_playback_data">Scrobble Semua</string>
   <string name="preferences_playback_data_text">Scrobble setiap lagu dari setiap applikasi pemutar musik di ponsel dengan %1$s.</string>
@@ -75,7 +73,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Hapus dari daftar suka</string>
   <string name="context_menu_share">Bagi</string>
-  <string name="context_menu_gotoartist">Menuju Artis</string>
   <string name="drawer_title_feed">Umpan</string>
   <string name="drawer_title_collection">Koleksi</string>
   <string name="drawer_title_playlists">Daftar Putar</string>
@@ -137,9 +134,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">keluar dari</string>
   <string name="ask_access_activity_header">Ingin menyimpan data seluruh lagu yang Anda putar di Hatcet secara otomatis?</string>
   <string name="ask_access_activity_text1">Akan kami lakukan untuk Anda! Mohon aktifkan layanan kami di setelan sistem Anda.</string>
-  <string name="ask_access_activity_text2">(Anda dapat mematikan ini kapanpun di setelan Tomahawk)</string>
-  <string name="ask_access_activity_button_text">Menuju Setelan</string>
-  <string name="button_open_queue_text">Antrian</string>
   <string name="button_close">Tutup</string>
   <string name="view_album">Lihat Album</string>
 </resources>

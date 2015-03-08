@@ -38,9 +38,7 @@
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Enhetens samling</string>
-  <string name="preferences_services">Tjänster</string>
   <string name="preferences_hatchet_text">Synkroniserar med %1$s.</string>
-  <string name="preferences_spotify_text">Att spela musik från %1$s kräver ett premium-konto.</string>
   <string name="preferences_playback">Uppspelning</string>
   <string name="preferences_playback_data">Scrobbla allt</string>
   <string name="preferences_playback_data_text">Scrobbla alla låtar från alla musikspelare på telefonen till %1$s.</string>
@@ -69,7 +67,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Ogilla</string>
   <string name="context_menu_share">Dela</string>
-  <string name="context_menu_gotoartist">Gå till Artist</string>
   <string name="drawer_title_feed">Flöde</string>
   <string name="drawer_title_collection">Samling</string>
   <string name="drawer_title_playlists">Spellista</string>
@@ -127,9 +124,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Logga ut från</string>
   <string name="ask_access_activity_header">Vill du automatisk spara all data om låtarna du spelar till Hatchet?</string>
   <string name="ask_access_activity_text1">Vi fixar det åt dig! Aktivera vår tjänst i systeminställningarna.</string>
-  <string name="ask_access_activity_text2">(Du kan avaktivera det här när du vill i Tomahawks inställningar)</string>
-  <string name="ask_access_activity_button_text">Gå till inställningarna</string>
-  <string name="button_open_queue_text">Kö</string>
   <string name="button_close">Stäng</string>
   <string name="view_album">Se album</string>
 </resources>

@@ -46,10 +46,8 @@
   <string name="local_collection_pretty_name">Paikallinen kokoelma</string>
   <string name="local">Paikallinen</string>
   <string name="all">Kaikki</string>
-  <string name="preferences_services">Palvelut</string>
   <string name="preferences_local_collection_text">Valitse kansiot, joista etsitään paikallista mediaa.</string>
   <string name="preferences_hatchet_text">Synkronoi tietosi palvelun %1$s kanssa.</string>
-  <string name="preferences_spotify_text">Soita musiikkiasi palvelusta %1$s. Tarvitsee Premium-tilin.</string>
   <string name="preferences_playback">Soitto</string>
   <string name="preferences_equalizer">Taajuuskorjain</string>
   <string name="preferences_equalizer_text">Mukauta äänen ulostuloa.</string>
@@ -86,7 +84,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Lakkaa tykkäämästä</string>
   <string name="context_menu_share">Jaa</string>
-  <string name="context_menu_gotoartist">Siirry artistiin</string>
   <string name="drawer_title_feed">Syöte</string>
   <string name="drawer_title_collection">Kokoelma</string>
   <string name="drawer_title_playlists">Soittolistat</string>
@@ -167,9 +164,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Kirjaudu ulos\npalvelusta</string>
   <string name="ask_access_activity_header">Haluatko tallentaa kaikkien kuuntelemiesi kappaleiden tiedot automaattisesti Hatchetiin?</string>
   <string name="ask_access_activity_text1">Teemme sen puolestasi! Ota palvelumme käyttöön järjestelmäasetuksista.</string>
-  <string name="ask_access_activity_text2">(Voit poistaa tämän käytöstä Tomahawkin asetuksista milloin haluat)</string>
-  <string name="ask_access_activity_button_text">Siirry asetuksiin</string>
-  <string name="button_open_queue_text">Jono</string>
   <string name="button_close">Sulje</string>
   <string name="view_album">Näytä albumi</string>
   <string name="connect">Yhdistä</string>

@@ -38,9 +38,7 @@
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Локальна колекція</string>
   <string name="all">Всі</string>
-  <string name="preferences_services">Сервіси</string>
   <string name="preferences_hatchet_text">Синхронізуйте Ваші дані з %1$s.</string>
-  <string name="preferences_spotify_text">Прослуховуйте музику з %1$s. Потребує облікового запису Преміум.</string>
   <string name="preferences_playback">Відтворення</string>
   <string name="preferences_playback_data">Скробблінг Усього</string>
   <string name="preferences_playback_data_text">Скробблінг кожної доріжки з кожного програвача у телефоні на %1$s.</string>
@@ -67,7 +65,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Неулюблене</string>
   <string name="context_menu_share">Поділитися</string>
-  <string name="context_menu_gotoartist">Перейти до Виконавця</string>
   <string name="drawer_title_feed">Фід</string>
   <string name="drawer_title_collection">Колекція</string>
   <string name="drawer_title_playlists">Списки відтворення</string>
@@ -124,9 +121,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Вийти з</string>
   <string name="ask_access_activity_header">Бажаєте автоматично зберігати дані про всі доріжки, які відтворюються на Hatchet?</string>
   <string name="ask_access_activity_text1">Ми зробимо це для Вас! Будь ласка, увімкніть наш сервіс в налаштуваннях Вашої системи.</string>
-  <string name="ask_access_activity_text2">(Ви можете вимкнути це будь-коли в налаштуваннях Tomahawk)</string>
-  <string name="ask_access_activity_button_text">Перейти до Налаштувань</string>
-  <string name="button_open_queue_text">Черга</string>
   <string name="button_close">Закрити</string>
   <string name="view_album">Перегляд альбому</string>
   <string name="connect">З’єднання</string>

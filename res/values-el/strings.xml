@@ -39,7 +39,6 @@
   <string name="local_collection_pretty_name">Τοπική Συλλογή</string>
   <string name="local">Τοπικό</string>
   <string name="all">Όλα</string>
-  <string name="preferences_services">Υπηρεσίες</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->

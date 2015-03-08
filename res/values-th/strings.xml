@@ -38,9 +38,7 @@
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">คอลเลกชั่นท้องถิ่น</string>
-  <string name="preferences_services">บริการ</string>
   <string name="preferences_hatchet_text">ซิงค์ข้อมูลของคุณกับ %1$s</string>
-  <string name="preferences_spotify_text">เล่นดนตรีของคุณจาก%1$s ต้องการบัญชีพรีเมี่ยม</string>
   <string name="preferences_playback">การเล่น</string>
   <string name="preferences_playback_data">สคร็อบเบิ้ลทุกสิ่ง</string>
   <string name="preferences_playback_data_text">สคร็อบเบิ้ลทุกแทร็คจากทุกแอพพ์เครื่องเล่นดนตรีบนโทรศัพท์สู่ %1$s</string>
@@ -69,7 +67,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">เลิกชอบ</string>
   <string name="context_menu_share">แชร์</string>
-  <string name="context_menu_gotoartist">ไปสู่ศิลปิน</string>
   <string name="drawer_title_feed">ฟีด</string>
   <string name="drawer_title_collection">การสะสม</string>
   <string name="drawer_title_playlists">บัญชีการเล่น</string>
@@ -126,9 +123,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">ออกจากระบบ</string>
   <string name="ask_access_activity_header">ต้องการบันทึกข้อมูลอัตโนมัติเกี่ยวกับแทร็คที่คุณเล่นทั้งหมดบน Hatchet หรือไม่?</string>
   <string name="ask_access_activity_text1">เราจะทำสิ่งนั้นให้คุณ! โปรดเลือกใช้งานบริการของเราในการตั้งค่าระบบ</string>
-  <string name="ask_access_activity_text2">(คุณสามารถเลิกใช้งานสิ่งนี้เมื่อใดก็ได้ในการตั้งค่าของ Tomahawk)</string>
-  <string name="ask_access_activity_button_text">ไปที่การตั้งค่า</string>
-  <string name="button_open_queue_text">คิว</string>
   <string name="button_close">ปิด</string>
   <string name="view_album">ดูอัลบั้ม</string>
 </resources>
