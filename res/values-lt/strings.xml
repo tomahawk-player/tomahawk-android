@@ -41,10 +41,8 @@
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Vietinė Kolekcija</string>
-  <string name="preferences_services">Paslaugos</string>
   <string name="preferences_local_collection_text">Pasirinkite katalogus, kurie turėtų būti peržvelgiami, ieškant vietinės medijos.</string>
   <string name="preferences_hatchet_text">Sinchronizuoti duomenis su %1$s.</string>
-  <string name="preferences_spotify_text">Groti jūsų muziką iš %1$s. Reikalauja Premium paskyros.</string>
   <string name="preferences_equalizer">Glodintuvas</string>
   <string name="preferences_info">Informacija</string>
   <string name="preferences_app_version">Programos Versija</string>
@@ -70,7 +68,6 @@
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Dalintis</string>
-  <string name="context_menu_gotoartist">Pereiti prie Atlikėjo</string>
   <string name="drawer_title_feed">Kanalas</string>
   <string name="drawer_title_collection">Kolekcija</string>
   <string name="drawer_title_playlists">Grojaraščiai</string>
@@ -123,8 +120,6 @@
   <string name="resolver_config_redirect_button_text_log_into">Prisijungti prie</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Atsijungti nuo</string>
   <string name="ask_access_activity_header">Norite automatiškai išsaugoti duomenis apie visus takelius, kuriuos grojate per Hatchet?</string>
-  <string name="ask_access_activity_button_text">Eiti į Nustatymus</string>
-  <string name="button_open_queue_text">Eilė</string>
   <string name="button_close">Uždaryti</string>
   <string name="view_album">Žiūrėti Albumą</string>
   <string name="connect_headertext">Pasirinkite paslaugas, kuriomis norite naudotis. Tomahawk veikia geriau, kuomet yra aktyvuota daugiau paslaugų.</string>

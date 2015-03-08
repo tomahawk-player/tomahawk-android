@@ -32,7 +32,6 @@
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="local_collection_pretty_name">Локальная коллекция</string>
   <string name="preferences_hatchet_text">Синхронизируйте ваши данные с %1$s.</string>
-  <string name="preferences_spotify_text">Играть вашу музыку из %1$s. Требуется Премиум аккаунт.</string>
   <string name="preferences_playback">Воспроизведение</string>
   <string name="preferences_playback_data">Скробблинг всего</string>
   <string name="preferences_playback_data_text">Скробблинг каждого трека из каждого плеера в телефоне на %1$s.</string>
@@ -54,7 +53,6 @@
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Поделиться</string>
-  <string name="context_menu_gotoartist">Перейти к исполнителю</string>
   <string name="drawer_title_feed">Фид</string>
   <string name="drawer_title_collection">Коллекция</string>
   <string name="drawer_title_playlists">Плейлисты</string>
@@ -101,6 +99,4 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Выйти из</string>
   <string name="ask_access_activity_header">Хотите автоматически скробблировать играемые треки в Hatchet?</string>
   <string name="ask_access_activity_text1">Мы сделаем это для вас! Пожалуйста, включите наш сервис в настройках вашей системы.</string>
-  <string name="ask_access_activity_text2">(Вы можете отключить это в любое время в настройках Tomahawk)</string>
-  <string name="ask_access_activity_button_text">Перейти в настройки</string>
 </resources>

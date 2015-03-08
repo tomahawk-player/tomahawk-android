@@ -46,10 +46,8 @@
   <string name="local_collection_pretty_name">Collection locale</string>
   <string name="local">Local</string>
   <string name="all">Tout</string>
-  <string name="preferences_services">Services</string>
   <string name="preferences_local_collection_text">Choisissez les répertoires locaux à scanner.</string>
   <string name="preferences_hatchet_text">Synchroniser vos données avec %1$s.</string>
-  <string name="preferences_spotify_text">Diffuse votre musique depuis %1$s. Compte Premium requis.</string>
   <string name="preferences_playback">Diffusion</string>
   <string name="preferences_equalizer">Égaliseur</string>
   <string name="preferences_equalizer_text">Ajuster le rendu audio.</string>
@@ -86,7 +84,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Supprimer des favoris</string>
   <string name="context_menu_share">Partager</string>
-  <string name="context_menu_gotoartist">Aller à l\'artiste</string>
   <string name="drawer_title_feed">Flux</string>
   <string name="drawer_title_collection">Collection</string>
   <string name="drawer_title_playlists">Playlists</string>
@@ -165,9 +162,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Se déconnecter de</string>
   <string name="ask_access_activity_header">Vous souhaitez sauvegarder automatiquement des infos sur tous les morceaux que vous jouez sur Hatchet ?</string>
   <string name="ask_access_activity_text1">On peut faire ça ! Il vous suffit d\'activer ce service dans vos paramétres d\'utilisation.</string>
-  <string name="ask_access_activity_text2">(Vous pourrez le désactiver quand vous le voudrez dans les règlages de Tomahawk)</string>
-  <string name="ask_access_activity_button_text">Accéder aux paramètres</string>
-  <string name="button_open_queue_text">File</string>
   <string name="button_close">Fermer</string>
   <string name="view_album">Voir l\'album</string>
   <string name="connect">Connexion</string>

@@ -46,10 +46,8 @@
   <string name="local_collection_pretty_name">Lokale verzameling</string>
   <string name="local">Lokaal</string>
   <string name="all">Alles</string>
-  <string name="preferences_services">Diensten</string>
   <string name="preferences_local_collection_text">Kies de mappen die moeten worden gescand op lokale mediabestanden.</string>
   <string name="preferences_hatchet_text">Synchroniseer uw gegevens met %1$s.</string>
-  <string name="preferences_spotify_text">Speel uw muziek af van %1$s. Hiervoor is een Premium-account nodig.</string>
   <string name="preferences_playback">Afspelen</string>
   <string name="preferences_equalizer">Toonregelaar</string>
   <string name="preferences_equalizer_text">De audiouitvoer naar wens aanpassen</string>
@@ -86,7 +84,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Uit favorieten verwijderen</string>
   <string name="context_menu_share">Delen</string>
-  <string name="context_menu_gotoartist">Naar artiest gaan</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Collectie</string>
   <string name="drawer_title_playlists">Afspeellijsten</string>
@@ -167,9 +164,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Afmelden bij</string>
   <string name="ask_access_activity_header">Wilt u automatisch gegevens opslaan over alle nummer die u afspeelt via Hatchet?</string>
   <string name="ask_access_activity_text1">Dat zullen we voor u doen! Graag onze dienst inschakelen in uw systeeminstellingen.</string>
-  <string name="ask_access_activity_text2">(U kunt dit ook op elk moment weer uitschakelen in de instellingen van Tomahawk)</string>
-  <string name="ask_access_activity_button_text">Naar instellingen gaan</string>
-  <string name="button_open_queue_text">Wachtrij</string>
   <string name="button_close">Sluiten</string>
   <string name="view_album">Album weergeven</string>
   <string name="connect">Verbinden</string>

@@ -46,10 +46,8 @@
   <string name="local_collection_pretty_name">Lokale Sammlung</string>
   <string name="local">Lokal</string>
   <string name="all">Alle</string>
-  <string name="preferences_services">Dienste</string>
   <string name="preferences_local_collection_text">Wähle die Ordner, in denen nach Musik gesucht werden soll.</string>
   <string name="preferences_hatchet_text">Synchronisiere deine Daten mit %1$s.</string>
-  <string name="preferences_spotify_text">Spiele deine Musik von %1$s. Benötigt ein Premium-Konto.</string>
   <string name="preferences_playback">Wiedergabe</string>
   <string name="preferences_equalizer">Equalizer</string>
   <string name="preferences_equalizer_text">Audio-Ausgabe anpassen</string>
@@ -86,7 +84,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Aus den Favoriten entfernen</string>
   <string name="context_menu_share">Teilen</string>
-  <string name="context_menu_gotoartist">Gehe zum Künstler</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Sammlung</string>
   <string name="drawer_title_playlists">Playlists</string>
@@ -167,9 +164,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Abmelden von</string>
   <string name="ask_access_activity_header">Möchtest du automatisch alle Lieder, die du gehört hast, auf Hatchet speichern?</string>
   <string name="ask_access_activity_text1">Wir machen das für dich! Bitte aktiviere unseren Dienst in deinen System Einstellungen.</string>
-  <string name="ask_access_activity_text2">(Du kannst dies wann immer du willst in den Tomahawk Einstellungen abschalten.)</string>
-  <string name="ask_access_activity_button_text">Gehe zu den Einstellungen</string>
-  <string name="button_open_queue_text">Warteschlange</string>
   <string name="button_close">Schließen</string>
   <string name="view_album">Album ansehen</string>
   <string name="connect">Verbinden</string>

@@ -44,10 +44,8 @@
   <string name="local_collection_pretty_name">Colección local</string>
   <string name="local">Local</string>
   <string name="all">Toda</string>
-  <string name="preferences_services">Servicios</string>
   <string name="preferences_local_collection_text">Elige las carpetas que se explorarán en busca de multimedia local.</string>
   <string name="preferences_hatchet_text">Información sincronizada con %1$s</string>
-  <string name="preferences_spotify_text">Reproducir música desde %1$s. Se requiere una cuenta Premium</string>
   <string name="preferences_playback">Reproducción</string>
   <string name="preferences_equalizer">Ecualizador</string>
   <string name="preferences_equalizer_text">Personaliza la salida de audio</string>
@@ -83,7 +81,6 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Ya no me gusta</string>
   <string name="context_menu_share">Compartir</string>
-  <string name="context_menu_gotoartist">Ir al artista</string>
   <string name="drawer_title_feed">Noticias</string>
   <string name="drawer_title_collection">Colección</string>
   <string name="drawer_title_playlists">Listas de reproducción</string>
@@ -145,9 +142,6 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Salir de</string>
   <string name="ask_access_activity_header">¿Te gustaría guardar automáticamente datos sobre las canciones que reproduzcas en Hatchet?</string>
   <string name="ask_access_activity_text1">Haremos eso para usted! Por favor, activa nuestro servicio en la configuración del sistema.</string>
-  <string name="ask_access_activity_text2">(Puedes deshabilitar esto cuando quieras en los ajustes de Tomahawk)</string>
-  <string name="ask_access_activity_button_text">Ir a los ajustes</string>
-  <string name="button_open_queue_text">Añadir a la cola</string>
   <string name="button_close">Cerrar</string>
   <string name="view_album">Ver álbum</string>
   <string name="connect">Conectar</string>
