@@ -156,7 +156,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private static long mSessionIdCounter = 0;
 
-    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
+    protected HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
     private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
             this);
@@ -321,44 +321,51 @@ public class TomahawkMainActivity extends ActionBarActivity
     @SuppressWarnings("unused")
     public void onEventMainThread(PipeLine.UrlResultsEvent event) {
         Bundle bundle = new Bundle();
-        if (event.mResult.type.equals(PipeLine.URL_TYPE_ARTIST)) {
-            bundle.putString(TomahawkFragment.ARTIST,
-                    Artist.get(event.mResult.name).getCacheKey());
-            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                    ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
-            bundle.putLong(TomahawkFragment.CONTAINER_FRAGMENT_ID,
-                    TomahawkMainActivity.getSessionUniqueId());
-            FragmentUtils.replace(TomahawkMainActivity.this, ArtistPagerFragment.class, bundle);
-        } else if (event.mResult.type.equals(PipeLine.URL_TYPE_ALBUM)) {
-            Artist artist = Artist.get(event.mResult.artist);
-            bundle.putString(TomahawkFragment.ALBUM,
-                    Album.get(event.mResult.name, artist).getCacheKey());
-            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                    ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-            FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
-        } else if (event.mResult.type.equals(PipeLine.URL_TYPE_TRACK)) {
-            bundle.putString(TomahawkFragment.QUERY,
-                    Query.get(event.mResult.title, "", event.mResult.artist, false).getCacheKey());
-            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                    ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-            FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
-        } else if (event.mResult.type.equals(PipeLine.URL_TYPE_PLAYLIST)) {
-            ArrayList<Query> queries = new ArrayList<Query>();
-            for (ScriptResolverUrlResult track : event.mResult.tracks) {
-                Query query = Query.get(track.title, "", track.artist, false);
-                if (event.mResolver != null && event.mResolver.isEnabled() && track.hint != null) {
-                    query.addTrackResult(Result.get(track.hint, query.getBasicTrack(),
-                            event.mResolver, query.getCacheKey()));
+        switch (event.mResult.type) {
+            case PipeLine.URL_TYPE_ARTIST:
+                bundle.putString(TomahawkFragment.ARTIST,
+                        Artist.get(event.mResult.name).getCacheKey());
+                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                        ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+                bundle.putLong(TomahawkFragment.CONTAINER_FRAGMENT_ID,
+                        TomahawkMainActivity.getSessionUniqueId());
+                FragmentUtils.replace(TomahawkMainActivity.this, ArtistPagerFragment.class, bundle);
+                break;
+            case PipeLine.URL_TYPE_ALBUM:
+                Artist artist = Artist.get(event.mResult.artist);
+                bundle.putString(TomahawkFragment.ALBUM,
+                        Album.get(event.mResult.name, artist).getCacheKey());
+                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                        ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
+                break;
+            case PipeLine.URL_TYPE_TRACK:
+                bundle.putString(TomahawkFragment.QUERY,
+                        Query.get(event.mResult.title, "", event.mResult.artist, false)
+                                .getCacheKey());
+                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                        ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
+                break;
+            case PipeLine.URL_TYPE_PLAYLIST:
+                ArrayList<Query> queries = new ArrayList<>();
+                for (ScriptResolverUrlResult track : event.mResult.tracks) {
+                    Query query = Query.get(track.title, "", track.artist, false);
+                    if (event.mResolver != null && event.mResolver.isEnabled()
+                            && track.hint != null) {
+                        query.addTrackResult(Result.get(track.hint, query.getBasicTrack(),
+                                event.mResolver, query.getCacheKey()));
+                    }
+                    queries.add(query);
                 }
-                queries.add(query);
-            }
-            Playlist playlist = Playlist.fromQueryList(event.mResult.title, queries);
-            playlist.setFilled(true);
-            bundle.putString(TomahawkFragment.PLAYLIST, playlist.getId());
-            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                    ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-            FragmentUtils.replace(TomahawkMainActivity.this, PlaylistEntriesFragment.class,
-                    bundle);
+                Playlist playlist = Playlist.fromQueryList(event.mResult.title, queries);
+                playlist.setFilled(true);
+                bundle.putString(TomahawkFragment.PLAYLIST, playlist.getId());
+                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                        ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                FragmentUtils.replace(TomahawkMainActivity.this, PlaylistEntriesFragment.class,
+                        bundle);
+                break;
         }
     }
 
@@ -895,8 +902,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
         mDrawerList = (StickyListHeadersListView) findViewById(R.id.left_drawer);
-        final ArrayList<TomahawkMenuAdapter.ResourceHolder> holders =
-                new ArrayList<TomahawkMenuAdapter.ResourceHolder>();
+        final ArrayList<TomahawkMenuAdapter.ResourceHolder> holders = new ArrayList<>();
         TomahawkMenuAdapter.ResourceHolder holder = new TomahawkMenuAdapter.ResourceHolder();
         if (authenticatorUtils.getLoggedInUser() != null) {
             holder.id = HUB_ID_USERPAGE;
