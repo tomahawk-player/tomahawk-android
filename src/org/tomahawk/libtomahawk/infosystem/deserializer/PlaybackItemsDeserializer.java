@@ -1,7 +1,6 @@
 package org.tomahawk.libtomahawk.infosystem.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -18,7 +17,7 @@ public class PlaybackItemsDeserializer
     @Override
     public Map<String, HatchetPlaybackItemResponse> deserialize(JsonParser jp,
             DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+            throws IOException {
         List<HatchetPlaybackItemResponse> list =
                 jp.readValueAs(new TypeReference<List<HatchetPlaybackItemResponse>>() {
                 });

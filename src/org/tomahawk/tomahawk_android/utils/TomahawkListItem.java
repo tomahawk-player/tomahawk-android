@@ -32,30 +32,30 @@ public interface TomahawkListItem {
     /**
      * @return the unique cache key of this object
      */
-    public String getCacheKey();
+    String getCacheKey();
 
     /**
      * @return the corresponding name/title
      */
-    public String getName();
+    String getName();
 
     /**
      * @return the corresponding {@link org.tomahawk.libtomahawk.collection.Artist}
      */
-    public Artist getArtist();
+    Artist getArtist();
 
     /**
      * @return the corresponding {@link org.tomahawk.libtomahawk.collection.Album}
      */
-    public Album getAlbum();
+    Album getAlbum();
 
     /**
      * @return the corresponding list of {@link org.tomahawk.libtomahawk.resolver.Query}s
      */
-    public ArrayList<Query> getQueries();
+    ArrayList<Query> getQueries();
 
     /**
      * @return a corresponding image like an artist's portrait image or an album cover
      */
-    public Image getImage();
+    Image getImage();
 }

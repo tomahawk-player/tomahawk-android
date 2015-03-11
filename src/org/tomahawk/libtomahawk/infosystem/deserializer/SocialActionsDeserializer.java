@@ -1,7 +1,6 @@
 package org.tomahawk.libtomahawk.infosystem.deserializer;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -16,7 +15,7 @@ public class SocialActionsDeserializer extends JsonDeserializer<Map<String, Hatc
 
     @Override
     public Map<String, HatchetSocialAction> deserialize(JsonParser jp, DeserializationContext ctxt)
-            throws IOException, JsonProcessingException {
+            throws IOException {
         List<HatchetSocialAction> list = jp
                 .readValueAs(new TypeReference<List<HatchetSocialAction>>() {
                 });

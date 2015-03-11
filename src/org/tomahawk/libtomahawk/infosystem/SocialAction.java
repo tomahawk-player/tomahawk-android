@@ -30,10 +30,10 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class SocialAction implements TomahawkListItem {
 
-    private static ConcurrentHashMap<String, SocialAction> sSocialActions
-            = new ConcurrentHashMap<String, SocialAction>();
+    private static final ConcurrentHashMap<String, SocialAction> sSocialActions
+            = new ConcurrentHashMap<>();
 
-    private String mId;
+    private final String mId;
 
     private String mAction;
 
@@ -87,7 +87,7 @@ public class SocialAction implements TomahawkListItem {
      * @return A {@link java.util.List} of all {@link SocialAction}s
      */
     public static ArrayList<SocialAction> getSocialActions() {
-        return new ArrayList<SocialAction>(sSocialActions.values());
+        return new ArrayList<>(sSocialActions.values());
     }
 
     @Override
@@ -112,7 +112,7 @@ public class SocialAction implements TomahawkListItem {
 
     @Override
     public ArrayList<Query> getQueries() {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> queries = new ArrayList<>();
         queries.add(mQuery);
         return queries;
     }

@@ -129,7 +129,7 @@ public class AlbumsFragment extends TomahawkFragment {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         List<Segment> segments = new ArrayList<>();
-        ArrayList items = new ArrayList<Object>();
+        ArrayList items = new ArrayList<>();
         if (mArtist != null) {
             if (mCollection != null
                     && !TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
@@ -146,7 +146,7 @@ public class AlbumsFragment extends TomahawkFragment {
                         R.dimen.padding_superlarge);
                 segments.add(segment);
                 ArrayList<Query> topHits = CollectionUtils.getArtistTopHits(mArtist);
-                items = new ArrayList<Object>();
+                items = new ArrayList<>();
                 items.addAll(topHits);
                 segment = new Segment(R.string.top_hits, items);
                 segment.setShowNumeration(true, 1);
@@ -196,7 +196,7 @@ public class AlbumsFragment extends TomahawkFragment {
             }
             SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-            List<Integer> dropDownItems = new ArrayList<Integer>();
+            List<Integer> dropDownItems = new ArrayList<>();
             dropDownItems.add(R.string.collection_dropdown_recently_added);
             dropDownItems.add(R.string.collection_dropdown_alpha);
             dropDownItems.add(R.string.collection_dropdown_alpha_artists);

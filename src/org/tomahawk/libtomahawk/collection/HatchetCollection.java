@@ -29,8 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class HatchetCollection extends Collection {
 
-    private ConcurrentHashMap<Artist, List<Query>> mArtistTopHits
-            = new ConcurrentHashMap<Artist, List<Query>>();
+    private final ConcurrentHashMap<Artist, List<Query>> mArtistTopHits
+            = new ConcurrentHashMap<>();
 
     public HatchetCollection() {
         super(TomahawkApp.PLUGINNAME_HATCHET, "", true);
@@ -44,7 +44,7 @@ public class HatchetCollection extends Collection {
      * @return A {@link java.util.List} of all top hits {@link Track}s from the given Artist.
      */
     public ArrayList<Query> getArtistTopHits(Artist artist) {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> queries = new ArrayList<>();
         if (mArtistTopHits.get(artist) != null) {
             queries.addAll(mArtistTopHits.get(artist));
         }

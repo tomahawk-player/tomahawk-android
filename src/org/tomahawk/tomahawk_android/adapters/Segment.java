@@ -39,11 +39,11 @@ public class Segment {
 
     private int mInitialPos;
 
-    private List<String> mHeaderStrings = new ArrayList<String>();
+    private final List<String> mHeaderStrings = new ArrayList<>();
 
-    private List<Object> mListItems = new ArrayList<Object>();
+    private List<Object> mListItems = new ArrayList<>();
 
-    private List<List<Object>> mGridItems = new ArrayList<List<Object>>();
+    private final List<List<Object>> mGridItems = new ArrayList<>();
 
     private int mSegmentSize = 0;
 
@@ -93,7 +93,7 @@ public class Segment {
         mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
         int columnCount = resources.getInteger(columnCountResId);
         for (int i = 0; i < listItems.size(); i += columnCount) {
-            List<Object> row = new ArrayList<Object>();
+            List<Object> row = new ArrayList<>();
             for (int j = 0; j < columnCount; j++) {
                 if (i + j < listItems.size()) {
                     row.add(listItems.get(i + j));

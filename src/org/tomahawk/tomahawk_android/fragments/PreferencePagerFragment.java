@@ -50,7 +50,7 @@ public class PreferencePagerFragment extends PagerFragment {
         showContentHeader(
                 new ColorDrawable(getResources().getColor(R.color.primary_background_inverted)));
 
-        List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
+        List<FragmentInfoList> fragmentInfoLists = new ArrayList<>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();
         FragmentInfo fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = PreferenceConnectFragment.class;

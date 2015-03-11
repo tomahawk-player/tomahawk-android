@@ -63,7 +63,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
 
     public static final int SHOW_MODE_DASHBOARD = 1;
 
-    public HashSet<Integer> mResolvingPages = new HashSet<Integer>();
+    public final HashSet<Integer> mResolvingPages = new HashSet<>();
 
     @Override
     public void onResume() {
@@ -120,7 +120,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
             FragmentUtils.replace(activity, UserPagerFragment.class, bundle);
         } else if (item instanceof Query && ((Query) item).isPlayable()) {
             Query query = (Query) item;
-            ArrayList<Query> queries = new ArrayList<Query>();
+            ArrayList<Query> queries = new ArrayList<>();
             queries.addAll(mShownQueries);
             PlaybackService playbackService = activity.getPlaybackService();
             if (playbackService != null && playbackService.getCurrentQuery() == query) {

@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.webkit.ConsoleMessage;
 import android.webkit.WebChromeClient;
@@ -29,15 +30,8 @@ public class TomahawkWebChromeClient extends WebChromeClient {
     private final static String TAG = TomahawkWebChromeClient.class.getSimpleName();
 
     @Override
-    public boolean onConsoleMessage(ConsoleMessage cm) {
+    public boolean onConsoleMessage(@NonNull ConsoleMessage cm) {
         Log.d(TAG, cm.message() + " -- From line " + cm.lineNumber() + " of " + cm.sourceId());
         return true;
-    }
-
-    @Override
-    public void onConsoleMessage(String message, int lineNumber, String sourceID) {
-        Log.d(TAG,
-                "invoked: onConsoleMessage() - " + sourceID + ":" + lineNumber + " - " + message);
-        super.onConsoleMessage(message, lineNumber, sourceID);
     }
 }

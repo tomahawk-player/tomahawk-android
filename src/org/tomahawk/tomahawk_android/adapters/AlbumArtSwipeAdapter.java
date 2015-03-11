@@ -44,19 +44,19 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
     //Used to provide fake infinite swiping behaviour, if current Playlist is repeating
     private static final int FAKE_INFINITY_COUNT = 20000;
 
-    private TomahawkMainActivity mActivity;
+    private final TomahawkMainActivity mActivity;
 
-    private LayoutInflater mLayoutInflater;
+    private final LayoutInflater mLayoutInflater;
 
     private int mFakeInfinityOffset;
 
-    private ViewPager mViewPager;
+    private final ViewPager mViewPager;
 
     private PlaybackService mPlaybackService;
 
     private int mLastItem;
 
-    private ViewPager.OnPageChangeListener mOnPageChangeListener
+    private final ViewPager.OnPageChangeListener mOnPageChangeListener
             = new ViewPager.OnPageChangeListener() {
         /**
          * Is being called, whenever a new Page in our {@link AlbumArtSwipeAdapter} has been selected/

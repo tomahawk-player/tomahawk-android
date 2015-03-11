@@ -87,7 +87,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         if (item instanceof PlaylistEntry) {
             PlaylistEntry entry = (PlaylistEntry) item;
             if (entry.getQuery().isPlayable()) {
-                ArrayList<PlaylistEntry> entries = new ArrayList<PlaylistEntry>();
+                ArrayList<PlaylistEntry> entries = new ArrayList<>();
                 if (mPlaylist != null) {
                     entries = mPlaylist.getEntries();
                 }

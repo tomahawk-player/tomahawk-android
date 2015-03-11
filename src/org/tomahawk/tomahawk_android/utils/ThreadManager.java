@@ -46,11 +46,11 @@ public class ThreadManager {
 
     }
 
-    private ThreadPoolExecutor mThreadPool;
+    private final ThreadPoolExecutor mThreadPool;
 
-    private ThreadPoolExecutor mPlaybackThreadPool;
+    private final ThreadPoolExecutor mPlaybackThreadPool;
 
-    private Multimap<Query, TomahawkRunnable> mQueryRunnableMap;
+    private final Multimap<Query, TomahawkRunnable> mQueryRunnableMap;
 
     private ThreadManager() {
         mQueryRunnableMap = HashMultimap.create();

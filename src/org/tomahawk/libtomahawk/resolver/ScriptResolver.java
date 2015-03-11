@@ -94,17 +94,17 @@ public class ScriptResolver extends Resolver {
     // We have to map the original cache keys to an id string, because a string containing "\t\t"
     // delimiters does come out without the delimiters, after it has been processed in the js
     // resolver script
-    private ConcurrentHashMap<String, Query> mQueryKeys = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Query> mQueryKeys = new ConcurrentHashMap<>();
 
-    private ConcurrentHashMap<String, Result> mResultKeys = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Result> mResultKeys = new ConcurrentHashMap<>();
 
-    private String mId;
+    private final String mId;
 
     private WebView mWebView;
 
-    private String mPath;
+    private final String mPath;
 
-    private ScriptResolverMetaData mMetaData;
+    private final ScriptResolverMetaData mMetaData;
 
     private ScriptResolverCollectionMetaData mCollectionMetaData;
 
@@ -120,9 +120,9 @@ public class ScriptResolver extends Resolver {
 
     private boolean mStopped;
 
-    private ObjectMapper mObjectMapper;
+    private final ObjectMapper mObjectMapper;
 
-    private SharedPreferences mSharedPreferences;
+    private final SharedPreferences mSharedPreferences;
 
     private boolean mBrowsable;
 
@@ -136,7 +136,7 @@ public class ScriptResolver extends Resolver {
 
     private FuzzyIndex mFuzzyIndex;
 
-    private String mFuzzyIndexPath;
+    private final String mFuzzyIndexPath;
 
     private String mAccessToken;
 
@@ -144,7 +144,7 @@ public class ScriptResolver extends Resolver {
 
     // Handler which sets the mStopped bool to true after the timeout has occured.
     // Meaning this resolver is no longer being shown as resolving.
-    private TimeOutHandler mTimeOutHandler = new TimeOutHandler(this);
+    private final TimeOutHandler mTimeOutHandler = new TimeOutHandler(this);
 
     private static class TimeOutHandler extends WeakReferenceHandler<ScriptResolver> {
 
@@ -263,9 +263,12 @@ public class ScriptResolver extends Resolver {
             WebSettings settings = mWebView.getSettings();
             settings.setJavaScriptEnabled(true);
             settings.setDatabaseEnabled(true);
-            settings.setDatabasePath(
-                    TomahawkApp.getContext().getDir("databases", Context.MODE_PRIVATE)
-                            .getPath());
+            if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+                //noinspection deprecation
+                settings.setDatabasePath(
+                        TomahawkApp.getContext().getDir("databases", Context.MODE_PRIVATE)
+                                .getPath());
+            }
             settings.setDomStorageEnabled(true);
             mWebView.setWebChromeClient(new TomahawkWebChromeClient());
             mWebView.setWebViewClient(new ScriptWebViewClient(ScriptResolver.this));
@@ -359,7 +362,7 @@ public class ScriptResolver extends Resolver {
     public void callback(final int callbackId, final String responseText,
             final Map<String, List<String>> responseHeaders, final int status,
             final String statusText) {
-        final Map<String, String> headers = new HashMap<String, String>();
+        final Map<String, String> headers = new HashMap<>();
         for (String key : responseHeaders.keySet()) {
             if (key != null) {
                 String concatenatedValues = "";
@@ -464,7 +467,7 @@ public class ScriptResolver extends Resolver {
                                     CollectionManager.getInstance().getCollection(result.qid);
                             if (collection != null) {
                                 Artist artist = Artist.get(result.artist);
-                                ArrayList<Album> albums = new ArrayList<Album>();
+                                ArrayList<Album> albums = new ArrayList<>();
                                 for (String albumName : result.albums) {
                                     albums.add(Album.get(albumName, artist));
                                 }
@@ -495,7 +498,7 @@ public class ScriptResolver extends Resolver {
                             ScriptResolverCollection collection = (ScriptResolverCollection)
                                     CollectionManager.getInstance().getCollection(result.qid);
                             if (collection != null) {
-                                ArrayList<Artist> artists = new ArrayList<Artist>();
+                                ArrayList<Artist> artists = new ArrayList<>();
                                 for (String artistName : result.artists) {
                                     artists.add(Artist.get(artistName));
                                 }
@@ -702,7 +705,7 @@ public class ScriptResolver extends Resolver {
      */
     private ArrayList<Result> parseResultList(ArrayList<ScriptResolverResultEntry> resultEntries,
             String queryKey) {
-        ArrayList<Result> resultList = new ArrayList<Result>();
+        ArrayList<Result> resultList = new ArrayList<>();
         for (ScriptResolverResultEntry resultEntry : resultEntries) {
             if (resultEntry != null && !TextUtils.isEmpty(resultEntry.url)
                     && !TextUtils.isEmpty(resultEntry.track)) {
@@ -803,7 +806,7 @@ public class ScriptResolver extends Resolver {
         } catch (IOException e) {
             Log.e(TAG, "getConfig: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
-        return new HashMap<String, Object>();
+        return new HashMap<>();
     }
 
     /**

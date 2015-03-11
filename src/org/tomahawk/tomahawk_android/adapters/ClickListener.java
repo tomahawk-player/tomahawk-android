@@ -23,9 +23,9 @@ import android.view.View;
 
 public class ClickListener implements View.OnClickListener, View.OnLongClickListener {
 
-    private Object mItem;
+    private final Object mItem;
 
-    private MultiColumnClickListener mListener;
+    private final MultiColumnClickListener mListener;
 
     public ClickListener(Object item, MultiColumnClickListener listener) {
         mItem = item;

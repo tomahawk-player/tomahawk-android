@@ -103,7 +103,7 @@ public class ArtistPagerFragment extends PagerFragment {
                     public void onCancel() {
                     }
                 });
-        List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
+        List<FragmentInfoList> fragmentInfoLists = new ArrayList<>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();
         FragmentInfo fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = AlbumsFragment.class;

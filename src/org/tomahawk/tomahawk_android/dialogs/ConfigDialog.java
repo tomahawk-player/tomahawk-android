@@ -73,7 +73,7 @@ public abstract class ConfigDialog extends DialogFragment {
     private boolean mResolverEnabled;
 
     //So that the user can login by pressing "Enter" or something similar on his keyboard
-    protected TextView.OnEditorActionListener mOnKeyboardEnterListener
+    protected final TextView.OnEditorActionListener mOnKeyboardEnterListener
             = new TextView.OnEditorActionListener() {
         @Override
         public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
@@ -87,14 +87,14 @@ public abstract class ConfigDialog extends DialogFragment {
         }
     };
 
-    private View.OnClickListener mPositiveButtonListener = new View.OnClickListener() {
+    private final View.OnClickListener mPositiveButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             onPositiveAction();
         }
     };
 
-    private View.OnClickListener mNegativeButtonListener = new View.OnClickListener() {
+    private final View.OnClickListener mNegativeButtonListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             onNegativeAction();

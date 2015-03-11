@@ -33,7 +33,7 @@ public class TomahawkAuthenticator extends AbstractAccountAuthenticator {
 
     private static final String TAG = TomahawkAuthenticator.class.getSimpleName();
 
-    private Context mContext;
+    private final Context mContext;
 
     /**
      * Service which handles authentication requests.
@@ -71,9 +71,8 @@ public class TomahawkAuthenticator extends AbstractAccountAuthenticator {
         //final Intent intent = new Intent(mContext, TomahawkMainActivity.class);
         //intent.putExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE, response);
         //intent.putExtra(TomahawkService.AUTHENTICATOR_ID, TomahawkService.AUTHENTICATOR_ID_HATCHET);
-        final Bundle bundle = new Bundle();
         //bundle.putParcelable(AccountManager.KEY_INTENT, intent);
-        return bundle;
+        return new Bundle();
     }
 
     @Override
@@ -102,9 +101,8 @@ public class TomahawkAuthenticator extends AbstractAccountAuthenticator {
         intent.putExtra(PARAMS_USERNAME, account.name);
         intent.putExtra(PARAMS_TYPE, authTokenType);*/
 
-        final Bundle bundle = new Bundle();
         //bundle.putParcelable(AccountManager.KEY_INTENT, intent);
-        return bundle;
+        return new Bundle();
     }
 
     @Override

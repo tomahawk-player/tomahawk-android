@@ -96,7 +96,7 @@ public class DatabaseHelper {
     }
 
     // Database fields
-    private SQLiteDatabase mDatabase;
+    private final SQLiteDatabase mDatabase;
 
     private DatabaseHelper() {
         TomahawkSQLiteHelper dbHelper = new TomahawkSQLiteHelper(TomahawkApp.getContext());
@@ -434,7 +434,7 @@ public class DatabaseHelper {
                     new String[]{playlistId}, null, null,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYINDEX + (reverseEntries
                             ? " DESC" : " ASC"));
-            ArrayList<PlaylistEntry> queries = new ArrayList<PlaylistEntry>();
+            ArrayList<PlaylistEntry> queries = new ArrayList<>();
             tracksCursor.moveToFirst();
             while (!tracksCursor.isAfterLast()) {
                 String trackName = tracksCursor.getString(0);
@@ -724,7 +724,7 @@ public class DatabaseHelper {
      */
     public void setLovedItem(Query query, boolean isLoved) {
         if (isLoved) {
-            ArrayList<Query> queries = new ArrayList<Query>();
+            ArrayList<Query> queries = new ArrayList<>();
             queries.add(query);
             addQueriesToPlaylist(LOVEDITEMS_PLAYLIST_ID, queries);
         } else {
@@ -816,7 +816,7 @@ public class DatabaseHelper {
     }
 
     public ArrayList<Artist> getStarredArtists() {
-        ArrayList<Artist> starredArtists = new ArrayList<Artist>();
+        ArrayList<Artist> starredArtists = new ArrayList<>();
         String[] columns = new String[]{TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME};
 
         Cursor artistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, columns,
@@ -832,7 +832,7 @@ public class DatabaseHelper {
     }
 
     public ArrayList<Album> getStarredAlbums() {
-        ArrayList<Album> starredAlbums = new ArrayList<Album>();
+        ArrayList<Album> starredAlbums = new ArrayList<>();
         String[] columns = new String[]{TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME,
                 TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME};
 
@@ -933,7 +933,7 @@ public class DatabaseHelper {
      * @return an InfoRequestData object that contains all data that should be delivered to the API
      */
     public List<InfoRequestData> getLoggedOps() {
-        List<InfoRequestData> loggedOps = new ArrayList<InfoRequestData>();
+        List<InfoRequestData> loggedOps = new ArrayList<>();
         String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID,
                 TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE,
                 TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_HTTPTYPE,
@@ -969,7 +969,7 @@ public class DatabaseHelper {
      * @return the count of all logged ops that should be delivered to the API
      */
     public long getLoggedOpsCount() {
-        long logCount = -1;
+        long logCount;
         String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOGINFO_COLUMN_LOGCOUNT};
         Cursor opLogsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOGINFO,
                 columns, null, null, null, null, null);
@@ -1050,7 +1050,7 @@ public class DatabaseHelper {
      */
     @SuppressWarnings("unused")
     private HashSet<File> getMediaFiles() {
-        HashSet<File> files = new HashSet<File>();
+        HashSet<File> files = new HashSet<>();
         Cursor cursor;
 
         cursor = mDatabase.query(
@@ -1071,7 +1071,7 @@ public class DatabaseHelper {
 
     public HashMap<String, MediaWithDate> getMedias() {
         Cursor cursor;
-        HashMap<String, MediaWithDate> medias = new HashMap<String, MediaWithDate>();
+        HashMap<String, MediaWithDate> medias = new HashMap<>();
         int chunk_count = 0;
         int count;
 
@@ -1201,8 +1201,6 @@ public class DatabaseHelper {
                     picture = BitmapFactory.decodeByteArray(blob, 0, blob.length);
                 } catch (OutOfMemoryError e) {
                     picture = null;
-                } finally {
-                    blob = null;
                 }
             }
         }
@@ -1410,7 +1408,7 @@ public class DatabaseHelper {
                 new String[]{String.valueOf(blacklisted ? TRUE : FALSE)},
                 null, null, null);
         cursor.moveToFirst();
-        ArrayList<String> dirs = new ArrayList<String>();
+        ArrayList<String> dirs = new ArrayList<>();
         while (!cursor.isAfterLast()) {
             dirs.add(cursor.getString(0));
             cursor.moveToNext();

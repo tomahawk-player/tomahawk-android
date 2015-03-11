@@ -65,15 +65,15 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private static final String TAG = TomahawkListAdapter.class.getSimpleName();
 
-    private TomahawkMainActivity mActivity;
+    private final TomahawkMainActivity mActivity;
 
     private List<Segment> mSegments;
 
     private int mRowCount;
 
-    private MultiColumnClickListener mClickListener;
+    private final MultiColumnClickListener mClickListener;
 
-    private LayoutInflater mLayoutInflater;
+    private final LayoutInflater mLayoutInflater;
 
     private boolean mShowPlaystate = false;
 
@@ -89,9 +89,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private ProgressBar mProgressBar;
 
-    private SwipeItemAdapterMangerImpl mItemManager = new SwipeItemAdapterMangerImpl(this);
+    private final SwipeItemAdapterMangerImpl mItemManager = new SwipeItemAdapterMangerImpl(this);
 
-    private ProgressHandler mProgressHandler = new ProgressHandler(this);
+    private final ProgressHandler mProgressHandler = new ProgressHandler(this);
 
     private static class ProgressHandler extends WeakReferenceHandler<TomahawkListAdapter> {
 
@@ -144,7 +144,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         mActivity = activity;
         mLayoutInflater = layoutInflater;
         mClickListener = clickListener;
-        mSegments = new ArrayList<Segment>();
+        mSegments = new ArrayList<>();
         mSegments.add(segment);
         mRowCount = segment.size();
         updateFooterSpacerHeight(listView);
@@ -168,7 +168,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
      * Set the complete list of {@link Segment}
      */
     public void setSegments(Segment segment, StickyListHeadersListView listView) {
-        ArrayList<Segment> segments = new ArrayList<Segment>();
+        ArrayList<Segment> segments = new ArrayList<>();
         segments.add(segment);
         setSegments(segments, listView);
     }
@@ -517,7 +517,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             }
 
             if (layoutId == R.layout.dropdown_header) {
-                ArrayList<CharSequence> spinnerItems = new ArrayList<CharSequence>();
+                ArrayList<CharSequence> spinnerItems = new ArrayList<>();
                 for (String headerString : segment.getHeaderStrings()) {
                     spinnerItems.add(headerString.toUpperCase());
                 }

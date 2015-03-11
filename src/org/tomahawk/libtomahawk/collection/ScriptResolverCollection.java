@@ -34,7 +34,7 @@ import de.greenrobot.event.EventBus;
  */
 public class ScriptResolverCollection extends Collection {
 
-    private ScriptResolver mScriptResolver;
+    private final ScriptResolver mScriptResolver;
 
     public ScriptResolverCollection(ScriptResolver scriptResolver) {
         super(scriptResolver.getId(), scriptResolver.getCollectionName(), true);
@@ -55,7 +55,7 @@ public class ScriptResolverCollection extends Collection {
     }
 
     public void addAlbumTrackResults(Album album, List<Result> results) {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> queries = new ArrayList<>();
         for (Result r : results) {
             r.setTrackScore(1f);
             Query query = Query.get(r, isLocal());
@@ -97,7 +97,7 @@ public class ScriptResolverCollection extends Collection {
             return super.getAlbumTracks(album, sorted);
         } else {
             mScriptResolver.tracks(getId(), album.getArtist().getName(), album.getName());
-            return new ArrayList<Query>();
+            return new ArrayList<>();
         }
     }
 
@@ -107,7 +107,7 @@ public class ScriptResolverCollection extends Collection {
             return super.getArtistAlbums(artist, sorted);
         } else {
             mScriptResolver.albums(getId(), artist.getName());
-            return new ArrayList<Album>();
+            return new ArrayList<>();
         }
     }
 }

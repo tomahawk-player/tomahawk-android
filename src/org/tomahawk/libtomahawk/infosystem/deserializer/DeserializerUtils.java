@@ -9,7 +9,7 @@ import java.util.Map;
 public class DeserializerUtils {
 
     public static <T extends Mappable> Map<String, T> listToMap(List<T> list) {
-        Map<String, T> map = new HashMap<String, T>();
+        Map<String, T> map = new HashMap<>();
         for (T item : list) {
             map.put(item.id, item);
         }

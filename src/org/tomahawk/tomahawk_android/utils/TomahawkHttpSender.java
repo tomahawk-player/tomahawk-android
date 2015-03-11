@@ -23,7 +23,6 @@ import org.acra.sender.HttpSender;
 import org.acra.sender.ReportSenderException;
 import org.tomahawk.tomahawk_android.dialogs.SendLogConfigDialog;
 
-import java.lang.reflect.Method;
 import java.util.Map;
 
 public class TomahawkHttpSender extends HttpSender {

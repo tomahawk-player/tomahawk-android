@@ -48,7 +48,7 @@ public class CollectionPagerFragment extends PagerFragment {
 
         showContentHeader(R.drawable.collection_header);
 
-        List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
+        List<FragmentInfoList> fragmentInfoLists = new ArrayList<>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();
         FragmentInfo fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = ArtistsFragment.class;

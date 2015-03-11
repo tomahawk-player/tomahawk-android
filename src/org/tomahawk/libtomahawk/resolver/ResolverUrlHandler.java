@@ -19,9 +19,9 @@ package org.tomahawk.libtomahawk.resolver;
 
 public class ResolverUrlHandler {
 
-    private ScriptResolver mResolver;
+    private final ScriptResolver mResolver;
 
-    private String mCallbackFunctionName;
+    private final String mCallbackFunctionName;
 
     public ResolverUrlHandler(ScriptResolver resolver, String callbackFunctionName) {
         mResolver = resolver;

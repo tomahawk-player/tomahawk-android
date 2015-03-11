@@ -76,9 +76,9 @@ public class FancyDropDown extends FrameLayout {
 
     public interface DropDownListener {
 
-        public void onDropDownItemSelected(int position);
+        void onDropDownItemSelected(int position);
 
-        public void onCancel();
+        void onCancel();
     }
 
     public FancyDropDown(Context context) {
@@ -112,7 +112,7 @@ public class FancyDropDown extends FrameLayout {
             }
             if (differingInfos) {
                 mItemInfos = dropDownItemInfos;
-                mItemFrames = new SparseArray<FrameLayout>();
+                mItemFrames = new SparseArray<>();
                 LinearLayout itemsContainer =
                         (LinearLayout) findViewById(R.id.dropdown_items_container);
                 itemsContainer.removeAllViews();
@@ -277,7 +277,7 @@ public class FancyDropDown extends FrameLayout {
 
     public static List<DropDownItemInfo> convertToDropDownItemInfo(List<Collection> collections) {
         List<FancyDropDown.DropDownItemInfo> dropDownItemInfos
-                = new ArrayList<FancyDropDown.DropDownItemInfo>();
+                = new ArrayList<>();
         for (Collection collection : collections) {
             FancyDropDown.DropDownItemInfo dropDownItemInfo =
                     new FancyDropDown.DropDownItemInfo();

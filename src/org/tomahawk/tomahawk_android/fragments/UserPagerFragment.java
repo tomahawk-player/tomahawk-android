@@ -103,7 +103,7 @@ public class UserPagerFragment extends PagerFragment {
 
         showContentHeader(mUser);
 
-        List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
+        List<FragmentInfoList> fragmentInfoLists = new ArrayList<>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();
         FragmentInfo fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = SocialActionsFragment.class;

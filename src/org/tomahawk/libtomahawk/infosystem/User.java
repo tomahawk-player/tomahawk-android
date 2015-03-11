@@ -43,10 +43,10 @@ public class User implements TomahawkListItem {
 
     public static final String PLAYLIST_FAVORTIES_ID = "_favorites";
 
-    private static ConcurrentHashMap<String, User> sUsers
-            = new ConcurrentHashMap<String, User>();
+    private static final ConcurrentHashMap<String, User> sUsers
+            = new ConcurrentHashMap<>();
 
-    private String mId;
+    private final String mId;
 
     private String mName;
 
@@ -64,19 +64,19 @@ public class User implements TomahawkListItem {
 
     private int mTotalPlays;
 
-    private SparseArray<List<SocialAction>> mSocialActions = new SparseArray<List<SocialAction>>();
+    private final SparseArray<List<SocialAction>> mSocialActions = new SparseArray<>();
 
-    private SparseArray<List<SocialAction>> mFriendsFeed = new SparseArray<List<SocialAction>>();
+    private final SparseArray<List<SocialAction>> mFriendsFeed = new SparseArray<>();
 
-    private Playlist mPlaybackLog;
+    private final Playlist mPlaybackLog;
 
-    private Playlist mFavorites;
+    private final Playlist mFavorites;
 
     private TreeMap<User, String> mFollowings;
 
     private TreeMap<User, String> mFollowers;
 
-    private List<Album> mStarredAlbums = new ArrayList<Album>();
+    private List<Album> mStarredAlbums = new ArrayList<>();
 
     private TreeSet<Playlist> mPlaylists;
 
@@ -111,7 +111,7 @@ public class User implements TomahawkListItem {
      * @return A {@link java.util.List} of all {@link User}s
      */
     public static ArrayList<User> getUsers() {
-        ArrayList<User> users = new ArrayList<User>(sUsers.values());
+        ArrayList<User> users = new ArrayList<>(sUsers.values());
         Collections.sort(users,
                 new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return users;

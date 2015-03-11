@@ -39,7 +39,7 @@ public class AlbumArtViewPager extends ViewPager {
 
     private ListView mListView;
 
-    private GestureDetector mGestureDetector;
+    private final GestureDetector mGestureDetector;
 
     private boolean mVerticallyScrolled;
 

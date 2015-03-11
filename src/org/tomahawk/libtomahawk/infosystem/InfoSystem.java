@@ -82,22 +82,22 @@ public class InfoSystem {
         public InfoRequestData mInfoRequestData;
     }
 
-    private ArrayList<InfoPlugin> mInfoPlugins = new ArrayList<InfoPlugin>();
+    private final ArrayList<InfoPlugin> mInfoPlugins = new ArrayList<>();
 
-    private ConcurrentHashMap<String, InfoRequestData> mSentRequests
-            = new ConcurrentHashMap<String, InfoRequestData>();
+    private final ConcurrentHashMap<String, InfoRequestData> mSentRequests
+            = new ConcurrentHashMap<>();
 
-    private ConcurrentHashMap<Integer, InfoRequestData> mLoggedOpsMap
-            = new ConcurrentHashMap<Integer, InfoRequestData>();
+    private final ConcurrentHashMap<Integer, InfoRequestData> mLoggedOpsMap
+            = new ConcurrentHashMap<>();
 
     // We store "create playlists"-loggedOps separately, because we need to check whether or not all
     // "create playlists"-loggedOps have been pushed to Hatchet before sending the corresponding
     // playlist entries
-    private ConcurrentHashMap<Integer, InfoRequestData> mPlaylistsLoggedOpsMap
-            = new ConcurrentHashMap<Integer, InfoRequestData>();
+    private final ConcurrentHashMap<Integer, InfoRequestData> mPlaylistsLoggedOpsMap
+            = new ConcurrentHashMap<>();
 
     // LoggedOps waiting to be sent as soon as mPlaylistsLoggedOpsMap is empty
-    private ArrayList<InfoRequestData> mQueuedLoggedOps = new ArrayList<InfoRequestData>();
+    private final ArrayList<InfoRequestData> mQueuedLoggedOps = new ArrayList<>();
 
     private Query mLastPlaybackLogEntry = null;
 
@@ -130,7 +130,7 @@ public class InfoSystem {
      * @return an ArrayList of Strings containing all created requestIds
      */
     public ArrayList<String> resolve(Artist artist, boolean full) {
-        ArrayList<String> requestIds = new ArrayList<String>();
+        ArrayList<String> requestIds = new ArrayList<>();
         if (artist != null) {
             QueryParams params = new QueryParams();
             params.name = artist.getName();
@@ -174,7 +174,7 @@ public class InfoSystem {
     public String resolve(User user) {
         if (user != null) {
             QueryParams params = new QueryParams();
-            params.ids = new ArrayList<String>();
+            params.ids = new ArrayList<>();
             params.ids.add(user.getId());
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params, user);
         }
@@ -663,7 +663,7 @@ public class InfoSystem {
 
 
     public synchronized List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
-        List<String> requestIds = new ArrayList<String>();
+        List<String> requestIds = new ArrayList<>();
         List<InfoRequestData> loggedOps = DatabaseHelper.getInstance().getLoggedOps();
         for (InfoRequestData loggedOp : loggedOps) {
             if (!mLoggedOpsMap.containsKey(loggedOp.getLoggedOpId())) {
@@ -687,9 +687,9 @@ public class InfoSystem {
     }
 
     public synchronized void onLoggedOpsSent(ArrayList<String> doneRequestsIds, boolean success) {
-        List<InfoRequestData> loggedOps = new ArrayList<InfoRequestData>();
-        HashSet<Integer> requestTypes = new HashSet<Integer>();
-        HashSet<String> playlistIds = new HashSet<String>();
+        List<InfoRequestData> loggedOps = new ArrayList<>();
+        HashSet<Integer> requestTypes = new HashSet<>();
+        HashSet<String> playlistIds = new HashSet<>();
         for (String doneRequestId : doneRequestsIds) {
             if (mSentRequests.containsKey(doneRequestId)) {
                 InfoRequestData loggedOp = mSentRequests.get(doneRequestId);
@@ -750,7 +750,7 @@ public class InfoSystem {
 
     private void discardLoggedOp(InfoRequestData loggedOp) {
         mSentRequests.put(loggedOp.getRequestId(), loggedOp);
-        ArrayList<String> doneRequestsIds = new ArrayList<String>();
+        ArrayList<String> doneRequestsIds = new ArrayList<>();
         doneRequestsIds.add(loggedOp.getRequestId());
         InfoSystem.getInstance().onLoggedOpsSent(doneRequestsIds, true);
     }

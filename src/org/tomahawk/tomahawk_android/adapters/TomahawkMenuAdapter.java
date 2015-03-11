@@ -41,9 +41,9 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
 
     private final Activity mActivity;
 
-    private LayoutInflater mLayoutInflater;
+    private final LayoutInflater mLayoutInflater;
 
-    private List<ResourceHolder> mResourceHolders = new ArrayList<ResourceHolder>();
+    private List<ResourceHolder> mResourceHolders = new ArrayList<>();
 
     public static class ResourceHolder {
 

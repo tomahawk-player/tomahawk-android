@@ -70,7 +70,7 @@ public class ContextMenuFragment extends Fragment {
 
     private boolean mFromPlaybackFragment;
 
-    private HashSet<String> mCorrespondingRequestIds = new HashSet<>();
+    private final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
     @SuppressWarnings("unused")
     public void onEventMainThread(InfoSystem.ResultsEvent event) {

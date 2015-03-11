@@ -284,8 +284,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                 db.execSQL(CREATE_TABLE_PLAYLISTS);
                 db.execSQL(CREATE_TABLE_TRACKS);
                 // get all logged ops and their timestamps, so we can safely drop the table
-                List<InfoRequestData> loggedOps = new ArrayList<InfoRequestData>();
-                List<Integer> timeStamps = new ArrayList<Integer>();
+                List<InfoRequestData> loggedOps = new ArrayList<>();
+                List<Integer> timeStamps = new ArrayList<>();
                 String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID,
                         TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE,
                         TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,

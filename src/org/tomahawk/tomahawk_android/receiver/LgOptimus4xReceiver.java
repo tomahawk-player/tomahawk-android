@@ -86,7 +86,7 @@ public class LgOptimus4xReceiver extends AbstractPlayStatusReceiver {
         if (obj instanceof Long) {
             duration = ((Long) obj).intValue();
         } else if (obj instanceof Integer) {
-            duration = ((Integer) obj).intValue();
+            duration = (Integer) obj;
         }
         if (duration != -1) {
             track.setDuration(duration);

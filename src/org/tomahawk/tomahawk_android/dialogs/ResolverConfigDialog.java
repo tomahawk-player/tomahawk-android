@@ -58,7 +58,7 @@ public class ResolverConfigDialog extends ConfigDialog {
 
     private ScriptResolver mScriptResolver;
 
-    private ArrayList<StringView> mStringViews = new ArrayList<StringView>();
+    private final ArrayList<StringView> mStringViews = new ArrayList<>();
 
     /**
      * Called when this {@link android.support.v4.app.DialogFragment} is being created

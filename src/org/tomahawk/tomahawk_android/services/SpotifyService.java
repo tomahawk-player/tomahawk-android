@@ -95,7 +95,7 @@ public class SpotifyService extends Service implements
 
     private String mPreparedUri;
 
-    private ReportPositionHandler mReportPositionHandler = new ReportPositionHandler(this);
+    private final ReportPositionHandler mReportPositionHandler = new ReportPositionHandler(this);
 
     private static class ReportPositionHandler extends WeakReferenceHandler<SpotifyService> {
 
@@ -134,7 +134,7 @@ public class SpotifyService extends Service implements
     /**
      * Handler of incoming messages from clients.
      */
-    private ToSpotifyHandler mToSpotifyHandler = new ToSpotifyHandler(this);
+    private final ToSpotifyHandler mToSpotifyHandler = new ToSpotifyHandler(this);
 
     private static class ToSpotifyHandler extends WeakReferenceHandler<SpotifyService> {
 
@@ -175,17 +175,17 @@ public class SpotifyService extends Service implements
         }
     }
 
-    private ArrayList<Messenger> mFromSpotifyMessengers = new ArrayList<>();
+    private final ArrayList<Messenger> mFromSpotifyMessengers = new ArrayList<>();
 
     private final Messenger mToSpotifyMessenger = new Messenger(mToSpotifyHandler);
 
     public static class SpotifyServiceConnection implements ServiceConnection {
 
-        private SpotifyServiceConnectionListener mSpotifyServiceConnectionListener;
+        private final SpotifyServiceConnectionListener mSpotifyServiceConnectionListener;
 
         public interface SpotifyServiceConnectionListener {
 
-            public void setToSpotifyMessenger(Messenger messenger);
+            void setToSpotifyMessenger(Messenger messenger);
         }
 
         public SpotifyServiceConnection(SpotifyServiceConnectionListener listener) {

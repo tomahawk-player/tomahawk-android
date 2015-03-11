@@ -35,10 +35,10 @@ public class Playlist implements TomahawkListItem {
 
     private String mName = "";
 
-    private ArrayList<PlaylistEntry> mEntries = new ArrayList<PlaylistEntry>();
+    private ArrayList<PlaylistEntry> mEntries = new ArrayList<>();
 
-    private static ConcurrentHashMap<String, Playlist> sPlaylists
-            = new ConcurrentHashMap<String, Playlist>();
+    private static final ConcurrentHashMap<String, Playlist> sPlaylists
+            = new ConcurrentHashMap<>();
 
     private String mId;
 
@@ -114,7 +114,7 @@ public class Playlist implements TomahawkListItem {
             currentRevision = "";
         }
         Playlist pl = Playlist.get(id, name, currentRevision);
-        ArrayList<PlaylistEntry> playlistEntries = new ArrayList<PlaylistEntry>();
+        ArrayList<PlaylistEntry> playlistEntries = new ArrayList<>();
         for (Query query : queries) {
             playlistEntries.add(PlaylistEntry.get(id, query,
                     TomahawkMainActivity.getLifetimeUniqueStringId()));
@@ -337,7 +337,7 @@ public class Playlist implements TomahawkListItem {
      * Append an {@link ArrayList} of {@link Query}s at the end of this playlist
      */
     public void addQueries(ArrayList<Query> queries) {
-        ArrayList<PlaylistEntry> playlistEntries = new ArrayList<PlaylistEntry>();
+        ArrayList<PlaylistEntry> playlistEntries = new ArrayList<>();
         for (Query query : queries) {
             playlistEntries.add(PlaylistEntry.get(mId, query,
                     TomahawkMainActivity.getLifetimeUniqueStringId()));
@@ -377,7 +377,7 @@ public class Playlist implements TomahawkListItem {
 
     @Override
     public ArrayList<Query> getQueries() {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> queries = new ArrayList<>();
         for (PlaylistEntry entry : mEntries) {
             queries.add(entry.getQuery());
         }

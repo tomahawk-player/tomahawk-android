@@ -31,16 +31,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Track implements TomahawkListItem {
 
-    private static ConcurrentHashMap<String, Track> sTracks
-            = new ConcurrentHashMap<String, Track>();
+    private static final ConcurrentHashMap<String, Track> sTracks
+            = new ConcurrentHashMap<>();
 
-    private String mCacheKey;
+    private final String mCacheKey;
 
-    private String mName;
+    private final String mName;
 
-    private Album mAlbum;
+    private final Album mAlbum;
 
-    private Artist mArtist;
+    private final Artist mArtist;
 
     private long mDuration;
 

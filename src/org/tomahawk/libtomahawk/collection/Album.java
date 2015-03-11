@@ -33,18 +33,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Album implements TomahawkListItem {
 
-    private static ConcurrentHashMap<String, Album> sAlbums
-            = new ConcurrentHashMap<String, Album>();
+    private static final ConcurrentHashMap<String, Album> sAlbums
+            = new ConcurrentHashMap<>();
 
     private String mCacheKey;
 
-    private HashSet<String> mQueryKeys = new HashSet<String>();
+    private final HashSet<String> mQueryKeys = new HashSet<>();
 
-    private ArrayList<Query> mQueries = new ArrayList<Query>();
+    private final ArrayList<Query> mQueries = new ArrayList<>();
 
-    private String mName;
+    private final String mName;
 
-    private Artist mArtist;
+    private final Artist mArtist;
 
     private Image mImage;
 
@@ -165,7 +165,7 @@ public class Album implements TomahawkListItem {
      */
     @Override
     public ArrayList<Query> getQueries() {
-        ArrayList<Query> queries = new ArrayList<Query>(mQueries);
+        ArrayList<Query> queries = new ArrayList<>(mQueries);
         synchronized (this) {
             Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
         }

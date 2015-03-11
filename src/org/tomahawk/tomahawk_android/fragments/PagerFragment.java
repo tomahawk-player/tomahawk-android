@@ -46,9 +46,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
     private final static String TAG = PagerFragment.class.getSimpleName();
 
-    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
-
-    private TomahawkPagerAdapter mPagerAdapter;
+    protected final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
     private ViewPager mViewPager;
 
@@ -64,7 +62,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
         public void addFragmentInfo(FragmentInfo fragmentInfo) {
             if (mFragmentInfos == null) {
-                mFragmentInfos = new ArrayList<FragmentInfo>();
+                mFragmentInfos = new ArrayList<>();
             }
             mFragmentInfos.add(fragmentInfo);
         }
@@ -204,18 +202,22 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
     protected void setupPager(List<FragmentInfoList> fragmentInfoLists, int initialPage,
             String selectorPosStorageKey) {
-        List<FragmentInfo> currentFragmentInfos = new ArrayList<FragmentInfo>();
+        if (getView()==null){
+            return;
+        }
+
+        List<FragmentInfo> currentFragmentInfos = new ArrayList<>();
         for (FragmentInfoList list : fragmentInfoLists) {
             currentFragmentInfos.add(list.getCurrentFragmentInfo());
         }
-        mPagerAdapter = new TomahawkPagerAdapter(getChildFragmentManager(),
+        TomahawkPagerAdapter pagerAdapter = new TomahawkPagerAdapter(getChildFragmentManager(),
                 currentFragmentInfos, ((Object) this).getClass(), mContainerFragmentId);
         mViewPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
         mViewPager.setOnPageChangeListener(this);
         if (initialPage < 0) {
             initialPage = mViewPager.getCurrentItem();
         }
-        mViewPager.setAdapter(mPagerAdapter);
+        mViewPager.setAdapter(pagerAdapter);
 
         mPageIndicator = (PageIndicator) getView().findViewById(R.id.page_indicator);
         mPageIndicator.setVisibility(View.VISIBLE);

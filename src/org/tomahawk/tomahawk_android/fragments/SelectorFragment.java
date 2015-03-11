@@ -46,9 +46,9 @@ import de.greenrobot.event.EventBus;
 
 public abstract class SelectorFragment extends Fragment {
 
-    protected HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
+    protected final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
-    protected Set<Query> mCorrespondingQueries
+    protected final Set<Query> mCorrespondingQueries
             = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     @SuppressWarnings("unused")

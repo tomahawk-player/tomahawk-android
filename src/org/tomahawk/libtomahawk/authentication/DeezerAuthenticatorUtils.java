@@ -50,7 +50,7 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
 
     private final static String[] PERMISSIONS = new String[]{"offline_access"};
 
-    private DeezerConnect mDeezerConnect;
+    private final DeezerConnect mDeezerConnect;
 
     public DeezerAuthenticatorUtils() {
         super(TomahawkApp.PLUGINNAME_DEEZER, DEEZER_PRETTY_NAME);

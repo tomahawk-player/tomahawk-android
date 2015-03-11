@@ -21,9 +21,9 @@ public class ISO8601DateFormat extends DateFormat {
     private static final long serialVersionUID = 1L;
 
     // those classes are to try to allow a consistent behavior for hascode/equals and other methods
-    private static Calendar CALENDAR = new GregorianCalendar();
+    private static final Calendar CALENDAR = new GregorianCalendar();
 
-    private static NumberFormat NUMBER_FORMAT = new DecimalFormat();
+    private static final NumberFormat NUMBER_FORMAT = new DecimalFormat();
 
     public ISO8601DateFormat() {
         this.numberFormat = NUMBER_FORMAT;
@@ -47,6 +47,7 @@ public class ISO8601DateFormat extends DateFormat {
 
     @Override
     public Object clone() {
+        super.clone();
         return this;    // jackson calls clone everytime. We are threadsafe so just returns the instance
     }
 }

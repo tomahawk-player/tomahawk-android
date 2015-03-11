@@ -63,10 +63,6 @@ public class PreferenceInfoFragment extends TomahawkListFragment
     public static final String FAKEPREFERENCEFRAGMENT_KEY_SENDLOG
             = "org.tomahawk.tomahawk_android.sendlog";
 
-    private SharedPreferences mSharedPreferences;
-
-    private List<FakePreferenceGroup> mFakePreferenceGroups;
-
     /**
      * Called, when this {@link org.tomahawk.tomahawk_android.fragments.PreferenceInfoFragment}'s
      * {@link android.view.View} has been created
@@ -76,11 +72,12 @@ public class PreferenceInfoFragment extends TomahawkListFragment
         super.onViewCreated(view, savedInstanceState);
 
         // Fetch our SharedPreferences from the PreferenceManager
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(getActivity());
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         // Set up the set of FakePreferences to be shown in this Fragment
-        mFakePreferenceGroups = new ArrayList<FakePreferenceGroup>();
+        List<FakePreferenceGroup> fakePreferenceGroups = new ArrayList<>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
                 getString(R.string.preferences_info));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
@@ -110,12 +107,12 @@ public class PreferenceInfoFragment extends TomahawkListFragment
                 FAKEPREFERENCEFRAGMENT_ID_APPVERSION,
                 FAKEPREFERENCEFRAGMENT_KEY_APPVERSION,
                 getString(R.string.preferences_app_version), versionName));
-        mFakePreferenceGroups.add(prefGroup);
+        fakePreferenceGroups.add(prefGroup);
 
         // Now we can push the complete set of FakePreferences into our FakePreferencesAdapter,
         // so that it can provide our ListView with the correct Views.
         FakePreferencesAdapter fakePreferencesAdapter = new FakePreferencesAdapter(getActivity(),
-                getActivity().getLayoutInflater(), mFakePreferenceGroups);
+                getActivity().getLayoutInflater(), fakePreferenceGroups);
         setListAdapter(fakePreferencesAdapter);
 
         getListView().setOnItemClickListener(this);

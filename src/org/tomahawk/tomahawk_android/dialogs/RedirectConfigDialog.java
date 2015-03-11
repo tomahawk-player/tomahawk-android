@@ -50,7 +50,7 @@ public class RedirectConfigDialog extends ConfigDialog {
 
     private class RedirectButtonListener implements View.OnClickListener {
 
-        String mPluginName;
+        final String mPluginName;
 
         public RedirectButtonListener(String pluginName) {
             mPluginName = pluginName;
@@ -84,18 +84,22 @@ public class RedirectConfigDialog extends ConfigDialog {
         int buttonBackgroundResId;
         int buttonTextColor;
         View.OnClickListener onClickListener;
-        if (mScriptResolver.getId().equals(TomahawkApp.PLUGINNAME_RDIO)) {
-            buttonBackgroundResId = R.drawable.selectable_background_tomahawk_rectangle_gray;
-            buttonTextColor = getResources().getColor(R.color.primary_textcolor);
-            onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_RDIO);
-        } else if (mScriptResolver.getId().equals(TomahawkApp.PLUGINNAME_SPOTIFY)) {
-            buttonBackgroundResId = R.drawable.selectable_background_tomahawk_rectangle_gray;
-            buttonTextColor = getResources().getColor(R.color.primary_textcolor);
-            onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_SPOTIFY);
-        } else {
-            buttonBackgroundResId = R.drawable.selectable_background_deezer_button;
-            buttonTextColor = getResources().getColor(R.color.primary_textcolor_inverted);
-            onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_DEEZER);
+        switch (mScriptResolver.getId()) {
+            case TomahawkApp.PLUGINNAME_RDIO:
+                buttonBackgroundResId = R.drawable.selectable_background_tomahawk_rectangle_gray;
+                buttonTextColor = getResources().getColor(R.color.primary_textcolor);
+                onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_RDIO);
+                break;
+            case TomahawkApp.PLUGINNAME_SPOTIFY:
+                buttonBackgroundResId = R.drawable.selectable_background_tomahawk_rectangle_gray;
+                buttonTextColor = getResources().getColor(R.color.primary_textcolor);
+                onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_SPOTIFY);
+                break;
+            default:
+                buttonBackgroundResId = R.drawable.selectable_background_deezer_button;
+                buttonTextColor = getResources().getColor(R.color.primary_textcolor_inverted);
+                onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_DEEZER);
+                break;
         }
 
         View buttonLayout = addScrollingViewToFrame(R.layout.config_redirect_button);

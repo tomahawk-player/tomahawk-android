@@ -70,7 +70,7 @@ public class PlaybackFragment extends TomahawkFragment {
         public abstract void onShowContextMenu(Query query);
     }
 
-    private ShowContextMenuListener mShowContextMenuListener = new ShowContextMenuListener() {
+    private final ShowContextMenuListener mShowContextMenuListener = new ShowContextMenuListener() {
 
         @Override
         public void onShowContextMenu(Query query) {

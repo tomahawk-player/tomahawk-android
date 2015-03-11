@@ -24,33 +24,33 @@ import android.media.MediaPlayer;
 
 public interface MediaPlayerInterface {
 
-    public void setVolume(float leftVolume, float rightVolume);
+    void setVolume(float leftVolume, float rightVolume);
 
-    public void start();
+    void start();
 
-    public void pause();
+    void pause();
 
-    public void seekTo(int msec);
+    void seekTo(int msec);
 
-    public MediaPlayerInterface prepare(Application application, Query query,
+    MediaPlayerInterface prepare(Application application, Query query,
             MediaPlayer.OnPreparedListener onPreparedListener,
             MediaPlayer.OnCompletionListener onCompletionListener,
             MediaPlayer.OnErrorListener onErrorListener);
 
-    public void release();
+    void release();
 
-    public int getPosition();
+    int getPosition();
 
-    public boolean isPlaying(Query query);
+    boolean isPlaying(Query query);
 
-    public boolean isPreparing(Query query);
+    boolean isPreparing(Query query);
 
-    public boolean isPrepared(Query query);
+    boolean isPrepared(Query query);
 
-    public void onPrepared(MediaPlayer mp);
+    void onPrepared(MediaPlayer mp);
 
-    public void onCompletion(MediaPlayer mp);
+    void onCompletion(MediaPlayer mp);
 
-    public boolean onError(MediaPlayer mp, int what, int extra);
+    boolean onError(MediaPlayer mp, int what, int extra);
 
 }

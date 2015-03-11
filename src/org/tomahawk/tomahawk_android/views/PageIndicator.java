@@ -47,7 +47,7 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
 
     private List<PagerFragment.FragmentInfoList> mFragmentInfosList;
 
-    private List<View> mItems = new ArrayList<>();
+    private final List<View> mItems = new ArrayList<>();
 
     private View mRootview;
 

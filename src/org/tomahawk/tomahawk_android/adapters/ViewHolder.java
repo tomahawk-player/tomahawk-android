@@ -51,11 +51,11 @@ import java.util.concurrent.TimeUnit;
 
 public class ViewHolder {
 
-    int mLayoutId;
+    final int mLayoutId;
 
-    private View mRootView;
+    private final View mRootView;
 
-    private Map<Integer, View> mCachedViews = new HashMap<>();
+    private final Map<Integer, View> mCachedViews = new HashMap<>();
 
     public ViewHolder(View rootView, int layoutId) {
         mLayoutId = layoutId;
@@ -461,7 +461,7 @@ public class ViewHolder {
         return s;
     }
 
-    private static TextView setTextViewEnabled(TextView textView, boolean enabled,
+    private static void setTextViewEnabled(TextView textView, boolean enabled,
             boolean isSecondary) {
         if (textView != null && textView.getResources() != null) {
             int colorResId;
@@ -476,6 +476,5 @@ public class ViewHolder {
             }
             textView.setTextColor(textView.getResources().getColor(colorResId));
         }
-        return textView;
     }
 }

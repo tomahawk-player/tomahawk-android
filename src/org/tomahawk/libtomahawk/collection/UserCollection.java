@@ -90,7 +90,7 @@ public class UserCollection extends Collection {
                 PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION)
                         .getCollectionName(), true);
 
-        mItemList = new ArrayList<MediaWithDate>();
+        mItemList = new ArrayList<>();
         mItemListLock = new ReentrantReadWriteLock();
     }
 
@@ -99,7 +99,7 @@ public class UserCollection extends Collection {
      */
     @Override
     public ArrayList<Query> getQueries(boolean sorted) {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> queries = new ArrayList<>();
         Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
                 TomahawkApp.PLUGINNAME_USERCOLLECTION);
         if (userCollectionResolver == null) {
@@ -144,7 +144,7 @@ public class UserCollection extends Collection {
      */
     @Override
     public ArrayList<Artist> getArtists(boolean sorted) {
-        HashMap<String, Artist> artistMap = new HashMap<String, Artist>();
+        HashMap<String, Artist> artistMap = new HashMap<>();
         for (MediaWithDate media : getAudioItems()) {
             if (!artistMap.containsKey(media.getArtist().toLowerCase())) {
                 Artist artist = Artist.get(media.getArtist());
@@ -156,7 +156,7 @@ public class UserCollection extends Collection {
                 mArtistAddedTimeStamps.put(media.getArtist().toLowerCase(), media.getDateAdded());
             }
         }
-        ArrayList<Artist> artists = new ArrayList<Artist>(artistMap.values());
+        ArrayList<Artist> artists = new ArrayList<>(artistMap.values());
         if (sorted) {
             Collections.sort(artists,
                     new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
@@ -170,7 +170,7 @@ public class UserCollection extends Collection {
      */
     @Override
     public ArrayList<Album> getAlbums(boolean sorted) {
-        HashMap<String, Album> albumMap = new HashMap<String, Album>();
+        HashMap<String, Album> albumMap = new HashMap<>();
         for (MediaWithDate media : getAudioItems()) {
             if (!albumMap.containsKey(media.getAlbum().toLowerCase())) {
                 Artist artist = Artist.get(media.getArtist());
@@ -186,7 +186,7 @@ public class UserCollection extends Collection {
                 mAlbumAddedTimeStamps.put(media.getAlbum().toLowerCase(), media.getDateAdded());
             }
         }
-        ArrayList<Album> albums = new ArrayList<Album>(albumMap.values());
+        ArrayList<Album> albums = new ArrayList<>(albumMap.values());
         if (sorted) {
             Collections.sort(albums,
                     new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
@@ -199,7 +199,7 @@ public class UserCollection extends Collection {
      */
     @Override
     public ArrayList<Album> getArtistAlbums(Artist artist, boolean sorted) {
-        HashMap<String, Album> albumMap = new HashMap<String, Album>();
+        HashMap<String, Album> albumMap = new HashMap<>();
         for (MediaWithDate media : getAudioItems(artist.getName(), null, MODE_ARTIST)) {
             if (!albumMap.containsKey(media.getAlbum().toLowerCase())) {
                 Album album = Album.get(media.getAlbum(), artist);
@@ -209,7 +209,7 @@ public class UserCollection extends Collection {
                 albumMap.put(media.getAlbum().toLowerCase(), album);
             }
         }
-        ArrayList<Album> albums = new ArrayList<Album>(albumMap.values());
+        ArrayList<Album> albums = new ArrayList<>(albumMap.values());
         if (sorted) {
             Collections.sort(albums, new TomahawkListItemComparator(QueryComparator.COMPARE_ALPHA));
         }
@@ -221,7 +221,7 @@ public class UserCollection extends Collection {
      */
     @Override
     public ArrayList<Query> getArtistTracks(Artist artist, boolean sorted) {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> queries = new ArrayList<>();
         Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
                 TomahawkApp.PLUGINNAME_USERCOLLECTION);
         if (userCollectionResolver == null) {
@@ -254,7 +254,7 @@ public class UserCollection extends Collection {
      */
     @Override
     public ArrayList<Query> getAlbumTracks(Album album, boolean sorted) {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> queries = new ArrayList<>();
         Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
                 TomahawkApp.PLUGINNAME_USERCOLLECTION);
         if (userCollectionResolver == null) {
@@ -321,7 +321,7 @@ public class UserCollection extends Collection {
     }
 
     public ArrayList<MediaWithDate> getAudioItems() {
-        ArrayList<MediaWithDate> audioItems = new ArrayList<MediaWithDate>();
+        ArrayList<MediaWithDate> audioItems = new ArrayList<>();
         mItemListLock.readLock().lock();
         for (int i = 0; i < mItemList.size(); i++) {
             MediaWithDate item = mItemList.get(i);
@@ -334,7 +334,7 @@ public class UserCollection extends Collection {
     }
 
     public ArrayList<MediaWithDate> getAudioItems(String name, String name2, int mode) {
-        ArrayList<MediaWithDate> audioItems = new ArrayList<MediaWithDate>();
+        ArrayList<MediaWithDate> audioItems = new ArrayList<>();
         mItemListLock.readLock().lock();
         for (int i = 0; i < mItemList.size(); i++) {
             MediaWithDate item = mItemList.get(i);
@@ -384,7 +384,7 @@ public class UserCollection extends Collection {
     }
 
     public ArrayList<MediaWithDate> getMediaItems(List<String> pathList) {
-        ArrayList<MediaWithDate> items = new ArrayList<MediaWithDate>();
+        ArrayList<MediaWithDate> items = new ArrayList<>();
         for (int i = 0; i < pathList.size(); i++) {
             MediaWithDate item = getMediaItem(pathList.get(i));
             items.add(item);
@@ -394,9 +394,9 @@ public class UserCollection extends Collection {
 
     private class GetMediaItemsRunnable implements Runnable {
 
-        private final Stack<File> directories = new Stack<File>();
+        private final Stack<File> directories = new Stack<>();
 
-        private final HashSet<String> directoriesScanned = new HashSet<String>();
+        private final HashSet<String> directoriesScanned = new HashSet<>();
 
         public GetMediaItemsRunnable() {
         }
@@ -406,17 +406,19 @@ public class UserCollection extends Collection {
             SharedPreferences preferences = PreferenceManager
                     .getDefaultSharedPreferences(TomahawkApp.getContext());
             Set<String> setDefaultDirs =
-                    preferences.getStringSet(HAS_SET_DEFAULTDIRS, new HashSet<String>());
-            for (String defaultDir : getStorageDirectories()) {
-                if (!setDefaultDirs.contains(defaultDir)) {
-                    DatabaseHelper.getInstance().addMediaDir(defaultDir);
-                    setDefaultDirs.add(defaultDir);
+                    preferences.getStringSet(HAS_SET_DEFAULTDIRS, null);
+            if (setDefaultDirs != null) {
+                for (String defaultDir : getStorageDirectories()) {
+                    if (!setDefaultDirs.contains(defaultDir)) {
+                        DatabaseHelper.getInstance().addMediaDir(defaultDir);
+                        setDefaultDirs.add(defaultDir);
+                    }
                 }
+                preferences.edit().putStringSet(HAS_SET_DEFAULTDIRS, setDefaultDirs).commit();
             }
-            preferences.edit().putStringSet(HAS_SET_DEFAULTDIRS, setDefaultDirs).commit();
 
             List<String> mediaDirPaths = DatabaseHelper.getInstance().getMediaDirs(false);
-            List<File> mediaDirs = new ArrayList<File>();
+            List<File> mediaDirs = new ArrayList<>();
             for (String dir : mediaDirPaths) {
                 File f = new File(dir);
                 if (f.exists()) {
@@ -430,7 +432,7 @@ public class UserCollection extends Collection {
                     .getMedias();
 
             // list of all added files
-            HashSet<String> addedLocations = new HashSet<String>();
+            HashSet<String> addedLocations = new HashSet<>();
 
             // clear all old items
             mItemListLock.writeLock().lock();
@@ -440,7 +442,7 @@ public class UserCollection extends Collection {
             MediaItemFilter mediaFileFilter =
                     new MediaItemFilter(DatabaseHelper.getInstance().getMediaDirs(true));
 
-            ArrayList<File> mediaToScan = new ArrayList<File>();
+            ArrayList<File> mediaToScan = new ArrayList<>();
             try {
                 // Count total files, and stack them
                 while (!directories.isEmpty()) {
@@ -543,7 +545,7 @@ public class UserCollection extends Collection {
         }
     }
 
-    private RestartHandler mRestartHandler = new RestartHandler(this);
+    private final RestartHandler mRestartHandler = new RestartHandler(this);
 
     private static class RestartHandler extends WeakReferenceHandler<UserCollection> {
 
@@ -564,7 +566,7 @@ public class UserCollection extends Collection {
      */
     private static class MediaItemFilter implements FileFilter {
 
-        List<String> blacklist;
+        final List<String> blacklist;
 
         public MediaItemFilter(List<String> blacklist) {
             this.blacklist = blacklist;
@@ -598,11 +600,11 @@ public class UserCollection extends Collection {
     public static String[] getStorageDirectories() {
         String[] dirs = null;
         BufferedReader bufReader = null;
-        ArrayList<String> list = new ArrayList<String>();
+        ArrayList<String> list = new ArrayList<>();
         list.add(Environment.getExternalStorageDirectory().getPath());
 
         List<String> typeWL = Arrays.asList("vfat", "exfat", "sdcardfs", "fuse");
-        List<String> typeBL = Arrays.asList("tmpfs");
+        List<String> typeBL = Collections.singletonList("tmpfs");
         String[] mountWL = {"/mnt", "/Removable"};
         String[] mountBL = {
                 "/mnt/secure",

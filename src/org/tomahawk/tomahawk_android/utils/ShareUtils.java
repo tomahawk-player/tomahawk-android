@@ -40,7 +40,7 @@ public class ShareUtils {
 
     private final static String TAG = ShareUtils.class.getSimpleName();
 
-    private static String sHatchetBaseUrl = "https://hatchet.is/";
+    private static final String sHatchetBaseUrl = "https://hatchet.is/";
 
     public static final String DEFAULT_SHARE_PREFIX = "#musthear";
 
@@ -77,9 +77,7 @@ public class ShareUtils {
                 URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
                         url.getPort(), url.getPath(), url.getQuery(), url.getRef());
                 return uri.toURL().toString();
-            } catch (MalformedURLException e) {
-                Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (URISyntaxException e) {
+            } catch (MalformedURLException | URISyntaxException e) {
                 Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
         }
@@ -104,9 +102,7 @@ public class ShareUtils {
                 URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
                         url.getPort(), url.getPath(), url.getQuery(), url.getRef());
                 return uri.toURL().toString();
-            } catch (MalformedURLException e) {
-                Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (URISyntaxException e) {
+            } catch (MalformedURLException | URISyntaxException e) {
                 Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
         }
@@ -129,9 +125,7 @@ public class ShareUtils {
                 URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
                         url.getPort(), url.getPath(), url.getQuery(), url.getRef());
                 return uri.toURL().toString();
-            } catch (MalformedURLException e) {
-                Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (URISyntaxException e) {
+            } catch (MalformedURLException | URISyntaxException e) {
                 Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
         }
@@ -157,9 +151,7 @@ public class ShareUtils {
                 URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
                         url.getPort(), url.getPath(), url.getQuery(), url.getRef());
                 return uri.toURL().toString();
-            } catch (MalformedURLException e) {
-                Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
-            } catch (URISyntaxException e) {
+            } catch (MalformedURLException | URISyntaxException e) {
                 Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
         }

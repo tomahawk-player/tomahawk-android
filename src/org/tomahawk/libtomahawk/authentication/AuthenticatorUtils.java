@@ -21,9 +21,9 @@ import android.app.Activity;
 
 public abstract class AuthenticatorUtils {
 
-    private String mPrettyName;
+    private final String mPrettyName;
 
-    private String mId;
+    private final String mId;
 
     protected AuthenticatorUtils(String id, String prettyName) {
         mId = id;

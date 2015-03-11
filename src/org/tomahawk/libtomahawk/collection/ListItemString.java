@@ -27,7 +27,7 @@ import java.util.ArrayList;
  */
 public class ListItemString implements TomahawkListItem {
 
-    private String mText;
+    private final String mText;
 
     /**
      * Construct a new {@link ListItemString} with the given text

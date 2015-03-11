@@ -39,9 +39,9 @@ import java.util.List;
  */
 public class DataBaseResolver extends Resolver {
 
-    private String mId;
+    private final String mId;
 
-    private int mWeight;
+    private final int mWeight;
 
     private boolean mReady;
 
@@ -116,7 +116,7 @@ public class DataBaseResolver extends Resolver {
     public boolean resolve(final Query queryToSearchFor) {
         if (mReady) {
             mStopped = false;
-            ArrayList<Result> results = new ArrayList<Result>();
+            ArrayList<Result> results = new ArrayList<>();
             List<Query> inputList = CollectionManager.getInstance().getCollection(mId).getQueries(
                     false);
 

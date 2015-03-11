@@ -63,7 +63,7 @@ public class InfoSystemUtils {
      */
     public static Playlist fillPlaylist(Playlist playlist, HatchetPlaylistEntries playlistEntries) {
         if (playlist != null && playlistEntries != null) {
-            ArrayList<PlaylistEntry> entries = new ArrayList<PlaylistEntry>();
+            ArrayList<PlaylistEntry> entries = new ArrayList<>();
             List<HatchetPlaylistEntryInfo> entryInfos = playlistEntries.playlistEntries;
             for (int i = 0; i < entryInfos.size(); i++) {
                 HatchetPlaylistEntryInfo entryInfo = entryInfos.get(i);
@@ -123,7 +123,7 @@ public class InfoSystemUtils {
         HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
                 .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
         if (tracks != null) {
-            ArrayList<Query> tophits = new ArrayList<Query>();
+            ArrayList<Query> tophits = new ArrayList<>();
             for (HatchetChartItem chartItem : chartItems) {
                 HatchetTrackInfo trackInfos = tracks.get(chartItem.track);
                 Query query = Query
@@ -171,7 +171,7 @@ public class InfoSystemUtils {
      */
     public static List<Query> convertToQueries(List<HatchetTrackInfo> tracks, String albumName,
             Map<String, HatchetArtistInfo> artists) {
-        List<Query> queries = new ArrayList<Query>();
+        List<Query> queries = new ArrayList<>();
         if (tracks != null) {
             for (HatchetTrackInfo trackInfo : tracks) {
                 Query query = Query.get(trackInfo.name, albumName,
@@ -187,7 +187,7 @@ public class InfoSystemUtils {
      */
     public static List<Query> convertToQueries(List<HatchetTrackInfo> tracks, String albumName,
             String artistName) {
-        List<Query> queries = new ArrayList<Query>();
+        List<Query> queries = new ArrayList<>();
         if (tracks != null) {
             for (HatchetTrackInfo trackInfo : tracks) {
                 Query query = Query.get(trackInfo.name, albumName,
@@ -289,7 +289,7 @@ public class InfoSystemUtils {
      * Convert the given HatchetPlaybackLogResponse into a List of Queries
      */
     public static ArrayList<Query> convertToQueryList(HatchetPlaybackLogsResponse playbackLogs) {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> queries = new ArrayList<>();
         for (String playbackItemId : playbackLogs.playbackLog.playbackLogEntries) {
             HatchetPlaybackItemResponse playbackitem =
                     playbackLogs.playbackLogEntries.get(playbackItemId);

@@ -162,7 +162,7 @@ public class TracksFragment extends TomahawkFragment {
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getQueries());
             SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-            List<Integer> dropDownItems = new ArrayList<Integer>();
+            List<Integer> dropDownItems = new ArrayList<>();
             dropDownItems.add(R.string.collection_dropdown_recently_added);
             dropDownItems.add(R.string.collection_dropdown_alpha);
             dropDownItems.add(R.string.collection_dropdown_alpha_artists);
@@ -199,7 +199,7 @@ public class TracksFragment extends TomahawkFragment {
                 Collections.sort(queries, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
             }
-            List<Segment> segments = new ArrayList<Segment>();
+            List<Segment> segments = new ArrayList<>();
             segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, queries));
             if (getListAdapter() == null) {
                 tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segments,

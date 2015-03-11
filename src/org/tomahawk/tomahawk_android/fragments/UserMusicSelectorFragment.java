@@ -58,7 +58,7 @@ public class UserMusicSelectorFragment extends SelectorFragment {
             }
         }
 
-        List<FragmentInfo> fragmentInfos = new ArrayList<FragmentInfo>();
+        List<FragmentInfo> fragmentInfos = new ArrayList<>();
         FragmentInfo fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = UserCollectionFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_collection);

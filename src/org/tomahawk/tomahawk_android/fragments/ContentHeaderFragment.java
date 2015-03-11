@@ -103,7 +103,7 @@ public class ContentHeaderFragment extends Fragment {
         public int mReceiverFragmentPage;
     }
 
-    private Set<ValueAnimator> mAnimators = new HashSet<>();
+    private final Set<ValueAnimator> mAnimators = new HashSet<>();
 
     protected boolean mShowFakeFollowing = false;
 

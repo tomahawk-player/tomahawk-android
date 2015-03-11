@@ -34,7 +34,6 @@ import android.os.Bundle;
  *
  * @author tgwizard
  * @see AbstractPlayStatusReceiver
- * @see MusicAPI
  * @since 1.2.3
  */
 public class SLSAPIReceiver extends AbstractPlayStatusReceiver {
@@ -61,7 +60,7 @@ public class SLSAPIReceiver extends AbstractPlayStatusReceiver {
         } else if (obj instanceof Integer) {
             value = (Integer) obj;
         } else if (obj instanceof String) {
-            value = Long.valueOf((String) obj).longValue();
+            value = Long.valueOf((String) obj);
         } else if (throwOnFailure) {
             throw new IllegalArgumentException(key + "not found in intent");
         }
@@ -72,13 +71,6 @@ public class SLSAPIReceiver extends AbstractPlayStatusReceiver {
     @Override
     protected void parseIntent(Context ctx, String action, Bundle bundle)
             throws IllegalArgumentException {
-
-        // music api stuff
-        // app-name, required
-        String appname = bundle.getString("app-name");
-        // app-package, required
-        String apppkg = bundle.getString("app-package");
-
         // state, required
         int state = getIntFromBundle(bundle, "state", true);
 

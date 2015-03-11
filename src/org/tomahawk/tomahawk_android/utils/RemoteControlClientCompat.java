@@ -60,10 +60,7 @@ public class RemoteControlClientCompat {
                     field.set(null, realValue);
                 } catch (NoSuchFieldException e) {
                     Log.w(TAG, "Could not get real field: " + field.getName());
-                } catch (IllegalArgumentException e) {
-                    Log.w(TAG, "Error trying to pull field value for: " + field.getName()
-                            + " " + e.getMessage());
-                } catch (IllegalAccessException e) {
+                } catch (IllegalArgumentException | IllegalAccessException e) {
                     Log.w(TAG, "Error trying to pull field value for: " + field.getName()
                             + " " + e.getMessage());
                 }
@@ -78,13 +75,7 @@ public class RemoteControlClientCompat {
                     "setTransportControlFlags", int.class);
 
             sHasRemoteControlAPIs = true;
-        } catch (ClassNotFoundException e) {
-            // Silently fail when running on an OS before ICS.
-        } catch (NoSuchMethodException e) {
-            // Silently fail when running on an OS before ICS.
-        } catch (IllegalArgumentException e) {
-            // Silently fail when running on an OS before ICS.
-        } catch (SecurityException e) {
+        } catch (ClassNotFoundException | SecurityException | IllegalArgumentException | NoSuchMethodException e) {
             // Silently fail when running on an OS before ICS.
         }
     }

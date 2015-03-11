@@ -22,7 +22,7 @@ import org.videolan.libvlc.Media;
 
 public class MediaWithDate extends Media {
 
-    private long mDateAdded;
+    private final long mDateAdded;
 
     public MediaWithDate(LibVLC libVLC, String URI, long dateAdded) {
         super(libVLC, URI);

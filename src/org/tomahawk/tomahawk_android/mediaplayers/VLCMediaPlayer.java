@@ -44,7 +44,7 @@ import de.greenrobot.event.EventBus;
  */
 public class VLCMediaPlayer implements MediaPlayerInterface {
 
-    private static String TAG = VLCMediaPlayer.class.getSimpleName();
+    private static final String TAG = VLCMediaPlayer.class.getSimpleName();
 
     private static class Holder {
 
@@ -70,8 +70,8 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
     private Query mPreparingQuery;
 
-    private ConcurrentHashMap<Result, String> mTranslatedUrls
-            = new ConcurrentHashMap<Result, String>();
+    private final ConcurrentHashMap<Result, String> mTranslatedUrls
+            = new ConcurrentHashMap<>();
 
     private VLCMediaPlayer() {
         EventBus.getDefault().register(this);
