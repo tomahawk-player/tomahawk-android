@@ -49,8 +49,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.dialogs.AskAccessConfigDialog;
-import org.tomahawk.tomahawk_android.dialogs.ConfigDialog;
-import org.tomahawk.tomahawk_android.dialogs.SendLogConfigDialog;
 import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.CloudCollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
@@ -72,7 +70,6 @@ import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.SearchViewStyle;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.accounts.AccountManager;
@@ -414,15 +411,6 @@ public class TomahawkMainActivity extends ActionBarActivity
             onHatchetLoggedInOut(
                     event.mType == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
         }
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(TomahawkExceptionReporter.ShowSendLogConfigDialogEvent event) {
-        ConfigDialog dialog = new SendLogConfigDialog();
-        Bundle args = new Bundle();
-        args.putString(TomahawkFragment.LOG_DATA, event.mLogData);
-        dialog.setArguments(args);
-        dialog.show(getSupportFragmentManager(), null);
     }
 
     @SuppressWarnings("unused")

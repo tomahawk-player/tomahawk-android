@@ -19,9 +19,10 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import com.uservoice.uservoicesdk.UserVoice;
 
-import org.acra.ACRA;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
+import org.tomahawk.tomahawk_android.dialogs.ConfigDialog;
+import org.tomahawk.tomahawk_android.dialogs.SendLogConfigDialog;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 
 import android.content.SharedPreferences;
@@ -148,7 +149,8 @@ public class PreferenceInfoFragment extends TomahawkListFragment
         if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_USERVOICE)) {
             UserVoice.launchUserVoice(getActivity());
         } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_SENDLOG)) {
-            ACRA.getErrorReporter().handleSilentException(null);
+            ConfigDialog dialog = new SendLogConfigDialog();
+            dialog.show(getFragmentManager(), null);
         }
     }
 
