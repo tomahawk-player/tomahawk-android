@@ -74,7 +74,9 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
 
     private boolean mOverrideCurrentPosition = false;
 
-    private int mSpotifyCurrentPosition = 0;
+    private long mPositionTimeStamp;
+
+    private int mPositionOffset;
 
     private Messenger mToSpotifyMessenger = null;
 
@@ -103,12 +105,23 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
                     case SpotifyService.MSG_ONPREPARED:
                         getReferencedObject().onPrepared(null);
                         break;
+                    case SpotifyService.MSG_ONPAUSE:
+                        getReferencedObject().mPositionOffset = (int) (System.currentTimeMillis()
+                                - getReferencedObject().mPositionTimeStamp)
+                                + getReferencedObject().mPositionOffset;
+                        getReferencedObject().mPositionTimeStamp = System.currentTimeMillis();
+                        break;
+                    case SpotifyService.MSG_ONPLAY:
+                        getReferencedObject().mPositionTimeStamp = System.currentTimeMillis();
+                        break;
                     case SpotifyService.MSG_ONPLAYERENDOFTRACK:
                         getReferencedObject().onCompletion(null);
                         break;
                     case SpotifyService.MSG_ONPLAYERPOSITIONCHANGED:
                         if (!getReferencedObject().mOverrideCurrentPosition) {
-                            getReferencedObject().mSpotifyCurrentPosition = msg.arg1;
+                            getReferencedObject().mPositionTimeStamp =
+                                    msg.getData().getLong(SpotifyService.LONG_KEY);
+                            getReferencedObject().mPositionOffset = msg.arg1;
                         }
                         break;
                     default:
@@ -184,7 +197,8 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         Log.d(TAG, "seekTo()");
         if (mToSpotifyMessenger != null) {
             SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SEEK, msec);
-            mSpotifyCurrentPosition = msec;
+            mPositionOffset = msec;
+            mPositionTimeStamp = System.currentTimeMillis();
             mOverrideCurrentPosition = true;
             // After 1 second, we set mOverrideCurrentPosition to false again
             mResetOverrideHandler.sendEmptyMessageDelayed(1337, 1000);
@@ -205,7 +219,8 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         Log.d(TAG, "prepare()");
         mOnPreparedListener = onPreparedListener;
         mOnCompletionListener = onCompletionListener;
-        mSpotifyCurrentPosition = 0;
+        mPositionOffset = 0;
+        mPositionTimeStamp = System.currentTimeMillis();
         mPreparedQuery = null;
         mPreparingQuery = query;
         if (mToSpotifyMessenger != null) {
@@ -233,7 +248,11 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
      */
     @Override
     public int getPosition() {
-        return mSpotifyCurrentPosition;
+        if (mIsPlaying) {
+            return (int) (System.currentTimeMillis() - mPositionTimeStamp) + mPositionOffset;
+        } else {
+            return mPositionOffset;
+        }
     }
 
     @Override
@@ -254,6 +273,8 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
     @Override
     public void onPrepared(MediaPlayer mp) {
         Log.d(TAG, "onPrepared()");
+        mPositionOffset = 0;
+        mPositionTimeStamp = System.currentTimeMillis();
         mPreparedQuery = mPreparingQuery;
         mPreparingQuery = null;
         mOnPreparedListener.onPrepared(mp);

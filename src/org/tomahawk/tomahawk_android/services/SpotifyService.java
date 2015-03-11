@@ -59,6 +59,8 @@ public class SpotifyService extends Service implements
 
     public static final String STRING_KEY2 = "org.tomahawk.tomahawk_android.string_key2";
 
+    public static final String LONG_KEY = "org.tomahawk.tomahawk_android.long_key";
+
     private static final int MSG_UPDATE_PROGRESS = 0x1;
 
     private static final long MSG_UPDATE_PROGRESS_INTERVAL = 1000;
@@ -83,6 +85,10 @@ public class SpotifyService extends Service implements
      */
     public static final int MSG_ONPREPARED = 100;
 
+    public static final int MSG_ONPLAY = 101;
+
+    public static final int MSG_ONPAUSE = 102;
+
     public static final int MSG_ONPLAYERENDOFTRACK = 104;
 
     public static final int MSG_ONPLAYERPOSITIONCHANGED = 105;
@@ -94,42 +100,6 @@ public class SpotifyService extends Service implements
     private String mAccessToken;
 
     private String mPreparedUri;
-
-    private final ReportPositionHandler mReportPositionHandler = new ReportPositionHandler(this);
-
-    private static class ReportPositionHandler extends WeakReferenceHandler<SpotifyService> {
-
-        public ReportPositionHandler(SpotifyService spotifyService) {
-            super(spotifyService);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            SpotifyService service = getReferencedObject();
-            if (service != null) {
-                switch (msg.what) {
-                    case MSG_UPDATE_PROGRESS:
-                        try {
-                            service.mPlayer.getPlayerState(new PlayerStateCallback() {
-                                @Override
-                                public void onPlayerState(PlayerState playerState) {
-                                    SpotifyService service = getReferencedObject();
-                                    if (service != null) {
-                                        service.sendMsg(MSG_ONPLAYERPOSITIONCHANGED,
-                                                playerState.positionInMs);
-                                    }
-                                    sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS,
-                                            MSG_UPDATE_PROGRESS_INTERVAL);
-                                }
-                            });
-                        } catch (RejectedExecutionException e) {
-                            Log.e(TAG, "handleMessage - " + e.getLocalizedMessage());
-                        }
-                        break;
-                }
-            }
-        }
-    }
 
     /**
      * Handler of incoming messages from clients.
@@ -269,6 +239,21 @@ public class SpotifyService extends Service implements
         }
     }
 
+    private void sendMsg(int msg, int value1, long value2) {
+        for (int i = mFromSpotifyMessengers.size() - 1; i >= 0; i--) {
+            try {
+                Bundle bundle = new Bundle();
+                bundle.putLong(SpotifyService.LONG_KEY, value2);
+                Message message = Message.obtain(null, msg);
+                message.arg1 = value1;
+                message.setData(bundle);
+                mFromSpotifyMessengers.get(i).send(message);
+            } catch (RemoteException e) {
+                Log.e(TAG, "sendMsg: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
+        }
+    }
+
     private void initializePlayer() {
         Config playerConfig = new Config(this, mAccessToken, CLIENT_ID);
         mPlayer = Spotify.getPlayer(playerConfig, this,
@@ -306,7 +291,6 @@ public class SpotifyService extends Service implements
                 mPlayer.getPlayerState(new PlayerStateCallback() {
                     @Override
                     public void onPlayerState(PlayerState playerState) {
-                        mReportPositionHandler.sendEmptyMessage(MSG_UPDATE_PROGRESS);
                         if (!playerState.trackUri.equals(mPreparedUri)) {
                             mPlayer.play(mPreparedUri);
                         } else if (!playerState.playing) {
@@ -329,7 +313,6 @@ public class SpotifyService extends Service implements
                 mPlayer.getPlayerState(new PlayerStateCallback() {
                     @Override
                     public void onPlayerState(PlayerState playerState) {
-                        mReportPositionHandler.removeCallbacksAndMessages(null);
                         if (playerState.playing) {
                             mPlayer.pause();
                         }
@@ -349,6 +332,7 @@ public class SpotifyService extends Service implements
     public void seek(int position) {
         if (mPlayer != null) {
             mPlayer.seekToPosition(position);
+            sendMsg(MSG_ONPLAYERPOSITIONCHANGED, position, System.currentTimeMillis());
         }
     }
 
@@ -407,9 +391,18 @@ public class SpotifyService extends Service implements
     @Override
     public void onPlaybackEvent(EventType eventType, PlayerState playerState) {
         Log.d(TAG, "Playback event received: " + eventType.name());
-        if (playerState.trackUri.equals(mPreparedUri)
-                && EventType.TRACK_END.equals(eventType)) {
-            sendMsg(MSG_ONPLAYERENDOFTRACK);
+        if (playerState.trackUri.equals(mPreparedUri)) {
+            switch (eventType) {
+                case TRACK_END:
+                    sendMsg(MSG_ONPLAYERENDOFTRACK);
+                    break;
+                case PAUSE:
+                    sendMsg(MSG_ONPAUSE);
+                    break;
+                case PLAY:
+                    sendMsg(MSG_ONPLAY);
+                    break;
+            }
         }
     }
 
