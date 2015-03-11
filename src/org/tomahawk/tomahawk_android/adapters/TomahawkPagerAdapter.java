@@ -30,11 +30,11 @@ import java.util.List;
 
 public class TomahawkPagerAdapter extends FragmentStatePagerAdapter {
 
-    private Class mContainerFragmentClass;
+    private final Class mContainerFragmentClass;
 
-    private long mContainerFragmentId;
+    private final long mContainerFragmentId;
 
-    private List<FragmentInfo> mFragmentInfos;
+    private final List<FragmentInfo> mFragmentInfos;
 
     public TomahawkPagerAdapter(FragmentManager fragmentManager, List<FragmentInfo> fragmentInfos,
             Class containerFragmentClass, long containerFragmentId) {

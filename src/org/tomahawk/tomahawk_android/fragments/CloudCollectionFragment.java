@@ -79,7 +79,7 @@ public class CloudCollectionFragment extends TomahawkFragment {
         }
 
         if (mCollection != null) {
-            List artists = new ArrayList<Object>();
+            List artists = new ArrayList<>();
             artists.addAll(mCollection.getArtists());
             if (getListAdapter() == null) {
                 TomahawkListAdapter tomahawkListAdapter =

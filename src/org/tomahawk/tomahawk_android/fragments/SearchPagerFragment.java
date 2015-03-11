@@ -49,16 +49,16 @@ public class SearchPagerFragment extends PagerFragment {
 
     private String mCurrentQueryString;
 
-    protected Set<Query> mCorrespondingQueries
+    protected final Set<Query> mCorrespondingQueries
             = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
-    private ArrayList<String> mAlbumIds = new ArrayList<String>();
+    private final ArrayList<String> mAlbumIds = new ArrayList<>();
 
-    private ArrayList<String> mArtistIds = new ArrayList<String>();
+    private final ArrayList<String> mArtistIds = new ArrayList<>();
 
-    private ArrayList<String> mSongIds = new ArrayList<String>();
+    private final ArrayList<String> mSongIds = new ArrayList<>();
 
-    private ArrayList<String> mUserIds = new ArrayList<String>();
+    private final ArrayList<String> mUserIds = new ArrayList<>();
 
     private Image mContentHeaderImage;
 
@@ -186,7 +186,7 @@ public class SearchPagerFragment extends PagerFragment {
 
     private void updatePager(int initialPage) {
 
-        List<FragmentInfoList> fragmentInfoLists = new ArrayList<FragmentInfoList>();
+        List<FragmentInfoList> fragmentInfoLists = new ArrayList<>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();
         FragmentInfo fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = ArtistsFragment.class;

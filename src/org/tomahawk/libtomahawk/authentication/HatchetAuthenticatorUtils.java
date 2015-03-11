@@ -88,9 +88,9 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private static final int EXPIRING_LIMIT = 300;
 
-    private HatchetAuth mHatchetAuth;
+    private final HatchetAuth mHatchetAuth;
 
-    private HashSet<String> mCorrespondingRequestIds = new HashSet<>();
+    private final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
     boolean mWaitingForAccountRemoval;
 

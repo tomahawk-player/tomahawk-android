@@ -35,6 +35,7 @@ import android.content.res.Resources;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -88,7 +89,7 @@ public class PlaybackPanel extends FrameLayout {
 
     private HoloCircularProgressBar mCircularProgressBar;
 
-    private Set<ValueAnimator> mAnimators = new HashSet<>();
+    private final Set<ValueAnimator> mAnimators = new HashSet<>();
 
     private int mLastPlayTime = 0;
 
@@ -96,7 +97,7 @@ public class PlaybackPanel extends FrameLayout {
 
     private static final int MSG_UPDATE_PROGRESS = 0x1;
 
-    private Handler mProgressHandler = new Handler(new Handler.Callback() {
+    private final Handler mProgressHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             switch (msg.what) {
@@ -119,7 +120,7 @@ public class PlaybackPanel extends FrameLayout {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         return false;
     }
 

@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.views;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -33,7 +34,7 @@ public class PlaybackFragmentFrame extends FrameLayout {
 
     private StickyListHeadersListView mListView;
 
-    private GestureDetector mGestureDetector;
+    private final GestureDetector mGestureDetector;
 
     private boolean mVerticallyScrolled;
 
@@ -77,7 +78,7 @@ public class PlaybackFragmentFrame extends FrameLayout {
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 mDownMotionEvent = MotionEvent.obtain(event);

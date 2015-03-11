@@ -39,7 +39,7 @@ public class PlaybackSeekBar extends SeekBar implements Handler.Callback {
 
     private PlaybackService mPlaybackService;
 
-    private Handler mUiHandler;
+    private final Handler mUiHandler;
 
     private TextView mTextViewCurrentTime;
 

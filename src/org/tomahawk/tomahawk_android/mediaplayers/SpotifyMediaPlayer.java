@@ -44,7 +44,7 @@ import android.util.Log;
  */
 public class SpotifyMediaPlayer implements MediaPlayerInterface {
 
-    private static String TAG = SpotifyMediaPlayer.class.getSimpleName();
+    private static final String TAG = SpotifyMediaPlayer.class.getSimpleName();
 
     // String tags used to store Spotify's preferred bitrate
     private static final String SPOTIFY_PREF_BITRATE
@@ -78,7 +78,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
 
     private Messenger mToSpotifyMessenger = null;
 
-    private Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler(this));
+    private final Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler(this));
 
     private SpotifyMediaPlayer() {
     }
@@ -118,7 +118,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         }
     }
 
-    private ResetOverrideHandler mResetOverrideHandler = new ResetOverrideHandler(this);
+    private final ResetOverrideHandler mResetOverrideHandler = new ResetOverrideHandler(this);
 
     private static class ResetOverrideHandler extends WeakReferenceHandler<SpotifyMediaPlayer> {
 

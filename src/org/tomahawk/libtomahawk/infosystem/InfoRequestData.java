@@ -86,13 +86,13 @@ public class InfoRequestData {
 
     public static final int HTTPTYPE_DELETE = 3;
 
-    private String mRequestId;
+    private final String mRequestId;
 
-    private int mType;
+    private final int mType;
 
-    private int mHttpType;
+    private final int mHttpType;
 
-    private QueryParams mQueryParams;
+    private final QueryParams mQueryParams;
 
     private String mJsonStringToSend;
 
@@ -184,7 +184,7 @@ public class InfoRequestData {
 
     public void setResult(Object object) {
         if (mResultMap == null) {
-            mResultMap = new HashMap<Class, Object>();
+            mResultMap = new HashMap<>();
         }
         mResultMap.put(object.getClass(), object);
     }
@@ -196,12 +196,12 @@ public class InfoRequestData {
                 return (List<T>) objects;
             }
         }
-        return new ArrayList<T>();
+        return new ArrayList<>();
     }
 
     public void setResultList(List<Object> objects) {
         if (mResultListMap == null) {
-            mResultListMap = new HashMap<Class, List<Object>>();
+            mResultListMap = new HashMap<>();
         }
         if (objects.size() > 0) {
             mResultListMap.put(objects.get(0).getClass(), objects);

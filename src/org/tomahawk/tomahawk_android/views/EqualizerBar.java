@@ -38,15 +38,13 @@ public class EqualizerBar extends LinearLayout {
 
     private VerticalSeekBar mSeek;
 
-    private TextView mBand;
-
     private TextView mValue;
 
     private OnEqualizerBarChangeListener listener;
 
     public interface OnEqualizerBarChangeListener {
 
-        public abstract void onProgressChanged(float value);
+        void onProgressChanged(float value);
     }
 
     public EqualizerBar(Context context, float band) {
@@ -66,8 +64,8 @@ public class EqualizerBar extends LinearLayout {
         mSeek.setMax(2 * RANGE);
         mSeek.setProgress(RANGE);
         mSeek.setOnSeekBarChangeListener(mSeekListener);
-        mBand = (TextView) findViewById(R.id.equalizer_band);
-        mBand.setText(band < 999.5f
+        TextView band1 = (TextView) findViewById(R.id.equalizer_band);
+        band1.setText(band < 999.5f
                 ? (int) (band + 0.5f) + " Hz"
                 : (int) (band / 1000.0f + 0.5f) + " kHz");
         mValue = (TextView) findViewById(R.id.equalizer_value);

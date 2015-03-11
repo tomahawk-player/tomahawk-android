@@ -140,7 +140,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
             = "show_playbackfragment_on_startup";
 
-    public static int ACTIONBAR_HEIGHT = TomahawkApp.getContext().getResources()
+    public static final int ACTIONBAR_HEIGHT = TomahawkApp.getContext().getResources()
             .getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
 
     public static class SlidingLayoutChangedEvent {
@@ -153,9 +153,9 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private static long mSessionIdCounter = 0;
 
-    protected HashSet<String> mCorrespondingRequestIds = new HashSet<>();
+    protected final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
-    private PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
+    private final PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
             this);
 
     private PlaybackService mPlaybackService;
@@ -192,7 +192,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private Handler mShouldShowAnimationHandler;
 
-    private Runnable mShouldShowAnimationRunnable = new Runnable() {
+    private final Runnable mShouldShowAnimationRunnable = new Runnable() {
         @Override
         public void run() {
             if (ThreadManager.getInstance().isActive()

@@ -22,7 +22,6 @@ import com.google.common.base.Charsets;
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 
-import org.apache.http.client.ClientProtocolException;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
@@ -135,10 +134,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     private HatchetAuthenticatorUtils mHatchetAuthenticatorUtils;
 
-    private ConcurrentHashMap<String, TomahawkListItem> mItemsToBeFilled
-            = new ConcurrentHashMap<String, TomahawkListItem>();
+    private final ConcurrentHashMap<String, TomahawkListItem> mItemsToBeFilled
+            = new ConcurrentHashMap<>();
 
-    private Hatchet mHatchet;
+    private final Hatchet mHatchet;
 
     public HatchetInfoPlugin() {
         RequestInterceptor requestInterceptor = new RequestInterceptor() {
@@ -236,7 +235,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
                         userToBeFilled.setPlaylists(playlists);
                     }
-                    List<Object> results = new ArrayList<Object>();
+                    List<Object> results = new ArrayList<>();
                     results.addAll(playlists);
                     infoRequestData.setResultList(results);
                     return true;
@@ -297,7 +296,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     User userToBeFilled = (User) mItemsToBeFilled
                             .get(infoRequestData.getRequestId());
                     if (response.socialActions != null && response.socialActions.size() > 0) {
-                        ArrayList<SocialAction> socialActions = new ArrayList<SocialAction>();
+                        ArrayList<SocialAction> socialActions = new ArrayList<>();
                         for (HatchetSocialAction hatchetSocialAction : response.socialActions) {
                             HatchetTrackInfo track = TomahawkUtils.carelessGet(response.tracks,
                                     hatchetSocialAction.track);
@@ -347,7 +346,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                             && response.playbackLogEntries.size() > 0) {
                         ArrayList<Query> playbackItems =
                                 InfoSystemUtils.convertToQueryList(response);
-                        ArrayList<PlaylistEntry> entries = new ArrayList<PlaylistEntry>();
+                        ArrayList<PlaylistEntry> entries = new ArrayList<>();
                         for (Query query : playbackItems) {
                             entries.add(PlaylistEntry.get(userToBeFilled.getPlaybackLog().getId(),
                                     query, TomahawkMainActivity.getLifetimeUniqueStringId()));
@@ -383,7 +382,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
                 HatchetArtists artists = mHatchet.getArtists(params.ids, params.name);
                 if (artists != null && artists.artists != null) {
-                    List<Object> convertedAlbums = new ArrayList<Object>();
+                    List<Object> convertedAlbums = new ArrayList<>();
                     HatchetArtistInfo artist =
                             TomahawkUtils.carelessGetFirst(artists.artists.values());
                     HatchetCharts charts = mHatchet.getArtistsAlbums(artist.id);
@@ -451,12 +450,12 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         if (albumInfo.tracks != null && albumInfo.tracks.size() > 0) {
                             HatchetTracks tracks = mHatchet.getTracks(albumInfo.tracks, null, null);
                             if (tracks != null) {
-                                HashSet<String> artistIds = new HashSet<String>();
+                                HashSet<String> artistIds = new HashSet<>();
                                 for (HatchetTrackInfo trackInfo : tracks.tracks) {
                                     artistIds.add(trackInfo.artist);
                                 }
                                 HatchetArtists artists =
-                                        mHatchet.getArtists(new ArrayList<String>(artistIds), null);
+                                        mHatchet.getArtists(new ArrayList<>(artistIds), null);
                                 if (artists != null) {
                                     List<Query> convertedTracks = InfoSystemUtils
                                             .convertToQueries(tracks.tracks, album.getName(),
@@ -475,9 +474,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
             } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
                 HatchetSearch search = mHatchet.getSearches(params.term);
                 if (search != null && search.searchResults != null) {
-                    List<Object> convertedAlbums = new ArrayList<Object>();
-                    List<Object> convertedArtists = new ArrayList<Object>();
-                    List<Object> convertedUsers = new ArrayList<Object>();
+                    List<Object> convertedAlbums = new ArrayList<>();
+                    List<Object> convertedArtists = new ArrayList<>();
+                    List<Object> convertedUsers = new ArrayList<>();
                     for (HatchetSearchItem searchItem : search.searchResults) {
                         if (searchItem.score > HATCHET_SEARCHITEM_MIN_SCORE) {
                             if (HATCHET_SEARCHITEM_TYPE_ALBUM.equals(searchItem.type)) {
@@ -490,10 +489,13 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                     HatchetArtistInfo artistInfo =
                                             TomahawkUtils
                                                     .carelessGet(search.artists, albumInfo.artist);
-                                    Album album = InfoSystemUtils.convertToAlbum(albumInfo,
-                                            artistInfo.name, image);
-                                    convertedAlbums.add(album);
-                                    hatchetCollection.addAlbum(album);
+                                    Album album;
+                                    if (artistInfo != null) {
+                                        album = InfoSystemUtils.convertToAlbum(albumInfo,
+                                                artistInfo.name, image);
+                                        convertedAlbums.add(album);
+                                        hatchetCollection.addAlbum(album);
+                                    }
                                 }
                             } else if (HATCHET_SEARCHITEM_TYPE_ARTIST.equals(searchItem.type)) {
                                 HatchetArtistInfo artistInfo =
@@ -538,7 +540,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         params.userid, params.targettype, params.targetuserid, null, null, null,
                         params.type);
                 if (relationshipsStruct != null && relationshipsStruct.relationships != null) {
-                    Map<String, String> relationShipIds = new HashMap<String, String>();
+                    Map<String, String> relationShipIds = new HashMap<>();
                     for (HatchetRelationshipStruct relationship : relationshipsStruct.relationships) {
                         if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWERS) {
@@ -550,10 +552,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     User userToBeFilled = (User) mItemsToBeFilled
                             .get(infoRequestData.getRequestId());
                     HatchetUsers users = mHatchet.getUsers(
-                            new ArrayList<String>(relationShipIds.keySet()), params.name, null,
+                            new ArrayList<>(relationShipIds.keySet()), params.name, null,
                             null);
                     if (users != null && users.users != null) {
-                        ArrayList<User> convertedUsers = new ArrayList<User>();
+                        ArrayList<User> convertedUsers = new ArrayList<>();
                         for (HatchetUserInfo user : users.users) {
                             HatchetTrackInfo track =
                                     TomahawkUtils.carelessGet(users.tracks, user.nowplaying);
@@ -592,8 +594,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         params.userid, params.targettype, params.targetuserid, null, null, null,
                         params.type);
                 if (relationShips != null && relationShips.relationships != null) {
-                    List<Album> convertedAlbums = new ArrayList<Album>();
-                    List<Artist> convertedArtists = new ArrayList<Artist>();
+                    List<Album> convertedAlbums = new ArrayList<>();
+                    List<Artist> convertedArtists = new ArrayList<>();
                     for (HatchetRelationshipStruct relationship : relationShips.relationships) {
                         if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
@@ -625,7 +627,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
                         userToBeFilled.setStarredAlbums(convertedAlbums);
                     }
-                    List<Object> convertedObjects = new ArrayList<Object>();
+                    List<Object> convertedObjects = new ArrayList<>();
                     convertedObjects.addAll(convertedAlbums);
                     convertedObjects.addAll(convertedArtists);
                     infoRequestData.setResultList(convertedObjects);
@@ -647,7 +649,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_MEDIUM) {
             @Override
             public void run() {
-                ArrayList<String> doneRequestsIds = new ArrayList<String>();
+                ArrayList<String> doneRequestsIds = new ArrayList<>();
                 doneRequestsIds.add(infoRequestData.getRequestId());
                 // Before we do anything, get the accesstoken
                 boolean success = false;
@@ -750,13 +752,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 try {
                     boolean success = getParseConvert(infoRequestData);
                     InfoSystem.getInstance().reportResults(infoRequestData, success);
-                } catch (ClientProtocolException e) {
-                    Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
-                } catch (IOException e) {
-                    Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
-                } catch (NoSuchAlgorithmException e) {
-                    Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
-                } catch (KeyManagementException e) {
+                } catch (KeyManagementException | NoSuchAlgorithmException | IOException e) {
                     Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
             }

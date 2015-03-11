@@ -34,7 +34,7 @@ import android.view.KeyEvent;
  */
 public class MediaButtonReceiver extends BroadcastReceiver {
 
-    private static String TAG = MediaButtonReceiver.class.getSimpleName();
+    private static final String TAG = MediaButtonReceiver.class.getSimpleName();
 
     @Override
     public void onReceive(Context context, Intent intent) {

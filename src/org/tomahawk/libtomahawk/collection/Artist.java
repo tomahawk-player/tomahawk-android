@@ -31,18 +31,18 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Artist implements TomahawkListItem {
 
-    private static ConcurrentHashMap<String, Artist> sArtists
-            = new ConcurrentHashMap<String, Artist>();
+    private static final ConcurrentHashMap<String, Artist> sArtists
+            = new ConcurrentHashMap<>();
 
     private String mCacheKey;
 
-    private String mName;
+    private final String mName;
 
     private ListItemString mBio;
 
-    private ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<String, Album>();
+    private final ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<>();
 
-    private ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
+    private final ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<>();
 
     private Image mImage;
 
@@ -96,7 +96,7 @@ public class Artist implements TomahawkListItem {
      * @return A {@link java.util.List} of all {@link Artist}s
      */
     public static ArrayList<Artist> getArtists() {
-        ArrayList<Artist> artists = new ArrayList<Artist>(sArtists.values());
+        ArrayList<Artist> artists = new ArrayList<>(sArtists.values());
         Collections.sort(artists,
                 new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return artists;
@@ -135,7 +135,7 @@ public class Artist implements TomahawkListItem {
     @Override
     public Album getAlbum() {
         if (!mAlbums.isEmpty()) {
-            ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
+            ArrayList<Album> albums = new ArrayList<>(mAlbums.values());
             return albums.get(0);
         }
         return null;
@@ -158,7 +158,7 @@ public class Artist implements TomahawkListItem {
     @Override
     public ArrayList<Query> getQueries() {
         ArrayList<Query> queries;
-        queries = new ArrayList<Query>(mQueries.values());
+        queries = new ArrayList<>(mQueries.values());
         Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
         return queries;
     }
@@ -187,7 +187,7 @@ public class Artist implements TomahawkListItem {
      * @return list of all {@link Album}s from this object.
      */
     public ArrayList<Album> getAlbums() {
-        ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
+        ArrayList<Album> albums = new ArrayList<>(mAlbums.values());
         Collections.sort(albums,
                 new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         return albums;

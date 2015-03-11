@@ -54,9 +54,9 @@ public class Selector extends FrameLayout {
 
     public interface SelectorListener {
 
-        public void onSelectorItemSelected(int position);
+        void onSelectorItemSelected(int position);
 
-        public void onCancel();
+        void onCancel();
     }
 
     public Selector(Context context) {

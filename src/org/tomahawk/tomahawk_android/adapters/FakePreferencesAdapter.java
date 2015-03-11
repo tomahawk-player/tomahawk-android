@@ -47,13 +47,13 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
 
     private final LayoutInflater mLayoutInflater;
 
-    private SharedPreferences mSharedPreferences;
+    private final SharedPreferences mSharedPreferences;
 
-    private List<FakePreferenceGroup> mFakePreferenceGroups;
+    private final List<FakePreferenceGroup> mFakePreferenceGroups;
 
     private class SpinnerListener implements AdapterView.OnItemSelectedListener {
 
-        private String mKey;
+        private final String mKey;
 
         public SpinnerListener(String key) {
             mKey = key;
@@ -168,13 +168,13 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                 CheckBox checkBox = (CheckBox) viewHolder.findViewById(R.id.checkbox1);
                 checkBox.setChecked(preferenceState);
             } else if (viewHolder.mLayoutId == R.layout.fake_preferences_spinner) {
-                ArrayList<CharSequence> list = new ArrayList<CharSequence>();
+                ArrayList<CharSequence> list = new ArrayList<>();
                 for (String headerString : TomahawkApp.getContext().getResources()
                         .getStringArray(R.array.fake_preferences_items_bitrate)) {
                     list.add(headerString.toUpperCase());
                 }
                 ArrayAdapter<CharSequence> adapter =
-                        new ArrayAdapter<CharSequence>(TomahawkApp.getContext(),
+                        new ArrayAdapter<>(TomahawkApp.getContext(),
                                 R.layout.spinner_textview, list);
                 adapter.setDropDownViewResource(R.layout.spinner_dropdown_textview);
                 Spinner spinner = (Spinner) viewHolder.findViewById(R.id.spinner1);

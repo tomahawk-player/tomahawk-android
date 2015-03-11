@@ -30,36 +30,30 @@ public class FakePreferenceGroup {
 
     public static final int FAKEPREFERENCE_TYPE_SPINNER = 3;
 
-    public static final int FAKEPREFERENCE_TYPE_CONFIG = 4;
+    private final ArrayList<FakePreference> mFakePreferences = new ArrayList<>();
 
-    private ArrayList<FakePreference> mFakePreferences = new ArrayList<FakePreference>();
-
-    private String mHeader;
+    private final String mHeader;
 
     /**
      * A {@link FakePreference} contains all information needed to provide the {@link
      * org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter} with the necessary values to
-     * be displayed inside the {@link org.tomahawk.tomahawk_android.fragments.FakePreferenceFragment}'s
-     * {@link android.widget.ListView}
+     * be displayed inside the Fragment's {@link android.widget.ListView}
      */
     public static class FakePreference {
 
         // this FakePreference's type (Dialog, Checkbox, Plain or Spinner)
-        private int type;
+        private final int type;
 
         // the key to identify this FakePreference
-        private String key;
+        private final String key;
 
         // the key to store preferences with
         private String storageKey;
 
-        private String title;
+        private final String title;
 
         // short summary text to describe this FakePreference to the user
-        private String summary;
-
-        // drawable to show in grey, if isEnabled is false, otherwise colored
-        private int drawableResId;
+        private final String summary;
 
         /**
          * Construct a {@link FakePreference}
@@ -71,28 +65,6 @@ public class FakePreferenceGroup {
             this.storageKey = storageKey;
             this.title = title;
             this.summary = summary;
-        }
-
-        /**
-         * Construct a {@link FakePreference}
-         */
-        public FakePreference(int type, String key, String title, String summary) {
-            this.type = type;
-            this.key = key;
-            this.title = title;
-            this.summary = summary;
-        }
-
-        /**
-         * Construct a {@link FakePreference}
-         */
-        public FakePreference(int type, String key, String title, String summary,
-                int drawableResId) {
-            this.type = type;
-            this.key = key;
-            this.title = title;
-            this.summary = summary;
-            this.drawableResId = drawableResId;
         }
 
         public int getType() {
@@ -113,10 +85,6 @@ public class FakePreferenceGroup {
 
         public String getSummary() {
             return summary;
-        }
-
-        public int getDrawableResId() {
-            return drawableResId;
         }
     }
 

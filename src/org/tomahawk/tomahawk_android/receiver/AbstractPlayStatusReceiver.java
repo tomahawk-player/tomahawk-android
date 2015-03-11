@@ -128,15 +128,12 @@ public abstract class AbstractPlayStatusReceiver extends BroadcastReceiver {
     }
 
     /**
-     * Parses the API / music app specific parts of the received broadcast. This is extracted into a
-     * specific {@link MusicAPI}, {@link Track} and state.
+     * Parses the API / music app specific parts of the received broadcast.
      *
      * @param ctx    to be able to create {@code MusicAPIs}
      * @param action the action/intent used for this scrobble request
      * @param bundle the data sent with this request
      * @throws IllegalArgumentException when the data received is invalid
-     * @see #setMusicAPI(MusicAPI)
-     * @see #setState(com.adam.aslfms.util.Track.State)
      * @see #setTrack(Track)
      */
     protected abstract void parseIntent(Context ctx, String action,

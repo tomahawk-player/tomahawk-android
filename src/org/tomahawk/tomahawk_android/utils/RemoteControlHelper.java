@@ -46,13 +46,7 @@ public class RemoteControlHelper {
             sUnregisterRemoteControlClientMethod = AudioManager.class.getMethod(
                     "unregisterRemoteControlClient", new Class[]{sRemoteControlClientClass});
             sHasRemoteControlAPIs = true;
-        } catch (ClassNotFoundException e) {
-            // Silently fail when running on an OS before ICS.
-        } catch (NoSuchMethodException e) {
-            // Silently fail when running on an OS before ICS.
-        } catch (IllegalArgumentException e) {
-            // Silently fail when running on an OS before ICS.
-        } catch (SecurityException e) {
+        } catch (ClassNotFoundException | SecurityException | IllegalArgumentException | NoSuchMethodException e) {
             // Silently fail when running on an OS before ICS.
         }
     }

@@ -102,7 +102,7 @@ public class ArtistsFragment extends TomahawkFragment {
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        List artists = new ArrayList<Object>();
+        List artists = new ArrayList<>();
         if (mShowMode == SHOW_MODE_STARREDARTISTS) {
             ArrayList<Artist> starredArtists = DatabaseHelper.getInstance().getStarredArtists();
             for (Artist artist : starredArtists) {
@@ -140,7 +140,7 @@ public class ArtistsFragment extends TomahawkFragment {
             }
             SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-            List<Integer> dropDownItems = new ArrayList<Integer>();
+            List<Integer> dropDownItems = new ArrayList<>();
             dropDownItems.add(R.string.collection_dropdown_recently_added);
             dropDownItems.add(R.string.collection_dropdown_alpha);
             AdapterView.OnItemSelectedListener spinnerClickListener
@@ -173,7 +173,7 @@ public class ArtistsFragment extends TomahawkFragment {
                 Collections.sort(artists, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_ALPHA));
             }
-            List<Segment> segments = new ArrayList<Segment>();
+            List<Segment> segments = new ArrayList<>();
             segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, artists,
                     R.integer.grid_column_count, R.dimen.padding_superlarge,
                     R.dimen.padding_superlarge));

@@ -48,29 +48,33 @@ public class LastFmAPIReceiver extends AbstractPlayStatusReceiver {
     protected void parseIntent(Context ctx, String action, Bundle bundle)
             throws IllegalArgumentException {
 
-        if (action.equals(ACTION_LASTFMAPI_START)) {
-            setState(MicroService.State.START);
-            setTimestamp(System.currentTimeMillis());
+        switch (action) {
+            case ACTION_LASTFMAPI_START:
+                setState(MicroService.State.START);
+                setTimestamp(System.currentTimeMillis());
 
-            Artist artist = Artist.get(bundle.getString("artist"));
-            Album album = null;
-            if (bundle.getString("album") != null) {
-                album = Album.get(bundle.getString("album"), artist);
-            }
-            Track track = Track.get(bundle.getString("track"), album, artist);
-            track.setDuration(bundle.getInt("duration"));
-            // throws on bad data
-            setTrack(track);
-        } else if (action.equals(ACTION_LASTFMAPI_PAUSERESUME)) {
-            if (bundle.containsKey("position")) {
-                setState(MicroService.State.RESUME);
-            } else {
-                setState(MicroService.State.PAUSE);
-            }
-            setIsSameAsCurrentTrack();
-        } else if (action.equals(ACTION_LASTFMAPI_STOP)) {
-            setState(MicroService.State.COMPLETE);
-            setIsSameAsCurrentTrack();
+                Artist artist = Artist.get(bundle.getString("artist"));
+                Album album = null;
+                if (bundle.getString("album") != null) {
+                    album = Album.get(bundle.getString("album"), artist);
+                }
+                Track track = Track.get(bundle.getString("track"), album, artist);
+                track.setDuration(bundle.getInt("duration"));
+                // throws on bad data
+                setTrack(track);
+                break;
+            case ACTION_LASTFMAPI_PAUSERESUME:
+                if (bundle.containsKey("position")) {
+                    setState(MicroService.State.RESUME);
+                } else {
+                    setState(MicroService.State.PAUSE);
+                }
+                setIsSameAsCurrentTrack();
+                break;
+            case ACTION_LASTFMAPI_STOP:
+                setState(MicroService.State.COMPLETE);
+                setIsSameAsCurrentTrack();
+                break;
         }
     }
 

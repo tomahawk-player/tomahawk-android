@@ -63,16 +63,16 @@ public class DirectoryChooser extends FrameLayout implements
 
     public interface DirectoryChooserListener {
 
-        public void onDirectoryChecked(File chosenSubFolder, boolean isChecked);
+        void onDirectoryChecked(File chosenSubFolder, boolean isChecked);
 
-        public void onDirectoryBrowsed(File clickedSubFolder);
+        void onDirectoryBrowsed(File clickedSubFolder);
     }
 
     public void setup() {
         mDrillDownCount = 0;
-        ArrayList<String> storageDirs = new ArrayList<String>();
+        ArrayList<String> storageDirs = new ArrayList<>();
         storageDirs.addAll(Arrays.asList(UserCollection.getStorageDirectories()));
-        List<File> mediaDirs = new ArrayList<File>();
+        List<File> mediaDirs = new ArrayList<>();
         for (String dir : storageDirs) {
             File f = new File(dir);
             if (f.exists()) {
@@ -84,7 +84,7 @@ public class DirectoryChooser extends FrameLayout implements
 
     public void setup(File currentFolderRoot) {
         mCurrentFolderRoot = currentFolderRoot;
-        ArrayList<File> folders = new ArrayList<File>();
+        ArrayList<File> folders = new ArrayList<>();
         if (mCurrentFolderRoot.listFiles() != null && mCurrentFolderRoot.listFiles().length > 0) {
             for (File file : mCurrentFolderRoot.listFiles()) {
                 if (file.isDirectory() && !file.isHidden()) {
@@ -98,7 +98,7 @@ public class DirectoryChooser extends FrameLayout implements
     public void setup(List<File> folders) {
         boolean isFirstRoot = mDrillDownCount == 0;
         ArrayList<DirectoryChooserAdapter.CustomDirectory> dirs
-                = new ArrayList<DirectoryChooserAdapter.CustomDirectory>();
+                = new ArrayList<>();
         for (int i = 0; i < folders.size(); i++) {
             File folder = folders.get(i);
             DirectoryChooserAdapter.CustomDirectory dir

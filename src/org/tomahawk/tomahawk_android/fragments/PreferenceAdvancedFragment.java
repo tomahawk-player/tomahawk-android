@@ -67,8 +67,6 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
 
     private SharedPreferences mSharedPreferences;
 
-    private List<FakePreferenceGroup> mFakePreferenceGroups;
-
     /**
      * Called, when this {@link PreferenceAdvancedFragment}'s {@link android.view.View} has been
      * created
@@ -82,7 +80,7 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
         mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
         // Set up the set of FakePreferences to be shown in this Fragment
-        mFakePreferenceGroups = new ArrayList<>();
+        List<FakePreferenceGroup> fakePreferenceGroups = new ArrayList<>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
                 getString(R.string.preferences_playback));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
@@ -116,12 +114,12 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
                 FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE,
                 getString(R.string.preferences_audio_quality),
                 getString(R.string.preferences_audio_quality_text)));
-        mFakePreferenceGroups.add(prefGroup);
+        fakePreferenceGroups.add(prefGroup);
 
         // Now we can push the complete set of FakePreferences into our FakePreferencesAdapter,
         // so that it can provide our ListView with the correct Views.
         FakePreferencesAdapter fakePreferencesAdapter = new FakePreferencesAdapter(getActivity(),
-                getActivity().getLayoutInflater(), mFakePreferenceGroups);
+                getActivity().getLayoutInflater(), fakePreferenceGroups);
         setListAdapter(fakePreferencesAdapter);
 
         getListView().setOnItemClickListener(this);

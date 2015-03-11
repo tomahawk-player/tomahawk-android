@@ -71,17 +71,17 @@ public class CollectionManager {
 
     }
 
-    private ConcurrentHashMap<String, Collection> mCollections
-            = new ConcurrentHashMap<String, Collection>();
+    private final ConcurrentHashMap<String, Collection> mCollections
+            = new ConcurrentHashMap<>();
 
-    private HashSet<String> mCorrespondingRequestIds = new HashSet<String>();
+    private final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
-    private HashSet<String> mResolvingHatchetIds = new HashSet<String>();
+    private final HashSet<String> mResolvingHatchetIds = new HashSet<>();
 
-    private Set<String> mShowAsDeletedPlaylistMap =
+    private final Set<String> mShowAsDeletedPlaylistMap =
             Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-    private Set<String> mShowAsCreatedPlaylistMap =
+    private final Set<String> mShowAsCreatedPlaylistMap =
             Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     private CollectionManager() {
@@ -351,7 +351,7 @@ public class CollectionManager {
     public void handleHatchetPlaylistResponse(InfoRequestData data) {
         if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
             Set<Playlist> storedLists = DatabaseHelper.getInstance().getPlaylists();
-            HashMap<String, Playlist> storedListsMap = new HashMap<String, Playlist>();
+            HashMap<String, Playlist> storedListsMap = new HashMap<>();
             for (Playlist storedList : storedLists) {
                 if (storedListsMap.containsKey(storedList.getHatchetId())) {
                     Log.e(TAG, "Hatchet sync - playlist \"" + storedList.getName()
@@ -528,7 +528,7 @@ public class CollectionManager {
     }
 
     public List<Collection> getAvailableCollections(Album album) {
-        List<Collection> collections = new ArrayList<Collection>();
+        List<Collection> collections = new ArrayList<>();
         for (Collection collection : mCollections.values()) {
             if (TomahawkApp.PLUGINNAME_HATCHET.equals(collection.getId())
                     || collection.getAlbumTracks(album, false).size() > 0) {
@@ -539,7 +539,7 @@ public class CollectionManager {
     }
 
     public List<Collection> getAvailableCollections(Artist artist) {
-        List<Collection> collections = new ArrayList<Collection>();
+        List<Collection> collections = new ArrayList<>();
         for (Collection collection : mCollections.values()) {
             if (TomahawkApp.PLUGINNAME_HATCHET.equals(collection.getId())
                     || collection.getArtistAlbums(artist, false).size() > 0) {

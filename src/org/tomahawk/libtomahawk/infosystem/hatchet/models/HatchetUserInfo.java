@@ -25,9 +25,9 @@ public class HatchetUserInfo extends Mappable {
 
     public String about;
 
-    public int followCount = -1;
+    public final int followCount = -1;
 
-    public int followersCount = -1;
+    public final int followersCount = -1;
 
     public List<String> images;
 
@@ -39,7 +39,7 @@ public class HatchetUserInfo extends Mappable {
 
     public Date nowplayingtimestamp;
 
-    public int totalPlays = -1;
+    public final int totalPlays = -1;
 
     public String url;
 

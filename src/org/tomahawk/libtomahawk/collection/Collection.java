@@ -31,35 +31,35 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Collection {
 
-    private String mId;
+    private final String mId;
 
-    private String mName;
+    private final String mName;
 
-    private boolean mIsLocal;
+    private final boolean mIsLocal;
 
-    protected ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<String, Album>();
+    protected ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<>();
 
-    protected ConcurrentHashMap<String, Artist> mArtists = new ConcurrentHashMap<String, Artist>();
+    protected ConcurrentHashMap<String, Artist> mArtists = new ConcurrentHashMap<>();
 
-    protected ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<String, Query>();
+    protected ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<>();
 
     protected ConcurrentHashMap<Album, List<Query>> mAlbumTracks
-            = new ConcurrentHashMap<Album, List<Query>>();
+            = new ConcurrentHashMap<>();
 
     protected ConcurrentHashMap<Artist, Map<String, Query>> mArtistTracks
-            = new ConcurrentHashMap<Artist, Map<String, Query>>();
+            = new ConcurrentHashMap<>();
 
     protected ConcurrentHashMap<Artist, Map<String, Album>> mArtistAlbums
-            = new ConcurrentHashMap<Artist, Map<String, Album>>();
+            = new ConcurrentHashMap<>();
 
-    protected ConcurrentHashMap<TomahawkListItem, Long> mTrackAddedTimeStamps
-            = new ConcurrentHashMap<TomahawkListItem, Long>();
+    protected final ConcurrentHashMap<TomahawkListItem, Long> mTrackAddedTimeStamps
+            = new ConcurrentHashMap<>();
 
-    protected ConcurrentHashMap<String, Long> mArtistAddedTimeStamps
-            = new ConcurrentHashMap<String, Long>();
+    protected final ConcurrentHashMap<String, Long> mArtistAddedTimeStamps
+            = new ConcurrentHashMap<>();
 
-    protected ConcurrentHashMap<String, Long> mAlbumAddedTimeStamps
-            = new ConcurrentHashMap<String, Long>();
+    protected final ConcurrentHashMap<String, Long> mAlbumAddedTimeStamps
+            = new ConcurrentHashMap<>();
 
     protected Collection(String id, String name, boolean isLocal) {
         mId = id;
@@ -80,12 +80,12 @@ public class Collection {
     }
 
     public void wipe() {
-        mQueries = new ConcurrentHashMap<String, Query>();
-        mArtists = new ConcurrentHashMap<String, Artist>();
-        mAlbums = new ConcurrentHashMap<String, Album>();
-        mAlbumTracks = new ConcurrentHashMap<Album, List<Query>>();
-        mArtistTracks = new ConcurrentHashMap<Artist, Map<String, Query>>();
-        mArtistAlbums = new ConcurrentHashMap<Artist, Map<String, Album>>();
+        mQueries = new ConcurrentHashMap<>();
+        mArtists = new ConcurrentHashMap<>();
+        mAlbums = new ConcurrentHashMap<>();
+        mAlbumTracks = new ConcurrentHashMap<>();
+        mArtistTracks = new ConcurrentHashMap<>();
+        mArtistAlbums = new ConcurrentHashMap<>();
     }
 
     public void addQuery(Query query, long addedTimeStamp) {
@@ -119,7 +119,7 @@ public class Collection {
      * @return A {@link java.util.List} of all {@link Track}s in this {@link Collection}
      */
     public ArrayList<Query> getQueries(boolean sorted) {
-        ArrayList<Query> queries = new ArrayList<Query>(mQueries.values());
+        ArrayList<Query> queries = new ArrayList<>(mQueries.values());
         if (sorted) {
             Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
         }
@@ -145,7 +145,7 @@ public class Collection {
      * in this {@link org.tomahawk.libtomahawk.collection.Collection}
      */
     public ArrayList<Artist> getArtists(boolean sorted) {
-        ArrayList<Artist> artists = new ArrayList<Artist>(mArtists.values());
+        ArrayList<Artist> artists = new ArrayList<>(mArtists.values());
         if (sorted) {
             Collections.sort(artists,
                     new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
@@ -172,7 +172,7 @@ public class Collection {
      * in this {@link org.tomahawk.libtomahawk.collection.Collection}
      */
     public ArrayList<Album> getAlbums(boolean sorted) {
-        ArrayList<Album> albums = new ArrayList<Album>(mAlbums.values());
+        ArrayList<Album> albums = new ArrayList<>(mAlbums.values());
         if (sorted) {
             Collections.sort(albums,
                     new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
@@ -191,7 +191,7 @@ public class Collection {
      * @return A {@link java.util.List} of all {@link Album}s by the given Artist.
      */
     public ArrayList<Album> getArtistAlbums(Artist artist, boolean sorted) {
-        ArrayList<Album> albums = new ArrayList<Album>();
+        ArrayList<Album> albums = new ArrayList<>();
         if (mArtistAlbums.get(artist) != null) {
             albums.addAll(mArtistAlbums.get(artist).values());
         }
@@ -212,7 +212,7 @@ public class Collection {
      * @return A {@link java.util.List} of all {@link Track}s from the given Artist.
      */
     public ArrayList<Query> getArtistTracks(Artist artist, boolean sorted) {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> queries = new ArrayList<>();
         if (mArtistTracks.get(artist) != null) {
             queries.addAll(mArtistTracks.get(artist).values());
         }
@@ -231,7 +231,7 @@ public class Collection {
      * @return A {@link java.util.List} of all {@link Track}s from the given Album.
      */
     public ArrayList<Query> getAlbumTracks(Album album, boolean sorted) {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> queries = new ArrayList<>();
         if (mAlbumTracks.get(album) != null) {
             queries.addAll(mAlbumTracks.get(album));
         }

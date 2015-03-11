@@ -106,7 +106,7 @@ public class PlaybackService extends Service
         implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener, MusicFocusable {
 
-    private static String TAG = PlaybackService.class.getSimpleName();
+    private static final String TAG = PlaybackService.class.getSimpleName();
 
     public static final String ACTION_PLAYPAUSE
             = "org.tomahawk.tomahawk_android.ACTION_PLAYPAUSE";
@@ -162,11 +162,11 @@ public class PlaybackService extends Service
 
     private boolean mShowingNotification;
 
-    protected Set<Query> mCorrespondingQueries
+    protected final Set<Query> mCorrespondingQueries
             = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
-    protected ConcurrentHashMap<String, String> mCorrespondingRequestIds
-            = new ConcurrentHashMap<String, String>();
+    protected final ConcurrentHashMap<String, String> mCorrespondingRequestIds
+            = new ConcurrentHashMap<>();
 
     private Playlist mPlaylist;
 
@@ -225,12 +225,12 @@ public class PlaybackService extends Service
 
     AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
 
-    private List<MediaPlayerInterface> mMediaPlayers = new ArrayList<MediaPlayerInterface>();
+    private final List<MediaPlayerInterface> mMediaPlayers = new ArrayList<>();
 
     private SpotifyService.SpotifyServiceConnection mSpotifyServiceConnection
             = new SpotifyService.SpotifyServiceConnection(new SpotifyServiceConnectionListener());
 
-    private Handler mVlcHandler = new Handler(new Handler.Callback() {
+    private final Handler mVlcHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             Bundle data = msg.getData();
@@ -252,7 +252,7 @@ public class PlaybackService extends Service
         }
     });
 
-    private Target mLockscreenTarget = new Target() {
+    private final Target mLockscreenTarget = new Target() {
         @Override
         public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
             updateAlbumArt(bitmap);
@@ -295,13 +295,13 @@ public class PlaybackService extends Service
      */
     public static class PlaybackServiceConnection implements ServiceConnection {
 
-        private PlaybackServiceConnectionListener mPlaybackServiceConnectionListener;
+        private final PlaybackServiceConnectionListener mPlaybackServiceConnectionListener;
 
         public interface PlaybackServiceConnectionListener {
 
-            public void setPlaybackService(PlaybackService ps);
+            void setPlaybackService(PlaybackService ps);
 
-            public void onPlaybackServiceReady();
+            void onPlaybackServiceReady();
         }
 
         public PlaybackServiceConnection(
@@ -516,7 +516,6 @@ public class PlaybackService extends Service
         mShuffledPlaylist.setId(SHUFFLED_PLAYLIST_ID);
         mMergedPlaylist = Playlist.fromEntriesList("", "", new ArrayList<PlaylistEntry>());
         mMergedPlaylist.setId(MERGED_PLAYLIST_ID);
-        restoreState();
         Log.d(TAG, "PlaybackService has been created");
     }
 
@@ -559,7 +558,6 @@ public class PlaybackService extends Service
         EventBus.getDefault().unregister(this);
 
         pause(true);
-        saveState();
         unregisterReceiver(mPlaybackServiceBroadcastReceiver);
         mPlaybackServiceBroadcastReceiver = null;
         unbindService(mSpotifyServiceConnection);
@@ -649,8 +647,8 @@ public class PlaybackService extends Service
     /**
      * Save the current playlist in the Playlists Database
      */
-    private void saveState() {
         /*
+    private void saveState() {
         if (getMergedPlaylist() != null) {
             long startTime = System.currentTimeMillis();
             CollectionManager.getInstance().setCachedPlaylist(Playlist
@@ -658,24 +656,24 @@ public class PlaybackService extends Service
                             DatabaseHelper.CACHED_PLAYLIST_NAME,
                             getMergedPlaylist().getQueries()));
             Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
-        }*/
     }
+        }*/
 
     /**
      * Restore the current playlist from the Playlists Database. Do this by storing it in the {@link
      * org.tomahawk.libtomahawk.collection.UserCollection} first, and then retrieving the playlist
      * from there.
      */
-    private void restoreState() {
         /*
+    private void restoreState() {
         long startTime = System.currentTimeMillis();
         setPlaylist(CollectionManager.getInstance().getCachedPlaylist());
         Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
         if (getMergedPlaylist() != null && isPlaying()) {
             pause(true);
         }
-        */
     }
+        */
 
     /**
      * Start or pause playback (Doesn't dismiss notification on pause)
@@ -857,7 +855,7 @@ public class PlaybackService extends Service
 
     private ArrayList<PlaylistEntry> getShuffledPlaylistEntries() {
         ArrayList<PlaylistEntry> entries = mPlaylist.getEntries();
-        Map<Artist, List<PlaylistEntry>> artistMap = new HashMap<Artist, List<PlaylistEntry>>();
+        Map<Artist, List<PlaylistEntry>> artistMap = new HashMap<>();
         for (PlaylistEntry entry : entries) {
             if (entry != mCurrentEntry) {
                 if (artistMap.get(entry.getArtist()) == null) {
@@ -866,7 +864,7 @@ public class PlaybackService extends Service
                 artistMap.get(entry.getArtist()).add(entry);
             }
         }
-        ArrayList<PlaylistEntry> shuffledEntries = new ArrayList<PlaylistEntry>();
+        ArrayList<PlaylistEntry> shuffledEntries = new ArrayList<>();
         shuffledEntries.add(mCurrentEntry);
         for (int i = entries.size(); i >= 0; i--) {
             int pos = (int) (Math.random() * i);

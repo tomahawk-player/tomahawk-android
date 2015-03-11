@@ -62,7 +62,7 @@ public class BiographyFragment extends TomahawkFragment {
 
         LayoutInflater layoutInflater = getActivity().getLayoutInflater();
 
-        List bioText = new ArrayList<Object>();
+        List bioText = new ArrayList<>();
         if (mArtist != null) {
             if (mArtist.getBio() == null) {
                 InfoSystem.getInstance().resolve(mArtist, false);

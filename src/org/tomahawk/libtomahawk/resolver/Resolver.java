@@ -26,12 +26,12 @@ public abstract class Resolver {
 
     public interface OnResolverReadyListener {
 
-        public void onResolverReady(Resolver resolver);
+        void onResolverReady(Resolver resolver);
     }
 
-    private String mPrettyName;
+    private final String mPrettyName;
 
-    private OnResolverReadyListener mOnResolverReadyListener;
+    private final OnResolverReadyListener mOnResolverReadyListener;
 
     public Resolver(String prettyName, OnResolverReadyListener onResolverReadyListener) {
         mPrettyName = prettyName;

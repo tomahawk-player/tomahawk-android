@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
+import android.support.annotation.NonNull;
+
 public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkRunnable> {
 
     public static final int PRIORITY_IS_PLAYBACK = 1000;
@@ -43,7 +45,7 @@ public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkR
 
     public static final int PRIORITY_IS_REPORTING_WITH_HEADERREQUEST = 0;
 
-    private int mPriority;
+    private final int mPriority;
 
     public TomahawkRunnable(int priority) {
         mPriority = priority;
@@ -54,7 +56,7 @@ public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkR
     }
 
     @Override
-    public int compareTo(TomahawkRunnable other) {
+    public int compareTo(@NonNull TomahawkRunnable other) {
         return other.getPriority() - mPriority;
     }
 }

@@ -3,9 +3,6 @@ package org.tomahawk.libtomahawk.resolver;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-import com.fasterxml.jackson.core.JsonGenerationException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 import org.json.JSONObject;
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
@@ -36,7 +33,7 @@ public class ScriptInterface {
 
     private final static String TAG = ScriptInterface.class.getSimpleName();
 
-    private ScriptResolver mScriptResolver;
+    private final ScriptResolver mScriptResolver;
 
     /**
      * Class to make a callback on the javascript side of this ScriptInterface. The callback is
@@ -45,7 +42,7 @@ public class ScriptInterface {
      */
     public class JsCallback {
 
-        private int mReqId;
+        private final int mReqId;
 
         public JsCallback(int reqId) {
             mReqId = reqId;
@@ -94,10 +91,6 @@ public class ScriptInterface {
         String jsonString = "";
         try {
             jsonString = InfoSystemUtils.getObjectMapper().writeValueAsString(data);
-        } catch (JsonMappingException e) {
-            Log.e(TAG, "resolverDataString: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (JsonGenerationException e) {
-            Log.e(TAG, "resolverDataString: " + e.getClass() + ": " + e.getLocalizedMessage());
         } catch (IOException e) {
             Log.e(TAG, "resolverDataString: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
@@ -174,7 +167,7 @@ public class ScriptInterface {
             @Override
             public void run() {
                 try {
-                    Map<String, String> extraHeaders = new HashMap<String, String>();
+                    Map<String, String> extraHeaders = new HashMap<>();
                     if (!TextUtils.isEmpty(stringifiedExtraHeaders)) {
                         extraHeaders = InfoSystemUtils.getObjectMapper().readValue(
                                 stringifiedExtraHeaders, Map.class);
@@ -200,15 +193,7 @@ public class ScriptInterface {
                     }
                     TomahawkUtils.httpRequest(method, url, extraHeaders, username, password, data,
                             callback);
-                } catch (NoSuchAlgorithmException e) {
-                    Log.e(TAG,
-                            "nativeAsyncRequestString: " + e.getClass() + ": " + e
-                                    .getLocalizedMessage());
-                } catch (KeyManagementException e) {
-                    Log.e(TAG,
-                            "nativeAsyncRequestString: " + e.getClass() + ": " + e
-                                    .getLocalizedMessage());
-                } catch (IOException e) {
+                } catch (NoSuchAlgorithmException | IOException | KeyManagementException e) {
                     Log.e(TAG,
                             "nativeAsyncRequestString: " + e.getClass() + ": " + e
                                     .getLocalizedMessage());

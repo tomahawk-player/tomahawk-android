@@ -29,7 +29,7 @@ import android.support.v8.renderscript.ScriptIntrinsicBlur;
 
 public class BlurTransformation implements Transformation {
 
-    private static RenderScript mRenderScript = RenderScript.create(TomahawkApp.getContext());
+    private static final RenderScript mRenderScript = RenderScript.create(TomahawkApp.getContext());
 
     @Override
     public Bitmap transform(Bitmap source) {

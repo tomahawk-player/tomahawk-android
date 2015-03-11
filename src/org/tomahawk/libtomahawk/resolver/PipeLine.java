@@ -93,16 +93,16 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
         public ScriptResolverUrlResult mResult;
     }
 
-    private ArrayList<Resolver> mResolvers = new ArrayList<Resolver>();
+    private final ArrayList<Resolver> mResolvers = new ArrayList<>();
 
-    private Set<Query> mWaitingQueries =
+    private final Set<Query> mWaitingQueries =
             Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
-    private HashSet<String> mWaitingUrlLookups = new HashSet<>();
+    private final HashSet<String> mWaitingUrlLookups = new HashSet<>();
 
     private boolean mAllResolversAdded;
 
-    private ConcurrentHashMap<String, ResolverUrlHandler> mUrlHandlerMap
+    private final ConcurrentHashMap<String, ResolverUrlHandler> mUrlHandlerMap
             = new ConcurrentHashMap<>();
 
     private PipeLine() {
@@ -150,7 +150,7 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
      * Get the ArrayList of all {@link org.tomahawk.libtomahawk.resolver.ScriptResolver}s
      */
     public ArrayList<ScriptResolver> getScriptResolvers() {
-        ArrayList<ScriptResolver> scriptResolvers = new ArrayList<ScriptResolver>();
+        ArrayList<ScriptResolver> scriptResolvers = new ArrayList<>();
         for (Resolver resolver : mResolvers) {
             if (resolver instanceof ScriptResolver) {
                 scriptResolvers.add((ScriptResolver) resolver);
@@ -283,7 +283,7 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
                 new TomahawkRunnable(priority) {
                     @Override
                     public void run() {
-                        ArrayList<Result> cleanTrackResults = new ArrayList<Result>();
+                        ArrayList<Result> cleanTrackResults = new ArrayList<>();
                         /*ArrayList<Result> cleanAlbumResults = new ArrayList<Result>();
                         ArrayList<Result> cleanArtistResults = new ArrayList<Result>();*/
                         if (query != null) {

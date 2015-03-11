@@ -19,13 +19,12 @@ package org.tomahawk.tomahawk_android.utils;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
 
 import java.lang.ref.WeakReference;
 
 public class WeakReferenceHandler<T> extends Handler {
 
-    private WeakReference<T> mReference;
+    private final WeakReference<T> mReference;
 
     public WeakReferenceHandler(T referencedObject) {
         mReference = new WeakReference<>(referencedObject);
@@ -34,11 +33,6 @@ public class WeakReferenceHandler<T> extends Handler {
     public WeakReferenceHandler(Looper looper, T referencedObject) {
         super(looper);
         mReference = new WeakReference<>(referencedObject);
-    }
-
-    @Override
-    public void handleMessage(Message msg) {
-        super.handleMessage(msg);
     }
 
     protected T getReferencedObject() {

@@ -132,15 +132,15 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected boolean mIsResumed;
 
-    protected Set<String> mCorrespondingRequestIds =
+    protected final Set<String> mCorrespondingRequestIds =
             Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-    protected HashSet<TomahawkListItem> mResolvingItems = new HashSet<TomahawkListItem>();
+    protected final HashSet<TomahawkListItem> mResolvingItems = new HashSet<>();
 
-    protected Set<Query> mCorrespondingQueries
+    protected final Set<Query> mCorrespondingQueries
             = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
-    protected ArrayList<Query> mShownQueries = new ArrayList<Query>();
+    protected ArrayList<Query> mShownQueries = new ArrayList<>();
 
     protected ArrayList<Query> mQueryArray;
 
@@ -150,7 +150,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected ArrayList<User> mUserArray;
 
-    protected ArrayList<PlaylistEntry> mShownPlaylistEntries = new ArrayList<PlaylistEntry>();
+    protected final ArrayList<PlaylistEntry> mShownPlaylistEntries = new ArrayList<>();
 
     protected Album mAlbum;
 
@@ -342,13 +342,13 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 }
             }
             if (getArguments().containsKey(USERARRAY)) {
-                mUserArray = new ArrayList<User>();
+                mUserArray = new ArrayList<>();
                 for (String userId : getArguments().getStringArrayList(USERARRAY)) {
                     mUserArray.add(User.getUserById(userId));
                 }
             }
             if (getArguments().containsKey(ARTISTARRAY)) {
-                mArtistArray = new ArrayList<Artist>();
+                mArtistArray = new ArrayList<>();
                 for (String userId : getArguments().getStringArrayList(ARTISTARRAY)) {
                     Artist artist = Artist.getArtistByKey(userId);
                     if (artist != null) {
@@ -357,7 +357,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 }
             }
             if (getArguments().containsKey(ALBUMARRAY)) {
-                mAlbumArray = new ArrayList<Album>();
+                mAlbumArray = new ArrayList<>();
                 for (String userId : getArguments().getStringArrayList(ALBUMARRAY)) {
                     Album album = Album.getAlbumByKey(userId);
                     if (album != null) {
@@ -366,7 +366,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 }
             }
             if (getArguments().containsKey(QUERYARRAY)) {
-                mQueryArray = new ArrayList<Query>();
+                mQueryArray = new ArrayList<>();
                 for (String userId : getArguments().getStringArrayList(QUERYARRAY)) {
                     Query query = Query.getQueryByKey(userId);
                     if (query != null) {
@@ -495,11 +495,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
             getListAdapter().notifyDataSetChanged();
         }
-    }
-
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        super.onScrollStateChanged(view, scrollState);
     }
 
     @Override

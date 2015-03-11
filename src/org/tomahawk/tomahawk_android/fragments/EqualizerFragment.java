@@ -114,7 +114,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
 
     private class BandListener implements EqualizerBar.OnEqualizerBarChangeListener {
 
-        private int index;
+        private final int index;
 
         public BandListener(int index) {
             this.index = index;
@@ -203,7 +203,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
         });
 
         // presets
-        mEqualizerPresets.setAdapter(new ArrayAdapter<String>(getActivity(),
+        mEqualizerPresets.setAdapter(new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_spinner_dropdown_item, presets));
 
         // Set the default selection asynchronously to prevent a layout initialization bug.

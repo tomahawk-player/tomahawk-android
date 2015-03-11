@@ -35,14 +35,14 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Result {
 
-    public static int RESULT_TYPE_TRACK = 0;
+    public static final int RESULT_TYPE_TRACK = 0;
 
     public static int RESULT_TYPE_ALBUM = 1;
 
     public static int RESULT_TYPE_ARTIST = 2;
 
-    private static ConcurrentHashMap<String, Result> sResults
-            = new ConcurrentHashMap<String, Result>();
+    private static final ConcurrentHashMap<String, Result> sResults
+            = new ConcurrentHashMap<>();
 
     private MediaPlayerInterface mMediaPlayerInterface;
 

@@ -41,21 +41,21 @@ public class Query implements TomahawkListItem {
 
     public static final String TAG = Query.class.getSimpleName();
 
-    private static ConcurrentHashMap<String, Query> sQueries
-            = new ConcurrentHashMap<String, Query>();
+    private static final ConcurrentHashMap<String, Query> sQueries
+            = new ConcurrentHashMap<>();
 
-    private static HashSet<String> sBlacklistedResults = new HashSet<String>();
+    private static final HashSet<String> sBlacklistedResults = new HashSet<>();
 
     private String mCacheKey;
 
-    private ConcurrentHashMap<String, Result> mTrackResults
-            = new ConcurrentHashMap<String, Result>();
+    private final ConcurrentHashMap<String, Result> mTrackResults
+            = new ConcurrentHashMap<>();
 
-    private ConcurrentHashMap<String, Result> mAlbumResults
-            = new ConcurrentHashMap<String, Result>();
+    private final ConcurrentHashMap<String, Result> mAlbumResults
+            = new ConcurrentHashMap<>();
 
-    private ConcurrentHashMap<String, Result> mArtistResults
-            = new ConcurrentHashMap<String, Result>();
+    private final ConcurrentHashMap<String, Result> mArtistResults
+            = new ConcurrentHashMap<>();
 
     private Track mBasicTrack;
 
@@ -69,9 +69,9 @@ public class Query implements TomahawkListItem {
 
     private String mFullTextQuery;
 
-    private boolean mIsFullTextQuery;
+    private final boolean mIsFullTextQuery;
 
-    private boolean mIsOnlyLocal;
+    private final boolean mIsOnlyLocal;
 
     private boolean mIsFetchedViaHatchet;
 
@@ -226,7 +226,7 @@ public class Query implements TomahawkListItem {
      * Given as Results.
      */
     public ArrayList<Result> getTrackResults() {
-        ArrayList<Result> results = new ArrayList<Result>(mTrackResults.values());
+        ArrayList<Result> results = new ArrayList<>(mTrackResults.values());
         Collections.sort(results, new ResultComparator(ResultComparator.COMPARE_TRACK_SCORE));
         return results;
     }
@@ -236,7 +236,7 @@ public class Query implements TomahawkListItem {
      * Given as queries.
      */
     public ArrayList<Query> getTrackQueries() {
-        HashMap<String, Query> queryMap = new HashMap<String, Query>();
+        HashMap<String, Query> queryMap = new HashMap<>();
         for (Result result : getTrackResults()) {
             if (!isOnlyLocal() || result.isLocal()) {
                 Query query = Query.get(result, isOnlyLocal());
@@ -244,7 +244,7 @@ public class Query implements TomahawkListItem {
                 queryMap.put(query.getCacheKey(), query);
             }
         }
-        ArrayList<Query> queries = new ArrayList<Query>(queryMap.values());
+        ArrayList<Query> queries = new ArrayList<>(queryMap.values());
         Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_TRACK_SCORE));
         return queries;
     }
@@ -309,7 +309,7 @@ public class Query implements TomahawkListItem {
      * Given as Results.
      */
     public ArrayList<Result> getAlbumResults() {
-        ArrayList<Result> results = new ArrayList<Result>(mAlbumResults.values());
+        ArrayList<Result> results = new ArrayList<>(mAlbumResults.values());
         Collections.sort(results, new ResultComparator(ResultComparator.COMPARE_ALBUM_SCORE));
         return results;
     }
@@ -319,7 +319,7 @@ public class Query implements TomahawkListItem {
      */
     public ArrayList<Album> getAlbums() {
         ArrayList<Result> results = getAlbumResults();
-        ArrayList<Album> albums = new ArrayList<Album>();
+        ArrayList<Album> albums = new ArrayList<>();
         for (Result result : results) {
             albums.add(result.getAlbum());
         }
@@ -344,7 +344,7 @@ public class Query implements TomahawkListItem {
      * Given as Results.
      */
     public ArrayList<Result> getArtistResults() {
-        ArrayList<Result> results = new ArrayList<Result>(mArtistResults.values());
+        ArrayList<Result> results = new ArrayList<>(mArtistResults.values());
         Collections.sort(results, new ResultComparator(ResultComparator.COMPARE_ARTIST_SCORE));
         return results;
     }
@@ -354,7 +354,7 @@ public class Query implements TomahawkListItem {
      */
     public ArrayList<Artist> getArtists() {
         ArrayList<Result> results = getArtistResults();
-        ArrayList<Artist> artists = new ArrayList<Artist>();
+        ArrayList<Artist> artists = new ArrayList<>();
         for (Result result : results) {
             artists.add(result.getArtist());
         }
@@ -459,7 +459,7 @@ public class Query implements TomahawkListItem {
 
         if (isFullTextQuery()) {
             final String searchString = cleanUpString(getFullTextQuery(), false);
-            ArrayList<String> resultSearchStrings = new ArrayList<String>();
+            ArrayList<String> resultSearchStrings = new ArrayList<>();
             switch (searchType) {
                 case PipeLine.PIPELINE_SEARCHTYPE_TRACKS:
                     resultSearchStrings
@@ -543,7 +543,7 @@ public class Query implements TomahawkListItem {
 
     @Override
     public ArrayList<Query> getQueries() {
-        ArrayList<Query> queries = new ArrayList<Query>();
+        ArrayList<Query> queries = new ArrayList<>();
         queries.add(this);
         return queries;
     }

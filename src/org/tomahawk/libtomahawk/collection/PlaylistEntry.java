@@ -30,16 +30,16 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class PlaylistEntry implements TomahawkListItem {
 
-    private static ConcurrentHashMap<String, PlaylistEntry> sPlaylistEntries
-            = new ConcurrentHashMap<String, PlaylistEntry>();
+    private static final ConcurrentHashMap<String, PlaylistEntry> sPlaylistEntries
+            = new ConcurrentHashMap<>();
 
-    private String mCacheKey;
+    private final String mCacheKey;
 
-    private String mId;
+    private final String mId;
 
-    private Query mQuery;
+    private final Query mQuery;
 
-    private String mPlaylistId;
+    private final String mPlaylistId;
 
     /**
      * Construct a new {@link org.tomahawk.libtomahawk.collection.PlaylistEntry}

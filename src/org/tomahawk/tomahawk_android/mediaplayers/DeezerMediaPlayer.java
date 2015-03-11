@@ -42,7 +42,7 @@ public class DeezerMediaPlayer
         implements MediaPlayerInterface, MediaPlayer.OnPreparedListener,
         MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
-    private static String TAG = DeezerMediaPlayer.class.getSimpleName();
+    private static final String TAG = DeezerMediaPlayer.class.getSimpleName();
 
     private static class Holder {
 
@@ -62,7 +62,7 @@ public class DeezerMediaPlayer
 
     private TrackPlayer mPlayer;
 
-    private PlayerHandler mPlayerHandler = new PlayerHandler();
+    private final PlayerHandler mPlayerHandler = new PlayerHandler();
 
     private class PlayerHandler implements OnPlayerStateChangeListener, OnPlayerErrorListener,
             OnBufferErrorListener {
@@ -194,9 +194,7 @@ public class DeezerMediaPlayer
                 mPlayer.addOnPlayerErrorListener(mPlayerHandler);
                 mPlayer.addOnPlayerStateChangeListener(mPlayerHandler);
             }
-        } catch (TooManyPlayersExceptions e) {
-            Log.e(TAG, "<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (DeezerError e) {
+        } catch (TooManyPlayersExceptions | DeezerError e) {
             Log.e(TAG, "<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         String strippedPath = query.getPreferredTrackResult().getPath()

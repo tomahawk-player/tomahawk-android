@@ -22,6 +22,7 @@ package org.tomahawk.tomahawk_android.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.SeekBar;
@@ -29,7 +30,7 @@ import android.widget.SeekBar;
 public class VerticalSeekBar extends SeekBar {
 
     private boolean mIsMovingThumb = false;
-    static private float THUMB_SLOP = 25;
+    private static final float THUMB_SLOP = 25;
 
     public VerticalSeekBar(Context context) {
         super(context);
@@ -55,7 +56,7 @@ public class VerticalSeekBar extends SeekBar {
     }
 
     @Override
-    protected void onDraw(Canvas c) {
+    protected void onDraw(@NonNull Canvas c) {
         c.rotate(-90);
         c.translate(-getHeight(), 0);
 
@@ -74,15 +75,12 @@ public class VerticalSeekBar extends SeekBar {
         final float height = getHeight();
         final float y = event.getY();
         final float max = getMax();
-        if (progress >= max - (int)(max * (y + THUMB_SLOP * density) / height)
-            && progress <= max - (int)(max * (y - THUMB_SLOP * density) / height))
-            return true;
-        else
-            return false;
+        return progress >= max - (int) (max * (y + THUMB_SLOP * density) / height)
+                && progress <= max - (int) (max * (y - THUMB_SLOP * density) / height);
     }
 
     @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
         if (!isEnabled()) {
             return false;
         }

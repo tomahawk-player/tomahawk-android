@@ -38,14 +38,14 @@ public class Image {
 
     private static int sScreenWidthPixels = 0;
 
-    private static ConcurrentHashMap<String, Image> sImages
-            = new ConcurrentHashMap<String, Image>();
+    private static final ConcurrentHashMap<String, Image> sImages
+            = new ConcurrentHashMap<>();
 
     private String mCacheKey;
 
-    private String mImagePath;
+    private final String mImagePath;
 
-    private boolean mIsHatchetImage;
+    private final boolean mIsHatchetImage;
 
     private int mWidth = -1;
 

@@ -55,7 +55,7 @@ public class PlaylistsFragment extends TomahawkFragment {
 
     public static final int CREATE_PLAYLIST_BUTTON_ID = 8008135;
 
-    private HashSet<User> mResolvingUsers = new HashSet<>();
+    private final HashSet<User> mResolvingUsers = new HashSet<>();
 
     private Set<Playlist> mPlaylists = new HashSet<>();
 

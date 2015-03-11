@@ -57,7 +57,6 @@ import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -66,8 +65,6 @@ import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -79,11 +76,11 @@ import javax.net.ssl.SSLContext;
 
 public class TomahawkUtils {
 
-    public static String TAG = TomahawkUtils.class.getSimpleName();
+    public static final String TAG = TomahawkUtils.class.getSimpleName();
 
-    public static String HTTP_METHOD_POST = "POST";
+    public static final String HTTP_METHOD_POST = "POST";
 
-    public static String HTTP_METHOD_GET = "GET";
+    public static final String HTTP_METHOD_GET = "GET";
 
     public static String HTTP_CONTENT_TYPE_JSON = "application/json; charset=utf-8";
 
@@ -92,7 +89,7 @@ public class TomahawkUtils {
     public static class HttpResponse {
 
         public HttpResponse() {
-            mResponseHeaders = new HashMap<String, List<String>>();
+            mResponseHeaders = new HashMap<>();
         }
 
         public String mResponseText;
@@ -106,7 +103,7 @@ public class TomahawkUtils {
 
     public abstract static class ViewRunnable implements Runnable {
 
-        private View mView;
+        private final View mView;
 
         public ViewRunnable(View view) {
             this.mView = view;
@@ -454,7 +451,7 @@ public class TomahawkUtils {
             String data, String contentType)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         if (extraHeaders == null) {
-            extraHeaders = new HashMap<String, String>();
+            extraHeaders = new HashMap<>();
         }
         extraHeaders.put("Accept", "application/json; charset=utf-8");
         extraHeaders.put("Content-type", contentType);
@@ -471,7 +468,7 @@ public class TomahawkUtils {
     public static HttpResponse httpGet(String urlString, Map<String, String> extraHeaders)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         if (extraHeaders == null) {
-            extraHeaders = new HashMap<String, String>();
+            extraHeaders = new HashMap<>();
         }
         extraHeaders.put("Accept", "application/json; charset=utf-8");
         return httpRequest(HTTP_METHOD_GET, urlString, extraHeaders, null, null, null);
@@ -515,10 +512,6 @@ public class TomahawkUtils {
             int responseCode = connection.getResponseCode();
             connection.disconnect();
             return responseCode == HttpURLConnection.HTTP_OK;
-        } catch (MalformedURLException e) {
-            Log.e(TAG, "httpHeaderRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } catch (ProtocolException e) {
-            Log.e(TAG, "httpHeaderRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
         } catch (IOException e) {
             Log.e(TAG, "httpHeaderRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
         } finally {
@@ -867,12 +860,6 @@ public class TomahawkUtils {
         return ret && path.delete();
     }
 
-    public static <T> ArrayList<T> constructArrayList(T... elements) {
-        ArrayList<T> list = new ArrayList<T>();
-        list.addAll(Arrays.asList(elements));
-        return list;
-    }
-
     public static <T> T carelessGetFirst(Collection<T> list) {
         return list != null && list.iterator().hasNext() ? list.iterator().next() : null;
     }
@@ -908,6 +895,7 @@ public class TomahawkUtils {
                                 viewRunnable.getLayedOutView().getViewTreeObserver()
                                         .removeOnGlobalLayoutListener(this);
                             } else {
+                                //noinspection deprecation
                                 viewRunnable.getLayedOutView().getViewTreeObserver()
                                         .removeGlobalOnLayoutListener(this);
                             }

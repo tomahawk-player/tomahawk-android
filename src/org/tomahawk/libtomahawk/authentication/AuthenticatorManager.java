@@ -59,8 +59,8 @@ public class AuthenticatorManager {
         public String mMessage;
     }
 
-    private HashMap<String, AuthenticatorUtils> mAuthenticatorUtils
-            = new HashMap<String, AuthenticatorUtils>();
+    private final HashMap<String, AuthenticatorUtils> mAuthenticatorUtils
+            = new HashMap<>();
 
     private AuthenticatorManager() {
         HatchetAuthenticatorUtils hatchetAuthenticatorUtils = new HatchetAuthenticatorUtils();

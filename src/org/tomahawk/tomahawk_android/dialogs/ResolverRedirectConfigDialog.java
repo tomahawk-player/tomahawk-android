@@ -43,7 +43,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
 
     private class RedirectButtonListener implements View.OnClickListener {
 
-        String mPluginName;
+        private final String mPluginName;
 
         public RedirectButtonListener(String pluginName) {
             mPluginName = pluginName;

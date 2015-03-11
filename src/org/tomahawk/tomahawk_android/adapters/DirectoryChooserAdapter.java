@@ -39,13 +39,13 @@ import java.util.List;
  */
 public class DirectoryChooserAdapter extends StickyBaseAdapter {
 
-    private LayoutInflater mLayoutInflater;
+    private final LayoutInflater mLayoutInflater;
 
     private boolean mIsFirstRoot;
 
     private List<CustomDirectory> mFolders;
 
-    private DirectoryChooser.DirectoryChooserListener mDirectoryChooserListener;
+    private final DirectoryChooser.DirectoryChooserListener mDirectoryChooserListener;
 
     public static class CustomDirectory {
 
