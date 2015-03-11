@@ -17,27 +17,20 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
+import org.acra.ACRA;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
-import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
-import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import java.util.regex.Pattern;
 
 /**
  * A {@link ConfigDialog} which shows a textfield to enter the reason why the user wants to send us
@@ -47,13 +40,27 @@ public class SendLogConfigDialog extends ConfigDialog {
 
     public final static String TAG = SendLogConfigDialog.class.getSimpleName();
 
+    public static String mLastEmail;
+
+    public static String mLastUsermessage;
+
     private EditText mEmailEditText;
 
     private EditText mUserMessageEditText;
 
-    private String mLogData;
+    public static class SendLogException extends Throwable {
 
-    private boolean mSendingLog;
+        @Override
+        public String toString() {
+            return getDefaultString();
+        }
+
+        public static String getDefaultString() {
+            return SendLogException.class.getSimpleName()
+                    + ": User manually requested to send a log";
+        }
+
+    }
 
     /**
      * Called when this {@link android.support.v4.app.DialogFragment} is being created
@@ -61,10 +68,6 @@ public class SendLogConfigDialog extends ConfigDialog {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        if (getArguments() != null && getArguments().containsKey(TomahawkFragment.LOG_DATA)) {
-            mLogData = getArguments().getString(TomahawkFragment.LOG_DATA);
-        }
-
         TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
         headerTextView.setText(R.string.preferences_app_sendlog_dialog_text);
         mEmailEditText = (ConfigEdittext) addScrollingViewToFrame(R.layout.config_edittext);
@@ -120,30 +123,14 @@ public class SendLogConfigDialog extends ConfigDialog {
             // There was an error; don't attempt to send the log and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else if (!mSendingLog) {
-            mSendingLog = true;
-            startLoadingAnimation();
-            ThreadManager.getInstance()
-                    .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
-                        @Override
-                        public void run() {
-                            mLogData = Pattern
-                                    .compile("User Email:.*\\r\\nUser Comment:.*\\r\\n")
-                                    .matcher(mLogData).replaceFirst("User Email: " + email
-                                            + "\r\nUser Comment: " + userMessage + "\r\n");
-                            TomahawkExceptionReporter.sendCrashReport(mLogData);
-                            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    dismiss();
-                                    Toast.makeText(TomahawkApp.getContext(),
-                                            R.string.crash_dialog_ok_toast, Toast.LENGTH_LONG)
-                                            .show();
-                                }
-                            });
-                            mSendingLog = false;
-                        }
-                    });
+        } else {
+            mLastEmail = email;
+            mLastUsermessage = userMessage;
+
+            ACRA.getErrorReporter().handleSilentException(new SendLogException());
+            Toast.makeText(TomahawkApp.getContext(), R.string.crash_dialog_ok_toast,
+                    Toast.LENGTH_LONG).show();
+            dismiss();
         }
     }
 

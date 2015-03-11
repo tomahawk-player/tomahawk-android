@@ -21,11 +21,11 @@ package org.tomahawk.tomahawk_android;
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
+import org.acra.sender.HttpSender;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.utils.TomahawkExceptionReporter;
+import org.tomahawk.tomahawk_android.utils.TomahawkHttpSender;
 
 import android.content.Context;
-import android.os.Debug;
 import android.os.StrictMode;
 import android.support.multidex.MultiDexApplication;
 import android.util.Log;
@@ -33,7 +33,14 @@ import android.util.Log;
 /**
  * This class represents the Application core.
  */
-@ReportsCrashes(formKey = "",
+@ReportsCrashes(
+        formKey = "",
+        httpMethod = HttpSender.Method.PUT,
+        reportType = HttpSender.Type.JSON,
+        formUri = "http://crash-stats.tomahawk-player.org:5984/acra-tomahawkandroid/_design/acra-storage/_update/report",
+        formUriBasicAuthLogin = "reporter",
+        formUriBasicAuthPassword = "unknackbar",
+        excludeMatchingSharedPreferencesKeys={".*_config$"},
         mode = ReportingInteractionMode.DIALOG,
         logcatArguments = {"-t", "2000", "-v", "time"},
         resDialogText = R.string.crash_dialog_text,
@@ -67,10 +74,11 @@ public class TomahawkApp extends MultiDexApplication {
 
     @Override
     public void onCreate() {
-        if (!Debug.isDebuggerConnected()) {
-            ACRA.init(this);
-            ACRA.getErrorReporter().setReportSender(new TomahawkExceptionReporter());
-        }
+        ACRA.init(this);
+        ACRA.getErrorReporter().setReportSender(
+                new TomahawkHttpSender(ACRA.getConfig().httpMethod(), ACRA.getConfig().reportType(),
+                        null));
+
         StrictMode.setThreadPolicy(
                 new StrictMode.ThreadPolicy.Builder().detectCustomSlowCalls().detectDiskReads()
                         .detectDiskWrites().detectNetwork().penaltyLog().build());
