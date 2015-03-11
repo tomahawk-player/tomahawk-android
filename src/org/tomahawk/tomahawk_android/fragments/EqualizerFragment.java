@@ -26,9 +26,7 @@ import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.views.EqualizerBar;
 import org.videolan.libvlc.LibVLC;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.widget.SwitchCompat;
@@ -136,11 +134,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
             Bundle savedInstanceState) {
         getActivity().setTitle(getResources().getString(R.string.preferences_equalizer));
 
-        super.onCreateView(inflater, container, savedInstanceState);
-        View v = inflater.inflate(R.layout.equalizerfragment_layout, container, false);
-        saveViewChildren(v);
-
-        return v;
+        return inflater.inflate(R.layout.equalizerfragment_layout, container, false);
     }
 
     /**
@@ -151,29 +145,11 @@ public class EqualizerFragment extends ContentHeaderFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mEnableButton = (SwitchCompat) view.findViewById(R.id.equalizer_button);
+        mEqualizerPresets = (Spinner) view.findViewById(R.id.equalizer_presets);
+        mPreAmpSeekBar = (SeekBar) view.findViewById(R.id.equalizer_preamp);
+        mBandsContainers = (LinearLayout) view.findViewById(R.id.equalizer_bands);
         setupNonScrollableSpacer(getView());
-    }
-
-    private void saveViewChildren(View v) {
-        mEnableButton = (SwitchCompat) v.findViewById(R.id.equalizer_button);
-        mEqualizerPresets = (Spinner) v.findViewById(R.id.equalizer_presets);
-        mPreAmpSeekBar = (SeekBar) v.findViewById(R.id.equalizer_preamp);
-        mBandsContainers = (LinearLayout) v.findViewById(R.id.equalizer_bands);
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        LayoutInflater inflater = (LayoutInflater) getActivity()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View v = inflater.inflate(R.layout.equalizerfragment_layout, null);
-        ViewGroup rootView = (ViewGroup) getView();
-        rootView.removeAllViews();
-        rootView.addView(v);
-        saveViewChildren(v);
-
-        fillViews();
     }
 
     @Override

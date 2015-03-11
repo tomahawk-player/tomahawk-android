@@ -23,7 +23,7 @@ import android.os.Message;
 
 import java.lang.ref.WeakReference;
 
-public abstract class WeakReferenceHandler<T> extends Handler {
+public class WeakReferenceHandler<T> extends Handler {
 
     private WeakReference<T> mReference;
 
@@ -37,7 +37,9 @@ public abstract class WeakReferenceHandler<T> extends Handler {
     }
 
     @Override
-    public abstract void handleMessage(Message msg);
+    public void handleMessage(Message msg) {
+        super.handleMessage(msg);
+    }
 
     protected T getReferencedObject() {
         return mReference.get();

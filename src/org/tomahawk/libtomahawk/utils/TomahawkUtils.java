@@ -28,6 +28,7 @@ import org.tomahawk.tomahawk_android.utils.CircularImageTransformation;
 import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.annotation.SuppressLint;
 import android.app.Notification;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -215,6 +216,7 @@ public class TomahawkUtils {
     /**
      * Parse a given String into a Date.
      */
+    @SuppressLint("SimpleDateFormat")
     public static Date stringToDate(String rawDate) {
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
         Date date = null;
