@@ -111,9 +111,7 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
         ResourceHolder holder = (ResourceHolder) item;
         if (((ResourceHolder) item).user != null) {
             View contentHeaderView = mLayoutInflater.inflate(
-                    R.layout.content_header_user_navdrawer, null);
-            ViewHolder viewHolder = new ViewHolder(contentHeaderView,
-                    R.layout.content_header_user_navdrawer);
+                    R.layout.content_header_user_navdrawer, parent, false);
             TextView textView = (TextView) contentHeaderView.findViewById(R.id.textview1);
             textView.setText(holder.title.toUpperCase());
             TextView userTextView = (TextView) contentHeaderView.findViewById(R.id.usertextview1);

@@ -17,13 +17,14 @@
  */
 package org.tomahawk.tomahawk_android.mediaplayers;
 
+import org.tomahawk.libtomahawk.authentication.SpotifyServiceUtils;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.authentication.SpotifyServiceUtils;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.SpotifyService;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
+import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.app.Application;
 import android.content.Context;
@@ -32,7 +33,6 @@ import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Handler;
 import android.os.Message;
 import android.os.Messenger;
 import android.preference.PreferenceManager;
@@ -78,7 +78,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
 
     private Messenger mToSpotifyMessenger = null;
 
-    private Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler());
+    private Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler(this));
 
     private SpotifyMediaPlayer() {
     }
@@ -90,24 +90,46 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
     /**
      * Handler of incoming messages from the SpotifyService's messenger.
      */
-    private class FromSpotifyHandler extends Handler {
+    private static class FromSpotifyHandler extends WeakReferenceHandler<SpotifyMediaPlayer> {
+
+        public FromSpotifyHandler(SpotifyMediaPlayer referencedObject) {
+            super(referencedObject);
+        }
 
         @Override
         public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case SpotifyService.MSG_ONPREPARED:
-                    onPrepared(null);
-                    break;
-                case SpotifyService.MSG_ONPLAYERENDOFTRACK:
-                    onCompletion(null);
-                    break;
-                case SpotifyService.MSG_ONPLAYERPOSITIONCHANGED:
-                    if (!mOverrideCurrentPosition) {
-                        mSpotifyCurrentPosition = msg.arg1;
-                    }
-                    break;
-                default:
-                    super.handleMessage(msg);
+            if (getReferencedObject() != null) {
+                switch (msg.what) {
+                    case SpotifyService.MSG_ONPREPARED:
+                        getReferencedObject().onPrepared(null);
+                        break;
+                    case SpotifyService.MSG_ONPLAYERENDOFTRACK:
+                        getReferencedObject().onCompletion(null);
+                        break;
+                    case SpotifyService.MSG_ONPLAYERPOSITIONCHANGED:
+                        if (!getReferencedObject().mOverrideCurrentPosition) {
+                            getReferencedObject().mSpotifyCurrentPosition = msg.arg1;
+                        }
+                        break;
+                    default:
+                        super.handleMessage(msg);
+                }
+            }
+        }
+    }
+
+    private ResetOverrideHandler mResetOverrideHandler = new ResetOverrideHandler(this);
+
+    private static class ResetOverrideHandler extends WeakReferenceHandler<SpotifyMediaPlayer> {
+
+        public ResetOverrideHandler(SpotifyMediaPlayer referencedObject) {
+            super(referencedObject);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (getReferencedObject() != null) {
+                getReferencedObject().mOverrideCurrentPosition = false;
             }
         }
     }
@@ -165,12 +187,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
             mSpotifyCurrentPosition = msec;
             mOverrideCurrentPosition = true;
             // After 1 second, we set mOverrideCurrentPosition to false again
-            new Handler() {
-                @Override
-                public void handleMessage(Message msg) {
-                    mOverrideCurrentPosition = false;
-                }
-            }.sendEmptyMessageDelayed(1337, 1000);
+            mResetOverrideHandler.sendEmptyMessageDelayed(1337, 1000);
         } else {
             TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
