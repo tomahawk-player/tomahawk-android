@@ -33,8 +33,6 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.TransitionDrawable;
-import android.os.Handler;
-import android.os.Message;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -94,20 +92,6 @@ public class PlaybackPanel extends FrameLayout {
     private int mLastPlayTime = 0;
 
     private boolean mInitialized = false;
-
-    private static final int MSG_UPDATE_PROGRESS = 0x1;
-
-    private final Handler mProgressHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            switch (msg.what) {
-                case MSG_UPDATE_PROGRESS:
-                    updateSeekBarPosition();
-                    break;
-            }
-            return true;
-        }
-    });
 
     public PlaybackPanel(Context context) {
         super(context);
@@ -249,7 +233,7 @@ public class PlaybackPanel extends FrameLayout {
     public void update(PlaybackService playbackService) {
         if (mInitialized) {
             mPlaybackService = playbackService;
-            updateSeekBarPosition();
+            onPlayPositionChanged(0, 0);
             updateTextViewCompleteTime();
             updateText();
             updateResolverIconImageView();
@@ -281,26 +265,16 @@ public class PlaybackPanel extends FrameLayout {
     /**
      * Updates the position on seekbar and the related textviews
      */
-    public void updateSeekBarPosition() {
-        if (mPlaybackService != null && mPlaybackService.getCurrentTrack() != null
-                && mPlaybackService.getCurrentTrack().getDuration() != 0) {
-            mProgressHandler.removeMessages(MSG_UPDATE_PROGRESS);
-            mProgressHandler.sendEmptyMessageDelayed(MSG_UPDATE_PROGRESS, 500);
-            mCircularProgressBar.setProgress((float) mPlaybackService.getPosition()
-                    / mPlaybackService.getCurrentTrack().getDuration());
-            mProgressBar.setProgress((int) ((float) mPlaybackService.getPosition()
-                    / mPlaybackService.getCurrentTrack().getDuration() * 10000));
-            mCurrentTimeTextView
-                    .setText(TomahawkUtils.durationToString(mPlaybackService.getPosition()));
+    public void onPlayPositionChanged(long duration, int currentPosition) {
+        if (duration != 0) {
+            mCircularProgressBar.setProgress((float) currentPosition / duration);
+            mProgressBar.setProgress((int) ((float) currentPosition / duration * 10000));
+            mCurrentTimeTextView.setText(TomahawkUtils.durationToString(currentPosition));
         } else {
             mProgressBar.setProgress(0);
             mCircularProgressBar.setProgress(0);
             mCurrentTimeTextView.setText(TomahawkUtils.durationToString(0));
         }
-    }
-
-    public void stopUpdates() {
-        mProgressHandler.removeMessages(MSG_UPDATE_PROGRESS);
     }
 
     private void updateResolverIconImageView() {

@@ -70,6 +70,7 @@ import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.SearchViewStyle;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.accounts.AccountManager;
@@ -91,6 +92,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.MenuItemCompat;
@@ -155,7 +157,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     protected final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
-    private final PlaybackServiceConnection mPlaybackServiceConnection = new PlaybackServiceConnection(
+    private final PlaybackServiceConnection mPlaybackServiceConnection
+            = new PlaybackServiceConnection(
             this);
 
     private PlaybackService mPlaybackService;
@@ -210,6 +213,33 @@ public class TomahawkMainActivity extends ActionBarActivity
     public static class ShowWebViewEvent {
 
         public String mUrl;
+    }
+
+    private ProgressHandler mProgressHandler;
+
+    private static class ProgressHandler extends WeakReferenceHandler<TomahawkMainActivity> {
+
+        public ProgressHandler(TomahawkMainActivity referencedObject) {
+            super(referencedObject);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            TomahawkMainActivity activity = getReferencedObject();
+            if (activity != null && activity.mPlaybackService != null
+                    && activity.mPlaybackService.getCurrentTrack() != null) {
+                PlaybackService.PlayPositionChangedEvent event
+                        = new PlaybackService.PlayPositionChangedEvent();
+                event.currentPosition = activity.mPlaybackService.getPosition();
+                event.duration = activity.mPlaybackService.getCurrentTrack().getDuration();
+                if (activity.mPlaybackPanel != null) {
+                    activity.mPlaybackPanel.onPlayPositionChanged(event.duration,
+                            event.currentPosition);
+                }
+                EventBus.getDefault().post(event);
+                sendEmptyMessageDelayed(0, 500);
+            }
+        }
     }
 
     /**
@@ -384,11 +414,16 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @SuppressWarnings("unused")
     public void onEventMainThread(PlaybackService.PlayStateChangedEvent event) {
-        if (mPlaybackService != null && mPlaybackService.isPlaying()) {
-            mPlaybackPanel.updateSeekBarPosition();
+        if (mPlaybackService != null && mPlaybackService.getCurrentTrack() != null
+                && mPlaybackService.isPlaying()) {
+            if (mProgressHandler != null) {
+                mProgressHandler.sendEmptyMessage(0);
+            }
             mPlaybackPanel.updatePlayPauseState(true);
         } else {
-            mPlaybackPanel.stopUpdates();
+            if (mProgressHandler != null) {
+                mProgressHandler.removeCallbacksAndMessages(null);
+            }
             mPlaybackPanel.updatePlayPauseState(false);
         }
     }
@@ -612,6 +647,14 @@ public class TomahawkMainActivity extends ActionBarActivity
             mShouldShowAnimationHandler.post(mShouldShowAnimationRunnable);
         }
 
+        if (mProgressHandler == null) {
+            mProgressHandler = new ProgressHandler(this);
+            if (mPlaybackService != null && mPlaybackService.getCurrentTrack() != null
+                    && mPlaybackService.isPlaying()) {
+                mProgressHandler.sendEmptyMessage(0);
+            }
+        }
+
         if (mTomahawkMainReceiver == null) {
             mTomahawkMainReceiver = new TomahawkMainReceiver();
         }
@@ -698,6 +741,11 @@ public class TomahawkMainActivity extends ActionBarActivity
         if (mTomahawkMainReceiver != null) {
             unregisterReceiver(mTomahawkMainReceiver);
             mTomahawkMainReceiver = null;
+        }
+
+        if (mProgressHandler != null) {
+            mProgressHandler.removeCallbacksAndMessages(null);
+            mProgressHandler = null;
         }
     }
 

@@ -265,6 +265,13 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         onPlaybackServiceReady();
     }
 
+    @SuppressWarnings("unused")
+    public void onEventMainThread(PlaybackService.PlayPositionChangedEvent event) {
+        if (mTomahawkListAdapter != null) {
+            mTomahawkListAdapter.onPlayPositionChanged(event.duration, event.currentPosition);
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();

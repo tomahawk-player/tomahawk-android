@@ -156,6 +156,14 @@ public class PlaybackService extends Service
 
     }
 
+    public static class PlayPositionChangedEvent {
+
+        public long duration;
+
+        public int currentPosition;
+
+    }
+
     public static class ReadyEvent {
 
     }
