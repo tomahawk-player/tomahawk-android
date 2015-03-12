@@ -33,7 +33,6 @@ import android.widget.FrameLayout;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -71,7 +70,7 @@ public class DirectoryChooser extends FrameLayout implements
     public void setup() {
         mDrillDownCount = 0;
         ArrayList<String> storageDirs = new ArrayList<>();
-        storageDirs.addAll(Arrays.asList(UserCollection.getStorageDirectories()));
+        storageDirs.addAll(UserCollection.getStorageDirectories());
         List<File> mediaDirs = new ArrayList<>();
         for (String dir : storageDirs) {
             File f = new File(dir);
