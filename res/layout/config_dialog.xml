@@ -18,11 +18,11 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:background="@color/primary_background">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:orientation="vertical"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@color/primary_background">
 
     <FrameLayout android:layout_width="match_parent"
                  android:layout_height="@dimen/row_height_verylarge">
@@ -92,7 +92,9 @@
     </FrameLayout>
 
     <ScrollView android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/row_height_verylarge"
+                android:layout_marginBottom="@dimen/row_height_verylarge">
 
         <LinearLayout android:id="@+id/scrolling_config_dialog_frame"
                       android:layout_width="match_parent"
@@ -105,12 +107,15 @@
             android:id="@+id/config_dialog_frame"
             android:layout_width="match_parent"
             android:layout_height="10000dp"
+            android:layout_marginTop="@dimen/row_height_verylarge"
+            android:layout_marginBottom="@dimen/row_height_verylarge"
             android:orientation="vertical"
             android:visibility="gone"/>
 
     <LinearLayout android:layout_width="wrap_content"
                   android:layout_height="@dimen/row_height_verylarge"
-                  android:layout_gravity="right">
+                  android:layout_marginTop="@dimen/row_height_verylarge"
+                  android:layout_gravity="bottom|right">
 
         <TextView android:id="@+id/config_dialog_negative_button"
                   android:layout_width="wrap_content"
@@ -140,4 +145,4 @@
 
     </LinearLayout>
 
-</LinearLayout>
+</FrameLayout>
