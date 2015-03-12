@@ -32,7 +32,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
-import org.tomahawk.tomahawk_android.views.PlaybackSeekBar;
+import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.content.res.Resources;
 import android.view.View;
@@ -135,7 +135,7 @@ public class ViewHolder {
                 durationTextView.setText(TomahawkUtils.durationToString(
                         (query.getPreferredTrack().getDuration())));
             } else {
-                durationTextView.setText(PlaybackSeekBar.COMPLETION_STRING_DEFAULT);
+                durationTextView.setText(PlaybackPanel.COMPLETION_STRING_DEFAULT);
             }
             setTextViewEnabled(durationTextView, query.isPlayable(), false);
         }
