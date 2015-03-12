@@ -597,15 +597,16 @@ public class UserCollection extends Collection {
         }
     }
 
-    public static String[] getStorageDirectories() {
-        String[] dirs = null;
+    public static ArrayList<String> getStorageDirectories() {
         BufferedReader bufReader = null;
         ArrayList<String> list = new ArrayList<>();
         list.add(Environment.getExternalStorageDirectory().getPath());
 
-        List<String> typeWL = Arrays.asList("vfat", "exfat", "sdcardfs", "fuse");
-        List<String> typeBL = Collections.singletonList("tmpfs");
-        String[] mountWL = {"/mnt", "/Removable"};
+        List<String> typeWL =
+                Arrays.asList("vfat", "exfat", "sdcardfs", "fuse", "ntfs", "fat32", "ext3", "ext4",
+                        "esdfs");
+        List<String> typeBL = Arrays.asList("tmpfs");
+        String[] mountWL = {"/mnt", "/Removable", "/storage"};
         String[] mountBL = {
                 "/mnt/secure",
                 "/mnt/shell",
@@ -617,7 +618,7 @@ public class UserCollection extends Collection {
         String[] deviceWL = {
                 "/dev/block/vold",
                 "/dev/fuse",
-                "/mnt/media_rw/extSdCard"};
+                "/mnt/media_rw"};
 
         try {
             bufReader = new BufferedReader(new FileReader("/proc/mounts"));
@@ -641,11 +642,6 @@ public class UserCollection extends Collection {
                     list.add(mountpoint);
                 }
             }
-
-            dirs = new String[list.size()];
-            for (int i = 0; i < list.size(); i++) {
-                dirs[i] = list.get(i);
-            }
         } catch (IOException e) {
             Log.e(TAG, "getStorageDirectories: " + e.getClass() + ": " + e.getLocalizedMessage());
         } finally {
@@ -658,7 +654,7 @@ public class UserCollection extends Collection {
                 }
             }
         }
-        return dirs;
+        return list;
     }
 
     private static boolean doStringsStartWith(String[] array, String text) {
