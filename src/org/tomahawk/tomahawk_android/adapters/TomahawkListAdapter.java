@@ -38,9 +38,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
-import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
-import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -90,32 +88,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     private ProgressBar mProgressBar;
 
     private final SwipeItemAdapterMangerImpl mItemManager = new SwipeItemAdapterMangerImpl(this);
-
-    private final ProgressHandler mProgressHandler = new ProgressHandler(this);
-
-    private static class ProgressHandler extends WeakReferenceHandler<TomahawkListAdapter> {
-
-        public ProgressHandler(TomahawkListAdapter referencedObject) {
-            super(referencedObject);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            TomahawkListAdapter adapter = getReferencedObject();
-            if (adapter != null) {
-                if (adapter.mProgressBar != null) {
-                    float pos = adapter.mActivity.getPlaybackService().getPosition();
-                    float duration =
-                            adapter.mActivity.getPlaybackService().getCurrentTrack().getDuration();
-                    adapter.mProgressBar
-                            .setProgress((int) (pos / duration * adapter.mProgressBar.getMax()));
-                    sendEmptyMessageDelayed(0, 500);
-                } else {
-                    removeCallbacksAndMessages(null);
-                }
-            }
-        }
-    }
 
     /**
      * Constructs a new {@link TomahawkListAdapter}.
@@ -394,7 +366,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                             ((FrameLayout) mProgressBar.getParent()).removeView(mProgressBar);
                         }
                         progressBarContainer.addView(mProgressBar);
-                        mProgressHandler.sendEmptyMessage(0);
                     } else {
                         progressBarContainer.removeAllViews();
                     }
@@ -741,5 +712,12 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     @Override
     public void setMode(Attributes.Mode mode) {
         mItemManager.setMode(mode);
+    }
+
+    public void onPlayPositionChanged(long duration, int currentPosition) {
+        if (mProgressBar != null) {
+            mProgressBar.setProgress(
+                    (int) ((float) currentPosition / duration * mProgressBar.getMax()));
+        }
     }
 }
