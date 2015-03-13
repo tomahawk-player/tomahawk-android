@@ -151,6 +151,11 @@ public class ViewHolder {
     public void fillView(User user) {
         TextView textView1 = (TextView) findViewById(R.id.textview1);
         textView1.setText(user.getName());
+        if (mLayoutId == R.layout.list_item_user) {
+            TextView textView2 = (TextView) findViewById(R.id.textview2);
+            textView2.setText(TomahawkApp.getContext().getString(R.string.followers_count,
+                    user.getFollowersCount(), user.getFollowCount()));
+        }
         TextView userTextView1 = (TextView) findViewById(R.id.usertextview1);
         ImageView userImageView1 = (ImageView) findViewById(R.id.userimageview1);
         TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
