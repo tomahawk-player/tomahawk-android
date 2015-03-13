@@ -27,6 +27,7 @@
   <string name="save_playlist">Guardar esta playlist</string>
   <string name="create_playlist">Crear Playlist</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Titulo</string>
   <string name="login_name_label">Correo/nombre de usuario</string>
   <string name="login_username">Nombre de usuario</string>
   <string name="login_password">Contraseña</string>
@@ -60,6 +61,7 @@
   <string name="preferences_app_uservoice">retroalimentación</string>
   <string name="preferences_app_uservoice_text">Comparte tus ideas o pide ayuda.</string>
   <string name="preferences_app_sendlog">Enviar Log</string>
+  <string name="preferences_app_sendlog_text">Envía tu log de errores con propósitos de depuración</string>
   <string name="preferences_app_sendlog_dialog_text">Por favor describa brevemente el inconveniente que estás teniendo e indicanos una dirección de correo donde podamos contactarte en caso de ser necesario. Gracias.</string>
   <string name="preferences_app_sendlog_email">Tu dirección de correo </string>
   <string name="preferences_app_sendlog_issue">Problema</string>
@@ -103,9 +105,13 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Seguir</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">%1$s esta siguiendo a </string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
+  <string name="socialaction_type_love_track_single">%1$s Le gusto una canción</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
+  <string name="socialaction_type_love_track_multiple">%1$s Le gustó %2$d Canciones</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
+  <string name="socialaction_type_collected_track_single">%1$s agregó una pista</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
