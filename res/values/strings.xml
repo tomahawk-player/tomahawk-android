@@ -160,6 +160,8 @@
   <string name="followers">Followers</string>
   <!-- Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following". -->
   <string name="following">Following</string>
+  <!-- Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following. -->
+  <string name="followers_count">Followers: %1$d, Following: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Log into</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
   <string name="ask_access_activity_header">Want to automatically save data about all the tracks you play on Hatchet?</string>
