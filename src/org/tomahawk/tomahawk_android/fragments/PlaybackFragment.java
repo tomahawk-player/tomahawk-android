@@ -19,8 +19,10 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -39,6 +41,7 @@ import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -70,6 +73,8 @@ public class PlaybackFragment extends TomahawkFragment {
     public abstract static class ShowContextMenuListener {
 
         public abstract void onShowContextMenu(Query query);
+
+        public abstract void onDoubleTap(Query query);
     }
 
     private final ShowContextMenuListener mShowContextMenuListener = new ShowContextMenuListener() {
@@ -77,6 +82,28 @@ public class PlaybackFragment extends TomahawkFragment {
         @Override
         public void onShowContextMenu(Query query) {
             FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), query, null, true);
+        }
+
+        @Override
+        public void onDoubleTap(Query query) {
+            final ImageView imageView =
+                    (ImageView) getView().findViewById(R.id.imageview_favorite_doubletap);
+            if (DatabaseHelper.getInstance().isItemLoved(query)) {
+                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                        R.drawable.ic_action_unfavorite_large);
+            } else {
+                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                        R.drawable.ic_action_favorite_large);
+            }
+            AnimationUtils.fade(imageView, AnimationUtils.DURATION_CONTEXTMENU, true);
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    AnimationUtils.fade(imageView, AnimationUtils.DURATION_CONTEXTMENU, false);
+                }
+            };
+            new Handler().postDelayed(r, 2000);
+            CollectionManager.getInstance().toggleLovedItem(query);
         }
     };
 

@@ -66,6 +66,12 @@ public class AlbumArtViewPager extends ViewPager {
         public void onLongPress(MotionEvent e) {
             mShowContextMenuListener.onShowContextMenu(mPlaybackService.getCurrentQuery());
         }
+
+        @Override
+        public boolean onDoubleTap(MotionEvent e) {
+            mShowContextMenuListener.onDoubleTap(mPlaybackService.getCurrentQuery());
+            return false;
+        }
     }
 
     public AlbumArtViewPager(Context context) {
