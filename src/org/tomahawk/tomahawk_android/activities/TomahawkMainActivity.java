@@ -147,6 +147,9 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static final String COACHMARK_SEEK_TIMESTAMP = "coachmark_seek_timestamp";
 
+    public static final String COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED
+            = "coachmark_playbackfragment_navigation_disabled";
+
     public static final int ACTIONBAR_HEIGHT = TomahawkApp.getContext().getResources()
             .getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
 

@@ -37,7 +37,9 @@ import org.tomahawk.tomahawk_android.views.PlaybackFragmentFrame;
 
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -151,6 +153,26 @@ public class PlaybackFragment extends TomahawkFragment {
         });
         TextView closeButtonText = (TextView) closeButton.findViewById(R.id.close_button_text);
         closeButtonText.setText(getString(R.string.button_close).toUpperCase());
+
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(getActivity());
+        if (!preferences.getBoolean(
+                TomahawkMainActivity.COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED, false)) {
+            final View coachMark = TomahawkUtils.ensureInflation(view,
+                    R.id.playbackfragment_navigation_coachmark_stub,
+                    R.id.playbackfragment_navigation_coachmark);
+            coachMark.findViewById(R.id.close_button).setOnClickListener(
+                    new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            coachMark.setVisibility(View.GONE);
+                        }
+                    });
+            coachMark.setVisibility(View.VISIBLE);
+            preferences.edit().putBoolean(
+                    TomahawkMainActivity.COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED, true)
+                    .apply();
+        }
     }
 
     @Override
