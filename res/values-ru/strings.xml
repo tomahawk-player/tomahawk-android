@@ -67,6 +67,7 @@
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Читаемые</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
@@ -95,6 +96,7 @@
   <string name="followers">Читающие</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Читаемые</string>
+  <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="resolver_config_redirect_button_text_log_into">Войти в</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Выйти из</string>
   <string name="ask_access_activity_header">Хотите автоматически скробблировать играемые треки в Hatchet?</string>

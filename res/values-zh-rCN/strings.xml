@@ -105,6 +105,7 @@
   <string name="content_header_following">正在关注</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">关注</string>
+  <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s 正在关注</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
@@ -160,6 +161,7 @@
   <string name="followers">跟随者</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">在关注</string>
+  <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="resolver_config_redirect_button_text_log_into">登录到</string>
   <string name="resolver_config_redirect_button_text_log_out_of">注销</string>
   <string name="ask_access_activity_header">自动保存您在 Hatchet 上播放的曲目的数据？</string>

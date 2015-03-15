@@ -105,6 +105,8 @@
   <string name="content_header_following">Abonné</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">S\'abonner</string>
+  <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">Suggestion d\'utilisateurs à suivre</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s suit maintenant</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
@@ -152,12 +154,16 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Chansons</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
+  <string name="songs_with_count">%1$d musiques</string>
   <!--The singular version of the "x Songs" count string. E.g.: "1 song".-->
+  <string name="songs_with_count_singular">%1$d musique</string>
   <string name="activity">Activité</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Abonnements</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Abonnés</string>
+  <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">Abonnés : %1$d, Abonnements : %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Se connecter à</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Se déconnecter de</string>
   <string name="ask_access_activity_header">Vous souhaitez sauvegarder automatiquement des infos sur tous les morceaux que vous jouez sur Hatchet ?</string>
@@ -168,4 +174,6 @@
   <string name="connect_headertext">Sélectionnez les services que vous souhaitez utiliser. Tomahawk fonctionne d\'autant mieux que plusieurs services sont activés.</string>
   <string name="advanced">Avancé</string>
   <string name="info">Info</string>
+  <string name="playbackpanel_seek_coachmark">Vous pouvez naviguer dans la piste en pressant puis glissant sur le bouton de lecture</string>
+  <string name="playbackfragment_navigation_coachmark_down">Glissez vers le haut pour voir la liste de lecture en cours</string>
 </resources>
