@@ -44,6 +44,7 @@ import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.ResolverUrlHandler;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
@@ -141,6 +142,10 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
             = "show_playbackfragment_on_startup";
+
+    public static final String COACHMARK_SEEK_DISABLED = "coachmark_seek_disabled";
+
+    public static final String COACHMARK_SEEK_TIMESTAMP = "coachmark_seek_timestamp";
 
     public static final int ACTIONBAR_HEIGHT = TomahawkApp.getContext().getResources()
             .getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
@@ -1161,6 +1166,23 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void showPlaybackPanel(boolean forced) {
         if (forced || !mSlidingUpPanelLayout.isPanelHidden()) {
             AnimationUtils.fade(mPlaybackPanel, AnimationUtils.DURATION_CONTEXTMENU, true);
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            if (!preferences.getBoolean(COACHMARK_SEEK_DISABLED, false)
+                    && preferences.getLong(COACHMARK_SEEK_TIMESTAMP, 0) + 259200000
+                    < System.currentTimeMillis()) {
+                final View coachMark = TomahawkUtils.ensureInflation(mPlaybackPanel,
+                        R.id.playbackpanel_seek_coachmark_stub, R.id.playbackpanel_seek_coachmark);
+                coachMark.findViewById(R.id.close_button).setOnClickListener(
+                        new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                coachMark.setVisibility(View.GONE);
+                            }
+                        });
+                coachMark.setVisibility(View.VISIBLE);
+                preferences.edit().putLong(COACHMARK_SEEK_TIMESTAMP, System.currentTimeMillis())
+                        .apply();
+            }
         }
     }
 
