@@ -24,8 +24,9 @@
   <string name="unknown">desconocido</string>
   <string name="no_track">no hay pistas</string>
   <string name="save_playlist">Guardar la lista actual</string>
-  <string name="create_playlist">Crear Lista de reproducción</string>
+  <string name="create_playlist">Crear lista de reproducción</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Título</string>
   <string name="login_name_label">Usuario o correo electrónico</string>
   <string name="login_username">Nombre de usuario</string>
   <string name="login_password">Contraseña</string>
@@ -41,14 +42,15 @@
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
   <string name="auth_logged_in">Registrado en %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Se cerró la sesión de %1$s</string>
   <string name="local_collection_pretty_name">Colección local</string>
   <string name="local">Local</string>
   <string name="all">Toda</string>
   <string name="preferences_local_collection_text">Elige las carpetas que se explorarán en busca de multimedia local.</string>
-  <string name="preferences_hatchet_text">Información sincronizada con %1$s</string>
+  <string name="preferences_hatchet_text">Sincronice sus datos con %1$s</string>
   <string name="preferences_playback">Reproducción</string>
   <string name="preferences_equalizer">Ecualizador</string>
-  <string name="preferences_equalizer_text">Personaliza la salida de audio</string>
+  <string name="preferences_equalizer_text">Personalice la salida de audio.</string>
   <string name="preferences_playback_data">Registrar canciones escuchadas en Last.fm</string>
   <string name="preferences_playback_data_text">Hacer scrobbles de cada pista en cada reproductor en el teléfono a %1$s.</string>
   <string name="preferences_plug_and_play">Conectar para reproducir</string>
@@ -60,8 +62,9 @@
   <string name="preferences_app_uservoice">Comentarios</string>
   <string name="preferences_app_uservoice_text">Comparte tus ideas o pide ayuda</string>
   <string name="preferences_app_sendlog">Enviar registros</string>
+  <string name="preferences_app_sendlog_text">Envíe su archivo de registro para ayudar a corregir errores.</string>
   <string name="preferences_app_sendlog_dialog_text">Describa brevemente el problema que está teniendo y proporcione una dirección de correo electrónico para que podamos contactar con usted si es necesario. Gracias!</string>
-  <string name="preferences_app_sendlog_email">Su dirección de correo electrónico</string>
+  <string name="preferences_app_sendlog_email">Dirección de correo electrónico</string>
   <string name="preferences_app_sendlog_issue">Problema</string>
   <string name="crash_dialog_title">Tomahawk se cerró inesperadamente</string>
   <string name="crash_dialog_text">Se produjo un error inesperado que provocó el cierre de la aplicación. Para ayudarnos a corregirlo, envíenos los datos del error: todo lo que tiene que hacer es pulsar en Aceptar.</string>
@@ -115,7 +118,9 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
+  <string name="socialaction_type_createplaylist_single">%1$s creó una lista</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
+  <string name="socialaction_type_createplaylist_multiple">%1$s creó %2$d listas</string>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s de %2$s</string>
   <string name="time_afewseconds">hace unos segundos</string>
@@ -125,6 +130,9 @@
   <string name="time_minutes">hace %1$d minutos</string>
   <string name="time_hours">hace %1$d horas</string>
   <string name="time_days">hace %1$d días</string>
+  <string name="users_playbacklog_suffix">%1$s escuchó recientemente</string>
+  <string name="users_favorites_suffix">Favoritas de %1$s</string>
+  <string name="users_playlist_suffix">Lista de %1$s</string>
   <string name="music">Música</string>
   <string name="biography">Biografía</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -132,7 +140,9 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Canciones</string>
   <!--Shown as part of a count string. E.g.: "3 songs".-->
+  <string name="songs_with_count">%1$d canciones</string>
   <!--The singular version of the "x Songs" count string. E.g.: "1 song".-->
+  <string name="songs_with_count_singular">%1$d canción</string>
   <string name="activity">Actividad</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Seguidores</string>
