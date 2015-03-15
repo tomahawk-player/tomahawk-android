@@ -35,6 +35,7 @@
     <color name="playerview_transparent">#55000000</color>
     <color name="playerview_default_bg">#333</color>
     <color name="navdrawer_background">#BB000000</color>
+    <color name="coach_mark_background">#CC000000</color>
     <color name="disabled">#FF999999</color>
     <color name="disabled_resolver">#33FFFFFF</color>
     <color name="primary_textcolor">#FF222222</color>

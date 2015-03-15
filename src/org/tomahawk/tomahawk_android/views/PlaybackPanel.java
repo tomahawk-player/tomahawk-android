@@ -23,6 +23,7 @@ import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 
@@ -33,6 +34,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.TransitionDrawable;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -141,6 +143,12 @@ public class PlaybackPanel extends FrameLayout {
         mCircularProgressBar.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
+                PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
+                        .putBoolean(TomahawkMainActivity.COACHMARK_SEEK_DISABLED, true)
+                        .apply();
+                View coachMark = TomahawkUtils.ensureInflation(PlaybackPanel.this,
+                        R.id.playbackpanel_seek_coachmark_stub, R.id.playbackpanel_seek_coachmark);
+                coachMark.setVisibility(GONE);
                 if (!isPanelExpanded || getResources().getBoolean(R.bool.is_landscape)) {
                     AnimationUtils.fade(mTextViewContainer,
                             AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);

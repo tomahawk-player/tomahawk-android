@@ -82,6 +82,14 @@
 
     </FrameLayout>
 
+    <ViewStub android:id="@+id/playbackpanel_seek_coachmark_stub"
+              android:inflatedId="@+id/playbackpanel_seek_coachmark"
+              android:layout="@layout/playbackpanel_seek_coachmark"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_marginBottom="@dimen/playback_panel_height"
+              android:layout_alignParentBottom="true"/>
+
     <LinearLayout android:id="@+id/panel_container"
                   android:layout_width="match_parent"
                   android:layout_height="@dimen/playback_panel_height"
