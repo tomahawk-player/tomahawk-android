@@ -472,8 +472,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
         Segment segment = getSegment(position);
-        if (segment != null && (segment.getHeaderString() != null
-                || segment.getFirstSegmentItem() instanceof SocialAction)) {
+        if (segment != null && segment.getHeaderLayoutId() > 0) {
             View view = null;
             ViewHolder viewHolder = null;
             if (convertView != null) {
@@ -495,6 +494,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 viewHolder.fillHeaderView(spinnerItems, segment.getInitialPos(),
                         segment.getSpinnerClickListener());
             } else if (layoutId == R.layout.single_line_list_header) {
+                viewHolder.fillHeaderView(segment.getHeaderString().toUpperCase());
+            } else if (layoutId == R.layout.list_header_socialaction_fake) {
                 viewHolder.fillHeaderView(segment.getHeaderString());
             } else if (layoutId == R.layout.list_header_socialaction) {
                 SocialAction socialAction = (SocialAction) segment.getFirstSegmentItem();
@@ -582,13 +583,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     }
 
     private int getHeaderViewType(Segment segment) {
-        if (segment.isSpinnerSegment()) {
-            return R.layout.dropdown_header;
-        } else if (segment.getFirstSegmentItem() instanceof SocialAction) {
-            return R.layout.list_header_socialaction;
-        } else {
-            return R.layout.single_line_list_header;
-        }
+        return segment.getHeaderLayoutId();
     }
 
     private void updateFooterSpacerHeight(final StickyListHeadersListView listView) {

@@ -105,6 +105,8 @@
   <string name="content_header_following">Following</string>
   <!-- Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Follow</string>
+  <!-- Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow. -->
+  <string name="suggest_users">Suggested people to follow</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users) -->
   <string name="socialaction_type_follow">%1$s is now following</string>
   <!-- Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track) -->

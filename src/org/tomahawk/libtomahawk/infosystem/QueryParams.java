@@ -28,7 +28,11 @@ public class QueryParams {
 
     public String relationship_id = null;
 
-    public int offset = 0;
+    public String random = null;
 
-    public int limit = 0;
+    public String count = null;
+
+    public String offset = null;
+
+    public String limit = null;
 }
