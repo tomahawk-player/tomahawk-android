@@ -101,4 +101,12 @@
             android:layout_marginTop="@dimen/playback_panel_height"
             android:layout_marginBottom="@dimen/playback_clear_space_bottom"/>
 
+    <ViewStub android:id="@+id/playbackfragment_navigation_coachmark_stub"
+              android:layout="@layout/playbackfragment_navigation_coachmark"
+              android:inflatedId="@+id/playbackfragment_navigation_coachmark"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:layout_marginTop="@dimen/playback_panel_height"
+              android:layout_marginBottom="@dimen/playback_clear_space_bottom"/>
+
 </FrameLayout>

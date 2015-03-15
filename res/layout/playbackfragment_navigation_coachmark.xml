@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/padding_verysmall"
+                android:orientation="vertical"
+                android:background="@color/coach_mark_background">
+
+    <ImageView android:id="@+id/close_button"
+               android:layout_width="48dp"
+               android:layout_height="48dp"
+               android:clickable="true"
+               android:padding="8dp"
+               android:layout_alignParentRight="true"
+               android:src="@drawable/ic_player_exit_light"
+               android:background="@drawable/selectable_background_tomahawk"/>
+
+    <View android:id="@+id/arrow_up"
+          android:layout_width="32dp"
+          android:layout_height="32dp"
+          android:layout_centerHorizontal="true"
+          android:rotation="270"
+          android:background="@drawable/triangle_white"/>
+
+    <View android:id="@+id/arrow_down"
+          android:layout_width="32dp"
+          android:layout_height="32dp"
+          android:rotation="90"
+          android:layout_centerHorizontal="true"
+          android:layout_alignParentBottom="true"
+          android:background="@drawable/triangle_white"/>
+
+    <View android:id="@+id/arrow_left"
+          android:layout_width="32dp"
+          android:layout_height="32dp"
+          android:layout_centerVertical="true"
+          android:rotation="180"
+          android:background="@drawable/triangle_white"/>
+
+    <View android:id="@+id/arrow_right"
+          android:layout_width="32dp"
+          android:layout_height="32dp"
+          android:layout_centerVertical="true"
+          android:layout_alignParentRight="true"
+          android:background="@drawable/triangle_white"/>
+
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:padding="@dimen/padding_medium"
+              android:layout_above="@id/arrow_down"
+              android:layout_centerHorizontal="true"
+              android:gravity="center"
+              android:text="@string/playbackfragment_navigation_coachmark_down"
+              android:textColor="@color/primary_textcolor_inverted"
+              android:textSize="@dimen/text_size_small"/>
+
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:padding="@dimen/padding_medium"
+              android:layout_below="@id/arrow_up"
+              android:layout_centerHorizontal="true"
+              android:gravity="center"
+              android:text="@string/playbackfragment_navigation_coachmark_up"
+              android:textColor="@color/primary_textcolor_inverted"
+              android:textSize="@dimen/text_size_small"/>
+
+    <TextView android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:padding="@dimen/padding_medium"
+              android:layout_toLeftOf="@id/arrow_right"
+              android:layout_toRightOf="@id/arrow_left"
+              android:layout_centerInParent="true"
+              android:gravity="center"
+              android:text="@string/playbackfragment_navigation_coachmark_center"
+              android:textColor="@color/primary_textcolor_inverted"
+              android:textSize="@dimen/text_size_small"/>
+
+</RelativeLayout>
