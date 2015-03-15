@@ -378,7 +378,7 @@ public class ViewHolder {
 
     public void fillHeaderView(String text) {
         TextView textView1 = (TextView) findViewById(R.id.textview1);
-        textView1.setText(text.toUpperCase());
+        textView1.setText(text);
     }
 
     public void fillHeaderView(SocialAction socialAction, int segmentSize) {

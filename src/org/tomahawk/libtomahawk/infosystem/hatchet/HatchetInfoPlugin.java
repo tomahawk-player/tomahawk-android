@@ -203,22 +203,26 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
         try {
             if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
-                HatchetUsers users = mHatchet.getUsers(params.ids, params.name, null, null);
-                if (users != null) {
-                    HatchetUserInfo userInfo = TomahawkUtils.carelessGet(users.users, 0);
-                    if (userInfo != null) {
-                        HatchetTrackInfo track =
-                                TomahawkUtils.carelessGet(users.tracks, userInfo.nowplaying);
-                        HatchetArtistInfo artist = null;
-                        if (track != null) {
-                            artist = TomahawkUtils.carelessGet(users.artists, track.artist);
+                HatchetUsers users =
+                        mHatchet.getUsers(params.ids, params.name, params.random, params.count);
+                if (users != null && users.users != null) {
+                    List<Object> resultList = new ArrayList<>();
+                    for (HatchetUserInfo userInfo : users.users) {
+                        if (userInfo != null) {
+                            HatchetTrackInfo track =
+                                    TomahawkUtils.carelessGet(users.tracks, userInfo.nowplaying);
+                            HatchetArtistInfo artist = null;
+                            if (track != null) {
+                                artist = TomahawkUtils.carelessGet(users.artists, track.artist);
+                            }
+                            String imageId = TomahawkUtils.carelessGet(userInfo.images, 0);
+                            HatchetImage image = TomahawkUtils.carelessGet(users.images, imageId);
+                            User user = InfoSystemUtils
+                                    .convertToUser(userInfo, track, artist, image);
+                            resultList.add(user);
                         }
-                        String imageId = TomahawkUtils.carelessGet(userInfo.images, 0);
-                        HatchetImage image = TomahawkUtils.carelessGet(users.images, imageId);
-                        User user = InfoSystemUtils.convertToUser(userInfo, track, artist, image);
-                        infoRequestData.setResult(user);
-                        return true;
                     }
+                    infoRequestData.setResultList(resultList);
                 }
 
             } else if (infoRequestData.getType()
@@ -286,11 +290,11 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 HatchetSocialActionResponse response;
                 if (infoRequestData.getType()
                         == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
-                    response = mHatchet.getUsersSocialActions(params.userid,
-                            String.valueOf(params.offset), String.valueOf(params.limit));
+                    response = mHatchet.getUsersSocialActions(params.userid, params.offset,
+                            params.limit);
                 } else {
-                    response = mHatchet.getUsersFriendsFeed(params.userid,
-                            String.valueOf(params.offset), String.valueOf(params.limit));
+                    response = mHatchet.getUsersFriendsFeed(params.userid, params.offset,
+                            params.limit);
                 }
                 if (response != null) {
                     User userToBeFilled = (User) mItemsToBeFilled
@@ -324,12 +328,12 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         }
                         if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
-                            userToBeFilled
-                                    .setSocialActions(socialActions, params.offset / params.limit);
+                            userToBeFilled.setSocialActions(socialActions,
+                                    Integer.valueOf(params.offset) / Integer.valueOf(params.limit));
                         } else if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED) {
-                            userToBeFilled
-                                    .setFriendsFeed(socialActions, params.offset / params.limit);
+                            userToBeFilled.setFriendsFeed(socialActions,
+                                    Integer.valueOf(params.offset) / Integer.valueOf(params.limit));
                         }
                     }
                     infoRequestData.setResult(userToBeFilled);

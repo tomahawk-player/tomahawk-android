@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -65,6 +67,20 @@ public class SocialActionsFragment extends TomahawkFragment implements
 
     public final HashSet<Integer> mResolvingPages = new HashSet<>();
 
+    private List<User> mSuggestedUsers;
+
+    private String mRandomUsersRequestId;
+
+    @SuppressWarnings("unused")
+    public void onEvent(InfoSystem.ResultsEvent event) {
+        super.onEvent(event);
+
+        if (mRandomUsersRequestId != null
+                && mRandomUsersRequestId.equals(event.mInfoRequestData.getRequestId())) {
+            mSuggestedUsers = event.mInfoRequestData.getResultList(User.class);
+        }
+    }
+
     @Override
     public void onResume() {
         super.onResume();
@@ -79,6 +95,15 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     for (int i = 0; i < mUser.getFriendsFeed().size(); i++) {
                         mCorrespondingRequestIds.add(
                                 InfoSystem.getInstance().resolveFriendsFeed(mUser, i));
+                    }
+                    HatchetAuthenticatorUtils authenticatorUtils
+                            = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                            .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                    if (authenticatorUtils.getLoggedInUser() != null
+                            && authenticatorUtils.getLoggedInUser().getFollowCount() <= 5
+                            && mRandomUsersRequestId == null) {
+                        mRandomUsersRequestId = InfoSystem.getInstance().getRandomUsers(5);
+                        mCorrespondingRequestIds.add(mRandomUsersRequestId);
                     }
                 } else {
                     if (mContainerFragmentClass == null) {
@@ -263,6 +288,17 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     }
 
                     final List<Segment> segments = new ArrayList<>();
+                    int extraPadding = TomahawkApp.getContext().getResources()
+                            .getDimensionPixelSize(R.dimen.padding_medium)
+                            + TomahawkUtils.convertDpToPixel(32);
+                    if (mSuggestedUsers != null) {
+                        List<Object> suggestions = new ArrayList<>();
+                        suggestions.addAll(mSuggestedUsers);
+                        Segment segment = new Segment(getString(R.string.suggest_users) + ":",
+                                suggestions, R.layout.list_header_socialaction_fake);
+                        segment.setLeftExtraPadding(extraPadding);
+                        segments.add(segment);
+                    }
                     for (List mergedActions : mergedActionsList) {
                         SocialAction first = (SocialAction) mergedActions.get(0);
                         Segment segment;
@@ -271,13 +307,11 @@ public class SocialActionsFragment extends TomahawkFragment implements
                                 || first.getTargetObject() instanceof Artist) {
                             segment = new Segment(mergedActions,
                                     R.integer.grid_column_count_feed,
-                                    R.dimen.padding_superlarge, R.dimen.padding_small);
+                                    R.dimen.padding_superlarge, R.dimen.padding_small,
+                                    R.layout.list_header_socialaction);
                         } else {
-                            segment = new Segment(mergedActions);
+                            segment = new Segment(mergedActions, R.layout.list_header_socialaction);
                         }
-                        int extraPadding = TomahawkApp.getContext().getResources()
-                                .getDimensionPixelSize(R.dimen.padding_medium)
-                                + TomahawkUtils.convertDpToPixel(32);
                         segment.setLeftExtraPadding(extraPadding);
                         segments.add(segment);
                     }

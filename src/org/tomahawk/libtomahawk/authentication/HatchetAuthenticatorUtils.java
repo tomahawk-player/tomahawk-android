@@ -40,6 +40,7 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.HashSet;
+import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import retrofit.RestAdapter;
@@ -116,9 +117,9 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         if (event.mSuccess
                 && mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
             if (event.mInfoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
-                User user = event.mInfoRequestData.getResult(User.class);
-                if (user != null) {
-                    storeUserId(user.getId());
+                List<User> users = event.mInfoRequestData.getResultList(User.class);
+                if (users != null && users.get(0) != null) {
+                    storeUserId(users.get(0).getId());
                 }
             }
         }

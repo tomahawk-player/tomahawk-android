@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.res.Resources;
@@ -33,7 +34,7 @@ public class Segment {
 
     private int mVerticalPadding;
 
-    private boolean mSpinnerSegment;
+    private int mHeaderLayoutId;
 
     private AdapterView.OnItemSelectedListener mSpinnerClickListener;
 
@@ -59,6 +60,11 @@ public class Segment {
 
     private int mLeftExtraPadding;
 
+    public Segment(List<Object> listItems, int headerLayoutId) {
+        this(listItems);
+        mHeaderLayoutId = headerLayoutId;
+    }
+
     public Segment(List<Object> listItems) {
         mListItems = listItems;
         mSegmentSize = mListItems.size();
@@ -71,6 +77,13 @@ public class Segment {
     public Segment(String headerString, List<Object> listItems) {
         this(listItems);
         mHeaderStrings.add(headerString);
+        mHeaderLayoutId = R.layout.single_line_list_header;
+    }
+
+    public Segment(String headerString, List<Object> listItems, int headerLayoutId) {
+        this(listItems);
+        mHeaderStrings.add(headerString);
+        mHeaderLayoutId = headerLayoutId;
     }
 
     public Segment(int initialPos, List<Integer> headerStringResIds,
@@ -81,9 +94,16 @@ public class Segment {
         for (Integer resId : headerStringResIds) {
             mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
         }
+        mHeaderLayoutId = R.layout.dropdown_header;
         mSpinnerClickListener = spinnerClickListener;
-        mSpinnerSegment = true;
     }
+
+    public Segment(List<Object> listItems, int columnCountResId,
+            int horizontalPaddingResId, int verticalPaddingResId, int headerLayoutId) {
+        this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
+        mHeaderLayoutId = headerLayoutId;
+    }
+
 
     public Segment(List<Object> listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId) {
@@ -116,6 +136,7 @@ public class Segment {
             int horizontalPaddingResId, int verticalPaddingResId) {
         this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
         mHeaderStrings.add(headerString);
+        mHeaderLayoutId = R.layout.single_line_list_header;
     }
 
     public Segment(int initialPos, List<Integer> headerStringResIds,
@@ -127,8 +148,8 @@ public class Segment {
         for (Integer resId : headerStringResIds) {
             mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
         }
+        mHeaderLayoutId = R.layout.dropdown_header;
         mSpinnerClickListener = spinnerClickListener;
-        mSpinnerSegment = true;
     }
 
     public int getInitialPos() {
@@ -146,8 +167,8 @@ public class Segment {
         return mHeaderStrings;
     }
 
-    public boolean isSpinnerSegment() {
-        return mSpinnerSegment;
+    public int getHeaderLayoutId() {
+        return mHeaderLayoutId;
     }
 
     public AdapterView.OnItemSelectedListener getSpinnerClickListener() {

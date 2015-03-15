@@ -181,6 +181,19 @@ public class InfoSystem {
         return null;
     }
 
+    /**
+     * Get random users
+     *
+     * @param count the number of users to get
+     * @return the created InfoRequestData's requestId
+     */
+    public String getRandomUsers(int count) {
+        QueryParams params = new QueryParams();
+        params.random = String.valueOf(true);
+        params.count = String.valueOf(count);
+        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params);
+    }
+
     public String resolve(Playlist playlist) {
         if (playlist != null) {
             QueryParams params = new QueryParams();
@@ -216,8 +229,8 @@ public class InfoSystem {
         if (user != null) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
-            params.offset = pageNumber * HatchetInfoPlugin.SOCIALACTIONS_LIMIT;
-            params.limit = HatchetInfoPlugin.SOCIALACTIONS_LIMIT;
+            params.offset = String.valueOf(pageNumber * HatchetInfoPlugin.SOCIALACTIONS_LIMIT);
+            params.limit = String.valueOf(HatchetInfoPlugin.SOCIALACTIONS_LIMIT);
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
                     params, user);
         }
@@ -234,8 +247,8 @@ public class InfoSystem {
         if (user != null) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
-            params.offset = pageNumber * HatchetInfoPlugin.FRIENDSFEED_LIMIT;
-            params.limit = HatchetInfoPlugin.FRIENDSFEED_LIMIT;
+            params.offset = String.valueOf(pageNumber * HatchetInfoPlugin.FRIENDSFEED_LIMIT);
+            params.limit = String.valueOf(HatchetInfoPlugin.FRIENDSFEED_LIMIT);
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED,
                     params, user);
         }
