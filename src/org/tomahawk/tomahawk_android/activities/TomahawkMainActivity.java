@@ -150,8 +150,7 @@ public class TomahawkMainActivity extends ActionBarActivity
     public static final String COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED
             = "coachmark_playbackfragment_navigation_disabled";
 
-    public static final int ACTIONBAR_HEIGHT = TomahawkApp.getContext().getResources()
-            .getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
+    public static int ACTIONBAR_HEIGHT;
 
     public static class SlidingLayoutChangedEvent {
 
@@ -636,6 +635,9 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onResume() {
         super.onResume();
+
+        ACTIONBAR_HEIGHT = TomahawkApp.getContext().getResources()
+                .getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
 
         if (mSlidingUpPanelLayout.isPanelHidden()) {
             mPlaybackPanel.setVisibility(View.GONE);
