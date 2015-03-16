@@ -175,5 +175,6 @@
   <string name="advanced">Avancé</string>
   <string name="info">Info</string>
   <string name="playbackpanel_seek_coachmark">Vous pouvez naviguer dans la piste en pressant puis glissant sur le bouton de lecture</string>
-  <string name="playbackfragment_navigation_coachmark_down">Glissez vers le haut pour voir la liste de lecture en cours</string>
+  <string name="playbackfragment_navigation_coachmark_down">Swipez vers le haut pour voir la liste de lecture en cours</string>
+  <string name="playbackfragment_navigation_coachmark_up">Swipez vers le bas pour fermer l\'aperçu de lecture</string>
 </resources>

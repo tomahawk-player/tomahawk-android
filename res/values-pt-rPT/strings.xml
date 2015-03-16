@@ -106,6 +106,7 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Acompanhar</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">Sugestão de pessoas a seguir</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s está a acompanhar</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
@@ -162,6 +163,7 @@
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Seguindo</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">Seguidores: %1$d, seguindo: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Iniciar sessão em</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Fechar sessão em</string>
   <string name="ask_access_activity_header">Gostaria de guardar os dados sobre as faixas reproduzidas no Hatchet?</string>
@@ -172,4 +174,7 @@
   <string name="connect_headertext">Selecione os serviços que quer utilizar. Quantos mais serviços, melhor o Tomahawk se torna.</string>
   <string name="advanced">Avançado</string>
   <string name="info">Informações</string>
+  <string name="playbackpanel_seek_coachmark">Pode procurar a faixa clicando e mantendo premido o botão Reproduzir</string>
+  <string name="playbackfragment_navigation_coachmark_down">Puxe para cima para ver a lista de reprodução atual</string>
+  <string name="playbackfragment_navigation_coachmark_up">Puxe para baixo para fechar a gaveta de navegação</string>
 </resources>
