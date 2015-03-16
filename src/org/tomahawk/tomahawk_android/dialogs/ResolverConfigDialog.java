@@ -129,6 +129,8 @@ public class ResolverConfigDialog extends ConfigDialog {
                     lastEditText = editText;
                 }
             }
+        } else {
+            hideNegativeButton();
         }
         if (lastEditText != null) {
             lastEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
