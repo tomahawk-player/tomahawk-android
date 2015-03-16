@@ -63,7 +63,7 @@
   <string name="preferences_app_uservoice_text">Teile deine Ideen oder frag nach Hilfe.</string>
   <string name="preferences_app_sendlog">Protokoll senden</string>
   <string name="preferences_app_sendlog_text">Versende die Protokolldatei zu Debugzwecken.</string>
-  <string name="preferences_app_sendlog_dialog_text">Bitte beschreibe kurz dein Problem und gib eine E-Mail an, damit wird ich gegebenenfalls kontaktieren können. Danke!</string>
+  <string name="preferences_app_sendlog_dialog_text">Bitte beschreibe kurz dein Problem und gib eine E-Mail an, damit wir dich gegebenenfalls kontaktieren können. Danke!</string>
   <string name="preferences_app_sendlog_email">Deine E-Mail-Adresse</string>
   <string name="preferences_app_sendlog_issue">Problem</string>
   <string name="crash_dialog_title">Tomahawk ist abgestürzt</string>
