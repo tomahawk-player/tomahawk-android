@@ -106,6 +106,7 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">关注</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">推荐的关注</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s 正在关注</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
@@ -162,6 +163,7 @@
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">在关注</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">粉丝：%1$d，关注：%2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">登录到</string>
   <string name="resolver_config_redirect_button_text_log_out_of">注销</string>
   <string name="ask_access_activity_header">自动保存您在 Hatchet 上播放的曲目的数据？</string>
@@ -172,4 +174,8 @@
   <string name="connect_headertext">请选择要使用的服务。激活的服务更多，Tomahawk 工作的越好。</string>
   <string name="advanced">高级</string>
   <string name="info">信息</string>
+  <string name="playbackpanel_seek_coachmark">你可以轻击&amp;按住播放键来快进/快退</string>
+  <string name="playbackfragment_navigation_coachmark_down">上拉显示当前播放列表</string>
+  <string name="playbackfragment_navigation_coachmark_up">下拉关闭播放控制栏</string>
+  <string name="playbackfragment_navigation_coachmark_center">左/右滑跳到上首/下首歌曲。长按打开文本菜单。双击添加为喜欢。</string>
 </resources>
