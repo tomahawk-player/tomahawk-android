@@ -21,6 +21,7 @@
   <string name="repeat_off_label">التّكرار لا يعمل</string>
   <string name="save_playlist">احفظ قائمة التّشغيل الحاليّة</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">العنوان</string>
   <string name="login_name_label">البريد الإلكترونيّ/اسم المستخدم</string>
   <string name="login_username">اسم المستخدم</string>
   <string name="login_password">كلمة المرور</string>
@@ -41,6 +42,8 @@
   <string name="local">المحليّ</string>
   <string name="all">الكلّ</string>
   <string name="preferences_hatchet_text">زامن بياناتك مع %1$s.</string>
+  <string name="preferences_playback">التّشغيل</string>
+  <string name="preferences_equalizer">المعادل</string>
   <string name="preferences_equalizer_text">خصّص خرج الصّوت.</string>
   <string name="preferences_plug_and_play_text">يبدأ تشغيل الموسيقى بمجرّد اتّصال سمّاعة الرأس بلاقط صوت.</string>
   <string name="preferences_audio_quality">جودة الصّوت المحبّذة</string>
@@ -59,6 +62,7 @@
   <string name="crash_dialog_comment_prompt">يمكنك إضافة تعليقات حول المشكلة أدناه:</string>
   <string name="crash_dialog_ok_toast">شكرًا لك!</string>
   <string name="context_menu_play">شغّل</string>
+  <string name="context_menu_add_to_queue">أضف إلى الصّفّ</string>
   <string name="context_menu_add_to_playlist">أضف إلى قائمة تشغيل</string>
   <string name="context_menu_delete">احذف</string>
   <string name="context_menu_removefromplaylist">أزل من قائمة التّشغيل</string>
@@ -78,12 +82,13 @@
   <string name="drawer_header_cloudcollections">تجميعات السّحاب</string>
   <string name="collection_dropdown_recently_added">المضافة حديثًا</string>
   <string name="collection_dropdown_alpha_artists">الفنّان ء-ي</string>
+  <string name="collection_dropdown_play_count">عدد مرّات التّشغيل</string>
   <string name="collection_dropdown_alpha_albums">الألبوم ء-ي</string>
   <string name="collection_dropdown_alpha">ء-ي</string>
   <string name="history">التّأريخ</string>
   <string name="preferences_bitrate_low">عاديّة</string>
   <string name="preferences_bitrate_medium">جيّدة</string>
-  <string name="preferences_bitrate_high">سيّئة</string>
+  <string name="preferences_bitrate_high">ممتازة</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">متابَع</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
@@ -122,10 +127,13 @@
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">المتابَعين</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">المتابِعين: %1$d، المتابَعين: %2$d</string>
   <string name="ask_access_activity_text1">سنفعل ذلك لك! فضلًا مكّن خدمتنا في إعدادات النّظام.</string>
   <string name="button_close">أغلق</string>
   <string name="view_album">اعرض الألبوم</string>
+  <string name="connect">الاتّصال</string>
   <string name="connect_headertext">اختر الخدمات الّتي تريد استخدامها. يعمل توماهوك أفضل عندما تكون خدمات أكثر مفعّلة.</string>
   <string name="advanced">متقدّم</string>
   <string name="info">معلومات</string>
+  <string name="playbackfragment_navigation_coachmark_down">مرّر لأعلى لترى قائمة التّشغيل الحاليّة</string>
 </resources>
