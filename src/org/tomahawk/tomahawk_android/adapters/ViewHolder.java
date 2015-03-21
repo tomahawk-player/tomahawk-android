@@ -186,14 +186,10 @@ public class ViewHolder {
                     TomahawkApp.PLUGINNAME_HATCHET).getAlbumTracks(album, false).size();
         }
         TextView textView3 = (TextView) findViewById(R.id.textview3);
-        if (songCount == 1) {
+        if (songCount > 0) {
             textView3.setVisibility(View.VISIBLE);
             textView3.setText(TomahawkApp.getContext()
-                    .getString(R.string.songs_with_count_singular, songCount));
-        } else if (songCount > 1) {
-            textView3.setVisibility(View.VISIBLE);
-            textView3.setText(
-                    TomahawkApp.getContext().getString(R.string.songs_with_count, songCount));
+                    .getQuantityString(R.plurals.songs_with_count, songCount, songCount));
         }
     }
 
@@ -240,13 +236,8 @@ public class ViewHolder {
         }
         TextView textView3 = (TextView) findViewById(R.id.textview3);
         if (textView3 != null) {
-            if (playlist.getCount() == 1) {
-                textView3.setText(TomahawkApp.getContext()
-                        .getString(R.string.songs_with_count_singular, playlist.getCount()));
-            } else {
-                textView3.setText(TomahawkApp.getContext()
-                        .getString(R.string.songs_with_count, playlist.getCount()));
-            }
+            textView3.setText(TomahawkApp.getContext()
+                    .getQuantityString(R.plurals.songs_with_count, playlist.getCount(), playlist.getCount()));
         }
     }
 
@@ -395,40 +386,26 @@ public class ViewHolder {
         if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE
                 .equals(socialAction.getType())) {
             if (targetObject instanceof Query) {
-                phrase = segmentSize > 1 ?
-                        resources.getString(R.string.socialaction_type_love_track_multiple,
-                                userName, segmentSize)
-                        : resources.getString(R.string.socialaction_type_love_track_single,
-                                userName);
+                resources.getQuantityString(R.plurals.socialaction_type_love_track,
+                                            segmentSize, userName, segmentSize);
             } else if (targetObject instanceof Album) {
-                phrase = segmentSize > 1 ?
-                        resources.getString(R.string.socialaction_type_collected_album_multiple,
-                                userName, segmentSize)
-                        : resources.getString(R.string.socialaction_type_collected_album_single,
-                                userName);
+                resources.getQuantityString(R.plurals.socialaction_type_collected_album,
+                                            segmentSize, userName, segmentSize);
             } else if (targetObject instanceof Artist) {
-                phrase = segmentSize > 1 ?
-                        resources.getString(R.string.socialaction_type_collected_artist_multiple,
-                                userName, segmentSize)
-                        : resources.getString(R.string.socialaction_type_collected_artist_single,
-                                userName);
+                resources.getQuantityString(R.plurals.socialaction_type_collected_artist,
+                                            segmentSize, userName, segmentSize);
             }
         } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW
                 .equals(socialAction.getType())) {
             phrase = resources.getString(R.string.socialaction_type_follow, userName);
         } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST
                 .equals(socialAction.getType())) {
-            phrase = segmentSize > 1 ?
-                    resources.getString(R.string.socialaction_type_createplaylist_multiple,
-                            userName, segmentSize)
-                    : resources.getString(R.string.socialaction_type_createplaylist_single,
-                            userName);
+            resources.getQuantityString(R.plurals.socialaction_type_createplaylist,
+                                        segmentSize, userName, segmentSize);
         } else if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON
                 .equals(socialAction.getType())) {
-            phrase = segmentSize > 1 ?
-                    resources.getString(R.string.socialaction_type_latchon_multiple,
-                            userName, segmentSize)
-                    : resources.getString(R.string.socialaction_type_latchon_single, userName);
+            resources.getQuantityString(R.plurals.socialaction_type_latchon,
+                                        segmentSize, userName, segmentSize);
         }
         TextView textView1 = (TextView) findViewById(R.id.textview1);
         textView1.setText(phrase + ":");
@@ -442,25 +419,13 @@ public class ViewHolder {
                 s += resources.getString(R.string.time_afewseconds);
             } else if (diff < 3600000) {
                 long minutes = TimeUnit.MILLISECONDS.toMinutes(diff);
-                if (minutes < 2) {
-                    s += resources.getString(R.string.time_aminute);
-                } else {
-                    s += resources.getString(R.string.time_minutes, minutes);
-                }
+                s += resources.getQuantityString(R.plurals.time_minute, minutes, minutes);
             } else if (diff < 86400000) {
                 long hours = TimeUnit.MILLISECONDS.toHours(diff);
-                if (hours < 2) {
-                    s += resources.getString(R.string.time_anhour);
-                } else {
-                    s += resources.getString(R.string.time_hours, hours);
-                }
+                s += resources.getQuantityString(R.plurals.time_hour, hours, hours);
             } else {
                 long days = TimeUnit.MILLISECONDS.toDays(diff);
-                if (days < 2) {
-                    s += resources.getString(R.string.time_aday);
-                } else {
-                    s += resources.getString(R.string.time_days, days);
-                }
+                s += resources.getQuantityString(R.plurals.time_day, days, days);
             }
         }
         return s;
