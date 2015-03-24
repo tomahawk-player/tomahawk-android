@@ -106,6 +106,7 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Folgen</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">Empfohlene Menschen folgen</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s folgt nun</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
@@ -162,6 +163,7 @@
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Folgt</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">Followers: %1$d, Folgen: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Anmelden bei</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Abmelden von</string>
   <string name="ask_access_activity_header">Möchtest du automatisch alle Lieder, die du gehört hast, auf Hatchet speichern?</string>
@@ -172,4 +174,8 @@
   <string name="connect_headertext">Wählen Sie die Dienste aus, die Sie verwenden möchten. Tomahawk funktioniert besser, wenn mehrere Dienste aktiviert sind.</string>
   <string name="advanced">Erweitert</string>
   <string name="info">Info</string>
+  <string name="playbackpanel_seek_coachmark">Sie können durch einen Track mit einem Fingertipp hindurchsehen, halten Sie die Play-Taste gedrückt</string>
+  <string name="playbackfragment_navigation_coachmark_down">Hochziehen, um die aktuelle Playlist zu sehen</string>
+  <string name="playbackfragment_navigation_coachmark_up">Nach unten ziehen, um die Wiedergabe zu schließen</string>
+  <string name="playbackfragment_navigation_coachmark_center">Streichen Sie nach links/rechts, um zum vorherigen/nächsten Titel zu springen. Lang drücken, um das Kontextmenü zu öffnen. Tippen Sie zweimal, um zu Favoriten hinzuzufügen.</string>
 </resources>
