@@ -11,7 +11,7 @@
   <string name="albums">アルバム</string>
   <string name="artists">アーティスト</string>
   <string name="users">ユーザー</string>
-  <string name="top_hits">トッポ・ヒット</string>
+  <string name="top_hits">トップ・ヒット</string>
   <string name="top_albums">トップ・アルバム</string>
   <string name="playlist_details">プレイリスト詳細</string>
   <string name="album_details">アルバム詳細</string>
@@ -43,7 +43,7 @@
   <string name="auth_logged_in">%1$s にログインしました</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="auth_logged_out">%1$s からログアウトしました</string>
-  <string name="local_collection_pretty_name">ローカルコレックション</string>
+  <string name="local_collection_pretty_name">ローカルコレクション</string>
   <string name="local">ローカル</string>
   <string name="all">全部</string>
   <string name="preferences_local_collection_text">スキャンするローカルメディアのディレクトリーを選択してください。</string>
@@ -78,7 +78,7 @@
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <string name="context_menu_removefromcollection">コレックションから削除</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
-  <string name="context_menu_addtocollection">コレックションに追加</string>
+  <string name="context_menu_addtocollection">コレクションに追加</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <string name="context_menu_love">Love</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
@@ -89,7 +89,7 @@
   <string name="drawer_title_playlists">プレイリスト</string>
   <string name="drawer_title_lovedtracks">お気に入り</string>
   <string name="drawer_title_settings">設定</string>
-  <string name="drawer_header_cloudcollections">クラウドコレックション</string>
+  <string name="drawer_header_cloudcollections">クラウドコレクション</string>
   <string name="collection_dropdown_recently_added">最近追加した項目</string>
   <string name="collection_dropdown_alpha_artists">アーティスト A-Z</string>
   <string name="collection_dropdown_play_count">再生回数</string>
@@ -99,8 +99,8 @@
   <string name="preferences_bitrate_low">普通</string>
   <string name="preferences_bitrate_medium">良い</string>
   <string name="preferences_bitrate_high">最も良い</string>
-  <string name="drawer_open">ナビゲーション引き出しを開く</string>
-  <string name="drawer_close">ナビゲーション引き出しを閉じる</string>
+  <string name="drawer_open">ナビゲーションドロワーを開く</string>
+  <string name="drawer_close">ナビゲーションドロワーを閉じる</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">フォロー</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
@@ -110,18 +110,27 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s がフォローしています</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
-  <string name="socialaction_type_love_track_single">%1$s がトラックをLoveです</string>
+  <string name="socialaction_type_love_track_single">%1$s がトラックをLoveしました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
-  <string name="socialaction_type_love_track_multiple">%1$s が %2$d のトラックをLoveです</string>
+  <string name="socialaction_type_love_track_multiple">%1$s が %2$d のトラックをLoveしました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
+  <string name="socialaction_type_collected_track_single">%1$s がトラックを追加しました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
+  <string name="socialaction_type_collected_track_multiple">%1$s が %2$d のトラックを追加しました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
+  <string name="socialaction_type_collected_album_single">%1$s がアルバムを追加しました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
+  <string name="socialaction_type_collected_album_multiple">%1$s が %2$d のアルバムを追加しました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
+  <string name="socialaction_type_collected_artist_single">%1$s がアーティストを追加しました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
+  <string name="socialaction_type_collected_artist_multiple">%1$s が %2$d のアーティストを追加しました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">%1$s が次の内容にコメントしました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
+  <string name="socialaction_type_latchon_single">%1$s が次の友達と共に聴きました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
+  <string name="socialaction_type_latchon_multiple">%1$s が %2$d の友達と共に聴きました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
   <string name="socialaction_type_createplaylist_single">%1$s がプレイリストを作成しました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
@@ -135,6 +144,8 @@
   <string name="time_minutes">%1$d分前</string>
   <string name="time_hours">%1$d時間前</string>
   <string name="time_days">%1$dに日間前</string>
+  <string name="users_playbacklog_suffix">%1$s の最近再生した</string>
+  <string name="users_favorites_suffix">%1$s のお気に入り</string>
   <string name="users_playlist_suffix">%1$s のプレイリスト</string>
   <string name="music">音楽</string>
   <string name="biography">経歴</string>
@@ -160,7 +171,11 @@
   <string name="button_close">閉じる</string>
   <string name="view_album">アルバムを表示</string>
   <string name="connect">接続</string>
+  <string name="connect_headertext">利用したいサービスを選択してください。 トマホークは、より多くのサービスをアクティブにしたときに快適にご利用できます。</string>
+  <string name="advanced">詳細</string>
   <string name="info">情報</string>
   <string name="playbackpanel_seek_coachmark">再生ボタンを押し続けると、トラックをシークすることができます。</string>
+  <string name="playbackfragment_navigation_coachmark_down">プルアップすると現在のプレイリストを表示します</string>
+  <string name="playbackfragment_navigation_coachmark_up">プルダウンすると再生ドロワーを閉じます</string>
   <string name="playbackfragment_navigation_coachmark_center">左/右にスワイプすると、次/前のトラックにスキップします。 長押しすると、コンテキストメニューを開きます。ダブルタップすると、お気に入りに追加します。</string>
 </resources>
