@@ -223,6 +223,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         }
                     }
                     infoRequestData.setResultList(resultList);
+                    return true;
                 }
 
             } else if (infoRequestData.getType()
