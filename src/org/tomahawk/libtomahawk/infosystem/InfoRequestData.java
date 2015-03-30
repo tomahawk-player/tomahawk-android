@@ -183,10 +183,12 @@ public class InfoRequestData {
     }
 
     public void setResult(Object object) {
-        if (mResultMap == null) {
-            mResultMap = new HashMap<>();
+        if (object != null) {
+            if (mResultMap == null) {
+                mResultMap = new HashMap<>();
+            }
+            mResultMap.put(object.getClass(), object);
         }
-        mResultMap.put(object.getClass(), object);
     }
 
     public <T> List<T> getResultList(Class<T> clss) {
@@ -200,10 +202,10 @@ public class InfoRequestData {
     }
 
     public void setResultList(List<Object> objects) {
-        if (mResultListMap == null) {
-            mResultListMap = new HashMap<>();
-        }
-        if (objects.size() > 0) {
+        if (objects.size() > 0 && objects.get(0) != null) {
+            if (mResultListMap == null) {
+                mResultListMap = new HashMap<>();
+            }
             mResultListMap.put(objects.get(0).getClass(), objects);
         }
     }
