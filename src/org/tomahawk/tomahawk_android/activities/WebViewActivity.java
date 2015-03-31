@@ -17,15 +17,31 @@
  */
 package org.tomahawk.tomahawk_android.activities;
 
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
+import de.greenrobot.event.EventBus;
 
 public class WebViewActivity extends Activity {
 
+    public static final String TAG = WebViewActivity.class.getSimpleName();
+
     public static final String URL_EXTRA = "url";
+
+    private WebView mWebView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -33,8 +49,52 @@ public class WebViewActivity extends Activity {
 
         setContentView(R.layout.web_view_activity);
 
-        WebView webView = (WebView) findViewById(R.id.webview);
-        webView.getSettings().setJavaScriptEnabled(true);
-        webView.loadUrl(getIntent().getStringExtra(URL_EXTRA));
+        String url = getIntent().getStringExtra(URL_EXTRA);
+        String redirectUri = "";
+        String[] parts = url.split("redirect_uri=");
+        if (parts.length > 1) {
+            parts = parts[1].split("&");
+            if (parts.length > 0) {
+                redirectUri = parts[0];
+            }
+        }
+        try {
+            final String finalRedirectUri = URLDecoder.decode(redirectUri, "UTF-8");
+
+            mWebView = (WebView) findViewById(R.id.webview);
+            mWebView.setWebViewClient(new WebViewClient() {
+                @Override
+                public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                    if (finalRedirectUri != null && url.startsWith(finalRedirectUri)) {
+                        Intent i = new Intent(Intent.ACTION_VIEW);
+                        i.setData(Uri.parse(url));
+                        startActivity(i);
+                        finish();
+                        return true;
+                    } else {
+                        view.loadUrl(url);
+                        return false;
+                    }
+                }
+            });
+            mWebView.getSettings().setJavaScriptEnabled(true);
+            mWebView.loadUrl(url);
+        } catch (UnsupportedEncodingException e) {
+            Log.d(TAG, "onCreate - " + e.getLocalizedMessage());
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mWebView.canGoBack()) {
+            mWebView.goBack();
+        } else {
+            AuthenticatorManager.ConfigTestResultEvent event
+                    = new AuthenticatorManager.ConfigTestResultEvent();
+            event.mComponent = PipeLine.getInstance()
+                    .getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
+            EventBus.getDefault().post(event);
+            super.onBackPressed();
+        }
     }
 }

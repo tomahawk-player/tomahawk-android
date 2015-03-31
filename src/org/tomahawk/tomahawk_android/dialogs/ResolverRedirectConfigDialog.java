@@ -132,8 +132,8 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                 mRedirectButtonTextView.setText(
                         getString(R.string.resolver_config_redirect_button_text_log_into));
             }
+            stopLoadingAnimation();
         }
-        stopLoadingAnimation();
     }
 
     @Override
