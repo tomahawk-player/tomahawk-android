@@ -26,14 +26,10 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
         return {
             "widget": uiData,
             fields: [{
-                name: "host",
-                widget: "host_edit",
+                name: "subsonic_url",
+                widget: "subsonic_url_edit",
                 property: "text"
             }, {
-                name: "port",
-                widget: "port_edit",
-                property: "text"
-            },{
                 name: "user",
                 widget: "user_edit",
                 property: "text"
@@ -54,8 +50,7 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
 
         if (this.user !== userConfig.user ||
             this.password !== userConfig.password ||
-            this.host !== userConfig.host ||
-            this.port !== userConfig.port)
+            this.subsonic_url !== userConfig.subsonic_url)
         {
             this.init();
         }
@@ -139,29 +134,25 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
         this.user = userConfig.user;
         this.user = this.user.trim();
         this.password = this.encodePassword(userConfig.password);
-        this.host = userConfig.host;
-        if (!this.host) {
-            this.host = "http://localhost";
+        this.subsonic_url = userConfig.subsonic_url || "";
+        this.subsonic_url = this.subsonic_url.replace(/\/+$/, "");
+        if (!this.subsonic_url) {
+            this.subsonic_url = "http://localhost:4040";
         } else {
-            if (this.host.search(".*:\/\/") < 0) {
+            if (this.subsonic_url.search(".*:\/\/") < 0) {
                 // couldn't find a proper protocol, so we default to "http://"
-                this.host = "http://" + this.host;
+                this.subsonic_url = "http://" + this.subsonic_url;
             }
-            this.host = this.host.trim();
+            this.subsonic_url = this.subsonic_url.trim();
         }
-        this.port = userConfig.port;
-        if (!this.port) {
-            this.port = "4040";
-        } else {
-            this.port = this.port.trim();
-        }
+
         Tomahawk.log("Doing Subsonic resolver init, got credentials from config.  user: "
-            + this.user + ", host: " + this.host + ", port: " + this.port);
+        + this.user + ", subsonic_url: " + this.subsonic_url);
 
         this.element = document.createElement('div');
 
         //let's ask the server which API version it actually supports.
-        if (!this.user || !this.password || !this.host || !this.port)
+        if (!this.user || !this.password || !this.subsonic_url)
             return;
 
         var that = this;
@@ -229,7 +220,7 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
 
     buildBaseUrl : function(subsonic_view)
     {
-        return this.host + ":" + this.port + subsonic_view +
+        return this.subsonic_url + subsonic_view +
                 "?u=" + this.user +
                 "&p=" + this.password +
                 "&v=" + this.subsonic_api +
@@ -423,7 +414,7 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
     //  appropriate url.
     resolve: function(qid, artist, album, title)
     {
-        if (!this.user || !this.password || !this.host || !this.port)
+        if (!this.user || !this.password || !this.subsonic_url)
             return { qid: qid, results: [] };
 
         var search_url = this.buildBaseUrl("/rest/search.view") + "&artist=" + artist + "&album=" + album + "&title=" + title + "&count=1";
@@ -432,7 +423,7 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
 
     search: function( qid, searchString )
     {
-        if (!this.user || !this.password || !this.host || !this.port)
+        if (!this.user || !this.password || !this.subsonic_url)
             return { qid: qid, results: [] };
 
         var search_url = this.buildBaseUrl("/rest/search3.view") + "&songCount=100&query=\"" + encodeURIComponent(searchString) + "\"";
@@ -441,7 +432,7 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
 
     artists: function( qid )
     {
-        if (!this.user || !this.password || !this.host || !this.port)
+        if (!this.user || !this.password || !this.subsonic_url)
             return { qid: qid, artists: [] };
 
         var artists_url = this.buildBaseUrl("/rest/getArtists.view");
@@ -450,7 +441,7 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
 
     albums: function( qid, artist )
     {
-        if (!this.user || !this.password || !this.host || !this.port)
+        if (!this.user || !this.password || !this.subsonic_url)
             return { qid: qid, artist: artist, albums: [] };
 
         var search_url = this.buildBaseUrl("/rest/search3.view") + "&songCount=0&artistCount=0&albumCount=900" +
@@ -460,7 +451,7 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
 
     tracks: function( qid, artist, album )
     {
-        if (!this.user || !this.password || !this.host || !this.port)
+        if (!this.user || !this.password || !this.subsonic_url)
             return { qid: qid, artist: artist, album: album, tracks: [] };
 
         // See note for resolve() about the search method
@@ -476,8 +467,8 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
         var prettyname;
         var iconfile;
         //Icon and text specific for Runners-ID
-        if (this.host.indexOf("runners-id.com") !== -1 ||
-            this.host.indexOf("runners-id.org") !== -1) {
+        if (this.subsonic_url.indexOf("runners-id.com") !== -1 ||
+            this.subsonic_url.indexOf("runners-id.org") !== -1) {
             prettyname = "Runners-ID";
             iconfile = "runnersid-icon.png";
         } else {
@@ -487,7 +478,7 @@ var SubsonicResolver = Tomahawk.extend(TomahawkResolver, {
 
         return {
             prettyname: prettyname,
-            description: this.host + ":" + this.port,
+            description: this.subsonic_url,
             iconfile: iconfile
         };
     }
