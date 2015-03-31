@@ -106,7 +106,7 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Folgen</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
-  <string name="suggest_users">Empfohlene Menschen folgen</string>
+  <string name="suggest_users">Zum Folgen vorgeschlagene Personen</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s folgt nun</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
@@ -171,11 +171,11 @@
   <string name="button_close">Schließen</string>
   <string name="view_album">Album ansehen</string>
   <string name="connect">Verbinden</string>
-  <string name="connect_headertext">Wählen Sie die Dienste aus, die Sie verwenden möchten. Tomahawk funktioniert besser, wenn mehrere Dienste aktiviert sind.</string>
+  <string name="connect_headertext">Wähle die Dienste aus, die Du verwenden möchtest. Tomahawk funktioniert besser, wenn mehrere Dienste aktiviert sind.</string>
   <string name="advanced">Erweitert</string>
   <string name="info">Info</string>
-  <string name="playbackpanel_seek_coachmark">Sie können durch einen Track mit einem Fingertipp hindurchsehen, halten Sie die Play-Taste gedrückt</string>
+  <string name="playbackpanel_seek_coachmark">Durchsuche den Track durch langes Drücken des Play-Buttons</string>
   <string name="playbackfragment_navigation_coachmark_down">Hochziehen, um die aktuelle Playlist zu sehen</string>
-  <string name="playbackfragment_navigation_coachmark_up">Nach unten ziehen, um die Wiedergabe zu schließen</string>
-  <string name="playbackfragment_navigation_coachmark_center">Streichen Sie nach links/rechts, um zum vorherigen/nächsten Titel zu springen. Lang drücken, um das Kontextmenü zu öffnen. Tippen Sie zweimal, um zu Favoriten hinzuzufügen.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Nach unten ziehen, um die Playback-Anzeige zu schließen</string>
+  <string name="playbackfragment_navigation_coachmark_center">Swipe nach links/rechts, um zum vorherigen/nächsten Titel zu springen. Lang drücken, um das Kontextmenü zu öffnen. Tippe zweimal, um den aktuellen Track zu den Favoriten hinzuzufügen.</string>
 </resources>
