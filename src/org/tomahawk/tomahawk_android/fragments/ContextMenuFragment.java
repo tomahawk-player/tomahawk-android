@@ -404,6 +404,7 @@ public class ContextMenuFragment extends Fragment {
                     .ensureInflation(view, R.id.artist_name_button_stub, R.id.artist_name_button);
             TextView textView = (TextView) v.findViewById(R.id.textview);
             textView.setText(mTomahawkListItem.getArtist().getName());
+            v.setOnClickListener(constructArtistNameClickListener());
         }
     }
 
