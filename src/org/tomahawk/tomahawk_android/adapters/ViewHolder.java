@@ -214,6 +214,9 @@ public class ViewHolder {
     }
 
     public void fillView(Playlist playlist) {
+        if (findViewById(R.id.imageview_create_playlist) != null) {
+            findViewById(R.id.imageview_create_playlist).setVisibility(View.GONE);
+        }
         ArrayList<Image> artistImages = new ArrayList<>();
         String topArtistsString = "";
         String[] artists = playlist.getTopArtistNames();
@@ -237,9 +240,11 @@ public class ViewHolder {
         TextView textView2 = (TextView) findViewById(R.id.textview2);
         if (textView2 != null) {
             textView2.setText(topArtistsString);
+            textView2.setVisibility(View.VISIBLE);
         }
         TextView textView3 = (TextView) findViewById(R.id.textview3);
         if (textView3 != null) {
+            textView3.setVisibility(View.VISIBLE);
             if (playlist.getCount() == 1) {
                 textView3.setText(TomahawkApp.getContext()
                         .getString(R.string.songs_with_count_singular, playlist.getCount()));
@@ -289,6 +294,7 @@ public class ViewHolder {
                 v.setVisibility(View.GONE);
             }
             v = TomahawkUtils.ensureInflation(view, gridThreeStubId, gridThreeResId);
+            v.setVisibility(View.VISIBLE);
             TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(),
                     (ImageView) v.findViewById(R.id.imageview1),
                     artistImages.get(0), Image.getLargeImageSize(), false);
@@ -307,8 +313,8 @@ public class ViewHolder {
             if (v != null) {
                 v.setVisibility(View.GONE);
             }
-            v = TomahawkUtils
-                    .ensureInflation(view, gridTwoStubId, gridTwoResId);
+            v = TomahawkUtils.ensureInflation(view, gridTwoStubId, gridTwoResId);
+            v.setVisibility(View.VISIBLE);
             TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(),
                     (ImageView) v.findViewById(R.id.imageview1),
                     artistImages.get(0), Image.getLargeImageSize(), false);
@@ -325,6 +331,7 @@ public class ViewHolder {
                 v.setVisibility(View.GONE);
             }
             v = TomahawkUtils.ensureInflation(view, gridOneStubId, gridOneResId);
+            v.setVisibility(View.VISIBLE);
             if (artistImages.size() > 0) {
                 TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(),
                         (ImageView) v.findViewById(R.id.imageview1),
@@ -357,9 +364,14 @@ public class ViewHolder {
                 }
                 TomahawkUtils.ensureInflation(mRootView, R.id.imageview_create_playlist_stub,
                         R.id.imageview_create_playlist);
+                findViewById(R.id.imageview_create_playlist).setVisibility(View.VISIBLE);
                 TextView textView1 = (TextView) findViewById(R.id.textview1);
                 textView1.setText(
                         TomahawkApp.getContext().getString(R.string.create_playlist).toUpperCase());
+                TextView textView2 = (TextView) findViewById(R.id.textview2);
+                textView2.setVisibility(View.GONE);
+                TextView textView3 = (TextView) findViewById(R.id.textview3);
+                textView3.setVisibility(View.GONE);
                 break;
         }
     }
