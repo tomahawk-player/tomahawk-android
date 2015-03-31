@@ -107,6 +107,7 @@ var SpotifyResolver = Tomahawk.extend(TomahawkResolver, {
         authUrl += "&response_type=code";
         authUrl += "&redirect_uri=" + encodeURIComponent(this.redirectUri);
         authUrl += "&scope=playlist-read-private%20streaming%20user-read-private%20user-library-read";
+        authUrl += "&show_dialog=true";
 
         Tomahawk.showWebView(authUrl);
     },
