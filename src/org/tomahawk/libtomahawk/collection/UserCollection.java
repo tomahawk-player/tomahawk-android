@@ -407,15 +407,16 @@ public class UserCollection extends Collection {
                     .getDefaultSharedPreferences(TomahawkApp.getContext());
             Set<String> setDefaultDirs =
                     preferences.getStringSet(HAS_SET_DEFAULTDIRS, null);
-            if (setDefaultDirs != null) {
-                for (String defaultDir : getStorageDirectories()) {
-                    if (!setDefaultDirs.contains(defaultDir)) {
-                        DatabaseHelper.getInstance().addMediaDir(defaultDir);
-                        setDefaultDirs.add(defaultDir);
-                    }
-                }
-                preferences.edit().putStringSet(HAS_SET_DEFAULTDIRS, setDefaultDirs).commit();
+            if (setDefaultDirs == null) {
+                setDefaultDirs = new HashSet<>();
             }
+            for (String defaultDir : getStorageDirectories()) {
+                if (!setDefaultDirs.contains(defaultDir)) {
+                    DatabaseHelper.getInstance().addMediaDir(defaultDir);
+                    setDefaultDirs.add(defaultDir);
+                }
+            }
+            preferences.edit().putStringSet(HAS_SET_DEFAULTDIRS, setDefaultDirs).commit();
 
             List<String> mediaDirPaths = DatabaseHelper.getInstance().getMediaDirs(false);
             List<File> mediaDirs = new ArrayList<>();
