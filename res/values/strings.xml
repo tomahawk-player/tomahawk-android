@@ -5,6 +5,7 @@
   <string name="login">Login</string>
   <string name="logout">Logout</string>
   <string name="register">Register</string>
+  <string name="register_and_login">Register &amp; Login</string>
   <string name="rescan">Rescan now</string>
   <string name="internal_storage">Internal Storage</string>
   <string name="tracks">Tracks</string>

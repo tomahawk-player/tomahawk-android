@@ -157,6 +157,11 @@ public abstract class ConfigDialog extends DialogFragment {
         return mDialogView;
     }
 
+    protected void addScrollingViewToFrame(View view) {
+        mScrollingDialogFrame.addView(view);
+        updateContainerHeight();
+    }
+
     protected View addScrollingViewToFrame(int layoutId) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(layoutId, mScrollingDialogFrame, false);
