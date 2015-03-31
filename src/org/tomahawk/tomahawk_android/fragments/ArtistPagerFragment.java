@@ -89,6 +89,8 @@ public class ArtistPagerFragment extends PagerFragment {
                 break;
             }
         }
+        getArguments().putString(TomahawkFragment.COLLECTION_ID,
+                collections.get(initialSelection).getId());
         showFancyDropDown(mArtist, initialSelection,
                 FancyDropDown.convertToDropDownItemInfo(collections),
                 new FancyDropDown.DropDownListener() {
