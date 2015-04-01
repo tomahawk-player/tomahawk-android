@@ -174,8 +174,5 @@
   <string name="connect_headertext">Wähle die Dienste aus, die Du verwenden möchtest. Tomahawk funktioniert besser, wenn mehrere Dienste aktiviert sind.</string>
   <string name="advanced">Erweitert</string>
   <string name="info">Info</string>
-  <string name="playbackpanel_seek_coachmark">Durchsuche den Track durch langes Drücken des Play-Buttons</string>
-  <string name="playbackfragment_navigation_coachmark_down">Hochziehen, um die aktuelle Playlist zu sehen</string>
-  <string name="playbackfragment_navigation_coachmark_up">Nach unten ziehen, um die Playback-Anzeige zu schließen</string>
   <string name="playbackfragment_navigation_coachmark_center">Swipe nach links/rechts, um zum vorherigen/nächsten Titel zu springen. Lang drücken, um das Kontextmenü zu öffnen. Tippe zweimal, um den aktuellen Track zu den Favoriten hinzuzufügen.</string>
 </resources>
