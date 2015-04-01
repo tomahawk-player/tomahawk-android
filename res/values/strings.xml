@@ -176,8 +176,8 @@
   <string name="connect_headertext">Select the services you want to use. Tomahawk works better when more services are activated.</string>
   <string name="advanced">Advanced</string>
   <string name="info">Info</string>
-  <string name="playbackpanel_seek_coachmark">You can seek through a track with a tap&amp;hold on the play-button</string>
-  <string name="playbackfragment_navigation_coachmark_down">Pull up to see the current playlist</string>
-  <string name="playbackfragment_navigation_coachmark_up">Pull down to close the playback drawer</string>
+  <string name="playbackpanel_seek_coachmark">You can seek through a track with a long-press on the Play button.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Pull up to see the current playlist.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Pull down to close the playback drawer.</string>
   <string name="playbackfragment_navigation_coachmark_center">Swipe left/right to skip to the next/previous track. Long-press to open context menu. Double-tap to add to favorites.</string>
 </resources>
