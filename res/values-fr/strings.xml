@@ -174,8 +174,5 @@
   <string name="connect_headertext">Sélectionnez les services que vous souhaitez utiliser. Tomahawk fonctionne d\'autant mieux que plusieurs services sont activés.</string>
   <string name="advanced">Avancé</string>
   <string name="info">Info</string>
-  <string name="playbackpanel_seek_coachmark">Vous pouvez naviguer dans la piste en appuyant-glissant sur le bouton de lecture</string>
-  <string name="playbackfragment_navigation_coachmark_down">Swipez vers le haut pour voir la liste de lecture en cours</string>
-  <string name="playbackfragment_navigation_coachmark_up">Swipez vers le bas pour fermer l\'aperçu de lecture</string>
   <string name="playbackfragment_navigation_coachmark_center">Swipez à gauche/droite pour passer à la piste précédente/suivante. Maintenez appuyé pour ouvrir le menu contextuel. Appuyez deux fois pour ajouter aux favoris.</string>
 </resources>

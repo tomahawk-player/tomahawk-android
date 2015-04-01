@@ -174,8 +174,5 @@
   <string name="connect_headertext">请选择要使用的服务。激活的服务更多，Tomahawk 工作的越好。</string>
   <string name="advanced">高级</string>
   <string name="info">信息</string>
-  <string name="playbackpanel_seek_coachmark">你可以轻击&amp;按住播放键来快进/快退</string>
-  <string name="playbackfragment_navigation_coachmark_down">上拉显示当前播放列表</string>
-  <string name="playbackfragment_navigation_coachmark_up">下拉关闭播放控制栏</string>
   <string name="playbackfragment_navigation_coachmark_center">左/右滑跳到上首/下首歌曲。长按打开文本菜单。双击添加为喜欢。</string>
 </resources>

@@ -174,8 +174,5 @@
   <string name="connect_headertext">Selecione os serviços que quer utilizar. Quantos mais serviços, melhor o Tomahawk se torna.</string>
   <string name="advanced">Avançado</string>
   <string name="info">Informações</string>
-  <string name="playbackpanel_seek_coachmark">Pode procurar a faixa clicando e mantendo premido o botão Reproduzir</string>
-  <string name="playbackfragment_navigation_coachmark_down">Puxe para cima para ver a lista de reprodução atual</string>
-  <string name="playbackfragment_navigation_coachmark_up">Puxe para baixo para fechar a gaveta de navegação</string>
   <string name="playbackfragment_navigation_coachmark_center">Deslize para a esquerda/direita para recuar/avançar uma faixa. Clique longo para abrir o menu de contexto. Duplo clique para adicionar aos favoritos.</string>
 </resources>
