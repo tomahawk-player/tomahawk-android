@@ -5,6 +5,7 @@
   <string name="login">Iniciar sessão</string>
   <string name="logout">Fechar sessão</string>
   <string name="register">Registar</string>
+  <string name="register_and_login">Registar e iniciar sessão</string>
   <string name="rescan">Reanalisar agora</string>
   <string name="internal_storage">Armazenamento interno</string>
   <string name="tracks">Faixas</string>
@@ -174,5 +175,8 @@
   <string name="connect_headertext">Selecione os serviços que quer utilizar. Quantos mais serviços, melhor o Tomahawk se torna.</string>
   <string name="advanced">Avançado</string>
   <string name="info">Informações</string>
+  <string name="playbackpanel_seek_coachmark">Pode percorrer uma faixa através de um toque longo no botão Reproduxirt.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Deslize acima para ver a lista de reprodução.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Deslize abaixo para fechar a gaveta de navegação.</string>
   <string name="playbackfragment_navigation_coachmark_center">Deslize para a esquerda/direita para recuar/avançar uma faixa. Clique longo para abrir o menu de contexto. Duplo clique para adicionar aos favoritos.</string>
 </resources>
