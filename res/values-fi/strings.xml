@@ -5,6 +5,7 @@
   <string name="login">Kirjaudu</string>
   <string name="logout">Kirjaudu ulos</string>
   <string name="register">Rekisteröity</string>
+  <string name="register_and_login">Rekisteröidy &amp; kirjaudu</string>
   <string name="rescan">Etsi uudelleen nyt</string>
   <string name="internal_storage">Sisäinen tallennustila</string>
   <string name="tracks">Kappaleet</string>
@@ -106,6 +107,7 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Seuraa</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">Ehdotuksia ihmisistä, joita seurata</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s seuraa nyt</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
@@ -162,6 +164,7 @@
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Seuraamassa</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">Seuraajia: %1$d, Seuraa: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Kirjaudu\npalveluun</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Kirjaudu ulos\npalvelusta</string>
   <string name="ask_access_activity_header">Haluatko tallentaa kaikkien kuuntelemiesi kappaleiden tiedot automaattisesti Hatchetiin?</string>
@@ -172,4 +175,8 @@
   <string name="connect_headertext">Valitse palvelut, joita haluat käyttää. Tomahawk toimii sitä paremmin, mitä enemmän palveluita on käytössä.</string>
   <string name="advanced">Lisäasetukset</string>
   <string name="info">Info</string>
+  <string name="playbackpanel_seek_coachmark">Voit kelata kappaletta pitämällä soittopainiketta pohjassa pitkään.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Vedä ylös nähdäksesi nykyisen soittolistan.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Vedä alas sulkeaksesi toiston vetovalikon.</string>
+  <string name="playbackfragment_navigation_coachmark_center">Siirry seuraavaan/edelliseen kappaleeseen pyyhkäisemällä vasemmalle/oikealle. Avaa kontekstivalikko pitämällä pitkään pohjassa. Lisää suosikkeihin kaksoisnapauttamalla.</string>
 </resources>
