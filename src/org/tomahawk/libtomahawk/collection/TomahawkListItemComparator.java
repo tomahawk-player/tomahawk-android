@@ -94,22 +94,21 @@ public class TomahawkListItemComparator
                 } else {
                     a2TimeStamp = (Long) mTimeStampMap.get(a2.getName().toLowerCase());
                 }
+                if (a1TimeStamp == null) {
+                    a1TimeStamp = 0L;
+                }
+                if (a2TimeStamp == null) {
+                    a2TimeStamp = 0L;
+                }
 
-                if (a1TimeStamp == null && a2TimeStamp == null) {
-                    result = 0;
-                } else if (a1TimeStamp == null
-                        || (a2TimeStamp != null && a1TimeStamp > a2TimeStamp)) {
+                if (a1TimeStamp > a2TimeStamp) {
                     result = -1;
-                } else if (a2TimeStamp == null
-                        || a1TimeStamp < a2TimeStamp) {
+                } else if (a1TimeStamp < a2TimeStamp) {
                     result = 1;
                 } else {
                     result = 0;
                 }
                 break;
-        }
-        if (result == 0 && a1 != a2) {
-            result++;
         }
         return result;
     }
