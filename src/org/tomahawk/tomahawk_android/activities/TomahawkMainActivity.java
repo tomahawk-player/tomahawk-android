@@ -64,6 +64,7 @@ import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.fragments.UserPagerFragment;
+import org.tomahawk.tomahawk_android.fragments.WelcomeFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
@@ -149,6 +150,9 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public static final String COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED
             = "coachmark_playbackfragment_navigation_disabled";
+
+    public static final String COACHMARK_WELCOMEFRAGMENT_DISABLED
+            = "coachmark_welcomefragment_disabled";
 
     public static int ACTIONBAR_HEIGHT;
 
@@ -724,6 +728,13 @@ public class TomahawkMainActivity extends ActionBarActivity
                         .commit();
                 FragmentUtils.addRootFragment(TomahawkMainActivity.this,
                         hatchetAuthUtils.getLoggedInUser());
+
+                SharedPreferences preferences =
+                        PreferenceManager.getDefaultSharedPreferences(this);
+                if (!preferences.getBoolean(
+                        TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED, false)) {
+                    FragmentUtils.add(this, WelcomeFragment.class, null, R.id.content_viewer_frame);
+                }
             } else {
                 boolean actionBarHidden = mSavedInstanceState
                         .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
@@ -1047,7 +1058,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mSlidingOffset = v;
         if (v > 0.5f) {
             hideActionbar();
-        } else if (v < 0.5f) {
+        } else if (v < 0.5f && v > 0f) {
             showActionBar(true);
         }
         final View topPanel = mSlidingUpPanelLayout.findViewById(R.id.top_buttonpanel);

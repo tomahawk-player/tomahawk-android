@@ -180,4 +180,5 @@
   <string name="playbackfragment_navigation_coachmark_down">Pull up to see the current playlist.</string>
   <string name="playbackfragment_navigation_coachmark_up">Pull down to close the playback drawer.</string>
   <string name="playbackfragment_navigation_coachmark_center">Swipe left/right to skip to the next/previous track. Long-press to open context menu. Double-tap to add to favorites.</string>
+  <string name="next_page">Next</string>
 </resources>

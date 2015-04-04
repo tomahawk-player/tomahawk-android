@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <TextView android:id="@+id/config_dialog_title_textview"
+              android:layout_width="match_parent"
+              android:layout_height="@dimen/abc_action_bar_default_height_material"
+              android:paddingRight="@dimen/padding_large"
+              android:paddingLeft="@dimen/padding_large"
+              android:textSize="@dimen/text_size_verylarge"
+              android:textColor="@color/primary_textcolor_inverted"
+              android:gravity="center_vertical"
+              android:text="Want to socialize?"
+              android:background="@color/tomahawk_red"/>
+
+    <ScrollView android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:fillViewport="true">
+
+        <LinearLayout android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:orientation="vertical">
+
+            <TextView android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center"
+                      android:paddingTop="@dimen/padding_superlarge"
+                      android:paddingLeft="@dimen/padding_superlarge"
+                      android:paddingRight="@dimen/padding_superlarge"
+                      android:paddingBottom="@dimen/padding_small"
+                      android:textSize="@dimen/text_size_medium"
+                      android:textColor="@color/primary_textcolor"
+                      android:drawableRight="@drawable/ic_hatchet"
+                      android:text="With Hatchet you can finally have your music collection in one place. Share your playlists and favorite tracks. Or simply sync the App with Tomahawk on your desktop machine."/>
+
+            <org.tomahawk.tomahawk_android.views.HatchetLoginRegisterView
+                    android:id="@+id/hatchetloginregister"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/padding_small"
+                    android:layout_marginBottom="@dimen/padding_small"
+                    android:layout_marginLeft="@dimen/padding_superlarge"
+                    android:layout_marginRight="@dimen/padding_superlarge"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>
