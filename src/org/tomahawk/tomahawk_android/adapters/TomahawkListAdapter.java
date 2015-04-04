@@ -575,7 +575,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             return R.layout.list_item_user;
         } else if (segment.isHideArtistName()) {
             return R.layout.list_item_numeration_track_duration;
-        } else if (segment.isShowNumeration()) {
+        } else if (segment.isShowNumeration() || segment.isShowAsQueued()) {
             return R.layout.list_item_numeration_track_artist;
         } else {
             return R.layout.list_item_track_artist;
