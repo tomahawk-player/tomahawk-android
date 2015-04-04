@@ -1127,6 +1127,11 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onPanelExpanded(View view) {
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(this);
+        preferences.edit().putBoolean(
+                TomahawkMainActivity.COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED, true)
+                .apply();
         sendSlidingLayoutChangedEvent();
     }
 
