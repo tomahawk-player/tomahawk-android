@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
@@ -67,7 +68,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
         mNameEditText.setHint(R.string.name_playlist);
         mNameEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
 
-        showSoftKeyboard(mNameEditText);
+        TomahawkUtils.showSoftKeyboard(mNameEditText);
 
         //Set the textview's text to the proper title
         setDialogTitle(getString(R.string.create_playlist));

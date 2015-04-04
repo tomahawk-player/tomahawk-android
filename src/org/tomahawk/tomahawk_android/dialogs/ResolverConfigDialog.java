@@ -136,7 +136,7 @@ public class ResolverConfigDialog extends ConfigDialog {
             lastEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
         }
         if (showKeyboardEditText != null) {
-            showSoftKeyboard(showKeyboardEditText);
+            TomahawkUtils.showSoftKeyboard(showKeyboardEditText);
         }
         setDialogTitle(mScriptResolver.getName());
         if (!mScriptResolver.isConfigTestable()) {

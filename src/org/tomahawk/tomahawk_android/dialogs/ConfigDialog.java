@@ -24,15 +24,12 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.ui.widgets.BoundedLinearLayout;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -68,7 +65,7 @@ public abstract class ConfigDialog extends DialogFragment {
 
     private ImageView mConnectBgImageView;
 
-    private SmoothProgressBar mProgressBar;
+    protected SmoothProgressBar mProgressBar;
 
     private boolean mResolverEnabled;
 
@@ -240,37 +237,17 @@ public abstract class ConfigDialog extends DialogFragment {
         }
     }
 
-    protected void showSoftKeyboard(final EditText editText) {
-        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, final boolean hasFocus) {
-                editText.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (getActivity() != null) {
-                            InputMethodManager imm = (InputMethodManager) getActivity()
-                                    .getSystemService(Context.INPUT_METHOD_SERVICE);
-                            imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
-                        }
-                    }
-                });
-                editText.setOnFocusChangeListener(null);
-            }
-        });
-        editText.requestFocus();
-    }
-
     /**
      * Start the loading animation. Called when beginning login process.
      */
-    protected void startLoadingAnimation() {
+    public void startLoadingAnimation() {
         mProgressBar.setVisibility(View.VISIBLE);
     }
 
     /**
      * Stop the loading animation. Called when login/logout process has finished.
      */
-    protected void stopLoadingAnimation() {
+    public void stopLoadingAnimation() {
         mProgressBar.setVisibility(View.GONE);
     }
 

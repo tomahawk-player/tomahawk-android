@@ -42,6 +42,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewStub;
 import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RemoteViews;
 import android.widget.TextView;
@@ -946,5 +948,23 @@ public class TomahawkUtils {
         } catch (JSONException e) {
             Log.e(TAG, "putFloatArray: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
+    }
+
+    public static void showSoftKeyboard(final EditText editText) {
+        editText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, final boolean hasFocus) {
+                editText.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        InputMethodManager imm = (InputMethodManager) TomahawkApp.getContext()
+                                .getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+                    }
+                });
+                editText.setOnFocusChangeListener(null);
+            }
+        });
+        editText.requestFocus();
     }
 }
