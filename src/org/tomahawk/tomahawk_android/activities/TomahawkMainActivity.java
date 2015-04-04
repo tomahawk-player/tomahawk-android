@@ -581,17 +581,16 @@ public class TomahawkMainActivity extends ActionBarActivity
             List<String> pathSegments = data.getPathSegments();
             String host = data.getHost();
             String scheme = data.getScheme();
-            if (scheme.equals("tomahawkspotifyresolver")) {
+            if (scheme != null && scheme.equals("tomahawkspotifyresolver")) {
                 ResolverUrlHandler urlHandler = PipeLine.getInstance().getCustomUrlHandler(scheme);
                 if (urlHandler != null) {
                     urlHandler.getResolver().onRedirectCallback(
                             urlHandler.getCallbackFunctionName(), data.toString());
                 }
-            } else if (host.contains("hatchet.is") || host.contains("toma.hk") || host
-                    .contains("spotify")
-                    || host.contains("tomahawk") || host.contains("beatsmusic.com")
-                    || host.contains("deezer.com") || host.contains("rdio.com")
-                    || host.contains("soundcloud.com")) {
+            } else if ((scheme != null && (scheme.equals("spotify") || scheme.equals("tomahawk")))
+                    || host != null && (host.contains("hatchet.is") || host.contains("toma.hk")
+                    || host.contains("beatsmusic.com") || host.contains("deezer.com")
+                    || host.contains("rdio.com") || host.contains("soundcloud.com"))) {
                 PipeLine.getInstance().lookupUrl(data.toString());
             } else {
                 String albumName = null;
