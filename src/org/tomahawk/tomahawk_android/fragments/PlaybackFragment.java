@@ -196,9 +196,6 @@ public class PlaybackFragment extends TomahawkFragment {
                         }
                     });
             coachMark.setVisibility(View.VISIBLE);
-            preferences.edit().putBoolean(
-                    TomahawkMainActivity.COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED, true)
-                    .apply();
         }
     }
 
