@@ -179,4 +179,5 @@
   <string name="playbackfragment_navigation_coachmark_down">プルアップすると現在のプレイリストを表示します。</string>
   <string name="playbackfragment_navigation_coachmark_up">プルダウンすると再生ドロワーを閉じます。</string>
   <string name="playbackfragment_navigation_coachmark_center">左/右にスワイプすると、次/前のトラックにスキップします。 長押しすると、コンテキストメニューを開きます。ダブルタップすると、お気に入りに追加します。</string>
+  <string name="next_page">次へ</string>
 </resources>

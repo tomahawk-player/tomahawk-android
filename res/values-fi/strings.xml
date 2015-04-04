@@ -179,4 +179,5 @@
   <string name="playbackfragment_navigation_coachmark_down">Vedä ylös nähdäksesi nykyisen soittolistan.</string>
   <string name="playbackfragment_navigation_coachmark_up">Vedä alas sulkeaksesi toiston vetovalikon.</string>
   <string name="playbackfragment_navigation_coachmark_center">Siirry seuraavaan/edelliseen kappaleeseen pyyhkäisemällä vasemmalle/oikealle. Avaa kontekstivalikko pitämällä pitkään pohjassa. Lisää suosikkeihin kaksoisnapauttamalla.</string>
+  <string name="next_page">Seuraava</string>
 </resources>
