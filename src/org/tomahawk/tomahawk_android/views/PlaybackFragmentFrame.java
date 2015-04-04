@@ -102,7 +102,9 @@ public class PlaybackFragmentFrame extends FrameLayout {
             ensureTouchCancel(event);
         } else {
             getParent().requestDisallowInterceptTouchEvent(true);
-            getChildAt(0).dispatchTouchEvent(event);
+            if (getChildAt(0) != null) {
+                getChildAt(0).dispatchTouchEvent(event);
+            }
             getParent().requestDisallowInterceptTouchEvent(true);
         }
 
