@@ -319,7 +319,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         @Override
                         public void run() {
                             TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-                            if (activity != null) {
+                            if (activity != null && getListView() != null) {
                                 LayoutInflater layoutInflater = getActivity().getLayoutInflater();
                                 if (getListAdapter() == null) {
                                     TomahawkListAdapter tomahawkListAdapter
