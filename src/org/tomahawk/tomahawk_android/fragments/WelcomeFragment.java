@@ -67,11 +67,11 @@ public class WelcomeFragment extends Fragment {
             View v = null;
             switch (position) {
                 case 0:
-                    v = inflater.inflate(R.layout.welcome_dialog_page_explanation, container,
+                    v = inflater.inflate(R.layout.welcome_fragment_page_explanation, container,
                             false);
                     break;
                 case 1:
-                    v = inflater.inflate(R.layout.welcome_dialog_page_setup, container,
+                    v = inflater.inflate(R.layout.welcome_fragment_page_setup, container,
                             false);
                     FragmentTransaction ft = getChildFragmentManager().beginTransaction();
                     ft.add(R.id.welcome_fragment_page_setup_container,
@@ -80,7 +80,7 @@ public class WelcomeFragment extends Fragment {
                     ft.commit();
                     break;
                 case 2:
-                    v = inflater.inflate(R.layout.welcome_dialog_page_hatchet, container,
+                    v = inflater.inflate(R.layout.welcome_fragment_page_hatchet, container,
                             false);
                     ProgressBar progressBar = (ProgressBar) v.findViewById(R.id.smoothprogressbar);
                     HatchetAuthenticatorUtils authenticatorUtils = (HatchetAuthenticatorUtils)
@@ -91,7 +91,7 @@ public class WelcomeFragment extends Fragment {
                     hatchetLoginRegisterView.setup(getActivity(), authenticatorUtils, progressBar);
                     break;
                 case 3:
-                    v = inflater.inflate(R.layout.welcome_dialog_page_done, container,
+                    v = inflater.inflate(R.layout.welcome_fragment_page_done, container,
                             false);
                     break;
             }
@@ -143,7 +143,7 @@ public class WelcomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.welcome_dialog, container, false);
+        return inflater.inflate(R.layout.welcome_fragment, container, false);
     }
 
     @Override
