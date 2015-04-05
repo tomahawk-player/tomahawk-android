@@ -184,9 +184,8 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
                 view = convertView;
             } else {
                 LayoutInflater layoutInflater = LayoutInflater.from(TomahawkApp.getContext());
-                view = layoutInflater.inflate(R.layout.list_item_folder, parent, false);
-                view.setBackgroundResource(R.drawable.selectable_background_tomahawk_opaque);
-                viewHolder = new ViewHolder(view, R.layout.list_item_folder);
+                view = layoutInflater.inflate(R.layout.list_item_folder_header, parent, false);
+                viewHolder = new ViewHolder(view, R.layout.list_item_folder_header);
                 view.setTag(viewHolder);
             }
 
@@ -194,9 +193,7 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
             final CustomDirectory dir = (CustomDirectory) getItem(position);
             if (dir != null) {
                 textView.setText("../" + getVisibleName(dir.file.getParentFile()));
-                textView.setTypeface(null, Typeface.BOLD);
             }
-            view.findViewById(R.id.browsable_indicator).setVisibility(View.INVISIBLE);
 
             return view;
         } else {

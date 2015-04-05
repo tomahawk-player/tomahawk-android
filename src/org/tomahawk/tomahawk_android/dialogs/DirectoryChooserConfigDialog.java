@@ -51,7 +51,6 @@ public class DirectoryChooserConfigDialog extends ConfigDialog {
         setDialogTitle(getString(R.string.local_collection_pretty_name));
         setStatus(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION));
         setPositiveButtonText(R.string.rescan);
-        hideNegativeButton();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
@@ -77,6 +76,6 @@ public class DirectoryChooserConfigDialog extends ConfigDialog {
 
     @Override
     protected void onNegativeAction() {
-        // We don't care about this since we don't offer a negative button in a DirectoryChooserConfigDialog
+        dismiss();
     }
 }
