@@ -31,7 +31,7 @@
               android:textSize="@dimen/text_size_verylarge"
               android:textColor="@color/primary_textcolor_inverted"
               android:gravity="center_vertical"
-              android:text="Connect"
+              android:text="@string/welcome_fragment_setup_title"
               android:background="@color/tomahawk_red"/>
 
     <FrameLayout android:id="@+id/welcome_fragment_page_setup_container"
