@@ -31,7 +31,7 @@
               android:textSize="@dimen/text_size_verylarge"
               android:textColor="@color/primary_textcolor_inverted"
               android:gravity="center_vertical"
-              android:text="Done!"
+              android:text="@string/welcome_fragment_done_title"
               android:background="@color/tomahawk_red"/>
 
     <ScrollView android:layout_width="match_parent"
@@ -60,7 +60,8 @@
                       android:padding="@dimen/padding_large"
                       android:textSize="@dimen/text_size_large"
                       android:textColor="@color/primary_textcolor"
-                      android:text="ALL DONE."/>
+                      android:textAllCaps="true"
+                      android:text="@string/welcome_fragment_done_heading"/>
 
             <TextView android:id="@+id/textview2"
                       android:layout_width="match_parent"
@@ -69,7 +70,7 @@
                       android:padding="@dimen/padding_large"
                       android:textSize="@dimen/text_size_large"
                       android:textColor="@color/primary_textcolor"
-                      android:text="Have fun exploring the app and be sure to tell us what you think!"/>
+                      android:text="@string/welcome_fragment_done_text"/>
 
             <Space android:layout_width="match_parent"
                    android:layout_height="0dp"

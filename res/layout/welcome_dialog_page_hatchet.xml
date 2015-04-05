@@ -31,7 +31,7 @@
               android:textSize="@dimen/text_size_verylarge"
               android:textColor="@color/primary_textcolor_inverted"
               android:gravity="center_vertical"
-              android:text="Want to socialize?"
+              android:text="@string/welcome_fragment_hatchet_title"
               android:background="@color/tomahawk_red"/>
 
     <ScrollView android:layout_width="match_parent"
@@ -53,7 +53,7 @@
                       android:textSize="@dimen/text_size_medium"
                       android:textColor="@color/primary_textcolor"
                       android:drawableRight="@drawable/ic_hatchet"
-                      android:text="With Hatchet you can finally have your music collection in one place. Share your playlists and favorite tracks. Or simply sync the App with Tomahawk on your desktop machine."/>
+                      android:text="@string/welcome_fragment_hatchet_text"/>
 
             <org.tomahawk.tomahawk_android.views.HatchetLoginRegisterView
                     android:id="@+id/hatchetloginregister"

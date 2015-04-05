@@ -31,7 +31,7 @@
               android:textSize="@dimen/text_size_verylarge"
               android:textColor="@color/primary_textcolor_inverted"
               android:gravity="center_vertical"
-              android:text="Getting started"
+              android:text="@string/welcome_fragment_explanation_title"
               android:background="@color/tomahawk_red"/>
 
     <ScrollView android:layout_width="match_parent"
@@ -60,7 +60,8 @@
                       android:padding="@dimen/padding_large"
                       android:textSize="@dimen/text_size_large"
                       android:textColor="@color/primary_textcolor"
-                      android:text="MUSIC IS EVERYWHERE.\nNOW YOU DON'T HAVE TO BE."/>
+                      android:textAllCaps="true"
+                      android:text="@string/welcome_fragment_explanation_heading"/>
 
             <TextView android:layout_width="match_parent"
                       android:layout_height="wrap_content"
@@ -68,7 +69,7 @@
                       android:gravity="center"
                       android:textSize="@dimen/text_size_medium"
                       android:textColor="@color/primary_textcolor"
-                      android:text="Stop chasing music across the web - to services you don't use, or sources you don't have access to. Given the name or link to a song, album or playlist, Tomahawk will find the best available source for you and just play it."/>
+                      android:text="@string/welcome_fragment_explanation_text"/>
 
             <Space android:layout_width="match_parent"
                    android:layout_height="0dp"
