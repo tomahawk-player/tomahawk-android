@@ -41,8 +41,9 @@
               android:paddingLeft="@dimen/padding_large"
               android:paddingRight="@dimen/padding_large"
               android:layout_margin="@dimen/padding_small"
+              android:singleLine="true"
               android:gravity="center"
-              android:textSize="@dimen/text_size_verylarge"
+              android:textSize="@dimen/text_size_medium"
               android:textColor="@color/primary_textcolor_inverted"
               android:text="@string/register_and_login"
               android:background="@drawable/selectable_background_tomahawk_hatchet"/>

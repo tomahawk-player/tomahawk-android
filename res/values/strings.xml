@@ -183,8 +183,8 @@
   <!-- Shown as a button in the welcome view. A press of the button gets you to the next page. -->
   <string name="next_page">Next</string>
   <string name="welcome_fragment_explanation_title">Getting started</string>
-  <string name="welcome_fragment_explanation_heading">Music is everywhere.\nNow you don't have to be.</string>
-  <string name="welcome_fragment_explanation_text">Stop chasing music across the web - to services you don't use, or sources you don't have access to. Given the name or link to a song, album or playlist, Tomahawk will find the best available source for you and just play it.</string>
+  <string name="welcome_fragment_explanation_heading">Music is everywhere.\nNow you don\'t have to be.</string>
+  <string name="welcome_fragment_explanation_text">Stop chasing music across the web - to services you don\'t use, or sources you don\'t have access to. Given the name or link to a song, album or playlist, Tomahawk will find the best available source for you and just play it.</string>
   <string name="welcome_fragment_hatchet_title">Want to socialize?</string>
   <string name="welcome_fragment_hatchet_text">With Hatchet you can finally have your music collection in one place. Share your playlists and favorite tracks. Or simply sync the App with Tomahawk on your desktop machine.</string>
   <string name="welcome_fragment_setup_title">Connect</string>
