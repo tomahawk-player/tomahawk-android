@@ -126,4 +126,5 @@
   <string name="view_album">Žiūrėti Albumą</string>
   <string name="connect_headertext">Pasirinkite paslaugas, kuriomis norite naudotis. Tomahawk veikia geriau, kuomet yra aktyvuota daugiau paslaugų.</string>
   <string name="info">Informacija</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

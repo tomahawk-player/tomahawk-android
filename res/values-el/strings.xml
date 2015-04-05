@@ -179,4 +179,5 @@
   <string name="playbackfragment_navigation_coachmark_down">Τραβήξτε προς τα πάνω για να δείτε την τρέχουσα λίστα αναπαραγωγής</string>
   <string name="playbackfragment_navigation_coachmark_up">Τραβήξτε προς τα κάτω για να κλείσετε το συρτάρι αναπαραγωγής</string>
   <string name="playbackfragment_navigation_coachmark_center">Σύρετε προς τα αριστερά/δεξιά για να μεταβείτε στο επόμενο/προηγούμενο κομμάτι. Μακρύ-πατήμα για να ανοίξετε το μενού περιεχομένου. Διπλό χτύπημα για να προσθέσετε στα αγαπημένα.</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

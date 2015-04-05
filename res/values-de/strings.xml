@@ -179,4 +179,15 @@
   <string name="playbackfragment_navigation_coachmark_down">Hochziehen, um die aktuelle Playlist zu sehen</string>
   <string name="playbackfragment_navigation_coachmark_up">Nach unten ziehen, um die Wiedergabe zu schließen</string>
   <string name="playbackfragment_navigation_coachmark_center">Swipe nach links/rechts, um zum vorherigen/nächsten Titel zu springen. Lang drücken, um das Kontextmenü zu öffnen. Tippe zweimal, um den aktuellen Track zu den Favoriten hinzuzufügen.</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="next_page">Weiter</string>
+  <string name="welcome_fragment_explanation_title">Einführung</string>
+  <string name="welcome_fragment_explanation_heading">Musik ist überall.\nJetzt musst du es nicht mehr sein.</string>
+  <string name="welcome_fragment_explanation_text">Hör auf deiner Musik hinterherzujagen - nur um Dienste zu finden, die du nicht nutzt oder zu denen du keinen Zugang hast. Durch die Eingabe eines Namens oder eines Links zu einem Lied, Album oder zu einer Playlist sucht Tomahawk für dich die beste verfügbare Quelle heraus und spielt das Lied einfach ab.</string>
+  <string name="welcome_fragment_hatchet_title">Lust unter Leute zu kommen?</string>
+  <string name="welcome_fragment_hatchet_text">Mit Hatchet kannst du endlich deine Musiksammlung an einem einzigen Ort haben. Teile deine Playlists und deine Lieblingslieder oder synchronisiere die App mit Tomahawk auf deinem Desktoprechner.</string>
+  <string name="welcome_fragment_setup_title">Verbinden</string>
+  <string name="welcome_fragment_done_title">Fertig!</string>
+  <string name="welcome_fragment_done_heading">Alles erledigt!</string>
+  <string name="welcome_fragment_done_text">Viel Spaß beim Erkunden der App! Wir freuen uns auf dein Feedback!</string>
 </resources>

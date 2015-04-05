@@ -127,4 +127,5 @@
   <string name="ask_access_activity_text1">เราจะทำสิ่งนั้นให้คุณ! โปรดเลือกใช้งานบริการของเราในการตั้งค่าระบบ</string>
   <string name="button_close">ปิด</string>
   <string name="view_album">ดูอัลบั้ม</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

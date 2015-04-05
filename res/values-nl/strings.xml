@@ -175,4 +175,5 @@
   <string name="advanced">Geavanceerd</string>
   <string name="info">Informatie</string>
   <string name="playbackfragment_navigation_coachmark_center">Veeg naar links/rechts om door te gaan naar het vorige/volgende nummer. Houdt ingedrukt om het contextmenu te openen. 2 keer tikken voegt het nummer toe aan uw favorieten.</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

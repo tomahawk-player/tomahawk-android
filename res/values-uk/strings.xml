@@ -127,4 +127,5 @@
   <string name="view_album">Перегляд альбому</string>
   <string name="connect">З’єднання</string>
   <string name="info">Інфо</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

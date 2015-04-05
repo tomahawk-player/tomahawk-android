@@ -147,4 +147,5 @@
   <string name="connect_headertext">Vyberte služby, jež hodláte používat. Tomahawk pracuje lépe, když je zapnuto více služeb.</string>
   <string name="advanced">Pokročilé</string>
   <string name="info">Informace</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

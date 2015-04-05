@@ -135,4 +135,5 @@
   <string name="connect_headertext">اختر الخدمات الّتي تريد استخدامها. يعمل توماهوك أفضل عندما تكون خدمات أكثر مفعّلة.</string>
   <string name="advanced">متقدّم</string>
   <string name="info">معلومات</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

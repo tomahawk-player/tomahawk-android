@@ -135,4 +135,5 @@
   <string name="button_close">Chiudi</string>
   <string name="view_album">Vedi Album</string>
   <string name="connect_headertext">Seleziona i servizi che vuoi utilizzare. Tomahawk funziona meglio se più servizi sono attivati.</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

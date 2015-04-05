@@ -32,4 +32,5 @@
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>
