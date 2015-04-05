@@ -128,4 +128,5 @@
   <string name="ask_access_activity_text1">Vi fixar det åt dig! Aktivera vår tjänst i systeminställningarna.</string>
   <string name="button_close">Stäng</string>
   <string name="view_album">Se album</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

@@ -138,4 +138,5 @@
   <string name="ask_access_activity_text1">Akan kami lakukan untuk Anda! Mohon aktifkan layanan kami di setelan sistem Anda.</string>
   <string name="button_close">Tutup</string>
   <string name="view_album">Lihat Album</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

@@ -142,4 +142,5 @@
   <string name="connect_headertext">Kullanmak istediğin servisi seç. Daha fazla hizmet etkinleştirildiğinde Tomahawk daha iyi çalışır.</string>
   <string name="advanced">Gelişmiş</string>
   <string name="info">Bilgi</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

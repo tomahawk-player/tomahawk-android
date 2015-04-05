@@ -101,4 +101,5 @@
   <string name="resolver_config_redirect_button_text_log_out_of">Выйти из</string>
   <string name="ask_access_activity_header">Хотите автоматически скробблировать играемые треки в Hatchet?</string>
   <string name="ask_access_activity_text1">Мы сделаем это для вас! Пожалуйста, включите наш сервис в настройках вашей системы.</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

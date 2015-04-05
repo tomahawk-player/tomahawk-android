@@ -175,4 +175,5 @@
   <string name="advanced">高级</string>
   <string name="info">信息</string>
   <string name="playbackfragment_navigation_coachmark_center">左/右滑跳到上首/下首歌曲。长按打开文本菜单。双击添加为喜欢。</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

@@ -179,5 +179,6 @@
   <string name="playbackfragment_navigation_coachmark_down">Deslize acima para ver a lista de reprodução.</string>
   <string name="playbackfragment_navigation_coachmark_up">Deslize abaixo para fechar a gaveta de navegação.</string>
   <string name="playbackfragment_navigation_coachmark_center">Deslize para a esquerda/direita para recuar/avançar uma faixa. Clique longo para abrir o menu de contexto. Duplo clique para adicionar aos favoritos.</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">Seguinte</string>
 </resources>

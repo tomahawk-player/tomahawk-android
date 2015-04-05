@@ -126,4 +126,5 @@
   <string name="connect">Conectar</string>
   <string name="connect_headertext">Selecione os serviços que você quer usar. O Tomahawk funciona melhor com mais seviços ativados.</string>
   <string name="info">Informação</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>

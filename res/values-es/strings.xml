@@ -160,4 +160,5 @@
   <string name="connect_headertext">Selecciona los servicios que deseas utilizar. Tomahawk funciona mejor cuando se activan más servicios.</string>
   <string name="advanced">Avanzado</string>
   <string name="info">Información</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>
