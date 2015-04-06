@@ -180,4 +180,14 @@
   <string name="playbackfragment_navigation_coachmark_up">Τραβήξτε προς τα κάτω για να κλείσετε το συρτάρι αναπαραγωγής</string>
   <string name="playbackfragment_navigation_coachmark_center">Σύρετε προς τα αριστερά/δεξιά για να μεταβείτε στο επόμενο/προηγούμενο κομμάτι. Μακρύ-πατήμα για να ανοίξετε το μενού περιεχομένου. Διπλό χτύπημα για να προσθέσετε στα αγαπημένα.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="next_page">Επόμενο</string>
+  <string name="welcome_fragment_explanation_title">Πρώτα βήματα</string>
+  <string name="welcome_fragment_explanation_heading">Η μουσική είναι παντού.\Τώρα δεν χρειάζεται να είναι.</string>
+  <string name="welcome_fragment_explanation_text">Σταματήστε κυνηγώντας τη μουσική σε όλο τον ιστό - για τις υπηρεσίες που δεν χρησιμοποιείτε, ή πηγές που δεν έχουν πρόσβαση. Λαμβάνοντας υπόψη το όνομα ή τη σύνδεση με ένα τραγούδι, άλμπουμ ή λίστα αναπαραγωγής, Tomahawk θα βρει την καλύτερη διαθέσιμη πηγή για εσάς και απλά να παίξουν.</string>
+  <string name="welcome_fragment_hatchet_title">Θέλετε να το κοινωνικοποιησετε;</string>
+  <string name="welcome_fragment_hatchet_text">Με το Hatchet μπορείτε να έχετε τελικά την μουσική συλλογή σας σε ένα μέρος. Μοιραστείτε τις λίστες αναπαραγωγής και τα αγαπημένα σας κομμάτια. Ή απλά συγχρονίστε την εφαρμογή με το Tomahawk στη μηχανή επιφάνεια εργασίας σας.</string>
+  <string name="welcome_fragment_setup_title">Σύνδεση</string>
+  <string name="welcome_fragment_done_title">Έγινε!</string>
+  <string name="welcome_fragment_done_heading">Όλα τελείωσαν!</string>
+  <string name="welcome_fragment_done_text">Διασκεδάστε εξερευνώντας την εφαρμογή και να είστε βέβαιος να μας πείτε τη γνώμη σας!</string>
 </resources>
