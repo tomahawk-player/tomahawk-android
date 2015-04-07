@@ -39,6 +39,8 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * A {@link android.support.v4.app.Fragment} which is being shown to the user when he first opens
  * the app
@@ -52,6 +54,8 @@ public class WelcomeFragment extends Fragment {
     private ViewPager mViewPager;
 
     private TextView mPositiveButton;
+
+    private HatchetLoginRegisterView mHatchetLoginRegisterView;
 
     private class LoginRegisterPagerAdapter extends PagerAdapter {
 
@@ -86,9 +90,9 @@ public class WelcomeFragment extends Fragment {
                     HatchetAuthenticatorUtils authenticatorUtils = (HatchetAuthenticatorUtils)
                             AuthenticatorManager.getInstance().getAuthenticatorUtils(
                                     TomahawkApp.PLUGINNAME_HATCHET);
-                    HatchetLoginRegisterView hatchetLoginRegisterView =
+                    mHatchetLoginRegisterView =
                             (HatchetLoginRegisterView) v.findViewById(R.id.hatchetloginregister);
-                    hatchetLoginRegisterView.setup(getActivity(), authenticatorUtils, progressBar);
+                    mHatchetLoginRegisterView.setup(getActivity(), authenticatorUtils, progressBar);
                     break;
                 case 3:
                     v = inflater.inflate(R.layout.welcome_fragment_page_done, container,
@@ -133,6 +137,14 @@ public class WelcomeFragment extends Fragment {
         }
     };
 
+    @SuppressWarnings("unused")
+    public void onEventMainThread(AuthenticatorManager.ConfigTestResultEvent event) {
+        if (mHatchetLoginRegisterView != null) {
+            mHatchetLoginRegisterView
+                    .onConfigTestResult(event.mComponent, event.mType, event.mMessage);
+        }
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,6 +166,10 @@ public class WelcomeFragment extends Fragment {
             public void onClick(View v) {
                 int lastPage = mViewPager.getAdapter().getCount() - 1;
                 if (mViewPager.getCurrentItem() == lastPage) {
+                    SharedPreferences preferences =
+                            PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    preferences.edit().putBoolean(
+                            TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED, true).apply();
                     getActivity().getSupportFragmentManager().popBackStack();
                 } else {
                     mViewPager.setCurrentItem(mViewPager.getCurrentItem() + 1);
@@ -166,11 +182,6 @@ public class WelcomeFragment extends Fragment {
                 (SimplePagerIndicator) view.findViewById(R.id.simplepagerindicator);
         indicator.setViewPager(mViewPager);
         indicator.setOnPageChangeListener(mOnPageChangeListener);
-
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(getActivity());
-        preferences.edit().putBoolean(TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED, true)
-                .apply();
     }
 
     @Override
@@ -179,12 +190,16 @@ public class WelcomeFragment extends Fragment {
 
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         activity.hideActionbar();
+
+        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onStop() {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         activity.showActionBar(false);
+
+        EventBus.getDefault().unregister(this);
 
         super.onStop();
     }
