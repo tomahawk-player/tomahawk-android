@@ -50,6 +50,7 @@
     <dimen name="player_button_size_default">48dp</dimen>
 
     <dimen name="list_item_track_height">56dp</dimen>
+    <dimen name="list_item_swipe_menu_button_size">38dp</dimen>
     <dimen name="list_item_resolver_icon_size">16dp</dimen>
 
     <dimen name="playback_panel_height">64dp</dimen>

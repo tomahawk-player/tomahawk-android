@@ -46,6 +46,7 @@
     <color name="list_focused_opaque">#FFe8837c</color>
     <color name="list_pressed_opaque">#FFf1f1f1</color>
     <color name="list_pressed_transparent">#88cbcbcb</color>
+    <color name="sliding_layout_background">#11000000</color>
 
     <color name="local_collection_resolver_bg">#3e454b</color>
     <color name="spotify_resolver_bg">#84bd00</color>

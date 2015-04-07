@@ -34,11 +34,14 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -260,6 +263,59 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 viewHolders.add(viewHolder);
                 if (view instanceof SwipeLayout) {
                     mItemManager.initialize(view, position);
+                    final SharedPreferences preferences =
+                            PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+                    if (!preferences.getBoolean(
+                            TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED, false)) {
+                        ((SwipeLayout) view).addSwipeListener(new SwipeLayout.SwipeListener() {
+                            @Override
+                            public void onStartOpen(SwipeLayout swipeLayout) {
+                            }
+
+                            @Override
+                            public void onOpen(SwipeLayout swipeLayout) {
+                                if (!preferences.getBoolean(
+                                        TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
+                                        false)) {
+                                    final View coachMark = TomahawkUtils.ensureInflation(
+                                            swipeLayout, R.id.swipelayout_enqueue_coachmark_stub,
+                                            R.id.swipelayout_enqueue_coachmark);
+                                    coachMark.setVisibility(View.VISIBLE);
+                                    View closeButton = coachMark.findViewById(R.id.close_button);
+                                    closeButton.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View v) {
+                                            preferences.edit().putBoolean(
+                                                    TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
+                                                    true).apply();
+                                            coachMark.setVisibility(View.GONE);
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onStartClose(SwipeLayout swipeLayout) {
+                            }
+
+                            @Override
+                            public void onClose(SwipeLayout swipeLayout) {
+                                View coachMark = swipeLayout.findViewById(
+                                        R.id.swipelayout_enqueue_coachmark);
+                                if (coachMark != null) {
+                                    coachMark.setVisibility(View.GONE);
+                                }
+                            }
+
+                            @Override
+                            public void onUpdate(SwipeLayout swipeLayout, int i, int i1) {
+                            }
+
+                            @Override
+                            public void onHandRelease(SwipeLayout swipeLayout, float v, float v1) {
+                            }
+                        });
+                    }
                 }
             }
             // Set extra padding
@@ -332,6 +388,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 } else if (viewHolder.mLayoutId == R.layout.list_item_track_artist
                         || viewType == R.layout.list_item_numeration_track_artist
                         || viewType == R.layout.list_item_numeration_track_duration) {
+                    View coachMark = viewHolder.findViewById(R.id.swipelayout_enqueue_coachmark);
+                    if (coachMark != null) {
+                        coachMark.setVisibility(View.GONE);
+                    }
                     String numerationString = null;
                     if (!getSegment(position).isShowAsQueued() && getSegment(position)
                             .isShowNumeration()) {
@@ -350,6 +410,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                                 @Override
                                 public void onClick(View v) {
                                     mActivity.getPlaybackService().addQueryToQueue(query);
+                                    SharedPreferences preferences = PreferenceManager
+                                            .getDefaultSharedPreferences(TomahawkApp.getContext());
+                                    preferences.edit().putBoolean(
+                                            TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
+                                            true).apply();
                                     closeAllItems();
                                 }
                             }, getSegment(position).isShowAsQueued());
