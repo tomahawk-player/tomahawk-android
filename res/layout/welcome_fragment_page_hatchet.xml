@@ -18,10 +18,9 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:orientation="vertical">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
     <TextView android:id="@+id/config_dialog_title_textview"
               android:layout_width="match_parent"
@@ -34,9 +33,26 @@
               android:text="@string/welcome_fragment_hatchet_title"
               android:background="@color/tomahawk_red"/>
 
+    <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/smoothprogressbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/config_dialog_title_textview"
+            android:indeterminate="true"
+            app:spb_sections_count="4"
+            app:spb_color="@color/tomahawk_red"
+            app:spb_interpolator="spb_interpolator_accelerate"
+            app:spb_speed="1.0"
+            app:spb_stroke_width="4dp"
+            app:spb_stroke_separator_length="4dp"
+            app:spb_reversed="false"
+            app:spb_mirror_mode="false"
+            android:visibility="gone"/>
+
     <ScrollView android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="match_parent"
+                android:layout_below="@id/config_dialog_title_textview"
                 android:fillViewport="true">
 
         <LinearLayout android:layout_width="match_parent"
@@ -68,4 +84,4 @@
 
     </ScrollView>
 
-</LinearLayout>
+</RelativeLayout>
