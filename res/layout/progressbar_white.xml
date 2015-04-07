@@ -23,7 +23,6 @@
              style="@style/ProgressBarWhiteTomahawk"
              android:layout_width="match_parent"
              android:layout_height="wrap_content"
-             android:layout_gravity="bottom"
              android:indeterminate="false"
              android:max="10000"
              android:progress="5000"
