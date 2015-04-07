@@ -5,6 +5,7 @@
   <string name="login">Prisijungti</string>
   <string name="logout">Atsijungti</string>
   <string name="register">Registruotis</string>
+  <string name="register_and_login">Registruotis ir Prisijungti</string>
   <string name="rescan">Peržvelgti iš naujo dabar</string>
   <string name="internal_storage">Vidinė Talpykla</string>
   <string name="tracks">Takeliai</string>
@@ -26,6 +27,7 @@
   <string name="save_playlist">Išsaugoti dabartinį grojaraštį</string>
   <string name="create_playlist">Sukurti grojaraštį</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Pavadinimas</string>
   <string name="login_name_label">El. paštas/Vartotojo vardas</string>
   <string name="login_username">Vartotojo vardas</string>
   <string name="login_password">Slaptažodis</string>
@@ -39,7 +41,9 @@
   <string name="error_simultaneous_streams">Veiksmas neleidžiamas, paskyra yra naudojama kitur.</string>
   <string name="error_account_expired">Jūsų paskyra nebegalioja.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Prisijungta prie %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Atsijungta nuo %1$s</string>
   <string name="local_collection_pretty_name">Vietinė Kolekcija</string>
   <string name="preferences_local_collection_text">Pasirinkite katalogus, kurie turėtų būti peržvelgiami, ieškant vietinės medijos.</string>
   <string name="preferences_hatchet_text">Sinchronizuoti duomenis su %1$s.</string>
@@ -127,4 +131,6 @@
   <string name="connect_headertext">Pasirinkite paslaugas, kuriomis norite naudotis. Tomahawk veikia geriau, kuomet yra aktyvuota daugiau paslaugų.</string>
   <string name="info">Informacija</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="welcome_fragment_done_title">Atlikta!</string>
+  <string name="welcome_fragment_done_heading">Viskas atlikta!</string>
 </resources>
