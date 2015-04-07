@@ -42,7 +42,6 @@ import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -57,7 +56,7 @@ public class PlaybackPanel extends FrameLayout {
 
     private FrameLayout mTextViewContainer;
 
-    private LinearLayout mPanelContainer;
+    private View mPanelContainer;
 
     private FrameLayout mArtistNameButton;
 
@@ -114,7 +113,7 @@ public class PlaybackPanel extends FrameLayout {
         mInitialized = true;
 
         mTextViewContainer = (FrameLayout) findViewById(R.id.textview_container);
-        mPanelContainer = (LinearLayout) findViewById(R.id.panel_container);
+        mPanelContainer = findViewById(R.id.panel_container);
         mArtistNameButton = (FrameLayout) mTextViewContainer.findViewById(R.id.artist_name_button);
         mArtistTextView = (TextView) mArtistNameButton.findViewById(R.id.artist_textview);
         mTrackTextView = (TextView) mTextViewContainer.findViewById(R.id.track_textview);
