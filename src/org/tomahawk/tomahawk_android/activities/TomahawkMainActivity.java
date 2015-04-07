@@ -154,6 +154,9 @@ public class TomahawkMainActivity extends ActionBarActivity
     public static final String COACHMARK_WELCOMEFRAGMENT_DISABLED
             = "coachmark_welcomefragment_disabled";
 
+    public static final String COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED
+            = "coachmark_swipelayout_enqueue_disabled";
+
     public static int ACTIONBAR_HEIGHT;
 
     public static class SlidingLayoutChangedEvent {
