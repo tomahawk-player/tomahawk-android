@@ -158,26 +158,22 @@
                   android:textSize="@dimen/text_size_micro"
                   android:textColor="@color/primary_textcolor_inverted"/>
 
-        <FrameLayout android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:layout_toRightOf="@id/resolver_imageview"
-                     android:layout_toLeftOf="@id/completiontime_textview">
+        <include layout="@layout/progressbar_white"
+                 android:id="@+id/progressbar"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:layout_toRightOf="@id/resolver_imageview"
+                 android:layout_toLeftOf="@id/completiontime_textview"
+                 android:layout_alignParentTop="true"
+                 android:visibility="gone"/>
 
-            <include layout="@layout/progressbar_white"
-                     android:id="@+id/progressbar"
-                     android:layout_width="match_parent"
-                     android:layout_height="match_parent"
-                     android:visibility="gone"/>
-
-            <View android:id="@+id/progressbar_thumb"
-                  android:layout_width="2px"
-                  android:layout_height="@dimen/playback_panel_thumb_height"
-                  android:layout_gravity="center_vertical"
-                  android:background="#fff"
-                  android:visibility="gone"
-                  tools:ignore="PxUsage"/>
-
-        </FrameLayout>
+        <View android:id="@+id/progressbar_thumb"
+              android:layout_width="2px"
+              android:layout_height="@dimen/playback_panel_thumb_height"
+              android:layout_centerVertical="true"
+              android:background="#fff"
+              android:visibility="gone"
+              tools:ignore="PxUsage"/>
 
     </RelativeLayout>
 

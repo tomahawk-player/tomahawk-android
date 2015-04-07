@@ -205,7 +205,7 @@ public class PlaybackPanel extends FrameLayout {
                                 mAbortSeeking = true;
                                 finalX = mProgressBar.getWidth() + progressBarX;
                             } else if (eventX < progressBarX) {
-                                mAbortSeeking = false;
+                                mAbortSeeking = true;
                                 finalX = progressBarX;
                             } else {
                                 mAbortSeeking = false;
