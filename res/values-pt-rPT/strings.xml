@@ -176,11 +176,13 @@
   <string name="advanced">Avançado</string>
   <string name="info">Informações</string>
   <string name="playbackpanel_seek_coachmark">Pode percorrer uma faixa através de um toque longo no botão Reproduxirt.</string>
+  <string name="slidinglayout_enqueue_coachmark">Toque para adicionar a faixa à fila.</string>
   <string name="playbackfragment_navigation_coachmark_down">Deslize acima para ver a lista de reprodução.</string>
   <string name="playbackfragment_navigation_coachmark_up">Deslize abaixo para fechar a gaveta de navegação.</string>
   <string name="playbackfragment_navigation_coachmark_center">Deslize para a esquerda/direita para recuar/avançar uma faixa. Clique longo para abrir o menu de contexto. Duplo clique para adicionar aos favoritos.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">Seguinte</string>
+  <string name="welcome_fragment_explanation_title">Iniciação</string>
   <string name="welcome_fragment_explanation_heading">A música está em todo o lado.\nMas voçê não tem de estar.</string>
   <string name="welcome_fragment_explanation_text">Pare de procurar a música na Internet, tanto em serviços que não utiliza ou de fontes a que não tem acesso. Indique o nome ou ligação de uma música e o Tomahawk irá encontrar a melhor fonte para a reproduzir.</string>
   <string name="welcome_fragment_hatchet_title">Gostaria de socializar?</string>

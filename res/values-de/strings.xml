@@ -176,6 +176,7 @@
   <string name="advanced">Erweitert</string>
   <string name="info">Info</string>
   <string name="playbackpanel_seek_coachmark">Sie können durch einen Track mit einem Fingertipp hindurchsehen, halten Sie die Play-Taste gedrückt</string>
+  <string name="slidinglayout_enqueue_coachmark">Tippen Sie, um das Lied zur Warteschlange hinzuzufügen.</string>
   <string name="playbackfragment_navigation_coachmark_down">Hochziehen, um die aktuelle Playlist zu sehen</string>
   <string name="playbackfragment_navigation_coachmark_up">Nach unten ziehen, um die Wiedergabe zu schließen</string>
   <string name="playbackfragment_navigation_coachmark_center">Swipe nach links/rechts, um zum vorherigen/nächsten Titel zu springen. Lang drücken, um das Kontextmenü zu öffnen. Tippe zweimal, um den aktuellen Track zu den Favoriten hinzuzufügen.</string>
