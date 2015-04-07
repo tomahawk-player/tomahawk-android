@@ -90,11 +90,11 @@
               android:layout_marginBottom="@dimen/playback_panel_height"
               android:layout_alignParentBottom="true"/>
 
-    <LinearLayout android:id="@+id/panel_container"
-                  android:layout_width="match_parent"
-                  android:layout_height="@dimen/playback_panel_height"
-                  android:layout_alignParentBottom="true"
-                  android:background="@drawable/above_shadow_slightly_darker">
+    <RelativeLayout android:id="@+id/panel_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/playback_panel_height"
+                    android:layout_alignParentBottom="true"
+                    android:background="@drawable/above_shadow_slightly_darker">
 
         <FrameLayout android:id="@+id/circularprogressbar_container"
                      android:layout_width="@dimen/playback_panel_height"
@@ -124,23 +124,44 @@
                        android:scaleType="fitCenter"
                        android:src="@drawable/ic_player_play_light"/>
 
-            <TextView android:id="@+id/seektime_textview"
-                      android:layout_width="match_parent"
-                      android:layout_height="match_parent"
-                      android:gravity="center"
-                      android:textSize="@dimen/text_size_micro"
-                      android:textColor="@color/primary_textcolor_inverted"
-                      android:visibility="gone"/>
-
         </FrameLayout>
+
+        <TextView android:id="@+id/seektime_textview"
+                  android:layout_width="@dimen/playback_panel_height"
+                  android:layout_height="match_parent"
+                  android:paddingLeft="@dimen/padding_medium"
+                  android:paddingRight="@dimen/padding_medium"
+                  android:gravity="center"
+                  android:textSize="@dimen/text_size_micro"
+                  android:textColor="@color/primary_textcolor_inverted"
+                  android:visibility="gone"/>
 
         <ImageView android:id="@+id/resolver_imageview"
                    android:layout_width="@dimen/playback_panel_resolver_icon_size"
-                   android:layout_height="match_parent"/>
+                   android:layout_height="match_parent"
+                   android:layout_toRightOf="@id/circularprogressbar_container"/>
 
-        <FrameLayout android:layout_width="0dp"
+        <TextView android:id="@+id/currenttime_textview"
+                  android:layout_width="@dimen/playback_panel_height"
+                  android:layout_height="match_parent"
+                  android:layout_alignParentRight="true"
+                  android:gravity="center"
+                  android:textSize="@dimen/text_size_micro"
+                  android:textColor="@color/primary_textcolor_inverted"
+                  android:visibility="gone"/>
+
+        <TextView android:id="@+id/completiontime_textview"
+                  android:layout_width="@dimen/playback_panel_height"
+                  android:layout_height="match_parent"
+                  android:layout_alignParentRight="true"
+                  android:gravity="center"
+                  android:textSize="@dimen/text_size_micro"
+                  android:textColor="@color/primary_textcolor_inverted"/>
+
+        <FrameLayout android:layout_width="match_parent"
                      android:layout_height="match_parent"
-                     android:layout_weight="1">
+                     android:layout_toRightOf="@id/resolver_imageview"
+                     android:layout_toLeftOf="@id/completiontime_textview">
 
             <include layout="@layout/progressbar_white"
                      android:id="@+id/progressbar"
@@ -158,26 +179,6 @@
 
         </FrameLayout>
 
-        <FrameLayout android:layout_width="wrap_content"
-                     android:layout_height="match_parent">
-
-            <TextView android:id="@+id/currenttime_textview"
-                      android:layout_width="@dimen/playback_panel_height"
-                      android:layout_height="match_parent"
-                      android:gravity="center"
-                      android:textSize="@dimen/text_size_micro"
-                      android:textColor="@color/primary_textcolor_inverted"
-                      android:visibility="gone"/>
-
-            <TextView android:id="@+id/completiontime_textview"
-                      android:layout_width="@dimen/playback_panel_height"
-                      android:layout_height="match_parent"
-                      android:gravity="center"
-                      android:textSize="@dimen/text_size_micro"
-                      android:textColor="@color/primary_textcolor_inverted"/>
-
-        </FrameLayout>
-
-    </LinearLayout>
+    </RelativeLayout>
 
 </RelativeLayout>
