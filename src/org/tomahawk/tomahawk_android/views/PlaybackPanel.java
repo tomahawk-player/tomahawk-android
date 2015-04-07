@@ -324,6 +324,7 @@ public class PlaybackPanel extends FrameLayout {
                         R.dimen.playback_clear_space_bottom);
                 int headerClearSpace = resources.getDimensionPixelSize(
                         R.dimen.header_clear_space_nonscrollable_playback);
+                boolean isLandscape = resources.getBoolean(R.bool.is_landscape);
 
                 // Setup mTextViewContainer animation
                 Keyframe kfY0 = Keyframe.ofFloat(0f,
@@ -335,8 +336,8 @@ public class PlaybackPanel extends FrameLayout {
                 PropertyValuesHolder pvhY =
                         PropertyValuesHolder.ofKeyframe("y", kfY0, kfY1, kfY2);
                 Keyframe kfScale0 = Keyframe.ofFloat(0f, 1f);
-                Keyframe kfScale1 = Keyframe.ofFloat(0.5f, 1.5f);
-                Keyframe kfScale2 = Keyframe.ofFloat(1f, 1.5f);
+                Keyframe kfScale1 = Keyframe.ofFloat(0.5f, isLandscape ? 1f : 1.5f);
+                Keyframe kfScale2 = Keyframe.ofFloat(1f, isLandscape ? 1.25f : 1.5f);
                 PropertyValuesHolder pvhScaleY =
                         PropertyValuesHolder.ofKeyframe("scaleY", kfScale0, kfScale1, kfScale2);
                 PropertyValuesHolder pvhScaleX =
