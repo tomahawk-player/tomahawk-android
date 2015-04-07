@@ -370,8 +370,14 @@ public class PlaybackFragment extends TomahawkFragment {
 
             if (playbackService.getPlaylist().size() > 1) {
                 entries = new ArrayList();
-                int currentIndex = playbackService.getPlaylist()
-                        .getIndexOfEntry(playbackService.getCurrentEntry());
+                int currentIndex;
+                if (playbackService.getQueue().getEntries()
+                        .contains(playbackService.getCurrentEntry())) {
+                    currentIndex = playbackService.getQueueStartPos();
+                } else {
+                    currentIndex = playbackService.getPlaylist()
+                            .getIndexOfEntry(playbackService.getCurrentEntry());
+                }
                 entries.addAll(playbackService.getPlaylist().getEntries()
                         .subList(Math.max(1, currentIndex + 1),
                                 playbackService.getPlaylist().size()));

@@ -1131,6 +1131,10 @@ public class PlaybackService extends Service
         return mReturnFragmentArgs;
     }
 
+    public int getQueueStartPos() {
+        return mQueueStartPos;
+    }
+
     private ArrayList<PlaylistEntry> getMergedPlaylistEntries() {
         ArrayList<PlaylistEntry> entries = new ArrayList<>();
         entries.addAll(mShuffled ? mShuffledPlaylist.getEntries() : mPlaylist.getEntries());
