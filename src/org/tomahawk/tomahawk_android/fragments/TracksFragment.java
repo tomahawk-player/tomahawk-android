@@ -54,6 +54,8 @@ public class TracksFragment extends TomahawkFragment {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(CollectionManager.UpdatedEvent event) {
+        super.onEventMainThread(event);
+
         if (event.mUpdatedItemId != null && mAlbum.getCacheKey().equals(event.mUpdatedItemId)) {
             showAlbumFancyDropDown();
         }
