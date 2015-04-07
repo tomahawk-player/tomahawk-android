@@ -181,4 +181,13 @@
   <string name="playbackfragment_navigation_coachmark_center">左/右にスワイプすると、次/前のトラックにスキップします。 長押しすると、コンテキストメニューを開きます。ダブルタップすると、お気に入りに追加します。</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">次へ</string>
+  <string name="welcome_fragment_explanation_title">始める</string>
+  <string name="welcome_fragment_explanation_heading">音楽はどこにでもあります。\n面倒なことをする必要はありません。</string>
+  <string name="welcome_fragment_explanation_text">ウェブ上の音楽を追いかけるのはやめましょう - 使わないサービスや、アクセスできないソース。 曲名や、曲、アルバム、プレイリストのリンクを入れると、トマホークはあなたのために最もよいソースを見つけて、再生します。</string>
+  <string name="welcome_fragment_hatchet_title">交流しますか?</string>
+  <string name="welcome_fragment_hatchet_text">Hatchet で、最終的に一箇所にあなたの音楽コレクションをまとめることができます。あなたのプレイリストやお気に入りの曲を共有しましょう。それともあなたのデスクトップマシンのトマホークとアプリを同期しますか。</string>
+  <string name="welcome_fragment_setup_title">接続</string>
+  <string name="welcome_fragment_done_title">完了しました!</string>
+  <string name="welcome_fragment_done_heading">すべて完了しました!</string>
+  <string name="welcome_fragment_done_text">アプリを楽しんでください。そしてあなたが感じたことを教えてください!</string>
 </resources>
