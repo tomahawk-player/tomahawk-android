@@ -5,7 +5,7 @@
   <string name="login">Anmelden</string>
   <string name="logout">Abmelden</string>
   <string name="register">Registrieren</string>
-  <string name="register_and_login">Registrierung &amp; Anmeldung</string>
+  <string name="register_and_login">Registrieren &amp; Anmelden</string>
   <string name="rescan">Jetzt durchsuchen</string>
   <string name="internal_storage">Interner Speicher</string>
   <string name="tracks">Lieder</string>
