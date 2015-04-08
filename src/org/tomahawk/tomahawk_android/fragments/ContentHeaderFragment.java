@@ -453,12 +453,12 @@ public class ContentHeaderFragment extends Fragment {
             View headerImage = getView()
                     .findViewById(isPagerFragment ? R.id.imageview_grid_one_pager
                             : R.id.imageview_grid_one);
-            if (headerImage == null) {
+            if (headerImage == null || headerImage.getVisibility() == View.GONE) {
                 headerImage = getView()
                         .findViewById(isPagerFragment ? R.id.imageview_grid_two_pager
                                 : R.id.imageview_grid_two);
             }
-            if (headerImage == null) {
+            if (headerImage == null || headerImage.getVisibility() == View.GONE) {
                 headerImage = getView()
                         .findViewById(isPagerFragment ? R.id.imageview_grid_three_pager
                                 : R.id.imageview_grid_three);
