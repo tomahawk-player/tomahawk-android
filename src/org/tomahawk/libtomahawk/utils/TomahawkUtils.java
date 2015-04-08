@@ -33,6 +33,7 @@ import android.app.Notification;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -966,5 +967,16 @@ public class TomahawkUtils {
             }
         });
         editText.requestFocus();
+    }
+
+    @SuppressLint("NewApi")
+    public static void setTint(final Drawable drawable, final int colorResId) {
+        int color = TomahawkApp.getContext().getResources().getColor(colorResId);
+        drawable.setColorFilter(color, android.graphics.PorterDuff.Mode.SRC_ATOP);
+    }
+
+    @SuppressLint("NewApi")
+    public static void clearTint(final Drawable drawable) {
+        drawable.clearColorFilter();
     }
 }

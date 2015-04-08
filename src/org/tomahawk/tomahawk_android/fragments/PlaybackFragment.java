@@ -536,11 +536,9 @@ public class PlaybackFragment extends TomahawkFragment {
                 PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                         .getPlaybackService();
                 if (playbackService != null && playbackService.isRepeating()) {
-                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageButton,
-                            R.drawable.ic_player_repeat_light);
+                    TomahawkUtils.setTint(imageButton.getDrawable(), R.color.tomahawk_red);
                 } else {
-                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageButton,
-                            R.drawable.ic_player_repeat);
+                    TomahawkUtils.clearTint(imageButton.getDrawable());
                 }
             }
         }
@@ -557,11 +555,9 @@ public class PlaybackFragment extends TomahawkFragment {
                 PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                         .getPlaybackService();
                 if (playbackService != null && playbackService.isShuffled()) {
-                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageButton,
-                            R.drawable.ic_player_shuffle_light);
+                    TomahawkUtils.setTint(imageButton.getDrawable(), R.color.tomahawk_red);
                 } else {
-                    TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageButton,
-                            R.drawable.ic_player_shuffle);
+                    TomahawkUtils.clearTint(imageButton.getDrawable());
                 }
             }
         }
