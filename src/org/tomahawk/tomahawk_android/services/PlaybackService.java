@@ -25,6 +25,7 @@ import com.squareup.picasso.Target;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -125,6 +126,9 @@ public class PlaybackService extends Service
 
     public static final String ACTION_EXIT
             = "org.tomahawk.tomahawk_android.ACTION_EXIT";
+
+    public static final String ACTION_FAVORITE
+            = "org.tomahawk.tomahawk_android.ACTION_FAVORITE";
 
     public static final String MERGED_PLAYLIST_ID = "merged_playlist_id";
 
@@ -459,6 +463,14 @@ public class PlaybackService extends Service
         EventHandler.getInstance().removeHandler(mVlcHandler);
     }
 
+    @SuppressWarnings("unused")
+    public void onEvent(CollectionManager.UpdatedEvent event) {
+        if (event.mUpdatedItemId != null && getCurrentQuery().getCacheKey().equals(
+                event.mUpdatedItemId)) {
+            updateNotification();
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -540,6 +552,8 @@ public class PlaybackService extends Service
                 pause();
             } else if (intent.getAction().equals(ACTION_NEXT)) {
                 next();
+            } else if (intent.getAction().equals(ACTION_FAVORITE)) {
+                CollectionManager.getInstance().toggleLovedItem(getCurrentQuery());
             } else if (intent.getAction().equals(ACTION_EXIT)) {
                 pause(true);
             }
@@ -745,7 +759,7 @@ public class PlaybackService extends Service
                     .getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
         } else {
-            updateNotificationPlayState();
+            updateNotification();
         }
         updateLockscreenPlayState();
     }
@@ -1238,6 +1252,10 @@ public class PlaybackService extends Service
             PendingIntent nextPendingIntent = PendingIntent
                     .getService(PlaybackService.this, 0, intent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
+            intent = new Intent(ACTION_FAVORITE, null, PlaybackService.this, PlaybackService.class);
+            PendingIntent favoritePendingIntent = PendingIntent
+                    .getService(PlaybackService.this, 0, intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
             intent = new Intent(ACTION_EXIT, null, PlaybackService.this, PlaybackService.class);
             PendingIntent exitPendingIntent = PendingIntent
                     .getService(PlaybackService.this, 0, intent,
@@ -1313,6 +1331,15 @@ public class PlaybackService extends Service
                             .setImageViewResource(R.id.notification_large_imageview_playpause,
                                     R.drawable.ic_player_play_light);
                 }
+                if (DatabaseHelper.getInstance().isItemLoved(getCurrentQuery())) {
+                    mLargeNotificationView
+                            .setImageViewResource(R.id.notification_large_imageview_favorite,
+                                    R.drawable.ic_action_favorites_underlined);
+                } else {
+                    mLargeNotificationView
+                            .setImageViewResource(R.id.notification_large_imageview_favorite,
+                                    R.drawable.ic_action_favorites);
+                }
                 mLargeNotificationView
                         .setOnClickPendingIntent(R.id.notification_large_imageview_previous,
                                 previousPendingIntent);
@@ -1322,6 +1349,9 @@ public class PlaybackService extends Service
                 mLargeNotificationView
                         .setOnClickPendingIntent(R.id.notification_large_imageview_next,
                                 nextPendingIntent);
+                mLargeNotificationView
+                        .setOnClickPendingIntent(R.id.notification_large_imageview_favorite,
+                                favoritePendingIntent);
                 mLargeNotificationView
                         .setOnClickPendingIntent(R.id.notification_large_imageview_exit,
                                 exitPendingIntent);
@@ -1346,31 +1376,6 @@ public class PlaybackService extends Service
                 });
             }
             startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, mNotification);
-        }
-    }
-
-    /**
-     * Create or update an ongoing notification
-     */
-    public void updateNotificationPlayState() {
-        if (mShowingNotification) {
-            Log.d(TAG, "updateNotificationPlayState()");
-            int resId;
-            if (isPlaying()) {
-                resId = R.drawable.ic_player_pause_light;
-            } else {
-                resId = R.drawable.ic_player_play_light;
-            }
-            if (mLargeNotificationView != null) {
-                TomahawkUtils.loadDrawableIntoNotification(TomahawkApp.getContext(), resId,
-                        mLargeNotificationView, R.id.notification_large_imageview_playpause,
-                        PLAYBACKSERVICE_NOTIFICATION_ID, mNotification);
-            }
-            if (mSmallNotificationView != null) {
-                TomahawkUtils.loadDrawableIntoNotification(TomahawkApp.getContext(), resId,
-                        mSmallNotificationView, R.id.notification_small_imageview_playpause,
-                        PLAYBACKSERVICE_NOTIFICATION_ID, mNotification);
-            }
         }
     }
 
