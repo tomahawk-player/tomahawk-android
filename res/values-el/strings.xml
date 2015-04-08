@@ -176,6 +176,7 @@
   <string name="advanced">Σύνθεση</string>
   <string name="info">Πληροφορίες</string>
   <string name="playbackpanel_seek_coachmark">Μπορείτε να δείτε μέσα από ένα τραγουδι με ένα άγγιγμα πατωντας το κουμπί αναπαραγωγης</string>
+  <string name="slidinglayout_enqueue_coachmark">Πατήστε για να προσθέσετε το κομμάτι στην σειρά αναμονής.</string>
   <string name="playbackfragment_navigation_coachmark_down">Τραβήξτε προς τα πάνω για να δείτε την τρέχουσα λίστα αναπαραγωγής</string>
   <string name="playbackfragment_navigation_coachmark_up">Τραβήξτε προς τα κάτω για να κλείσετε το συρτάρι αναπαραγωγής</string>
   <string name="playbackfragment_navigation_coachmark_center">Σύρετε προς τα αριστερά/δεξιά για να μεταβείτε στο επόμενο/προηγούμενο κομμάτι. Μακρύ-πατήμα για να ανοίξετε το μενού περιεχομένου. Διπλό χτύπημα για να προσθέσετε στα αγαπημένα.</string>
