@@ -152,6 +152,14 @@ public class HatchetLoginRegisterView extends LinearLayout {
                     mLoginPasswordEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
                     loginContainer.addView(mLoginPasswordEditText);
 
+                    if (mAuthenticatorUtils.isLoggedIn()) {
+                        mLoginUsernameEditText.setEnabled(false);
+                        mLoginPasswordEditText.setEnabled(false);
+                    } else {
+                        mLoginUsernameEditText.setEnabled(true);
+                        mLoginPasswordEditText.setEnabled(true);
+                    }
+
                     FrameLayout frameContainer = new FrameLayout(getContext());
                     frameContainer.addView(loginContainer);
                     FrameLayout.LayoutParams frameParams =
@@ -202,6 +210,18 @@ public class HatchetLoginRegisterView extends LinearLayout {
                     mMailEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
                     registerContainer.addView(mMailEditText);
 
+                    if (mAuthenticatorUtils.isLoggedIn()) {
+                        mRegisterUsernameEditText.setEnabled(false);
+                        mRegisterPasswordEditText.setEnabled(false);
+                        mPasswordConfirmationEditText.setEnabled(false);
+                        mMailEditText.setEnabled(false);
+                    } else {
+                        mRegisterUsernameEditText.setEnabled(true);
+                        mRegisterPasswordEditText.setEnabled(true);
+                        mPasswordConfirmationEditText.setEnabled(true);
+                        mMailEditText.setEnabled(true);
+                    }
+
                     frameContainer = new FrameLayout(getContext());
                     frameContainer.addView(registerContainer);
                     frameParams = (FrameLayout.LayoutParams) registerContainer.getLayoutParams();
@@ -231,6 +251,10 @@ public class HatchetLoginRegisterView extends LinearLayout {
                     return getContext().getString(R.string.register);
             }
             return "";
+        }
+
+        public int getItemPosition(Object object) {
+            return POSITION_NONE;
         }
     }
 
@@ -405,6 +429,7 @@ public class HatchetLoginRegisterView extends LinearLayout {
     public void onConfigTestResult(Object component, int type, String message) {
         if (mAuthenticatorUtils == component) {
             updateButtonTexts();
+            mViewPager.getAdapter().notifyDataSetChanged();
             mProgressBar.setVisibility(GONE);
         }
     }
