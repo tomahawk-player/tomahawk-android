@@ -30,13 +30,13 @@
   <string name="name_playlist">Título</string>
   <string name="login_name_label">E-Mail/Utilizador</string>
   <string name="login_username">Nome de utilizador</string>
-  <string name="login_password">Senha</string>
-  <string name="login_password_confirmation">Confirmação de senha</string>
+  <string name="login_password">Palavra-passe</string>
+  <string name="login_password_confirmation">Confirmação de palavra-passe</string>
   <string name="account_email_label">E-Mail (opcional)</string>
   <string name="error_field_required">Este campo é obrigatório</string>
-  <string name="error_passwords_dont_match">As senhas não coindicem</string>
-  <string name="error_invalid_credentials">Nome de utilizador ou senha inválida.</string>
-  <string name="error_invalid_account">Conta recusada pelo servidor.</string>
+  <string name="error_passwords_dont_match">As palavras-passe não são iguais</string>
+  <string name="error_invalid_credentials">Nome de utilizador ou palavra-passe inválida</string>
+  <string name="error_invalid_account">Conta recusada pelo servidor</string>
   <string name="error_communication">Autenticação não efetuada, Verifique a sua ligação.</string>
   <string name="error_simultaneous_streams">Ação não permitida. A conta está a ser utilizada noutro local.</string>
   <string name="error_account_expired">Conta expirada.</string>
@@ -47,29 +47,29 @@
   <string name="local_collection_pretty_name">Coleção local</string>
   <string name="local">Local</string>
   <string name="all">Tudo</string>
-  <string name="preferences_local_collection_text">Escolha os diretórios que devem ser analisados localmente.</string>
-  <string name="preferences_hatchet_text">Sincronizar dados com %1$s.</string>
+  <string name="preferences_local_collection_text">Escolha os diretórios locais que devem ser analisados</string>
+  <string name="preferences_hatchet_text">Sincronizar dados com %1$s</string>
   <string name="preferences_playback">Reprodução</string>
   <string name="preferences_equalizer">Equalizador</string>
-  <string name="preferences_equalizer_text">Personalizar o sistema de som.</string>
+  <string name="preferences_equalizer_text">Personalizar o sistema de som</string>
   <string name="preferences_playback_data">Enviar tudo</string>
-  <string name="preferences_playback_data_text">Emviar todas as faixas de todas as aplicações de músicas para %1$s.</string>
+  <string name="preferences_playback_data_text">Enviar todas as faixas de todas as aplicações de músicas para %1$s</string>
   <string name="preferences_plug_and_play">Iniciar ao introduzir</string>
-  <string name="preferences_plug_and_play_text">Inicia a reprodução assim que colocar os auriculares.</string>
+  <string name="preferences_plug_and_play_text">Inicia a reprodução assim que colocar os auriculares</string>
   <string name="preferences_audio_quality">Qualidade de áudio</string>
-  <string name="preferences_audio_quality_text">A qualidade áudio utilizada se não estiver ligado a WiFi.</string>
+  <string name="preferences_audio_quality_text">Qualidade áudio se não estiver ligado a WiFi</string>
   <string name="preferences_info">Informações</string>
   <string name="preferences_app_version">Versão</string>
   <string name="preferences_app_uservoice">Comentários</string>
-  <string name="preferences_app_uservoice_text">Partilhe as suas ideias o solicite ajuda.</string>
+  <string name="preferences_app_uservoice_text">Partilhe as suas ideias ou solicite ajuda</string>
   <string name="preferences_app_sendlog">Enviar registos</string>
-  <string name="preferences_app_sendlog_text">Enviar ficheiro de registo para depuração.</string>
-  <string name="preferences_app_sendlog_dialog_text">Descreva o erro que está a ocorrer e disponibilize um endereço eletrónico para que o possamos contactar, se necessário. Obrigado!</string>
+  <string name="preferences_app_sendlog_text">Enviar ficheiro de registo para depuração</string>
+  <string name="preferences_app_sendlog_dialog_text">Descreva o erro que está a ocorrer e disponibilize um e-mail para que o possamos contactar, se necessário. Obrigado!</string>
   <string name="preferences_app_sendlog_email">Endereço eletrónico</string>
   <string name="preferences_app_sendlog_issue">Erro</string>
   <string name="crash_dialog_title">O Tomahawk terminou</string>
-  <string name="crash_dialog_text">Ocorreu um erro inesperado que obrigou a aplicação a encerrar. Ajude-nos a corrigir este erro, enviando-nos os dados do erro. Tudo o que precisa fazer e clicar em OK.</string>
-  <string name="crash_dialog_comment_prompt">Pode adicionar alguns comentário em baixo:</string>
+  <string name="crash_dialog_text">Ocorreu um erro inesperado que obrigou a aplicação a encerrar. Ajude-nos a corrigir este erro, enviando-nos os dados do erro. Tudo o que precisa fazer é clicar em OK.</string>
+  <string name="crash_dialog_comment_prompt">Pode adicionar alguns comentários em baixo:</string>
   <string name="crash_dialog_ok_toast">Obrigado!</string>
   <string name="context_menu_play">Reproduzir</string>
   <string name="context_menu_add_to_queue">Adicionar à fila</string>
@@ -98,18 +98,18 @@
   <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Histórico</string>
   <string name="preferences_bitrate_low">Normal</string>
-  <string name="preferences_bitrate_medium">Bom</string>
+  <string name="preferences_bitrate_medium">Boa</string>
   <string name="preferences_bitrate_high">Melhor</string>
-  <string name="drawer_open">Abrir gaveta de navegação</string>
-  <string name="drawer_close">Fechar gaveta de navegação</string>
+  <string name="drawer_open">Abrir menu de navegação</string>
+  <string name="drawer_close">Fechar menu de navegação</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
-  <string name="content_header_following">Acompanhando</string>
+  <string name="content_header_following">A seguir</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
-  <string name="content_header_follow">Acompanhar</string>
+  <string name="content_header_follow">Seguir</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
   <string name="suggest_users">Sugestão de pessoas a seguir</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
-  <string name="socialaction_type_follow">%1$s está a acompanhar</string>
+  <string name="socialaction_type_follow">%1$s está a seguir</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
   <string name="socialaction_type_love_track_single">%1$s gosta de uma faixa</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
@@ -129,9 +129,9 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">%1$s comentou em</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
-  <string name="socialaction_type_latchon_single">%1$s escutada com um amigo</string>
+  <string name="socialaction_type_latchon_single">%1$s ouviu com um amigo</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
-  <string name="socialaction_type_latchon_multiple">%1$s escutadas com %2$d amigos</string>
+  <string name="socialaction_type_latchon_multiple">%1$s ouviu com %2$d amigos</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
   <string name="socialaction_type_createplaylist_single">%1$s criou uma lista de reprodução</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
@@ -171,23 +171,23 @@
   <string name="ask_access_activity_text1">Podemos fazer isso por si! Ative o serviço nas definições do sistema.</string>
   <string name="button_close">Fechar</string>
   <string name="view_album">Ver álbum</string>
-  <string name="connect">Ligar</string>
+  <string name="connect">Ligação</string>
   <string name="connect_headertext">Selecione os serviços que quer utilizar. Quantos mais serviços, melhor o Tomahawk se torna.</string>
   <string name="advanced">Avançado</string>
   <string name="info">Informações</string>
-  <string name="playbackpanel_seek_coachmark">Pode percorrer uma faixa através de um toque longo no botão Reproduxirt.</string>
-  <string name="slidinglayout_enqueue_coachmark">Toque para adicionar a faixa à fila.</string>
-  <string name="playbackfragment_navigation_coachmark_down">Deslize acima para ver a lista de reprodução.</string>
-  <string name="playbackfragment_navigation_coachmark_up">Deslize abaixo para fechar a gaveta de navegação.</string>
+  <string name="playbackpanel_seek_coachmark">Pode percorrer uma faixa através de um toque longo no botão Reproduzir</string>
+  <string name="slidinglayout_enqueue_coachmark">Toque para adicionar a faixa à fila</string>
+  <string name="playbackfragment_navigation_coachmark_down">Deslize acima para ver a lista de reprodução</string>
+  <string name="playbackfragment_navigation_coachmark_up">Deslize abaixo para fechar o menu de navegação</string>
   <string name="playbackfragment_navigation_coachmark_center">Deslize para a esquerda/direita para recuar/avançar uma faixa. Clique longo para abrir o menu de contexto. Duplo clique para adicionar aos favoritos.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">Seguinte</string>
   <string name="welcome_fragment_explanation_title">Iniciação</string>
-  <string name="welcome_fragment_explanation_heading">A música está em todo o lado.\nMas voçê não tem de estar.</string>
-  <string name="welcome_fragment_explanation_text">Pare de procurar a música na Internet, tanto em serviços que não utiliza ou de fontes a que não tem acesso. Indique o nome ou ligação de uma música e o Tomahawk irá encontrar a melhor fonte para a reproduzir.</string>
+  <string name="welcome_fragment_explanation_heading">A música está em todo o lado.\nMas você não tem de estar.</string>
+  <string name="welcome_fragment_explanation_text">Pare de procurar a música na Internet, tanto em serviços que não utiliza como em fontes a que não tem acesso. Indique o nome ou ligação de uma música e o Tomahawk irá encontrar a melhor fonte para a reproduzir.</string>
   <string name="welcome_fragment_hatchet_title">Gostaria de socializar?</string>
   <string name="welcome_fragment_hatchet_text">Através do Hatchet, todas as suas músicas podem estar num único sítio. Partilhe as suas listas de reprodução e faixas favoritas. Ou sincronize a aplicação com o Tomahawk no seu computador.</string>
-  <string name="welcome_fragment_setup_title">Ligar</string>
+  <string name="welcome_fragment_setup_title">Ligação</string>
   <string name="welcome_fragment_done_title">Terminado!</string>
   <string name="welcome_fragment_done_heading">Tudo terminado!</string>
   <string name="welcome_fragment_done_text">Divirta-se a utilizar a aplicação e diga-nos o que dela acha!</string>
