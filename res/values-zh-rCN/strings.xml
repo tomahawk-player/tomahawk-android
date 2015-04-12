@@ -5,6 +5,7 @@
   <string name="login">登录</string>
   <string name="logout">注销</string>
   <string name="register">注册</string>
+  <string name="register_and_login">注册 &amp; 登陆</string>
   <string name="rescan">立刻重新扫描</string>
   <string name="internal_storage">内部存储</string>
   <string name="tracks">曲目</string>
