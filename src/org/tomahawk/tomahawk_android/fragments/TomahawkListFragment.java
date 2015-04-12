@@ -170,7 +170,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
 
     private void updateAnimation() {
         int playTime;
-        if (getListView().getFirstVisiblePosition() == 0
+        if (getListView() != null && getListView().getFirstVisiblePosition() == 0
                 && getListView().getListChildAt(0) != null) {
             FrameLayout.LayoutParams params =
                     (FrameLayout.LayoutParams) getListView().getLayoutParams();
