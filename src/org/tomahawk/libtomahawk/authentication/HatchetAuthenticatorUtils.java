@@ -45,6 +45,10 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
+import retrofit.client.Response;
+import retrofit.converter.ConversionException;
+import retrofit.converter.Converter;
+import retrofit.mime.TypedInput;
 
 public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
@@ -91,6 +95,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private final HatchetAuth mHatchetAuth;
 
+    private Converter mConverter;
+
     private final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
     boolean mWaitingForAccountRemoval;
@@ -104,10 +110,11 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
         EventBus.getDefault().register(this);
 
+        mConverter = new JacksonConverter(InfoSystemUtils.getObjectMapper());
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setEndpoint(HATCHET_AUTH_BASE_URL)
-                .setConverter(new JacksonConverter(InfoSystemUtils.getObjectMapper()))
+                .setConverter(mConverter)
                 .build();
         mHatchetAuth = restAdapter.create(HatchetAuth.class);
     }
@@ -214,14 +221,22 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                         } catch (RetrofitError e) {
                             Log.d(TAG,
                                     "register: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            HatchetAuthResponse authResponse =
-                                    (HatchetAuthResponse) e.getBodyAs(HatchetAuthResponse.class);
-                            if (authResponse.error != null &&
-                                    authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
-                                onLoginFailed(
-                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                                        authResponse.error_description);
-                            } else {
+                            try {
+                                HatchetAuthResponse authResponse = getErrorResponse(e.getResponse(),
+                                        mConverter);
+                                if (authResponse.error != null &&
+                                        authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
+                                    onLoginFailed(
+                                            AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                                            authResponse.error_description);
+                                } else {
+                                    onLoginFailed(
+                                            AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR,
+                                            "");
+                                }
+                            } catch (ConversionException e1) {
+                                Log.e(TAG, "register: Couldn't parse error response."
+                                        + " Server returned a weird response!");
                                 onLoginFailed(
                                         AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR, "");
                             }
@@ -252,14 +267,22 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                             }
                         } catch (RetrofitError e) {
                             Log.d(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            HatchetAuthResponse authResponse =
-                                    (HatchetAuthResponse) e.getBodyAs(HatchetAuthResponse.class);
-                            if (authResponse != null && authResponse.error != null &&
-                                    authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
-                                onLoginFailed(
-                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_INVALIDCREDS,
-                                        authResponse.error_description);
-                            } else {
+                            try {
+                                HatchetAuthResponse authResponse = getErrorResponse(e.getResponse(),
+                                        mConverter);
+                                if (authResponse != null && authResponse.error != null &&
+                                        authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
+                                    onLoginFailed(
+                                            AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_INVALIDCREDS,
+                                            authResponse.error_description);
+                                } else {
+                                    onLoginFailed(
+                                            AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR,
+                                            "");
+                                }
+                            } catch (ConversionException e1) {
+                                Log.e(TAG, "login: Couldn't parse error response."
+                                        + " Server returned a weird response!");
                                 onLoginFailed(
                                         AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR, "");
                             }
@@ -419,14 +442,19 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             }
         } catch (RetrofitError e) {
             Log.e(TAG, "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
-            HatchetAuthResponse authResponse =
-                    (HatchetAuthResponse) e.getBodyAs(HatchetAuthResponse.class);
-            if (authResponse != null && (authResponse.error != null
-                    || !TomahawkUtils.containsIgnoreCase(tokenType, authResponse.token_type))) {
-                logout();
-                onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                        "Please reenter your Hatchet credentials");
-            } else {
+            try {
+                HatchetAuthResponse authResponse = getErrorResponse(e.getResponse(), mConverter);
+                if (authResponse != null && (authResponse.error != null
+                        || !TomahawkUtils.containsIgnoreCase(tokenType, authResponse.token_type))) {
+                    logout();
+                    onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                            "Please reenter your Hatchet credentials");
+                } else {
+                    onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR, "");
+                }
+            } catch (ConversionException e1) {
+                Log.e(TAG, "fetchAccessToken: Couldn't parse error response."
+                        + " Server returned a weird response!");
                 onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR, "");
             }
         }
@@ -453,6 +481,18 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         AccountManager am = AccountManager.get(TomahawkApp.getContext());
         am.setUserData(getAccount(), USER_ID_HATCHET, userId);
         EventBus.getDefault().post(new UserLoginEvent());
+    }
+
+    private static HatchetAuthResponse getErrorResponse(Response response, Converter converter)
+            throws ConversionException {
+        if (response == null) {
+            return null;
+        }
+        TypedInput body = response.getBody();
+        if (body == null) {
+            return null;
+        }
+        return (HatchetAuthResponse) converter.fromBody(body, HatchetAuthResponse.class);
     }
 }
 
