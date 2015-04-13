@@ -175,6 +175,20 @@
   <string name="connect_headertext">请选择要使用的服务。激活的服务更多，Tomahawk 工作的越好。</string>
   <string name="advanced">高级</string>
   <string name="info">信息</string>
+  <string name="playbackpanel_seek_coachmark">你可以长按播放键来快进/快退。</string>
+  <string name="slidinglayout_enqueue_coachmark">轻击添加曲目到播放队列。</string>
+  <string name="playbackfragment_navigation_coachmark_down">上拉显示当前播放列表。</string>
+  <string name="playbackfragment_navigation_coachmark_up">下拉关闭播放控制栏。</string>
   <string name="playbackfragment_navigation_coachmark_center">左/右滑跳到上首/下首歌曲。长按打开文本菜单。双击添加为喜欢。</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="next_page">下一首</string>
+  <string name="welcome_fragment_explanation_title">入门指南</string>
+  <string name="welcome_fragment_explanation_heading">到处都是音乐。\n 现在一切都不必如此。</string>
+  <string name="welcome_fragment_explanation_text">不用再为找音乐资源头疼。只需指定歌名，专辑名或者播放列表，Tomahawk 会自动搜索最佳的源并播放</string>
+  <string name="welcome_fragment_hatchet_title">需要社交？</string>
+  <string name="welcome_fragment_hatchet_text">Hatchet 在手，再多音乐收藏也不愁。分享，收藏，手机桌面同步。</string>
+  <string name="welcome_fragment_setup_title">连接</string>
+  <string name="welcome_fragment_done_title">完成！</string>
+  <string name="welcome_fragment_done_heading">全部完成！</string>
+  <string name="welcome_fragment_done_text">祝您探索愉快，别忘了给我们反馈哦！</string>
 </resources>
