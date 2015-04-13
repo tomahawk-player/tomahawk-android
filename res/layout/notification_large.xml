@@ -78,6 +78,14 @@
                   android:layout_toRightOf="@id/notification_large_imageview_albumart"
                   android:layout_alignParentBottom="true">
 
+        <ImageView android:id="@+id/notification_large_imageview_favorite"
+                   android:layout_height="match_parent"
+                   android:layout_width="match_parent"
+                   android:layout_weight="1"
+                   android:padding="@dimen/padding_medium"
+                   android:src="@drawable/ic_action_favorites"
+                   android:background="@drawable/selectable_background_tomahawk"/>
+
         <ImageView android:id="@+id/notification_large_imageview_previous"
                    android:layout_height="match_parent"
                    android:layout_width="match_parent"
@@ -100,14 +108,6 @@
                    android:layout_weight="1"
                    android:padding="@dimen/padding_medium"
                    android:src="@drawable/ic_player_next_light"
-                   android:background="@drawable/selectable_background_tomahawk"/>
-
-        <ImageView android:id="@+id/notification_large_imageview_favorite"
-                   android:layout_height="match_parent"
-                   android:layout_width="match_parent"
-                   android:layout_weight="1"
-                   android:padding="@dimen/padding_medium"
-                   android:src="@drawable/ic_action_favorites"
                    android:background="@drawable/selectable_background_tomahawk"/>
 
     </LinearLayout>
