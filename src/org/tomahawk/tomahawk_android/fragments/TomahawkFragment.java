@@ -388,6 +388,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         StickyListHeadersListView list = getListView();
         if (list != null) {
             list.setOnScrollListener(this);
+            if (mTomahawkListAdapter != null) {
+                getListView().setOnItemClickListener(mTomahawkListAdapter);
+                getListView().setOnItemLongClickListener(mTomahawkListAdapter);
+            }
         }
 
         onPlaylistChanged();
