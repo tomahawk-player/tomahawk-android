@@ -49,7 +49,7 @@ dependencies {
     }
     compile 'de.greenrobot:eventbus:2.4.0'
     compile "com.daimajia.swipelayout:library:1.1.8@aar"
-    compile 'com.spotify.sdk:spotifysdk:1.0.0-beta8@aar'
+    compile 'com.spotify.sdk:spotify-player:1.0.0-beta9@aar'
 }
 
 /*
