@@ -139,8 +139,29 @@ public class ViewHolder {
             }
             setTextViewEnabled(durationTextView, query.isPlayable(), false);
         }
-        View swipeMenuButton1 = findViewById(R.id.swipemenu_button1);
-        swipeMenuButton1.setOnClickListener(swipeMenuButton1Listener);
+        ImageView swipeMenuButton;
+        if (showAsQueued) {
+            swipeMenuButton = (ImageView) ensureInflation(R.id.swipe_menu_button_dequeue_stub,
+                    R.id.swipe_menu_button_dequeue);
+            swipeMenuButton.setVisibility(View.VISIBLE);
+            swipeMenuButton.setImageResource(R.drawable.ic_player_exit_light);
+            TomahawkUtils.setTint(swipeMenuButton.getDrawable(), R.color.tomahawk_red);
+            ImageView swipeMenuButtonEnqueue =
+                    (ImageView) findViewById(R.id.swipe_menu_button_enqueue);
+            if (swipeMenuButtonEnqueue != null) {
+                swipeMenuButtonEnqueue.setVisibility(View.GONE);
+            }
+        } else {
+            swipeMenuButton = (ImageView) ensureInflation(R.id.swipe_menu_button_enqueue_stub,
+                    R.id.swipe_menu_button_enqueue);
+            swipeMenuButton.setVisibility(View.VISIBLE);
+            ImageView swipeMenuButtonDequeue =
+                    (ImageView) findViewById(R.id.swipe_menu_button_dequeue);
+            if (swipeMenuButtonDequeue != null) {
+                swipeMenuButtonDequeue.setVisibility(View.GONE);
+            }
+        }
+        swipeMenuButton.setOnClickListener(swipeMenuButton1Listener);
     }
 
     public void fillView(String string) {
