@@ -31,15 +31,23 @@
                  android:layout_height="@dimen/list_item_track_height"
                  android:background="@color/sliding_layout_background">
 
-        <ImageView android:id="@+id/swipemenu_button1"
-                   android:layout_width="@dimen/list_item_swipe_menu_button_size"
-                   android:layout_height="@dimen/list_item_swipe_menu_button_size"
-                   android:layout_marginLeft="@dimen/padding_small"
-                   android:layout_marginRight="@dimen/padding_megalarge"
-                   android:layout_gravity="center_vertical"
-                   android:padding="@dimen/padding_small"
-                   android:background="@drawable/selectable_background_button_ring_red"
-                   android:src="@drawable/ic_action_queue_red"/>
+        <ViewStub android:id="@+id/swipe_menu_button_enqueue_stub"
+                  android:inflatedId="@+id/swipe_menu_button_enqueue"
+                  android:layout="@layout/swipe_menu_button_enqueue"
+                  android:layout_width="@dimen/list_item_swipe_menu_button_size"
+                  android:layout_height="@dimen/list_item_swipe_menu_button_size"
+                  android:layout_marginLeft="@dimen/padding_small"
+                  android:layout_marginRight="@dimen/padding_megalarge"
+                  android:layout_gravity="center_vertical"/>
+
+        <ViewStub android:id="@+id/swipe_menu_button_dequeue_stub"
+                  android:inflatedId="@+id/swipe_menu_button_dequeue"
+                  android:layout="@layout/swipe_menu_button_dequeue"
+                  android:layout_width="@dimen/list_item_swipe_menu_button_size"
+                  android:layout_height="@dimen/list_item_swipe_menu_button_size"
+                  android:layout_marginLeft="@dimen/padding_small"
+                  android:layout_marginRight="@dimen/padding_megalarge"
+                  android:layout_gravity="center_vertical"/>
 
     </FrameLayout>
 

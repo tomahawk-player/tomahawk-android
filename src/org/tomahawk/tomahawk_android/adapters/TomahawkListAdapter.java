@@ -399,25 +399,41 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                                 + getSegment(position).getNumerationCorrection());
                     }
                     final Query query;
+                    final PlaylistEntry entry;
                     if (item instanceof PlaylistEntry) {
                         query = ((PlaylistEntry) item).getQuery();
+                        entry = (PlaylistEntry) item;
                     } else {
                         query = (Query) item;
+                        entry = null;
+                    }
+                    View.OnClickListener swipeButtonListener;
+                    boolean isShowAsQueued = getSegment(position).isShowAsQueued();
+                    if (isShowAsQueued) {
+                        swipeButtonListener = new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mActivity.getPlaybackService().deleteQueryInQueue(entry);
+                                closeAllItems();
+                            }
+                        };
+                    } else {
+                        swipeButtonListener = new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                mActivity.getPlaybackService().addQueryToQueue(query);
+                                SharedPreferences preferences = PreferenceManager
+                                        .getDefaultSharedPreferences(TomahawkApp.getContext());
+                                preferences.edit().putBoolean(
+                                        TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
+                                        true).apply();
+                                closeAllItems();
+                            }
+                        };
                     }
                     viewHolder.fillView(query, numerationString,
-                            mHighlightedItemIsPlaying && shouldBeHighlighted,
-                            new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    mActivity.getPlaybackService().addQueryToQueue(query);
-                                    SharedPreferences preferences = PreferenceManager
-                                            .getDefaultSharedPreferences(TomahawkApp.getContext());
-                                    preferences.edit().putBoolean(
-                                            TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
-                                            true).apply();
-                                    closeAllItems();
-                                }
-                            }, getSegment(position).isShowAsQueued());
+                            mHighlightedItemIsPlaying && shouldBeHighlighted, swipeButtonListener,
+                            isShowAsQueued);
 
                     FrameLayout progressBarContainer = (FrameLayout) viewHolder
                             .findViewById(R.id.progressbar_container);
