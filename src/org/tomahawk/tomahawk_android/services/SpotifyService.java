@@ -375,12 +375,12 @@ public class SpotifyService extends Service implements
 
     @Override
     public void onLoginFailed(Throwable error) {
-        Log.d(TAG, "Login failed");
+        Log.e(TAG, "Login failed: " + error.getLocalizedMessage());
     }
 
     @Override
     public void onTemporaryError() {
-        Log.d(TAG, "Temporary error occurred");
+        Log.e(TAG, "Temporary error occurred");
     }
 
     @Override
@@ -408,6 +408,6 @@ public class SpotifyService extends Service implements
 
     @Override
     public void onPlaybackError(ErrorType errorType, String errorDetails) {
-        Log.d(TAG, "Playback error received: " + errorType.name());
+        Log.e(TAG, "Playback error received: " + errorType.name());
     }
 }
