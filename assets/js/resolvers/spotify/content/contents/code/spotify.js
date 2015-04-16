@@ -89,12 +89,20 @@ var SpotifyResolver = Tomahawk.extend(TomahawkResolver, {
                         Tomahawk.log("Received new access token!");
                     }, headers, {
                         method: "POST",
-                        data: data
+                        data: data,
+                        errorHandler: function(xhr) {
+                            that.isFetchingAccessToken = false;
+                            Tomahawk.log("Couldn't fetch new access token: " + xhr.responseText);
+                        }
                     });
                 } else {
+                    that.isFetchingAccessToken = false;
                     Tomahawk.log("Can't fetch new access token, because there's no stored refresh "
                         + "token. Are you logged in?");
                 }
+            } else {
+                Tomahawk.log("Already fetching new access token, callback will be called when"
+                    + " that's done...");
             }
         } else {
             if (alwaysReport) {
