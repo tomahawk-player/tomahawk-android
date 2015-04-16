@@ -26,6 +26,7 @@ import com.spotify.sdk.android.player.PlayerState;
 import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 
+import org.tomahawk.tomahawk_android.utils.SimpleAudioController;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.app.Service;
@@ -263,7 +264,9 @@ public class SpotifyService extends Service implements
     private void reportAccessToken(final String accessToken) {
         if (mPlayer == null) {
             Config playerConfig = new Config(SpotifyService.this, accessToken, CLIENT_ID);
-            mPlayer = Spotify.getPlayer(playerConfig, this,
+            Player.Builder builder = new Player.Builder(playerConfig);
+            builder.setAudioController(new SimpleAudioController());
+            mPlayer = Spotify.getPlayer(builder, this,
                     new Player.InitializationObserver() {
                         @Override
                         public void onInitialized(Player player) {
