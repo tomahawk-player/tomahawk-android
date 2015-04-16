@@ -291,13 +291,13 @@ public class SpotifyService extends Service implements
      * Start playing the previously prepared track via our native OpenSLES layer
      */
     public void play() {
+        mIsPlaying = true;
         if (mPlayer != null) {
             try {
                 mPlayer.getPlayerState(new PlayerStateCallback() {
                     @Override
                     public void onPlayerState(PlayerState playerState) {
                         if (!playerState.trackUri.equals(mPreparedUri)) {
-                            mIsPlaying = true;
                             mPlayer.play(mPreparedUri);
                         } else if (!playerState.playing) {
                             mPlayer.resume();
@@ -314,8 +314,8 @@ public class SpotifyService extends Service implements
      * Pause playing the previously prepared track via our native OpenSLES layer
      */
     public void pause() {
+        mIsPlaying = false;
         if (mPlayer != null) {
-            mIsPlaying = false;
             mPlayer.pause();
         }
     }
