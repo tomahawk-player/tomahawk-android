@@ -53,11 +53,13 @@ var SpotifyResolver = Tomahawk.extend(TomahawkResolver, {
     /**
      * Get the access token. Refresh when it is expired.
      */
-    getAccessToken: function (callback) {
+    getAccessToken: function (callback, alwaysReport) {
         var that = this;
 
         if (new Date().getTime() + 60000 > this.accessTokenExpires) {
-            this.waitingCallbacks.push(callback);
+            if (callback) {
+                this.waitingCallbacks.push(callback);
+            }
 
             if (!this.isFetchingAccessToken) {
                 this.isFetchingAccessToken = true;
@@ -95,7 +97,12 @@ var SpotifyResolver = Tomahawk.extend(TomahawkResolver, {
                 }
             }
         } else {
-            callback(this.accessToken);
+            if (alwaysReport) {
+                Tomahawk.reportAccessToken(that.accessToken);
+            }
+            if (callback) {
+                callback(this.accessToken);
+            }
         }
     },
 

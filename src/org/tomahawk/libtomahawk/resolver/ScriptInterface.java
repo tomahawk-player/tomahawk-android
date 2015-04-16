@@ -349,6 +349,6 @@ public class ScriptInterface {
 
     @JavascriptInterface
     public void reportAccessToken(String accessToken) {
-        mScriptResolver.setAccessToken(accessToken);
+        mScriptResolver.reportAccessToken(accessToken);
     }
 }

@@ -159,6 +159,17 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
     public void setVolume(float leftVolume, float rightVolume) {
     }
 
+    public void reportAccessToken(String accessToken) {
+        Log.d(TAG, "reportAccessToken()");
+        if (mToSpotifyMessenger != null) {
+            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_REPORTACCESSTOKEN,
+                    accessToken);
+        } else {
+            TomahawkApp.getContext()
+                    .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
+        }
+    }
+
     /**
      * Start playing the previously prepared {@link org.tomahawk.libtomahawk.collection.Track}
      */
@@ -167,6 +178,8 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         Log.d(TAG, "start()");
         mIsPlaying = true;
         if (mToSpotifyMessenger != null) {
+            ((ScriptResolver) PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY))
+                    .requestAccessToken();
             SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PLAY);
         } else {
             TomahawkApp.getContext()
@@ -226,10 +239,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         if (mToSpotifyMessenger != null) {
             String[] pathParts = query.getPreferredTrackResult().getPath().split("/");
             String uri = "spotify:track:" + pathParts[pathParts.length - 1];
-            String accessToken = ((ScriptResolver) PipeLine.getInstance()
-                    .getResolver(TomahawkApp.PLUGINNAME_SPOTIFY)).getAccessToken();
-            SpotifyServiceUtils
-                    .sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PREPARE, uri, accessToken);
+            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PREPARE, uri);
         } else {
             TomahawkApp.getContext()
                     .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));

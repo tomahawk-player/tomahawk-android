@@ -34,6 +34,7 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -468,6 +469,13 @@ public class PlaybackService extends Service
         if (event.mUpdatedItemId != null && getCurrentQuery().getCacheKey().equals(
                 event.mUpdatedItemId)) {
             updateNotification();
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(ScriptResolver.AccessTokenChangedEvent event) {
+        if (TomahawkApp.PLUGINNAME_SPOTIFY.equals(event.scriptResolverId)) {
+            SpotifyMediaPlayer.getInstance().reportAccessToken(event.accessToken);
         }
     }
 

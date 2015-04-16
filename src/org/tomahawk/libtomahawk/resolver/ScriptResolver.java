@@ -91,6 +91,13 @@ public class ScriptResolver extends Resolver {
 
     }
 
+    public static class AccessTokenChangedEvent {
+
+        public String scriptResolverId;
+
+        public String accessToken;
+    }
+
     // We have to map the original cache keys to an id string, because a string containing "\t\t"
     // delimiters does come out without the delimiters, after it has been processed in the js
     // resolver script
@@ -926,11 +933,15 @@ public class ScriptResolver extends Resolver {
         AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
-    public String getAccessToken() {
-        return mAccessToken;
+    public void requestAccessToken() {
+        loadUrl("javascript: Tomahawk.resolver.instance.getAccessToken(null, true)");
     }
 
-    public void setAccessToken(String accessToken) {
+    public void reportAccessToken(String accessToken) {
         mAccessToken = accessToken;
+        AccessTokenChangedEvent event = new AccessTokenChangedEvent();
+        event.accessToken = accessToken;
+        event.scriptResolverId = getId();
+        EventBus.getDefault().post(event);
     }
 }
