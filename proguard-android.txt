@@ -41,12 +41,10 @@
     *;
 }
 
-######################
-#LibSpotify specifics#
-######################
--keep class org.tomahawk.libtomahawk.resolver.spotify.LibSpotifyWrapper {
-    public <methods>;
-}
+###############################
+#Spotify Android SDK specifics#
+###############################
+-keep class com.spotify.** { *; }
 
 ######################
 #LibVLC specifics#
