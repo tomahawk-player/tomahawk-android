@@ -61,14 +61,12 @@ public class SpotifyService extends Service implements
 
     public static final String LONG_KEY = "org.tomahawk.tomahawk_android.long_key";
 
-    private static final int MSG_UPDATE_PROGRESS = 0x1;
-
-    private static final long MSG_UPDATE_PROGRESS_INTERVAL = 1000;
-
     /**
      * Message ids for messages _to_ libspotify
      */
     public static final int MSG_REGISTERCLIENT = 0;
+
+    public static final int MSG_REPORTACCESSTOKEN = 1;
 
     public static final int MSG_PREPARE = 3;
 
@@ -97,9 +95,9 @@ public class SpotifyService extends Service implements
 
     private Player mPlayer;
 
-    private String mAccessToken;
-
     private String mPreparedUri;
+
+    private boolean mIsPlaying;
 
     /**
      * Handler of incoming messages from clients.
@@ -121,15 +119,13 @@ public class SpotifyService extends Service implements
                         service.mFromSpotifyMessengers.add(msg.replyTo);
                         break;
                     case MSG_PREPARE:
-                        String newToken = msg.getData().getString(STRING_KEY2);
-                        if (newToken != null && !newToken.equals(service.mAccessToken)) {
-                            service.mAccessToken = newToken;
-                            service.initializePlayer();
-                        }
-                        service.prepare(msg.getData().getString(SpotifyService.STRING_KEY));
+                        service.prepare(msg.getData().getString(STRING_KEY));
                         break;
                     case MSG_PLAY:
                         service.play();
+                        break;
+                    case MSG_REPORTACCESSTOKEN:
+                        service.reportAccessToken(msg.getData().getString(STRING_KEY));
                         break;
                     case MSG_PAUSE:
                         service.pause();
@@ -254,24 +250,6 @@ public class SpotifyService extends Service implements
         }
     }
 
-    private void initializePlayer() {
-        Config playerConfig = new Config(this, mAccessToken, CLIENT_ID);
-        mPlayer = Spotify.getPlayer(playerConfig, this,
-                new Player.InitializationObserver() {
-                    @Override
-                    public void onInitialized(Player player) {
-                        mPlayer.addConnectionStateCallback(SpotifyService.this);
-                        mPlayer.addPlayerNotificationCallback(SpotifyService.this);
-                    }
-
-                    @Override
-                    public void onError(Throwable throwable) {
-                        Log.e(TAG, "Could not initialize player: " + throwable
-                                .getMessage());
-                    }
-                });
-    }
-
     /**
      * Prepare a track via our native OpenSLES layer
      *
@@ -280,6 +258,30 @@ public class SpotifyService extends Service implements
     private void prepare(String uri) {
         mPreparedUri = uri;
         sendMsg(MSG_ONPREPARED);
+    }
+
+    private void reportAccessToken(final String accessToken) {
+        if (mPlayer == null) {
+            Config playerConfig = new Config(SpotifyService.this, accessToken, CLIENT_ID);
+            mPlayer = Spotify.getPlayer(playerConfig, this,
+                    new Player.InitializationObserver() {
+                        @Override
+                        public void onInitialized(Player player) {
+                            player.addConnectionStateCallback(SpotifyService.this);
+                            player.addPlayerNotificationCallback(SpotifyService.this);
+                            if (mIsPlaying) {
+                                player.play(mPreparedUri);
+                            }
+                        }
+
+                        @Override
+                        public void onError(Throwable throwable) {
+                            Log.e(TAG, "Could not initialize player: " + throwable.getMessage());
+                        }
+                    });
+        } else {
+            mPlayer.login(accessToken);
+        }
     }
 
     /**
@@ -292,6 +294,7 @@ public class SpotifyService extends Service implements
                     @Override
                     public void onPlayerState(PlayerState playerState) {
                         if (!playerState.trackUri.equals(mPreparedUri)) {
+                            mIsPlaying = true;
                             mPlayer.play(mPreparedUri);
                         } else if (!playerState.playing) {
                             mPlayer.resume();
@@ -309,18 +312,8 @@ public class SpotifyService extends Service implements
      */
     public void pause() {
         if (mPlayer != null) {
-            try {
-                mPlayer.getPlayerState(new PlayerStateCallback() {
-                    @Override
-                    public void onPlayerState(PlayerState playerState) {
-                        if (playerState.playing) {
-                            mPlayer.pause();
-                        }
-                    }
-                });
-            } catch (RejectedExecutionException e) {
-                Log.e(TAG, "pause - " + e.getLocalizedMessage());
-            }
+            mIsPlaying = false;
+            mPlayer.pause();
         }
     }
 
