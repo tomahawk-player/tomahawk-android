@@ -150,9 +150,9 @@
 -keep class * extends org.apache.lucene.codecs.PostingsFormat
 -keep class org.apache.lucene.codecs.DocValuesFormat
 -keep class * extends org.apache.lucene.codecs.DocValuesFormat
--keep class org.apache.lucene.search.MaxNonCompetitiveBoostAttribute
--keep class * implements org.apache.lucene.search.MaxNonCompetitiveBoostAttribute
 -keep class org.apache.lucene.analysis.tokenattributes.**
+-keep class org.apache.lucene.**Attribute
+-keep class * implements org.apache.lucene.**Attribute
 
 ###################################
 #UnifiedMetaDataProvider specifics#
