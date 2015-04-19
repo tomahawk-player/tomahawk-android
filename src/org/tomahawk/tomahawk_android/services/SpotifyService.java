@@ -316,7 +316,11 @@ public class SpotifyService extends Service implements
     public void pause() {
         mIsPlaying = false;
         if (mPlayer != null) {
-            mPlayer.pause();
+            try {
+                mPlayer.pause();
+            } catch (RejectedExecutionException e) {
+                Log.e(TAG, "pause - " + e.getLocalizedMessage());
+            }
         }
     }
 
@@ -327,8 +331,12 @@ public class SpotifyService extends Service implements
      */
     public void seek(int position) {
         if (mPlayer != null) {
-            mPlayer.seekToPosition(position);
-            sendMsg(MSG_ONPLAYERPOSITIONCHANGED, position, System.currentTimeMillis());
+            try {
+                mPlayer.seekToPosition(position);
+                sendMsg(MSG_ONPLAYERPOSITIONCHANGED, position, System.currentTimeMillis());
+            } catch (RejectedExecutionException e) {
+                Log.e(TAG, "seek - " + e.getLocalizedMessage());
+            }
         }
     }
 
@@ -352,7 +360,11 @@ public class SpotifyService extends Service implements
                     break;
             }
             if (bitrate != null) {
-                mPlayer.setPlaybackBitrate(bitrate);
+                try {
+                    mPlayer.setPlaybackBitrate(bitrate);
+                } catch (RejectedExecutionException e) {
+                    Log.e(TAG, "setBitrate - " + e.getLocalizedMessage());
+                }
             } else {
                 Log.d(TAG, "Invalid bitratemode given");
             }
