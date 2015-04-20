@@ -39,7 +39,10 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverFuzzyIndex;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.File;
@@ -49,6 +52,8 @@ import java.io.IOException;
 public class FuzzyIndex {
 
     private final static String TAG = FuzzyIndex.class.getSimpleName();
+
+    public static final String EXPECTED_INDEX_SIZE_STORAGE_KEY = "_expected_index_size";
 
     private String mLucenePath;
 
@@ -63,129 +68,150 @@ public class FuzzyIndex {
      * @param recreate whether or not to wipe any previously existing index
      * @return whether or not the creation has been successful
      */
-    public boolean create(String fileName, boolean recreate) {
-        synchronized (this) {
-            try {
-                Log.d(TAG, "create - fileName:" + fileName + ", recreate:" + recreate);
-                mLucenePath = fileName;
-                File indexDirFile = new File(mLucenePath);
-                Directory dir = FSDirectory.open(indexDirFile);
-                beginIndexing(recreate);
-                endIndexing();
-                mSearcherManager = new SearcherManager(dir, new SearcherFactory());
-            } catch (IOException e) {
-                Log.d(TAG, "FuzzyIndex<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
+    public synchronized boolean create(String fileName, boolean recreate) {
+        try {
+            Log.d(TAG, "create - fileName:" + fileName + ", recreate:" + recreate);
+            mLucenePath = fileName;
+            beginIndexing(recreate);
+            endIndexing();
+            updateSearcherManager();
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+            int expectedIndexSize = preferences.getInt(getExpectedIndexSizeStorageKey(), -1);
+            int numDocs = mSearcherManager.acquire().getIndexReader().numDocs();
+            Log.d(TAG, "create - fileName: " + fileName + ", numDocs: " + numDocs);
+            if (expectedIndexSize != numDocs) {
+                Log.e(TAG, "create - fileName: " + fileName + ", expectedIndexSize: "
+                        + expectedIndexSize + ", doesn't match.");
+                close();
                 return false;
             }
-            return true;
+        } catch (IOException e) {
+            Log.e(TAG, "create - " + e.getClass() + ": " + e.getLocalizedMessage());
+            close();
+            return false;
+        }
+        return true;
+    }
+
+    private void updateSearcherManager() {
+        Log.d(TAG, "updateSearcherManager");
+        try {
+            if (mSearcherManager != null) {
+                mSearcherManager.close();
+            }
+            File indexDirFile = new File(mLucenePath);
+            Directory dir = FSDirectory.open(indexDirFile);
+            mSearcherManager = new SearcherManager(dir, new SearcherFactory());
+        } catch (IOException e) {
+            Log.e(TAG, "updateSearcherManager - " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 
     public void close() {
         Log.d(TAG, "close");
         endIndexing();
-        try {
-            if (mSearcherManager != null) {
+        if (mSearcherManager != null) {
+            try {
                 mSearcherManager.close();
-                mSearcherManager = null;
+            } catch (IOException e) {
+                Log.e(TAG, "close - " + e.getClass() + ": " + e.getLocalizedMessage());
             }
+            mSearcherManager = null;
+        }
+    }
+
+    public synchronized void addScriptResolverFuzzyIndexList(ScriptResolverFuzzyIndex[] indexList) {
+        try {
+            Log.d(TAG, "addScriptResolverFuzzyIndexList - count: " + indexList.length);
+            if (indexList.length > 0) {
+                Log.d(TAG,
+                        "addScriptResolverFuzzyIndexList - first index: id:" + indexList[0].id
+                                + ", artist:" + indexList[0].artist
+                                + ", album:" + indexList[0].album
+                                + ", track:" + indexList[0].track);
+            }
+            beginIndexing(true);
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+            preferences.edit().putInt(getExpectedIndexSizeStorageKey(), indexList.length)
+                    .commit();
+            for (ScriptResolverFuzzyIndex index : indexList) {
+                Document document = new Document();
+                document.add(new IntField("id", index.id, Field.Store.YES));
+                document.add(new StringField("artist", index.artist, Field.Store.YES));
+                document.add(new StringField("album", index.album, Field.Store.YES));
+                document.add(new StringField("track", index.track, Field.Store.YES));
+                mLuceneWriter.addDocument(document);
+            }
+            endIndexing();
+            updateSearcherManager();
         } catch (IOException e) {
-            Log.e(TAG, "close: " + e.getClass() + ": " + e.getLocalizedMessage());
+            Log.e(TAG, "addScriptResolverFuzzyIndexList - " + e.getClass() + ": " + e
+                    .getLocalizedMessage());
         }
     }
 
-    public void addScriptResolverFuzzyIndexList(ScriptResolverFuzzyIndex[] indexList) {
-        synchronized (this) {
-            try {
-                Log.d(TAG, "addScriptResolverFuzzyIndexList - count: " + indexList.length);
-                if (indexList.length > 0) {
-                    Log.d(TAG,
-                            "addScriptResolverFuzzyIndexList - first index: id:" + indexList[0].id
-                                    + ", artist:" + indexList[0].artist
-                                    + ", album:" + indexList[0].album
-                                    + ", track:" + indexList[0].track);
-                }
-                beginIndexing(true);
-                for (ScriptResolverFuzzyIndex index : indexList) {
-                    Document document = new Document();
-                    document.add(new IntField("id", index.id, Field.Store.YES));
-                    document.add(new StringField("artist", index.artist, Field.Store.YES));
-                    document.add(new StringField("album", index.album, Field.Store.YES));
-                    document.add(new StringField("track", index.track, Field.Store.YES));
-                    mLuceneWriter.addDocument(document);
-                }
-                endIndexing();
-            } catch (IOException e) {
-                Log.e(TAG, "addScriptResolverFuzzyIndexList: " + e.getClass() + ": " + e
-                        .getLocalizedMessage());
-            }
+    public synchronized void deleteIndex() {
+        try {
+            Log.d(TAG, "deleteIndex");
+            TomahawkUtils.deleteRecursive(new File(mLucenePath));
+        } catch (FileNotFoundException e) {
+            Log.e(TAG, "deleteIndex: " + e.getClass() + ": " + e
+                    .getLocalizedMessage());
         }
     }
 
-    public void deleteIndex() {
-        synchronized (this) {
-            try {
-                Log.d(TAG, "deleteIndex");
-                TomahawkUtils.deleteRecursive(new File(mLucenePath));
-            } catch (FileNotFoundException e) {
-                Log.e(TAG, "deleteIndex: " + e.getClass() + ": " + e
-                        .getLocalizedMessage());
+    public synchronized double[][] search(Query query) {
+        double[][] results = new double[][]{};
+        try {
+            BooleanQuery qry = new BooleanQuery();
+            if (query.isFullTextQuery()) {
+                String escapedQuery = MultiFieldQueryParser.escape(query.getFullTextQuery());
+                Term term = new Term("track", escapedQuery);
+                org.apache.lucene.search.Query fqry = new FuzzyQuery(term);
+                qry.add(fqry, BooleanClause.Occur.SHOULD);
+                term = new Term("artist", escapedQuery);
+                fqry = new FuzzyQuery(term);
+                qry.add(fqry, BooleanClause.Occur.SHOULD);
+                term = new Term("fulltext", escapedQuery);
+                fqry = new FuzzyQuery(term);
+                qry.add(fqry, BooleanClause.Occur.SHOULD);
+                Log.d(TAG, "search - fulltext: " + escapedQuery);
+            } else {
+                String escapedTrackName = MultiFieldQueryParser
+                        .escape(query.getBasicTrack().getName());
+                String escapedArtistName = MultiFieldQueryParser
+                        .escape(query.getArtist().getName());
+                Term term = new Term("track", escapedTrackName);
+                org.apache.lucene.search.Query fqry = new FuzzyQuery(term);
+                qry.add(fqry, BooleanClause.Occur.MUST);
+                term = new Term("artist", escapedArtistName);
+                fqry = new FuzzyQuery(term);
+                qry.add(fqry, BooleanClause.Occur.MUST);
+                Log.d(TAG, "search - non-fulltext: " + escapedArtistName + ", "
+                        + escapedTrackName);
             }
-        }
-    }
-
-    public double[][] search(Query query) {
-        synchronized (this) {
-            double[][] results = new double[][]{};
-            try {
-                BooleanQuery qry = new BooleanQuery();
-                if (query.isFullTextQuery()) {
-                    String escapedQuery = MultiFieldQueryParser.escape(query.getFullTextQuery());
-                    Term term = new Term("track", escapedQuery);
-                    org.apache.lucene.search.Query fqry = new FuzzyQuery(term);
-                    qry.add(fqry, BooleanClause.Occur.SHOULD);
-                    term = new Term("artist", escapedQuery);
-                    fqry = new FuzzyQuery(term);
-                    qry.add(fqry, BooleanClause.Occur.SHOULD);
-                    term = new Term("fulltext", escapedQuery);
-                    fqry = new FuzzyQuery(term);
-                    qry.add(fqry, BooleanClause.Occur.SHOULD);
-                    Log.d(TAG, "search - fulltext: " + escapedQuery);
-                } else {
-                    String escapedTrackName = MultiFieldQueryParser
-                            .escape(query.getBasicTrack().getName());
-                    String escapedArtistName = MultiFieldQueryParser
-                            .escape(query.getArtist().getName());
-                    Term term = new Term("track", escapedTrackName);
-                    org.apache.lucene.search.Query fqry = new FuzzyQuery(term);
-                    qry.add(fqry, BooleanClause.Occur.MUST);
-                    term = new Term("artist", escapedArtistName);
-                    fqry = new FuzzyQuery(term);
-                    qry.add(fqry, BooleanClause.Occur.MUST);
-                    Log.d(TAG, "search - non-fulltext: " + escapedArtistName + ", "
-                            + escapedTrackName);
-                }
-                IndexSearcher searcher = mSearcherManager.acquire();
-                long time = System.currentTimeMillis();
-                ScoreDoc[] hits = searcher.search(qry, 50).scoreDocs;
-                Log.d(TAG, "search - searching took " + (System.currentTimeMillis() - time) + "ms");
-                results = new double[hits.length][2];
-                for (int i = 0; i < hits.length; i++) {
-                    ScoreDoc doc = hits[i];
-                    Document document = searcher.doc(doc.doc);
-                    results[i][0] = document.getField("id").numericValue().intValue();
-                    results[i][1] = doc.score;
-                }
-                if (results.length > 0) {
-                    Log.d(TAG, "search - first result: id:" + results[0][0]
-                            + ", score: " + results[0][1]);
-                }
-                mSearcherManager.release(searcher);
-            } catch (IOException e) {
-                Log.e(TAG, "search: " + e.getClass() + ": " + e.getLocalizedMessage());
+            IndexSearcher searcher = mSearcherManager.acquire();
+            long time = System.currentTimeMillis();
+            ScoreDoc[] hits = searcher.search(qry, 50).scoreDocs;
+            Log.d(TAG, "search - searching took " + (System.currentTimeMillis() - time) + "ms");
+            results = new double[hits.length][2];
+            for (int i = 0; i < hits.length; i++) {
+                ScoreDoc doc = hits[i];
+                Document document = searcher.doc(doc.doc);
+                results[i][0] = document.getField("id").numericValue().intValue();
+                results[i][1] = doc.score;
             }
-            return results;
+            if (results.length > 0) {
+                Log.d(TAG, "search - first result: id:" + results[0][0]
+                        + ", score: " + results[0][1]);
+            }
+            mSearcherManager.release(searcher);
+        } catch (IOException e) {
+            Log.e(TAG, "search - " + e.getClass() + ": " + e.getLocalizedMessage());
         }
+        return results;
     }
 
     /**
@@ -201,6 +227,9 @@ public class FuzzyIndex {
         Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_47);
         IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_47, analyzer);
         if (recreate) {
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+            preferences.edit().putInt(getExpectedIndexSizeStorageKey(), 0).commit();
             iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         } else {
             iwc.setOpenMode(IndexWriterConfig.OpenMode.APPEND);
@@ -216,8 +245,16 @@ public class FuzzyIndex {
                 mLuceneWriter.close(true);
                 mLuceneWriter = null;
             } catch (IOException e) {
-                Log.e(TAG, "endIndexing: " + e.getClass() + ": " + e.getLocalizedMessage());
+                Log.e(TAG, "endIndexing - " + e.getClass() + ": " + e.getLocalizedMessage());
             }
         }
+    }
+
+    private String getExpectedIndexSizeStorageKey() {
+        String[] parts = mLucenePath.split("/");
+        if (parts.length > 0) {
+            return parts[parts.length - 1] + EXPECTED_INDEX_SIZE_STORAGE_KEY;
+        }
+        return null;
     }
 }
