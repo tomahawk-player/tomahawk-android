@@ -20,13 +20,7 @@
 -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-    <android.support.v7.widget.Space
-            android:id="@+id/space"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/pager_indicator_height"
-            android:layout_alignParentBottom="true"/>
+                android:layout_height="match_parent">
 
     <org.tomahawk.tomahawk_android.views.PageIndicator
             android:id="@+id/page_indicator"
@@ -35,7 +29,6 @@
             android:paddingLeft="@dimen/padding_large"
             android:paddingRight="@dimen/padding_large"
             android:background="@drawable/above_shadow_page_indicator"
-            android:layout_alignParentBottom="true"
             android:visibility="gone"/>
 
     <ImageView android:id="@+id/more_button"
@@ -47,7 +40,6 @@
                android:clickable="true"
                android:src="@drawable/ic_action_more"
                android:background="@drawable/selectable_circle"
-               android:layout_above="@id/space"
                android:layout_alignParentRight="true"/>
 
     <org.tomahawk.tomahawk_android.views.FancyDropDown
@@ -55,7 +47,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/padding_megalarge"
-            android:layout_marginRight="@dimen/padding_megalarge"
-            android:layout_centerInParent="true"/>
+            android:layout_marginRight="@dimen/padding_megalarge"/>
 
 </RelativeLayout>
