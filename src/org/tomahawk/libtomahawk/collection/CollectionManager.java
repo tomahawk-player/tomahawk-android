@@ -305,7 +305,7 @@ public class CollectionManager {
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching playlists");
             mCorrespondingRequestIds.add(InfoSystem.getInstance()
-                    .resolvePlaylists(hatchetAuthUtils.getLoggedInUser()));
+                    .resolvePlaylists(hatchetAuthUtils.getLoggedInUser(), true));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching playlists");
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
@@ -328,7 +328,7 @@ public class CollectionManager {
                     params.playlist_local_id = playlistId;
                     params.playlist_id = hatchetId;
                     String requestid = InfoSystem.getInstance().resolve(
-                            InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params);
+                            InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params, true);
                     mCorrespondingRequestIds.add(requestid);
                 } else {
                     Log.d(TAG, "Hatchet sync - couldn't fetch entry list for playlist \""
