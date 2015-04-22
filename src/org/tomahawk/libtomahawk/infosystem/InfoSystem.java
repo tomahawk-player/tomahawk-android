@@ -605,11 +605,11 @@ public class InfoSystem {
         }
     }
 
-    public void deletePlaylist(AuthenticatorUtils authenticatorUtils, String localPlaylistId) {
+    public void deletePlaylist(AuthenticatorUtils authenticatorUtils, String playlistId) {
         long timeStamp = System.currentTimeMillis();
         String requestId = TomahawkMainActivity.getLifetimeUniqueStringId();
         QueryParams params = new QueryParams();
-        params.playlist_local_id = localPlaylistId;
+        params.playlist_id = playlistId;
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params,
                 InfoRequestData.HTTPTYPE_DELETE, null);
@@ -618,12 +618,12 @@ public class InfoSystem {
         sendLoggedOps(authenticatorUtils);
     }
 
-    public void deletePlaylistEntry(AuthenticatorUtils authenticatorUtils, String localPlaylistId,
+    public void deletePlaylistEntry(AuthenticatorUtils authenticatorUtils, String playlistId,
             String entryId) {
         long timeStamp = System.currentTimeMillis();
         String requestId = TomahawkMainActivity.getLifetimeUniqueStringId();
         QueryParams params = new QueryParams();
-        params.playlist_local_id = localPlaylistId;
+        params.playlist_id = playlistId;
         params.entry_id = entryId;
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES, params,
@@ -773,10 +773,7 @@ public class InfoSystem {
             while (!mQueuedLoggedOps.isEmpty()) {
                 InfoRequestData queuedLoggedOp = mQueuedLoggedOps.remove(0);
                 QueryParams params = queuedLoggedOp.getQueryParams();
-                String hatchetId = DatabaseHelper.getInstance()
-                        .getPlaylistHatchetId(params.playlist_local_id);
-                if (hatchetId != null) {
-                    params.playlist_id = hatchetId;
+                if (params.playlist_id != null) {
                     send(queuedLoggedOp, AuthenticatorManager.getInstance().getAuthenticatorUtils(
                             TomahawkApp.PLUGINNAME_HATCHET));
                 } else {
