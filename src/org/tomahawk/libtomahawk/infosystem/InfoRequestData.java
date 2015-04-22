@@ -98,6 +98,8 @@ public class InfoRequestData {
 
     private int mLoggedOpId;
 
+    private boolean mIsBackgroundRequest;
+
     /**
      * Storage member-variable. Used if a single object is the result.
      */
@@ -123,6 +125,22 @@ public class InfoRequestData {
     }
 
     /**
+     * Constructor to be used for an InfoRequestData object in a "resolve" InfoSystem request
+     *
+     * @param requestId           the id of the to be constructed InfoRequestData
+     * @param type                the type which specifies the request inside an InfoPlugin
+     * @param params              optional parameters to the request
+     * @param isBackgroundRequest boolean indicating whether or not this request should be run with
+     *                            the lowest priority (useful for sync operations)
+     */
+    public InfoRequestData(String requestId, int type, QueryParams params,
+            boolean isBackgroundRequest) {
+        this(requestId, type, params);
+
+        mIsBackgroundRequest = isBackgroundRequest;
+    }
+
+    /**
      * Constructor to be used for an InfoRequestData object in a "send" InfoSystem request
      *
      * @param requestId        the id of the to be constructed InfoRequestData
@@ -134,12 +152,8 @@ public class InfoRequestData {
      */
     public InfoRequestData(String requestId, int type, QueryParams params, int loggedOpId,
             int httpType, String jsonStringToSend) {
-        mRequestId = requestId;
-        mType = type;
-        mQueryParams = params;
+        this(requestId, type, params, httpType, jsonStringToSend);
         mLoggedOpId = loggedOpId;
-        mHttpType = httpType;
-        mJsonStringToSend = jsonStringToSend;
     }
 
     /**
@@ -220,5 +234,9 @@ public class InfoRequestData {
 
     public int getLoggedOpId() {
         return mLoggedOpId;
+    }
+
+    public boolean isBackgroundRequest() {
+        return mIsBackgroundRequest;
     }
 }

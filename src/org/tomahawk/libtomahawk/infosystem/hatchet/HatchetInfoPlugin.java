@@ -81,12 +81,18 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.RetrofitError;
+import retrofit.android.MainThreadExecutor;
 import retrofit.client.OkClient;
 import retrofit.mime.TypedByteArray;
+
+import static android.os.Process.THREAD_PRIORITY_LOWEST;
 
 /**
  * Implementation to enable the InfoSystem to retrieve data from the Hatchet API. Documentation of
@@ -139,6 +145,8 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
     private final Hatchet mHatchet;
 
+    private final Hatchet mHatchetBackground;
+
     public HatchetInfoPlugin() {
         RequestInterceptor requestInterceptor = new RequestInterceptor() {
             @Override
@@ -165,6 +173,28 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 .setClient(new OkClient(okHttpClient))
                 .build();
         mHatchet = restAdapter.create(Hatchet.class);
+
+        Executor httpExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
+            @Override
+            public Thread newThread(final Runnable r) {
+                return new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        android.os.Process.setThreadPriority(THREAD_PRIORITY_LOWEST);
+                        r.run();
+                    }
+                }, "Retrofit-Idle-Background");
+            }
+        });
+        restAdapter = new RestAdapter.Builder()
+                .setLogLevel(RestAdapter.LogLevel.BASIC)
+                .setEndpoint(HATCHET_BASE_URL)
+                .setConverter(new JacksonConverter(InfoSystemUtils.getObjectMapper()))
+                .setRequestInterceptor(requestInterceptor)
+                .setClient(new OkClient(okHttpClient))
+                .setExecutors(httpExecutor, new MainThreadExecutor())
+                .build();
+        mHatchetBackground = restAdapter.create(Hatchet.class);
     }
 
     /**
@@ -200,11 +230,12 @@ public class HatchetInfoPlugin extends InfoPlugin {
         QueryParams params = infoRequestData.getQueryParams();
         Collection hatchetCollection = CollectionManager.getInstance()
                 .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+        Hatchet hatchet = getImplementation(infoRequestData);
 
         try {
             if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
                 HatchetUsers users =
-                        mHatchet.getUsers(params.ids, params.name, params.random, params.count);
+                        hatchet.getUsers(params.ids, params.name, params.random, params.count);
                 if (users != null && users.users != null) {
                     List<Object> resultList = new ArrayList<>();
                     for (HatchetUserInfo userInfo : users.users) {
@@ -228,7 +259,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
-                HatchetPlaylistEntries entries = mHatchet.getUsersPlaylists(params.userid);
+                HatchetPlaylistEntries entries = hatchet.getUsersPlaylists(params.userid);
                 if (entries != null) {
                     TreeSet<Playlist> playlists = new TreeSet<>(new TomahawkListItemComparator(
                             TomahawkListItemComparator.COMPARE_ALPHA));
@@ -248,7 +279,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
-                HatchetPlaylistEntries playlistEntries = mHatchet.getPlaylists(params.playlist_id);
+                HatchetPlaylistEntries playlistEntries = hatchet.getPlaylists(params.playlist_id);
                 if (playlistEntries != null) {
                     Playlist playlist;
                     Object itemToBeFilled =
@@ -274,7 +305,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 User userToBeFilled =
                         (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
                 HatchetPlaylistEntries playlistEntries =
-                        mHatchet.getUsersLovedItems(userToBeFilled.getId());
+                        hatchet.getUsersLovedItems(userToBeFilled.getId());
                 if (playlistEntries != null) {
                     if (playlistEntries.playlistEntries.size() > 0) {
                         InfoSystemUtils
@@ -291,10 +322,10 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 HatchetSocialActionResponse response;
                 if (infoRequestData.getType()
                         == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS) {
-                    response = mHatchet.getUsersSocialActions(params.userid, params.offset,
+                    response = hatchet.getUsersSocialActions(params.userid, params.offset,
                             params.limit);
                 } else {
-                    response = mHatchet.getUsersFriendsFeed(params.userid, params.offset,
+                    response = hatchet.getUsersFriendsFeed(params.userid, params.offset,
                             params.limit);
                 }
                 if (response != null) {
@@ -343,7 +374,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG) {
-                HatchetPlaybackLogsResponse response = mHatchet.getUsersPlaybackLog(params.userid);
+                HatchetPlaybackLogsResponse response = hatchet.getUsersPlaybackLog(params.userid);
                 if (response != null) {
                     User userToBeFilled =
                             (User) mItemsToBeFilled.get(infoRequestData.getRequestId());
@@ -364,7 +395,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 }
 
             } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
-                HatchetArtists artists = mHatchet.getArtists(params.ids, params.name);
+                HatchetArtists artists = hatchet.getArtists(params.ids, params.name);
                 if (artists != null) {
                     Artist artistToBeFilled =
                             (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
@@ -385,12 +416,12 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
-                HatchetArtists artists = mHatchet.getArtists(params.ids, params.name);
+                HatchetArtists artists = hatchet.getArtists(params.ids, params.name);
                 if (artists != null && artists.artists != null) {
                     List<Object> convertedAlbums = new ArrayList<>();
                     HatchetArtistInfo artist =
                             TomahawkUtils.carelessGetFirst(artists.artists.values());
-                    HatchetCharts charts = mHatchet.getArtistsAlbums(artist.id);
+                    HatchetCharts charts = hatchet.getArtistsAlbums(artist.id);
                     if (charts != null && charts.albums != null) {
                         Artist convertedArtist =
                                 (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
@@ -399,7 +430,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                             HatchetImage image = TomahawkUtils.carelessGet(charts.images, imageId);
                             List<HatchetTrackInfo> albumTracks = null;
                             if (album.tracks.size() > 0) {
-                                HatchetTracks tracks = mHatchet.getTracks(album.tracks, null, null);
+                                HatchetTracks tracks = hatchet.getTracks(album.tracks, null, null);
                                 if (tracks != null) {
                                     albumTracks = tracks.tracks;
                                 }
@@ -424,14 +455,14 @@ public class HatchetInfoPlugin extends InfoPlugin {
 
             } else if (infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
-                HatchetArtists artists = mHatchet.getArtists(params.ids, params.name);
+                HatchetArtists artists = hatchet.getArtists(params.ids, params.name);
                 if (artists != null && artists.artists != null) {
                     Artist artistToBeFilled =
                             (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
                     HatchetArtistInfo artistInfo =
                             TomahawkUtils.carelessGetFirst(artists.artists.values());
                     if (artistInfo != null) {
-                        HatchetCharts charts = mHatchet.getArtistsTopHits(artistInfo.id);
+                        HatchetCharts charts = hatchet.getArtistsTopHits(artistInfo.id);
                         if (charts != null) {
                             InfoSystemUtils
                                     .fillArtist(artistToBeFilled, charts.chartItems, charts.tracks);
@@ -443,7 +474,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 }
 
             } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
-                HatchetAlbums albums = mHatchet.getAlbums(params.ids, params.name,
+                HatchetAlbums albums = hatchet.getAlbums(params.ids, params.name,
                         params.artistname);
                 if (albums != null && albums.albums != null) {
                     Album album = (Album) mItemsToBeFilled.get(infoRequestData.getRequestId());
@@ -453,14 +484,14 @@ public class HatchetInfoPlugin extends InfoPlugin {
                         HatchetImage image = TomahawkUtils.carelessGet(albums.images, imageId);
                         InfoSystemUtils.fillAlbum(album, image);
                         if (albumInfo.tracks != null && albumInfo.tracks.size() > 0) {
-                            HatchetTracks tracks = mHatchet.getTracks(albumInfo.tracks, null, null);
+                            HatchetTracks tracks = hatchet.getTracks(albumInfo.tracks, null, null);
                             if (tracks != null) {
                                 HashSet<String> artistIds = new HashSet<>();
                                 for (HatchetTrackInfo trackInfo : tracks.tracks) {
                                     artistIds.add(trackInfo.artist);
                                 }
                                 HatchetArtists artists =
-                                        mHatchet.getArtists(new ArrayList<>(artistIds), null);
+                                        hatchet.getArtists(new ArrayList<>(artistIds), null);
                                 if (artists != null) {
                                     List<Query> convertedTracks = InfoSystemUtils
                                             .convertToQueries(tracks.tracks, album.getName(),
@@ -477,7 +508,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                 }
 
             } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
-                HatchetSearch search = mHatchet.getSearches(params.term);
+                HatchetSearch search = hatchet.getSearches(params.term);
                 if (search != null && search.searchResults != null) {
                     List<Object> convertedAlbums = new ArrayList<>();
                     List<Object> convertedArtists = new ArrayList<>();
@@ -540,10 +571,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS
                     || infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWERS) {
-                HatchetRelationshipsStruct relationshipsStruct = mHatchet.getRelationships(
-                        params.ids,
-                        params.userid, params.targettype, params.targetuserid, null, null, null,
-                        params.type);
+                HatchetRelationshipsStruct relationshipsStruct = hatchet.getRelationships(
+                        params.ids, params.userid, params.targettype, params.targetuserid, null,
+                        null, null, params.type);
                 if (relationshipsStruct != null && relationshipsStruct.relationships != null) {
                     Map<String, String> relationShipIds = new HashMap<>();
                     for (HatchetRelationshipStruct relationship : relationshipsStruct.relationships) {
@@ -556,7 +586,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     }
                     User userToBeFilled = (User) mItemsToBeFilled
                             .get(infoRequestData.getRequestId());
-                    HatchetUsers users = mHatchet.getUsers(
+                    HatchetUsers users = hatchet.getUsers(
                             new ArrayList<>(relationShipIds.keySet()), params.name, null,
                             null);
                     if (users != null && users.users != null) {
@@ -595,7 +625,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS
                     || infoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
-                HatchetRelationshipsStruct relationShips = mHatchet.getRelationships(params.ids,
+                HatchetRelationshipsStruct relationShips = hatchet.getRelationships(params.ids,
                         params.userid, params.targettype, params.targetuserid, null, null, null,
                         params.type);
                 if (relationShips != null && relationShips.relationships != null) {
@@ -656,6 +686,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
             public void run() {
                 ArrayList<String> doneRequestsIds = new ArrayList<>();
                 doneRequestsIds.add(infoRequestData.getRequestId());
+                Hatchet hatchet = getImplementation(infoRequestData);
                 // Before we do anything, get the accesstoken
                 boolean success = false;
                 String accessToken = mHatchetAuthenticatorUtils.ensureAccessTokens();
@@ -664,34 +695,34 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     try {
                         if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES) {
-                            mHatchet.postPlaybackLogEntries(accessToken,
+                            hatchet.postPlaybackLogEntries(accessToken,
                                     new TypedByteArray("application/json; charset=utf-8",
                                             data.getBytes(Charsets.UTF_8)));
                         } else if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING) {
-                            mHatchet.postPlaybackLogEntriesNowPlaying(accessToken,
+                            hatchet.postPlaybackLogEntriesNowPlaying(accessToken,
                                     new TypedByteArray("application/json; charset=utf-8",
                                             data.getBytes(Charsets.UTF_8)));
                         } else if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
-                            mHatchet.postSocialActions(accessToken,
+                            hatchet.postSocialActions(accessToken,
                                     new TypedByteArray("application/json; charset=utf-8",
                                             data.getBytes(Charsets.UTF_8)));
                         } else if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
                             if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_POST) {
-                                HatchetPlaylistEntries entries = mHatchet.postPlaylists(accessToken,
+                                HatchetPlaylistEntries entries = hatchet.postPlaylists(accessToken,
                                         new TypedByteArray("application/json; charset=utf-8",
                                                 data.getBytes(Charsets.UTF_8)));
                                 infoRequestData.setResult(entries);
                             } else if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_DELETE) {
-                                mHatchet.deletePlaylists(accessToken,
+                                hatchet.deletePlaylists(accessToken,
                                         infoRequestData.getQueryParams().playlist_id);
                             } else if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_PUT) {
-                                mHatchet.putPlaylists(accessToken,
+                                hatchet.putPlaylists(accessToken,
                                         infoRequestData.getQueryParams().playlist_id,
                                         new TypedByteArray("application/json; charset=utf-8",
                                                 data.getBytes(Charsets.UTF_8)));
@@ -700,13 +731,13 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
                             if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_POST) {
-                                mHatchet.postPlaylistsPlaylistEntries(accessToken,
+                                hatchet.postPlaylistsPlaylistEntries(accessToken,
                                         infoRequestData.getQueryParams().playlist_id,
                                         new TypedByteArray("application/json; charset=utf-8",
                                                 data.getBytes(Charsets.UTF_8)));
                             } else if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_DELETE) {
-                                mHatchet.deletePlaylistsPlaylistEntries(accessToken,
+                                hatchet.deletePlaylistsPlaylistEntries(accessToken,
                                         infoRequestData.getQueryParams().playlist_id,
                                         infoRequestData.getQueryParams().entry_id);
                             }
@@ -714,12 +745,12 @@ public class HatchetInfoPlugin extends InfoPlugin {
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS) {
                             if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_POST) {
-                                mHatchet.postRelationship(accessToken,
+                                hatchet.postRelationship(accessToken,
                                         new TypedByteArray("application/json; charset=utf-8",
                                                 data.getBytes(Charsets.UTF_8)));
                             } else if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_DELETE) {
-                                mHatchet.deleteRelationShip(accessToken,
+                                hatchet.deleteRelationShip(accessToken,
                                         infoRequestData.getQueryParams().relationship_id);
                             }
                         }
@@ -763,5 +794,9 @@ public class HatchetInfoPlugin extends InfoPlugin {
             }
         };
         ThreadManager.getInstance().execute(runnable);
+    }
+
+    private Hatchet getImplementation(InfoRequestData infoRequestData) {
+        return infoRequestData.isBackgroundRequest() ? mHatchetBackground : mHatchet;
     }
 }

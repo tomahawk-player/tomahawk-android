@@ -353,11 +353,21 @@ public class InfoSystem {
     }
 
     public String resolvePlaylists(User user) {
-        QueryParams params = new QueryParams();
+        return resolvePlaylists(user, false);
+    }
+
+    public String resolvePlaylists(User user, boolean isBackgroundRequest) {
         if (user != null) {
+            QueryParams params = new QueryParams();
             params.userid = user.getId();
+            String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+            InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                    InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, params,
+                    isBackgroundRequest);
+            resolve(infoRequestData, user);
+            return infoRequestData.getRequestId();
         }
-        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, params, user);
+        return null;
     }
 
     /**
@@ -370,6 +380,23 @@ public class InfoSystem {
     public String resolve(int type, QueryParams params) {
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params);
+        resolve(infoRequestData);
+        return infoRequestData.getRequestId();
+    }
+
+    /**
+     * Build an InfoRequestData object with the given data and order results
+     *
+     * @param type                the type of the InfoRequestData object
+     * @param params              all parameters to be given to the InfoPlugin
+     * @param isBackgroundRequest boolean indicating whether or not this request should be run with
+     *                            the lowest priority (useful for sync operations)
+     * @return the created InfoRequestData's requestId
+     */
+    public String resolve(int type, QueryParams params, boolean isBackgroundRequest) {
+        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+        InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params,
+                isBackgroundRequest);
         resolve(infoRequestData);
         return infoRequestData.getRequestId();
     }
