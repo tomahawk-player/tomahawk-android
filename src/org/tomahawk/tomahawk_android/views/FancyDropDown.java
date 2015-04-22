@@ -126,7 +126,7 @@ public class FancyDropDown extends FrameLayout {
                     textView.setText(mItemInfos.get(i).mText.toUpperCase());
                     ImageView imageView = (ImageView) item.findViewById(R.id.imageview);
                     if (mItemInfos.get(i).mResolver != null) {
-                        mItemInfos.get(i).mResolver.loadIcon(imageView, false);
+                        mItemInfos.get(i).mResolver.loadIconWhite(imageView);
                     }
 
                     final int position = i;
@@ -180,7 +180,8 @@ public class FancyDropDown extends FrameLayout {
         ImageView imageView = (ImageView) findViewById(R.id.imageview_selected);
         if (mItemInfos != null) {
             if (mItemInfos.get(mSelection).mResolver != null) {
-                mItemInfos.get(mSelection).mResolver.loadIcon(imageView, false);
+                mItemInfos.get(mSelection).mResolver.loadIconWhite(imageView);
+                imageView.setVisibility(VISIBLE);
             } else {
                 imageView.setVisibility(GONE);
             }
