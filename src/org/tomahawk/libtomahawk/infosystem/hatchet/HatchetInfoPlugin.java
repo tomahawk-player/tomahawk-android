@@ -155,6 +155,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     int maxStale = 60 * 60 * 24 * 7; // tolerate 1-week stale
                     request.addHeader("Cache-Control", "public, max-stale=" + maxStale);
                 }
+                request.addHeader("Content-type", "application/json; charset=utf-8");
             }
         };
         OkHttpClient okHttpClient = new OkHttpClient();
