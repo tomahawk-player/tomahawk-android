@@ -144,6 +144,7 @@
   </plurals>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s by %2$s</string>
+  <string name="time_afewseconds">a few seconds ago</string>
   <plurals name="time_minute">
     <item quantity="one">a minute ago</item>
     <item quantity="other">%1$d minutes ago</item>
