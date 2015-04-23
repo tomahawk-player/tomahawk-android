@@ -153,17 +153,4 @@
 
     </ScrollView>
 
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_height="@dimen/playback_panel_height"
-                 android:layout_gravity="center_vertical|bottom">
-
-        <ViewStub android:id="@+id/view_album_button_stub"
-                  android:layout="@layout/context_menu_button_white_micro"
-                  android:inflatedId="@+id/view_album_button"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_gravity="center"/>
-
-    </FrameLayout>
-
 </FrameLayout>

@@ -18,21 +18,16 @@
  */
 -->
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:paddingLeft="@dimen/padding_superlarge"
-             android:paddingRight="@dimen/padding_superlarge"
-             android:paddingBottom="@dimen/padding_verysmall"
-             android:paddingTop="@dimen/padding_verysmall"
-             android:background="@drawable/selectable_background_button_white"
-             android:clickable="true">
+             android:layout_width="match_parent"
+             android:layout_height="@dimen/playback_panel_height"
+             android:layout_gravity="center_vertical|bottom"
+             android:layout_marginBottom="@dimen/playback_panel_height">
 
-    <TextView android:id="@+id/textview"
-              android:layout_width="match_parent"
+    <ViewStub android:id="@+id/view_album_button_stub"
+              android:layout="@layout/context_menu_button_white_micro"
+              android:inflatedId="@+id/view_album_button"
+              android:layout_width="wrap_content"
               android:layout_height="wrap_content"
-              android:layout_gravity="center_vertical"
-              android:singleLine="true"
-              android:textSize="@dimen/text_size_large"
-              android:textColor="@color/primary_textcolor_inverted"/>
+              android:layout_gravity="center"/>
 
 </FrameLayout>

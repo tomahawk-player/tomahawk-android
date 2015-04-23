@@ -49,7 +49,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -86,7 +85,10 @@ public class ContextMenuFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.context_menu_fragment, container, false);
+        unpackArgs();
+        int layoutResId = mFromPlaybackFragment ? R.layout.context_menu_fragment_playback
+                : R.layout.context_menu_fragment;
+        return inflater.inflate(layoutResId, container, false);
     }
 
     @Override
@@ -105,8 +107,6 @@ public class ContextMenuFragment extends Fragment {
 
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         activity.hideActionbar();
-
-        unpackArgs();
 
         setupCloseButton(view);
         setupContextMenuItems(view);
@@ -205,15 +205,6 @@ public class ContextMenuFragment extends Fragment {
                 ImageView bgImageView =
                         (ImageView) view.findViewById(R.id.background);
                 bgImageView.setImageBitmap(bm);
-
-                if (mFromPlaybackFragment) {
-                    FrameLayout.LayoutParams params =
-                            (FrameLayout.LayoutParams) bgImageView.getLayoutParams();
-                    params.bottomMargin = TomahawkApp.getContext().getResources()
-                            .getDimensionPixelSize(R.dimen.playback_clear_space_bottom);
-                    params.topMargin = TomahawkApp.getContext().getResources()
-                            .getDimensionPixelSize(R.dimen.playback_panel_height);
-                }
             }
         });
     }

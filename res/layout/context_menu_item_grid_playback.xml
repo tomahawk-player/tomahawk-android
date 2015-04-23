@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:layout_marginTop="@dimen/playback_panel_height"
+              android:layout_marginBottom="@dimen/playback_clear_space_bottom"
+              android:paddingTop="@dimen/padding_medium"
+              android:paddingBottom="@dimen/padding_medium"
+              android:layout_gravity="center_vertical">
+
+    <ViewStub android:id="@+id/context_menu_addtoplaylist_stub"
+              android:layout="@layout/context_menu_item"
+              android:inflatedId="@+id/context_menu_addtoplaylist"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_horizontal"/>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:baselineAligned="false">
+
+        <ViewStub android:id="@+id/context_menu_addtocollection_stub"
+                  android:layout="@layout/context_menu_item"
+                  android:inflatedId="@+id/context_menu_addtocollection"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="1"/>
+
+        <ViewStub android:id="@+id/context_menu_favorite_stub"
+                  android:layout="@layout/context_menu_item"
+                  android:inflatedId="@+id/context_menu_favorite"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="1"/>
+
+        <ViewStub android:id="@+id/context_menu_share_stub"
+                  android:layout="@layout/context_menu_item"
+                  android:inflatedId="@+id/context_menu_share"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="1"/>
+
+    </LinearLayout>
+
+    <ViewStub android:id="@+id/context_menu_remove_stub"
+              android:layout="@layout/context_menu_item"
+              android:inflatedId="@+id/context_menu_remove"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_horizontal"/>
+
+</LinearLayout>

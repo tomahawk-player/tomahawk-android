@@ -97,21 +97,16 @@ public class PlaybackPanel extends FrameLayout {
     public PlaybackPanel(Context context) {
         super(context);
         inflate(getContext(), R.layout.playback_panel, this);
+        init();
     }
 
     public PlaybackPanel(Context context, AttributeSet attrs) {
         super(context, attrs);
         inflate(getContext(), R.layout.playback_panel, this);
+        init();
     }
 
-    @Override
-    public boolean onTouchEvent(@NonNull MotionEvent event) {
-        return false;
-    }
-
-    public void setup(final boolean isPanelExpanded) {
-        mInitialized = true;
-
+    private void init() {
         mTextViewContainer = (FrameLayout) findViewById(R.id.textview_container);
         mPanelContainer = findViewById(R.id.panel_container);
         mArtistNameButton = (FrameLayout) mTextViewContainer.findViewById(R.id.artist_name_button);
@@ -129,6 +124,15 @@ public class PlaybackPanel extends FrameLayout {
                 (FrameLayout) findViewById(R.id.circularprogressbar_container);
         mCircularProgressBar = (HoloCircularProgressBar)
                 mCircularProgressBarContainer.findViewById(R.id.circularprogressbar);
+    }
+
+    @Override
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
+        return false;
+    }
+
+    public void setup(final boolean isPanelExpanded) {
+        mInitialized = true;
 
         mCircularProgressBar.setOnClickListener(new OnClickListener() {
             @Override
