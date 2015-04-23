@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/context_menu_fragment"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:clickable="true"
+             android:descendantFocusability="afterDescendants">
+
+    <org.tomahawk.tomahawk_android.views.TopCropImageView
+            android:id="@+id/background"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
+    <View android:layout_width="match_parent"
+          android:layout_height="match_parent"
+          android:background="@color/tertiary_transparent"/>
+
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_height="@dimen/playback_panel_height">
+
+        <LinearLayout android:id="@+id/close_button"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center"
+                      android:paddingLeft="@dimen/padding_superlarge"
+                      android:paddingRight="@dimen/padding_superlarge"
+                      android:paddingBottom="@dimen/padding_verysmall"
+                      android:paddingTop="@dimen/padding_verysmall"
+                      android:background="@drawable/selectable_background_button_white"
+                      android:clickable="true">
+
+            <TextView android:id="@+id/close_button_text"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"
+                      android:layout_gravity="center_vertical"
+                      android:singleLine="true"
+                      android:textSize="@dimen/text_size_micro"
+                      android:textColor="@color/primary_textcolor_inverted"/>
+
+            <ImageView android:layout_width="12dp"
+                       android:layout_height="12dp"
+                       android:layout_marginLeft="@dimen/padding_small"
+                       android:layout_gravity="center_vertical"
+                       android:src="@drawable/ic_player_exit_light"/>
+
+        </LinearLayout>
+
+    </FrameLayout>
+
+    <include layout="@layout/context_menu_item_grid_playback"/>
+
+    <include layout="@layout/context_menu_button_viewalbum"/>
+
+</FrameLayout>
