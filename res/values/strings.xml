@@ -167,7 +167,7 @@
   <string name="songs">Songs</string>
   <!-- Shown as part of a count string. E.g.: "3 Songs", "1 Song" -->
   <plurals name="songs_with_count">
-    <item quantity="one">1 Song</item>
+    <item quantity="one">%1$d Song</item>
     <item quantity="other">%1$d Songs</item>
   </plurals>
   <string name="activity">Activity</string>
