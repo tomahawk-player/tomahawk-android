@@ -281,7 +281,8 @@ public class InfoSystem {
         if (user != null) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, params, user);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, params, user,
+                    true);
         }
         return null;
     }
@@ -333,7 +334,7 @@ public class InfoSystem {
         params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE;
         params.targettype = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ALBUM;
         return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS,
-                params, user);
+                params, user, true);
     }
 
     /**
@@ -349,7 +350,7 @@ public class InfoSystem {
         params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE;
         params.targettype = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ARTIST;
         return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS,
-                params, user);
+                params, user, true);
     }
 
     public String resolvePlaylists(User user) {
@@ -378,10 +379,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolve(int type, QueryParams params) {
-        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-        InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params);
-        resolve(infoRequestData);
-        return infoRequestData.getRequestId();
+        return resolve(type, params, false);
     }
 
     /**
@@ -410,10 +408,26 @@ public class InfoSystem {
      *                       results from its source
      * @return the created InfoRequestData's requestId
      */
-    public String resolve(int type, QueryParams params,
-            TomahawkListItem itemToBeFilled) {
+    public String resolve(int type, QueryParams params, TomahawkListItem itemToBeFilled) {
+        return resolve(type, params, itemToBeFilled, false);
+    }
+
+    /**
+     * Build an InfoRequestData object with the given data and order results
+     *
+     * @param type                the type of the InfoRequestData object
+     * @param params              all parameters to be given to the InfoPlugin
+     * @param itemToBeFilled      the item to automatically be filled after the InfoPlugin fetched
+     *                            the results from its source
+     * @param isBackgroundRequest boolean indicating whether or not this request should be run with
+     *                            the lowest priority (useful for sync operations)
+     * @return the created InfoRequestData's requestId
+     */
+    public String resolve(int type, QueryParams params, TomahawkListItem itemToBeFilled,
+            boolean isBackgroundRequest) {
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-        InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params);
+        InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params,
+                isBackgroundRequest);
         if (itemToBeFilled != null) {
             resolve(infoRequestData, itemToBeFilled);
         } else {
@@ -421,7 +435,6 @@ public class InfoSystem {
         }
         return infoRequestData.getRequestId();
     }
-
 
     /**
      * Order results for the given InfoRequestData object
