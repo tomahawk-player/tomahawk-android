@@ -110,41 +110,16 @@
   <string name="suggest_users">Προτεινόμενα άτομα για να τα ακολουθήσετε</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s ακολουθουν</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
-  <string name="socialaction_type_love_track_single">%1$s αγαπούν ένα τραγουδι</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
-  <string name="socialaction_type_love_track_multiple">%1$s αγαπούν %2$d τραγουδια</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
-  <string name="socialaction_type_collected_track_single">%1$s συλλέχθηκε ένα τραγουδι</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
-  <string name="socialaction_type_collected_track_multiple">%1$s συλλέχθηκαν %2$d τραγουδια</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
-  <string name="socialaction_type_collected_album_single">%1$s συλλέχθηκε ενα αλμπουμ</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
-  <string name="socialaction_type_collected_album_multiple">%1$s συλλέχθηκαν %2$d αλμπουμ</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
-  <string name="socialaction_type_collected_artist_single">%1$s συλλεχθηκε ενας τραγουδιστης</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
-  <string name="socialaction_type_collected_artist_multiple">%1$s  συλλεχθηκαν %2$d τραγουδιστες</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">%1$s σχολίασαν</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
-  <string name="socialaction_type_latchon_single">%1$s άκουσαν μαζί με έναν φίλο</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
-  <string name="socialaction_type_latchon_multiple">%1$s άκουσαν μαζι με %2$d φίλους</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">%1$s δημιούργησαν μια λίστα αναπαραγωγής</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">%1$s δημιούργησαν %2$d λίστες αναπαραγωγής</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s απο %2$s</string>
-  <string name="time_afewseconds">πριν από λίγα δευτερόλεπτα</string>
-  <string name="time_aminute">πριν από ένα λεπτό</string>
-  <string name="time_anhour">πριν από μία ώρα</string>
-  <string name="time_aday">μια ημέρα πριν</string>
-  <string name="time_minutes">%1$d λεπτά πριν </string>
-  <string name="time_hours">%1$d ωρες πριν</string>
-  <string name="time_days">%1$d ημερες πριν</string>
   <string name="users_playbacklog_suffix">%1$s\'s πρόσφατα παιχθηκε</string>
   <string name="users_favorites_suffix">%1$s\'s Αγαπημένα</string>
   <string name="users_playlist_suffix">%1$s\'s Λίστα αναπαραγωγής</string>
@@ -154,10 +129,7 @@
   <string name="similar">Παρόμοια</string>
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Τραγούδια</string>
-  <!--Shown as part of a count string. E.g.: "3 songs".-->
-  <string name="songs_with_count">%1$d Τραγούδια</string>
-  <!--The singular version of the "x Songs" count string. E.g.: "1 song".-->
-  <string name="songs_with_count_singular">%1$d Τραγούδι</string>
+  <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
   <string name="activity">Δραστηριότητα</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Ακολουθοι</string>

@@ -110,41 +110,16 @@
   <string name="suggest_users">Ehdotuksia ihmisistä, joita seurata</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s seuraa nyt</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
-  <string name="socialaction_type_love_track_single">%1$s tykkäsi kappaleesta</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
-  <string name="socialaction_type_love_track_multiple">%1$s tykkäsi %2$d kappaleesta</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
-  <string name="socialaction_type_collected_track_single">%1$s keräsi kappaleen</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
-  <string name="socialaction_type_collected_track_multiple">%1$s keräsi %2$d kappaletta</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
-  <string name="socialaction_type_collected_album_single">%1$s keräsi albumin</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
-  <string name="socialaction_type_collected_album_multiple">%1$s keräsi %2$d albumia</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
-  <string name="socialaction_type_collected_artist_single">%1$s keräsi artistin</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
-  <string name="socialaction_type_collected_artist_multiple">%1$s keräsi %2$d artistia</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">%1$s kommentoi</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
-  <string name="socialaction_type_latchon_single">%1$s kuunteli kaverin kanssa</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
-  <string name="socialaction_type_latchon_multiple">%1$s kuunteli %2$d kaverin kanssa</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">%1$s loi soittolistan</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">%1$s loi %2$d soittolistaa</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s artistilta %2$s</string>
-  <string name="time_afewseconds">muutama sekunti sitten</string>
-  <string name="time_aminute">minuutti sitten</string>
-  <string name="time_anhour">tunti sitten</string>
-  <string name="time_aday">päivä sitten</string>
-  <string name="time_minutes">%1$d minuuttia sitten</string>
-  <string name="time_hours">%1$d tuntia sitten</string>
-  <string name="time_days">%1$d päivää sitten</string>
   <string name="users_playbacklog_suffix">Käyttäjän %1$s viimeksi kuuntelemat</string>
   <string name="users_favorites_suffix">Käyttäjän %1$s suosikit</string>
   <string name="users_playlist_suffix">Käyttäjän %1$s soittolista</string>
@@ -154,10 +129,7 @@
   <string name="similar">Samankaltaiset</string>
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Kappaleet</string>
-  <!--Shown as part of a count string. E.g.: "3 songs".-->
-  <string name="songs_with_count">%1$d kappaletta</string>
-  <!--The singular version of the "x Songs" count string. E.g.: "1 song".-->
-  <string name="songs_with_count_singular">%1$d kappale</string>
+  <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
   <string name="activity">Toiminta</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Seuraajat</string>

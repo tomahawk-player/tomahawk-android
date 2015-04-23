@@ -110,41 +110,16 @@
   <string name="suggest_users">推荐的关注</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s 正在关注</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track)-->
-  <string name="socialaction_type_love_track_single">%1$s 喜欢了一个曲目</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen loved 5 tracks" followed by a list of loved tracks)-->
-  <string name="socialaction_type_love_track_multiple">%1$s 喜欢了 %2$d 个曲目</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track)-->
-  <string name="socialaction_type_collected_track_single">%1$s 收藏了一个曲目</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 tracks" followed by a list of collected tracks)-->
-  <string name="socialaction_type_collected_track_multiple">%1$s 收藏了 %2$d 个曲目</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album)-->
-  <string name="socialaction_type_collected_album_single">%1$s 收藏了一张专辑</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 albums" followed by a list of collected albums)-->
-  <string name="socialaction_type_collected_album_multiple">%1$s 收藏了%2$d 张专辑</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist)-->
-  <string name="socialaction_type_collected_artist_single">%1$s 收藏了一位艺术家</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen collected 5 artists" followed by a list of collected artists)-->
-  <string name="socialaction_type_collected_artist_multiple">%1$s 收藏了%2$d 个艺术家</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">%1$s 评论了</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user)-->
-  <string name="socialaction_type_latchon_single">%1$s 跟随收听了一个好友</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to 5 friends" followed by a list of users)-->
-  <string name="socialaction_type_latchon_multiple">%1$s 跟随收听 %2$d 个好友</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist)-->
-  <string name="socialaction_type_createplaylist_single">%1$s 创建了一个播放列表</string>
-  <!--Shown in the user's social feed (e.g. "mrmaffen created 5 playlists" followed by a list of created playlists)-->
-  <string name="socialaction_type_createplaylist_multiple">%1$s  创建了 %2$d 个播放列表</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
+  <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s - %2$s</string>
-  <string name="time_afewseconds">几秒前</string>
-  <string name="time_aminute">一分钟前</string>
-  <string name="time_anhour">一小时前</string>
-  <string name="time_aday">一天前</string>
-  <string name="time_minutes">%1$d 分钟前</string>
-  <string name="time_hours">%1$d 小时前</string>
-  <string name="time_days">%1$d 天前</string>
   <string name="users_playbacklog_suffix">%1$s 最近播放的</string>
   <string name="users_favorites_suffix">%1$s 喜欢的</string>
   <string name="users_playlist_suffix">%1$s 的播放列表</string>
@@ -154,10 +129,7 @@
   <string name="similar">类似的</string>
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">歌曲</string>
-  <!--Shown as part of a count string. E.g.: "3 songs".-->
-  <string name="songs_with_count">%1$d 首歌</string>
-  <!--The singular version of the "x Songs" count string. E.g.: "1 song".-->
-  <string name="songs_with_count_singular">%1$d 首歌</string>
+  <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
   <string name="activity">活动</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">跟随者</string>
