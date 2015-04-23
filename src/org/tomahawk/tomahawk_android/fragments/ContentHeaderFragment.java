@@ -371,8 +371,8 @@ public class ContentHeaderFragment extends Fragment {
                     User user = authUtils.getLoggedInUser();
                     showFollowing = item != user && user.getFollowings() != null
                             && user.getFollowings().containsKey(item);
-                    showNotFollowing = item != user && user.getFollowings() != null
-                            && !user.getFollowings().containsKey(item);
+                    showNotFollowing = item != user && (user.getFollowings() == null
+                            || !user.getFollowings().containsKey(item));
                 }
                 View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
                 v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
