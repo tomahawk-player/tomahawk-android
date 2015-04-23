@@ -399,7 +399,8 @@ public class CollectionManager {
                 }
             }
             for (Playlist storedList : storedListsMap.values()) {
-                if (!mShowAsCreatedPlaylistMap.contains(storedList.getHatchetId())) {
+                if (storedList.getHatchetId() == null
+                        ||!mShowAsCreatedPlaylistMap.contains(storedList.getHatchetId())) {
                     Log.d(TAG, "Hatchet sync - playlist \"" + storedList.getName()
                             + "\" doesn't exist on Hatchet ... deleting");
                     DatabaseHelper.getInstance().deletePlaylist(storedList.getId());
