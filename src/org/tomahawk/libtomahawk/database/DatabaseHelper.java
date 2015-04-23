@@ -957,7 +957,8 @@ public class DatabaseHelper {
                 }
             }
             InfoRequestData infoRequestData = new InfoRequestData(requestId, opLogCursor.getInt(1),
-                    params, opLogCursor.getInt(0), opLogCursor.getInt(2), opLogCursor.getString(3));
+                    params, opLogCursor.getInt(0), opLogCursor.getInt(2), opLogCursor.getString(3),
+                    true);
             loggedOps.add(infoRequestData);
             opLogCursor.moveToNext();
         }

@@ -153,7 +153,27 @@ public class InfoRequestData {
     public InfoRequestData(String requestId, int type, QueryParams params, int loggedOpId,
             int httpType, String jsonStringToSend) {
         this(requestId, type, params, httpType, jsonStringToSend);
+
         mLoggedOpId = loggedOpId;
+    }
+
+    /**
+     * Constructor to be used for an InfoRequestData object in a "send" InfoSystem request
+     *
+     * @param requestId           the id of the to be constructed InfoRequestData
+     * @param type                the type which specifies the request inside an InfoPlugin
+     * @param params              optional parameters to the request
+     * @param loggedOpId          the id of the stored loggedOp
+     * @param httpType            the http type (get, put, post, delete)
+     * @param jsonStringToSend    the json string which will be sent via an InfoPlugin
+     * @param isBackgroundRequest boolean indicating whether or not this request should be run with
+     *                            the lowest priority (useful for sync operations)
+     */
+    public InfoRequestData(String requestId, int type, QueryParams params, int loggedOpId,
+            int httpType, String jsonStringToSend, boolean isBackgroundRequest) {
+        this(requestId, type, params, loggedOpId, httpType, jsonStringToSend);
+
+        mIsBackgroundRequest = isBackgroundRequest;
     }
 
     /**
