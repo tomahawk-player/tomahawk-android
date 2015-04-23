@@ -29,6 +29,17 @@ public class ListItemString implements TomahawkListItem {
 
     private final String mText;
 
+    private boolean mHighlighted;
+
+    /**
+     * Construct a new {@link ListItemString} with the given text
+     */
+    public ListItemString(String text, boolean highlighted) {
+        this(text);
+
+        mHighlighted = highlighted;
+    }
+
     /**
      * Construct a new {@link ListItemString} with the given text
      */
@@ -68,5 +79,9 @@ public class ListItemString implements TomahawkListItem {
     @Override
     public Image getImage() {
         return null;
+    }
+
+    public boolean isHighlighted() {
+        return mHighlighted;
     }
 }

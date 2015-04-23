@@ -383,7 +383,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     viewHolder.fillView((User) item);
                 } else if (viewHolder.mLayoutId == R.layout.single_line_list_item) {
                     viewHolder.fillView(((TomahawkListItem) item).getName());
-                } else if (viewHolder.mLayoutId == R.layout.list_item_text) {
+                } else if (viewHolder.mLayoutId == R.layout.list_item_text
+                        || viewHolder.mLayoutId == R.layout.list_item_text_highlighted) {
                     viewHolder.fillView(((TomahawkListItem) item).getName());
                 } else if (viewHolder.mLayoutId == R.layout.list_item_track_artist
                         || viewType == R.layout.list_item_numeration_track_artist
@@ -647,7 +648,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         } else if (item instanceof Playlist) {
             return R.layout.single_line_list_item;
         } else if (item instanceof ListItemString) {
-            return R.layout.list_item_text;
+            if (((ListItemString) item).isHighlighted()) {
+                return R.layout.list_item_text_highlighted;
+            } else {
+                return R.layout.list_item_text;
+            }
         } else if (item instanceof Album) {
             return R.layout.list_item_album;
         } else if (item instanceof Artist) {
