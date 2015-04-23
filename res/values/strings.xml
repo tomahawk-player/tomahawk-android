@@ -192,4 +192,8 @@
   <string name="welcome_fragment_done_title">Done!</string>
   <string name="welcome_fragment_done_heading">All done!</string>
   <string name="welcome_fragment_done_text">Have fun exploring the app and be sure to tell us what you think!</string>
+  <plurals name="add_to_playlist_headertext">
+    <item quantity="one">Choose a playlist to add %1$d track to:</item>
+    <item quantity="other">Choose a playlist to add %1$d tracks to:</item>
+  </plurals>
 </resources>

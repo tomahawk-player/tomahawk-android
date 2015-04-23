@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
@@ -116,6 +117,8 @@ public class PlaylistsFragment extends TomahawkFragment {
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
         }
+        getArguments().remove(QUERYARRAY);
+        mQueryArray = null;
     }
 
     /**
@@ -144,7 +147,17 @@ public class PlaylistsFragment extends TomahawkFragment {
         HatchetAuthenticatorUtils authenticatorUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        Segment segment;
+        List<Segment> segments = new ArrayList<>();
+
+        if (mQueryArray != null) {
+            // Add the header text item
+            List textItems = new ArrayList();
+            textItems.add(new ListItemString(
+                    getResources().getQuantityString(R.plurals.add_to_playlist_headertext,
+                            mQueryArray.size(), mQueryArray.size()), true));
+            segments.add(new Segment(textItems));
+        }
+
         if (mUser != null && mUser != authenticatorUtils.getLoggedInUser()) {
             if (mUser.getPlaylists() == null) {
                 if (!mResolvingUsers.contains(mUser)) {
@@ -154,21 +167,21 @@ public class PlaylistsFragment extends TomahawkFragment {
             } else {
                 playlists.addAll(mUser.getPlaylists());
             }
-            segment = new Segment(playlists);
+            segments.add(new Segment(playlists));
         } else {
             playlists.add(CREATE_PLAYLIST_BUTTON_ID);
             mPlaylists = DatabaseHelper.getInstance().getCachedPlaylists();
             playlists.addAll(mPlaylists);
-            segment = new Segment(playlists, R.integer.grid_column_count,
-                    R.dimen.padding_superlarge, R.dimen.padding_superlarge);
+            segments.add(new Segment(playlists, R.integer.grid_column_count,
+                    R.dimen.padding_superlarge, R.dimen.padding_superlarge));
         }
         if (getListAdapter() == null) {
             TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
-                    (TomahawkMainActivity) getActivity(), layoutInflater, segment, getListView(),
+                    (TomahawkMainActivity) getActivity(), layoutInflater, segments, getListView(),
                     this);
             setListAdapter(tomahawkListAdapter);
         } else {
-            getListAdapter().setSegments(segment, getListView());
+            getListAdapter().setSegments(segments, getListView());
         }
         showContentHeader(R.drawable.playlists_header);
 
@@ -177,35 +190,39 @@ public class PlaylistsFragment extends TomahawkFragment {
 
     @Override
     protected void resolveItem(final TomahawkListItem item) {
-        HatchetAuthenticatorUtils authenticatorUtils
-                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        if (mUser == null || mUser == authenticatorUtils.getLoggedInUser()) {
-            TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
-                @Override
-                public void run() {
-                    if (!mResolvingItems.contains(item)) {
-                        mResolvingItems.add(item);
-                        Playlist pl = (Playlist) item;
-                        if (pl.getEntries().size() == 0) {
-                            pl = DatabaseHelper.getInstance().getPlaylist(pl.getId());
-                        }
-                        if (pl != null && pl.getEntries().size() > 0) {
-                            pl.updateTopArtistNames();
-                            DatabaseHelper.getInstance().updatePlaylist(pl);
-                            if (pl.getTopArtistNames() != null) {
-                                for (int i = 0; i < pl.getTopArtistNames().length && i < 5; i++) {
-                                    PlaylistsFragment.super
-                                            .resolveItem(Artist.get(pl.getTopArtistNames()[i]));
-                                }
+        if (item instanceof Playlist) {
+            HatchetAuthenticatorUtils authenticatorUtils
+                    = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+            if (mUser == null || mUser == authenticatorUtils.getLoggedInUser()) {
+                TomahawkRunnable r = new TomahawkRunnable(
+                        TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
+                    @Override
+                    public void run() {
+                        if (!mResolvingItems.contains(item)) {
+                            mResolvingItems.add(item);
+                            Playlist pl = (Playlist) item;
+                            if (pl.getEntries().size() == 0) {
+                                pl = DatabaseHelper.getInstance().getPlaylist(pl.getId());
                             }
-                        } else {
-                            mResolvingItems.remove(item);
+                            if (pl != null && pl.getEntries().size() > 0) {
+                                pl.updateTopArtistNames();
+                                DatabaseHelper.getInstance().updatePlaylist(pl);
+                                if (pl.getTopArtistNames() != null) {
+                                    for (int i = 0; i < pl.getTopArtistNames().length && i < 5;
+                                            i++) {
+                                        PlaylistsFragment.super
+                                                .resolveItem(Artist.get(pl.getTopArtistNames()[i]));
+                                    }
+                                }
+                            } else {
+                                mResolvingItems.remove(item);
+                            }
                         }
                     }
-                }
-            };
-            ThreadManager.getInstance().execute(r);
+                };
+                ThreadManager.getInstance().execute(r);
+            }
         }
     }
 
