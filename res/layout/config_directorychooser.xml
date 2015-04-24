@@ -25,5 +25,4 @@
         android:layout_height="match_parent"
         android:layout_marginTop="@dimen/padding_small"
         android:layout_marginBottom="@dimen/padding_small"
-        android:layout_marginLeft="@dimen/padding_superlarge"
-        android:layout_marginRight="@dimen/padding_superlarge"/>
+        android:layout_marginLeft="@dimen/padding_superlarge"/>

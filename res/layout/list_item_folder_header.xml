@@ -23,7 +23,7 @@
           android:layout_width="match_parent"
           android:layout_height="@dimen/list_item_track_height"
           android:paddingLeft="28dp"
-          android:paddingRight="@dimen/padding_superlarge"
+          android:paddingRight="@dimen/padding_megalarge"
           android:paddingTop="@dimen/padding_medium"
           android:paddingBottom="@dimen/padding_medium"
           android:gravity="center_vertical"
@@ -31,4 +31,4 @@
           android:textColor="@color/primary_textcolor"
           android:textSize="@dimen/text_size_medium"
           android:textStyle="bold"
-          android:background="@drawable/selectable_background_tomahawk"/>
+          android:background="@drawable/selectable_background_tomahawk_opaque"/>
