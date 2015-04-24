@@ -46,7 +46,6 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link org.tomahawk.libtomahawk.collection.Playlist}s
@@ -56,7 +55,7 @@ public class PlaylistsFragment extends TomahawkFragment {
 
     private final HashSet<User> mResolvingUsers = new HashSet<>();
 
-    private Set<Playlist> mPlaylists = new HashSet<>();
+    private List<Playlist> mPlaylists = new ArrayList<>();
 
     @SuppressWarnings("unused")
     public void onEventAsync(DatabaseHelper.PlaylistsUpdatedEvent event) {

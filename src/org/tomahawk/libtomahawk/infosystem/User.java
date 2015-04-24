@@ -34,7 +34,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class User implements TomahawkListItem {
@@ -78,7 +77,7 @@ public class User implements TomahawkListItem {
 
     private List<Album> mStarredAlbums = new ArrayList<>();
 
-    private TreeSet<Playlist> mPlaylists;
+    private List<Playlist> mPlaylists;
 
     /**
      * Construct a new {@link User} with the given id
@@ -270,11 +269,11 @@ public class User implements TomahawkListItem {
         mStarredAlbums = starredAlbums;
     }
 
-    public TreeSet<Playlist> getPlaylists() {
+    public List<Playlist> getPlaylists() {
         return mPlaylists;
     }
 
-    public void setPlaylists(TreeSet<Playlist> playlists) {
+    public void setPlaylists(List<Playlist> playlists) {
         mPlaylists = playlists;
     }
 }
