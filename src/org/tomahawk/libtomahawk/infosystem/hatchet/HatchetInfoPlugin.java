@@ -262,8 +262,7 @@ public class HatchetInfoPlugin extends InfoPlugin {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
                 HatchetPlaylistEntries entries = hatchet.getUsersPlaylists(params.userid);
                 if (entries != null) {
-                    TreeSet<Playlist> playlists = new TreeSet<>(new TomahawkListItemComparator(
-                            TomahawkListItemComparator.COMPARE_ALPHA));
+                    List<Playlist> playlists = new ArrayList<>();
                     for (HatchetPlaylistInfo playlistInfo : entries.playlists) {
                         playlists.add(InfoSystemUtils.convertToPlaylist(playlistInfo));
                     }

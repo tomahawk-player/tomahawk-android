@@ -47,12 +47,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.TreeSet;
 
 import de.greenrobot.event.EventBus;
 
@@ -82,7 +82,7 @@ public class DatabaseHelper {
 
     public static final int CHUNK_SIZE = 50;
 
-    private TreeSet<Playlist> mCachedPlaylists = new TreeSet<>();
+    private List<Playlist> mCachedPlaylists = new ArrayList<>();
 
     private static class Holder {
 
@@ -296,9 +296,8 @@ public class DatabaseHelper {
     /**
      * @return every stored {@link org.tomahawk.libtomahawk.collection.Playlist} in the database
      */
-    public TreeSet<Playlist> getPlaylists() {
-        TreeSet<Playlist> playListList = new TreeSet<>(
-                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
+    public List<Playlist> getPlaylists() {
+        List<Playlist> playListList = new ArrayList<>();
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID};
 
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
@@ -315,6 +314,8 @@ public class DatabaseHelper {
             playlistsCursor.moveToNext();
         }
         playlistsCursor.close();
+        Collections.sort(playListList,
+                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
         mCachedPlaylists = playListList;
         return mCachedPlaylists;
     }
@@ -325,7 +326,7 @@ public class DatabaseHelper {
      *
      * @return the cached TreeSet of Playlists
      */
-    public TreeSet<Playlist> getCachedPlaylists() {
+    public List<Playlist> getCachedPlaylists() {
         return mCachedPlaylists;
     }
 
