@@ -20,7 +20,10 @@
   <string name="shuffle_off_label">الخلط لا يعمل</string>
   <string name="repeat_on_label">التّكرار يعمل</string>
   <string name="repeat_off_label">التّكرار لا يعمل</string>
+  <string name="unknown">مجهول</string>
+  <string name="no_track">لا مقطوعة</string>
   <string name="save_playlist">احفظ قائمة التّشغيل الحاليّة</string>
+  <string name="create_playlist">أنشئ قائمة تشغيل</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">العنوان</string>
   <string name="login_name_label">البريد الإلكترونيّ/اسم المستخدم</string>
@@ -42,15 +45,17 @@
   <string name="local_collection_pretty_name">التّجميعة المحليّة</string>
   <string name="local">المحليّ</string>
   <string name="all">الكلّ</string>
+  <string name="preferences_local_collection_text">اختر الأدلّة الّتي يجب فحص الوسائط المحليّة فيها.</string>
   <string name="preferences_hatchet_text">زامن بياناتك مع %1$s.</string>
   <string name="preferences_playback">التّشغيل</string>
   <string name="preferences_equalizer">المعادل</string>
   <string name="preferences_equalizer_text">خصّص خرج الصّوت.</string>
+  <string name="preferences_plug_and_play">أوصل للتّشغيل</string>
   <string name="preferences_plug_and_play_text">يبدأ تشغيل الموسيقى بمجرّد اتّصال سمّاعة الرأس بلاقط صوت.</string>
   <string name="preferences_audio_quality">جودة الصّوت المحبّذة</string>
   <string name="preferences_audio_quality_text">جودة الصّوت المحبّذة عند عدم الاتّصال بِواي-⁠فاي.</string>
   <string name="preferences_info">معلومات</string>
-  <string name="preferences_app_version">إصدار التّطبيق</string>
+  <string name="preferences_app_version">إصدارة التّطبيق</string>
   <string name="preferences_app_uservoice">التّغذية الاسترجاعيّة</string>
   <string name="preferences_app_uservoice_text">شارك أفكارك أو اسأل عن الدّعم.</string>
   <string name="preferences_app_sendlog">أرسل سجلًّا</string>
@@ -63,7 +68,7 @@
   <string name="crash_dialog_comment_prompt">يمكنك إضافة تعليقات حول المشكلة أدناه:</string>
   <string name="crash_dialog_ok_toast">شكرًا لك!</string>
   <string name="context_menu_play">شغّل</string>
-  <string name="context_menu_add_to_queue">أضف إلى الصّفّ</string>
+  <string name="context_menu_add_to_queue">أضف إلى الاصطفاف</string>
   <string name="context_menu_add_to_playlist">أضف إلى قائمة تشغيل</string>
   <string name="context_menu_delete">احذف</string>
   <string name="context_menu_removefromplaylist">أزل من قائمة التّشغيل</string>
@@ -182,12 +187,14 @@
     <item quantity="many">قبل %1$d يومًا</item>
     <item quantity="other">قبل %1$d يوم</item>
   </plurals>
+  <string name="users_playbacklog_suffix">تشغيلات %1$s الحديثة</string>
   <string name="users_favorites_suffix">مفضّلة %1$s</string>
   <string name="users_playlist_suffix">قائمة تشغيل %1$s</string>
   <string name="music">الموسيقى</string>
   <string name="biography">السّيرة الذّاتيّة</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <!--Shown as a title for a list of songs in the search results view.-->
+  <string name="songs">الأغاني</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
   <plurals name="songs_with_count">
     <item quantity="zero">لا أغاني</item>
@@ -197,6 +204,7 @@
     <item quantity="many">%1$d أغنيةً</item>
     <item quantity="other">%1$d أغنية</item>
   </plurals>
+  <string name="activity">النّشاط</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">المتابِعين</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
@@ -212,9 +220,14 @@
   <string name="connect_headertext">اختر الخدمات الّتي تريد استخدامها. يعمل توماهوك أفضل عندما تكون خدمات أكثر مفعّلة.</string>
   <string name="advanced">متقدّم</string>
   <string name="info">معلومات</string>
+  <string name="playbackpanel_seek_coachmark">يمكنك السّعي في مقطوعة بالضّغط الطّويل على زرّ التّشغيل.</string>
+  <string name="slidinglayout_enqueue_coachmark">المس لإضافة مقطوعة إلى الاصطفاف.</string>
+  <string name="playbackfragment_navigation_coachmark_down">اسحب لأعلى لرؤية قائمة التّشغيل الحاليّة.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">التّالي</string>
   <string name="welcome_fragment_explanation_title">البدء</string>
+  <string name="welcome_fragment_explanation_heading">الموسيقى في كلّ مكان.\nليس عليك أن تكون كذلك الآن.</string>
+  <string name="welcome_fragment_explanation_text">توقّف عن ملاحقة الموسيقى في الوِبّ وفي الخدمات الّتي لا تستخدمها، أو المصادر الّتي لا تملك نفاذًا إليها. أعطي اسم أو وصلة إلى أغنية، أو ألبوم أو قائمة تشغيل، وسيعثر توماهوك على أفضل مصدر متوفّر ويشغّله.</string>
   <string name="welcome_fragment_setup_title">اتّصل</string>
   <string name="welcome_fragment_done_title">تمّ!</string>
   <string name="welcome_fragment_done_heading">تمّ كلّ شيء!</string>
