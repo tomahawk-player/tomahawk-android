@@ -418,9 +418,10 @@ public class ContentHeaderFragment extends Fragment {
     }
 
     protected void setupScrollableSpacer(TomahawkListAdapter adapter,
-            StickyListHeadersListView listView) {
+            StickyListHeadersListView listView, View headerSpacerForwardView) {
         if (adapter != null) {
-            adapter.setShowContentHeaderSpacer(mHeaderScrollableHeight, listView);
+            adapter.setShowContentHeaderSpacer(mHeaderScrollableHeight, listView,
+                    headerSpacerForwardView);
         } else {
             Log.d(TAG, "setupScrollableSpacer - Can't call setShowContentHeaderSpacer,"
                     + " Adapter is null");

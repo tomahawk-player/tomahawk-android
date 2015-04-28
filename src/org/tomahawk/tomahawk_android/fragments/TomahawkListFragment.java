@@ -249,7 +249,12 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     }
 
     protected void setupScrollableSpacer() {
-        setupScrollableSpacer((TomahawkListAdapter) getListAdapter(), getListView());
+        setupScrollableSpacer(null);
+    }
+
+    protected void setupScrollableSpacer(View headerSpacerForwardView) {
+        setupScrollableSpacer((TomahawkListAdapter) getListAdapter(), getListView(),
+                headerSpacerForwardView);
     }
 
     /**

@@ -25,7 +25,6 @@ import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.widget.ListView;
 
 /**
  * A {@link AlbumArtViewPager} extended by a {@link android.view.GestureDetector}, so that we can
@@ -37,15 +36,7 @@ import android.widget.ListView;
  */
 public class AlbumArtViewPager extends ViewPager {
 
-    private ListView mListView;
-
     private final GestureDetector mGestureDetector;
-
-    private boolean mVerticallyScrolled;
-
-    private MotionEvent mDownMotionEvent;
-
-    private boolean mTouchCancelled;
 
     private PlaybackFragment.ShowContextMenuListener mShowContextMenuListener;
 
@@ -56,11 +47,6 @@ public class AlbumArtViewPager extends ViewPager {
      * can apply our logic to manually solve the TouchEvent conflict.
      */
     private class ShouldSwipeDetector extends GestureDetector.SimpleOnGestureListener {
-
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
-            return Math.abs(distanceY) >= Math.abs(distanceX);
-        }
 
         @Override
         public void onLongPress(MotionEvent e) {
@@ -84,10 +70,6 @@ public class AlbumArtViewPager extends ViewPager {
         mGestureDetector = new GestureDetector(context, new ShouldSwipeDetector());
     }
 
-    public void setListView(ListView listView) {
-        mListView = listView;
-    }
-
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
         return true;
@@ -95,40 +77,10 @@ public class AlbumArtViewPager extends ViewPager {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                mDownMotionEvent = MotionEvent.obtain(event);
-                mVerticallyScrolled = false;
-                mTouchCancelled = false;
-                break;
-        }
-
-        if (!mVerticallyScrolled) {
-            mVerticallyScrolled = mGestureDetector.onTouchEvent(event);
-        }
-
-        if (mVerticallyScrolled) {
-            if (mDownMotionEvent != null) {
-                mListView.dispatchTouchEvent(mDownMotionEvent);
-                mDownMotionEvent = null;
-            }
-            mListView.dispatchTouchEvent(event);
-            ensureTouchCancel(event);
-        } else {
-            super.onTouchEvent(event);
-        }
+        mGestureDetector.onTouchEvent(event);
+        super.onTouchEvent(event);
 
         return true;
-    }
-
-    private void ensureTouchCancel(MotionEvent event) {
-        if (!mTouchCancelled) {
-            mTouchCancelled = true;
-            MotionEvent cancel = MotionEvent.obtain(event);
-            cancel.setAction(MotionEvent.ACTION_CANCEL);
-            super.onTouchEvent(cancel);
-            cancel.recycle();
-        }
     }
 
     public void setShowContextMenuListener(

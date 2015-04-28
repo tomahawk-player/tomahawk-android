@@ -142,7 +142,6 @@ public class PlaybackFragment extends TomahawkFragment {
         getListView().setFastScrollEnabled(false);
 
         mAlbumArtViewPager = (AlbumArtViewPager) view.findViewById(R.id.albumart_viewpager);
-        mAlbumArtViewPager.setListView(getListView().getWrappedList());
         mAlbumArtViewPager.setShowContextMenuListener(mShowContextMenuListener);
         mAlbumArtViewPager
                 .setPlaybackService(((TomahawkMainActivity) getActivity()).getPlaybackService());
@@ -336,7 +335,7 @@ public class PlaybackFragment extends TomahawkFragment {
 
     @Override
     public void onHeaderHeightChanged() {
-        setupScrollableSpacer();
+        setupScrollableSpacer(mAlbumArtViewPager);
         setupNonScrollableSpacer();
     }
 
@@ -398,7 +397,7 @@ public class PlaybackFragment extends TomahawkFragment {
         updateShowPlaystate();
         forceAutoResolve();
         setupNonScrollableSpacer();
-        setupScrollableSpacer();
+        setupScrollableSpacer(mAlbumArtViewPager);
     }
 
     private void setupAlbumArtAnimation() {
@@ -414,22 +413,9 @@ public class PlaybackFragment extends TomahawkFragment {
                     int playbackPanelHeight = TomahawkApp.getContext().getResources()
                             .getDimensionPixelSize(R.dimen.playback_panel_height);
                     ValueAnimator animator = ObjectAnimator
-                            .ofFloat(getLayedOutView(), "y", playbackPanelHeight, 0f)
+                            .ofFloat(getLayedOutView(), "y", playbackPanelHeight,
+                                    getLayedOutView().getHeight() / -4)
                             .setDuration(10000);
-                    animator.setInterpolator(new AccelerateDecelerateInterpolator());
-                    addAnimator(animator);
-
-                    animator = ValueAnimator
-                            .ofInt(mOriginalViewPagerHeight, mHeaderNonscrollableHeight)
-                            .setDuration(10000);
-                    animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                        @Override
-                        public void onAnimationUpdate(ValueAnimator animation) {
-                            getLayedOutView().getLayoutParams().height =
-                                    (Integer) animation.getAnimatedValue();
-                            getLayedOutView().requestLayout();
-                        }
-                    });
                     animator.setInterpolator(new AccelerateDecelerateInterpolator());
                     addAnimator(animator);
                 }

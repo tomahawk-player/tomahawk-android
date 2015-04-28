@@ -18,14 +18,15 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:id="@+id/content_header_spacer"
-             android:layout_width="match_parent"
-             android:layout_height="0dp">
+<org.tomahawk.tomahawk_android.views.BiDirectionalFrame
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/content_header_spacer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
 
     <View android:layout_width="match_parent"
           android:layout_height="@dimen/divider_height_thick"
           android:background="@drawable/above_shadow"
           android:layout_gravity="bottom"/>
 
-</FrameLayout>
+</org.tomahawk.tomahawk_android.views.BiDirectionalFrame>
