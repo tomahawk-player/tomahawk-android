@@ -70,8 +70,8 @@ android {
         targetSdkVersion 22
         renderscriptTargetApi 22
         renderscriptSupportModeEnabled true
-        versionName '0.82'
-        versionCode 820
+        versionName '0.83'
+        versionCode 830
         multiDexEnabled true
     }
 
