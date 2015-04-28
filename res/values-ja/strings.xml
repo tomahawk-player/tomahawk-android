@@ -111,15 +111,43 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s がフォローしています</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
+  <plurals name="socialaction_type_love_track">
+    <item quantity="other">%1$s が %2$d のトラックをLoveしました</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
+  <plurals name="socialaction_type_collected_track">
+    <item quantity="other">%1$s が %2$d のトラックを追加しました</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
+  <plurals name="socialaction_type_collected_album">
+    <item quantity="other">%1$s が %2$d のアルバムを追加しました</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
+  <plurals name="socialaction_type_collected_artist">
+    <item quantity="other">%1$s が %2$d のアーティストを追加しました</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">%1$s が次の内容にコメントしました</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
+  <plurals name="socialaction_type_latchon">
+    <item quantity="other">%1$s が %2$d の友達と共に聴きました</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
+  <plurals name="socialaction_type_createplaylist">
+    <item quantity="other">%1$s が %2$d のプレイリストを作成しました</item>
+  </plurals>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%2$sの%1$s</string>
+  <string name="time_afewseconds">数秒前</string>
+  <plurals name="time_minute">
+    <item quantity="other">%1$d分前</item>
+  </plurals>
+  <plurals name="time_hour">
+    <item quantity="other">%1$d時間前</item>
+  </plurals>
+  <plurals name="time_day">
+    <item quantity="other">%1$d日前</item>
+  </plurals>
   <string name="users_playbacklog_suffix">%1$s の最近再生した</string>
   <string name="users_favorites_suffix">%1$s のお気に入り</string>
   <string name="users_playlist_suffix">%1$s のプレイリスト</string>
@@ -130,6 +158,9 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">曲</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <plurals name="songs_with_count">
+    <item quantity="other">%1$d 曲</item>
+  </plurals>
   <string name="activity">活動</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">フォロワー</string>
@@ -163,4 +194,7 @@
   <string name="welcome_fragment_done_title">完了しました!</string>
   <string name="welcome_fragment_done_heading">すべて完了しました!</string>
   <string name="welcome_fragment_done_text">アプリを楽しんでください。そしてあなたが感じたことを教えてください!</string>
+  <plurals name="add_to_playlist_headertext">
+    <item quantity="other">プレイリストを選択して %1$d のトラックを追加します:</item>
+  </plurals>
 </resources>
