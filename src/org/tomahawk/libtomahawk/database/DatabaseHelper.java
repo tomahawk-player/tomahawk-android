@@ -1081,20 +1081,20 @@ public class DatabaseHelper {
             count = 0;
             cursor = mDatabase.rawQuery(String.format(Locale.US,
                     "SELECT %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s FROM %s LIMIT %d OFFSET %d",
-                    TomahawkSQLiteHelper.MEDIA_TIME, //0 long
-                    TomahawkSQLiteHelper.MEDIA_LENGTH, //1 long
-                    TomahawkSQLiteHelper.MEDIA_TYPE, //2 int
-                    TomahawkSQLiteHelper.MEDIA_TITLE, //3 string
-                    TomahawkSQLiteHelper.MEDIA_ARTIST, //4 string
-                    TomahawkSQLiteHelper.MEDIA_GENRE, //5 string
-                    TomahawkSQLiteHelper.MEDIA_ALBUM, //6 string
-                    TomahawkSQLiteHelper.MEDIA_WIDTH, //7 int
-                    TomahawkSQLiteHelper.MEDIA_HEIGHT, //8 int
-                    TomahawkSQLiteHelper.MEDIA_ARTWORKURL, //9 string
-                    TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, //10 string
-                    TomahawkSQLiteHelper.MEDIA_SPUTRACK, //11 string
-                    TomahawkSQLiteHelper.MEDIA_LOCATION, //12 string
-                    TomahawkSQLiteHelper.MEDIA_DATEADDED, //13 long
+                    TomahawkSQLiteHelper.MEDIA_TIME,        //0 long
+                    TomahawkSQLiteHelper.MEDIA_LENGTH,      //1 long
+                    TomahawkSQLiteHelper.MEDIA_TYPE,        //2 int
+                    TomahawkSQLiteHelper.MEDIA_TITLE,       //3 string
+                    TomahawkSQLiteHelper.MEDIA_ARTIST,      //4 string
+                    TomahawkSQLiteHelper.MEDIA_GENRE,       //5 string
+                    TomahawkSQLiteHelper.MEDIA_ALBUM,       //6 string
+                    TomahawkSQLiteHelper.MEDIA_WIDTH,       //7 int
+                    TomahawkSQLiteHelper.MEDIA_HEIGHT,      //8 int
+                    TomahawkSQLiteHelper.MEDIA_ARTWORKURL,  //9 string
+                    TomahawkSQLiteHelper.MEDIA_AUDIOTRACK,  //10 int
+                    TomahawkSQLiteHelper.MEDIA_SPUTRACK,    //11 int
+                    TomahawkSQLiteHelper.MEDIA_LOCATION,    //12 string
+                    TomahawkSQLiteHelper.MEDIA_DATEADDED,   //13 long
                     TomahawkSQLiteHelper.MEDIA_TRACKNUMBER, //14 int
                     TomahawkSQLiteHelper.TABLE_MEDIA,
                     CHUNK_SIZE,
@@ -1102,8 +1102,8 @@ public class DatabaseHelper {
 
             if (cursor.moveToFirst()) {
                 do {
-                    String location = cursor.getString(12);
-                    MediaWithDate media = new MediaWithDate(location,
+                    MediaWithDate media = new MediaWithDate(
+                            cursor.getString(12),   // MEDIA_LOCATION
                             cursor.getLong(0),      // MEDIA_TIME
                             cursor.getLong(1),      // MEDIA_LENGTH
                             cursor.getInt(2),       // MEDIA_TYPE
@@ -1117,8 +1117,8 @@ public class DatabaseHelper {
                             cursor.getString(9),    // MEDIA_ARTWORKURL
                             cursor.getInt(10),      // MEDIA_AUDIOTRACK
                             cursor.getInt(11),      // MEDIA_SPUTRACK
-                            cursor.getLong(13),
-                            cursor.getInt(14));    // MEDIA_DATEADDED
+                            cursor.getLong(13),     // MEDIA_DATEADDED
+                            cursor.getInt(14));     // MEDIA_TRACKNUMBER
                     medias.put(media.getLocation(), media);
 
                     count++;
