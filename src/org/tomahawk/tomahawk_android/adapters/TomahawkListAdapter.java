@@ -39,6 +39,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.views.BiDirectionalFrame;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -85,6 +86,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     private boolean mHighlightedItemIsPlaying = false;
 
     private int mHeaderSpacerHeight = 0;
+
+    private View mHeaderSpacerForwardView;
 
     private int mFooterSpacerHeight = 0;
 
@@ -149,8 +152,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     }
 
     public void setShowContentHeaderSpacer(int headerSpacerHeight,
-            StickyListHeadersListView listView) {
+            StickyListHeadersListView listView, View headerSpacerForwardView) {
         mHeaderSpacerHeight = headerSpacerHeight;
+        mHeaderSpacerForwardView = headerSpacerForwardView;
         updateFooterSpacerHeight(listView);
     }
 
@@ -357,6 +361,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     view.setLayoutParams(
                             new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                                     mHeaderSpacerHeight));
+                    if (mHeaderSpacerForwardView != null) {
+                        BiDirectionalFrame biDirectionalFrame = (BiDirectionalFrame) view;
+                        biDirectionalFrame.setForwardView(mHeaderSpacerForwardView);
+                    }
                 }
             } else {
                 // Don't display the socialAction item directly, but rather the item that is its target
