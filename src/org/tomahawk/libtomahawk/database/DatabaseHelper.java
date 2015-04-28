@@ -1015,6 +1015,7 @@ public class DatabaseHelper {
         values.put(TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, media.getAudioTrack());
         values.put(TomahawkSQLiteHelper.MEDIA_SPUTRACK, media.getSpuTrack());
         values.put(TomahawkSQLiteHelper.MEDIA_DATEADDED, media.getDateAdded());
+        values.put(TomahawkSQLiteHelper.MEDIA_TRACKNUMBER, media.getTrackNumber());
 
         mDatabase.beginTransaction();
         mDatabase.replace(TomahawkSQLiteHelper.TABLE_MEDIA, "NULL", values);

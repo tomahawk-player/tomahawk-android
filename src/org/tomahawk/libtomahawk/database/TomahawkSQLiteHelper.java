@@ -166,7 +166,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 17;
+    private static final int DATABASE_VERSION = 18;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_PLAYLISTS =
@@ -359,15 +359,22 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                     + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
             db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
         } else if (oldVersion == 15) {
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
+            db.execSQL(CREATE_TABLE_MEDIA);
             db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
                     + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
             db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
                     + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
             db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
         } else if (oldVersion == 16) {
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
+            db.execSQL(CREATE_TABLE_MEDIA);
             db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
                     + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
             db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
+        } else if (oldVersion == 17) {
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
+            db.execSQL(CREATE_TABLE_MEDIA);
         } else {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
