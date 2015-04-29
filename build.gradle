@@ -139,7 +139,24 @@ android {
     }
 
     productFlavors {
+        x86 {
+            ndk {
+                abiFilter "x86"
+            }
+            versionName getNewVersionName() + "_x86"
+            versionCode Integer.parseInt("6" + defaultConfig.versionCode)
+        }
+        armv7a {
+            ndk {
+                abiFilter "armeabi-v7a"
+            }
+            versionName getNewVersionName() + "_armv7a"
+            versionCode Integer.parseInt("2" + defaultConfig.versionCode)
+        }
         arm {
+            ndk {
+                abiFilter "armeabi"
+            }
             versionName getNewVersionName() + "_arm"
             versionCode Integer.parseInt("1" + defaultConfig.versionCode)
         }
