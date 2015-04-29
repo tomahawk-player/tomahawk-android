@@ -19,10 +19,7 @@ package org.tomahawk.libtomahawk.authentication;
 
 import com.deezer.sdk.network.connect.DeezerConnect;
 import com.deezer.sdk.network.connect.SessionStore;
-import com.deezer.sdk.network.connect.event.DialogError;
 import com.deezer.sdk.network.connect.event.DialogListener;
-import com.deezer.sdk.network.request.event.DeezerError;
-import com.deezer.sdk.network.request.event.OAuthException;
 
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -181,29 +178,15 @@ public class DeezerAuthenticatorUtils extends AuthenticatorUtils {
         }
 
         @Override
-        public void onDeezerError(final DeezerError deezerError) {
-            Log.e(TAG, "DialogError error during login", deezerError);
-            onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                    deezerError.getLocalizedMessage());
-        }
-
-        @Override
-        public void onError(final DialogError dialogError) {
-            Log.e(TAG, "DialogError error during login", dialogError);
-            onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                    dialogError.getLocalizedMessage());
-        }
-
-        @Override
         public void onCancel() {
             Log.d(TAG, "Deezer authentication cancelled (may be a faulty message though)");
         }
 
         @Override
-        public void onOAuthException(OAuthException oAuthException) {
-            Log.e(TAG, "DialogError error during login", oAuthException);
+        public void onException(Exception e) {
+            Log.e(TAG, "DialogError error during login: ", e);
             onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                    oAuthException.getLocalizedMessage());
+                    e.getLocalizedMessage());
         }
     }
 
