@@ -28,6 +28,7 @@ import org.tomahawk.tomahawk_android.fragments.EqualizerFragment;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.LibVlcException;
+import org.videolan.libvlc.LibVlcUtil;
 
 import android.app.Application;
 import android.content.SharedPreferences;
@@ -60,6 +61,8 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
 
     }
 
+    private LibVLC mLibVLC;
+
     private MediaPlayer.OnPreparedListener mOnPreparedListener;
 
     private MediaPlayer.OnCompletionListener mOnCompletionListener;
@@ -74,28 +77,26 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
             = new ConcurrentHashMap<>();
 
     private VLCMediaPlayer() {
+        mLibVLC = new LibVLC();
+        mLibVLC.setHttpReconnect(true);
+        mLibVLC.setNetworkCaching(2000);
+        SharedPreferences pref =
+                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+        if (pref.getBoolean(EqualizerFragment.EQUALIZER_ENABLED_PREFERENCE_KEY, false)) {
+            mLibVLC.setEqualizer(TomahawkUtils.getFloatArray(pref,
+                    EqualizerFragment.EQUALIZER_VALUES_PREFERENCE_KEY));
+        }
+        try {
+            mLibVLC.init(TomahawkApp.getContext());
+        } catch (LibVlcException e) {
+            throw new IllegalStateException("LibVLC initialisation failed: "
+                    + LibVlcUtil.getErrorMsg());
+        }
         EventBus.getDefault().register(this);
     }
 
-    public static LibVLC getLibVlcInstance() {
-        LibVLC instance = LibVLC.getExistingInstance();
-        if (instance == null) {
-            try {
-                instance = LibVLC.getInstance();
-                instance.setHttpReconnect(true);
-                instance.init(TomahawkApp.getContext());
-                SharedPreferences pref =
-                        PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-                if (pref.getBoolean(EqualizerFragment.EQUALIZER_ENABLED_PREFERENCE_KEY, false)) {
-                    instance.setEqualizer(TomahawkUtils.getFloatArray(pref,
-                            EqualizerFragment.EQUALIZER_VALUES_PREFERENCE_KEY));
-                }
-            } catch (LibVlcException e) {
-                Log.e(TAG, "getLibVlcInstance: Failed to initialize LibVLC: " + e
-                        .getLocalizedMessage());
-            }
-        }
-        return instance;
+    public LibVLC getLibVlcInstance() {
+        return mLibVLC;
     }
 
     public static VLCMediaPlayer getInstance() {

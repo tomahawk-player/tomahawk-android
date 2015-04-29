@@ -34,7 +34,7 @@ dependencies {
     compile "com.squareup.okhttp:okhttp:2.1.0"
     compile "com.squareup.okhttp:okhttp-urlconnection:2.1.0"
     compile "com.github.castorflex.smoothprogressbar:library:1.0.0"
-    compile "de.mrmaffen:vlc-android-sdk:1.0.4"
+    compile "de.mrmaffen:vlc-android-sdk:1.0.6"
     compile "de.mrmaffen:rdio-android-sdk:1.0.0"
     compile "de.mrmaffen:deezer-android-sdk:1.0.0"
     compile "de.mrmaffen:holocircularprogressbar:1.0.1"

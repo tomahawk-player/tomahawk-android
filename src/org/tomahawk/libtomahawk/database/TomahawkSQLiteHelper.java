@@ -134,6 +134,8 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String MEDIA_ALBUM = "album";
 
+    public static final String MEDIA_ALBUMARTIST = "albumartist";
+
     public static final String MEDIA_WIDTH = "width";
 
     public static final String MEDIA_HEIGHT = "height";
@@ -144,15 +146,17 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String MEDIA_SPUTRACK = "spu_track";
 
-    public static final String MEDIA_DATEADDED = "date_added";
+    public static final String MEDIA_LASTMODIFIED = "last_modified";
+
+    public static final String MEDIA_DISCNUMBER = "disc_number";
 
     public static final String MEDIA_TRACKNUMBER = "track_number";
 
     public enum mediaColumn {
         MEDIA_TABLE_NAME, MEDIA_PATH, MEDIA_TIME, MEDIA_LENGTH,
         MEDIA_TYPE, MEDIA_PICTURE, MEDIA_TITLE, MEDIA_ARTIST, MEDIA_GENRE, MEDIA_ALBUM,
-        MEDIA_WIDTH, MEDIA_HEIGHT, MEDIA_ARTWORKURL, MEDIA_AUDIOTRACK, MEDIA_SPUTRACK,
-        MEDIA_DATEADDED, MEDIA_TRACKNUMBER
+        MEDIA_ALBUMARTIST, MEDIA_WIDTH, MEDIA_HEIGHT, MEDIA_ARTWORKURL, MEDIA_AUDIOTRACK,
+        MEDIA_SPUTRACK, MEDIA_TRACKNUMBER, MEDIA_DISCNUMBER, MEDIA_LAST_MODIFIED
     }
 
     public static final String TABLE_MEDIADIRS = "mediadirs";
@@ -166,7 +170,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 18;
+    private static final int DATABASE_VERSION = 19;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_PLAYLISTS =
@@ -223,24 +227,26 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
                     + LOVED_ARTISTS_COLUMN_ID + "` INTEGER PRIMARY KEY AUTOINCREMENT, `"
                     + LOVED_ARTISTS_COLUMN_ARTISTNAME + "` TEXT);";
 
-    private static final String CREATE_TABLE_MEDIA = "CREATE TABLE "
+    private static final String CREATE_TABLE_MEDIA = "CREATE TABLE IF NOT EXISTS "
             + TABLE_MEDIA + " ("
             + MEDIA_LOCATION + " TEXT PRIMARY KEY NOT NULL, "
             + MEDIA_TIME + " INTEGER, "
             + MEDIA_LENGTH + " INTEGER, "
             + MEDIA_TYPE + " INTEGER, "
             + MEDIA_PICTURE + " BLOB, "
-            + MEDIA_TITLE + " VARCHAR(200), "
-            + MEDIA_ARTIST + " VARCHAR(200), "
-            + MEDIA_GENRE + " VARCHAR(200), "
-            + MEDIA_ALBUM + " VARCHAR(200), "
+            + MEDIA_TITLE + " TEXT, "
+            + MEDIA_ARTIST + " TEXT, "
+            + MEDIA_GENRE + " TEXT, "
+            + MEDIA_ALBUM + " TEXT, "
+            + MEDIA_ALBUMARTIST + " TEXT, "
             + MEDIA_WIDTH + " INTEGER, "
             + MEDIA_HEIGHT + " INTEGER, "
-            + MEDIA_ARTWORKURL + " VARCHAR(256), "
+            + MEDIA_ARTWORKURL + " TEXT, "
             + MEDIA_AUDIOTRACK + " INTEGER, "
             + MEDIA_SPUTRACK + " INTEGER, "
-            + MEDIA_DATEADDED + " INTEGER, "
-            + MEDIA_TRACKNUMBER + " INTEGER"
+            + MEDIA_TRACKNUMBER + " INTEGER, "
+            + MEDIA_DISCNUMBER + " INTEGER, "
+            + MEDIA_LASTMODIFIED + " INTEGER"
             + ");";
 
     private static final String CREATE_TABLE_MEDIADIRS = "CREATE TABLE "
@@ -372,7 +378,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
                     + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
             db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
-        } else if (oldVersion == 17) {
+        } else if (oldVersion == 17 || oldVersion == 18) {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
             db.execSQL(CREATE_TABLE_MEDIA);
         } else {
