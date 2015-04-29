@@ -31,7 +31,7 @@ import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.utils.MediaWithDate;
+import org.tomahawk.tomahawk_android.utils.MediaWrapper;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -993,12 +993,20 @@ public class DatabaseHelper {
         return logCount;
     }
 
+    private static void safePut(ContentValues values, String key, String value) {
+        if (value == null) {
+            values.putNull(key);
+        } else {
+            values.put(key, value);
+        }
+    }
+
     /**
      * Add a new media to the database. The picture can only added by update.
      *
      * @param media which you like to add to the database
      */
-    public void addMedia(MediaWithDate media) {
+    public synchronized void addMedia(MediaWrapper media) {
         ContentValues values = new ContentValues();
 
         values.put(TomahawkSQLiteHelper.MEDIA_LOCATION, media.getLocation());
@@ -1006,16 +1014,18 @@ public class DatabaseHelper {
         values.put(TomahawkSQLiteHelper.MEDIA_LENGTH, media.getLength());
         values.put(TomahawkSQLiteHelper.MEDIA_TYPE, media.getType());
         values.put(TomahawkSQLiteHelper.MEDIA_TITLE, media.getTitle());
-        values.put(TomahawkSQLiteHelper.MEDIA_ARTIST, media.getArtist());
-        values.put(TomahawkSQLiteHelper.MEDIA_GENRE, media.getGenre());
-        values.put(TomahawkSQLiteHelper.MEDIA_ALBUM, media.getAlbum());
+        safePut(values, TomahawkSQLiteHelper.MEDIA_ARTIST, media.getArtist());
+        safePut(values, TomahawkSQLiteHelper.MEDIA_GENRE, media.getGenre());
+        safePut(values, TomahawkSQLiteHelper.MEDIA_ALBUM, media.getAlbum());
+        safePut(values, TomahawkSQLiteHelper.MEDIA_ALBUMARTIST, media.getAlbumArtist());
         values.put(TomahawkSQLiteHelper.MEDIA_WIDTH, media.getWidth());
         values.put(TomahawkSQLiteHelper.MEDIA_HEIGHT, media.getHeight());
         values.put(TomahawkSQLiteHelper.MEDIA_ARTWORKURL, media.getArtworkURL());
         values.put(TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, media.getAudioTrack());
         values.put(TomahawkSQLiteHelper.MEDIA_SPUTRACK, media.getSpuTrack());
-        values.put(TomahawkSQLiteHelper.MEDIA_DATEADDED, media.getDateAdded());
         values.put(TomahawkSQLiteHelper.MEDIA_TRACKNUMBER, media.getTrackNumber());
+        values.put(TomahawkSQLiteHelper.MEDIA_DISCNUMBER, media.getDiscNumber());
+        values.put(TomahawkSQLiteHelper.MEDIA_LASTMODIFIED, media.getLastModified());
 
         mDatabase.beginTransaction();
         mDatabase.replace(TomahawkSQLiteHelper.TABLE_MEDIA, "NULL", values);
@@ -1030,7 +1040,7 @@ public class DatabaseHelper {
      * @param location of the item (primary key)
      * @return True if the item exists, false if it does not
      */
-    public boolean mediaItemExists(String location) {
+    public synchronized boolean mediaItemExists(String location) {
         try {
             Cursor cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIA,
                     new String[]{TomahawkSQLiteHelper.MEDIA_LOCATION},
@@ -1052,7 +1062,7 @@ public class DatabaseHelper {
      * @return list of File
      */
     @SuppressWarnings("unused")
-    private HashSet<File> getMediaFiles() {
+    private synchronized HashSet<File> getMediaFiles() {
         HashSet<File> files = new HashSet<>();
         Cursor cursor;
 
@@ -1072,58 +1082,67 @@ public class DatabaseHelper {
         return files;
     }
 
-    public HashMap<String, MediaWithDate> getMedias() {
+    public synchronized HashMap<String, MediaWrapper> getMedias() {
         Cursor cursor;
-        HashMap<String, MediaWithDate> medias = new HashMap<>();
+        HashMap<String, MediaWrapper> medias = new HashMap<>();
         int chunk_count = 0;
         int count;
 
         do {
             count = 0;
             cursor = mDatabase.rawQuery(String.format(Locale.US,
-                    "SELECT %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s FROM %s LIMIT %d OFFSET %d",
-                    TomahawkSQLiteHelper.MEDIA_TIME,        //0 long
-                    TomahawkSQLiteHelper.MEDIA_LENGTH,      //1 long
-                    TomahawkSQLiteHelper.MEDIA_TYPE,        //2 int
-                    TomahawkSQLiteHelper.MEDIA_TITLE,       //3 string
-                    TomahawkSQLiteHelper.MEDIA_ARTIST,      //4 string
-                    TomahawkSQLiteHelper.MEDIA_GENRE,       //5 string
-                    TomahawkSQLiteHelper.MEDIA_ALBUM,       //6 string
-                    TomahawkSQLiteHelper.MEDIA_WIDTH,       //7 int
-                    TomahawkSQLiteHelper.MEDIA_HEIGHT,      //8 int
-                    TomahawkSQLiteHelper.MEDIA_ARTWORKURL,  //9 string
-                    TomahawkSQLiteHelper.MEDIA_AUDIOTRACK,  //10 int
-                    TomahawkSQLiteHelper.MEDIA_SPUTRACK,    //11 int
-                    TomahawkSQLiteHelper.MEDIA_LOCATION,    //12 string
-                    TomahawkSQLiteHelper.MEDIA_DATEADDED,   //13 long
-                    TomahawkSQLiteHelper.MEDIA_TRACKNUMBER, //14 int
+                    "SELECT %s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s FROM %s LIMIT %d OFFSET %d",
+                    TomahawkSQLiteHelper.MEDIA_LOCATION, //0 string
+                    TomahawkSQLiteHelper.MEDIA_TIME, //1 long
+                    TomahawkSQLiteHelper.MEDIA_LENGTH, //2 long
+                    TomahawkSQLiteHelper.MEDIA_TYPE, //3 int
+                    TomahawkSQLiteHelper.MEDIA_TITLE, //4 string
+                    TomahawkSQLiteHelper.MEDIA_ARTIST, //5 string
+                    TomahawkSQLiteHelper.MEDIA_GENRE, //6 string
+                    TomahawkSQLiteHelper.MEDIA_ALBUM, //7 string
+                    TomahawkSQLiteHelper.MEDIA_ALBUMARTIST, //8 string
+                    TomahawkSQLiteHelper.MEDIA_WIDTH, //9 int
+                    TomahawkSQLiteHelper.MEDIA_HEIGHT, //10 int
+                    TomahawkSQLiteHelper.MEDIA_ARTWORKURL, //11 string
+                    TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, //12 int
+                    TomahawkSQLiteHelper.MEDIA_SPUTRACK, //13 int
+                    TomahawkSQLiteHelper.MEDIA_TRACKNUMBER, // 14 int
+                    TomahawkSQLiteHelper.MEDIA_DISCNUMBER, //15 int
+                    TomahawkSQLiteHelper.MEDIA_LASTMODIFIED, //16 long
                     TomahawkSQLiteHelper.TABLE_MEDIA,
                     CHUNK_SIZE,
                     chunk_count * CHUNK_SIZE), null);
 
             if (cursor.moveToFirst()) {
-                do {
-                    MediaWithDate media = new MediaWithDate(
-                            cursor.getString(12),   // MEDIA_LOCATION
-                            cursor.getLong(0),      // MEDIA_TIME
-                            cursor.getLong(1),      // MEDIA_LENGTH
-                            cursor.getInt(2),       // MEDIA_TYPE
-                            null,                   // MEDIA_PICTURE
-                            cursor.getString(3),    // MEDIA_TITLE
-                            cursor.getString(4),    // MEDIA_ARTIST
-                            cursor.getString(5),    // MEDIA_GENRE
-                            cursor.getString(6),    // MEDIA_ALBUM
-                            cursor.getInt(7),       // MEDIA_WIDTH
-                            cursor.getInt(8),       // MEDIA_HEIGHT
-                            cursor.getString(9),    // MEDIA_ARTWORKURL
-                            cursor.getInt(10),      // MEDIA_AUDIOTRACK
-                            cursor.getInt(11),      // MEDIA_SPUTRACK
-                            cursor.getLong(13),     // MEDIA_DATEADDED
-                            cursor.getInt(14));     // MEDIA_TRACKNUMBER
-                    medias.put(media.getLocation(), media);
+                try {
+                    do {
+                        String location = cursor.getString(0);
+                        MediaWrapper media = new MediaWrapper(location,
+                                cursor.getLong(1),      // MEDIA_TIME
+                                cursor.getLong(2),      // MEDIA_LENGTH
+                                cursor.getInt(3),       // MEDIA_TYPE
+                                null,                   // MEDIA_PICTURE
+                                cursor.getString(4),    // MEDIA_TITLE
+                                cursor.getString(5),    // MEDIA_ARTIST
+                                cursor.getString(6),    // MEDIA_GENRE
+                                cursor.getString(7),    // MEDIA_ALBUM
+                                cursor.getString(8),    // MEDIA_ALBUMARTIST
+                                cursor.getInt(9),       // MEDIA_WIDTH
+                                cursor.getInt(10),       // MEDIA_HEIGHT
+                                cursor.getString(11),   // MEDIA_ARTWORKURL
+                                cursor.getInt(12),      // MEDIA_AUDIOTRACK
+                                cursor.getInt(13),      // MEDIA_SPUTRACK
+                                cursor.getInt(14),      // MEDIA_TRACKNUMBER
+                                cursor.getInt(15),     // MEDIA_DISCNUMBER
+                                cursor.getLong(16));     // MEDIA_LAST_MODIFIED
+                        medias.put(media.getLocation(), media);
 
-                    count++;
-                } while (cursor.moveToNext());
+                        count++;
+                    } while (cursor.moveToNext());
+                } catch (IllegalStateException e) {
+                    //Google bug causing IllegalStateException, see
+                    //https://code.google.com/p/android/issues/detail?id=32472
+                }
             }
 
             cursor.close();
@@ -1133,9 +1152,10 @@ public class DatabaseHelper {
         return medias;
     }
 
-    public MediaWithDate getMedia(String location) {
+    public synchronized MediaWrapper getMedia(String location) {
+
         Cursor cursor;
-        MediaWithDate media = null;
+        MediaWrapper media = null;
 
         try {
             cursor = mDatabase.query(
@@ -1148,13 +1168,15 @@ public class DatabaseHelper {
                             TomahawkSQLiteHelper.MEDIA_ARTIST, //4 string
                             TomahawkSQLiteHelper.MEDIA_GENRE, //5 string
                             TomahawkSQLiteHelper.MEDIA_ALBUM, //6 string
-                            TomahawkSQLiteHelper.MEDIA_WIDTH, //7 int
-                            TomahawkSQLiteHelper.MEDIA_HEIGHT, //8 int
-                            TomahawkSQLiteHelper.MEDIA_ARTWORKURL, //9 string
-                            TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, //10 string
-                            TomahawkSQLiteHelper.MEDIA_SPUTRACK, //11 string
-                            TomahawkSQLiteHelper.MEDIA_DATEADDED, //12 long
-                            TomahawkSQLiteHelper.MEDIA_TRACKNUMBER //13 int
+                            TomahawkSQLiteHelper.MEDIA_ALBUMARTIST, //7 string
+                            TomahawkSQLiteHelper.MEDIA_WIDTH, //8 int
+                            TomahawkSQLiteHelper.MEDIA_HEIGHT, //9 int
+                            TomahawkSQLiteHelper.MEDIA_ARTWORKURL, //10 string
+                            TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, //11 int
+                            TomahawkSQLiteHelper.MEDIA_SPUTRACK, //12 int
+                            TomahawkSQLiteHelper.MEDIA_TRACKNUMBER, //13 int
+                            TomahawkSQLiteHelper.MEDIA_DISCNUMBER, //14 int
+                            TomahawkSQLiteHelper.MEDIA_LASTMODIFIED, //15 long
                     },
                     TomahawkSQLiteHelper.MEDIA_LOCATION + "=?",
                     new String[]{location},
@@ -1164,7 +1186,7 @@ public class DatabaseHelper {
             return null;
         }
         if (cursor.moveToFirst()) {
-            media = new MediaWithDate(location,
+            media = new MediaWrapper(location,
                     cursor.getLong(0),
                     cursor.getLong(1),
                     cursor.getInt(2),
@@ -1173,19 +1195,21 @@ public class DatabaseHelper {
                     cursor.getString(4),
                     cursor.getString(5),
                     cursor.getString(6),
-                    cursor.getInt(7),
+                    cursor.getString(7),
                     cursor.getInt(8),
-                    cursor.getString(9),
-                    cursor.getInt(10),
+                    cursor.getInt(9),
+                    cursor.getString(10),
                     cursor.getInt(11),
-                    cursor.getLong(12),
-                    cursor.getInt(13));
+                    cursor.getInt(12),
+                    cursor.getInt(13),
+                    cursor.getInt(14),
+                    cursor.getLong(15));
         }
         cursor.close();
         return media;
     }
 
-    public Bitmap getPicture(Context context, String location) {
+    public synchronized Bitmap getPicture(Context context, String location) {
         /* Used for the lazy loading */
         Cursor cursor;
         Bitmap picture = null;
@@ -1211,7 +1235,7 @@ public class DatabaseHelper {
         return picture;
     }
 
-    public void removeMedia(String location) {
+    public synchronized void removeMedia(String location) {
         mDatabase.beginTransaction();
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_MEDIA,
                 TomahawkSQLiteHelper.MEDIA_LOCATION + "=?",
@@ -1220,7 +1244,7 @@ public class DatabaseHelper {
         mDatabase.endTransaction();
     }
 
-    public void removeMedias(Set<String> locations) {
+    public synchronized void removeMedias(Set<String> locations) {
         mDatabase.beginTransaction();
         try {
             for (String location : locations) {
@@ -1233,7 +1257,7 @@ public class DatabaseHelper {
         }
     }
 
-    public void updateMedia(String location, TomahawkSQLiteHelper.mediaColumn col,
+    public synchronized void updateMedia(String location, TomahawkSQLiteHelper.mediaColumn col,
             Object object) {
 
         if (location == null) {
@@ -1282,7 +1306,7 @@ public class DatabaseHelper {
         mDatabase.endTransaction();
     }
 
-    public static void setPicture(MediaWithDate m, Bitmap p) {
+    public static void setPicture(MediaWrapper m, Bitmap p) {
         Log.d(TAG, "Setting new picture for " + m.getTitle());
         try {
             getInstance().updateMedia(
@@ -1295,7 +1319,7 @@ public class DatabaseHelper {
         m.setPictureParsed(true);
     }
 
-    public boolean isMediaDirComplete(String path) {
+    public synchronized boolean isMediaDirComplete(String path) {
         Cursor cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
                 new String[]{TomahawkSQLiteHelper.MEDIADIRS_PATH},
                 TomahawkSQLiteHelper.MEDIADIRS_PATH + " LIKE ? || '_%'",
@@ -1305,7 +1329,7 @@ public class DatabaseHelper {
         return !exists;
     }
 
-    public boolean isMediaDirWhiteListed(String path) {
+    public synchronized boolean isMediaDirWhiteListed(String path) {
         Cursor cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
                 new String[]{TomahawkSQLiteHelper.MEDIADIRS_PATH},
                 TomahawkSQLiteHelper.MEDIADIRS_PATH + "= ? AND "
@@ -1370,7 +1394,7 @@ public class DatabaseHelper {
         return maxCount;
     }
 
-    public void addMediaDir(String path) {
+    public synchronized void addMediaDir(String path) {
         Log.d(TAG, "Adding mediaDir: " + path);
         mDatabase.beginTransaction();
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
@@ -1387,7 +1411,7 @@ public class DatabaseHelper {
         mDatabase.endTransaction();
     }
 
-    public void removeMediaDir(String path) {
+    public synchronized void removeMediaDir(String path) {
         Log.d(TAG, "Removing mediaDir: " + path);
         mDatabase.beginTransaction();
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
@@ -1404,19 +1428,21 @@ public class DatabaseHelper {
         mDatabase.endTransaction();
     }
 
-    public List<String> getMediaDirs(boolean blacklisted) {
+    public synchronized List<File> getMediaDirs(boolean blacklisted) {
         Cursor cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
                 new String[]{TomahawkSQLiteHelper.MEDIADIRS_PATH},
                 TomahawkSQLiteHelper.MEDIADIRS_BLACKLISTED + "= ?",
                 new String[]{String.valueOf(blacklisted ? TRUE : FALSE)},
                 null, null, null);
         cursor.moveToFirst();
-        ArrayList<String> dirs = new ArrayList<>();
-        while (!cursor.isAfterLast()) {
-            dirs.add(cursor.getString(0));
-            cursor.moveToNext();
+        List<File> paths = new ArrayList<File>();
+        if (!cursor.isAfterLast()) {
+            do {
+                File dir = new File(cursor.getString(0));
+                paths.add(dir);
+            } while (cursor.moveToNext());
         }
         cursor.close();
-        return dirs;
+        return paths;
     }
 }

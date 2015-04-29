@@ -26,10 +26,11 @@ import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
-import org.tomahawk.tomahawk_android.utils.MediaWithDate;
+import org.tomahawk.tomahawk_android.utils.MediaWrapper;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
+import org.videolan.libvlc.util.Extensions;
 
 import android.content.SharedPreferences;
 import android.os.Environment;
@@ -75,7 +76,7 @@ public class UserCollection extends Collection {
 
     private static final int MODE_GENRE = 2;
 
-    private final ArrayList<MediaWithDate> mItemList;
+    private final ArrayList<MediaWrapper> mItemList;
 
     private final ReadWriteLock mItemListLock;
 
@@ -84,6 +85,28 @@ public class UserCollection extends Collection {
     private boolean mRestart = false;
 
     protected Thread mLoadingThread;
+
+    public final static HashSet<String> FOLDER_BLACKLIST;
+
+    static {
+        final String[] folder_blacklist = {
+                "/alarms",
+                "/notifications",
+                "/ringtones",
+                "/media/alarms",
+                "/media/notifications",
+                "/media/ringtones",
+                "/media/audio/alarms",
+                "/media/audio/notifications",
+                "/media/audio/ringtones",
+                "/Android/data/"};
+
+        FOLDER_BLACKLIST = new HashSet<String>();
+        for (String item : folder_blacklist) {
+            FOLDER_BLACKLIST
+                    .add(android.os.Environment.getExternalStorageDirectory().getPath() + item);
+        }
+    }
 
     public UserCollection() {
         super(TomahawkApp.PLUGINNAME_USERCOLLECTION,
@@ -105,7 +128,7 @@ public class UserCollection extends Collection {
         if (userCollectionResolver == null) {
             return queries;
         }
-        for (MediaWithDate media : getAudioItems()) {
+        for (MediaWrapper media : getAudioItems()) {
             Artist artist = Artist.get(media.getArtist());
             Album album = Album.get(media.getAlbum(), artist);
             if (!TextUtils.isEmpty(media.getArtworkURL())) {
@@ -122,15 +145,15 @@ public class UserCollection extends Collection {
             queries.add(query);
             if (mAlbumAddedTimeStamps.get(query.getAlbum().getName()) == null
                     || mAlbumAddedTimeStamps.get(query.getAlbum().getName()) < media
-                    .getDateAdded()) {
-                mAlbumAddedTimeStamps.put(query.getAlbum().getName(), media.getDateAdded());
+                    .getLastModified()) {
+                mAlbumAddedTimeStamps.put(query.getAlbum().getName(), media.getLastModified());
             }
             if (mArtistAddedTimeStamps.get(query.getArtist().getName()) == null
                     || mArtistAddedTimeStamps.get(query.getArtist().getName()) < media
-                    .getDateAdded()) {
-                mArtistAddedTimeStamps.put(query.getArtist().getName(), media.getDateAdded());
+                    .getLastModified()) {
+                mArtistAddedTimeStamps.put(query.getArtist().getName(), media.getLastModified());
             }
-            mTrackAddedTimeStamps.put(query, media.getDateAdded());
+            mTrackAddedTimeStamps.put(query, media.getLastModified());
         }
         if (sorted) {
             Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
@@ -145,15 +168,18 @@ public class UserCollection extends Collection {
     @Override
     public ArrayList<Artist> getArtists(boolean sorted) {
         HashMap<String, Artist> artistMap = new HashMap<>();
-        for (MediaWithDate media : getAudioItems()) {
-            if (!artistMap.containsKey(media.getArtist().toLowerCase())) {
-                Artist artist = Artist.get(media.getArtist());
-                artistMap.put(media.getArtist().toLowerCase(), artist);
-            }
-            if (mArtistAddedTimeStamps.get(media.getArtist().toLowerCase()) == null
-                    || mArtistAddedTimeStamps.get(media.getArtist().toLowerCase()) < media
-                    .getDateAdded()) {
-                mArtistAddedTimeStamps.put(media.getArtist().toLowerCase(), media.getDateAdded());
+        for (MediaWrapper media : getAudioItems()) {
+            if (media.getArtist() != null) {
+                if (!artistMap.containsKey(media.getArtist().toLowerCase())) {
+                    Artist artist = Artist.get(media.getArtist());
+                    artistMap.put(media.getArtist().toLowerCase(), artist);
+                }
+                if (mArtistAddedTimeStamps.get(media.getArtist().toLowerCase()) == null
+                        || mArtistAddedTimeStamps.get(media.getArtist().toLowerCase()) < media
+                        .getLastModified()) {
+                    mArtistAddedTimeStamps
+                            .put(media.getArtist().toLowerCase(), media.getLastModified());
+                }
             }
         }
         ArrayList<Artist> artists = new ArrayList<>(artistMap.values());
@@ -171,19 +197,22 @@ public class UserCollection extends Collection {
     @Override
     public ArrayList<Album> getAlbums(boolean sorted) {
         HashMap<String, Album> albumMap = new HashMap<>();
-        for (MediaWithDate media : getAudioItems()) {
-            if (!albumMap.containsKey(media.getAlbum().toLowerCase())) {
-                Artist artist = Artist.get(media.getArtist());
-                Album album = Album.get(media.getAlbum(), artist);
-                if (!TextUtils.isEmpty(media.getArtworkURL())) {
-                    album.setImage(Image.get(media.getArtworkURL(), false));
+        for (MediaWrapper media : getAudioItems()) {
+            if (media.getAlbum() != null) {
+                if (!albumMap.containsKey(media.getAlbum().toLowerCase())) {
+                    Artist artist = Artist.get(media.getArtist());
+                    Album album = Album.get(media.getAlbum(), artist);
+                    if (!TextUtils.isEmpty(media.getArtworkURL())) {
+                        album.setImage(Image.get(media.getArtworkURL(), false));
+                    }
+                    albumMap.put(media.getAlbum().toLowerCase(), album);
                 }
-                albumMap.put(media.getAlbum().toLowerCase(), album);
-            }
-            if (mAlbumAddedTimeStamps.get(media.getAlbum().toLowerCase()) == null
-                    || mAlbumAddedTimeStamps.get(media.getAlbum().toLowerCase()) < media
-                    .getDateAdded()) {
-                mAlbumAddedTimeStamps.put(media.getAlbum().toLowerCase(), media.getDateAdded());
+                if (mAlbumAddedTimeStamps.get(media.getAlbum().toLowerCase()) == null
+                        || mAlbumAddedTimeStamps.get(media.getAlbum().toLowerCase()) < media
+                        .getLastModified()) {
+                    mAlbumAddedTimeStamps
+                            .put(media.getAlbum().toLowerCase(), media.getLastModified());
+                }
             }
         }
         ArrayList<Album> albums = new ArrayList<>(albumMap.values());
@@ -200,8 +229,8 @@ public class UserCollection extends Collection {
     @Override
     public ArrayList<Album> getArtistAlbums(Artist artist, boolean sorted) {
         HashMap<String, Album> albumMap = new HashMap<>();
-        for (MediaWithDate media : getAudioItems(artist.getName(), null, MODE_ARTIST)) {
-            if (!albumMap.containsKey(media.getAlbum().toLowerCase())) {
+        for (MediaWrapper media : getAudioItems(artist.getName(), null, MODE_ARTIST)) {
+            if (media.getAlbum() != null && !albumMap.containsKey(media.getAlbum().toLowerCase())) {
                 Album album = Album.get(media.getAlbum(), artist);
                 if (!TextUtils.isEmpty(media.getArtworkURL())) {
                     album.setImage(Image.get(media.getArtworkURL(), false));
@@ -227,7 +256,7 @@ public class UserCollection extends Collection {
         if (userCollectionResolver == null) {
             return queries;
         }
-        for (MediaWithDate media : getAudioItems(artist.getName(), null, MODE_ARTIST)) {
+        for (MediaWrapper media : getAudioItems(artist.getName(), null, MODE_ARTIST)) {
             Album album = Album.get(media.getAlbum(), artist);
             if (!TextUtils.isEmpty(media.getArtworkURL())) {
                 album.setImage(Image.get(media.getArtworkURL(), false));
@@ -260,7 +289,7 @@ public class UserCollection extends Collection {
         if (userCollectionResolver == null) {
             return queries;
         }
-        for (MediaWithDate media : getAudioItems(album.getName(), null, MODE_ALBUM)) {
+        for (MediaWrapper media : getAudioItems(album.getName(), null, MODE_ALBUM)) {
             Artist artist = Artist.get(media.getArtist());
             Track track = Track.get(media.getTitle(), album, artist);
             track.setDuration(media.getLength());
@@ -310,8 +339,8 @@ public class UserCollection extends Collection {
     public boolean hasAudioItems() {
         mItemListLock.readLock().lock();
         for (int i = 0; i < mItemList.size(); i++) {
-            MediaWithDate item = mItemList.get(i);
-            if (item.getType() == Media.TYPE_AUDIO) {
+            MediaWrapper item = mItemList.get(i);
+            if (item.getType() == MediaWrapper.TYPE_AUDIO) {
                 mItemListLock.readLock().unlock();
                 return true;
             }
@@ -320,12 +349,12 @@ public class UserCollection extends Collection {
         return false;
     }
 
-    public ArrayList<MediaWithDate> getAudioItems() {
-        ArrayList<MediaWithDate> audioItems = new ArrayList<>();
+    public ArrayList<MediaWrapper> getAudioItems() {
+        ArrayList<MediaWrapper> audioItems = new ArrayList<>();
         mItemListLock.readLock().lock();
         for (int i = 0; i < mItemList.size(); i++) {
-            MediaWithDate item = mItemList.get(i);
-            if (item.getType() == Media.TYPE_AUDIO) {
+            MediaWrapper item = mItemList.get(i);
+            if (item.getType() == MediaWrapper.TYPE_AUDIO) {
                 audioItems.add(item);
             }
         }
@@ -333,12 +362,12 @@ public class UserCollection extends Collection {
         return audioItems;
     }
 
-    public ArrayList<MediaWithDate> getAudioItems(String name, String name2, int mode) {
-        ArrayList<MediaWithDate> audioItems = new ArrayList<>();
+    public ArrayList<MediaWrapper> getAudioItems(String name, String name2, int mode) {
+        ArrayList<MediaWrapper> audioItems = new ArrayList<>();
         mItemListLock.readLock().lock();
         for (int i = 0; i < mItemList.size(); i++) {
-            MediaWithDate item = mItemList.get(i);
-            if (item.getType() == Media.TYPE_AUDIO) {
+            MediaWrapper item = mItemList.get(i);
+            if (item.getType() == MediaWrapper.TYPE_AUDIO) {
 
                 boolean valid = false;
                 switch (mode) {
@@ -366,14 +395,14 @@ public class UserCollection extends Collection {
         return audioItems;
     }
 
-    public ArrayList<MediaWithDate> getMediaItems() {
+    public ArrayList<MediaWrapper> getMediaItems() {
         return mItemList;
     }
 
-    public MediaWithDate getMediaItem(String location) {
+    public MediaWrapper getMediaItem(String location) {
         mItemListLock.readLock().lock();
         for (int i = 0; i < mItemList.size(); i++) {
-            MediaWithDate item = mItemList.get(i);
+            MediaWrapper item = mItemList.get(i);
             if (item.getLocation().equals(location)) {
                 mItemListLock.readLock().unlock();
                 return item;
@@ -383,10 +412,10 @@ public class UserCollection extends Collection {
         return null;
     }
 
-    public ArrayList<MediaWithDate> getMediaItems(List<String> pathList) {
-        ArrayList<MediaWithDate> items = new ArrayList<>();
+    public ArrayList<MediaWrapper> getMediaItems(List<String> pathList) {
+        ArrayList<MediaWrapper> items = new ArrayList<>();
         for (int i = 0; i < pathList.size(); i++) {
-            MediaWithDate item = getMediaItem(pathList.get(i));
+            MediaWrapper item = getMediaItem(pathList.get(i));
             items.add(item);
         }
         return items;
@@ -418,18 +447,11 @@ public class UserCollection extends Collection {
             }
             preferences.edit().putStringSet(HAS_SET_DEFAULTDIRS, setDefaultDirs).commit();
 
-            List<String> mediaDirPaths = DatabaseHelper.getInstance().getMediaDirs(false);
-            List<File> mediaDirs = new ArrayList<>();
-            for (String dir : mediaDirPaths) {
-                File f = new File(dir);
-                if (f.exists()) {
-                    mediaDirs.add(f);
-                }
-            }
+            List<File> mediaDirs = DatabaseHelper.getInstance().getMediaDirs(false);
             directories.addAll(mediaDirs);
 
             // get all existing media items
-            HashMap<String, MediaWithDate> existingMedias = DatabaseHelper.getInstance()
+            HashMap<String, MediaWrapper> existingMedias = DatabaseHelper.getInstance()
                     .getMedias();
 
             // list of all added files
@@ -440,8 +462,7 @@ public class UserCollection extends Collection {
             mItemList.clear();
             mItemListLock.writeLock().unlock();
 
-            MediaItemFilter mediaFileFilter =
-                    new MediaItemFilter(DatabaseHelper.getInstance().getMediaDirs(true));
+            MediaItemFilter mediaFileFilter = new MediaItemFilter();
 
             ArrayList<File> mediaToScan = new ArrayList<>();
             try {
@@ -514,11 +535,22 @@ public class UserCollection extends Collection {
                     } else {
                         mItemListLock.writeLock().lock();
                         // create new media item
-                        MediaWithDate m = new MediaWithDate(VLCMediaPlayer.getLibVlcInstance(),
-                                fileURI, file.lastModified());
-                        mItemList.add(m);
+                        final Media media = new Media(
+                                VLCMediaPlayer.getInstance().getLibVlcInstance(), fileURI);
+                        media.parse();
+                        media.release();
+                        /* skip files with .mod extension and no duration */
+                        if ((media.getDuration() == 0 || (media.getTrackCount() != 0 && TextUtils
+                                .isEmpty(media.getTrack(0).codec))) &&
+                                fileURI.endsWith(".mod")) {
+                            mItemListLock.writeLock().unlock();
+                            continue;
+                        }
+                        MediaWrapper mw = new MediaWrapper(media);
+                        mw.setLastModified(file.lastModified());
+                        mItemList.add(mw);
                         // Add this item to database
-                        DatabaseHelper.getInstance().addMedia(m);
+                        DatabaseHelper.getInstance().addMedia(mw);
                         mItemListLock.writeLock().unlock();
                     }
                     if (isStopping) {
@@ -567,31 +599,22 @@ public class UserCollection extends Collection {
      */
     private static class MediaItemFilter implements FileFilter {
 
-        final List<String> blacklist;
-
-        public MediaItemFilter(List<String> blacklist) {
-            this.blacklist = blacklist;
-        }
-
         @Override
         public boolean accept(File f) {
             boolean accepted = false;
             if (!f.isHidden()) {
-                try {
-                    if (f.isDirectory() && !Media.FOLDER_BLACKLIST.contains(f.getPath().toLowerCase(
-                            Locale.ENGLISH)) && !blacklist.contains(f.getCanonicalPath())) {
-                        accepted = true;
-                    } else {
-                        String fileName = f.getName().toLowerCase(Locale.ENGLISH);
-                        int dotIndex = fileName.lastIndexOf(".");
-                        if (dotIndex != -1) {
-                            String fileExt = fileName.substring(dotIndex);
-                            accepted = Media.AUDIO_EXTENSIONS.contains(fileExt) ||
-                                    Media.VIDEO_EXTENSIONS.contains(fileExt);
-                        }
+                if (f.isDirectory() && !FOLDER_BLACKLIST
+                        .contains(f.getPath().toLowerCase(Locale.ENGLISH))) {
+                    accepted = true;
+                } else {
+                    String fileName = f.getName().toLowerCase(Locale.ENGLISH);
+                    int dotIndex = fileName.lastIndexOf(".");
+                    if (dotIndex != -1) {
+                        String fileExt = fileName.substring(dotIndex);
+                        accepted = Extensions.AUDIO.contains(fileExt) ||
+                                Extensions.VIDEO.contains(fileExt) ||
+                                Extensions.PLAYLIST.contains(fileExt);
                     }
-                } catch (IOException e) {
-                    Log.e(TAG, "accept: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
             }
             return accepted;
