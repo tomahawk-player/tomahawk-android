@@ -222,7 +222,7 @@ public class ViewHolder {
         resolver.loadIconBackground(imageView1, !resolver.isEnabled());
         ImageView imageView2 = (ImageView) findViewById(R.id.imageview2);
         resolver.loadIconWhite(imageView2);
-        View connectImageViewContainer = findViewById(R.id.connect_imageview_container);
+        View connectImageViewContainer = findViewById(R.id.connect_imageview);
         if (resolver.isEnabled()) {
             connectImageViewContainer.setVisibility(View.VISIBLE);
         } else {
