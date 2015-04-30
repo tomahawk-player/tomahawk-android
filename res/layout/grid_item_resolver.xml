@@ -48,17 +48,12 @@
                   android:paddingTop="@dimen/padding_small"
                   android:paddingBottom="@dimen/padding_small">
 
-        <org.tomahawk.tomahawk_android.ui.widgets.SquareHeightFrameLayout
-                android:id="@+id/connect_imageview_container"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:layout_marginRight="@dimen/padding_small">
-
-            <ImageView android:layout_width="match_parent"
-                       android:layout_height="match_parent"
-                       android:src="@drawable/ic_connected"/>
-
-        </org.tomahawk.tomahawk_android.ui.widgets.SquareHeightFrameLayout>
+        <ImageView android:id="@+id/connect_imageview"
+                   android:layout_width="16dp"
+                   android:layout_height="16dp"
+                   android:layout_gravity="center_vertical"
+                   android:layout_marginRight="@dimen/padding_small"
+                   android:src="@drawable/ic_connected"/>
 
         <TextView android:id="@+id/textview1"
                   android:layout_width="match_parent"
