@@ -125,20 +125,28 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
 
         // Init checkbox
         CheckBox checkBox = (CheckBox) viewHolder.findViewById(R.id.checkbox1);
+        CheckBox checkBox2 = (CheckBox) viewHolder.findViewById(R.id.checkbox2);
         if (!dir.isMediaDirComplete) {
-            checkBox.setButtonDrawable(R.drawable.abc_btn_check_to_on_mtrl_015_disabled);
+            checkBox2.setButtonDrawable(R.drawable.abc_btn_check_to_on_mtrl_015_disabled);
+            checkBox.setVisibility(View.GONE);
+            checkBox2.setVisibility(View.VISIBLE);
         } else {
-            checkBox.setButtonDrawable(R.drawable.abc_btn_check_material);
+            checkBox.setVisibility(View.VISIBLE);
+            checkBox2.setVisibility(View.GONE);
         }
         checkBox.setOnCheckedChangeListener(null);
+        checkBox2.setOnCheckedChangeListener(null);
         checkBox.setChecked(dir.isWhitelisted || !dir.isMediaDirComplete);
-        checkBox.setOnCheckedChangeListener(
+        checkBox2.setChecked(dir.isWhitelisted || !dir.isMediaDirComplete);
+        CompoundButton.OnCheckedChangeListener listener =
                 new CompoundButton.OnCheckedChangeListener() {
                     @Override
                     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                         mDirectoryChooserListener.onDirectoryChecked(dir.file, isChecked);
                     }
-                });
+                };
+        checkBox.setOnCheckedChangeListener(listener);
+        checkBox2.setOnCheckedChangeListener(listener);
 
         // Init textviews and main click listener
         TextView textView = (TextView) viewHolder.findViewById(R.id.textview1);

@@ -45,11 +45,19 @@
               android:textColor="@color/primary_textcolor"
               android:textSize="@dimen/text_size_medium"/>
 
-    <android.support.v7.internal.widget.TintCheckBox
+    <android.support.v7.widget.AppCompatCheckBox
             android:id="@+id/checkbox1"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center"
             android:paddingLeft="@dimen/padding_megalarge"/>
+
+    <android.support.v7.widget.AppCompatCheckBox
+            android:id="@+id/checkbox2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:paddingLeft="@dimen/padding_megalarge"
+            android:visibility="gone"/>
 
 </LinearLayout>
