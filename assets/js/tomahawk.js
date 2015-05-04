@@ -31,13 +31,25 @@ if ((typeof Tomahawk === "undefined") || (Tomahawk === null)) {
                 }
             };
         },
-        log: function (message) {
-            console.log(message);
+        log: function () {
+            console.log.apply(arguments);
         }
     };
 }
 
 Tomahawk.apiVersion = "0.2.2";
+
+// install RSVP.Promise as global Promise
+if(window.Promise === undefined) {
+    window.Promise = window.RSVP.Promise;
+    window.RSVP.on('error', function(reason) {
+        if (reason) {
+            console.error(reason.message, reason);
+        } else {
+            console.error('Error: error thrown from RSVP but it was empty');
+        }
+    });
+}
 
 /**
  * Compares versions strings
@@ -196,8 +208,37 @@ var TomahawkResolver = {
     },
     collection: function () {
         return {};
+    },
+    _testConfig: function (config) {
+        return Promise.resolve(this.testConfig(config)).then(function() {
+            return { result: Tomahawk.ConfigTestResultType.Success };
+        });
+    },
+    testConfig: function () {
     }
 };
+
+Tomahawk.Resolver = {};
+Tomahawk.Resolver.Promise = Tomahawk.extend(TomahawkResolver, {
+    _adapter_resolve: function (qid, artist, album, title) {
+        Promise.resolve(this.resolve(artist, album, title)).then(function(results){
+            Tomahawk.addTrackResults({
+                'qid': qid,
+                'results': results
+            });
+        });
+    },
+
+    _adapter_search: function (qid, query)
+    {
+        Promise.resolve(this.search(query)).then(function(results){
+            Tomahawk.addTrackResults({
+                'qid': qid,
+                'results': results
+            });
+        });
+    }
+});
 
 /**** begin example implementation of a resolver ****/
 
@@ -438,14 +479,108 @@ Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
  *
  * @returns boolean indicating whether or not to do a request with the given parameters natively
  */
-shouldDoNativeRequest = function (url, callback, extraHeaders, options) {
+var shouldDoNativeRequest = function (url, callback, extraHeaders, options) {
     return (extraHeaders && (extraHeaders.hasOwnProperty("Referer")
         || extraHeaders.hasOwnProperty("referer")));
 };
 
+Tomahawk.ajax = function(url, settings) {
+    if (typeof url === "object") {
+        settings = url;
+    } else {
+        settings = settings || {};
+        settings.url = url;
+    }
+
+    settings.type = settings.type || settings.method || 'get';
+    settings.method = settings.type;
+    settings.dataFormat = settings.dataFormat || 'form';
+
+    if (settings.data) {
+        var formEncode = function(obj) {
+            var str = [];
+            for(var p in obj) {
+                if(obj[p] !== undefined) {
+                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                }
+            }
+
+            str.sort();
+
+            return str.join("&");
+        };
+        if (typeof settings.data === 'object') {
+            if (settings.dataFormat == 'form') {
+                settings.data = formEncode(settings.data);
+                settings.contentType = settings.contentType || 'application/x-www-form-urlencoded';
+            } else if (settings.dataFormat == 'json') {
+                settings.data = JSON.stringify(settings.data);
+                settings.contentType = settings.contentType || 'application/json';
+            } else {
+                throw new Error("Tomahawk.ajax: unknown dataFormat requested: " + settings.dataFormat);
+            }
+        } else {
+            throw new Error("Tomahawk.ajax: data should be either object or string");
+        }
+
+        if (settings.type.toLowerCase() === 'get') {
+            settings.url += '?' + settings.data;
+            delete settings.data;
+        } else {
+            settings.headers = settings.headers || {};
+            if (!settings.headers.hasOwnProperty('Content-Type')) {
+                settings.headers['Content-Type'] = settings.contentType;
+            }
+        }
+    }
+
+    return new Promise(function (resolve, reject) {
+        settings.errorHandler = reject;
+        Tomahawk.asyncRequest(settings.url, resolve, settings.headers, settings);
+    }).then(function(xhr) {
+        var responseText = xhr.responseText;
+        var contentType;
+        if (settings.dataType === 'json') {
+            contentType = 'application/json';
+        } else if (contentType === 'xml') {
+            contentType = 'text/xml';
+        } else {
+            contentType = xhr.getResponseHeader('Content-Type');
+        }
+
+        if (~contentType.indexOf('application/json')) {
+            return JSON.parse(responseText);
+        }
+
+        if (~contentType.indexOf('text/xml')) {
+            var domParser = new DOMParser();
+            return domParser.parseFromString(responseText, "text/xml");
+        }
+
+        return xhr.responseText;
+    });
+};
+
+Tomahawk.post = function(url, settings) {
+    if (typeof url === "object") {
+        settings = url;
+    } else {
+        settings = settings || {};
+        settings.url = url;
+    }
+
+    settings.method = 'POST';
+
+    return Tomahawk.ajax(settings);
+};
+
+Tomahawk.get = function(url, settings) {
+    return Tomahawk.ajax(url, settings);
+};
+
 Tomahawk.assert = function (assertion, message) {
     Tomahawk.nativeAssert(assertion, message);
-}
+};
 
 Tomahawk.sha256 = Tomahawk.sha256 || function(message) {
   return CryptoJS.SHA256(message).toString(CryptoJS.enc.Hex);
@@ -590,3 +725,379 @@ Tomahawk.setTimeout = Tomahawk.setTimeout || window.setTimeout;
 Tomahawk.setInterval = Tomahawk.setInterval || window.setInterval;
 Tomahawk.base64Decode = function(a) { return window.atob(a); };
 Tomahawk.base64Encode = function(b) { return window.btoa(b); };
+
+Tomahawk.PluginManager = {
+    objects: {},
+    objectCounter: 0,
+    identifyObject: function (object) {
+        if( !object.hasOwnProperty('id') ) {
+            object.id = this.objectCounter++;
+        }
+
+        return object.id;
+    },
+    registerPlugin: function (type, object) {
+        this.objects[this.identifyObject(object)] = object;
+
+        Tomahawk.log("registerPlugin: " + type + " id: " + object.id);
+        Tomahawk.registerScriptPlugin(type, object.id);
+    },
+
+    unregisterPlugin: function(type, object) {
+        this.objects[this.identifyObject(object)] = object;
+
+        Tomahawk.log("unregisterPlugin: " + type + " id: " + object.id);
+        Tomahawk.unregisterScriptPlugin(type, object.id);
+    },
+
+    resolve: [],
+    invokeSync: function (requestId, objectId, methodName, params) {
+        if (!Tomahawk.resolver.instance.apiVersion || Tomahawk.resolver.instance.apiVersion < 0.9) {
+            if (methodName === 'artistAlbums') {
+                methodName = 'albums';
+            } else if ( methodName === 'albumTracks' ) {
+                methodName = 'tracks';
+            }
+        }
+
+        var pluginManager = this;
+        if (!this.objects[objectId]) {
+            Tomahawk.log("Object not found! objectId: " + objectId + " methodName: " + methodName);
+        } else {
+            if (!this.objects[objectId][methodName]) {
+                Tomahawk.log("Function not found: " + methodName);
+            }
+        }
+
+        if (typeof this.objects[objectId][methodName] === 'function') {
+            if (!Tomahawk.resolver.instance.apiVersion || Tomahawk.resolver.instance.apiVersion < 0.9) {
+                if (methodName == 'artists') {
+                    return new Promise(function (resolve, reject) {
+                        pluginManager.resolve[requestId] = resolve;
+                        Tomahawk.resolver.instance.artists(requestId);
+                    });
+                } else if (methodName == 'albums') {
+                    return new Promise(function (resolve, reject) {
+                        pluginManager.resolve[requestId] = resolve;
+                        Tomahawk.resolver.instance.albums(requestId, params.artist);
+                    });
+                } else if (methodName == 'tracks') {
+                    return new Promise(function (resolve, reject) {
+                        pluginManager.resolve[requestId] = resolve;
+                        Tomahawk.resolver.instance.tracks(requestId, params.artist, params.album);
+                    });
+                }
+            }
+
+            return this.objects[objectId][methodName](params);
+        }
+
+        return this.objects[objectId][methodName];
+    },
+
+    invoke: function (requestId, objectId, methodName, params ) {
+        Promise.resolve(this.invokeSync(requestId, objectId, methodName, params)).then(function (result) {
+            if (typeof result === 'object') {
+                Tomahawk.reportScriptJobResults({
+                    requestId: requestId,
+                    data: result
+                });
+            } else {
+                Tomahawk.reportScriptJobResults({
+                    requestId: requestId,
+                    error: "Scripts need to return objects for requests: methodName: " + methodName + " params: " + JSON.stringify(params)
+                });
+            }
+        }, function (error) {
+            Tomahawk.reportScriptJobResults({
+                requestId: requestId,
+                error: error
+            });
+        });
+    }
+};
+
+
+Tomahawk.ConfigTestResultType = {
+    Other: 0,
+    Success: 1,
+    Logout: 2,
+    CommunicationError: 3,
+    InvalidCredentials: 4,
+    InvalidAccount: 5,
+    PlayingElsewhere: 6,
+    AccountExpired: 7
+};
+
+Tomahawk.Country = {
+    AnyCountry: 0,
+    Afghanistan: 1,
+    Albania: 2,
+    Algeria: 3,
+    AmericanSamoa: 4,
+    Andorra: 5,
+    Angola: 6,
+    Anguilla: 7,
+    Antarctica: 8,
+    AntiguaAndBarbuda: 9,
+    Argentina: 10,
+    Armenia: 11,
+    Aruba: 12,
+    Australia: 13,
+    Austria: 14,
+    Azerbaijan: 15,
+    Bahamas: 16,
+    Bahrain: 17,
+    Bangladesh: 18,
+    Barbados: 19,
+    Belarus: 20,
+    Belgium: 21,
+    Belize: 22,
+    Benin: 23,
+    Bermuda: 24,
+    Bhutan: 25,
+    Bolivia: 26,
+    BosniaAndHerzegowina: 27,
+    Botswana: 28,
+    BouvetIsland: 29,
+    Brazil: 30,
+    BritishIndianOceanTerritory: 31,
+    BruneiDarussalam: 32,
+    Bulgaria: 33,
+    BurkinaFaso: 34,
+    Burundi: 35,
+    Cambodia: 36,
+    Cameroon: 37,
+    Canada: 38,
+    CapeVerde: 39,
+    CaymanIslands: 40,
+    CentralAfricanRepublic: 41,
+    Chad: 42,
+    Chile: 43,
+    China: 44,
+    ChristmasIsland: 45,
+    CocosIslands: 46,
+    Colombia: 47,
+    Comoros: 48,
+    DemocraticRepublicOfCongo: 49,
+    PeoplesRepublicOfCongo: 50,
+    CookIslands: 51,
+    CostaRica: 52,
+    IvoryCoast: 53,
+    Croatia: 54,
+    Cuba: 55,
+    Cyprus: 56,
+    CzechRepublic: 57,
+    Denmark: 58,
+    Djibouti: 59,
+    Dominica: 60,
+    DominicanRepublic: 61,
+    EastTimor: 62,
+    Ecuador: 63,
+    Egypt: 64,
+    ElSalvador: 65,
+    EquatorialGuinea: 66,
+    Eritrea: 67,
+    Estonia: 68,
+    Ethiopia: 69,
+    FalklandIslands: 70,
+    FaroeIslands: 71,
+    FijiCountry: 72,
+    Finland: 73,
+    France: 74,
+    MetropolitanFrance: 75,
+    FrenchGuiana: 76,
+    FrenchPolynesia: 77,
+    FrenchSouthernTerritories: 78,
+    Gabon: 79,
+    Gambia: 80,
+    Georgia: 81,
+    Germany: 82,
+    Ghana: 83,
+    Gibraltar: 84,
+    Greece: 85,
+    Greenland: 86,
+    Grenada: 87,
+    Guadeloupe: 88,
+    Guam: 89,
+    Guatemala: 90,
+    Guinea: 91,
+    GuineaBissau: 92,
+    Guyana: 93,
+    Haiti: 94,
+    HeardAndMcDonaldIslands: 95,
+    Honduras: 96,
+    HongKong: 97,
+    Hungary: 98,
+    Iceland: 99,
+    India: 100,
+    Indonesia: 101,
+    Iran: 102,
+    Iraq: 103,
+    Ireland: 104,
+    Israel: 105,
+    Italy: 106,
+    Jamaica: 107,
+    Japan: 108,
+    Jordan: 109,
+    Kazakhstan: 110,
+    Kenya: 111,
+    Kiribati: 112,
+    DemocraticRepublicOfKorea: 113,
+    RepublicOfKorea: 114,
+    Kuwait: 115,
+    Kyrgyzstan: 116,
+    Lao: 117,
+    Latvia: 118,
+    Lebanon: 119,
+    Lesotho: 120,
+    Liberia: 121,
+    LibyanArabJamahiriya: 122,
+    Liechtenstein: 123,
+    Lithuania: 124,
+    Luxembourg: 125,
+    Macau: 126,
+    Macedonia: 127,
+    Madagascar: 128,
+    Malawi: 129,
+    Malaysia: 130,
+    Maldives: 131,
+    Mali: 132,
+    Malta: 133,
+    MarshallIslands: 134,
+    Martinique: 135,
+    Mauritania: 136,
+    Mauritius: 137,
+    Mayotte: 138,
+    Mexico: 139,
+    Micronesia: 140,
+    Moldova: 141,
+    Monaco: 142,
+    Mongolia: 143,
+    Montserrat: 144,
+    Morocco: 145,
+    Mozambique: 146,
+    Myanmar: 147,
+    Namibia: 148,
+    NauruCountry: 149,
+    Nepal: 150,
+    Netherlands: 151,
+    NetherlandsAntilles: 152,
+    NewCaledonia: 153,
+    NewZealand: 154,
+    Nicaragua: 155,
+    Niger: 156,
+    Nigeria: 157,
+    Niue: 158,
+    NorfolkIsland: 159,
+    NorthernMarianaIslands: 160,
+    Norway: 161,
+    Oman: 162,
+    Pakistan: 163,
+    Palau: 164,
+    PalestinianTerritory: 165,
+    Panama: 166,
+    PapuaNewGuinea: 167,
+    Paraguay: 168,
+    Peru: 169,
+    Philippines: 170,
+    Pitcairn: 171,
+    Poland: 172,
+    Portugal: 173,
+    PuertoRico: 174,
+    Qatar: 175,
+    Reunion: 176,
+    Romania: 177,
+    RussianFederation: 178,
+    Rwanda: 179,
+    SaintKittsAndNevis: 180,
+    StLucia: 181,
+    StVincentAndTheGrenadines: 182,
+    Samoa: 183,
+    SanMarino: 184,
+    SaoTomeAndPrincipe: 185,
+    SaudiArabia: 186,
+    Senegal: 187,
+    SerbiaAndMontenegro: 241,
+    Seychelles: 188,
+    SierraLeone: 189,
+    Singapore: 190,
+    Slovakia: 191,
+    Slovenia: 192,
+    SolomonIslands: 193,
+    Somalia: 194,
+    SouthAfrica: 195,
+    SouthGeorgiaAndTheSouthSandwichIslands: 196,
+    Spain: 197,
+    SriLanka: 198,
+    StHelena: 199,
+    StPierreAndMiquelon: 200,
+    Sudan: 201,
+    Suriname: 202,
+    SvalbardAndJanMayenIslands: 203,
+    Swaziland: 204,
+    Sweden: 205,
+    Switzerland: 206,
+    SyrianArabRepublic: 207,
+    Taiwan: 208,
+    Tajikistan: 209,
+    Tanzania: 210,
+    Thailand: 211,
+    Togo: 212,
+    Tokelau: 213,
+    TongaCountry: 214,
+    TrinidadAndTobago: 215,
+    Tunisia: 216,
+    Turkey: 217,
+    Turkmenistan: 218,
+    TurksAndCaicosIslands: 219,
+    Tuvalu: 220,
+    Uganda: 221,
+    Ukraine: 222,
+    UnitedArabEmirates: 223,
+    UnitedKingdom: 224,
+    UnitedStates: 225,
+    UnitedStatesMinorOutlyingIslands: 226,
+    Uruguay: 227,
+    Uzbekistan: 228,
+    Vanuatu: 229,
+    VaticanCityState: 230,
+    Venezuela: 231,
+    VietNam: 232,
+    BritishVirginIslands: 233,
+    USVirginIslands: 234,
+    WallisAndFutunaIslands: 235,
+    WesternSahara: 236,
+    Yemen: 237,
+    Yugoslavia: 238,
+    Zambia: 239,
+    Zimbabwe: 240,
+    Montenegro: 242,
+    Serbia: 243,
+    SaintBarthelemy: 244,
+    SaintMartin: 245,
+    LatinAmericaAndTheCaribbean: 246
+};
+
+Tomahawk.Collection = {
+    BrowseCapability: {
+        Artists: 1,
+        Albums: 2,
+        Tracks: 4
+    }
+};
+
+
+// Legacy compability for 0.8 and before
+Tomahawk.reportCapabilities = function (capabilities) {
+    if (capabilities & TomahawkResolverCapability.Browsable) {
+        Tomahawk.PluginManager.registerPlugin("collection", Tomahawk.resolver.instance);
+    }
+
+    Tomahawk.nativeReportCapabilities(capabilities);
+};
+
+Tomahawk.addArtistResults = Tomahawk.addAlbumResults = Tomahawk.addAlbumTrackResults = function (result) {
+    Tomahawk.PluginManager.resolve[result.qid](result);
+    delete Tomahawk.PluginManager.resolve[result.qid];
+};
