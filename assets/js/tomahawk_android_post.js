@@ -21,6 +21,11 @@
  */
 shouldDoNativeRequest = function (url, callback, extraHeaders, options) {
     return ((options && options.needCookieHeader)
-        || (extraHeaders && (extraHeaders.hasOwnProperty("Referer")
-            || extraHeaders.hasOwnProperty("referer"))) );
+            || (extraHeaders
+                && (extraHeaders.hasOwnProperty("Referer")
+                || extraHeaders.hasOwnProperty("referer")
+                || extraHeaders.hasOwnProperty("Origin")
+                || extraHeaders.hasOwnProperty("origin"))
+                )
+            );
 };
