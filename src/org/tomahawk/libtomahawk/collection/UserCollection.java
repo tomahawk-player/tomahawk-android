@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.MediaWrapper;
@@ -39,6 +40,7 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.widget.ImageView;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -101,7 +103,7 @@ public class UserCollection extends Collection {
                 "/media/audio/ringtones",
                 "/Android/data/"};
 
-        FOLDER_BLACKLIST = new HashSet<String>();
+        FOLDER_BLACKLIST = new HashSet<>();
         for (String item : folder_blacklist) {
             FOLDER_BLACKLIST
                     .add(android.os.Environment.getExternalStorageDirectory().getPath() + item);
@@ -110,11 +112,15 @@ public class UserCollection extends Collection {
 
     public UserCollection() {
         super(TomahawkApp.PLUGINNAME_USERCOLLECTION,
-                PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION)
-                        .getCollectionName(), true);
+                TomahawkApp.getContext().getString(R.string.local_collection_pretty_name), true);
 
         mItemList = new ArrayList<>();
         mItemListLock = new ReentrantReadWriteLock();
+    }
+
+    @Override
+    public void loadIcon(ImageView imageView, boolean grayOut) {
+
     }
 
     /**

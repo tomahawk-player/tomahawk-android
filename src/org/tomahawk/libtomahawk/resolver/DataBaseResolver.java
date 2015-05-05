@@ -32,12 +32,14 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * A {@link Resolver} which resolves {@link Track}s via our local database. Or in other words:
  * Fetches {@link Track}s from the local {@link UserCollection}. Can also be used to resolve from
  * remote {@link UserCollection}s.
  */
-public class DataBaseResolver extends Resolver {
+public class DataBaseResolver implements Resolver {
 
     private final String mId;
 
@@ -50,15 +52,15 @@ public class DataBaseResolver extends Resolver {
     /**
      * Construct this {@link DataBaseResolver}
      */
-    public DataBaseResolver(String prettyName, OnResolverReadyListener onResolverReadyListener) {
-        super(prettyName, onResolverReadyListener);
-
+    public DataBaseResolver() {
         mId = TomahawkApp.PLUGINNAME_USERCOLLECTION;
         mWeight = 100;
         mReady = false;
         mStopped = true;
         mReady = true;
-        onResolverReady();
+        PipeLine.ResolverReadyEvent event = new PipeLine.ResolverReadyEvent();
+        event.mResolver = this;
+        EventBus.getDefault().post(event);
     }
 
     /**
@@ -102,7 +104,7 @@ public class DataBaseResolver extends Resolver {
     }
 
     @Override
-    public String getCollectionName() {
+    public String getPrettyName() {
         return TomahawkApp.getContext().getString(R.string.local_collection_pretty_name);
     }
 

@@ -43,10 +43,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
 
-/**
- * This class represents a user's local {@link org.tomahawk.libtomahawk.collection.CollectionManager}
- * of all his {@link org.tomahawk.libtomahawk.collection.Track}s.
- */
 public class CollectionManager {
 
     public static final String TAG = CollectionManager.class.getSimpleName();
@@ -63,11 +59,18 @@ public class CollectionManager {
 
     }
 
+    public static class RemovedEvent {
+
+        public Collection mCollection;
+
+    }
+
+
     public static class UpdatedEvent {
 
         public Collection mCollection;
 
-        public String mUpdatedItemId;
+        public HashSet<String> mUpdatedItemIds;
 
     }
 
@@ -153,6 +156,13 @@ public class CollectionManager {
         EventBus.getDefault().post(event);
     }
 
+    public void removeCollection(Collection collection) {
+        mCollections.remove(collection.getId());
+        RemovedEvent event = new RemovedEvent();
+        event.mCollection = collection;
+        EventBus.getDefault().post(event);
+    }
+
     public Collection getCollection(String collectionId) {
         return mCollections.get(collectionId);
     }
@@ -186,7 +196,8 @@ public class CollectionManager {
                 + query.getAlbum().getName());
         DatabaseHelper.getInstance().setLovedItem(query, doSweetSweetLovin);
         UpdatedEvent event = new UpdatedEvent();
-        event.mUpdatedItemId = query.getCacheKey();
+        event.mUpdatedItemIds = new HashSet<>();
+        event.mUpdatedItemIds.add(query.getCacheKey());
         EventBus.getDefault().post(event);
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
@@ -200,7 +211,8 @@ public class CollectionManager {
                 + artist.getName());
         DatabaseHelper.getInstance().setLovedItem(artist, doSweetSweetLovin);
         UpdatedEvent event = new UpdatedEvent();
-        event.mUpdatedItemId = artist.getCacheKey();
+        event.mUpdatedItemIds = new HashSet<>();
+        event.mUpdatedItemIds.add(artist.getCacheKey());
         EventBus.getDefault().post(event);
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
@@ -214,7 +226,8 @@ public class CollectionManager {
                 + album.getName() + " by " + album.getArtist().getName());
         DatabaseHelper.getInstance().setLovedItem(album, doSweetSweetLovin);
         UpdatedEvent event = new UpdatedEvent();
-        event.mUpdatedItemId = album.getCacheKey();
+        event.mUpdatedItemIds = new HashSet<>();
+        event.mUpdatedItemIds.add(album.getCacheKey());
         EventBus.getDefault().post(event);
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
@@ -400,7 +413,7 @@ public class CollectionManager {
             }
             for (Playlist storedList : storedListsMap.values()) {
                 if (storedList.getHatchetId() == null
-                        ||!mShowAsCreatedPlaylistMap.contains(storedList.getHatchetId())) {
+                        || !mShowAsCreatedPlaylistMap.contains(storedList.getHatchetId())) {
                     Log.d(TAG, "Hatchet sync - playlist \"" + storedList.getName()
                             + "\" doesn't exist on Hatchet ... deleting");
                     DatabaseHelper.getInstance().deletePlaylist(storedList.getId());

@@ -18,7 +18,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.resolver.HatchetStubResolver;
@@ -88,7 +87,7 @@ public class PreferenceConnectFragment extends TomahawkListFragment
         // Add all resolver grid items
         List resolvers = new ArrayList();
         resolvers.add(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION));
-        resolvers.add(new HatchetStubResolver(HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME, null));
+        resolvers.add(new HatchetStubResolver());
         for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {
             if (!scriptResolver.getId().contains("-metadata")) {
                 resolvers.add(scriptResolver);

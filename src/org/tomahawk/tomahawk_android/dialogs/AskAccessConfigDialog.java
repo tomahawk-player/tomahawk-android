@@ -46,7 +46,7 @@ public class AskAccessConfigDialog extends ConfigDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         addScrollingViewToFrame(R.layout.config_ask_access);
         setDialogTitle(HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME);
-        setStatus(new HatchetStubResolver(HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME, null));
+        setStatus(new HatchetStubResolver());
         hideConnectImage();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());

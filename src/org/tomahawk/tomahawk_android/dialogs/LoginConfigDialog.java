@@ -21,7 +21,6 @@ import com.nineoldandroids.animation.ValueAnimator;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.HatchetStubResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.tomahawk_android.R;
@@ -74,8 +73,7 @@ public class LoginConfigDialog extends ConfigDialog {
 
         setDialogTitle(mAuthenticatorUtils.getPrettyName());
         if (TomahawkApp.PLUGINNAME_HATCHET.equals(mAuthenticatorUtils.getId())) {
-            setStatus(
-                    new HatchetStubResolver(HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME, null));
+            setStatus(new HatchetStubResolver());
         } else {
             setStatus(PipeLine.getInstance().getResolver(mAuthenticatorUtils.getId()));
         }

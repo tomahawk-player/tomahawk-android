@@ -244,11 +244,11 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     @SuppressWarnings("unused")
     public void onEventMainThread(CollectionManager.UpdatedEvent event) {
-        if (event.mUpdatedItemId != null) {
-            if ((mPlaylist != null && event.mUpdatedItemId.equals(mPlaylist.getId()))
-                    || (mAlbum != null && event.mUpdatedItemId.equals(mAlbum.getCacheKey()))
-                    || (mArtist != null && event.mUpdatedItemId.equals(mArtist.getCacheKey()))
-                    || (mQuery != null && event.mUpdatedItemId.equals(mQuery.getCacheKey()))) {
+        if (event.mUpdatedItemIds != null) {
+            if ((mPlaylist != null && event.mUpdatedItemIds.contains(mPlaylist.getId()))
+                    || (mAlbum != null && event.mUpdatedItemIds.contains(mAlbum.getCacheKey()))
+                    || (mArtist != null && event.mUpdatedItemIds.contains(mArtist.getCacheKey()))
+                    || (mQuery != null && event.mUpdatedItemIds.contains(mQuery.getCacheKey()))) {
                 if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
                     mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
                             ADAPTER_UPDATE_DELAY);

@@ -18,6 +18,7 @@
 package org.tomahawk.libtomahawk.resolver;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -26,11 +27,7 @@ import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
 import android.graphics.drawable.ColorDrawable;
 import android.widget.ImageView;
 
-public class HatchetStubResolver extends Resolver {
-
-    public HatchetStubResolver(String prettyName, OnResolverReadyListener onResolverReadyListener) {
-        super(prettyName, onResolverReadyListener);
-    }
+public class HatchetStubResolver implements Resolver {
 
     @Override
     public boolean isReady() {
@@ -66,8 +63,8 @@ public class HatchetStubResolver extends Resolver {
     }
 
     @Override
-    public String getCollectionName() {
-        return null;
+    public String getPrettyName() {
+        return HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME;
     }
 
     @Override

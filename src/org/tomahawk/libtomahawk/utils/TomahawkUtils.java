@@ -268,6 +268,18 @@ public class TomahawkUtils {
     }
 
     /**
+     * Convenience-method! Gets the URL that this request has been redirected to.
+     *
+     * @param urlString    the complete url string to do the request with
+     * @param extraHeaders extra headers that should be added to the request (optional)
+     * @return a String containing the url that this request has been redirected to, otherwise null
+     */
+    public static String getRedirectedUrl(String urlString, Map<String, String> extraHeaders)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        return getRedirectedUrl(null, urlString, extraHeaders);
+    }
+
+    /**
      * Gets the URL that this request has been redirected to.
      *
      * @param method       the method that should be used ("GET" or "POST"), defaults to "GET"

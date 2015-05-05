@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,14 +17,10 @@
  */
 package org.tomahawk.libtomahawk.resolver.models;
 
-import java.util.ArrayList;
+public class ScriptResolverAccessTokenResult {
 
-public class ScriptResolverResult {
+    public String accessToken;
 
-    public String qid;
-
-    public ArrayList<ScriptResolverResultEntry> results;
-
-    public ScriptResolverResult() {
+    public ScriptResolverAccessTokenResult() {
     }
 }

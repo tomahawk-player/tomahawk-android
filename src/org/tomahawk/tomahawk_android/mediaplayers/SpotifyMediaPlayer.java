@@ -179,7 +179,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         mIsPlaying = true;
         if (mToSpotifyMessenger != null) {
             ((ScriptResolver) PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY))
-                    .requestAccessToken();
+                    .getAccessToken();
             SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PLAY);
         } else {
             TomahawkApp.getContext()

@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.mediaplayers;
 
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.ResolverUrlHandler;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
@@ -163,10 +162,8 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         if (mTranslatedUrls.get(result) != null) {
             path = mTranslatedUrls.remove(result);
         } else {
-            ResolverUrlHandler urlHandler = PipeLine.getInstance().getCustomUrlHandler(result);
-            if (urlHandler != null) {
-                ((ScriptResolver) result.getResolvedBy())
-                        .getStreamUrl(result, urlHandler.getCallbackFunctionName());
+            if (PipeLine.getInstance().canHandleUrl(result)) {
+                ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
                 return this;
             } else {
                 path = result.getPath();

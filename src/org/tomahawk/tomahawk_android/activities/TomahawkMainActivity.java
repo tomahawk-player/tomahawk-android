@@ -41,8 +41,8 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
-import org.tomahawk.libtomahawk.resolver.ResolverUrlHandler;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -585,10 +585,9 @@ public class TomahawkMainActivity extends ActionBarActivity
             String host = data.getHost();
             String scheme = data.getScheme();
             if (scheme != null && scheme.equals("tomahawkspotifyresolver")) {
-                ResolverUrlHandler urlHandler = PipeLine.getInstance().getCustomUrlHandler(scheme);
+                ScriptResolver urlHandler = PipeLine.getInstance().getCustomUrlHandler(scheme);
                 if (urlHandler != null) {
-                    urlHandler.getResolver().onRedirectCallback(
-                            urlHandler.getCallbackFunctionName(), data.toString());
+                    urlHandler.onRedirectCallback(data.toString());
                 }
             } else if ((scheme != null && (scheme.equals("spotify") || scheme.equals("tomahawk")))
                     || host != null && (host.contains("hatchet.is") || host.contains("toma.hk")
@@ -1002,7 +1001,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = resolverCollection.getId();
                 holder.title = resolverCollection.getName();
-                holder.resolver = resolverCollection.getScriptResolver();
+                holder.collection = resolverCollection;
                 holder.isCloudCollection = true;
                 holders.add(holder);
             }

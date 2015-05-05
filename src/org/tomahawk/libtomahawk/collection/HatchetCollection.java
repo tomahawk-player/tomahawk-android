@@ -18,7 +18,11 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,5 +53,11 @@ public class HatchetCollection extends Collection {
             queries.addAll(mArtistTopHits.get(artist));
         }
         return queries;
+    }
+
+    @Override
+    public void loadIcon(ImageView imageView, boolean grayOut) {
+        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                R.drawable.ic_hatchet, grayOut);
     }
 }

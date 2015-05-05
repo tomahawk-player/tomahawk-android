@@ -466,8 +466,8 @@ public class PlaybackService extends Service
 
     @SuppressWarnings("unused")
     public void onEvent(CollectionManager.UpdatedEvent event) {
-        if (event.mUpdatedItemId != null && getCurrentQuery().getCacheKey().equals(
-                event.mUpdatedItemId)) {
+        if (event.mUpdatedItemIds != null && getCurrentQuery() != null
+                && event.mUpdatedItemIds.contains(getCurrentQuery().getCacheKey())) {
             updateNotification();
         }
     }

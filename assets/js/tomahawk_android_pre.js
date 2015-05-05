@@ -21,35 +21,6 @@ Tomahawk.resolverData =
         return JSON.parse(Tomahawk.resolverDataString());
     };
 
-Tomahawk.addTrackResults =
-    function (results) {
-        Tomahawk.addTrackResultsString(JSON.stringify(results));
-    };
-
-Tomahawk.addAlbumResults =
-    function (results) {
-        Tomahawk.addAlbumResultsString(JSON.stringify(results));
-    };
-
-Tomahawk.addArtistResults =
-    function (results) {
-        Tomahawk.addArtistResultsString(JSON.stringify(results));
-    };
-
-Tomahawk.addAlbumTrackResults =
-    function (results) {
-        Tomahawk.addAlbumTrackResultsString(JSON.stringify(results));
-    };
-
-Tomahawk.reportStreamUrl =
-    function (qid, url, headers) {
-        var stringifiedHeaders = null;
-        if (headers) {
-            stringifiedHeaders = JSON.stringify(headers);
-        }
-        Tomahawk.reportStreamUrlString(qid, url, stringifiedHeaders);
-    };
-
 Tomahawk.createFuzzyIndex =
     function (indexList) {
         if (indexList) {
@@ -90,7 +61,7 @@ Tomahawk.nativeAsyncRequest =
  *
  * Internal use only!
  */
-Tomahawk._nativeAsyncRequestDone = function (reqId, responseText, responseHeaders, status, statusText) {
+Tomahawk._nativeAsyncRequestDone = function (requestId, responseText, responseHeaders, status, statusText) {
     var fakeXhr = {
         responseHeaders: JSON.parse(responseHeaders),
         responseText: responseText,
@@ -104,13 +75,8 @@ Tomahawk._nativeAsyncRequestDone = function (reqId, responseText, responseHeader
             return this.responseHeaders[header];
         }
     };
-    Tomahawk.nativeAsyncRequestDone(reqId, fakeXhr);
+    Tomahawk.nativeAsyncRequestDone(requestId, fakeXhr);
 };
-
-Tomahawk.addUrlResult =
-    function (url, result) {
-        Tomahawk.addUrlResultString(url, JSON.stringify(result));
-    };
 
 Tomahawk.localStorage = {
     setItem: function(key, value) {
@@ -122,4 +88,8 @@ Tomahawk.localStorage = {
     removeItem: function(key) {
         Tomahawk.localStorageRemoveItem(key);
     },
+};
+
+Tomahawk.reportScriptJobResults = function(result){
+    Tomahawk.reportScriptJobResultsString(JSON.stringify(result));
 };
