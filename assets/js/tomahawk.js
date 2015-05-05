@@ -395,7 +395,7 @@ Tomahawk.asyncRequestIdCounter = 0;
 Tomahawk.asyncRequestCallbacks = {};
 
 /**
- * Pass the natively retrived reply back to the javascript callback
+ * Pass the natively retrieved reply back to the javascript callback
  * and augment the fake XMLHttpRequest object.
  *
  * Internal use only!

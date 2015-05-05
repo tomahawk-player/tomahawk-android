@@ -83,23 +83,28 @@ Tomahawk.nativeAsyncRequest =
             JSON.stringify(options));
     };
 
-function FakeXHR(responseText, responseHeaders, status, statusText) {
-    this.responseHeaders = JSON.parse(responseHeaders);
-    this.responseText = responseText;
-    this.readyState = 4;
-    this.status = status;
-    this.statusText = statusText;
-    this.getAllResponseHeaders = function () {
-        return this.responseHeaders;
+/**
+ * Pass the natively retrieved reply back to the javascript callback.
+ * Creates a fake XMLHttpRequest object to augment the response.
+ * Convenience-method wrapper for nativeAsyncRequestDone(reqId, xhr).
+ *
+ * Internal use only!
+ */
+Tomahawk._nativeAsyncRequestDone = function (reqId, responseText, responseHeaders, status, statusText) {
+    var fakeXhr = {
+        responseHeaders: JSON.parse(responseHeaders),
+        responseText: responseText,
+        readyState: 4,
+        status: status,
+        statusText: statusText,
+        getAllResponseHeaders: function () {
+            return this.responseHeaders;
+        },
+        getResponseHeader: function (header) {
+            return this.responseHeaders[header];
+        }
     };
-    this.getResponseHeader = function (header) {
-        return this.responseHeaders[header];
-    };
-}
-
-Tomahawk.callback = function (reqId, responseText, responseHeaders, status, statusText) {
-    Tomahawk.nativeAsyncRequestDone(reqId,
-        new FakeXHR(responseText, responseHeaders, status, statusText));
+    Tomahawk.nativeAsyncRequestDone(reqId, fakeXhr);
 };
 
 Tomahawk.addUrlResult =

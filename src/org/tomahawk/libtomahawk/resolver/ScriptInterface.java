@@ -49,8 +49,8 @@ public class ScriptInterface {
         }
 
         public void call(TomahawkUtils.HttpResponse response) {
-            mScriptResolver.callback(mReqId, response.mResponseText, response.mResponseHeaders,
-                    response.mStatus, response.mStatusText);
+            mScriptResolver.nativeAsyncRequestDone(mReqId, response.mResponseText,
+                    response.mResponseHeaders, response.mStatus, response.mStatusText);
         }
     }
 

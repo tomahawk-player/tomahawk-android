@@ -366,7 +366,7 @@ public class ScriptResolver extends Resolver {
                 "Tomahawk.resolver.instance.getConfigUi()", true));
     }
 
-    public void callback(final int callbackId, final String responseText,
+    public void nativeAsyncRequestDone(final int requestId, final String responseText,
             final Map<String, List<String>> responseHeaders, final int status,
             final String statusText) {
         final Map<String, String> headers = new HashMap<>();
@@ -384,13 +384,13 @@ public class ScriptResolver extends Resolver {
         }
         try {
             String headersString = mObjectMapper.writeValueAsString(headers);
-            loadUrl("javascript: Tomahawk.callback(" + callbackId + ","
+            loadUrl("javascript: Tomahawk._nativeAsyncRequestDone(" + requestId + ","
                     + "'" + StringEscapeUtils.escapeJavaScript(responseText) + "',"
                     + "'" + StringEscapeUtils.escapeJavaScript(headersString) + "',"
                     + status + ","
                     + "'" + StringEscapeUtils.escapeJavaScript(statusText) + "');");
         } catch (IOException e) {
-            Log.e(TAG, "callback: " + e.getClass() + ": " + e.getLocalizedMessage());
+            Log.e(TAG, "nativeAsyncRequestDone: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
     }
 
