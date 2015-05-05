@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.text.TextUtils;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Collection {
+public abstract class Collection {
 
     private final String mId;
 
@@ -66,6 +67,11 @@ public class Collection {
         mName = name;
         mIsLocal = isLocal;
     }
+
+    /**
+     * Load this {@link Collection}'s icon into the given {@link ImageView}
+     */
+    public abstract void loadIcon(ImageView imageView, boolean grayOut);
 
     public String getId() {
         return mId;

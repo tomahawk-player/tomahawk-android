@@ -22,82 +22,57 @@ import android.widget.ImageView;
 /**
  * The basic {@link Resolver} interface, which is implemented by every type of {@link Resolver}
  */
-public abstract class Resolver {
-
-    public interface OnResolverReadyListener {
-
-        void onResolverReady(Resolver resolver);
-    }
-
-    private final String mPrettyName;
-
-    private final OnResolverReadyListener mOnResolverReadyListener;
-
-    public Resolver(String prettyName, OnResolverReadyListener onResolverReadyListener) {
-        mPrettyName = prettyName;
-        mOnResolverReadyListener = onResolverReadyListener;
-    }
-
-    protected void onResolverReady() {
-        mOnResolverReadyListener.onResolverReady(this);
-    }
+public interface Resolver {
 
     /**
      * @return Whether or not this {@link Resolver} is ready
      */
-    public abstract boolean isReady();
+    boolean isReady();
 
     /**
      * @return Whether or not this {@link Resolver} is enabled
      */
-    public abstract boolean isEnabled();
+    boolean isEnabled();
 
     /**
      * @return Whether or not this {@link Resolver} is currently resolving
      */
-    public abstract boolean isResolving();
+    boolean isResolving();
 
     /**
      * Load this resolver's icon into the given ImageView
      */
-    public abstract void loadIcon(ImageView imageView, boolean grayOut);
+    void loadIcon(ImageView imageView, boolean grayOut);
 
     /**
      * Load this resolver's white icon into the given ImageView
      */
-    public abstract void loadIconWhite(ImageView imageView);
+    void loadIconWhite(ImageView imageView);
 
     /**
      * Load this resolver's icon background into the given ImageView
      */
-    public abstract void loadIconBackground(ImageView imageView, boolean grayOut);
+    void loadIconBackground(ImageView imageView, boolean grayOut);
 
     /**
      * @return the pretty name of this resolver
      */
-    public String getPrettyName() {
-        return mPrettyName;
-    }
-
-    /**
-     * @return the name of this resolver's collection
-     */
-    public abstract String getCollectionName();
+    String getPrettyName();
 
     /**
      * Resolve the given {@link Query}
      *
      * @return whether or not the Resolver is ready to resolve
      */
-    public abstract boolean resolve(Query query);
+    boolean resolve(Query query);
 
     /**
      * @return this {@link Resolver}'s id
      */
-    public abstract String getId();
+    String getId();
 
     /**
      * @return this {@link Resolver}'s weight
      */
-    public abstract int getWeight();
+    int getWeight();
 }

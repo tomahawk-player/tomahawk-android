@@ -3,7 +3,8 @@ package org.tomahawk.libtomahawk.resolver;
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
 
-import org.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+
 import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverData;
@@ -33,7 +34,7 @@ public class ScriptInterface {
 
     private final static String TAG = ScriptInterface.class.getSimpleName();
 
-    private final ScriptResolver mScriptResolver;
+    private final ScriptAccount mScriptAccount;
 
     /**
      * Class to make a callback on the javascript side of this ScriptInterface. The callback is
@@ -49,44 +50,27 @@ public class ScriptInterface {
         }
 
         public void call(TomahawkUtils.HttpResponse response) {
-            mScriptResolver.nativeAsyncRequestDone(mReqId, response.mResponseText,
+            mScriptAccount.nativeAsyncRequestDone(mReqId, response.mResponseText,
                     response.mResponseHeaders, response.mStatus, response.mStatusText);
         }
     }
 
-    ScriptInterface(ScriptResolver scriptResolver) {
-        mScriptResolver = scriptResolver;
-    }
-
-    /**
-     * This method should be called whenever a javascript function should call back to Java after it
-     * is finished. Returned {@link Result}s are also handed over to the {@link ScriptResolver}
-     * through this method.
-     *
-     * @param id                 used to identify who is calling back
-     * @param in                 the raw result {@link String}
-     * @param shouldReturnResult whether or not the javascript function will return a result
-     */
-    @JavascriptInterface
-    public void callbackToJava(int id, String in, boolean shouldReturnResult) {
-        if (shouldReturnResult) {
-            mScriptResolver.handleCallbackToJava(id, in);
-        } else {
-            mScriptResolver.handleCallbackToJava(id);
-        }
+    ScriptInterface(ScriptAccount scriptAccount) {
+        mScriptAccount = scriptAccount;
     }
 
     /**
      * This method is needed because the javascript script is expecting an exposed method which will
      * return the scriptPath and config. This method is being called in tomahawk_android_pre.js
      *
-     * @return a {@link JSONObject} containing the scriptPath and config.
+     * @return a serialized JSON-{@link String} containing the scriptPath and config.
      */
     @JavascriptInterface
     public String resolverDataString() {
-        Map<String, Object> config = mScriptResolver.getConfig();
+        Map<String, Object> config = mScriptAccount.getConfig();
         ScriptResolverData data = new ScriptResolverData();
-        data.scriptPath = mScriptResolver.getScriptFilePath();
+        data.scriptPath = mScriptAccount.getPath() + "/content/" + mScriptAccount
+                .getMetaData().manifest.main;
         data.config = config;
         String jsonString = "";
         try {
@@ -102,34 +86,7 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public void log(String message) {
-        Log.d(TAG, "log: " + mScriptResolver.getId() + ": " + message);
-    }
-
-    /**
-     * This method is needed because the javascript script is expecting an exposed method which it
-     * can call to return the resolved {@link Result}s. This method is being called in
-     * tomahawk_android_pre.js
-     *
-     * @param results the JSONObject {@link String} containing the resolved {@link Result}s
-     */
-    @JavascriptInterface
-    public void addTrackResultsString(String results) {
-        mScriptResolver.addTrackResultsString(results);
-    }
-
-    @JavascriptInterface
-    public void addAlbumResultsString(String results) {
-        mScriptResolver.addAlbumResultsString(results);
-    }
-
-    @JavascriptInterface
-    public void addArtistResultsString(String results) {
-        mScriptResolver.addArtistResultsString(results);
-    }
-
-    @JavascriptInterface
-    public void addAlbumTrackResultsString(String results) {
-        mScriptResolver.addAlbumTrackResultsString(results);
+        Log.d(TAG, "log: " + mScriptAccount.getName() + ": " + message);
     }
 
     /**
@@ -139,18 +96,24 @@ public class ScriptInterface {
      * @param in the int pointing to the script's capabilities
      */
     @JavascriptInterface
-    public void reportCapabilities(int in) {
-        mScriptResolver.reportCapabilities(in);
-    }
-
-    @JavascriptInterface
-    public void reportStreamUrlString(String resultId, String url, String stringifiedHeaders) {
-        mScriptResolver.reportStreamUrl(resultId, url, stringifiedHeaders);
+    public void nativeReportCapabilities(int in) {
+        if (mScriptAccount.getScriptResolver() != null) {
+            mScriptAccount.getScriptResolver().reportCapabilities(in);
+        } else {
+            Log.e(TAG, "nativeReportCapabilities - ScriptResolver not set in ScriptAccount: "
+                    + mScriptAccount.getName());
+        }
     }
 
     @JavascriptInterface
     public void addCustomUrlHandler(String protocol, String callbackFuncName, boolean isAsync) {
-        PipeLine.getInstance().addCustomUrlHandler(protocol, mScriptResolver, callbackFuncName);
+        if (mScriptAccount.getScriptResolver() != null) {
+            PipeLine.getInstance()
+                    .addCustomUrlHandler(protocol, mScriptAccount.getScriptResolver());
+        } else {
+            Log.e(TAG, "addCustomUrlHandler - ScriptResolver not set in ScriptAccount: "
+                    + mScriptAccount.getName());
+        }
     }
 
     @JavascriptInterface
@@ -174,8 +137,9 @@ public class ScriptInterface {
                     }
                     ScriptInterfaceRequestOptions options = null;
                     if (!TextUtils.isEmpty(stringifiedOptions)) {
-                        options = InfoSystemUtils.getObjectMapper().readValue(stringifiedOptions,
-                                ScriptInterfaceRequestOptions.class);
+                        options = InfoSystemUtils.getObjectMapper()
+                                .readValue(stringifiedOptions,
+                                        ScriptInterfaceRequestOptions.class);
                     }
                     JsCallback callback = null;
                     if (reqId >= 0) {
@@ -191,12 +155,12 @@ public class ScriptInterface {
                         password = options.password;
                         data = options.data;
                     }
-                    TomahawkUtils.httpRequest(method, url, extraHeaders, username, password, data,
-                            callback);
+                    TomahawkUtils
+                            .httpRequest(method, url, extraHeaders, username, password, data,
+                                    callback);
                 } catch (NoSuchAlgorithmException | IOException | KeyManagementException e) {
-                    Log.e(TAG,
-                            "nativeAsyncRequestString: " + e.getClass() + ": " + e
-                                    .getLocalizedMessage());
+                    Log.e(TAG, "nativeAsyncRequestString: " + e.getClass() + ": "
+                            + e.getLocalizedMessage());
                 }
             }
         }).start();
@@ -204,56 +168,81 @@ public class ScriptInterface {
 
     @JavascriptInterface
     public boolean hasFuzzyIndex() {
-        return mScriptResolver.hasFuzzyIndex();
+        if (mScriptAccount.getScriptResolver() != null) {
+            return mScriptAccount.getScriptResolver().hasFuzzyIndex();
+        } else {
+            Log.e(TAG, "hasFuzzyIndex - ScriptResolver not set in ScriptAccount: "
+                    + mScriptAccount.getName());
+            return false;
+        }
     }
 
     @JavascriptInterface
     public void addToFuzzyIndexString(String stringifiedIndexList) {
-        if (mScriptResolver.hasFuzzyIndex()) {
-            try {
-                ScriptResolverFuzzyIndex[] indexList = InfoSystemUtils.getObjectMapper()
-                        .readValue(stringifiedIndexList, ScriptResolverFuzzyIndex[].class);
-                mScriptResolver.getFuzzyIndex().addScriptResolverFuzzyIndexList(indexList);
-            } catch (IOException e) {
-                Log.e(TAG,
-                        "addToFuzzyIndexString: " + e.getClass() + ": " + e.getLocalizedMessage());
+        if (mScriptAccount.getScriptResolver() != null) {
+            if (mScriptAccount.getScriptResolver().hasFuzzyIndex()) {
+                try {
+                    ScriptResolverFuzzyIndex[] indexList = InfoSystemUtils.getObjectMapper()
+                            .readValue(stringifiedIndexList, ScriptResolverFuzzyIndex[].class);
+                    mScriptAccount.getScriptResolver().getFuzzyIndex()
+                            .addScriptResolverFuzzyIndexList(indexList);
+                } catch (IOException e) {
+                    Log.e(TAG, "addToFuzzyIndexString: " + e.getClass() + ": "
+                            + e.getLocalizedMessage());
+                }
+            } else {
+                Log.e(TAG, "addToFuzzyIndexString: Couldn't add indexList to fuzzy index, no fuzzy "
+                        + "index available");
             }
         } else {
-            Log.e(TAG,
-                    "addToFuzzyIndexString: Couldn't add indexList to fuzzy index, no fuzzy index available");
+            Log.e(TAG, "addToFuzzyIndexString - ScriptResolver not set in ScriptAccount: "
+                    + mScriptAccount.getName());
         }
     }
 
     @JavascriptInterface
     public void createFuzzyIndexString(String stringifiedIndexList) {
-        try {
-            mScriptResolver.createFuzzyIndex();
-            ScriptResolverFuzzyIndex[] indexList = InfoSystemUtils.getObjectMapper()
-                    .readValue(stringifiedIndexList, ScriptResolverFuzzyIndex[].class);
-            mScriptResolver.getFuzzyIndex().addScriptResolverFuzzyIndexList(indexList);
-        } catch (IOException e) {
-            Log.e(TAG, "createFuzzyIndexString: " + e.getClass() + ": " + e.getLocalizedMessage());
+        if (mScriptAccount.getScriptResolver() != null) {
+            try {
+                mScriptAccount.getScriptResolver().createFuzzyIndex();
+                ScriptResolverFuzzyIndex[] indexList = InfoSystemUtils.getObjectMapper()
+                        .readValue(stringifiedIndexList, ScriptResolverFuzzyIndex[].class);
+                mScriptAccount.getScriptResolver().getFuzzyIndex()
+                        .addScriptResolverFuzzyIndexList(indexList);
+            } catch (IOException e) {
+                Log.e(TAG,
+                        "createFuzzyIndexString: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
+        } else {
+            Log.e(TAG, "createFuzzyIndexString - ScriptResolver not set in ScriptAccount: "
+                    + mScriptAccount.getName());
         }
     }
 
     @JavascriptInterface
     public String searchFuzzyIndexString(String query) {
-        if (mScriptResolver.hasFuzzyIndex()) {
-            double[][] results = mScriptResolver.getFuzzyIndex().search(Query.get(query, false));
+        if (mScriptAccount.getScriptResolver() != null
+                && mScriptAccount.getScriptResolver().hasFuzzyIndex()) {
+            double[][] results = mScriptAccount.getScriptResolver().getFuzzyIndex()
+                    .search(Query.get(query, false));
             try {
                 return InfoSystemUtils.getObjectMapper().writeValueAsString(results);
             } catch (IOException e) {
-                Log.e(TAG,
-                        "searchFuzzyIndexString: " + e.getClass() + ": " + e.getLocalizedMessage());
+                Log.e(TAG, "searchFuzzyIndexString: " + e.getClass() + ": "
+                        + e.getLocalizedMessage());
             }
+        } else {
+            Log.e(TAG, "searchFuzzyIndexString - ScriptResolver not set in ScriptAccount: "
+                    + mScriptAccount.getName());
         }
         return null;
     }
 
     @JavascriptInterface
     public String resolveFromFuzzyIndexString(String artist, String album, String title) {
-        if (mScriptResolver.hasFuzzyIndex()) {
-            double[][] results = mScriptResolver.getFuzzyIndex().search(
+        if (mScriptAccount.getScriptResolver() != null
+                && mScriptAccount.getScriptResolver().hasFuzzyIndex()) {
+            double[][] results = mScriptAccount.getScriptResolver().getFuzzyIndex().search(
                     Query.get(title, album, artist, false));
             try {
                 return InfoSystemUtils.getObjectMapper().writeValueAsString(results);
@@ -261,14 +250,21 @@ public class ScriptInterface {
                 Log.e(TAG, "resolveFromFuzzyIndexString: " + e.getClass() + ": " + e
                         .getLocalizedMessage());
             }
+        } else {
+            Log.e(TAG, "resolveFromFuzzyIndexString - ScriptResolver not set in ScriptAccount: "
+                    + mScriptAccount.getName());
         }
         return null;
     }
 
     @JavascriptInterface
     public void deleteFuzzyIndex() {
-        if (mScriptResolver.getFuzzyIndex() != null) {
-            mScriptResolver.getFuzzyIndex().deleteIndex();
+        if (mScriptAccount.getScriptResolver() != null
+                && mScriptAccount.getScriptResolver().getFuzzyIndex() != null) {
+            mScriptAccount.getScriptResolver().getFuzzyIndex().deleteIndex();
+        } else {
+            Log.e(TAG, "deleteFuzzyIndex - ScriptResolver not set in ScriptAccount: "
+                    + mScriptAccount.getName());
         }
     }
 
@@ -327,28 +323,50 @@ public class ScriptInterface {
 
     @JavascriptInterface
     public void onConfigTestResult(int type) {
-        mScriptResolver.onConfigTestResult(type, "");
+        if (mScriptAccount.getScriptResolver() != null) {
+            mScriptAccount.getScriptResolver().onConfigTestResult(type, "");
+        } else {
+            Log.e(TAG, "onConfigTestResult - ScriptResolver not set in ScriptAccount: "
+                    + mScriptAccount.getName());
+        }
     }
 
     @JavascriptInterface
     public void onConfigTestResult(int type, String message) {
-        mScriptResolver.onConfigTestResult(type, message);
-    }
-
-    @JavascriptInterface
-    public void addUrlResultString(String url, String resultString) {
-        mScriptResolver.addUrlResultString(url, resultString);
+        if (mScriptAccount.getScriptResolver() != null) {
+            mScriptAccount.getScriptResolver().onConfigTestResult(type, message);
+        } else {
+            Log.e(TAG, "onConfigTestResult - ScriptResolver not set in ScriptAccount: "
+                    + mScriptAccount.getName());
+        }
     }
 
     @JavascriptInterface
     public void showWebView(String url) {
-        TomahawkMainActivity.ShowWebViewEvent event = new TomahawkMainActivity.ShowWebViewEvent();
+        TomahawkMainActivity.ShowWebViewEvent event
+                = new TomahawkMainActivity.ShowWebViewEvent();
         event.mUrl = url;
         EventBus.getDefault().post(event);
     }
 
     @JavascriptInterface
-    public void reportAccessToken(String accessToken) {
-        mScriptResolver.reportAccessToken(accessToken);
+    public void reportScriptJobResultsString(String result) {
+        try {
+            JsonNode node = InfoSystemUtils.getObjectMapper().readTree(result);
+            mScriptAccount.reportScriptJobResult(node);
+        } catch (IOException e) {
+            Log.e(TAG, "reportScriptJobResultsString: " + e.getClass() + ": "
+                    + e.getLocalizedMessage());
+        }
+    }
+
+    @JavascriptInterface
+    public void registerScriptPlugin(String type, String objectId) {
+        mScriptAccount.registerScriptPlugin(type, objectId);
+    }
+
+    @JavascriptInterface
+    public void unregisterScriptPlugin(String type, String objectId) {
+        mScriptAccount.unregisterScriptPlugin(type, objectId);
     }
 }

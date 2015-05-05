@@ -25,13 +25,22 @@ import android.webkit.WebViewClient;
  */
 public class ScriptWebViewClient extends WebViewClient {
 
-    private final ScriptResolver mScriptResolver;
+    public interface WebViewClientReadyListener {
 
-    public ScriptWebViewClient(ScriptResolver scriptResolver) {
-        mScriptResolver = scriptResolver;
+        /**
+         * This method is being called, when the {@link ScriptWebViewClient} has completely loaded
+         * the given .js script.
+         */
+        void onWebViewClientReady();
+    }
+
+    private final WebViewClientReadyListener mReadyListener;
+
+    public ScriptWebViewClient(WebViewClientReadyListener readyListener) {
+        mReadyListener = readyListener;
     }
 
     public void onPageFinished(WebView view, String url) {
-        mScriptResolver.onWebViewClientReady();
+        mReadyListener.onWebViewClientReady();
     }
 }

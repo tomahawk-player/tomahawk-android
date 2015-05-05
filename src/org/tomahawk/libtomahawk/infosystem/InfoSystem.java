@@ -111,6 +111,14 @@ public class InfoSystem {
         return Holder.instance;
     }
 
+    public void addInfoPlugin(InfoPlugin plugin) {
+        mInfoPlugins.add(plugin);
+    }
+
+    public void removeInfoPlugin(InfoPlugin plugin) {
+        mInfoPlugins.remove(plugin);
+    }
+
     /**
      * HatchetSearch the added InfoPlugins with the given keyword
      *

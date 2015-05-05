@@ -79,7 +79,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -98,7 +97,7 @@ import static android.os.Process.THREAD_PRIORITY_LOWEST;
  * Implementation to enable the InfoSystem to retrieve data from the Hatchet API. Documentation of
  * the API can be found here https://api.hatchet.is/apidocs/
  */
-public class HatchetInfoPlugin extends InfoPlugin {
+public class HatchetInfoPlugin implements InfoPlugin {
 
     private final static String TAG = HatchetInfoPlugin.class.getSimpleName();
 

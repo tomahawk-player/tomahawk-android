@@ -19,14 +19,7 @@ package org.tomahawk.libtomahawk.resolver;
 
 import com.google.common.collect.Sets;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
-import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
-import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -34,7 +27,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import android.text.TextUtils;
 import android.util.Log;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -48,7 +40,7 @@ import de.greenrobot.event.EventBus;
  * Resolver}s are stored and invoked here. Callbacks which report the found {@link Result}s are also
  * included in this class.
  */
-public class PipeLine implements Resolver.OnResolverReadyListener {
+public class PipeLine {
 
     private final static String TAG = PipeLine.class.getSimpleName();
 
@@ -93,7 +85,14 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
         public ScriptResolverUrlResult mResult;
     }
 
-    private final ArrayList<Resolver> mResolvers = new ArrayList<>();
+    public static class ResolverReadyEvent {
+
+        public Resolver mResolver;
+    }
+
+    private final HashSet<ScriptAccount> mScriptAccounts = new HashSet<>();
+
+    private final HashSet<Resolver> mResolvers = new HashSet<>();
 
     private final Set<Query> mWaitingQueries =
             Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
@@ -102,36 +101,60 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
 
     private boolean mAllResolversAdded;
 
-    private final ConcurrentHashMap<String, ResolverUrlHandler> mUrlHandlerMap
+    private final ConcurrentHashMap<String, ScriptResolver> mUrlHandlerMap
             = new ConcurrentHashMap<>();
 
     private PipeLine() {
         try {
             String[] plugins = TomahawkApp.getContext().getAssets().list("js/resolvers");
             for (String plugin : plugins) {
-                String path = "js/resolvers/" + plugin + "/content";
-                try {
-                    String rawJsonString = TomahawkUtils
-                            .inputStreamToString(TomahawkApp.getContext()
-                                    .getAssets().open(path + "/metadata.json"));
-                    ScriptResolverMetaData metaData = InfoSystemUtils.getObjectMapper()
-                            .readValue(rawJsonString, ScriptResolverMetaData.class);
-                    ScriptResolver scriptResolver = new ScriptResolver(metaData, path, this);
-                    mResolvers.add(scriptResolver);
-                } catch (FileNotFoundException | JsonMappingException | JsonParseException e) {
-                    Log.e(TAG, "PipeLine: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
+                String path = "js/resolvers/" + plugin;
+                mScriptAccounts.add(new ScriptAccount(path));
             }
         } catch (IOException e) {
-            Log.e(TAG, "ensureInit: " + e.getClass() + ": " + e.getLocalizedMessage());
+            Log.e(TAG, "PipeLine<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
-        mResolvers.add(new DataBaseResolver(
-                TomahawkApp.getContext().getString(R.string.local_collection_pretty_name), this));
+        addResolver(new DataBaseResolver());
         setAllResolversAdded(true);
     }
 
     public static PipeLine getInstance() {
         return Holder.instance;
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(ResolverReadyEvent event) {
+        if (isEveryResolverReady()) {
+            resolve(mWaitingQueries);
+            mWaitingQueries.clear();
+            for (String url : mWaitingUrlLookups) {
+                mWaitingUrlLookups.remove(url);
+                lookupUrl(url);
+            }
+        }
+    }
+
+    /**
+     * @return whether or not every Resolver in this PipeLine is ready to resolve queries
+     */
+    public boolean isEveryResolverReady() {
+        if (!mAllResolversAdded) {
+            return false;
+        }
+        for (Resolver r : mResolvers) {
+            if (!r.isReady()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void addResolver(Resolver resolver) {
+        mResolvers.add(resolver);
+    }
+
+    public void removeResolver(Resolver resolver) {
+        mResolvers.remove(resolver);
     }
 
     /**
@@ -346,45 +369,12 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
         }
     }
 
-    public void reportUrlResult(String url, Resolver resolver, ScriptResolverUrlResult result) {
-    }
-
-    /**
-     * @return whether or not every Resolver in this PipeLine is ready to resolve queries
-     */
-    public boolean isEveryResolverReady() {
-        if (!mAllResolversAdded) {
-            return false;
-        }
-        for (Resolver r : mResolvers) {
-            if (!r.isReady()) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     * Callback method, which is being called by Resolvers as soon as they are ready
-     */
-    @Override
-    public void onResolverReady(Resolver resolver) {
-        if (isEveryResolverReady()) {
-            resolve(mWaitingQueries);
-            mWaitingQueries.clear();
-            for (String url : mWaitingUrlLookups) {
-                mWaitingUrlLookups.remove(url);
-                lookupUrl(url);
-            }
-        }
-    }
-
     public void setAllResolversAdded(boolean allResolversAdded) {
         mAllResolversAdded = allResolversAdded;
     }
 
-    public void addCustomUrlHandler(String protocol, ScriptResolver resolver, String callbackFuncName) {
-        mUrlHandlerMap.put(protocol, new ResolverUrlHandler(resolver, callbackFuncName));
+    public void addCustomUrlHandler(String protocol, ScriptResolver resolver) {
+        mUrlHandlerMap.put(protocol, resolver);
     }
 
     /**
@@ -393,17 +383,17 @@ public class PipeLine implements Resolver.OnResolverReadyListener {
      *
      * @return the corresponding ResolverUrlHandler, if available. Otherwise null.
      */
-    public ResolverUrlHandler getCustomUrlHandler(Result result) {
+    public boolean canHandleUrl(Result result) {
         if (result != null) {
             String path = result.getPath();
             String[] pathParts = path.split(":");
             String protocol = pathParts[0];
-            return getCustomUrlHandler(protocol);
+            return getCustomUrlHandler(protocol) != null;
         }
-        return null;
+        return false;
     }
 
-    public ResolverUrlHandler getCustomUrlHandler(String protocol) {
+    public ScriptResolver getCustomUrlHandler(String protocol) {
         return mUrlHandlerMap.get(protocol);
     }
 }

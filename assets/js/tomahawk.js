@@ -786,6 +786,27 @@ Tomahawk.PluginManager = {
                         pluginManager.resolve[requestId] = resolve;
                         Tomahawk.resolver.instance.tracks(requestId, params.artist, params.album);
                     });
+                } else if (methodName == 'lookupUrl') {
+                    return new Promise(function (resolve, reject) {
+                        pluginManager.resolve[params.url] = resolve;
+                        Tomahawk.resolver.instance.lookupUrl(params.url);
+                    });
+                } else if (methodName == 'getStreamUrl') {
+                    return new Promise(function (resolve, reject) {
+                        pluginManager.resolve[requestId] = resolve;
+                        Tomahawk.resolver.instance.getStreamUrl(requestId, params.url);
+                    });
+                } else if (methodName == 'resolve') {
+                    return new Promise(function (resolve, reject) {
+                        pluginManager.resolve[requestId] = resolve;
+                        Tomahawk.resolver.instance.resolve(requestId, params.artist,
+                            params.album, params.track);
+                    });
+                } else if (methodName == 'search') {
+                    return new Promise(function (resolve, reject) {
+                        pluginManager.resolve[requestId] = resolve;
+                        Tomahawk.resolver.instance.search(requestId, params.query);
+                    });
                 }
             }
 
@@ -797,7 +818,7 @@ Tomahawk.PluginManager = {
 
     invoke: function (requestId, objectId, methodName, params ) {
         Promise.resolve(this.invokeSync(requestId, objectId, methodName, params)).then(function (result) {
-            if (typeof result === 'object') {
+            if (typeof result === 'object' || typeof result === 'undefined') {
                 Tomahawk.reportScriptJobResults({
                     requestId: requestId,
                     data: result
@@ -805,7 +826,7 @@ Tomahawk.PluginManager = {
             } else {
                 Tomahawk.reportScriptJobResults({
                     requestId: requestId,
-                    error: "Scripts need to return objects for requests: methodName: " + methodName + " params: " + JSON.stringify(params)
+                    error: "Scripts need to return objects for request: methodName: " + methodName + " params: " + JSON.stringify(params)
                 });
             }
         }, function (error) {
@@ -1100,4 +1121,55 @@ Tomahawk.reportCapabilities = function (capabilities) {
 Tomahawk.addArtistResults = Tomahawk.addAlbumResults = Tomahawk.addAlbumTrackResults = function (result) {
     Tomahawk.PluginManager.resolve[result.qid](result);
     delete Tomahawk.PluginManager.resolve[result.qid];
+};
+
+Tomahawk.addTrackResults = function (result) {
+    Tomahawk.PluginManager.resolve[result.qid](result.results);
+    delete Tomahawk.PluginManager.resolve[result.qid];
+};
+
+Tomahawk.reportStreamUrl = function (qid, streamUrl, headers) {
+    Tomahawk.PluginManager.resolve[qid]({
+        url: streamUrl,
+        headers: headers
+    });
+    delete Tomahawk.PluginManager.resolve[qid];
+};
+
+Tomahawk.addUrlResult = function(url, result) {
+    /* Merge the whole mess into one consistent result which is independent of type
+    var cleanResult = {
+        type: result.type,
+        guid: result.guid,
+        info: result.info,
+        creator: result.creator,
+        linkUrl: result.url
+    };
+    if (cleanResult.type == "track") {
+        cleanResult.track = result.title;
+        cleanResult.artist = result.artist;
+    } else if (cleanResult.type == "artist") {
+        cleanResult.artist = result.name;
+    } else if (cleanResult.type == "album") {
+        cleanResult.album = result.name;
+        cleanResult.artist = result.artist;
+    } else if (cleanResult.type == "playlist") {
+        cleanResult.title = result.title;
+    } else if (cleanResult.type == "xspf-url") {
+        cleanResult.url = result.url;
+    }
+    if (result.tracks) {
+        cleanResult.tracks = [];
+        var i;
+        for (i=0;i<result.tracks.length;i++) {
+            var cleanTrack = {
+                track: result.tracks[i].title,
+                artist: result.tracks[i].artist
+            };
+            cleanResult.push(cleanTrack)
+        }
+    Tomahawk.PluginManager.resolve[url](cleanResult);
+    */
+    Tomahawk.PluginManager.resolve[url](result);
+    delete Tomahawk.PluginManager.resolve[url];
 };

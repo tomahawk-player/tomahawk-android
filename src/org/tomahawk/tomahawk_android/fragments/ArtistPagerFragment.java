@@ -39,7 +39,8 @@ public class ArtistPagerFragment extends PagerFragment {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(CollectionManager.UpdatedEvent event) {
-        if (event.mUpdatedItemId != null && mArtist.getCacheKey().equals(event.mUpdatedItemId)) {
+        if (event.mUpdatedItemIds != null
+                && event.mUpdatedItemIds.contains(mArtist.getCacheKey())) {
             updatePager();
         }
     }

@@ -17,14 +17,28 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+
+import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.resolver.ScriptAccount;
+import org.tomahawk.libtomahawk.resolver.ScriptJob;
+import org.tomahawk.libtomahawk.resolver.ScriptObject;
+import org.tomahawk.libtomahawk.resolver.ScriptPlugin;
+import org.tomahawk.libtomahawk.resolver.ScriptUtils;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverArtistResult;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.text.TextUtils;
+import android.util.Log;
+import android.widget.ImageView;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
 
 import de.greenrobot.event.EventBus;
 
@@ -32,63 +46,82 @@ import de.greenrobot.event.EventBus;
  * This class represents a Collection which contains tracks/albums/artists retrieved by a
  * ScriptResolver.
  */
-public class ScriptResolverCollection extends Collection {
+public class ScriptResolverCollection extends Collection implements ScriptPlugin {
 
-    private final ScriptResolver mScriptResolver;
+    private final static String TAG = ScriptResolverCollection.class.getSimpleName();
 
-    public ScriptResolverCollection(ScriptResolver scriptResolver) {
-        super(scriptResolver.getId(), scriptResolver.getCollectionName(), true);
+    private ScriptObject mScriptObject;
 
-        mScriptResolver = scriptResolver;
+    private ScriptAccount mScriptAccount;
+
+    public ScriptResolverCollection(ScriptObject object, ScriptAccount account) {
+        super(account.getScriptResolver().getId(),
+                account.mCollectionMetaData.prettyname, true);
+
+        mScriptObject = object;
+        mScriptAccount = account;
+
         initializeCollection();
+    }
+
+    @Override
+    public ScriptObject getScriptObject() {
+        return mScriptObject;
+    }
+
+    @Override
+    public ScriptAccount getScriptAccount() {
+        return mScriptAccount;
+    }
+
+    @Override
+    public void start(ScriptJob job) {
+        mScriptAccount.startJob(job);
+    }
+
+    @Override
+    public void loadIcon(ImageView imageView, boolean grayOut) {
+        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                mScriptAccount.mCollectionIconPath, grayOut);
     }
 
     /**
      * Initialize this {@link org.tomahawk.libtomahawk.collection.ScriptResolverCollection}.
      */
     protected void initializeCollection() {
-        mScriptResolver.artists(getId());
-    }
+        ScriptJob.start(mScriptObject, "artists", new ScriptJob.ResultsCallback() {
+            @Override
+            public void onReportResults(JsonNode results) {
+                try {
+                    ScriptResolverArtistResult result = InfoSystemUtils.getObjectMapper()
+                            .treeToValue(results, ScriptResolverArtistResult.class);
+                    if (result != null) {
+                        // First parse the result
+                        HashSet<String> updatedItemIds = new HashSet<>();
+                        JsonNode artistsNode = results.get("artists");
+                        if (artistsNode != null && artistsNode.isArray()) {
+                            for (JsonNode artistNode : artistsNode) {
+                                if (!TextUtils.isEmpty(artistNode.asText())) {
+                                    Artist artist = Artist.get(artistNode.asText());
+                                    addArtist(artist);
+                                    updatedItemIds.add(artist.getCacheKey());
+                                }
+                            }
+                        }
 
-    public ScriptResolver getScriptResolver() {
-        return mScriptResolver;
-    }
-
-    public void addAlbumTrackResults(Album album, List<Result> results) {
-        ArrayList<Query> queries = new ArrayList<>();
-        for (Result r : results) {
-            r.setTrackScore(1f);
-            Query query = Query.get(r, isLocal());
-            query.addTrackResult(r);
-            queries.add(query);
-            addQuery(query, 0);
-        }
-        addAlbumTracks(album, queries);
-        CollectionManager.UpdatedEvent event = new CollectionManager.UpdatedEvent();
-        event.mCollection = this;
-        event.mUpdatedItemId = album.getCacheKey();
-        EventBus.getDefault().post(event);
-    }
-
-    public void addArtistResults(List<Artist> artists) {
-        for (Artist artist : artists) {
-            if (!TextUtils.isEmpty(artist.getName())) {
-                addArtist(artist);
+                        // And finally fire the UpdatedEvent
+                        CollectionManager.UpdatedEvent event
+                                = new CollectionManager.UpdatedEvent();
+                        event.mCollection = ScriptResolverCollection.this;
+                        event.mUpdatedItemIds = updatedItemIds;
+                        EventBus.getDefault().post(event);
+                    }
+                } catch (JsonProcessingException e) {
+                    Log.e(TAG, "initializeCollection: " + e.getClass() + ": "
+                            + e.getLocalizedMessage());
+                }
             }
-        }
-    }
-
-    public void addAlbumResults(List<Album> albums) {
-        for (Album album : albums) {
-            if (!TextUtils.isEmpty(album.getName())) {
-                addAlbum(album);
-                addArtistAlbum(album.getArtist(), album);
-                CollectionManager.UpdatedEvent event = new CollectionManager.UpdatedEvent();
-                event.mCollection = this;
-                event.mUpdatedItemId = album.getArtist().getCacheKey();
-                EventBus.getDefault().post(event);
-            }
-        }
+        });
     }
 
     @Override
@@ -96,7 +129,42 @@ public class ScriptResolverCollection extends Collection {
         if (mAlbumTracks.get(album) != null) {
             return super.getAlbumTracks(album, sorted);
         } else {
-            mScriptResolver.tracks(getId(), album.getArtist().getName(), album.getName());
+            HashMap<String, Object> args = new HashMap<>();
+            args.put("artist", album.getArtist().getName());
+            args.put("album", album.getName());
+            ScriptJob.start(mScriptObject, "tracks", args, new ScriptJob.ResultsCallback() {
+                @Override
+                public void onReportResults(JsonNode results) {
+                    if (results != null) {
+                        // First parse the result
+                        ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
+                                mScriptAccount.getScriptResolver(), results.get("results"));
+                        Artist artist =
+                                Artist.get(ScriptUtils.getNodeChildAsText(results, "artist"));
+                        Album album = Album
+                                .get(ScriptUtils.getNodeChildAsText(results, "album"), artist);
+
+                        // Now create the queries
+                        ArrayList<Query> queries = new ArrayList<>();
+                        for (Result r : parsedResults) {
+                            r.setTrackScore(1f);
+                            Query query = Query.get(r, isLocal());
+                            query.addTrackResult(r);
+                            queries.add(query);
+                            addQuery(query, 0);
+                        }
+                        addAlbumTracks(album, queries);
+
+                        // And finally fire the UpdatedEvent
+                        CollectionManager.UpdatedEvent event
+                                = new CollectionManager.UpdatedEvent();
+                        event.mCollection = ScriptResolverCollection.this;
+                        event.mUpdatedItemIds = new HashSet<>();
+                        event.mUpdatedItemIds.add(album.getCacheKey());
+                        EventBus.getDefault().post(event);
+                    }
+                }
+            });
             return new ArrayList<>();
         }
     }
@@ -106,7 +174,34 @@ public class ScriptResolverCollection extends Collection {
         if (mArtistAlbums.get(artist) != null) {
             return super.getArtistAlbums(artist, sorted);
         } else {
-            mScriptResolver.albums(getId(), artist.getName());
+            HashMap<String, Object> args = new HashMap<>();
+            args.put("artist", artist.getName());
+            ScriptJob.start(mScriptObject, "albums", args, new ScriptJob.ResultsCallback() {
+                @Override
+                public void onReportResults(JsonNode results) {
+                    if (results != null) {
+                        // Get the Artist and add all albums to it
+                        Artist artist =
+                                Artist.get(ScriptUtils.getNodeChildAsText(results, "artist"));
+                        JsonNode albumsNode = results.get("albums");
+                        if (albumsNode != null && albumsNode.isArray()) {
+                            for (JsonNode albumNode : albumsNode) {
+                                Album album = Album.get(albumNode.asText(), artist);
+                                addAlbum(album);
+                                addArtistAlbum(album.getArtist(), album);
+                            }
+                        }
+
+                        // And finally fire the UpdatedEvent
+                        CollectionManager.UpdatedEvent event
+                                = new CollectionManager.UpdatedEvent();
+                        event.mCollection = ScriptResolverCollection.this;
+                        event.mUpdatedItemIds = new HashSet<>();
+                        event.mUpdatedItemIds.add(artist.getCacheKey());
+                        EventBus.getDefault().post(event);
+                    }
+                }
+            });
             return new ArrayList<>();
         }
     }

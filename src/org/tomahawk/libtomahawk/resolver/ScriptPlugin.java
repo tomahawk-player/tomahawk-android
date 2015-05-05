@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,20 +15,14 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk.resolver.models;
+package org.tomahawk.libtomahawk.resolver;
 
-import java.util.ArrayList;
+public interface ScriptPlugin {
 
-public class ScriptResolverAlbumTrackResult {
+    ScriptObject getScriptObject();
 
-    public String qid;
+    ScriptAccount getScriptAccount();
 
-    public String artist;
+    void start(ScriptJob job);
 
-    public String album;
-
-    public ArrayList<ScriptResolverResultEntry> results;
-
-    public ScriptResolverAlbumTrackResult() {
-    }
 }
