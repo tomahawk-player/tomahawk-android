@@ -1028,8 +1028,8 @@ public class PlaybackService extends Service
                     for (String requestId : requestIds) {
                         mCorrespondingRequestIds.put(requestId, getCurrentQuery().getCacheKey());
                     }
-                    String requestId = InfoSystem.getInstance()
-                            .resolve(getCurrentQuery().getAlbum());
+                    String requestId =
+                            InfoSystem.getInstance().resolve(getCurrentQuery().getAlbum());
                     if (requestId != null) {
                         mCorrespondingRequestIds.put(requestId, getCurrentQuery().getCacheKey());
                     }

@@ -262,8 +262,11 @@ public class CollectionManager {
                         TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching loved tracks");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFavorites(
-                    hatchetAuthUtils.getLoggedInUser()));
+            String requestId = InfoSystem.getInstance().resolveFavorites(
+                    hatchetAuthUtils.getLoggedInUser());
+            if (requestId != null) {
+                mCorrespondingRequestIds.add(requestId);
+            }
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching loved tracks");
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
@@ -317,8 +320,11 @@ public class CollectionManager {
                         TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching playlists");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance()
-                    .resolvePlaylists(hatchetAuthUtils.getLoggedInUser(), true));
+            String requestId = InfoSystem.getInstance()
+                    .resolvePlaylists(hatchetAuthUtils.getLoggedInUser(), true);
+            if (requestId != null) {
+                mCorrespondingRequestIds.add(requestId);
+            }
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching playlists");
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);

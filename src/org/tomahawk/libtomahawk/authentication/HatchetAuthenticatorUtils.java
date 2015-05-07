@@ -335,7 +335,10 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             if (am.getUserData(getAccount(), USER_ID_HATCHET) != null) {
                 return am.getUserData(getAccount(), USER_ID_HATCHET);
             } else {
-                mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveUserId(getUserName()));
+                String requestId = InfoSystem.getInstance().resolveUserId(getUserName());
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
+                }
             }
         }
         return null;

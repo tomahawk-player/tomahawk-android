@@ -432,8 +432,10 @@ public class ContextMenuFragment extends Fragment {
                         mTomahawkListItem.getAlbum().getImage(), Image.getLargeImageSize(), true,
                         false);
             } else {
-                mCorrespondingRequestIds
-                        .add(InfoSystem.getInstance().resolve(mTomahawkListItem.getAlbum()));
+                String requestId = InfoSystem.getInstance().resolve(mTomahawkListItem.getAlbum());
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
+                }
             }
 
             // set text on "view album"-button and set up click listener

@@ -165,7 +165,10 @@ public class AlbumsFragment extends TomahawkFragment {
         } else if (mShowMode == SHOW_MODE_STARREDALBUMS) {
             ArrayList<Album> albums = DatabaseHelper.getInstance().getStarredAlbums();
             for (Album album : albums) {
-                mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(album));
+                String requestId = InfoSystem.getInstance().resolve(album);
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
+                }
             }
             items.addAll(albums);
             segments.add(new Segment(items));
