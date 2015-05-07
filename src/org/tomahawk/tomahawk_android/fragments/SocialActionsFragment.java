@@ -93,8 +93,10 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         getActivity().setTitle(getString(R.string.drawer_title_feed).toUpperCase());
                     }
                     for (int i = 0; i < mUser.getFriendsFeed().size(); i++) {
-                        mCorrespondingRequestIds.add(
-                                InfoSystem.getInstance().resolveFriendsFeed(mUser, i));
+                        String requestId = InfoSystem.getInstance().resolveFriendsFeed(mUser, i);
+                        if (requestId != null) {
+                            mCorrespondingRequestIds.add(requestId);
+                        }
                     }
                     HatchetAuthenticatorUtils authenticatorUtils
                             = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
@@ -110,8 +112,10 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         getActivity().setTitle("");
                     }
                     for (int i = 0; i < mUser.getSocialActions().size(); i++) {
-                        mCorrespondingRequestIds.add(
-                                InfoSystem.getInstance().resolveSocialActions(mUser, i));
+                        String requestId = InfoSystem.getInstance().resolveSocialActions(mUser, i);
+                        if (requestId != null) {
+                            mCorrespondingRequestIds.add(requestId);
+                        }
                     }
                 }
             }
@@ -355,14 +359,20 @@ public class SocialActionsFragment extends TomahawkFragment implements
             if (mShowMode == SHOW_MODE_DASHBOARD) {
                 if (!mResolvingPages.contains(mUser.getFriendsFeed().size())) {
                     mResolvingPages.add(mUser.getFriendsFeed().size());
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
-                            .resolveFriendsFeed(mUser, mUser.getFriendsFeed().size()));
+                    String requestId = InfoSystem.getInstance()
+                            .resolveFriendsFeed(mUser, mUser.getFriendsFeed().size());
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 }
             } else {
                 if (!mResolvingPages.contains(mUser.getSocialActions().size())) {
                     mResolvingPages.add(mUser.getSocialActions().size());
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
-                            .resolveSocialActions(mUser, mUser.getSocialActions().size()));
+                    String requestId = InfoSystem.getInstance()
+                            .resolveSocialActions(mUser, mUser.getSocialActions().size());
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 }
             }
         }

@@ -60,9 +60,15 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         CollectionManager.getInstance().fetchPlaylists();
         if (mUser != null) {
             if (mPlaylist == mUser.getPlaybackLog()) {
-                mCorrespondingRequestIds.add(InfoSystem.getInstance().resolvePlaybackLog(mUser));
+                String requestId = InfoSystem.getInstance().resolvePlaybackLog(mUser);
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
+                }
             } else if (mPlaylist == mUser.getFavorites()) {
-                mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFavorites(mUser));
+                String requestId = InfoSystem.getInstance().resolveFavorites(mUser);
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
+                }
             }
         }
         if (mPlaylist != null) {
@@ -181,8 +187,10 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                         if (mUser != authenticatorUtils.getLoggedInUser()) {
-                            mCorrespondingRequestIds
-                                    .add(InfoSystem.getInstance().resolve(mPlaylist));
+                            String requestId = InfoSystem.getInstance().resolve(mPlaylist);
+                            if (requestId != null) {
+                                mCorrespondingRequestIds.add(requestId);
+                            }
                         } else {
                             Playlist playlist =
                                     DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());

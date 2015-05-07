@@ -160,7 +160,10 @@ public class PlaylistsFragment extends TomahawkFragment {
         if (mUser != null && mUser != authenticatorUtils.getLoggedInUser()) {
             if (mUser.getPlaylists() == null) {
                 if (!mResolvingUsers.contains(mUser)) {
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolvePlaylists(mUser));
+                    String requestId = InfoSystem.getInstance().resolvePlaylists(mUser);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                     mResolvingUsers.add(mUser);
                 }
             } else {

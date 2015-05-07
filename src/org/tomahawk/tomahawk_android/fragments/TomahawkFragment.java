@@ -286,7 +286,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else {
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mAlbum));
+                    String requestId = InfoSystem.getInstance().resolve(mAlbum);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 }
             }
             if (getArguments().containsKey(PLAYLIST)
@@ -303,8 +306,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                         if (mUser != authenticatorUtils.getLoggedInUser()) {
-                            mCorrespondingRequestIds
-                                    .add(InfoSystem.getInstance().resolve(mPlaylist));
+                            String requestId = InfoSystem.getInstance().resolve(mPlaylist);
+                            if (requestId != null) {
+                                mCorrespondingRequestIds.add(requestId);
+                            }
                         }
                     }
                 }
@@ -329,7 +334,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else if (mUser.getName() == null) {
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mUser));
+                    String requestId = InfoSystem.getInstance().resolve(mUser);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 }
             }
             if (getArguments().containsKey(COLLECTION_ID)) {
@@ -578,7 +586,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 resolveItem(((SocialAction) item).getUser());
             } else if (item instanceof Album) {
                 if (item.getImage() == null) {
-                    mCorrespondingRequestIds.add(infoSystem.resolve((Album) item));
+                    String requestId = InfoSystem.getInstance().resolve((Album) item);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 }
             } else if (item instanceof Artist) {
                 if (item.getImage() == null) {
@@ -586,7 +597,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 }
             } else if (item instanceof User) {
                 if (item.getImage() == null) {
-                    mCorrespondingRequestIds.add(infoSystem.resolve((User) item));
+                    String requestId = InfoSystem.getInstance().resolve((User) item);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 }
             }
         }

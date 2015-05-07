@@ -49,9 +49,15 @@ public class UsersFragment extends TomahawkFragment {
             if (getArguments().containsKey(SHOW_MODE)) {
                 mShowMode = getArguments().getInt(SHOW_MODE);
                 if (mShowMode == SHOW_MODE_TYPE_FOLLOWERS) {
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFollowers(mUser));
+                    String requestId = InfoSystem.getInstance().resolveFollowers(mUser);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 } else {
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFollowings(mUser));
+                    String requestId = InfoSystem.getInstance().resolveFollowings(mUser);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 }
             }
         }

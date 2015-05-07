@@ -698,8 +698,11 @@ public class TomahawkMainActivity extends ActionBarActivity
         HatchetAuthenticatorUtils hatchetAuthUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        mCorrespondingRequestIds.add(
-                InfoSystem.getInstance().resolve(hatchetAuthUtils.getLoggedInUser()));
+        String requestId =
+                InfoSystem.getInstance().resolve(hatchetAuthUtils.getLoggedInUser());
+        if (requestId != null) {
+            mCorrespondingRequestIds.add(requestId);
+        }
 
         //Ask for notification service access if hatchet user logged in
         if (hatchetAuthUtils.isLoggedIn()) {
@@ -948,8 +951,11 @@ public class TomahawkMainActivity extends ActionBarActivity
             HatchetAuthenticatorUtils authenticatorUtils
                     = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            mCorrespondingRequestIds.add(
-                    InfoSystem.getInstance().resolve(authenticatorUtils.getLoggedInUser()));
+            String requestId =
+                    InfoSystem.getInstance().resolve(authenticatorUtils.getLoggedInUser());
+            if (requestId != null) {
+                mCorrespondingRequestIds.add(requestId);
+            }
         }
         updateDrawer();
     }

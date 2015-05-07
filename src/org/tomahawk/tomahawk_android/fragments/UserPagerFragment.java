@@ -64,7 +64,10 @@ public class UserPagerFragment extends PagerFragment {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else if (mUser.getName() == null) {
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(mUser));
+                    String requestId = InfoSystem.getInstance().resolve(mUser);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 }
             }
         }
@@ -73,7 +76,10 @@ public class UserPagerFragment extends PagerFragment {
                         .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         User user = authUtils.getLoggedInUser();
         if (user != null && user.getFollowings() == null) {
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().resolveFollowings(user));
+            String requestId = InfoSystem.getInstance().resolveFollowings(user);
+            if (requestId != null) {
+                mCorrespondingRequestIds.add(requestId);
+            }
         }
 
         mFollowButtonListener = new View.OnClickListener() {
@@ -91,8 +97,11 @@ public class UserPagerFragment extends PagerFragment {
                     mShowFakeNotFollowing = true;
                     mShowFakeFollowing = false;
                 } else {
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
-                            .sendRelationshipPostStruct(authUtils, mUser));
+                    String requestId = InfoSystem.getInstance()
+                            .sendRelationshipPostStruct(authUtils, mUser);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                     mShowFakeNotFollowing = false;
                     mShowFakeFollowing = true;
                 }
