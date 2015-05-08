@@ -107,13 +107,7 @@ public class ScriptInterface {
 
     @JavascriptInterface
     public void addCustomUrlHandler(String protocol, String callbackFuncName, boolean isAsync) {
-        if (mScriptAccount.getScriptResolver() != null) {
-            PipeLine.getInstance()
-                    .addCustomUrlHandler(protocol, mScriptAccount.getScriptResolver());
-        } else {
-            Log.e(TAG, "addCustomUrlHandler - ScriptResolver not set in ScriptAccount: "
-                    + mScriptAccount.getName());
-        }
+        // NOOP until Tomahawk Desktop recognizes Resolvers as URL-Handlers without this call
     }
 
     @JavascriptInterface

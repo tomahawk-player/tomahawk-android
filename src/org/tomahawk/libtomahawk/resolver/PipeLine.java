@@ -101,9 +101,6 @@ public class PipeLine {
 
     private boolean mAllResolversAdded;
 
-    private final ConcurrentHashMap<String, ScriptResolver> mUrlHandlerMap
-            = new ConcurrentHashMap<>();
-
     private PipeLine() {
         try {
             String[] plugins = TomahawkApp.getContext().getAssets().list("js/resolvers");
@@ -371,29 +368,5 @@ public class PipeLine {
 
     public void setAllResolversAdded(boolean allResolversAdded) {
         mAllResolversAdded = allResolversAdded;
-    }
-
-    public void addCustomUrlHandler(String protocol, ScriptResolver resolver) {
-        mUrlHandlerMap.put(protocol, resolver);
-    }
-
-    /**
-     * Get the corresponding url handler for the given result with which a url can be translated to
-     * an actual streaming url.
-     *
-     * @return the corresponding ResolverUrlHandler, if available. Otherwise null.
-     */
-    public boolean canHandleUrl(Result result) {
-        if (result != null) {
-            String path = result.getPath();
-            String[] pathParts = path.split(":");
-            String protocol = pathParts[0];
-            return getCustomUrlHandler(protocol) != null;
-        }
-        return false;
-    }
-
-    public ScriptResolver getCustomUrlHandler(String protocol) {
-        return mUrlHandlerMap.get(protocol);
     }
 }

@@ -162,7 +162,7 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         if (mTranslatedUrls.get(result) != null) {
             path = mTranslatedUrls.remove(result);
         } else {
-            if (PipeLine.getInstance().canHandleUrl(result)) {
+            if (result.getResolvedBy() instanceof ScriptResolver) {
                 ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
                 return this;
             } else {

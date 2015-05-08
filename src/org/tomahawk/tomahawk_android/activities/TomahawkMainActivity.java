@@ -585,10 +585,9 @@ public class TomahawkMainActivity extends ActionBarActivity
             String host = data.getHost();
             String scheme = data.getScheme();
             if (scheme != null && scheme.equals("tomahawkspotifyresolver")) {
-                ScriptResolver urlHandler = PipeLine.getInstance().getCustomUrlHandler(scheme);
-                if (urlHandler != null) {
-                    urlHandler.onRedirectCallback(data.toString());
-                }
+                ScriptResolver urlHandler = (ScriptResolver)
+                        PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
+                urlHandler.onRedirectCallback(data.toString());
             } else if ((scheme != null && (scheme.equals("spotify") || scheme.equals("tomahawk")))
                     || host != null && (host.contains("hatchet.is") || host.contains("toma.hk")
                     || host.contains("beatsmusic.com") || host.contains("deezer.com")
