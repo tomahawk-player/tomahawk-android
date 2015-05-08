@@ -315,17 +315,21 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                 try {
                     mScriptAccount.mCollectionMetaData = mObjectMapper.treeToValue(results,
                             ScriptResolverCollectionMetaData.class);
-                    int lastSlash = mScriptAccount.getMetaData().manifest.main.lastIndexOf("/");
-                    String mainPath =
-                            mScriptAccount.getMetaData().manifest.main.substring(0, lastSlash);
                     String iconPath = mScriptAccount.mCollectionMetaData.iconfile;
-                    while (iconPath.contains("../")) {
-                        iconPath = iconPath.replace("../", "");
-                        lastSlash = mainPath.lastIndexOf("/");
-                        mainPath = mainPath.substring(0, lastSlash);
+                    if (iconPath != null) {
+                        int lastSlash =
+                                mScriptAccount.getMetaData().manifest.main.lastIndexOf("/");
+                        String mainPath = mScriptAccount.getMetaData().manifest.main
+                                .substring(0, lastSlash);
+                        while (iconPath.contains("../")) {
+                            iconPath = iconPath.replace("../", "");
+                            lastSlash = mainPath.lastIndexOf("/");
+                            mainPath = mainPath.substring(0, lastSlash);
+                        }
+                        mScriptAccount.mCollectionIconPath = "file:///android_asset/"
+                                + mScriptAccount.getPath() + "/content/" + mainPath + "/"
+                                + iconPath;
                     }
-                    mScriptAccount.mCollectionIconPath = "file:///android_asset/"
-                            + mScriptAccount.getPath() + "/content/" + mainPath + "/" + iconPath;
                 } catch (JsonProcessingException e) {
                     Log.e(TAG, "collection: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
