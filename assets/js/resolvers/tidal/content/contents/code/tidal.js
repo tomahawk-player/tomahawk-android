@@ -140,7 +140,10 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
         };
     },
 
-    search: function (query, limit) {
+    search: function (params) {
+        var query = params.query;
+        var limit = params.limit;
+
         if (!this.logged_in) {
             return this._defer(this.search, [query], this);
         } else if (this.logged_in ===2) {
@@ -164,10 +167,17 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
         });
     },
 
-    resolve: function (artist, album, title) {
-        var query = [ artist, album, title ].join(' ');
+    resolve: function (params) {
+        var artist = params.artist;
+        var album = params.album;
+        var track = params.track;
 
-        return this.search(query, 5);
+        var query = [ artist, album, track ].join(' ');
+
+        return this.search({
+            query: query,
+            limit: 5
+        });
     },
 
     _parseUrlPrefix: function (url) {
@@ -219,7 +229,9 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
         }
     },
     
-    lookupUrl: function (url) {
+    lookupUrl: function (params) {
+        var url = params.url;
+
         this.lookupUrlPromise(url).then(function (result) {
             Tomahawk.addUrlResult(url, result);
         }).catch(function (e) {
@@ -309,23 +321,19 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
         };
     },
 
-    getStreamUrl: function(qid, url) {
-        Promise.resolve(this._getStreamUrlPromise(url)).then(function (streamUrl){
-            Tomahawk.reportStreamUrl(qid, streamUrl);
-        }).catch(Tomahawk.log);
-    },
+    getStreamUrl: function(params) {
+        var url = params.url;
 
-    _getStreamUrlPromise: function (urn) {
         if (!this.logged_in) {
-            return this._defer(this.getStreamUrl, [urn], this);
+            return this._defer(this.getStreamUrl, [url], this);
         } else if (this.logged_in === 2) {
             throw new Error('Failed login, cannot getStreamUrl.');
         }
 
-        var parsedUrn = this._parseUrn( urn );
-        
+        var parsedUrn = this._parseUrn( url );
+
         if (!parsedUrn || parsedUrn.type != 'track') {
-            Tomahawk.log( "Failed to get stream. Couldn't parse '" + urn + "'" );
+            Tomahawk.log( "Failed to get stream. Couldn't parse '" + url + "'" );
             return;
         }
 
@@ -339,7 +347,9 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
         return Tomahawk.get(this.api_location + "tracks/"+parsedUrn.id+"/streamUrl", {
             data: params
         }).then( function (response) {
-            return response.url;
+            return {
+                url: response.url
+            };
         });
     },
 
