@@ -415,7 +415,7 @@ Tomahawk.nativeAsyncRequestDone = function (reqId, xhr) {
         if (Tomahawk.asyncRequestCallbacks[reqId].callback) {
             Tomahawk.asyncRequestCallbacks[reqId].callback(xhr);
         }
-    } else if (xmlHttpRequest.readyState === 4) {
+    } else if (xhr.readyState === 4) {
         Tomahawk.log("Failed to do nativeAsyncRequest");
         Tomahawk.log("Status Code was: " + xhr.status);
         if (Tomahawk.asyncRequestCallbacks[reqId].errorHandler) {
