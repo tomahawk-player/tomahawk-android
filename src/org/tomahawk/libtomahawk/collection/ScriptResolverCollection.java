@@ -32,7 +32,6 @@ import org.tomahawk.libtomahawk.resolver.models.ScriptResolverArtistResult;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -99,22 +98,21 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                         // First parse the result
                         HashSet<String> updatedItemIds = new HashSet<>();
                         JsonNode artistsNode = results.get("artists");
-                        if (artistsNode != null && artistsNode.isArray()) {
+                        if (artistsNode != null && artistsNode.isArray()
+                                && artistsNode.size() > 0) {
                             for (JsonNode artistNode : artistsNode) {
-                                if (!TextUtils.isEmpty(artistNode.asText())) {
-                                    Artist artist = Artist.get(artistNode.asText());
-                                    addArtist(artist);
-                                    updatedItemIds.add(artist.getCacheKey());
-                                }
+                                Artist artist = Artist.get(artistNode.asText());
+                                addArtist(artist);
+                                updatedItemIds.add(artist.getCacheKey());
                             }
-                        }
 
-                        // And finally fire the UpdatedEvent
-                        CollectionManager.UpdatedEvent event
-                                = new CollectionManager.UpdatedEvent();
-                        event.mCollection = ScriptResolverCollection.this;
-                        event.mUpdatedItemIds = updatedItemIds;
-                        EventBus.getDefault().post(event);
+                            // And finally fire the UpdatedEvent
+                            CollectionManager.UpdatedEvent event
+                                    = new CollectionManager.UpdatedEvent();
+                            event.mCollection = ScriptResolverCollection.this;
+                            event.mUpdatedItemIds = updatedItemIds;
+                            EventBus.getDefault().post(event);
+                        }
                     }
                 } catch (JsonProcessingException e) {
                     Log.e(TAG, "initializeCollection: " + e.getClass() + ": "
@@ -184,21 +182,21 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                         Artist artist =
                                 Artist.get(ScriptUtils.getNodeChildAsText(results, "artist"));
                         JsonNode albumsNode = results.get("albums");
-                        if (albumsNode != null && albumsNode.isArray()) {
+                        if (albumsNode != null && albumsNode.isArray() && albumsNode.size() > 0) {
                             for (JsonNode albumNode : albumsNode) {
                                 Album album = Album.get(albumNode.asText(), artist);
                                 addAlbum(album);
                                 addArtistAlbum(album.getArtist(), album);
                             }
-                        }
 
-                        // And finally fire the UpdatedEvent
-                        CollectionManager.UpdatedEvent event
-                                = new CollectionManager.UpdatedEvent();
-                        event.mCollection = ScriptResolverCollection.this;
-                        event.mUpdatedItemIds = new HashSet<>();
-                        event.mUpdatedItemIds.add(artist.getCacheKey());
-                        EventBus.getDefault().post(event);
+                            // And finally fire the UpdatedEvent
+                            CollectionManager.UpdatedEvent event
+                                    = new CollectionManager.UpdatedEvent();
+                            event.mCollection = ScriptResolverCollection.this;
+                            event.mUpdatedItemIds = new HashSet<>();
+                            event.mUpdatedItemIds.add(artist.getCacheKey());
+                            EventBus.getDefault().post(event);
+                        }
                     }
                 }
             });
