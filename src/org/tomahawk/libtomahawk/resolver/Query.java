@@ -28,10 +28,10 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * This class represents a query which is passed to a resolver. It contains all the information
@@ -48,22 +48,7 @@ public class Query implements TomahawkListItem {
 
     private String mCacheKey;
 
-    private final ConcurrentHashMap<String, Result> mTrackResults
-            = new ConcurrentHashMap<>();
-
-    private final ConcurrentHashMap<String, Result> mAlbumResults
-            = new ConcurrentHashMap<>();
-
-    private final ConcurrentHashMap<String, Result> mArtistResults
-            = new ConcurrentHashMap<>();
-
     private Track mBasicTrack;
-
-    private boolean mPlayable = false;
-
-    private boolean mSolved = false;
-
-    private String mTopTrackResultKey = "";
 
     private String mResultHint = "";
 
@@ -74,6 +59,56 @@ public class Query implements TomahawkListItem {
     private final boolean mIsOnlyLocal;
 
     private boolean mIsFetchedViaHatchet;
+
+    private final ConcurrentSkipListSet<Result> mTrackResults
+            = new ConcurrentSkipListSet<>(new ResultComparator());
+
+    private final ConcurrentHashMap<Result, Float> mTrackResultScores
+            = new ConcurrentHashMap<>();
+
+    public class ResultComparator implements Comparator<Result> {
+
+        /**
+         * The actual comparison method
+         *
+         * @param r1 First {@link org.tomahawk.libtomahawk.resolver.Result} object
+         * @param r2 Second {@link org.tomahawk.libtomahawk.resolver.Result} Object
+         * @return int containing comparison score
+         */
+        public int compare(Result r1, Result r2) {
+            if (mResultHint != null) {
+                // We have a result hint. If the cacheKey matches we automatically put the matching
+                // Result at the top of the sorted list.
+                if (r1.getCacheKey().equals(mResultHint)) {
+                    return -1;
+                } else if (r2.getCacheKey().equals(mResultHint)) {
+                    return 1;
+                }
+            }
+            Float score1 = mTrackResultScores.get(r1);
+            Float score2 = mTrackResultScores.get(r2);
+            int scoreResult = score2.compareTo(score1);
+            if (scoreResult > 0) {
+                return 1;
+            } else if (scoreResult < 0) {
+                return -1;
+            } else {
+                // We have two identical trackScores.
+                // Now we take the Resolver's weight into account.
+                Integer weight1 = r1.getResolvedBy().getWeight();
+                Integer weight2 = r2.getResolvedBy().getWeight();
+                int weightResult = weight2.compareTo(weight1);
+                if (weightResult > 0) {
+                    return 1;
+                } else if (weightResult < 0) {
+                    return -1;
+                } else {
+                    // Two identical trackScores and Resolver weights
+                    return 0;
+                }
+            }
+        }
+    }
 
     /**
      * Constructs a new Query.
@@ -180,7 +215,7 @@ public class Query implements TomahawkListItem {
     public static Query get(Result result, boolean onlyLocal) {
         Query query = new Query(result.getTrack().getName(),
                 result.getTrack().getAlbum().getName(),
-                result.getTrack().getArtist().getName(), null, onlyLocal, false);
+                result.getTrack().getArtist().getName(), result.getCacheKey(), onlyLocal, false);
         return ensureCache(query);
     }
 
@@ -222,157 +257,57 @@ public class Query implements TomahawkListItem {
     }
 
     /**
-     * @return An ArrayList<Result> which contains all tracks in the resultList, sorted by score.
-     * Given as Results.
-     */
-    public ArrayList<Result> getTrackResults() {
-        ArrayList<Result> results = new ArrayList<>(mTrackResults.values());
-        Collections.sort(results, new ResultComparator(ResultComparator.COMPARE_TRACK_SCORE));
-        return results;
-    }
-
-    /**
      * @return An ArrayList<Query> which contains all tracks in the resultList, sorted by score.
      * Given as queries.
      */
     public ArrayList<Query> getTrackQueries() {
-        HashMap<String, Query> queryMap = new HashMap<>();
-        for (Result result : getTrackResults()) {
+        ArrayList<Query> queries = new ArrayList<>();
+        for (Result result : mTrackResults) {
             if (!isOnlyLocal() || result.isLocal()) {
                 Query query = Query.get(result, isOnlyLocal());
-                query.addTrackResult(result);
-                queryMap.put(query.getCacheKey(), query);
+                query.addTrackResult(result, mTrackResultScores.get(result));
+                queries.add(query);
             }
         }
-        ArrayList<Query> queries = new ArrayList<>(queryMap.values());
-        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_TRACK_SCORE));
         return queries;
     }
 
     public Result getPreferredTrackResult() {
-        return mTrackResults.get(mTopTrackResultKey);
+        if (mTrackResults.size() > 0) {
+            return mTrackResults.first();
+        }
+        return null;
     }
 
     public Track getPreferredTrack() {
-        if (getPreferredTrackResult() != null) {
-            return getPreferredTrackResult().getTrack();
+        Result result = getPreferredTrackResult();
+        if (result != null) {
+            return result.getTrack();
         }
         return mBasicTrack;
     }
 
-    public void addTrackResult(Result result) {
-        if (!sBlacklistedResults.contains(result.getCacheKey())) {
-            mPlayable = true;
-            if (result.getTrackScore() == 1f) {
-                mSolved = true;
-            }
-            if (!mTrackResults.containsKey(result.getCacheKey())) {
-                mTrackResults.put(result.getCacheKey(), result);
-                if ((getPreferredTrackResult() == null
-                        || mResultHint.equals(result.getCacheKey())
-                        || getPreferredTrackResult().getTrackScore() < result.getTrackScore()
-                        || (getPreferredTrackResult().getTrackScore() == result.getTrackScore()
-                        && getPreferredTrackResult().getResolvedBy().getWeight()
-                        < result.getResolvedBy().getWeight()))) {
-                    mTopTrackResultKey = result.getCacheKey();
-                }
-            }
+    /**
+     * Add a {@link Result} to this {@link Query}.
+     *
+     * @param result     The {@link Result} which should be added
+     * @param trackScore the trackScore for the given {@link Result}
+     */
+    public void addTrackResult(Result result, float trackScore) {
+        String cacheKey = result.getCacheKey();
+        if (!sBlacklistedResults.contains(cacheKey)) {
+            mTrackResultScores.put(result, trackScore);
+            mTrackResults.add(result);
         }
     }
 
     public void blacklistTrackResult(Result result) {
         sBlacklistedResults.add(result.getCacheKey());
-        for (Result r : getTrackResults()) {
-            if (!result.getCacheKey().equals(r.getCacheKey())
-                    && !sBlacklistedResults.contains(r.getCacheKey())) {
-                mTopTrackResultKey = r.getCacheKey();
-                break;
-            } else {
-                mTopTrackResultKey = "";
-                mPlayable = false;
-                mSolved = false;
-            }
+        if (result.getCacheKey().equals(mResultHint)) {
+            mResultHint = null;
         }
-    }
-
-    /**
-     * Append an ArrayList<Result> to the track result list
-     */
-    public void addTrackResults(ArrayList<Result> results) {
-        for (Result result : results) {
-            addTrackResult(result);
-        }
-    }
-
-    /**
-     * @return An ArrayList<Result> which contains all albums in the resultList, sorted by score.
-     * Given as Results.
-     */
-    public ArrayList<Result> getAlbumResults() {
-        ArrayList<Result> results = new ArrayList<>(mAlbumResults.values());
-        Collections.sort(results, new ResultComparator(ResultComparator.COMPARE_ALBUM_SCORE));
-        return results;
-    }
-
-    /**
-     * @return A ArrayList<Album> which contains all albums in the resultList, sorted by score.
-     */
-    public ArrayList<Album> getAlbums() {
-        ArrayList<Result> results = getAlbumResults();
-        ArrayList<Album> albums = new ArrayList<>();
-        for (Result result : results) {
-            albums.add(result.getAlbum());
-        }
-        return albums;
-    }
-
-    public void addAlbumResult(Result result) {
-        mAlbumResults.put(result.getAlbum().getCacheKey(), result);
-    }
-
-    /**
-     * Append an ArrayList<Result> to the track result list
-     */
-    public void addAlbumResults(ArrayList<Result> results) {
-        for (Result result : results) {
-            addAlbumResult(result);
-        }
-    }
-
-    /**
-     * @return An ArrayList<Result> which contains all artists in the resultList, sorted by score.
-     * Given as Results.
-     */
-    public ArrayList<Result> getArtistResults() {
-        ArrayList<Result> results = new ArrayList<>(mArtistResults.values());
-        Collections.sort(results, new ResultComparator(ResultComparator.COMPARE_ARTIST_SCORE));
-        return results;
-    }
-
-    /**
-     * @return the ArrayList containing all track results
-     */
-    public ArrayList<Artist> getArtists() {
-        ArrayList<Result> results = getArtistResults();
-        ArrayList<Artist> artists = new ArrayList<>();
-        for (Result result : results) {
-            artists.add(result.getArtist());
-        }
-        return artists;
-    }
-
-
-    public void addArtistResult(Result result) {
-        mArtistResults.put(result.getArtist().getCacheKey(), result);
-    }
-
-    /**
-     * Append an ArrayList<Result> to the track result list
-     */
-    public void addArtistResults(ArrayList<Result> results) {
-        for (Result result : results) {
-            addArtistResult(result);
-        }
+        mTrackResults.remove(result);
+        mTrackResultScores.remove(result);
     }
 
     public String getResultHint() {
@@ -380,7 +315,11 @@ public class Query implements TomahawkListItem {
     }
 
     public String getTopTrackResultKey() {
-        return mTopTrackResultKey;
+        Result result = getPreferredTrackResult();
+        if (result != null) {
+            return getPreferredTrackResult().getCacheKey();
+        }
+        return null;
     }
 
     public String getFullTextQuery() {
@@ -396,11 +335,15 @@ public class Query implements TomahawkListItem {
     }
 
     public boolean isPlayable() {
-        return mPlayable;
+        return getPreferredTrackResult() != null;
     }
 
     public boolean isSolved() {
-        return mSolved;
+        Result result = getPreferredTrackResult();
+        if (result != null) {
+            return result.getCacheKey().equals(mResultHint);
+        }
+        return false;
     }
 
     public boolean isFetchedViaHatchet() {
@@ -410,7 +353,7 @@ public class Query implements TomahawkListItem {
     /**
      * This method determines how similar the given result is to the search string.
      */
-    public float howSimilar(Result r, int searchType) {
+    public float howSimilar(Result r) {
         String resultArtistName = "";
         String resultAlbumName = "";
         String resultTrackName = "";
@@ -460,24 +403,9 @@ public class Query implements TomahawkListItem {
         if (isFullTextQuery()) {
             final String searchString = cleanUpString(getFullTextQuery(), false);
             ArrayList<String> resultSearchStrings = new ArrayList<>();
-            switch (searchType) {
-                case PipeLine.PIPELINE_SEARCHTYPE_TRACKS:
-                    resultSearchStrings
-                            .add(cleanUpString(resultArtistName + " " + resultTrackName, false));
-                    resultSearchStrings.add(cleanUpString(resultTrackName, false));
-                    break;
-                case PipeLine.PIPELINE_SEARCHTYPE_ARTISTS:
-                    resultSearchStrings.add(cleanUpString(resultArtistName, false));
-                    break;
-                case PipeLine.PIPELINE_SEARCHTYPE_ALBUMS:
-                    if (!TextUtils.isEmpty(resultAlbumName)) {
-                        resultSearchStrings
-                                .add(cleanUpString(resultArtistName + " " + resultAlbumName,
-                                        false));
-                        resultSearchStrings.add(cleanUpString(resultAlbumName, false));
-                    }
-                    break;
-            }
+            resultSearchStrings
+                    .add(cleanUpString(resultArtistName + " " + resultTrackName, false));
+            resultSearchStrings.add(cleanUpString(resultTrackName, false));
 
             float maxResult = 0F;
             for (String resultSearchString : resultSearchStrings) {

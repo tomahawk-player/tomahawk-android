@@ -44,12 +44,6 @@ public class PipeLine {
 
     private final static String TAG = PipeLine.class.getSimpleName();
 
-    public static final int PIPELINE_SEARCHTYPE_TRACKS = 0;
-
-    public static final int PIPELINE_SEARCHTYPE_ARTISTS = 1;
-
-    public static final int PIPELINE_SEARCHTYPE_ALBUMS = 2;
-
     public static final String URL_TYPE_TRACK = "track";
 
     public static final String URL_TYPE_ALBUM = "album";
@@ -296,40 +290,15 @@ public class PipeLine {
                 new TomahawkRunnable(priority) {
                     @Override
                     public void run() {
-                        ArrayList<Result> cleanTrackResults = new ArrayList<>();
-                        /*ArrayList<Result> cleanAlbumResults = new ArrayList<Result>();
-                        ArrayList<Result> cleanArtistResults = new ArrayList<Result>();*/
                         if (query != null) {
                             for (Result r : results) {
                                 if (r != null) {
-                                    r.setTrackScore(
-                                            query.howSimilar(r, PIPELINE_SEARCHTYPE_TRACKS));
-                                    if (r.getTrackScore() >= MINSCORE
-                                            && !cleanTrackResults.contains(r)) {
-                                        r.setType(Result.RESULT_TYPE_TRACK);
-                                        cleanTrackResults.add(r);
+                                    float trackScore = query.howSimilar(r);
+                                    if (trackScore >= MINSCORE) {
+                                        query.addTrackResult(r, trackScore);
                                     }
-                                    /*if (q.isFullTextQuery()) {
-                                        r.setAlbumScore(
-                                                q.howSimilar(r, PIPELINE_SEARCHTYPE_ALBUMS));
-                                        if (r.getAlbumScore() >= MINSCORE
-                                                && !cleanAlbumResults.contains(r)) {
-                                            r.setType(Result.RESULT_TYPE_ALBUM);
-                                            cleanAlbumResults.add(r);
-                                        }
-                                        r.setArtistScore(
-                                                q.howSimilar(r, PIPELINE_SEARCHTYPE_ARTISTS));
-                                        if (r.getArtistScore() >= MINSCORE
-                                                && !cleanArtistResults.contains(r)) {
-                                            r.setType(Result.RESULT_TYPE_ARTIST);
-                                            cleanArtistResults.add(r);
-                                        }
-                                    }*/
                                 }
                             }
-                            /*q.addArtistResults(cleanArtistResults);
-                            q.addAlbumResults(cleanAlbumResults);*/
-                            query.addTrackResults(cleanTrackResults);
                             ResultsEvent event = new ResultsEvent();
                             event.mQuery = query;
                             EventBus.getDefault().post(event);

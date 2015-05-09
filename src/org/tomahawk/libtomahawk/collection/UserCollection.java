@@ -144,10 +144,8 @@ public class UserCollection extends Collection {
             track.setDuration(media.getLength());
             track.setAlbumPos(media.getTrackNumber());
             Query query = Query.get(media.getTitle(), media.getAlbum(), media.getArtist(), true);
-            Result result = Result.get(media.getLocation(), track, userCollectionResolver,
-                    query.getCacheKey());
-            result.setTrackScore(1f);
-            query.addTrackResult(result);
+            Result result = Result.get(media.getLocation(), track, userCollectionResolver);
+            query.addTrackResult(result, 1f);
             queries.add(query);
             if (mAlbumAddedTimeStamps.get(query.getAlbum().getName()) == null
                     || mAlbumAddedTimeStamps.get(query.getAlbum().getName()) < media
@@ -271,10 +269,8 @@ public class UserCollection extends Collection {
             track.setDuration(media.getLength());
             track.setAlbumPos(media.getTrackNumber());
             Query query = Query.get(media.getTitle(), media.getAlbum(), media.getArtist(), true);
-            Result result = Result.get(media.getLocation(), track, userCollectionResolver,
-                    query.getCacheKey());
-            result.setTrackScore(1f);
-            query.addTrackResult(result);
+            Result result = Result.get(media.getLocation(), track, userCollectionResolver);
+            query.addTrackResult(result, 1f);
             queries.add(query);
         }
         if (sorted) {
@@ -301,10 +297,8 @@ public class UserCollection extends Collection {
             track.setDuration(media.getLength());
             track.setAlbumPos(media.getTrackNumber());
             Query query = Query.get(media.getTitle(), media.getAlbum(), media.getArtist(), true);
-            Result result = Result.get(media.getLocation(), track, userCollectionResolver,
-                    query.getCacheKey());
-            result.setTrackScore(1f);
-            query.addTrackResult(result);
+            Result result = Result.get(media.getLocation(), track, userCollectionResolver);
+            query.addTrackResult(result, 1f);
             queries.add(query);
         }
         if (sorted) {

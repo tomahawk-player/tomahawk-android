@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
 import java.util.ArrayList;
 
@@ -60,8 +59,7 @@ public class ScriptUtils {
                 trackObj.setYear(year);
                 trackObj.setDuration(duration * 1000);
 
-                Result result = Result.get(url, trackObj, resolver,
-                        TomahawkMainActivity.getSessionUniqueStringId());
+                Result result = Result.get(url, trackObj, resolver);
                 result.setBitrate(bitrate);
                 result.setSize(size);
                 result.setPurchaseUrl(purchaseUrl);
