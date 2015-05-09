@@ -65,8 +65,14 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
     },
 
     testConfig: function (config) {
-        return this._getLoginPromise(config).catch(function (error) {
-            throw new Error('Invalid credentials');
+        return this._getLoginPromise(config).then(function () {
+            return { result: Tomahawk.ConfigTestResultType.Success };
+        } ,function(xhr) {
+            if (xhr.status == 401) {
+                return { result: Tomahawk.ConfigTestResultType.InvalidCredentials };
+            } else {
+                return { result: Tomahawk.ConfigTestResultType.CommunicationError };
+            }
         });
     },
 

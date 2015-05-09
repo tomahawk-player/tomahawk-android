@@ -18,5 +18,6 @@
         ]
     },
     "staticCapabilities": [
+        "configTestable"
     ]
 }
