@@ -35,19 +35,11 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Result {
 
-    public static final int RESULT_TYPE_TRACK = 0;
-
-    public static int RESULT_TYPE_ALBUM = 1;
-
-    public static int RESULT_TYPE_ARTIST = 2;
-
     private static final ConcurrentHashMap<String, Result> sResults
             = new ConcurrentHashMap<>();
 
     private MediaPlayerInterface mMediaPlayerInterface;
 
-    // Normally cache keys are unique. In this case the result's cache key is only unique in the
-    // context of a _single_ Query.
     private String mCacheKey;
 
     private Artist mArtist;
@@ -75,18 +67,10 @@ public class Result {
 
     private boolean isResolved;
 
-    private float mTrackScore;
-
-    private float mAlbumScore;
-
-    private float mArtistScore;
-
-    private int mType = RESULT_TYPE_TRACK;
-
     /**
      * Construct a new {@link Result} with the given {@link Track}
      */
-    private Result(String url, Track track, Resolver resolvedBy, String queryKey) {
+    private Result(String url, Track track, Resolver resolvedBy) {
         if (url == null) {
             mPath = "";
         } else {
@@ -110,43 +94,43 @@ public class Result {
         mAlbum = track.getAlbum();
         mTrack = track;
         if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this, queryKey);
+            mCacheKey = TomahawkUtils.getCacheKey(this);
         }
     }
 
     /**
      * Construct a new {@link Result} with the given {@link Artist}
      */
-    private Result(Artist artist, String queryKey) {
+    private Result(Artist artist) {
         mArtist = artist;
         mAlbum = artist.getAlbum();
         if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this, queryKey);
+            mCacheKey = TomahawkUtils.getCacheKey(this);
         }
     }
 
     /**
      * Construct a new {@link Result} with the given {@link Album}
      */
-    private Result(Album album, String queryKey) {
+    private Result(Album album) {
         mAlbum = album;
         if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this, queryKey);
+            mCacheKey = TomahawkUtils.getCacheKey(this);
         }
     }
 
-    public static Result get(String url, Track track, Resolver resolvedBy, String queryKey) {
-        Result result = new Result(url, track, resolvedBy, queryKey);
+    public static Result get(String url, Track track, Resolver resolvedBy) {
+        Result result = new Result(url, track, resolvedBy);
         return ensureCache(result);
     }
 
-    public static Result get(Artist artist, String queryKey) {
-        Result result = new Result(artist, queryKey);
+    public static Result get(Artist artist) {
+        Result result = new Result(artist);
         return ensureCache(result);
     }
 
-    public static Result get(Album album, String queryKey) {
-        Result result = new Result(album, queryKey);
+    public static Result get(Album album) {
+        Result result = new Result(album);
         return ensureCache(result);
     }
 
@@ -187,48 +171,6 @@ public class Result {
      */
     public void setTrack(Track mTrack) {
         this.mTrack = mTrack;
-    }
-
-    /**
-     * @return the {@link Track}'s score associated with this {@link Result}
-     */
-    public float getTrackScore() {
-        return mTrackScore;
-    }
-
-    /**
-     * Set the given {@link Track}'s score as this {@link Result}'s {@link Track}'s score
-     */
-    public void setTrackScore(float score) {
-        this.mTrackScore = score;
-    }
-
-    /**
-     * @return the {@link Album}'s score associated with this {@link Result}
-     */
-    public float getAlbumScore() {
-        return mAlbumScore;
-    }
-
-    /**
-     * Set the given {@link Album}'s score as this {@link Result}'s {@link Album}'s score
-     */
-    public void setAlbumScore(float score) {
-        this.mAlbumScore = score;
-    }
-
-    /**
-     * @return the {@link Artist}'s score associated with this {@link Result}
-     */
-    public float getArtistScore() {
-        return mArtistScore;
-    }
-
-    /**
-     * Set the given {@link Artist}'s score as this {@link Result}'s {@link Artist}'s score
-     */
-    public void setArtistScore(float score) {
-        this.mArtistScore = score;
     }
 
     /**
@@ -342,21 +284,5 @@ public class Result {
      */
     public boolean isResolved() {
         return isResolved;
-    }
-
-    /**
-     * @return The type of this result. Can be RESULT_TYPE_TRACK, RESULT_TYPE_ALBUM or
-     * RESULT_TYPE_ARTIST. This determines how we will display this result later on.
-     */
-    public int getType() {
-        return mType;
-    }
-
-    /**
-     * Set the type of this result. Can be RESULT_TYPE_TRACK, RESULT_TYPE_ALBUM or
-     * RESULT_TYPE_ARTIST. This determines how we will display this result later on.
-     */
-    public void setType(int type) {
-        mType = type;
     }
 }

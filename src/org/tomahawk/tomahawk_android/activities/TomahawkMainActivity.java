@@ -394,8 +394,10 @@ public class TomahawkMainActivity extends ActionBarActivity
                     Query query = Query.get(track.title, "", track.artist, false);
                     if (event.mResolver != null && event.mResolver.isEnabled()
                             && track.hint != null) {
-                        query.addTrackResult(Result.get(track.hint, query.getBasicTrack(),
-                                event.mResolver, query.getCacheKey()));
+                        Result result = Result.get(track.hint, query.getBasicTrack(),
+                                event.mResolver);
+                        float trackScore = query.howSimilar(result);
+                        query.addTrackResult(result, trackScore);
                     }
                     queries.add(query);
                 }
@@ -617,8 +619,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                 Resolver resolver =
                         PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION);
                 if (resolver != null) {
-                    query.addTrackResult(Result.get(data.toString(), query.getBasicTrack(),
-                            resolver, query.getCacheKey()));
+                    Result result = Result.get(data.toString(), query.getBasicTrack(), resolver);
+                    float trackScore = query.howSimilar(result);
+                    query.addTrackResult(result, trackScore);
                     Bundle bundle = new Bundle();
                     bundle.putString(TomahawkFragment.QUERY, query.getCacheKey());
                     bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,

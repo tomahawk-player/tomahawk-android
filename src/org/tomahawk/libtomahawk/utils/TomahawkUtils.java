@@ -262,9 +262,9 @@ public class TomahawkUtils {
         return getCacheKey(image.getImagePath());
     }
 
-    public static String getCacheKey(Result result, String queryKey) {
+    public static String getCacheKey(Result result) {
         return getCacheKey(result.getTrack().getCacheKey(), result.getAlbum().getCacheKey(),
-                result.getArtist().getCacheKey(), result.getPath(), queryKey);
+                result.getArtist().getCacheKey(), result.getPath());
     }
 
     /**

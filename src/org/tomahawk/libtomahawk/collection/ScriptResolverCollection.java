@@ -147,9 +147,9 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                         // Now create the queries
                         ArrayList<Query> queries = new ArrayList<>();
                         for (Result r : parsedResults) {
-                            r.setTrackScore(1f);
                             Query query = Query.get(r, isLocal());
-                            query.addTrackResult(r);
+                            float trackScore = query.howSimilar(r);
+                            query.addTrackResult(r, trackScore);
                             queries.add(query);
                             addQuery(query, 0);
                         }
