@@ -68,6 +68,11 @@ public class PreferenceConnectFragment extends TomahawkListFragment
         getListAdapter().notifyDataSetChanged();
     }
 
+    @SuppressWarnings("unused")
+    public void onEventMainThread(PipeLine.ResolversChangedEvent event) {
+        updateAdapter();
+    }
+
     /**
      * Called, when this {@link org.tomahawk.tomahawk_android.fragments.PreferenceConnectFragment}'s
      * {@link android.view.View} has been created
@@ -76,6 +81,10 @@ public class PreferenceConnectFragment extends TomahawkListFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        updateAdapter();
+    }
+
+    private void updateAdapter() {
         List<Segment> segments = new ArrayList<>();
 
         // Add the header text item
