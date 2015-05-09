@@ -248,9 +248,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                     mWeight = settings.weight;
                     mTimeout = settings.timeout * 1000;
                     mReady = true;
-                    PipeLine.ResolverReadyEvent event = new PipeLine.ResolverReadyEvent();
-                    event.mResolver = ScriptResolver.this;
-                    EventBus.getDefault().post(event);
+                    PipeLine.getInstance().onResolverReady(ScriptResolver.this);
                     resolverGetConfigUi();
                 } catch (JsonProcessingException e) {
                     Log.e(TAG,

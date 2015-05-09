@@ -85,9 +85,8 @@ public class PipeLine {
         public ScriptResolverUrlResult mResult;
     }
 
-    public static class ResolverReadyEvent {
+    public static class ResolversChangedEvent {
 
-        public Resolver mResolver;
     }
 
     private final HashSet<ScriptAccount> mScriptAccounts = new HashSet<>();
@@ -98,8 +97,6 @@ public class PipeLine {
             Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     private final HashSet<String> mWaitingUrlLookups = new HashSet<>();
-
-    private boolean mAllResolversAdded;
 
     private PipeLine() {
         try {
@@ -112,15 +109,14 @@ public class PipeLine {
             Log.e(TAG, "PipeLine<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         addResolver(new DataBaseResolver());
-        setAllResolversAdded(true);
     }
 
     public static PipeLine getInstance() {
         return Holder.instance;
     }
 
-    @SuppressWarnings("unused")
-    public void onEvent(ResolverReadyEvent event) {
+    public void onResolverReady(Resolver resolver) {
+        EventBus.getDefault().post(new ResolversChangedEvent());
         if (isEveryResolverReady()) {
             resolve(mWaitingQueries);
             mWaitingQueries.clear();
@@ -135,9 +131,6 @@ public class PipeLine {
      * @return whether or not every Resolver in this PipeLine is ready to resolve queries
      */
     public boolean isEveryResolverReady() {
-        if (!mAllResolversAdded) {
-            return false;
-        }
         for (Resolver r : mResolvers) {
             if (!r.isReady()) {
                 return false;
@@ -366,7 +359,4 @@ public class PipeLine {
         }
     }
 
-    public void setAllResolversAdded(boolean allResolversAdded) {
-        mAllResolversAdded = allResolversAdded;
-    }
 }

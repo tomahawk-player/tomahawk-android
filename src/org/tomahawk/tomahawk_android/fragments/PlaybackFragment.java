@@ -395,7 +395,7 @@ public class PlaybackFragment extends TomahawkFragment {
         }
 
         updateShowPlaystate();
-        forceAutoResolve();
+        forceResolveVisibleItems(false);
         setupNonScrollableSpacer();
         setupScrollableSpacer(mAlbumArtViewPager);
     }
