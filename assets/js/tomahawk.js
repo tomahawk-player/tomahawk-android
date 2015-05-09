@@ -215,6 +215,7 @@ var TomahawkResolver = {
         });
     },
     testConfig: function () {
+        this.configTest();
     },
     getStreamUrl: function (qid, url) {
         Tomahawk.reportStreamUrl(qid, url);

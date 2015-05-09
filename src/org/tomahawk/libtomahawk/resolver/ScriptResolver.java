@@ -536,8 +536,15 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
         }
     }
 
-    public void configTest() {
-        ScriptJob.start(mScriptObject, "configTest");
+    public void testConfig(Map<String, Object> config) {
+        ScriptJob.start(mScriptObject, "testConfig", config, new ScriptJob.ResultsCallback() {
+            @Override
+            public void onReportResults(JsonNode results) {
+                int type = ScriptUtils.getNodeChildAsInt(results, "result");
+                String message = ScriptUtils.getNodeChildAsText(results, "message");
+                onConfigTestResult(type, message);
+            }
+        });
     }
 
     public void onConfigTestResult(final int type, final String message) {
