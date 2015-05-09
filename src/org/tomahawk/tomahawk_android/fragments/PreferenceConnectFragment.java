@@ -41,6 +41,8 @@ import android.os.Bundle;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -97,7 +99,14 @@ public class PreferenceConnectFragment extends TomahawkListFragment
         List resolvers = new ArrayList();
         resolvers.add(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION));
         resolvers.add(new HatchetStubResolver());
-        for (ScriptResolver scriptResolver : PipeLine.getInstance().getScriptResolvers()) {
+        List<ScriptResolver> scriptResolvers = PipeLine.getInstance().getScriptResolvers();
+        Collections.sort(scriptResolvers, new Comparator<ScriptResolver>() {
+            @Override
+            public int compare(ScriptResolver lhs, ScriptResolver rhs) {
+                return lhs.getPrettyName().compareToIgnoreCase(rhs.getPrettyName());
+            }
+        });
+        for (ScriptResolver scriptResolver : scriptResolvers) {
             if (!scriptResolver.getId().contains("-metadata")) {
                 resolvers.add(scriptResolver);
             }
