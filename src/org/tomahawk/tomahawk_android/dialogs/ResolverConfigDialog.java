@@ -159,7 +159,7 @@ public class ResolverConfigDialog extends ConfigDialog {
         }
         mScriptResolver.setConfig(config);
         if (mScriptResolver.isConfigTestable()) {
-            mScriptResolver.configTest();
+            mScriptResolver.testConfig(config);
         }
     }
 
