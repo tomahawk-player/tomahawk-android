@@ -32,8 +32,6 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
-
 /**
  * A {@link Resolver} which resolves {@link Track}s via our local database. Or in other words:
  * Fetches {@link Track}s from the local {@link UserCollection}. Can also be used to resolve from
@@ -58,9 +56,6 @@ public class DataBaseResolver implements Resolver {
         mReady = false;
         mStopped = true;
         mReady = true;
-        PipeLine.ResolverReadyEvent event = new PipeLine.ResolverReadyEvent();
-        event.mResolver = this;
-        EventBus.getDefault().post(event);
     }
 
     /**

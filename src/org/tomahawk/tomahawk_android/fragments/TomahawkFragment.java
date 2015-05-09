@@ -208,6 +208,11 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     @SuppressWarnings("unused")
+    public void onEvent(PipeLine.ResolversChangedEvent event) {
+        forceResolveVisibleItems(true);
+    }
+
+    @SuppressWarnings("unused")
     public void onEvent(PipeLine.ResultsEvent event) {
         if (mCorrespondingQueries.contains(event.mQuery)) {
             if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
@@ -465,7 +470,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
      */
     protected void onUpdateAdapterFinished() {
         updateShowPlaystate();
-        forceAutoResolve();
+        forceResolveVisibleItems(false);
         setupNonScrollableSpacer();
         setupScrollableSpacer();
         setupAnimations();
@@ -532,7 +537,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void forceAutoResolve() {
+    protected void forceResolveVisibleItems(boolean wipeQueryCache) {
+        if (wipeQueryCache) {
+            mCorrespondingQueries.clear();
+        }
         mResolveQueriesHandler.removeCallbacksAndMessages(null);
         mResolveQueriesHandler.sendEmptyMessageDelayed(RESOLVE_QUERIES_REPORTER_MSG,
                 RESOLVE_QUERIES_REPORTER_DELAY);
