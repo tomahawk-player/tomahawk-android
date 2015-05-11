@@ -52,6 +52,8 @@ public class PipeLine {
 
     public static final String URL_TYPE_PLAYLIST = "playlist";
 
+    public static final String URL_TYPE_XSPFURL = "xspf-url";
+
     private static final float MINSCORE = 0.5F;
 
     private static class Holder {

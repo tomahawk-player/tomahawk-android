@@ -312,7 +312,7 @@ public class TomahawkUtils {
      * @param data         the body data included in POST requests (optional)
      * @return a HttpResponse containing the response (similar to a XMLHttpRequest in javascript)
      */
-    private static HttpResponse httpRequest(String method, String urlString,
+    public static HttpResponse httpRequest(String method, String urlString,
             Map<String, String> extraHeaders, final String username, final String password,
             String data)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {

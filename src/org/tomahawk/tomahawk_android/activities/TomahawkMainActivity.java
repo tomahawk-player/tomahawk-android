@@ -45,6 +45,7 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.parser.XspfParser;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
@@ -72,6 +73,7 @@ import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.SearchViewStyle;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
@@ -360,8 +362,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     @SuppressWarnings("unused")
-    public void onEventMainThread(PipeLine.UrlResultsEvent event) {
-        Bundle bundle = new Bundle();
+    public void onEventAsync(PipeLine.UrlResultsEvent event) {
+        final Bundle bundle = new Bundle();
         switch (event.mResult.type) {
             case PipeLine.URL_TYPE_ARTIST:
                 bundle.putString(TomahawkFragment.ARTIST,
@@ -370,7 +372,13 @@ public class TomahawkMainActivity extends ActionBarActivity
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
                 bundle.putLong(TomahawkFragment.CONTAINER_FRAGMENT_ID,
                         TomahawkMainActivity.getSessionUniqueId());
-                FragmentUtils.replace(TomahawkMainActivity.this, ArtistPagerFragment.class, bundle);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        FragmentUtils.replace(TomahawkMainActivity.this, ArtistPagerFragment.class,
+                                bundle);
+                    }
+                });
                 break;
             case PipeLine.URL_TYPE_ALBUM:
                 Artist artist = Artist.get(event.mResult.artist);
@@ -378,7 +386,13 @@ public class TomahawkMainActivity extends ActionBarActivity
                         Album.get(event.mResult.name, artist).getCacheKey());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-                FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class,
+                                bundle);
+                    }
+                });
                 break;
             case PipeLine.URL_TYPE_TRACK:
                 bundle.putString(TomahawkFragment.QUERY,
@@ -386,7 +400,13 @@ public class TomahawkMainActivity extends ActionBarActivity
                                 .getCacheKey());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-                FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class,
+                                bundle);
+                    }
+                });
                 break;
             case PipeLine.URL_TYPE_PLAYLIST:
                 ArrayList<Query> queries = new ArrayList<>();
@@ -406,8 +426,28 @@ public class TomahawkMainActivity extends ActionBarActivity
                 bundle.putString(TomahawkFragment.PLAYLIST, playlist.getId());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-                FragmentUtils.replace(TomahawkMainActivity.this, PlaylistEntriesFragment.class,
-                        bundle);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        FragmentUtils.replace(TomahawkMainActivity.this,
+                                PlaylistEntriesFragment.class, bundle);
+                    }
+                });
+                break;
+            case PipeLine.URL_TYPE_XSPFURL:
+                Playlist pl = XspfParser.parse(event.mResult.url);
+                if (pl != null) {
+                    bundle.putString(TomahawkFragment.PLAYLIST, pl.getId());
+                    bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            FragmentUtils.replace(TomahawkMainActivity.this,
+                                    PlaylistEntriesFragment.class, bundle);
+                        }
+                    });
+                }
                 break;
         }
     }
@@ -581,7 +621,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
 
         if (intent.getData() != null) {
-            Uri data = intent.getData();
+            final Uri data = intent.getData();
             intent.setData(null);
             List<String> pathSegments = data.getPathSegments();
             String host = data.getHost();
@@ -595,6 +635,29 @@ public class TomahawkMainActivity extends ActionBarActivity
                     || host.contains("beatsmusic.com") || host.contains("deezer.com")
                     || host.contains("rdio.com") || host.contains("soundcloud.com"))) {
                 PipeLine.getInstance().lookupUrl(data.toString());
+            } else if (pathSegments.get(pathSegments.size() - 1).endsWith(".xspf")
+                    || intent.getType().equals("application/xspf+xml")) {
+                TomahawkRunnable r = new TomahawkRunnable(
+                        TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_HIGH) {
+                    @Override
+                    public void run() {
+                        Playlist pl = XspfParser.parse(data);
+                        if (pl != null) {
+                            final Bundle bundle = new Bundle();
+                            bundle.putString(TomahawkFragment.PLAYLIST, pl.getId());
+                            bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                                    ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    FragmentUtils.replace(TomahawkMainActivity.this,
+                                            PlaylistEntriesFragment.class, bundle);
+                                }
+                            });
+                        }
+                    }
+                };
+                ThreadManager.getInstance().execute(r);
             } else {
                 String albumName = null;
                 String trackName = null;
