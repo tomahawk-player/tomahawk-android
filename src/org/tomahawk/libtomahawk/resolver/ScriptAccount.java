@@ -17,15 +17,15 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverCollectionMetaData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptCollectionPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptInfoPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptResolverPluginFactory;
+import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.StringEscapeUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -91,8 +91,7 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         try {
             String rawJsonString = TomahawkUtils.inputStreamToString(TomahawkApp.getContext()
                     .getAssets().open(mPath + "/content/metadata.json"));
-            mMetaData = InfoSystemUtils.getObjectMapper().readValue(rawJsonString,
-                    ScriptResolverMetaData.class);
+            mMetaData = GsonHelper.get().fromJson(rawJsonString, ScriptResolverMetaData.class);
             if (mMetaData == null) {
                 Log.e(TAG, "Couldn't read metadata.json. Cannot instantiate ScriptResolver.");
                 return;
@@ -197,14 +196,10 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
     }
 
     public void setConfig(Map<String, Object> config) {
-        try {
-            String rawJsonString = InfoSystemUtils.getObjectMapper().writeValueAsString(config);
-            PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext())
-                    .edit().putString(buildPreferenceKey(), rawJsonString).commit();
-            mScriptResolver.resolverSaveUserConfig();
-        } catch (IOException e) {
-            Log.e(TAG, "setConfig: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
+        String rawJsonString = GsonHelper.get().toJson(config);
+        PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext())
+                .edit().putString(buildPreferenceKey(), rawJsonString).commit();
+        mScriptResolver.resolverSaveUserConfig();
     }
 
     /**
@@ -213,12 +208,11 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
     public Map<String, Object> getConfig() {
         String rawJsonString = PreferenceManager.getDefaultSharedPreferences(
                 TomahawkApp.getContext()).getString(buildPreferenceKey(), "");
-        try {
-            return InfoSystemUtils.getObjectMapper().readValue(rawJsonString, Map.class);
-        } catch (IOException e) {
-            Log.e(TAG, "getConfig: " + e.getClass() + ": " + e.getLocalizedMessage());
+        Map<String, Object> result = GsonHelper.get().fromJson(rawJsonString, Map.class);
+        if (result == null) {
+            result = new HashMap<>();
         }
-        return new HashMap<>();
+        return result;
     }
 
     private String buildPreferenceKey() {
@@ -241,19 +235,14 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                try {
-                    String serializedArgs = InfoSystemUtils.getObjectMapper()
-                            .writeValueAsString(job.getArguments());
-                    serializedArgs = "JSON.parse('" + StringEscapeUtils
-                            .escapeJavaScript(serializedArgs) + "')";
-                    evaluateJavaScript("Tomahawk.PluginManager.invoke("
-                            + "'" + requestId + "',"
-                            + "'" + job.getScriptObject().getId() + "',"
-                            + "'" + job.getMethodName() + "',"
-                            + serializedArgs + ")");
-                } catch (JsonProcessingException e) {
-                    Log.e(TAG, "startJob: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
+                String serializedArgs = GsonHelper.get().toJson(job.getArguments());
+                serializedArgs = "JSON.parse('" + StringEscapeUtils
+                        .escapeJavaScript(serializedArgs) + "')";
+                evaluateJavaScript("Tomahawk.PluginManager.invoke("
+                        + "'" + requestId + "',"
+                        + "'" + job.getScriptObject().getId() + "',"
+                        + "'" + job.getMethodName() + "',"
+                        + serializedArgs + ")");
             }
         });
     }
@@ -267,17 +256,30 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         });
     }
 
-    public void reportScriptJobResult(JsonNode result) {
-        String requestId = result.get("requestId").asText();
-        if (requestId.isEmpty()) {
-            Log.e(TAG, "reportScriptJobResult - ScriptAccount:" + mName + ", requestId is empty");
+    public void reportScriptJobResult(JsonObject result) {
+        JsonElement requestIdNode = result.get("requestId");
+        String requestId = null;
+        if (requestIdNode != null && requestIdNode.isJsonPrimitive()) {
+            requestId = result.get("requestId").getAsString();
         }
-        ScriptJob job = mJobs.get(requestId);
-        if (result.get("error") == null) {
-            JsonNode data = result.get("data");
-            job.reportResults(data);
+        if (requestId != null && !requestId.isEmpty()) {
+            ScriptJob job = mJobs.get(requestId);
+            if (job != null) {
+                JsonElement errorNode = result.get("error");
+                if (errorNode == null) {
+                    job.reportResults(result.get("data"));
+                } else if (errorNode.isJsonPrimitive()) {
+                    job.reportFailure(result.get("error").getAsString());
+                } else {
+                    job.reportFailure("no error message provided");
+                }
+            } else {
+                Log.e(TAG, "reportScriptJobResult - ScriptAccount:" + mName
+                        + ", couldn't find ScriptJob with given requestId");
+            }
         } else {
-            job.reportFailure(result.get("error").asText());
+            Log.e(TAG, "reportScriptJobResult - ScriptAccount:" + mName
+                    + ", requestId is null or empty");
         }
     }
 
@@ -345,16 +347,12 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
                 headers.put(key, concatenatedValues);
             }
         }
-        try {
-            String headersString = InfoSystemUtils.getObjectMapper().writeValueAsString(headers);
-            evaluateJavaScript("Tomahawk._nativeAsyncRequestDone(" + requestId + ","
-                    + "'" + StringEscapeUtils.escapeJavaScript(responseText) + "',"
-                    + "'" + StringEscapeUtils.escapeJavaScript(headersString) + "',"
-                    + status + ","
-                    + "'" + StringEscapeUtils.escapeJavaScript(statusText) + "');");
-        } catch (IOException e) {
-            Log.e(TAG, "nativeAsyncRequestDone: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
+        String headersString = GsonHelper.get().toJson(headers);
+        evaluateJavaScript("Tomahawk._nativeAsyncRequestDone(" + requestId + ","
+                + "'" + StringEscapeUtils.escapeJavaScript(responseText) + "',"
+                + "'" + StringEscapeUtils.escapeJavaScript(headersString) + "',"
+                + status + ","
+                + "'" + StringEscapeUtils.escapeJavaScript(statusText) + "');");
     }
 
 }

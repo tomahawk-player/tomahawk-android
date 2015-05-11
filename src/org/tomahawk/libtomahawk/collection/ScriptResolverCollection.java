@@ -17,10 +17,10 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptAccount;
@@ -28,11 +28,9 @@ import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.ScriptObject;
 import org.tomahawk.libtomahawk.resolver.ScriptPlugin;
 import org.tomahawk.libtomahawk.resolver.ScriptUtils;
-import org.tomahawk.libtomahawk.resolver.models.ScriptResolverArtistResult;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.util.Log;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -88,35 +86,28 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
      * Initialize this {@link org.tomahawk.libtomahawk.collection.ScriptResolverCollection}.
      */
     protected void initializeCollection() {
-        ScriptJob.start(mScriptObject, "artists", new ScriptJob.ResultsCallback() {
+        ScriptJob.start(mScriptObject, "artists", new ScriptJob.ResultsObjectCallback() {
             @Override
-            public void onReportResults(JsonNode results) {
-                try {
-                    ScriptResolverArtistResult result = InfoSystemUtils.getObjectMapper()
-                            .treeToValue(results, ScriptResolverArtistResult.class);
-                    if (result != null) {
-                        // First parse the result
-                        HashSet<String> updatedItemIds = new HashSet<>();
-                        JsonNode artistsNode = results.get("artists");
-                        if (artistsNode != null && artistsNode.isArray()
-                                && artistsNode.size() > 0) {
-                            for (JsonNode artistNode : artistsNode) {
-                                Artist artist = Artist.get(artistNode.asText());
-                                addArtist(artist);
-                                updatedItemIds.add(artist.getCacheKey());
-                            }
-
-                            // And finally fire the UpdatedEvent
-                            CollectionManager.UpdatedEvent event
-                                    = new CollectionManager.UpdatedEvent();
-                            event.mCollection = ScriptResolverCollection.this;
-                            event.mUpdatedItemIds = updatedItemIds;
-                            EventBus.getDefault().post(event);
+            public void onReportResults(JsonObject results) {
+                // First parse the result
+                HashSet<String> updatedItemIds = new HashSet<>();
+                JsonElement artistsNode = results.get("artists");
+                if (artistsNode != null && artistsNode.isJsonArray()
+                        && ((JsonArray) artistsNode).size() > 0) {
+                    for (JsonElement artistNode : ((JsonArray) artistsNode)) {
+                        if (artistNode != null && artistNode.isJsonPrimitive()) {
+                            Artist artist = Artist.get(artistNode.getAsString());
+                            addArtist(artist);
+                            updatedItemIds.add(artist.getCacheKey());
                         }
                     }
-                } catch (JsonProcessingException e) {
-                    Log.e(TAG, "initializeCollection: " + e.getClass() + ": "
-                            + e.getLocalizedMessage());
+
+                    // And finally fire the UpdatedEvent
+                    CollectionManager.UpdatedEvent event
+                            = new CollectionManager.UpdatedEvent();
+                    event.mCollection = ScriptResolverCollection.this;
+                    event.mUpdatedItemIds = updatedItemIds;
+                    EventBus.getDefault().post(event);
                 }
             }
         });
@@ -130,36 +121,39 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
             HashMap<String, Object> args = new HashMap<>();
             args.put("artist", album.getArtist().getName());
             args.put("album", album.getName());
-            ScriptJob.start(mScriptObject, "tracks", args, new ScriptJob.ResultsCallback() {
+            ScriptJob.start(mScriptObject, "tracks", args, new ScriptJob.ResultsObjectCallback() {
                 @Override
-                public void onReportResults(JsonNode results) {
+                public void onReportResults(JsonObject results) {
                     if (results != null) {
                         // First parse the result
-                        ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
-                                mScriptAccount.getScriptResolver(), results.get("results"));
-                        Artist artist =
-                                Artist.get(ScriptUtils.getNodeChildAsText(results, "artist"));
-                        Album album = Album
-                                .get(ScriptUtils.getNodeChildAsText(results, "album"), artist);
+                        JsonElement resultsArray = results.get("results");
+                        if (resultsArray.isJsonArray()) {
+                            ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
+                                    mScriptAccount.getScriptResolver(), (JsonArray) resultsArray);
+                            Artist artist =
+                                    Artist.get(ScriptUtils.getNodeChildAsText(results, "artist"));
+                            Album album = Album
+                                    .get(ScriptUtils.getNodeChildAsText(results, "album"), artist);
 
-                        // Now create the queries
-                        ArrayList<Query> queries = new ArrayList<>();
-                        for (Result r : parsedResults) {
-                            Query query = Query.get(r, isLocal());
-                            float trackScore = query.howSimilar(r);
-                            query.addTrackResult(r, trackScore);
-                            queries.add(query);
-                            addQuery(query, 0);
+                            // Now create the queries
+                            ArrayList<Query> queries = new ArrayList<>();
+                            for (Result r : parsedResults) {
+                                Query query = Query.get(r, isLocal());
+                                float trackScore = query.howSimilar(r);
+                                query.addTrackResult(r, trackScore);
+                                queries.add(query);
+                                addQuery(query, 0);
+                            }
+                            addAlbumTracks(album, queries);
+
+                            // And finally fire the UpdatedEvent
+                            CollectionManager.UpdatedEvent event
+                                    = new CollectionManager.UpdatedEvent();
+                            event.mCollection = ScriptResolverCollection.this;
+                            event.mUpdatedItemIds = new HashSet<>();
+                            event.mUpdatedItemIds.add(album.getCacheKey());
+                            EventBus.getDefault().post(event);
                         }
-                        addAlbumTracks(album, queries);
-
-                        // And finally fire the UpdatedEvent
-                        CollectionManager.UpdatedEvent event
-                                = new CollectionManager.UpdatedEvent();
-                        event.mCollection = ScriptResolverCollection.this;
-                        event.mUpdatedItemIds = new HashSet<>();
-                        event.mUpdatedItemIds.add(album.getCacheKey());
-                        EventBus.getDefault().post(event);
                     }
                 }
             });
@@ -174,19 +168,22 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
         } else {
             HashMap<String, Object> args = new HashMap<>();
             args.put("artist", artist.getName());
-            ScriptJob.start(mScriptObject, "albums", args, new ScriptJob.ResultsCallback() {
+            ScriptJob.start(mScriptObject, "albums", args, new ScriptJob.ResultsObjectCallback() {
                 @Override
-                public void onReportResults(JsonNode results) {
+                public void onReportResults(JsonObject results) {
                     if (results != null) {
                         // Get the Artist and add all albums to it
                         Artist artist =
                                 Artist.get(ScriptUtils.getNodeChildAsText(results, "artist"));
-                        JsonNode albumsNode = results.get("albums");
-                        if (albumsNode != null && albumsNode.isArray() && albumsNode.size() > 0) {
-                            for (JsonNode albumNode : albumsNode) {
-                                Album album = Album.get(albumNode.asText(), artist);
-                                addAlbum(album);
-                                addArtistAlbum(album.getArtist(), album);
+                        JsonElement albumsNode = results.get("albums");
+                        if (albumsNode instanceof JsonArray
+                                && ((JsonArray) albumsNode).size() > 0) {
+                            for (JsonElement albumNode : ((JsonArray) albumsNode)) {
+                                if (albumNode != null && albumNode.isJsonPrimitive()) {
+                                    Album album = Album.get(albumNode.getAsString(), artist);
+                                    addAlbum(album);
+                                    addArtistAlbum(album.getArtist(), album);
+                                }
                             }
 
                             // And finally fire the UpdatedEvent

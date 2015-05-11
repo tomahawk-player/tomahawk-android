@@ -17,28 +17,17 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.util.List;
 
-import org.tomahawk.libtomahawk.infosystem.deserializer.ArtistsDeserializer;
-import org.tomahawk.libtomahawk.infosystem.deserializer.PlaybackItemsDeserializer;
-import org.tomahawk.libtomahawk.infosystem.deserializer.TracksDeserializer;
-
-import java.util.Map;
-
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class HatchetPlaybackLogsResponse {
 
-    @JsonDeserialize(using = ArtistsDeserializer.class)
-    public Map<String, HatchetArtistInfo> artists;
+    public List<HatchetArtistInfo> artists;
 
     public HatchetPlaybackLogResponse playbackLog;
 
-    @JsonDeserialize(using = PlaybackItemsDeserializer.class)
-    public Map<String, HatchetPlaybackItemResponse> playbackLogEntries;
+    public List<HatchetPlaybackItemResponse> playbackLogEntries;
 
-    @JsonDeserialize(using = TracksDeserializer.class)
-    public Map<String, HatchetTrackInfo> tracks;
+    public List<HatchetTrackInfo> tracks;
 
     public HatchetPlaybackLogsResponse() {
     }

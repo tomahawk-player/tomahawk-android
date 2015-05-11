@@ -1,13 +1,15 @@
 package org.tomahawk.libtomahawk.utils;
 
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.text.FieldPosition;
-import java.text.NumberFormat;
-import java.text.ParsePosition;
-import java.util.Calendar;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
+
+import java.lang.reflect.Type;
 import java.util.Date;
-import java.util.GregorianCalendar;
 
 /**
  * Provide a fast thread-safe formatter/parser DateFormat for ISO8601 dates ONLY. It was mainly done
@@ -16,38 +18,17 @@ import java.util.GregorianCalendar;
  *
  * @see ISO8601Utils
  */
-public class ISO8601DateFormat extends DateFormat {
+public class ISO8601DateFormat implements JsonDeserializer<Date>, JsonSerializer<Date> {
 
-    private static final long serialVersionUID = 1L;
-
-    // those classes are to try to allow a consistent behavior for hascode/equals and other methods
-    private static final Calendar CALENDAR = new GregorianCalendar();
-
-    private static final NumberFormat NUMBER_FORMAT = new DecimalFormat();
-
-    public ISO8601DateFormat() {
-        this.numberFormat = NUMBER_FORMAT;
-        this.calendar = CALENDAR;
+    @Override
+    public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+            throws JsonParseException {
+        return ISO8601Utils.parse(json.getAsString());
     }
 
     @Override
-    public StringBuffer format(Date date, StringBuffer toAppendTo, FieldPosition fieldPosition) {
-        String value = ISO8601Utils.format(date);
-        toAppendTo.append(value);
-        return toAppendTo;
-    }
-
-    @Override
-    public Date parse(String source, ParsePosition pos) {
-        // index must be set to other than 0, I would swear this requirement is not there in
-        // some version of jdk 6.
-        pos.setIndex(source.length());
-        return ISO8601Utils.parse(source);
-    }
-
-    @Override
-    public Object clone() {
-        super.clone();
-        return this;    // jackson calls clone everytime. We are threadsafe so just returns the instance
+    public JsonElement serialize(Date src, Type typeOfSrc, JsonSerializationContext context) {
+        String value = ISO8601Utils.format(src);
+        return new JsonPrimitive(value);
     }
 }

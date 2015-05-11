@@ -17,10 +17,6 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
@@ -40,19 +36,21 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSocialAction;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetTrackInfo;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUserInfo;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.Mappable;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.ISO8601DateFormat;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class InfoSystemUtils {
 
-    private static ObjectMapper sObjectMapper;
+    private final static String TAG = InfoSystemUtils.class.getSimpleName();
 
     /**
      * Convert the given playlist entry data, add it to a Playlist object and return that.
@@ -62,24 +60,32 @@ public class InfoSystemUtils {
      * @return the filled Playlist object
      */
     public static Playlist fillPlaylist(Playlist playlist, HatchetPlaylistEntries playlistEntries) {
-        if (playlist != null && playlistEntries != null) {
+        if (playlist != null && playlistEntries != null
+                && playlistEntries.playlistEntries != null) {
             ArrayList<PlaylistEntry> entries = new ArrayList<>();
-            List<HatchetPlaylistEntryInfo> entryInfos = playlistEntries.playlistEntries;
-            for (int i = 0; i < entryInfos.size(); i++) {
-                HatchetPlaylistEntryInfo entryInfo = entryInfos.get(i);
-                HatchetTrackInfo trackInfo = playlistEntries.tracks.get(entryInfo.track);
+            Map<String, HatchetTrackInfo> tracksMap = listToMap(playlistEntries.tracks);
+            Map<String, HatchetArtistInfo> artistsMap = listToMap(playlistEntries.artists);
+            Map<String, HatchetAlbumInfo> albumsMap = listToMap(playlistEntries.albums);
+            for (HatchetPlaylistEntryInfo entryInfo : playlistEntries.playlistEntries) {
+                HatchetTrackInfo trackInfo = tracksMap.get(entryInfo.track);
                 if (trackInfo != null) {
-                    HatchetArtistInfo artistInfo = playlistEntries.artists.get(trackInfo.artist);
+                    HatchetArtistInfo artistInfo = artistsMap.get(trackInfo.artist);
                     String albumName = null;
                     if (playlistEntries.albums != null && entryInfo.album != null) {
-                        albumName = playlistEntries.albums.get(entryInfo.album).name;
+                        albumName = albumsMap.get(entryInfo.album).name;
                     }
-                    Query query = Query.get(trackInfo.name, albumName, artistInfo.name, false);
+                    String artistName = null;
+                    if (artistInfo != null) {
+                        artistName = artistInfo.name;
+                    }
+                    Query query = Query.get(trackInfo.name, albumName, artistName, false);
                     entries.add(PlaylistEntry.get(playlist.getId(), query, entryInfo.id));
                 }
             }
             playlist.setEntries(entries);
             playlist.setFilled(true);
+        } else {
+            Log.e(TAG, "fillPlaylist - Unable to parse.");
         }
         return playlist;
     }
@@ -290,24 +296,59 @@ public class InfoSystemUtils {
      */
     public static ArrayList<Query> convertToQueryList(HatchetPlaybackLogsResponse playbackLogs) {
         ArrayList<Query> queries = new ArrayList<>();
-        for (String playbackItemId : playbackLogs.playbackLog.playbackLogEntries) {
-            HatchetPlaybackItemResponse playbackitem =
-                    playbackLogs.playbackLogEntries.get(playbackItemId);
-            HatchetTrackInfo trackInfo = playbackLogs.tracks.get(playbackitem.track);
-            HatchetArtistInfo artistInfo = playbackLogs.artists.get(trackInfo.artist);
-            Query q = Query.get(trackInfo.name, null, artistInfo.name, false, true);
-            queries.add(q);
+        if (playbackLogs.playbackLog != null && playbackLogs.playbackLogEntries != null) {
+            Map<String, HatchetTrackInfo> tracksMap = listToMap(playbackLogs.tracks);
+            Map<String, HatchetArtistInfo> artistsMap = listToMap(playbackLogs.artists);
+            Map<String, HatchetPlaybackItemResponse> entriesMap =
+                    listToMap(playbackLogs.playbackLogEntries);
+            for (String playbackItemId : playbackLogs.playbackLog.playbackLogEntries) {
+                HatchetPlaybackItemResponse playbackitem = entriesMap.get(playbackItemId);
+                HatchetTrackInfo trackInfo = tracksMap.get(playbackitem.track);
+                HatchetArtistInfo artistInfo = artistsMap.get(trackInfo.artist);
+                Query q = Query.get(trackInfo.name, null, artistInfo.name, false, true);
+                queries.add(q);
+            }
+        } else {
+            Log.e(TAG, "convertToQueryList - Unable to parse.");
         }
         return queries;
     }
 
-    public static ObjectMapper getObjectMapper() {
-        if (sObjectMapper == null) {
-            sObjectMapper = new ObjectMapper();
-            sObjectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-            sObjectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            sObjectMapper.setDateFormat(new ISO8601DateFormat());
+    public static <T extends Mappable> Map<String, T> listToMap(List<T> list) {
+        if (list != null) {
+            Map<String, T> map = new HashMap<>();
+            for (T item : list) {
+                map.put(item.id, item);
+            }
+            return map;
         }
-        return sObjectMapper;
+        return null;
+    }
+
+    public static <T> T carelessGet(List<T> list, int position) {
+        if (list == null || position >= list.size()) {
+            return null;
+        } else {
+            return list.get(position);
+        }
+    }
+
+    public static <T extends Mappable> T carelessGet(List<T> list, String id) {
+        if (list != null && id != null) {
+            for (T item : list) {
+                if (item.id.equals(id)) {
+                    return item;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static <T> T carelessGet(Map<String, T> map, String key) {
+        if (map == null || key == null) {
+            return null;
+        } else {
+            return map.get(key);
+        }
     }
 }

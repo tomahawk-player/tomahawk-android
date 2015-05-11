@@ -875,26 +875,6 @@ public class TomahawkUtils {
         return ret && path.delete();
     }
 
-    public static <T> T carelessGetFirst(Collection<T> list) {
-        return list != null && list.iterator().hasNext() ? list.iterator().next() : null;
-    }
-
-    public static <T> T carelessGet(List<T> list, int position) {
-        if (list == null || position >= list.size()) {
-            return null;
-        } else {
-            return list.get(position);
-        }
-    }
-
-    public static <T> T carelessGet(Map<String, T> map, String key) {
-        if (map == null || key == null) {
-            return null;
-        } else {
-            return map.get(key);
-        }
-    }
-
     public static void afterViewGlobalLayout(final ViewRunnable viewRunnable) {
         if (viewRunnable.getLayedOutView().getHeight() > 0
                 || viewRunnable.getLayedOutView().getWidth() > 0) {
