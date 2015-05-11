@@ -17,8 +17,6 @@
  */
 package org.tomahawk.libtomahawk.database;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -26,9 +24,9 @@ import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
-import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.MediaWrapper;
@@ -45,7 +43,6 @@ import android.util.Log;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -888,14 +885,7 @@ public class DatabaseHelper {
                     opToLog.getJsonStringToSend());
         }
         if (opToLog.getQueryParams() != null) {
-            String paramsJsonString = null;
-            try {
-                paramsJsonString = InfoSystemUtils.getObjectMapper()
-                        .writeValueAsString(opToLog.getQueryParams());
-            } catch (JsonProcessingException e) {
-                Log.e(TAG,
-                        "addOpToInfoSystemOpLog: " + e.getClass() + ": " + e.getLocalizedMessage());
-            }
+            String paramsJsonString = GsonHelper.get().toJson(opToLog.getQueryParams());
             values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_PARAMS, paramsJsonString);
         }
         mDatabase.insert(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG, null, values);
@@ -950,12 +940,7 @@ public class DatabaseHelper {
             String paramJsonString = opLogCursor.getString(4);
             QueryParams params = null;
             if (paramJsonString != null) {
-                try {
-                    params = InfoSystemUtils.getObjectMapper()
-                            .readValue(paramJsonString, QueryParams.class);
-                } catch (IOException e) {
-                    Log.e(TAG, "getLoggedOps: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
+                params = GsonHelper.get().fromJson(paramJsonString, QueryParams.class);
             }
             InfoRequestData infoRequestData = new InfoRequestData(requestId, opLogCursor.getInt(1),
                     params, opLogCursor.getInt(0), opLogCursor.getInt(2), opLogCursor.getString(3),

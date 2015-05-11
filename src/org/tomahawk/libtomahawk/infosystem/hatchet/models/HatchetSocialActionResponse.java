@@ -17,37 +17,21 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import org.tomahawk.libtomahawk.infosystem.deserializer.AlbumsDeserializer;
-import org.tomahawk.libtomahawk.infosystem.deserializer.ArtistsDeserializer;
-import org.tomahawk.libtomahawk.infosystem.deserializer.PlaylistsDeserializer;
-import org.tomahawk.libtomahawk.infosystem.deserializer.TracksDeserializer;
-import org.tomahawk.libtomahawk.infosystem.deserializer.UsersDeserializer;
-
 import java.util.List;
-import java.util.Map;
 
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class HatchetSocialActionResponse {
 
     public List<HatchetSocialAction> socialActions;
 
-    @JsonDeserialize(using = TracksDeserializer.class)
-    public Map<String, HatchetTrackInfo> tracks;
+    public List<HatchetTrackInfo> tracks;
 
-    @JsonDeserialize(using = ArtistsDeserializer.class)
-    public Map<String, HatchetArtistInfo> artists;
+    public List<HatchetArtistInfo> artists;
 
-    @JsonDeserialize(using = AlbumsDeserializer.class)
-    public Map<String, HatchetAlbumInfo> albums;
+    public List<HatchetAlbumInfo> albums;
 
-    @JsonDeserialize(using = PlaylistsDeserializer.class)
-    public Map<String, HatchetPlaylistInfo> playlists;
+    public List<HatchetPlaylistInfo> playlists;
 
-    @JsonDeserialize(using = UsersDeserializer.class)
-    public Map<String, HatchetUserInfo> users;
+    public List<HatchetUserInfo> users;
 
     public HatchetSocialActionResponse() {
     }

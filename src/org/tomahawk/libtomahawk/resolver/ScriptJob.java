@@ -17,10 +17,11 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
+import org.tomahawk.libtomahawk.utils.GsonHelper;
 
 import android.util.Log;
 
@@ -42,13 +43,42 @@ public class ScriptJob {
 
     private Map<String, Object> mArguments;
 
-    private ResultsCallback mResultsCallback;
+    private SuccessCallback mSuccessCallback;
 
     private FailureCallback mFailureCallback;
 
-    public interface ResultsCallback {
+    private interface SuccessCallback {
 
-        void onReportResults(JsonNode results);
+    }
+
+    public interface ResultsArrayCallback extends SuccessCallback {
+
+        void onReportResults(JsonArray results);
+    }
+
+    public interface ResultsObjectCallback extends SuccessCallback {
+
+        void onReportResults(JsonObject results);
+    }
+
+    public interface ResultsEmptyCallback extends SuccessCallback {
+
+        void onReportResults();
+    }
+
+    public static abstract class ResultsCallback<T> implements SuccessCallback {
+
+        private Class<T> type;
+
+        public ResultsCallback(Class<T> type) {
+            this.type = type;
+        }
+
+        public abstract void onReportResults(T results);
+
+        public Class<T> getType() {
+            return type;
+        }
     }
 
     public interface FailureCallback {
@@ -65,13 +95,13 @@ public class ScriptJob {
      * @param methodName      The name of the method that will be called on the JS side.
      * @param arguments       The set of arguments (parameters) that is provided to the called
      *                        method.
-     * @param resultsCallback A callback object that will get called when the request has
+     * @param successCallback A callback object that will get called when the request has
      *                        successfully returned from the JS side.
      * @param failureCallback A callback object that will get called when the request has failed.
      */
     public static void start(ScriptObject object, String methodName, Map<String, Object> arguments,
-            ResultsCallback resultsCallback, FailureCallback failureCallback) {
-        ScriptJob job = new ScriptJob(object, methodName, arguments, resultsCallback,
+            SuccessCallback successCallback, FailureCallback failureCallback) {
+        ScriptJob job = new ScriptJob(object, methodName, arguments, successCallback,
                 failureCallback);
         object.getScriptAccount().startJob(job);
     }
@@ -85,12 +115,12 @@ public class ScriptJob {
      * @param methodName      The name of the method that will be called on the JS side.
      * @param arguments       The set of arguments (parameters) that is provided to the called
      *                        method.
-     * @param resultsCallback A callback object that will get called when the request has
+     * @param successCallback A callback object that will get called when the request has
      *                        successfully returned from the JS side.
      */
     public static void start(ScriptObject object, String methodName, Map<String, Object> arguments,
-            ResultsCallback resultsCallback) {
-        ScriptJob job = new ScriptJob(object, methodName, arguments, resultsCallback, null);
+            SuccessCallback successCallback) {
+        ScriptJob job = new ScriptJob(object, methodName, arguments, successCallback, null);
         object.getScriptAccount().startJob(job);
     }
 
@@ -101,12 +131,12 @@ public class ScriptJob {
      *                        ScriptJob}. The {@link ScriptObject} represents the Java-{@link
      *                        ScriptPlugin} on the JS side.
      * @param methodName      The name of the method that will be called on the JS side.
-     * @param resultsCallback A callback object that will get called when the request has
+     * @param successCallback A callback object that will get called when the request has
      *                        successfully returned from the JS side.
      */
     public static void start(ScriptObject object, String methodName,
-            ResultsCallback resultsCallback) {
-        ScriptJob job = new ScriptJob(object, methodName, null, resultsCallback, null);
+            SuccessCallback successCallback) {
+        ScriptJob job = new ScriptJob(object, methodName, null, successCallback, null);
         object.getScriptAccount().startJob(job);
     }
 
@@ -117,13 +147,13 @@ public class ScriptJob {
      *                        ScriptJob}. The {@link ScriptObject} represents the Java-{@link
      *                        ScriptPlugin} on the JS side.
      * @param methodName      The name of the method that will be called on the JS side.
-     * @param resultsCallback A callback object that will get called when the request has
+     * @param successCallback A callback object that will get called when the request has
      *                        successfully returned from the JS side.
      * @param failureCallback A callback object that will get called when the request has failed.
      */
     public static void start(ScriptObject object, String methodName,
-            ResultsCallback resultsCallback, FailureCallback failureCallback) {
-        ScriptJob job = new ScriptJob(object, methodName, null, resultsCallback, failureCallback);
+            SuccessCallback successCallback, FailureCallback failureCallback) {
+        ScriptJob job = new ScriptJob(object, methodName, null, successCallback, failureCallback);
         object.getScriptAccount().startJob(job);
     }
 
@@ -156,28 +186,20 @@ public class ScriptJob {
     }
 
     private ScriptJob(ScriptObject object, String methodName, Map<String, Object> arguments,
-            ResultsCallback resultsCallback, FailureCallback failureCallback) {
+            SuccessCallback successCallback, FailureCallback failureCallback) {
         mScriptObject = object;
         mMethodName = methodName;
         mArguments = arguments;
-        mResultsCallback = resultsCallback;
+        mSuccessCallback = successCallback;
         if (failureCallback == null) {
             failureCallback = new FailureCallback() {
                 @Override
                 public void onReportFailure(String errormessage) {
-                    String argumentsString = "not parseable";
-                    try {
-                        argumentsString =
-                                InfoSystemUtils.getObjectMapper().writeValueAsString(mArguments);
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                    } finally {
-                        Log.e(TAG, "ScriptJob failed - ScriptAccount: "
-                                + mScriptObject.getScriptAccount().getName()
-                                + ", methodName: " + mMethodName
-                                + ", arguments: " + argumentsString
-                                + ", errorMessage: " + errormessage);
-                    }
+                    Log.e(TAG, "ScriptJob failed - ScriptAccount: "
+                            + mScriptObject.getScriptAccount().getName()
+                            + ", methodName: " + mMethodName
+                            + ", arguments: " + GsonHelper.get().toJson(mArguments)
+                            + ", errorMessage: " + errormessage);
                 }
             };
         }
@@ -201,9 +223,19 @@ public class ScriptJob {
      *
      * @param data The returned data.
      */
-    public void reportResults(JsonNode data) {
-        if (mResultsCallback != null) {
-            mResultsCallback.onReportResults(data);
+    public void reportResults(JsonElement data) {
+        if (mSuccessCallback instanceof ResultsCallback) {
+            ResultsCallback callback = ((ResultsCallback) mSuccessCallback);
+            callback.onReportResults(GsonHelper.get().fromJson(data, callback.getType()));
+        } else if (data instanceof JsonObject
+                && mSuccessCallback instanceof ResultsObjectCallback) {
+            ((ResultsObjectCallback) mSuccessCallback).onReportResults((JsonObject) data);
+        } else if (data instanceof JsonArray && mSuccessCallback instanceof ResultsArrayCallback) {
+            ((ResultsArrayCallback) mSuccessCallback).onReportResults((JsonArray) data);
+        } else if (mSuccessCallback instanceof ResultsEmptyCallback) {
+            ((ResultsEmptyCallback) mSuccessCallback).onReportResults();
+        } else {
+            reportFailure("Unexpected result!");
         }
     }
 

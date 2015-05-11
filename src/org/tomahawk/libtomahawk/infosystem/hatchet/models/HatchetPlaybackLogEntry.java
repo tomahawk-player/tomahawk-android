@@ -17,11 +17,8 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.util.Date;
 
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class HatchetPlaybackLogEntry {
 
     public String artistString;

@@ -17,8 +17,6 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
@@ -40,6 +38,7 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetRelationshipStr
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSocialAction;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSocialActionPostStruct;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
@@ -482,19 +481,13 @@ public class InfoSystem {
             playbackLogPostStruct.playbackLogEntry = playbackLogEntry;
 
             String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-            try {
-                String jsonString = InfoSystemUtils.getObjectMapper()
-                        .writeValueAsString(playbackLogPostStruct);
-                InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                        InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES, null,
-                        InfoRequestData.HTTPTYPE_POST, jsonString);
-                DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
-                        (int) (timeStamp / 1000));
-                sendLoggedOps(authenticatorUtils);
-            } catch (JsonProcessingException e) {
-                Log.e(TAG, "sendPlaybackEntryPostStruct: " + e.getClass() + ": "
-                        + e.getLocalizedMessage());
-            }
+            String jsonString = GsonHelper.get().toJson(playbackLogPostStruct);
+            InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                    InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES, null,
+                    InfoRequestData.HTTPTYPE_POST, jsonString);
+            DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                    (int) (timeStamp / 1000));
+            sendLoggedOps(authenticatorUtils);
         }
     }
 
@@ -510,17 +503,11 @@ public class InfoSystem {
             nowPlayingPostStruct.nowPlaying = nowPlaying;
 
             String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-            try {
-                String jsonString = InfoSystemUtils.getObjectMapper()
-                        .writeValueAsString(nowPlayingPostStruct);
-                InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                        InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING, null,
-                        InfoRequestData.HTTPTYPE_POST, jsonString);
-                send(infoRequestData, authenticatorUtils);
-            } catch (JsonProcessingException e) {
-                Log.e(TAG, "sendNowPlayingPostStruct: " + e.getClass() + ": "
-                        + e.getLocalizedMessage());
-            }
+            String jsonString = GsonHelper.get().toJson(nowPlayingPostStruct);
+            InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                    InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING, null,
+                    InfoRequestData.HTTPTYPE_POST, jsonString);
+            send(infoRequestData, authenticatorUtils);
         }
     }
 
@@ -539,19 +526,13 @@ public class InfoSystem {
         socialActionPostStruct.socialAction = socialAction;
 
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-        try {
-            String jsonString = InfoSystemUtils.getObjectMapper()
-                    .writeValueAsString(socialActionPostStruct);
-            InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                    InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, null,
-                    InfoRequestData.HTTPTYPE_POST, jsonString);
-            DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
-                    (int) (timeStamp / 1000));
-            sendLoggedOps(authenticatorUtils);
-        } catch (JsonProcessingException e) {
-            Log.e(TAG, "sendSocialActionPostStruct: " + e.getClass() + ": "
-                    + e.getLocalizedMessage());
-        }
+        String jsonString = GsonHelper.get().toJson(socialActionPostStruct);
+        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, null,
+                InfoRequestData.HTTPTYPE_POST, jsonString);
+        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                (int) (timeStamp / 1000));
+        sendLoggedOps(authenticatorUtils);
     }
 
     public void sendSocialActionPostStruct(AuthenticatorUtils authenticatorUtils, Query query,
@@ -580,22 +561,15 @@ public class InfoSystem {
         struct.playlist = request;
 
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-        try {
-            String jsonString = InfoSystemUtils.getObjectMapper()
-                    .writeValueAsString(struct);
-            QueryParams params = new QueryParams();
-            params.playlist_local_id = localId;
-            InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                    InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params,
-                    InfoRequestData.HTTPTYPE_POST, jsonString);
-            DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
-                    (int) (timeStamp / 1000));
-            return sendLoggedOps(authenticatorUtils);
-        } catch (JsonProcessingException e) {
-            Log.e(TAG, "sendPlaylistPostStruct: " + e.getClass() + ": "
-                    + e.getLocalizedMessage());
-        }
-        return null;
+        String jsonString = GsonHelper.get().toJson(struct);
+        QueryParams params = new QueryParams();
+        params.playlist_local_id = localId;
+        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params,
+                InfoRequestData.HTTPTYPE_POST, jsonString);
+        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                (int) (timeStamp / 1000));
+        return sendLoggedOps(authenticatorUtils);
     }
 
     public void sendPlaylistEntriesPostStruct(AuthenticatorUtils authenticatorUtils,
@@ -609,21 +583,15 @@ public class InfoSystem {
         struct.playlistEntry = request;
 
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-        try {
-            String jsonString = InfoSystemUtils.getObjectMapper()
-                    .writeValueAsString(struct);
-            QueryParams params = new QueryParams();
-            params.playlist_local_id = localPlaylistId;
-            InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                    InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES, params,
-                    InfoRequestData.HTTPTYPE_POST, jsonString);
-            DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
-                    (int) (timeStamp / 1000));
-            sendLoggedOps(authenticatorUtils);
-        } catch (JsonProcessingException e) {
-            Log.e(TAG, "sendPlaylistEntriesPostStruct: " + e.getClass() + ": "
-                    + e.getLocalizedMessage());
-        }
+        String jsonString = GsonHelper.get().toJson(struct);
+        QueryParams params = new QueryParams();
+        params.playlist_local_id = localPlaylistId;
+        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES, params,
+                InfoRequestData.HTTPTYPE_POST, jsonString);
+        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+                (int) (timeStamp / 1000));
+        sendLoggedOps(authenticatorUtils);
     }
 
     public void deletePlaylist(AuthenticatorUtils authenticatorUtils, String localPlaylistId) {
@@ -664,19 +632,12 @@ public class InfoSystem {
 
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
 
-        try {
-            String jsonString = InfoSystemUtils.getObjectMapper()
-                    .writeValueAsString(struct);
-            InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                    InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS, null,
-                    InfoRequestData.HTTPTYPE_POST, jsonString);
-            send(infoRequestData, authenticatorUtils);
-            return infoRequestData.getRequestId();
-        } catch (JsonProcessingException e) {
-            Log.e(TAG, "sendRelationshipPostStruct: " + e.getClass() + ": "
-                    + e.getLocalizedMessage());
-        }
-        return null;
+        String jsonString = GsonHelper.get().toJson(struct);
+        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+                InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS, null,
+                InfoRequestData.HTTPTYPE_POST, jsonString);
+        send(infoRequestData, authenticatorUtils);
+        return infoRequestData.getRequestId();
     }
 
     public String deleteRelationship(AuthenticatorUtils authenticatorUtils, String relationshipId) {

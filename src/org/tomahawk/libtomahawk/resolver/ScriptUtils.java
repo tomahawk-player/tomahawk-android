@@ -17,7 +17,9 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -28,15 +30,15 @@ import java.util.ArrayList;
 public class ScriptUtils {
 
     /**
-     * Parses the given {@link JsonNode) into an {@link ArrayList} of {@link Result}s.
+     * Parses the given {@link JsonArray) into an {@link ArrayList} of {@link Result}s.
      *
      * @param resolver   the {@link Resolver} which will be set in the {@link Result}'s constructor
-     * @param rawResults {@link JsonNode) containing the raw result information
+     * @param rawResults {@link JsonArray) containing the raw result information
      * @return a {@link ArrayList} of {@link Result}s containing the parsed data
      */
-    public static ArrayList<Result> parseResultList(ScriptResolver resolver, JsonNode rawResults) {
+    public static ArrayList<Result> parseResultList(ScriptResolver resolver, JsonArray rawResults) {
         ArrayList<Result> resultList = new ArrayList<>();
-        for (JsonNode rawResult : rawResults) {
+        for (JsonElement rawResult : rawResults) {
             String url = getNodeChildAsText(rawResult, "url");
             String track = getNodeChildAsText(rawResult, "track");
             if (url != null && track != null) {
@@ -74,21 +76,21 @@ public class ScriptUtils {
         return resultList;
     }
 
-    public static String getNodeChildAsText(JsonNode node, String fieldName) {
-        if (node != null) {
-            JsonNode n = node.get(fieldName);
-            if (n != null) {
-                return n.asText();
+    public static String getNodeChildAsText(JsonElement node, String fieldName) {
+        if (node instanceof JsonObject) {
+            JsonElement n = ((JsonObject) node).get(fieldName);
+            if (n != null && n.isJsonPrimitive()) {
+                return n.getAsString();
             }
         }
         return null;
     }
 
-    public static int getNodeChildAsInt(JsonNode node, String fieldName) {
-        if (node != null) {
-            JsonNode n = node.get(fieldName);
-            if (n != null) {
-                return n.asInt();
+    public static int getNodeChildAsInt(JsonElement node, String fieldName) {
+        if (node instanceof JsonObject) {
+            JsonElement n = ((JsonObject) node).get(fieldName);
+            if (n != null && n.isJsonPrimitive()) {
+                return n.getAsInt();
             }
         }
         return 0;

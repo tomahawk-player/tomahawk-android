@@ -17,11 +17,8 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
 import java.util.List;
 
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class HatchetPlaybackLogResponse extends Mappable {
 
     public String user;

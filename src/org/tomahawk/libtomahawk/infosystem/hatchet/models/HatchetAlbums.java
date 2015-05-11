@@ -17,19 +17,13 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet.models;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import org.tomahawk.libtomahawk.infosystem.deserializer.ImagesDeserializer;
-
 import java.util.List;
-import java.util.Map;
 
 public class HatchetAlbums {
 
     public List<HatchetAlbumInfo> albums;
 
-    @JsonDeserialize(using = ImagesDeserializer.class)
-    public Map<String, HatchetImage> images;
+    public List<HatchetImage> images;
 
     public HatchetAlbums() {
     }

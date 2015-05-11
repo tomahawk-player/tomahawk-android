@@ -2,13 +2,13 @@ package org.tomahawk.libtomahawk.resolver;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.Files;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 
-import com.fasterxml.jackson.databind.JsonNode;
-
-import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverFuzzyIndex;
+import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -72,13 +72,7 @@ public class ScriptInterface {
         data.scriptPath = mScriptAccount.getPath() + "/content/" + mScriptAccount
                 .getMetaData().manifest.main;
         data.config = config;
-        String jsonString = "";
-        try {
-            jsonString = InfoSystemUtils.getObjectMapper().writeValueAsString(data);
-        } catch (IOException e) {
-            Log.e(TAG, "resolverDataString: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-        return jsonString;
+        return GsonHelper.get().toJson(data);
     }
 
     /**
@@ -126,14 +120,12 @@ public class ScriptInterface {
                 try {
                     Map<String, String> extraHeaders = new HashMap<>();
                     if (!TextUtils.isEmpty(stringifiedExtraHeaders)) {
-                        extraHeaders = InfoSystemUtils.getObjectMapper().readValue(
-                                stringifiedExtraHeaders, Map.class);
+                        extraHeaders = GsonHelper.get().fromJson(stringifiedExtraHeaders, Map.class);
                     }
                     ScriptInterfaceRequestOptions options = null;
                     if (!TextUtils.isEmpty(stringifiedOptions)) {
-                        options = InfoSystemUtils.getObjectMapper()
-                                .readValue(stringifiedOptions,
-                                        ScriptInterfaceRequestOptions.class);
+                        options = GsonHelper.get().fromJson(stringifiedOptions,
+                                ScriptInterfaceRequestOptions.class);
                     }
                     JsCallback callback = null;
                     if (reqId >= 0) {
@@ -175,15 +167,10 @@ public class ScriptInterface {
     public void addToFuzzyIndexString(String stringifiedIndexList) {
         if (mScriptAccount.getScriptResolver() != null) {
             if (mScriptAccount.getScriptResolver().hasFuzzyIndex()) {
-                try {
-                    ScriptResolverFuzzyIndex[] indexList = InfoSystemUtils.getObjectMapper()
-                            .readValue(stringifiedIndexList, ScriptResolverFuzzyIndex[].class);
-                    mScriptAccount.getScriptResolver().getFuzzyIndex()
-                            .addScriptResolverFuzzyIndexList(indexList);
-                } catch (IOException e) {
-                    Log.e(TAG, "addToFuzzyIndexString: " + e.getClass() + ": "
-                            + e.getLocalizedMessage());
-                }
+                ScriptResolverFuzzyIndex[] indexList = GsonHelper.get().fromJson(stringifiedIndexList,
+                        ScriptResolverFuzzyIndex[].class);
+                mScriptAccount.getScriptResolver().getFuzzyIndex()
+                        .addScriptResolverFuzzyIndexList(indexList);
             } else {
                 Log.e(TAG, "addToFuzzyIndexString: Couldn't add indexList to fuzzy index, no fuzzy "
                         + "index available");
@@ -197,16 +184,11 @@ public class ScriptInterface {
     @JavascriptInterface
     public void createFuzzyIndexString(String stringifiedIndexList) {
         if (mScriptAccount.getScriptResolver() != null) {
-            try {
-                mScriptAccount.getScriptResolver().createFuzzyIndex();
-                ScriptResolverFuzzyIndex[] indexList = InfoSystemUtils.getObjectMapper()
-                        .readValue(stringifiedIndexList, ScriptResolverFuzzyIndex[].class);
-                mScriptAccount.getScriptResolver().getFuzzyIndex()
-                        .addScriptResolverFuzzyIndexList(indexList);
-            } catch (IOException e) {
-                Log.e(TAG,
-                        "createFuzzyIndexString: " + e.getClass() + ": " + e.getLocalizedMessage());
-            }
+            mScriptAccount.getScriptResolver().createFuzzyIndex();
+            ScriptResolverFuzzyIndex[] indexList = GsonHelper.get().fromJson(stringifiedIndexList,
+                    ScriptResolverFuzzyIndex[].class);
+            mScriptAccount.getScriptResolver().getFuzzyIndex()
+                    .addScriptResolverFuzzyIndexList(indexList);
         } else {
             Log.e(TAG, "createFuzzyIndexString - ScriptResolver not set in ScriptAccount: "
                     + mScriptAccount.getName());
@@ -219,12 +201,7 @@ public class ScriptInterface {
                 && mScriptAccount.getScriptResolver().hasFuzzyIndex()) {
             double[][] results = mScriptAccount.getScriptResolver().getFuzzyIndex()
                     .search(Query.get(query, false));
-            try {
-                return InfoSystemUtils.getObjectMapper().writeValueAsString(results);
-            } catch (IOException e) {
-                Log.e(TAG, "searchFuzzyIndexString: " + e.getClass() + ": "
-                        + e.getLocalizedMessage());
-            }
+            return GsonHelper.get().toJson(results);
         } else {
             Log.e(TAG, "searchFuzzyIndexString - ScriptResolver not set in ScriptAccount: "
                     + mScriptAccount.getName());
@@ -238,12 +215,7 @@ public class ScriptInterface {
                 && mScriptAccount.getScriptResolver().hasFuzzyIndex()) {
             double[][] results = mScriptAccount.getScriptResolver().getFuzzyIndex().search(
                     Query.get(title, album, artist, false));
-            try {
-                return InfoSystemUtils.getObjectMapper().writeValueAsString(results);
-            } catch (IOException e) {
-                Log.e(TAG, "resolveFromFuzzyIndexString: " + e.getClass() + ": " + e
-                        .getLocalizedMessage());
-            }
+            return GsonHelper.get().toJson(results);
         } else {
             Log.e(TAG, "resolveFromFuzzyIndexString - ScriptResolver not set in ScriptAccount: "
                     + mScriptAccount.getName());
@@ -345,12 +317,9 @@ public class ScriptInterface {
 
     @JavascriptInterface
     public void reportScriptJobResultsString(String result) {
-        try {
-            JsonNode node = InfoSystemUtils.getObjectMapper().readTree(result);
-            mScriptAccount.reportScriptJobResult(node);
-        } catch (IOException e) {
-            Log.e(TAG, "reportScriptJobResultsString: " + e.getClass() + ": "
-                    + e.getLocalizedMessage());
+        JsonElement node = GsonHelper.get().fromJson(result, JsonElement.class);
+        if (node.isJsonObject()) {
+            mScriptAccount.reportScriptJobResult((JsonObject) node);
         }
     }
 

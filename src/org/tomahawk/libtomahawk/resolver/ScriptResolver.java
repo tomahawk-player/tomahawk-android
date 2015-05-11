@@ -17,13 +17,11 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
-import org.tomahawk.libtomahawk.infosystem.InfoSystemUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverCollectionMetaData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverConfigUi;
@@ -86,8 +84,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
 
     private boolean mStopped;
 
-    private ObjectMapper mObjectMapper;
-
     private boolean mBrowsable;
 
     private boolean mPlaylistSync;
@@ -131,7 +127,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
         mScriptAccount = account;
         mScriptAccount.setScriptResolver(this);
 
-        mObjectMapper = InfoSystemUtils.getObjectMapper();
         if (mScriptAccount.getMetaData().staticCapabilities != null) {
             for (String capability : mScriptAccount.getMetaData().staticCapabilities) {
                 if (capability.equals("configTestable")) {
@@ -226,9 +221,9 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
      * This method calls the js function resolver.init().
      */
     private void resolverInit() {
-        ScriptJob.start(mScriptObject, "init", new ScriptJob.ResultsCallback() {
+        ScriptJob.start(mScriptObject, "init", new ScriptJob.ResultsEmptyCallback() {
             @Override
-            public void onReportResults(JsonNode results) {
+            public void onReportResults() {
                 resolverSettings();
                 collection();
             }
@@ -239,23 +234,18 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
      * This method tries to get the {@link Resolver}'s settings.
      */
     private void resolverSettings() {
-        ScriptJob.start(mScriptObject, "settings", new ScriptJob.ResultsCallback() {
-            @Override
-            public void onReportResults(JsonNode results) {
-                try {
-                    ScriptResolverSettings settings = mObjectMapper.treeToValue(results,
-                            ScriptResolverSettings.class);
-                    mWeight = settings.weight;
-                    mTimeout = settings.timeout * 1000;
-                    mReady = true;
-                    PipeLine.getInstance().onResolverReady(ScriptResolver.this);
-                    resolverGetConfigUi();
-                } catch (JsonProcessingException e) {
-                    Log.e(TAG,
-                            "resolverSettings: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
-            }
-        });
+        ScriptJob.start(mScriptObject, "settings",
+                new ScriptJob.ResultsCallback<ScriptResolverSettings>(
+                        ScriptResolverSettings.class) {
+                    @Override
+                    public void onReportResults(ScriptResolverSettings results) {
+                        mWeight = results.weight;
+                        mTimeout = results.timeout * 1000;
+                        mReady = true;
+                        PipeLine.getInstance().onResolverReady(ScriptResolver.this);
+                        resolverGetConfigUi();
+                    }
+                });
     }
 
     /**
@@ -269,70 +259,57 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
      * This method tries to get the {@link Resolver}'s UserConfig.
      */
     private void resolverGetConfigUi() {
-        ScriptJob.start(mScriptObject, "getConfigUi", new ScriptJob.ResultsCallback() {
-            @Override
-            public void onReportResults(JsonNode results) {
-                try {
-                    mConfigUi = mObjectMapper.treeToValue(results, ScriptResolverConfigUi.class);
-                } catch (JsonProcessingException e) {
-                    Log.e(TAG, "resolverGetConfigUi: " + e.getClass() + ": "
-                            + e.getLocalizedMessage());
-                }
-            }
-        });
+        ScriptJob.start(mScriptObject, "getConfigUi",
+                new ScriptJob.ResultsCallback<ScriptResolverConfigUi>(
+                        ScriptResolverConfigUi.class) {
+                    @Override
+                    public void onReportResults(ScriptResolverConfigUi results) {
+                        mConfigUi = results;
+                    }
+                });
     }
 
     public void lookupUrl(final String url) {
         HashMap<String, Object> args = new HashMap<>();
         args.put("url", url);
-        ScriptJob.start(mScriptObject, "lookupUrl", args, new ScriptJob.ResultsCallback() {
-            @Override
-            public void onReportResults(JsonNode results) {
-                try {
-                    ScriptResolverUrlResult result =
-                            mObjectMapper.treeToValue(results, ScriptResolverUrlResult.class);
-                    if (result != null) {
+        ScriptJob.start(mScriptObject, "lookupUrl", args,
+                new ScriptJob.ResultsCallback<ScriptResolverUrlResult>(
+                        ScriptResolverUrlResult.class) {
+                    @Override
+                    public void onReportResults(ScriptResolverUrlResult results) {
                         Log.d(TAG, "reportUrlResult - url: " + url);
                         PipeLine.UrlResultsEvent event = new PipeLine.UrlResultsEvent();
                         event.mResolver = ScriptResolver.this;
-                        event.mResult = result;
+                        event.mResult = results;
                         EventBus.getDefault().post(event);
+                        mStopped = true;
                     }
-                } catch (IOException e) {
-                    Log.e(TAG, "addUrlResultString: " + e.getClass() + ": " + e
-                            .getLocalizedMessage());
-                }
-                mStopped = true;
-            }
-        });
+                });
     }
 
     public void collection() {
-        ScriptJob.start(mScriptObject, "collection", new ScriptJob.ResultsCallback() {
-            public void onReportResults(JsonNode results) {
-                try {
-                    mScriptAccount.mCollectionMetaData = mObjectMapper.treeToValue(results,
-                            ScriptResolverCollectionMetaData.class);
-                    String iconPath = mScriptAccount.mCollectionMetaData.iconfile;
-                    if (iconPath != null) {
-                        int lastSlash =
-                                mScriptAccount.getMetaData().manifest.main.lastIndexOf("/");
-                        String mainPath = mScriptAccount.getMetaData().manifest.main
-                                .substring(0, lastSlash);
-                        while (iconPath.contains("../")) {
-                            iconPath = iconPath.replace("../", "");
-                            lastSlash = mainPath.lastIndexOf("/");
-                            mainPath = mainPath.substring(0, lastSlash);
+        ScriptJob.start(mScriptObject, "collection",
+                new ScriptJob.ResultsCallback<ScriptResolverCollectionMetaData>(
+                        ScriptResolverCollectionMetaData.class) {
+                    public void onReportResults(ScriptResolverCollectionMetaData results) {
+                        mScriptAccount.mCollectionMetaData = results;
+                        String iconPath = mScriptAccount.mCollectionMetaData.iconfile;
+                        if (iconPath != null) {
+                            int lastSlash =
+                                    mScriptAccount.getMetaData().manifest.main.lastIndexOf("/");
+                            String mainPath = mScriptAccount.getMetaData().manifest.main
+                                    .substring(0, lastSlash);
+                            while (iconPath.contains("../")) {
+                                iconPath = iconPath.replace("../", "");
+                                lastSlash = mainPath.lastIndexOf("/");
+                                mainPath = mainPath.substring(0, lastSlash);
+                            }
+                            mScriptAccount.mCollectionIconPath = "file:///android_asset/"
+                                    + mScriptAccount.getPath() + "/content/" + mainPath + "/"
+                                    + iconPath;
                         }
-                        mScriptAccount.mCollectionIconPath = "file:///android_asset/"
-                                + mScriptAccount.getPath() + "/content/" + mainPath + "/"
-                                + iconPath;
                     }
-                } catch (JsonProcessingException e) {
-                    Log.e(TAG, "collection: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
-            }
-        });
+                });
     }
 
     /**
@@ -348,14 +325,12 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
             mTimeOutHandler.removeCallbacksAndMessages(null);
             mTimeOutHandler.sendEmptyMessageDelayed(TIMEOUT_HANDLER_MSG, mTimeout);
 
-            ScriptJob.ResultsCallback callback = new ScriptJob.ResultsCallback() {
+            ScriptJob.ResultsArrayCallback callback = new ScriptJob.ResultsArrayCallback() {
                 @Override
-                public void onReportResults(JsonNode results) {
-                    if (results != null) {
-                        ArrayList<Result> parsedResults =
-                                ScriptUtils.parseResultList(ScriptResolver.this, results);
-                        PipeLine.getInstance().reportResults(query, parsedResults, mId);
-                    }
+                public void onReportResults(JsonArray results) {
+                    ArrayList<Result> parsedResults =
+                            ScriptUtils.parseResultList(ScriptResolver.this, results);
+                    PipeLine.getInstance().reportResults(query, parsedResults, mId);
                     mTimeOutHandler.removeCallbacksAndMessages(null);
                     mStopped = true;
                 }
@@ -380,29 +355,29 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
         if (result != null) {
             HashMap<String, Object> args = new HashMap<>();
             args.put("url", result.getPath());
-            ScriptJob.start(mScriptObject, "getStreamUrl", args, new ScriptJob.ResultsCallback() {
-                @Override
-                public void onReportResults(JsonNode results) {
-                    try {
-                        ScriptResolverStreamUrlResult streamUrlResult = mObjectMapper.treeToValue(
-                                results, ScriptResolverStreamUrlResult.class);
-                        PipeLine.StreamUrlEvent event = new PipeLine.StreamUrlEvent();
-                        event.mResult = result;
-                        if (streamUrlResult.headers != null) {
-                            // If headers are given we first have to resolve the url that the call
-                            // is being redirected to
-                            event.mUrl = TomahawkUtils.getRedirectedUrl(streamUrlResult.url,
-                                    streamUrlResult.headers);
-                        } else {
-                            event.mUrl = streamUrlResult.url;
+            ScriptJob.start(mScriptObject, "getStreamUrl", args,
+                    new ScriptJob.ResultsCallback<ScriptResolverStreamUrlResult>(
+                            ScriptResolverStreamUrlResult.class) {
+                        @Override
+                        public void onReportResults(ScriptResolverStreamUrlResult results) {
+                            try {
+                                PipeLine.StreamUrlEvent event = new PipeLine.StreamUrlEvent();
+                                event.mResult = result;
+                                if (results.headers != null) {
+                                    // If headers are given we first have to resolve the url that the call
+                                    // is being redirected to
+                                    event.mUrl = TomahawkUtils.getRedirectedUrl(results.url,
+                                            results.headers);
+                                } else {
+                                    event.mUrl = results.url;
+                                }
+                                EventBus.getDefault().post(event);
+                            } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+                                Log.e(TAG, "reportStreamUrl: " + e.getClass() + ": " + e
+                                        .getLocalizedMessage());
+                            }
                         }
-                        EventBus.getDefault().post(event);
-                    } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
-                        Log.e(TAG, "reportStreamUrl: " + e.getClass() + ": " + e
-                                .getLocalizedMessage());
-                    }
-                }
-            });
+                    });
         }
     }
 
@@ -537,9 +512,9 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     }
 
     public void testConfig(Map<String, Object> config) {
-        ScriptJob.start(mScriptObject, "testConfig", config, new ScriptJob.ResultsCallback() {
+        ScriptJob.start(mScriptObject, "testConfig", config, new ScriptJob.ResultsObjectCallback() {
             @Override
-            public void onReportResults(JsonNode results) {
+            public void onReportResults(JsonObject results) {
                 int type = ScriptUtils.getNodeChildAsInt(results, "result");
                 String message = ScriptUtils.getNodeChildAsText(results, "message");
                 onConfigTestResult(type, message);
@@ -565,21 +540,16 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     }
 
     public void getAccessToken() {
-        ScriptJob.start(mScriptObject, "getAccessToken", new ScriptJob.ResultsCallback() {
-            @Override
-            public void onReportResults(JsonNode results) {
-                try {
-                    ScriptResolverAccessTokenResult result = mObjectMapper.treeToValue(
-                            results, ScriptResolverAccessTokenResult.class);
-                    AccessTokenChangedEvent event = new AccessTokenChangedEvent();
-                    event.accessToken = result.accessToken;
-                    event.scriptResolverId = getId();
-                    EventBus.getDefault().post(event);
-                } catch (JsonProcessingException e) {
-                    Log.e(TAG, "reportStreamUrl: " + e.getClass() + ": "
-                            + e.getLocalizedMessage());
-                }
-            }
-        });
+        ScriptJob.start(mScriptObject, "getAccessToken",
+                new ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult>(
+                        ScriptResolverAccessTokenResult.class) {
+                    @Override
+                    public void onReportResults(ScriptResolverAccessTokenResult results) {
+                        AccessTokenChangedEvent event = new AccessTokenChangedEvent();
+                        event.accessToken = results.accessToken;
+                        event.scriptResolverId = getId();
+                        EventBus.getDefault().post(event);
+                    }
+                });
     }
 }
