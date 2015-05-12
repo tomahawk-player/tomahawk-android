@@ -1,0 +1,212 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="ok">OK</string>
+  <string name="cancel">Cancelar</string>
+  <string name="login">Iniciar sesión</string>
+  <string name="logout">Cerrar Sesión</string>
+  <string name="register">Regístrese</string>
+  <string name="register_and_login">Registrarse e iniciar sesión</string>
+  <string name="rescan">Volver a buscar</string>
+  <string name="internal_storage">Almacenamiento Interno</string>
+  <string name="tracks">Pistas</string>
+  <string name="albums">álbumes</string>
+  <string name="artists">Artistas</string>
+  <string name="users">Usuarios
+</string>
+  <string name="top_hits">Top hits</string>
+  <string name="top_albums">Mejores álbumes</string>
+  <string name="playlist_details">Detalles de la playlist</string>
+  <string name="album_details">Detalles del álbum</string>
+  <string name="search">Busqueda</string>
+  <string name="playlist">Playlist</string>
+  <string name="shuffle_on_label">Modo aleatorio activado</string>
+  <string name="shuffle_off_label">Modo aleatorio desactivado</string>
+  <string name="repeat_on_label">Repeción activada</string>
+  <string name="repeat_off_label">Repetición desactivada</string>
+  <string name="unknown">desconocido</string>
+  <string name="no_track">Ninguna pista</string>
+  <string name="save_playlist">Guardar esta playlist</string>
+  <string name="create_playlist">Crear Playlist</string>
+  <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Titulo</string>
+  <string name="login_name_label">Correo/nombre de usuario</string>
+  <string name="login_username">Nombre de usuario</string>
+  <string name="login_password">Contraseña</string>
+  <string name="login_password_confirmation">Confirme su contraseña</string>
+  <string name="account_email_label">Correo (opcional)</string>
+  <string name="error_field_required">El campo es requerido</string>
+  <string name="error_passwords_dont_match">Las contraseñas no coinciden</string>
+  <string name="error_invalid_credentials">Nombre de usuario o contraseña incorrecta</string>
+  <string name="error_invalid_account">Cuenta rechazada por el servidor</string>
+  <string name="error_communication">Imposible autenticar. por favor revisa tu conexión</string>
+  <string name="error_simultaneous_streams">Acción no permitida, la cuenta está siendo utilizada</string>
+  <string name="error_account_expired">Tu cuenta ha expirado</string>
+  <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Iniciada sesión en %1$s</string>
+  <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Cerrada la sesión de %1$s</string>
+  <string name="local_collection_pretty_name">Colección Local</string>
+  <string name="local">Local</string>
+  <string name="all">Todo</string>
+  <string name="preferences_local_collection_text">Escoje la ubicación en la cual deberíamos buscar tú música</string>
+  <string name="preferences_hatchet_text">Sincronizando tus datos al %1$s.</string>
+  <string name="preferences_playback">Reproducción</string>
+  <string name="preferences_equalizer">Ecualizador</string>
+  <string name="preferences_equalizer_text">Personaliza la salida de audio</string>
+  <string name="preferences_playback_data">Hacer scrobblings de todo.</string>
+  <string name="preferences_playback_data_text">Haz scrobble de cada pista en cada reproductor en el teléfono a %1$s.</string>
+  <string name="preferences_plug_and_play">Conecte para reproducir</string>
+  <string name="preferences_plug_and_play_text">Reproducir música tan pronto se conecten los auriculares. </string>
+  <string name="preferences_audio_quality">Calidad de audio preferida</string>
+  <string name="preferences_audio_quality_text">La calidad preferida de audio si no esta conectado el WiFi.</string>
+  <string name="preferences_info">Info</string>
+  <string name="preferences_app_version">App-Version</string>
+  <string name="preferences_app_uservoice">retroalimentación</string>
+  <string name="preferences_app_uservoice_text">Comparte tus ideas o pide ayuda.</string>
+  <string name="preferences_app_sendlog">Enviar Log</string>
+  <string name="preferences_app_sendlog_text">Envía tu log de errores con propósitos de depuración</string>
+  <string name="preferences_app_sendlog_dialog_text">Por favor describa brevemente el inconveniente que estás teniendo e indicanos una dirección de correo donde podamos contactarte en caso de ser necesario. Gracias.</string>
+  <string name="preferences_app_sendlog_email">Tu dirección de correo </string>
+  <string name="preferences_app_sendlog_issue">Problema</string>
+  <string name="crash_dialog_title">Lo sentimos tomahawk se detuvo.</string>
+  <string name="crash_dialog_text">Un error inesperado ha ocurrido y la aplicación se detuvo . Por favor ayudanos enviando la información del error para repararlo, lo único que tienes que hacer es un click en OK.</string>
+  <string name="crash_dialog_comment_prompt">Aquí puedes enviar tus comentarios sobre el problema: </string>
+  <string name="crash_dialog_ok_toast">¡Gracias!</string>
+  <string name="context_menu_play">Reproducir</string>
+  <string name="context_menu_add_to_queue">Añadir a la cola</string>
+  <string name="context_menu_add_to_playlist">Agregar al playlist</string>
+  <string name="context_menu_delete">Eliminar</string>
+  <string name="context_menu_removefromplaylist">Remover de la Playlist</string>
+  <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">Remover de la coleccion</string>
+  <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">Agregar a la colección</string>
+  <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">Me encanta</string>
+  <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">Ya no me gusta</string>
+  <string name="context_menu_share">Compartir</string>
+  <string name="drawer_title_feed">Actividad Reciente</string>
+  <string name="drawer_title_collection">Colección</string>
+  <string name="drawer_title_playlists">Playlists</string>
+  <string name="drawer_title_lovedtracks">Favoritas</string>
+  <string name="drawer_title_settings">Ajustes</string>
+  <string name="drawer_header_cloudcollections">Conexiones en la nube</string>
+  <string name="collection_dropdown_recently_added">Añadidas recientemente</string>
+  <string name="collection_dropdown_alpha_artists">Artistas A-Z</string>
+  <string name="collection_dropdown_play_count">Conteo de reproducción</string>
+  <string name="collection_dropdown_alpha_albums">A</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
+  <string name="history">Historial</string>
+  <string name="preferences_bitrate_low">Normal</string>
+  <string name="preferences_bitrate_medium">Buena</string>
+  <string name="preferences_bitrate_high">La mejor</string>
+  <string name="drawer_open">Abrir el navegador</string>
+  <string name="drawer_close">Cerrar el navegador</string>
+  <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">Siguiendo</string>
+  <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Seguir</string>
+  <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">Sugerencias para seguir</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">%1$s esta siguiendo a </string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
+  <plurals name="socialaction_type_love_track">
+    <item quantity="one">%1$s le gustó una canción</item>
+    <item quantity="other">%1$s le gustaron %2$d canciones</item>
+  </plurals>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
+  <plurals name="socialaction_type_collected_track">
+    <item quantity="one">%1$s agregó una canción</item>
+    <item quantity="other">%1$s agregó %2$d canciones</item>
+  </plurals>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
+  <plurals name="socialaction_type_collected_album">
+    <item quantity="one">%1$s agregó un álbum</item>
+    <item quantity="other">%1$s agregó %2$d álbumes</item>
+  </plurals>
+  <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
+  <plurals name="socialaction_type_collected_artist">
+    <item quantity="one">%1$s agregó un artista</item>
+    <item quantity="other">%1$s agregó %2$d artistas</item>
+  </plurals>
+  <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">%1$s comentó en</string>
+  <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
+  <plurals name="socialaction_type_latchon">
+    <item quantity="one">%1$s escucho junto a un amigo</item>
+    <item quantity="other">%1$s escuchó junto a %2$d amigos</item>
+  </plurals>
+  <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
+  <plurals name="socialaction_type_createplaylist">
+    <item quantity="one">%1$s creó una lista de reproducción</item>
+    <item quantity="other">%1$s creo %2$d listas</item>
+  </plurals>
+  <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s por %2$s</string>
+  <string name="time_afewseconds">hace unos segundos</string>
+  <plurals name="time_minute">
+    <item quantity="one">hace un minuto</item>
+    <item quantity="other">hace %1$d minutos</item>
+  </plurals>
+  <plurals name="time_hour">
+    <item quantity="one">hace una hora</item>
+    <item quantity="other">hace %1$d horas</item>
+  </plurals>
+  <plurals name="time_day">
+    <item quantity="one">hace un día</item>
+    <item quantity="other">hace %1$d días </item>
+  </plurals>
+  <string name="users_playbacklog_suffix">%1$s escuchó recientemente</string>
+  <string name="users_favorites_suffix">Favoritas de %1$s</string>
+  <string name="users_playlist_suffix">Listas de %1$s</string>
+  <string name="music">Música</string>
+  <string name="biography">Biografía </string>
+  <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
+  <string name="similar">Similar</string>
+  <!--Shown as a title for a list of songs in the search results view.-->
+  <string name="songs">Canciones</string>
+  <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <plurals name="songs_with_count">
+    <item quantity="one">%1$d Canción</item>
+    <item quantity="other">%1$d Canciones</item>
+  </plurals>
+  <string name="activity">Actividad</string>
+  <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
+  <string name="followers">Seguidores</string>
+  <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
+  <string name="following">Siguiendo</string>
+  <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">Seguidores: %1$d, Siguiendo: %2$d</string>
+  <string name="resolver_config_redirect_button_text_log_into">Iniciar sesión en </string>
+  <string name="resolver_config_redirect_button_text_log_out_of">Cerrar sesión en</string>
+  <string name="ask_access_activity_header">¿Quieres guardar automáticamente la información de las pistas que reproduces en Hatchet?</string>
+  <string name="ask_access_activity_text1">¡Nosotros lo haremos por ti! Por favor habilita nuestro servicio  en la configuración de tu dispositivo</string>
+  <string name="button_close">Cerrar</string>
+  <string name="view_album">Ver Álbum</string>
+  <string name="connect">Conectar</string>
+  <string name="connect_headertext">Selecciona los serivicios que quieres usar, Tomahawk funciona mejor cuando más servicios estan activos.</string>
+  <string name="advanced">Avanzado</string>
+  <string name="info">Información</string>
+  <string name="playbackpanel_seek_coachmark">Puedes buscar dentro de una canción manteniendo presionado el boton Reproducir.</string>
+  <string name="slidinglayout_enqueue_coachmark">Presione para añadir la canción a la cola</string>
+  <string name="playbackfragment_navigation_coachmark_down">Deslice hacia arriba para ver la lista de reproducción actual.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Deslice hacia abajo para cerrar el panel de reproducción.</string>
+  <string name="playbackfragment_navigation_coachmark_center">Deslice hacia la derecha/izquierda para saltar a la canción siguiente/anterior. Mantenga presionado para abrir el menu contextual. Presione dos veces para agregar a favoritos.</string>
+  <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="next_page">Siguiente</string>
+  <string name="welcome_fragment_explanation_title">Primeros pasos</string>
+  <string name="welcome_fragment_explanation_heading">La música esta en todos lados.\nAhora tu no tienes que estarlo.</string>
+  <string name="welcome_fragment_explanation_text">Deje de perseguir la música a través de la web -  a servicios que no usas, o fuentes que no tienes acceso. Dado el nombre o el enlace a una canción, álbum o lista de reproducción, Tomahawk encontrará la mejor fuente disponible para ti.</string>
+  <string name="welcome_fragment_hatchet_title">¿Quieres socializar?</string>
+  <string name="welcome_fragment_hatchet_text">Con Hatchet finalmente puedes tener tu colección de música en un solo sitio. Comparte tus listas y canciones favoritas. O simplemente sincroniza la aplicación con Tomahawk en tu equipo de escritorio.</string>
+  <string name="welcome_fragment_setup_title">Conectar</string>
+  <string name="welcome_fragment_done_title">¡Listo!</string>
+  <string name="welcome_fragment_done_heading">¡Todo listo!</string>
+  <string name="welcome_fragment_done_text">¡Diviertete explorando la aplicación y dinos lo que piensas!</string>
+  <plurals name="add_to_playlist_headertext">
+    <item quantity="one">Escoge una lista de reproducción para agregarle %1$d canciones:</item>
+    <item quantity="other">Escoge una lista de reproducción para agregarle %1$d canciones:</item>
+  </plurals>
+</resources>
