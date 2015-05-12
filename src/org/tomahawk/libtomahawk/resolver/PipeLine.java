@@ -17,13 +17,12 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import com.google.common.collect.Sets;
-
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -31,7 +30,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
 
@@ -89,10 +87,7 @@ public class PipeLine {
 
     private final HashSet<Resolver> mResolvers = new HashSet<>();
 
-    private final Set<Query> mWaitingQueries =
-            Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
-
-    private final HashSet<String> mWaitingUrlLookups = new HashSet<>();
+    private final HashSet<String> mRecentUrlLookups = new HashSet<>();
 
     private PipeLine() {
         try {
@@ -111,14 +106,11 @@ public class PipeLine {
         return Holder.instance;
     }
 
-    public void onResolverReady(Resolver resolver) {
+    public void onResolverReady(ScriptResolver resolver) {
         EventBus.getDefault().post(new ResolversChangedEvent());
-        if (isEveryResolverReady()) {
-            resolve(mWaitingQueries);
-            mWaitingQueries.clear();
-            for (String url : mWaitingUrlLookups) {
-                mWaitingUrlLookups.remove(url);
-                lookupUrl(url);
+        for (String url : mRecentUrlLookups) {
+            if (resolver.hasUrlLookup()) {
+                resolver.lookupUrl(url);
             }
         }
     }
@@ -208,15 +200,9 @@ public class PipeLine {
                     event.mQuery = q;
                     EventBus.getDefault().post(event);
                 } else {
-                    if (!isEveryResolverReady()) {
-                        if (!mWaitingQueries.contains(q)) {
-                            mWaitingQueries.add(q);
-                        }
-                    } else {
-                        for (final Resolver resolver : mResolvers) {
-                            if (shouldResolve(resolver, q, forceOnlyLocal)) {
-                                resolver.resolve(q);
-                            }
+                    for (Resolver resolver : mResolvers) {
+                        if (shouldResolve(resolver, q, forceOnlyLocal)) {
+                            resolver.resolve(q);
                         }
                     }
                 }
@@ -313,18 +299,22 @@ public class PipeLine {
         );
     }
 
-    public void lookupUrl(String url) {
-        if (!isEveryResolverReady()) {
-            Log.d(TAG, "lookupUrl - enqueuing url: " + url);
-            mWaitingUrlLookups.add(url);
-        } else {
-            Log.d(TAG, "lookupUrl - looking up url: " + url);
-            for (Resolver resolver : mResolvers) {
-                if (resolver instanceof ScriptResolver) {
-                    ScriptResolver scriptResolver = (ScriptResolver) resolver;
-                    if (scriptResolver.hasUrlLookup()) {
-                        scriptResolver.lookupUrl(url);
-                    }
+    public void lookupUrl(final String url) {
+        Log.d(TAG, "lookupUrl - looking up url: " + url);
+        mRecentUrlLookups.add(url);
+        // Remove the url from mRecentUrlLookups after 30s
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mRecentUrlLookups.remove(url);
+            }
+        }, 30000);
+
+        for (Resolver resolver : mResolvers) {
+            if (resolver instanceof ScriptResolver) {
+                ScriptResolver scriptResolver = (ScriptResolver) resolver;
+                if (scriptResolver.hasUrlLookup()) {
+                    scriptResolver.lookupUrl(url);
                 }
             }
         }
