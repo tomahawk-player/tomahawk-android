@@ -631,12 +631,15 @@ public class TomahawkMainActivity extends ActionBarActivity
                         PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
                 urlHandler.onRedirectCallback(data.toString());
             } else if ((scheme != null && (scheme.equals("spotify") || scheme.equals("tomahawk")))
-                    || host != null && (host.contains("hatchet.is") || host.contains("toma.hk")
-                    || host.contains("beatsmusic.com") || host.contains("deezer.com")
-                    || host.contains("rdio.com") || host.contains("soundcloud.com"))) {
+                    || (host != null && (host.contains("spotify.com") || host.contains("hatchet.is")
+                    || host.contains("toma.hk") || host.contains("beatsmusic.com")
+                    || host.contains("deezer.com") || host.contains("rdio.com")
+                    || host.contains("soundcloud.com")))) {
                 PipeLine.getInstance().lookupUrl(data.toString());
-            } else if (pathSegments.get(pathSegments.size() - 1).endsWith(".xspf")
-                    || intent.getType().equals("application/xspf+xml")) {
+            } else if ((pathSegments != null
+                    && pathSegments.get(pathSegments.size() - 1).endsWith(".xspf"))
+                    || (intent.getType() != null
+                    && intent.getType().equals("application/xspf+xml"))) {
                 TomahawkRunnable r = new TomahawkRunnable(
                         TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_HIGH) {
                     @Override
