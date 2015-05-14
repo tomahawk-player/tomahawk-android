@@ -17,26 +17,30 @@
  */
 package org.tomahawk.tomahawk_android.mediaplayers;
 
-import org.tomahawk.libtomahawk.authentication.SpotifyServiceUtils;
+import org.tomahawk.aidl.IPluginService;
+import org.tomahawk.aidl.IPluginServiceCallback;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.services.SpotifyService;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Message;
-import android.os.Messenger;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * This class wraps all functionality to be able to directly playback spotify-resolved tracks with
@@ -78,10 +82,6 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
 
     private int mPositionOffset;
 
-    private Messenger mToSpotifyMessenger = null;
-
-    private final Messenger mFromSpotifyMessenger = new Messenger(new FromSpotifyHandler(this));
-
     private SpotifyMediaPlayer() {
     }
 
@@ -89,47 +89,48 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         return Holder.instance;
     }
 
-    /**
-     * Handler of incoming messages from the SpotifyService's messenger.
-     */
-    private static class FromSpotifyHandler extends WeakReferenceHandler<SpotifyMediaPlayer> {
+    public void setService(IPluginService service) {
+        mService = service;
+    }
 
-        public FromSpotifyHandler(SpotifyMediaPlayer referencedObject) {
-            super(referencedObject);
+    private IPluginService mService;
+
+    public IPluginServiceCallback getServiceCallback() {
+        return mServiceCallback;
+    }
+
+    private IPluginServiceCallback mServiceCallback = new IPluginServiceCallback.Stub() {
+
+        @Override
+        public void onPause() throws RemoteException {
+            mPositionOffset =
+                    (int) (System.currentTimeMillis() - mPositionTimeStamp) + mPositionOffset;
+            mPositionTimeStamp = System.currentTimeMillis();
         }
 
         @Override
-        public void handleMessage(Message msg) {
-            if (getReferencedObject() != null) {
-                switch (msg.what) {
-                    case SpotifyService.MSG_ONPREPARED:
-                        getReferencedObject().onPrepared(null);
-                        break;
-                    case SpotifyService.MSG_ONPAUSE:
-                        getReferencedObject().mPositionOffset = (int) (System.currentTimeMillis()
-                                - getReferencedObject().mPositionTimeStamp)
-                                + getReferencedObject().mPositionOffset;
-                        getReferencedObject().mPositionTimeStamp = System.currentTimeMillis();
-                        break;
-                    case SpotifyService.MSG_ONPLAY:
-                        getReferencedObject().mPositionTimeStamp = System.currentTimeMillis();
-                        break;
-                    case SpotifyService.MSG_ONPLAYERENDOFTRACK:
-                        getReferencedObject().onCompletion(null);
-                        break;
-                    case SpotifyService.MSG_ONPLAYERPOSITIONCHANGED:
-                        if (!getReferencedObject().mOverrideCurrentPosition) {
-                            getReferencedObject().mPositionTimeStamp =
-                                    msg.getData().getLong(SpotifyService.LONG_KEY);
-                            getReferencedObject().mPositionOffset = msg.arg1;
-                        }
-                        break;
-                    default:
-                        super.handleMessage(msg);
-                }
+        public void onPlay() throws RemoteException {
+            mPositionTimeStamp = System.currentTimeMillis();
+        }
+
+        @Override
+        public void onPrepared() throws RemoteException {
+            SpotifyMediaPlayer.this.onPrepared(null);
+        }
+
+        @Override
+        public void onPlayerEndOfTrack() throws RemoteException {
+            onCompletion(null);
+        }
+
+        @Override
+        public void onPlayerPositionChanged(int position, long timeStamp) throws RemoteException {
+            if (!mOverrideCurrentPosition) {
+                mPositionTimeStamp = timeStamp;
+                mPositionOffset = position;
             }
         }
-    }
+    };
 
     private final ResetOverrideHandler mResetOverrideHandler = new ResetOverrideHandler(this);
 
@@ -147,27 +148,8 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         }
     }
 
-    public void setToSpotifyMessenger(Messenger toSpotifyMessenger) {
-        mToSpotifyMessenger = toSpotifyMessenger;
-        if (mToSpotifyMessenger != null) {
-            SpotifyServiceUtils.registerMsg(mToSpotifyMessenger, mFromSpotifyMessenger);
-            updateBitrate();
-        }
-    }
-
     @Override
     public void setVolume(float leftVolume, float rightVolume) {
-    }
-
-    public void reportAccessToken(String accessToken) {
-        Log.d(TAG, "reportAccessToken()");
-        if (mToSpotifyMessenger != null) {
-            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_REPORTACCESSTOKEN,
-                    accessToken);
-        } else {
-            TomahawkApp.getContext()
-                    .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
-        }
     }
 
     /**
@@ -177,13 +159,14 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
     public void start() {
         Log.d(TAG, "start()");
         mIsPlaying = true;
-        if (mToSpotifyMessenger != null) {
-            ((ScriptResolver) PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY))
-                    .getAccessToken();
-            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PLAY);
+        if (mService != null) {
+            try {
+                mService.play();
+            } catch (RemoteException e) {
+                Log.e(TAG, "start: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
         } else {
-            TomahawkApp.getContext()
-                    .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
+            EventBus.getDefault().post(new PlaybackService.RequestServiceBindingEvent());
         }
     }
 
@@ -194,11 +177,14 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
     public void pause() {
         Log.d(TAG, "pause()");
         mIsPlaying = false;
-        if (mToSpotifyMessenger != null) {
-            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PAUSE);
+        if (mService != null) {
+            try {
+                mService.pause();
+            } catch (RemoteException e) {
+                Log.e(TAG, "pause: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
         } else {
-            TomahawkApp.getContext()
-                    .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
+            EventBus.getDefault().post(new PlaybackService.RequestServiceBindingEvent());
         }
     }
 
@@ -208,16 +194,19 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
     @Override
     public void seekTo(int msec) {
         Log.d(TAG, "seekTo()");
-        if (mToSpotifyMessenger != null) {
-            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SEEK, msec);
+        if (mService != null) {
+            try {
+                mService.seek(msec);
+            } catch (RemoteException e) {
+                Log.e(TAG, "seekTo: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
             mPositionOffset = msec;
             mPositionTimeStamp = System.currentTimeMillis();
             mOverrideCurrentPosition = true;
             // After 1 second, we set mOverrideCurrentPosition to false again
             mResetOverrideHandler.sendEmptyMessageDelayed(1337, 1000);
         } else {
-            TomahawkApp.getContext()
-                    .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
+            EventBus.getDefault().post(new PlaybackService.RequestServiceBindingEvent());
         }
     }
 
@@ -225,7 +214,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
      * Prepare the given url
      */
     @Override
-    public MediaPlayerInterface prepare(Application application, Query query,
+    public MediaPlayerInterface prepare(Application application, final Query query,
             MediaPlayer.OnPreparedListener onPreparedListener,
             MediaPlayer.OnCompletionListener onCompletionListener,
             MediaPlayer.OnErrorListener onErrorListener) {
@@ -236,13 +225,25 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         mPositionTimeStamp = System.currentTimeMillis();
         mPreparedQuery = null;
         mPreparingQuery = query;
-        if (mToSpotifyMessenger != null) {
-            String[] pathParts = query.getPreferredTrackResult().getPath().split("/");
-            String uri = "spotify:track:" + pathParts[pathParts.length - 1];
-            SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_PREPARE, uri);
+        if (mService != null) {
+            ((ScriptResolver) PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY))
+                    .getAccessToken(new ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult>(
+                            ScriptResolverAccessTokenResult.class) {
+                        @Override
+                        public void onReportResults(ScriptResolverAccessTokenResult results) {
+                            String[] pathParts =
+                                    query.getPreferredTrackResult().getPath().split("/");
+                            String uri = "spotify:track:" + pathParts[pathParts.length - 1];
+                            try {
+                                mService.prepare(uri, results.accessToken);
+                            } catch (RemoteException e) {
+                                Log.e(TAG, "prepare: " + e.getClass() + ": " + e
+                                        .getLocalizedMessage());
+                            }
+                        }
+                    });
         } else {
-            TomahawkApp.getContext()
-                    .sendBroadcast(new Intent(SpotifyService.REQUEST_SPOTIFYSERVICE));
+            EventBus.getDefault().post(new PlaybackService.RequestServiceBindingEvent());
         }
         return this;
     }
@@ -302,8 +303,15 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
     }
 
     public void setBitRate(int bitrateMode) {
-        SpotifyServiceUtils.sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SETBITRATE,
-                bitrateMode);
+        if (mService != null) {
+            try {
+                mService.setBitRate(bitrateMode);
+            } catch (RemoteException e) {
+                Log.e(TAG, "setBitRate: " + e.getClass() + ": " + e.getLocalizedMessage());
+            }
+        } else {
+            EventBus.getDefault().post(new PlaybackService.RequestServiceBindingEvent());
+        }
     }
 
     public void updateBitrate() {
@@ -312,7 +320,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
         NetworkInfo netInfo = conMan.getActiveNetworkInfo();
         if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
             Log.d(TAG, "Updating bitrate to HIGH, because we have a Wifi connection");
-            setBitrate(SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_HIGH);
+            setBitRate(SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_HIGH);
         } else {
             Log.d(TAG, "Updating bitrate to user setting, because we don't have a Wifi connection");
             SharedPreferences preferences = PreferenceManager
@@ -320,14 +328,7 @@ public class SpotifyMediaPlayer implements MediaPlayerInterface {
             int prefbitrate = preferences.getInt(
                     SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE,
                     SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
-            setBitrate(prefbitrate);
-        }
-    }
-
-    public void setBitrate(int bitrate) {
-        if (mToSpotifyMessenger != null) {
-            SpotifyServiceUtils
-                    .sendMsg(mToSpotifyMessenger, SpotifyService.MSG_SETBITRATE, bitrate);
+            setBitRate(prefbitrate);
         }
     }
 }

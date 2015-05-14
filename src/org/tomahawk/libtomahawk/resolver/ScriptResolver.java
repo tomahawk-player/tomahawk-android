@@ -59,13 +59,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
 
     }
 
-    public static class AccessTokenChangedEvent {
-
-        public String scriptResolverId;
-
-        public String accessToken;
-    }
-
     private String mId;
 
     private ScriptObject mScriptObject;
@@ -539,17 +532,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
         AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
-    public void getAccessToken() {
-        ScriptJob.start(mScriptObject, "getAccessToken",
-                new ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult>(
-                        ScriptResolverAccessTokenResult.class) {
-                    @Override
-                    public void onReportResults(ScriptResolverAccessTokenResult results) {
-                        AccessTokenChangedEvent event = new AccessTokenChangedEvent();
-                        event.accessToken = results.accessToken;
-                        event.scriptResolverId = getId();
-                        EventBus.getDefault().post(event);
-                    }
-                });
+    public void getAccessToken(ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult> cb) {
+        ScriptJob.start(mScriptObject, "getAccessToken", cb);
     }
 }
