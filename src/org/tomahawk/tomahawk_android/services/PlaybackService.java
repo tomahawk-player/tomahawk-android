@@ -23,6 +23,7 @@ import com.google.common.collect.Sets;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.tomahawk.aidl.IPluginService;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
@@ -34,7 +35,6 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -60,11 +60,9 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -82,8 +80,8 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Messenger;
 import android.os.PowerManager;
+import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -173,6 +171,10 @@ public class PlaybackService extends Service
 
     }
 
+    public static class RequestServiceBindingEvent {
+
+    }
+
     private boolean mShowingNotification;
 
     protected final Set<Query> mCorrespondingQueries
@@ -202,10 +204,6 @@ public class PlaybackService extends Service
     private RemoteViews mSmallNotificationView;
 
     private PowerManager.WakeLock mWakeLock;
-
-    private PlaybackServiceBroadcastReceiver mPlaybackServiceBroadcastReceiver;
-
-    private boolean mIsBindingToSpotifyService;
 
     private boolean mShuffled;
 
@@ -239,9 +237,6 @@ public class PlaybackService extends Service
     AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
 
     private final List<MediaPlayerInterface> mMediaPlayers = new ArrayList<>();
-
-    private SpotifyService.SpotifyServiceConnection mSpotifyServiceConnection
-            = new SpotifyService.SpotifyServiceConnection(new SpotifyServiceConnectionListener());
 
     private final Handler mVlcHandler = new Handler(new Handler.Callback() {
         @Override
@@ -367,35 +362,36 @@ public class PlaybackService extends Service
         }
     }
 
-    private class SpotifyServiceConnectionListener
-            implements SpotifyService.SpotifyServiceConnection.SpotifyServiceConnectionListener {
+    private ServiceConnection mConnection = new ServiceConnection() {
 
-        @Override
-        public void setToSpotifyMessenger(Messenger messenger) {
-            SpotifyMediaPlayer spotifyMediaPlayer = SpotifyMediaPlayer.getInstance();
-            spotifyMediaPlayer.setToSpotifyMessenger(messenger);
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            // This is called when the connection with the service has been
+            // established, giving us the service object we can use to
+            // interact with the service.  We are communicating with our
+            // service through an IDL interface, so get a client-side
+            // representation of that from the raw service object.
+            IPluginService pluginService = IPluginService.Stub.asInterface(service);
+            SpotifyMediaPlayer.getInstance().setService(pluginService);
 
-            mIsBindingToSpotifyService = false;
-        }
-    }
-
-    /**
-     * Handles incoming broadcasts
-     */
-    private class PlaybackServiceBroadcastReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            if (SpotifyService.REQUEST_SPOTIFYSERVICE.equals(intent.getAction())) {
-                if (!mIsBindingToSpotifyService) {
-                    Log.d(TAG, "SpotifyService has been requested, I'm trying to bind to it ...");
-                    mIsBindingToSpotifyService = true;
-                    bindService(new Intent(PlaybackService.this, SpotifyService.class),
-                            mSpotifyServiceConnection, Context.BIND_AUTO_CREATE);
-                }
+            // We want to monitor the service for as long as we are
+            // connected to it.
+            try {
+                pluginService
+                        .registerCallback(SpotifyMediaPlayer.getInstance().getServiceCallback());
+            } catch (RemoteException e) {
+                // In this case the service has crashed before we could even
+                // do anything with it; we can count on soon being
+                // disconnected (and then reconnected if it can be restarted)
+                // so there is no need to do anything here.
             }
         }
-    }
+
+        public void onServiceDisconnected(ComponentName className) {
+            // This is called when the connection with the service has been
+            // unexpectedly disconnected -- that is, its process crashed.
+            SpotifyMediaPlayer.getInstance().setService(null);
+        }
+    };
 
     public class PlaybackServiceBinder extends Binder {
 
@@ -473,10 +469,10 @@ public class PlaybackService extends Service
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(ScriptResolver.AccessTokenChangedEvent event) {
-        if (TomahawkApp.PLUGINNAME_SPOTIFY.equals(event.scriptResolverId)) {
-            SpotifyMediaPlayer.getInstance().reportAccessToken(event.accessToken);
-        }
+    public void onEvent(RequestServiceBindingEvent event) {
+        Intent intent = new Intent(IPluginService.class.getName());
+        intent.setPackage("org.tomahawk.spotifyplugin");
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -490,8 +486,9 @@ public class PlaybackService extends Service
         mMediaPlayers.add(SpotifyMediaPlayer.getInstance());
         mMediaPlayers.add(RdioMediaPlayer.getInstance());
 
-        bindService(new Intent(this, SpotifyService.class), mSpotifyServiceConnection,
-                Context.BIND_AUTO_CREATE);
+        Intent intent = new Intent(IPluginService.class.getName());
+        intent.setPackage("org.tomahawk.spotifyplugin");
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
         startService(new Intent(this, MicroService.class));
 
@@ -520,11 +517,6 @@ public class PlaybackService extends Service
         // Initialize WakeLock
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
-
-        // Initialize and register PlaybackServiceBroadcastReceiver
-        mPlaybackServiceBroadcastReceiver = new PlaybackServiceBroadcastReceiver();
-        registerReceiver(mPlaybackServiceBroadcastReceiver,
-                new IntentFilter(SpotifyService.REQUEST_SPOTIFYSERVICE));
 
         mMediaButtonReceiverComponent = new ComponentName(this, MediaButtonReceiver.class);
         mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
@@ -588,10 +580,6 @@ public class PlaybackService extends Service
         EventBus.getDefault().unregister(this);
 
         pause(true);
-        unregisterReceiver(mPlaybackServiceBroadcastReceiver);
-        mPlaybackServiceBroadcastReceiver = null;
-        unbindService(mSpotifyServiceConnection);
-        mSpotifyServiceConnection = null;
         releaseAllPlayers();
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
@@ -673,37 +661,6 @@ public class PlaybackService extends Service
             pause();
         }
     }
-
-    /**
-     * Save the current playlist in the Playlists Database
-     */
-        /*
-    private void saveState() {
-        if (getMergedPlaylist() != null) {
-            long startTime = System.currentTimeMillis();
-            CollectionManager.getInstance().setCachedPlaylist(Playlist
-                    .fromQueryList(DatabaseHelper.CACHED_PLAYLIST_ID,
-                            DatabaseHelper.CACHED_PLAYLIST_NAME,
-                            getMergedPlaylist().getQueries()));
-            Log.d(TAG, "Playlist stored in " + (System.currentTimeMillis() - startTime) + "ms");
-    }
-        }*/
-
-    /**
-     * Restore the current playlist from the Playlists Database. Do this by storing it in the {@link
-     * org.tomahawk.libtomahawk.collection.UserCollection} first, and then retrieving the playlist
-     * from there.
-     */
-        /*
-    private void restoreState() {
-        long startTime = System.currentTimeMillis();
-        setPlaylist(CollectionManager.getInstance().getCachedPlaylist());
-        Log.d(TAG, "Playlist loaded in " + (System.currentTimeMillis() - startTime) + "ms");
-        if (getMergedPlaylist() != null && isPlaying()) {
-            pause(true);
-        }
-    }
-        */
 
     /**
      * Start or pause playback (Doesn't dismiss notification on pause)
