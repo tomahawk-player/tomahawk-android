@@ -69,9 +69,6 @@ public class AuthenticatorManager {
         RdioAuthenticatorUtils rdioAuthenticatorUtils = new RdioAuthenticatorUtils();
         mAuthenticatorUtils.put(rdioAuthenticatorUtils.getId(),
                 rdioAuthenticatorUtils);
-        DeezerAuthenticatorUtils deezerAuthenticatorUtils = new DeezerAuthenticatorUtils();
-        mAuthenticatorUtils.put(deezerAuthenticatorUtils.getId(),
-                deezerAuthenticatorUtils);
     }
 
     public static AuthenticatorManager getInstance() {

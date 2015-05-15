@@ -134,10 +134,10 @@ public class PreferenceConnectFragment extends TomahawkListFragment
             ConfigDialog dialog;
             switch (id) {
                 case TomahawkApp.PLUGINNAME_RDIO:
-                case TomahawkApp.PLUGINNAME_DEEZER:
                     dialog = new RedirectConfigDialog();
                     break;
                 case TomahawkApp.PLUGINNAME_SPOTIFY:
+                case TomahawkApp.PLUGINNAME_DEEZER:
                     dialog = new ResolverRedirectConfigDialog();
                     break;
                 case TomahawkApp.PLUGINNAME_USERCOLLECTION:

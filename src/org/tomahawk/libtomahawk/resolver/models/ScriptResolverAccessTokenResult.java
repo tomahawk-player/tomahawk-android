@@ -21,6 +21,8 @@ public class ScriptResolverAccessTokenResult {
 
     public String accessToken;
 
+    public long accessTokenExpires;
+
     public ScriptResolverAccessTokenResult() {
     }
 }

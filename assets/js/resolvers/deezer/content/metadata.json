@@ -16,5 +16,8 @@
         "resources": [
             "contents/code/deezer.png"
         ]
-    }
+    },
+    "staticCapabilities": [
+        "configTestable"
+    ]
 }

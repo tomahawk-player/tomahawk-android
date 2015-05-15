@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.mediaplayers;
 
+import com.deezer.sdk.network.connect.DeezerConnect;
 import com.deezer.sdk.network.request.event.DeezerError;
 import com.deezer.sdk.player.TrackPlayer;
 import com.deezer.sdk.player.event.OnBufferErrorListener;
@@ -26,9 +27,11 @@ import com.deezer.sdk.player.event.PlayerState;
 import com.deezer.sdk.player.exception.TooManyPlayersExceptions;
 import com.deezer.sdk.player.networkcheck.WifiAndMobileNetworkStateChecker;
 
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.DeezerAuthenticatorUtils;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.ScriptJob;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 
@@ -43,6 +46,8 @@ public class DeezerMediaPlayer
         MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
     private static final String TAG = DeezerMediaPlayer.class.getSimpleName();
+
+    public final static String APP_ID = "138751";
 
     private static class Holder {
 
@@ -172,7 +177,7 @@ public class DeezerMediaPlayer
      * Prepare the given url
      */
     @Override
-    public MediaPlayerInterface prepare(Application application, Query query,
+    public MediaPlayerInterface prepare(final Application application, final Query query,
             MediaPlayer.OnPreparedListener onPreparedListener,
             MediaPlayer.OnCompletionListener onCompletionListener,
             MediaPlayer.OnErrorListener onErrorListener) {
@@ -183,26 +188,35 @@ public class DeezerMediaPlayer
         mPreparedQuery = null;
         mPreparingQuery = query;
         release();
-        DeezerAuthenticatorUtils authUtils =
-                (DeezerAuthenticatorUtils) AuthenticatorManager.getInstance()
-                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_DEEZER);
-        try {
-            if (mPlayer == null || mPlayer.getPlayerState() == PlayerState.RELEASED) {
-                mPlayer = new TrackPlayer(application, authUtils.getDeezerConnect(),
-                        new WifiAndMobileNetworkStateChecker());
-                mPlayer.addOnBufferErrorListener(mPlayerHandler);
-                mPlayer.addOnPlayerErrorListener(mPlayerHandler);
-                mPlayer.addOnPlayerStateChangeListener(mPlayerHandler);
-            }
-        } catch (TooManyPlayersExceptions | DeezerError e) {
-            Log.e(TAG, "<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-        String strippedPath = query.getPreferredTrackResult().getPath()
-                .replace("deezer://track/", "");
-        String[] parts = strippedPath.split("/");
-        synchronized (this) {
-            mPlayer.playTrack(Long.valueOf(parts[0]));
-        }
+
+        ((ScriptResolver) PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_DEEZER))
+                .getAccessToken(new ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult>(
+                        ScriptResolverAccessTokenResult.class) {
+                    @Override
+                    public void onReportResults(ScriptResolverAccessTokenResult results) {
+                        DeezerConnect deezerConnect = new DeezerConnect(APP_ID);
+                        deezerConnect.setAccessToken(TomahawkApp.getContext(), results.accessToken);
+                        deezerConnect.setAccessExpires(results.accessTokenExpires);
+                        try {
+                            if (mPlayer == null
+                                    || mPlayer.getPlayerState() == PlayerState.RELEASED) {
+                                mPlayer = new TrackPlayer(application, deezerConnect,
+                                        new WifiAndMobileNetworkStateChecker());
+                                mPlayer.addOnBufferErrorListener(mPlayerHandler);
+                                mPlayer.addOnPlayerErrorListener(mPlayerHandler);
+                                mPlayer.addOnPlayerStateChangeListener(mPlayerHandler);
+                            }
+                        } catch (TooManyPlayersExceptions | DeezerError e) {
+                            Log.e(TAG, "<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
+                        }
+                        String strippedPath = query.getPreferredTrackResult().getPath()
+                                .replace("deezer://track/", "");
+                        String[] parts = strippedPath.split("/");
+                        synchronized (this) {
+                            mPlayer.playTrack(Long.valueOf(parts[0]));
+                        }
+                    }
+                });
         return this;
     }
 
