@@ -21,8 +21,90 @@ var DeezerMetadataResolver = Tomahawk.extend(TomahawkResolver, {
         timeout: 15
     },
 
+    appId : "138751",
+
+    // Deezer requires the redirectUri to be in the domain that has been defined when
+    // Tomahawk-Android has been registered on the Deezer Developer website
+    redirectUri: "tomahawkdeezerresolver://hatchet.is",
+
+    storageKeyAccessToken: "deezer_access_token",
+
+    storageKeyAccessTokenExpires: "deezer_access_token_expires",
+
+    getAccessToken: function () {
+        var that = this;
+        return new Promise(function (resolve, reject) {
+            var accessToken = Tomahawk.localStorage.getItem(that.storageKeyAccessToken);
+            var accessTokenExpires =
+                Tomahawk.localStorage.getItem(that.storageKeyAccessTokenExpires);
+            if (accessToken !== null && accessToken.length > 0 && accessTokenExpires !== null) {
+                resolve({
+                    accessToken: accessToken,
+                    accessTokenExpires: accessTokenExpires
+                });
+            } else {
+                reject("There's no accessToken set.");
+            }
+        });
+    },
+
+    login: function () {
+        Tomahawk.log("Starting login");
+
+        var authUrl = "https://connect.deezer.com/oauth/auth.php";
+        authUrl += "?app_id=" + this.appId;
+        authUrl += "&redirect_uri=" + encodeURIComponent(this.redirectUri);
+        authUrl += "&perms=offline_access";
+        authUrl += "&response_type=token";
+
+        Tomahawk.showWebView(authUrl);
+    },
+
+    logout: function () {
+        Tomahawk.localStorage.removeItem(this.storageKeyAccessToken);
+        Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Logout);
+    },
+
+    isLoggedIn: function() {
+        var accessToken = Tomahawk.localStorage.getItem(this.storageKeyAccessToken);
+        return accessToken !== null && accessToken.length > 0;
+    },
+
+    /**
+     * This function is being called from the native side whenever it has received a redirect
+     * callback. In other words, the WebView shown to the user can call the js side here.
+     */
+    onRedirectCallback: function(params) {
+        var url = params.url;
+
+        var that = this;
+
+        var error = this.getParameterByName(url, "error_reason");
+        if (error) {
+            Tomahawk.log("Authorization failed: " + error);
+            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other, error);
+        } else {
+            Tomahawk.log("Authorization successful, received new access token ...");
+            this.accessToken = this.getParameterByName(url, "access_token");
+            this.accessTokenExpires = this.getParameterByName(url, "expires");
+            Tomahawk.localStorage.setItem(this.storageKeyAccessToken, this.accessToken);
+            Tomahawk.localStorage.setItem(this.storageKeyAccessTokenExpires,
+                this.accessTokenExpires);
+            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Success);
+        }
+    },
+
+    getParameterByName: function(url, name) {
+        name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+        var regex = new RegExp("[\\?&#]" + name + "=([^&#]*)"), results = regex.exec(url);
+        return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+    },
+
     init: function () {
         Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
+
+        this.accessToken = Tomahawk.localStorage.getItem(this.storageKeyAccessToken);
+        this.accessTokenExpires = Tomahawk.localStorage.getItem(this.storageKeyAccessTokenExpires);
     },
 
     resolve: function (qid, artist, album, title) {

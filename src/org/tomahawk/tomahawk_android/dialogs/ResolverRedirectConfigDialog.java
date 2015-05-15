@@ -21,7 +21,6 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
 import android.app.AlertDialog;
@@ -43,21 +42,13 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
 
     private class RedirectButtonListener implements View.OnClickListener {
 
-        private final String mPluginName;
-
-        public RedirectButtonListener(String pluginName) {
-            mPluginName = pluginName;
-        }
-
         @Override
         public void onClick(View v) {
-            if (mPluginName.equals(TomahawkApp.PLUGINNAME_SPOTIFY)) {
-                startLoadingAnimation();
-                if (mScriptResolver.isEnabled()) {
-                    mScriptResolver.logout();
-                } else {
-                    mScriptResolver.login();
-                }
+            startLoadingAnimation();
+            if (mScriptResolver.isEnabled()) {
+                mScriptResolver.logout();
+            } else {
+                mScriptResolver.login();
             }
         }
     }
@@ -78,8 +69,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
 
         int buttonBackgroundResId = R.drawable.selectable_background_tomahawk_rectangle_gray;
         int buttonTextColor = getResources().getColor(R.color.primary_textcolor);
-        View.OnClickListener onClickListener =
-                new RedirectButtonListener(TomahawkApp.PLUGINNAME_SPOTIFY);
+        View.OnClickListener onClickListener = new RedirectButtonListener();
 
         View buttonLayout = addScrollingViewToFrame(R.layout.config_redirect_button);
         LinearLayout button = ((LinearLayout) buttonLayout
