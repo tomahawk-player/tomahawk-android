@@ -17,9 +17,16 @@
  */
 package org.tomahawk.tomahawk_android.mediaplayers;
 
+import com.rdio.android.api.Rdio;
+import com.rdio.android.api.RdioListener;
+
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.ScriptJob;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAppKeysResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 
@@ -29,6 +36,8 @@ import android.media.MediaPlayer;
 import android.util.Log;
 
 import java.io.IOException;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * This class wraps a standard {@link android.media.MediaPlayer} object.
@@ -55,6 +64,41 @@ public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPrep
     private Query mPreparedQuery;
 
     private Query mPreparingQuery;
+
+    private Rdio mRdio;
+
+    private RdioListener mRdioListener = new RdioListener() {
+
+        @Override
+        public void onRdioReadyForPlayback() {
+            Log.d(TAG, "Rdio SDK is ready for playback");
+            prepareQuery(mPreparingQuery);
+        }
+
+        @Override
+        public void onRdioUserPlayingElsewhere() {
+            Log.d(TAG, "onRdioUserPlayingElsewhere()");
+            AuthenticatorManager.ConfigTestResultEvent event
+                    = new AuthenticatorManager.ConfigTestResultEvent();
+            event.mComponent = this;
+            event.mType = AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_PLAYINGELSEWHERE;
+            EventBus.getDefault().post(event);
+            final ScriptResolver rdioResolver = (ScriptResolver) PipeLine.getInstance()
+                    .getResolver(TomahawkApp.PLUGINNAME_RDIO);
+            AuthenticatorManager.showToast(rdioResolver.getPrettyName(), event);
+        }
+
+        /*
+         * Dispatched by the Rdio object once the setTokenAndSecret call has finished, and the credentials are
+         * ready to be used to make API calls.  The token & token secret are passed in so that you can
+         * save/cache them for future re-use.
+         * @see com.rdio.android.api.RdioListener#onRdioAuthorised(java.lang.String, java.lang.String)
+         */
+        @Override
+        public void onRdioAuthorised(String extraToken, String extraTokenSecret) {
+            Log.d(TAG, "Rdio Application authorised.");
+        }
+    };
 
     private RdioMediaPlayer() {
     }
@@ -126,33 +170,63 @@ public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPrep
         mPreparedQuery = null;
         mPreparingQuery = query;
         release();
-        RdioAuthenticatorUtils authUtils = (RdioAuthenticatorUtils) AuthenticatorManager
-                .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_RDIO);
-        if (authUtils.getRdio() == null) {
-            return null;
+
+        if (mRdio == null || !mRdio.isReady()) {
+            final ScriptResolver rdioResolver = (ScriptResolver) PipeLine.getInstance()
+                    .getResolver(TomahawkApp.PLUGINNAME_RDIO);
+            rdioResolver.getAppKeys(new ScriptJob.ResultsCallback<ScriptResolverAppKeysResult>(
+                    ScriptResolverAppKeysResult.class) {
+                @Override
+                public void onReportResults(final ScriptResolverAppKeysResult appKeysResult) {
+                    rdioResolver.getAccessToken(
+                            new ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult>(
+                                    ScriptResolverAccessTokenResult.class) {
+                                @Override
+                                public void onReportResults(
+                                        ScriptResolverAccessTokenResult accessTokenResult) {
+                                    mRdio = new Rdio(appKeysResult.appKey,
+                                            appKeysResult.appSecret,
+                                            accessTokenResult.accessToken,
+                                            accessTokenResult.accessTokenSecret,
+                                            TomahawkApp.getContext(), mRdioListener);
+                                    mRdio.prepareForPlayback();
+                                }
+                            });
+                }
+            });
+        } else {
+            prepareQuery(mPreparingQuery);
         }
-        try {
-            mMediaPlayer = authUtils.getRdio().getPlayerForTrack(
-                    query.getPreferredTrackResult().getPath().replace("rdio://track/", ""), null,
-                    true);
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "prepare: " + e.getClass() + ": " + e.getLocalizedMessage());
-            return null;
-        }
-        if (mMediaPlayer == null) {
-            return null;
-        }
-        try {
-            mMediaPlayer.prepare();
-        } catch (IOException e) {
-            Log.e(TAG, "prepare: " + e.getClass() + ": " + e.getLocalizedMessage());
-            return null;
-        }
-        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        mMediaPlayer.setOnPreparedListener(this);
-        mMediaPlayer.setOnErrorListener(this);
-        mMediaPlayer.setOnCompletionListener(this);
         return this;
+    }
+
+    private void prepareQuery(Query query) {
+        if (query != null) {
+            try {
+                mMediaPlayer = mRdio.getPlayerForTrack(
+                        mPreparingQuery.getPreferredTrackResult().getPath()
+                                .replace("rdio://track/", ""), null, true);
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "prepare: " + e.getClass() + ": "
+                        + e.getLocalizedMessage());
+                return;
+            }
+            if (mMediaPlayer == null) {
+                Log.e(TAG, "prepare: MediaPlayer returned by "
+                        + "Rdio#getPlayerForTrack() was null");
+                return;
+            }
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mMediaPlayer.setOnPreparedListener(RdioMediaPlayer.this);
+            mMediaPlayer.setOnErrorListener(RdioMediaPlayer.this);
+            mMediaPlayer.setOnCompletionListener(RdioMediaPlayer.this);
+            try {
+                mMediaPlayer.prepare();
+            } catch (IOException e) {
+                Log.e(TAG, "prepare: " + e.getClass() + ": "
+                        + e.getLocalizedMessage());
+            }
+        }
     }
 
     @Override

@@ -64,19 +64,6 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="tomahawkspotifyresolver"/>
-                <data android:host="callback"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="tomahawkdeezerresolver"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
                 <category android:name="android.intent.category.APP_MUSIC"/>
                 <data android:scheme="https"/>
                 <data android:scheme="http"/>
@@ -503,8 +490,6 @@
                 <data android:pathPattern=".*\\.XSPF" />
             </intent-filter>
         </activity>
-
-        <activity android:name="com.rdio.android.api.OAuth1WebViewActivity"/>
 
         <activity android:name=".activities.WebViewActivity"
                   android:theme="@style/Theme.Tomahawk"/>

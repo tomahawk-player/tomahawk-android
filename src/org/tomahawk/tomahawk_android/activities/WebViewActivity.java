@@ -19,19 +19,14 @@ package org.tomahawk.tomahawk_android.activities;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.util.Log;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 
 import de.greenrobot.event.EventBus;
 
@@ -50,38 +45,37 @@ public class WebViewActivity extends Activity {
         setContentView(R.layout.web_view_activity);
 
         String url = getIntent().getStringExtra(URL_EXTRA);
-        String redirectUri = "";
-        String[] parts = url.split("redirect_uri=");
-        if (parts.length > 1) {
-            parts = parts[1].split("&");
-            if (parts.length > 0) {
-                redirectUri = parts[0];
-            }
-        }
-        try {
-            final String finalRedirectUri = URLDecoder.decode(redirectUri, "UTF-8");
 
-            mWebView = (WebView) findViewById(R.id.webview);
-            mWebView.setWebViewClient(new WebViewClient() {
-                @Override
-                public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                    if (finalRedirectUri != null && url.startsWith(finalRedirectUri)) {
-                        Intent i = new Intent(Intent.ACTION_VIEW);
-                        i.setData(Uri.parse(url));
-                        startActivity(i);
-                        finish();
-                        return true;
-                    } else {
-                        view.loadUrl(url);
-                        return false;
-                    }
+        mWebView = (WebView) findViewById(R.id.webview);
+        mWebView.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url.startsWith("tomahawkspotifyresolver")) {
+                    ScriptResolver urlHandler = (ScriptResolver)
+                            PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
+                    urlHandler.onRedirectCallback(url);
+                    finish();
+                    return true;
+                } else if (url.startsWith("tomahawkdeezerresolver")) {
+                    ScriptResolver urlHandler = (ScriptResolver)
+                            PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_DEEZER);
+                    urlHandler.onRedirectCallback(url);
+                    finish();
+                    return true;
+                } else if (url.startsWith("tomahawkrdioresolver")) {
+                    ScriptResolver urlHandler = (ScriptResolver)
+                            PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_RDIO);
+                    urlHandler.onRedirectCallback(url);
+                    finish();
+                    return true;
+                } else {
+                    view.loadUrl(url);
+                    return false;
                 }
-            });
-            mWebView.getSettings().setJavaScriptEnabled(true);
-            mWebView.loadUrl(url);
-        } catch (UnsupportedEncodingException e) {
-            Log.d(TAG, "onCreate - " + e.getLocalizedMessage());
-        }
+            }
+        });
+        mWebView.getSettings().setJavaScriptEnabled(true);
+        mWebView.loadUrl(url);
     }
 
     @Override

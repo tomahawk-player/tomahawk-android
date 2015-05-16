@@ -17,14 +17,12 @@
  */
 package org.tomahawk.libtomahawk.resolver.models;
 
-public class ScriptResolverAccessTokenResult {
+public class ScriptResolverAppKeysResult {
 
-    public String accessToken;
+    public String appKey;
 
-    public String accessTokenSecret;
+    public String appSecret;
 
-    public long accessTokenExpires;
-
-    public ScriptResolverAccessTokenResult() {
+    public ScriptResolverAppKeysResult() {
     }
 }

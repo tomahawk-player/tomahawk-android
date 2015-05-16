@@ -32,7 +32,6 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.ConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.DirectoryChooserConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.LoginConfigDialog;
-import org.tomahawk.tomahawk_android.dialogs.RedirectConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverRedirectConfigDialog;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
@@ -134,8 +133,6 @@ public class PreferenceConnectFragment extends TomahawkListFragment
             ConfigDialog dialog;
             switch (id) {
                 case TomahawkApp.PLUGINNAME_RDIO:
-                    dialog = new RedirectConfigDialog();
-                    break;
                 case TomahawkApp.PLUGINNAME_SPOTIFY:
                 case TomahawkApp.PLUGINNAME_DEEZER:
                     dialog = new ResolverRedirectConfigDialog();

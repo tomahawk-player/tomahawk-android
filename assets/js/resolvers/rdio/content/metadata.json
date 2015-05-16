@@ -3,7 +3,7 @@
     "pluginName": "rdio",
     "author": "Uwe and Enno",
     "email": "uwelk@xhochy.com",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "website": "http://gettomahawk.com",
     "description": "Stream music with Rdio. Premium Rdio account required.",
     "type": "resolver/javascript",
@@ -16,5 +16,8 @@
         "resources": [
             "contents/code/rdio.png"
         ]
-    }
+    },
+    "staticCapabilities": [
+        "configTestable"
+    ]
 }
