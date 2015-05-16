@@ -234,7 +234,7 @@ public class ScriptJob {
             ((ResultsArrayCallback) mSuccessCallback).onReportResults((JsonArray) data);
         } else if (mSuccessCallback instanceof ResultsEmptyCallback) {
             ((ResultsEmptyCallback) mSuccessCallback).onReportResults();
-        } else {
+        } else if (mSuccessCallback != null) {
             reportFailure("Unexpected result!");
         }
     }
