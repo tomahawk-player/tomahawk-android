@@ -66,9 +66,6 @@ public class AuthenticatorManager {
         HatchetAuthenticatorUtils hatchetAuthenticatorUtils = new HatchetAuthenticatorUtils();
         mAuthenticatorUtils.put(hatchetAuthenticatorUtils.getId(),
                 hatchetAuthenticatorUtils);
-        RdioAuthenticatorUtils rdioAuthenticatorUtils = new RdioAuthenticatorUtils();
-        mAuthenticatorUtils.put(rdioAuthenticatorUtils.getId(),
-                rdioAuthenticatorUtils);
     }
 
     public static AuthenticatorManager getInstance() {

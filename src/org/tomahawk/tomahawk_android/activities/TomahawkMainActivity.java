@@ -18,7 +18,6 @@
  */
 package org.tomahawk.tomahawk_android.activities;
 
-import com.rdio.android.api.OAuth1WebViewActivity;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.uservoice.uservoicesdk.Config;
 import com.uservoice.uservoicesdk.UserVoice;
@@ -26,7 +25,6 @@ import com.uservoice.uservoicesdk.UserVoice;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
-import org.tomahawk.libtomahawk.authentication.RdioAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
@@ -42,7 +40,6 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.libtomahawk.utils.parser.XspfParser;
@@ -79,7 +76,6 @@ import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.accounts.AccountManager;
 import android.animation.Animator;
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -626,15 +622,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             List<String> pathSegments = data.getPathSegments();
             String host = data.getHost();
             String scheme = data.getScheme();
-            if (scheme != null && scheme.equals("tomahawkspotifyresolver")) {
-                ScriptResolver urlHandler = (ScriptResolver)
-                        PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
-                urlHandler.onRedirectCallback(data.toString());
-            } else if (scheme != null && scheme.equals("tomahawkdeezerresolver")) {
-                ScriptResolver urlHandler = (ScriptResolver)
-                        PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_DEEZER);
-                urlHandler.onRedirectCallback(data.toString());
-            } else if ((scheme != null && (scheme.equals("spotify") || scheme.equals("tomahawk")))
+            if ((scheme != null && (scheme.equals("spotify") || scheme.equals("tomahawk")))
                     || (host != null && (host.contains("spotify.com") || host.contains("hatchet.is")
                     || host.contains("toma.hk") || host.contains("beatsmusic.com")
                     || host.contains("deezer.com") || host.contains("rdio.com")
@@ -860,34 +848,6 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
 
         super.onDestroy();
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 1) {
-            RdioAuthenticatorUtils authUtils = (RdioAuthenticatorUtils) AuthenticatorManager
-                    .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_RDIO);
-            if (resultCode == Activity.RESULT_OK) {
-                Log.d(TAG, "Rdio access token is served and yummy");
-                if (data != null) {
-                    String accessToken = data.getStringExtra(OAuth1WebViewActivity.EXTRA_TOKEN);
-                    String accessTokenSecret =
-                            data.getStringExtra(OAuth1WebViewActivity.EXTRA_TOKEN_SECRET);
-                    authUtils.onRdioAuthorised(accessToken, accessTokenSecret);
-                }
-            } else if (resultCode == Activity.RESULT_CANCELED) {
-                if (data != null) {
-                    String errorCode = data.getStringExtra(OAuth1WebViewActivity.EXTRA_ERROR_CODE);
-                    String errorDescription = data
-                            .getStringExtra(OAuth1WebViewActivity.EXTRA_ERROR_DESCRIPTION);
-                    authUtils.onLoginFailed(
-                            AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                            "Rdio authentication cancelled");
-                    Log.e(TAG, "ERROR: " + errorCode + " - " + errorDescription);
-                }
-            }
-        }
     }
 
     @Override
