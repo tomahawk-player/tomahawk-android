@@ -40,6 +40,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.PluginMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
@@ -172,6 +173,16 @@ public class PlaybackService extends Service
     }
 
     public static class RequestServiceBindingEvent {
+
+        private PluginMediaPlayer mRequestingPlayer;
+
+        private String mServicePackageName;
+
+        public RequestServiceBindingEvent(PluginMediaPlayer requestingPlayer,
+                String servicePackageName) {
+            mRequestingPlayer = requestingPlayer;
+            mServicePackageName = servicePackageName;
+        }
 
     }
 
@@ -362,7 +373,13 @@ public class PlaybackService extends Service
         }
     }
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private class PluginServiceConnection implements ServiceConnection {
+
+        private PluginMediaPlayer mPluginMediaPlayer;
+
+        public PluginServiceConnection(PluginMediaPlayer pluginMediaPlayer) {
+            mPluginMediaPlayer = pluginMediaPlayer;
+        }
 
         public void onServiceConnected(ComponentName className, IBinder service) {
             // This is called when the connection with the service has been
@@ -371,13 +388,12 @@ public class PlaybackService extends Service
             // service through an IDL interface, so get a client-side
             // representation of that from the raw service object.
             IPluginService pluginService = IPluginService.Stub.asInterface(service);
-            SpotifyMediaPlayer.getInstance().setService(pluginService);
+            mPluginMediaPlayer.setService(pluginService);
 
             // We want to monitor the service for as long as we are
             // connected to it.
             try {
-                pluginService
-                        .registerCallback(SpotifyMediaPlayer.getInstance().getServiceCallback());
+                pluginService.registerCallback(mPluginMediaPlayer);
             } catch (RemoteException e) {
                 // In this case the service has crashed before we could even
                 // do anything with it; we can count on soon being
@@ -389,9 +405,11 @@ public class PlaybackService extends Service
         public void onServiceDisconnected(ComponentName className) {
             // This is called when the connection with the service has been
             // unexpectedly disconnected -- that is, its process crashed.
-            SpotifyMediaPlayer.getInstance().setService(null);
+            mPluginMediaPlayer.setService(null);
         }
-    };
+    }
+
+    ;
 
     public class PlaybackServiceBinder extends Binder {
 
@@ -471,8 +489,9 @@ public class PlaybackService extends Service
     @SuppressWarnings("unused")
     public void onEvent(RequestServiceBindingEvent event) {
         Intent intent = new Intent(IPluginService.class.getName());
-        intent.setPackage("org.tomahawk.spotifyplugin");
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        intent.setPackage(event.mServicePackageName);
+        bindService(intent, new PluginServiceConnection(event.mRequestingPlayer),
+                Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -485,10 +504,6 @@ public class PlaybackService extends Service
         mMediaPlayers.add(DeezerMediaPlayer.getInstance());
         mMediaPlayers.add(SpotifyMediaPlayer.getInstance());
         mMediaPlayers.add(RdioMediaPlayer.getInstance());
-
-        Intent intent = new Intent(IPluginService.class.getName());
-        intent.setPackage("org.tomahawk.spotifyplugin");
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
         startService(new Intent(this, MicroService.class));
 
