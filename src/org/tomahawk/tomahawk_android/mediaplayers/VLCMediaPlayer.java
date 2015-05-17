@@ -111,11 +111,6 @@ public class VLCMediaPlayer implements MediaPlayerInterface {
         }
     }
 
-    @Override
-    public void setVolume(float leftVolume, float rightVolume) {
-        getLibVlcInstance().setVolume((int) (leftVolume + rightVolume * 50));
-    }
-
     /**
      * Start playing the previously prepared {@link org.tomahawk.libtomahawk.collection.Track}
      */

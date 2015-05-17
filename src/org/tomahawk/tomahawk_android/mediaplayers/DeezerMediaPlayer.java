@@ -116,10 +116,6 @@ public class DeezerMediaPlayer
         return Holder.instance;
     }
 
-    @Override
-    public void setVolume(float leftVolume, float rightVolume) {
-    }
-
     /**
      * Start playing the previously prepared {@link org.tomahawk.libtomahawk.collection.Track}
      */
