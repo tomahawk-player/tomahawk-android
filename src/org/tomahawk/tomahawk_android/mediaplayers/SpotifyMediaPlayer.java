@@ -22,14 +22,12 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Message;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -38,7 +36,7 @@ import android.util.Log;
  * This class wraps all functionality to be able to directly playback spotify-resolved tracks with
  * OpenSLES .
  */
-public class SpotifyMediaPlayer extends PluginMediaPlayer implements TomahawkMediaPlayer {
+public class SpotifyMediaPlayer extends PluginMediaPlayer {
 
     private static final String TAG = SpotifyMediaPlayer.class.getSimpleName();
 
@@ -58,117 +56,17 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer implements TomahawkMed
 
     }
 
-    private TomahawkMediaPlayerCallback mMediaPlayerCallback;
-
-    private boolean mIsPlaying;
-
-    private Query mPreparedQuery;
-
-    private Query mPreparingQuery;
-
-    private boolean mOverrideCurrentPosition = false;
-
-    private long mPositionTimeStamp;
-
-    private int mPositionOffset;
-
     private SpotifyMediaPlayer() {
+        super(TomahawkApp.PLUGINNAME_SPOTIFY, "org.tomahawk.spotifyplugin");
     }
 
     public static SpotifyMediaPlayer getInstance() {
         return Holder.instance;
     }
 
-    private final ResetOverrideHandler mResetOverrideHandler = new ResetOverrideHandler(this);
-
-    private static class ResetOverrideHandler extends WeakReferenceHandler<SpotifyMediaPlayer> {
-
-        public ResetOverrideHandler(SpotifyMediaPlayer referencedObject) {
-            super(referencedObject);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            if (getReferencedObject() != null) {
-                getReferencedObject().mOverrideCurrentPosition = false;
-            }
-        }
-    }
-
-    /**
-     * Start playing the previously prepared {@link org.tomahawk.libtomahawk.collection.Track}
-     */
     @Override
-    public void start() {
-        Log.d(TAG, "start()");
-        mIsPlaying = true;
-        callService(new ServiceCall() {
-            @Override
-            public void call(IPluginService pluginService) {
-                try {
-                    pluginService.play();
-                } catch (RemoteException e) {
-                    Log.e(TAG, "start: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
-            }
-        });
-    }
-
-    /**
-     * Pause playing the current {@link org.tomahawk.libtomahawk.collection.Track}
-     */
-    @Override
-    public void pause() {
-        Log.d(TAG, "pause()");
-        mIsPlaying = false;
-        callService(new ServiceCall() {
-            @Override
-            public void call(IPluginService pluginService) {
-                try {
-                    pluginService.pause();
-                } catch (RemoteException e) {
-                    Log.e(TAG, "pause: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
-            }
-        });
-    }
-
-    /**
-     * Seek to the given playback position (in ms)
-     */
-    @Override
-    public void seekTo(final int msec) {
-        Log.d(TAG, "seekTo()");
-        callService(new ServiceCall() {
-            @Override
-            public void call(IPluginService pluginService) {
-                try {
-                    pluginService.seek(msec);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "seekTo: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
-                mPositionOffset = msec;
-                mPositionTimeStamp = System.currentTimeMillis();
-                mOverrideCurrentPosition = true;
-                // After 1 second, we set mOverrideCurrentPosition to false again
-                mResetOverrideHandler.sendEmptyMessageDelayed(1337, 1000);
-            }
-        });
-    }
-
-    /**
-     * Prepare the given url
-     */
-    @Override
-    public TomahawkMediaPlayer prepare(Application application, final Query query,
-            TomahawkMediaPlayerCallback callback) {
-        Log.d(TAG, "prepare()");
-        mMediaPlayerCallback = callback;
-        mPositionOffset = 0;
-        mPositionTimeStamp = System.currentTimeMillis();
-        mPreparedQuery = null;
-        mPreparingQuery = query;
-        callService(new ServiceCall() {
+    public ServiceCall getPrepareServiceCall(Application application, final Query query) {
+        return new ServiceCall() {
             @Override
             public void call(final IPluginService pluginService) {
                 getScriptResolver().getAccessToken(
@@ -180,7 +78,7 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer implements TomahawkMed
                                         query.getPreferredTrackResult().getPath().split("/");
                                 String uri = "spotify:track:" + pathParts[pathParts.length - 1];
                                 try {
-                                    pluginService.prepare(uri, results.accessToken);
+                                    pluginService.prepare(uri, results.accessToken, null, -1);
                                 } catch (RemoteException e) {
                                     Log.e(TAG, "prepare: " + e.getClass() + ": "
                                             + e.getLocalizedMessage());
@@ -188,85 +86,8 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer implements TomahawkMed
                             }
                         });
             }
-        });
-        return this;
+        };
     }
-
-    @Override
-    public void release() {
-        Log.d(TAG, "release()");
-        pause();
-    }
-
-    /**
-     * @return the current track position
-     */
-    @Override
-    public int getPosition() {
-        if (mIsPlaying) {
-            return (int) (System.currentTimeMillis() - mPositionTimeStamp) + mPositionOffset;
-        } else {
-            return mPositionOffset;
-        }
-    }
-
-    @Override
-    public boolean isPlaying(Query query) {
-        return mPreparedQuery == query && mIsPlaying;
-    }
-
-    @Override
-    public boolean isPreparing(Query query) {
-        return mPreparingQuery == query;
-    }
-
-    @Override
-    public boolean isPrepared(Query query) {
-        return mPreparedQuery == query;
-    }
-
-    // < Implementation of IPluginServiceCallback.Stub>
-    @Override
-    public void onPause() throws RemoteException {
-        mPositionOffset =
-                (int) (System.currentTimeMillis() - mPositionTimeStamp) + mPositionOffset;
-        mPositionTimeStamp = System.currentTimeMillis();
-    }
-
-    @Override
-    public void onPlay() throws RemoteException {
-        mPositionTimeStamp = System.currentTimeMillis();
-    }
-
-    @Override
-    public void onPrepared() throws RemoteException {
-        Log.d(TAG, "onPrepared()");
-        mPositionOffset = 0;
-        mPositionTimeStamp = System.currentTimeMillis();
-        mPreparedQuery = mPreparingQuery;
-        mPreparingQuery = null;
-        mMediaPlayerCallback.onPrepared(mPreparedQuery);
-    }
-
-    @Override
-    public void onPlayerEndOfTrack() throws RemoteException {
-        Log.d(TAG, "onCompletion()");
-        mMediaPlayerCallback.onCompletion(mPreparedQuery);
-    }
-
-    @Override
-    public void onPlayerPositionChanged(int position, long timeStamp) throws RemoteException {
-        if (!mOverrideCurrentPosition) {
-            mPositionTimeStamp = timeStamp;
-            mPositionOffset = position;
-        }
-    }
-
-    @Override
-    public void onError(String message) throws RemoteException {
-        mMediaPlayerCallback.onError(message);
-    }
-    // </ Implementation of IPluginServiceCallback.Stub>
 
     public void setBitRate(final int bitrateMode) {
         callService(new ServiceCall() {

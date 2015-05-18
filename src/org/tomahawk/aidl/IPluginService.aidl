@@ -25,7 +25,7 @@ interface IPluginService {
 
     void unregisterCallback(IPluginServiceCallback cb);
 
-    void prepare(String uri, String accessToken);
+    void prepare(String uri, String accessToken, String accessTokenSecret, long accessTokenExpires);
 
     void play();
 

@@ -20,10 +20,14 @@ package org.tomahawk.tomahawk_android.mediaplayers;
 import org.tomahawk.aidl.IPluginService;
 import org.tomahawk.aidl.IPluginServiceCallback;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
+import android.app.Application;
+import android.os.Message;
+import android.os.RemoteException;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -31,11 +35,14 @@ import java.util.List;
 
 import de.greenrobot.event.EventBus;
 
-public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub {
+public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
+        implements TomahawkMediaPlayer {
 
     private static final String TAG = PluginMediaPlayer.class.getSimpleName();
 
-    private ScriptResolver mScriptResolver;
+    private String mPluginName;
+
+    private String mPackageName;
 
     private IPluginService mService;
 
@@ -46,24 +53,48 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub {
         void call(IPluginService pluginService);
     }
 
-    public ScriptResolver getScriptResolver() {
-        if (mScriptResolver != null) {
-            return mScriptResolver;
-        } else {
-            String pluginName = null;
-            if (this instanceof SpotifyMediaPlayer) {
-                pluginName = TomahawkApp.PLUGINNAME_SPOTIFY;
-            }/* else if (this instanceof DeezerMediaPlayer) {
-                pluginName = TomahawkApp.PLUGINNAME_DEEZER;
-            } else if (this instanceof RdioMediaPlayer) {
-                pluginName = TomahawkApp.PLUGINNAME_RDIO;
-            }*/
-            mScriptResolver = (ScriptResolver) PipeLine.getInstance().getResolver(pluginName);
+    private TomahawkMediaPlayerCallback mMediaPlayerCallback;
+
+    private boolean mIsPlaying;
+
+    private Query mPreparedQuery;
+
+    private Query mPreparingQuery;
+
+    private boolean mOverrideCurrentPosition = false;
+
+    private final ResetOverrideHandler mResetOverrideHandler = new ResetOverrideHandler(this);
+
+    private static class ResetOverrideHandler extends WeakReferenceHandler<PluginMediaPlayer> {
+
+        public ResetOverrideHandler(PluginMediaPlayer referencedObject) {
+            super(referencedObject);
         }
-        if (mScriptResolver == null) {
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (getReferencedObject() != null) {
+                getReferencedObject().mOverrideCurrentPosition = false;
+            }
+        }
+    }
+
+    private long mPositionTimeStamp;
+
+    private int mPositionOffset;
+
+    public PluginMediaPlayer(String pluginName, String packageName) {
+        mPluginName = pluginName;
+        mPackageName = packageName;
+    }
+
+    public ScriptResolver getScriptResolver() {
+        ScriptResolver scriptResolver =
+                (ScriptResolver) PipeLine.getInstance().getResolver(mPluginName);
+        if (scriptResolver == null) {
             Log.e(TAG, "getScriptResolver - Couldn't find associated ScriptResolver!");
         }
-        return mScriptResolver;
+        return scriptResolver;
     }
 
     public void setService(IPluginService service) {
@@ -114,19 +145,169 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub {
      * {@link IPluginService} {@link #setService} will be called.
      */
     private void requestService() {
-        String packageName = null;
-        if (this instanceof SpotifyMediaPlayer) {
-            packageName = "org.tomahawk.spotifyplugin";
-        }/* else if (this instanceof DeezerMediaPlayer) {
-            packageName = "org.tomahawk.deezerplugin";
-        } else if (this instanceof RdioMediaPlayer){
-            packageName="org.tomahawk.rdioplugin";
-        }*/ else {
-            Log.e(TAG, "requestService - PluginMediaPlayer type not supported!");
-        }
         PlaybackService.RequestServiceBindingEvent event =
-                new PlaybackService.RequestServiceBindingEvent(this, packageName);
+                new PlaybackService.RequestServiceBindingEvent(this, mPackageName);
         EventBus.getDefault().post(event);
     }
+
+    /**
+     * This method returns a {@link ServiceCall} which defines the way the {@link PluginMediaPlayer}
+     * calls the {@link IPluginService} in order to prepare a given Query for playback.
+     */
+    public abstract ServiceCall getPrepareServiceCall(Application application, Query query);
+
+    /**
+     * Prepare the given {@link Query} for playback
+     *
+     * @param application an {@link Application} object that can be used as {@link
+     *                    android.content.Context}
+     * @param query       the {@link Query} that should be prepared for playback
+     * @param callback    a {@link TomahawkMediaPlayerCallback} that should be stored and be used to
+     *                    report certain callbacks back to the {@link PlaybackService}
+     */
+    @Override
+    public TomahawkMediaPlayer prepare(Application application, final Query query,
+            TomahawkMediaPlayerCallback callback) {
+        Log.d(TAG, "prepare()");
+        mMediaPlayerCallback = callback;
+        mPositionOffset = 0;
+        mPositionTimeStamp = System.currentTimeMillis();
+        mPreparedQuery = null;
+        mPreparingQuery = query;
+        callService(getPrepareServiceCall(application, query));
+        return this;
+    }
+
+    /**
+     * Start playing the previously prepared {@link Query}
+     */
+    public void start() {
+        Log.d(TAG, "start()");
+        mIsPlaying = true;
+        callService(new ServiceCall() {
+            @Override
+            public void call(IPluginService pluginService) {
+                try {
+                    pluginService.play();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "start: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+            }
+        });
+    }
+
+    /**
+     * Pause playing the current {@link Query}
+     */
+    public void pause() {
+        Log.d(TAG, "pause()");
+        mIsPlaying = false;
+        callService(new ServiceCall() {
+            @Override
+            public void call(IPluginService pluginService) {
+                try {
+                    pluginService.pause();
+                } catch (RemoteException e) {
+                    Log.e(TAG, "pause: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+            }
+        });
+    }
+
+    /**
+     * Seek to the given playback position (in ms)
+     */
+    public void seekTo(final int msec) {
+        Log.d(TAG, "seekTo()");
+        callService(new ServiceCall() {
+            @Override
+            public void call(IPluginService pluginService) {
+                try {
+                    pluginService.seek(msec);
+                } catch (RemoteException e) {
+                    Log.e(TAG, "seekTo: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+                mPositionOffset = msec;
+                mPositionTimeStamp = System.currentTimeMillis();
+                mOverrideCurrentPosition = true;
+                // After 1 second, we set mOverrideCurrentPosition to false again
+                mResetOverrideHandler.sendEmptyMessageDelayed(1337, 1000);
+            }
+        });
+    }
+
+    /**
+     * Release any relevant resources that this {@link PluginMediaPlayer} might hold onto
+     */
+    public void release() {
+        Log.d(TAG, "release()");
+        pause();
+    }
+
+    /**
+     * @return the current track position
+     */
+    public int getPosition() {
+        if (mIsPlaying) {
+            return (int) (System.currentTimeMillis() - mPositionTimeStamp) + mPositionOffset;
+        } else {
+            return mPositionOffset;
+        }
+    }
+
+    public boolean isPlaying(Query query) {
+        return mPreparedQuery == query && mIsPlaying;
+    }
+
+    public boolean isPreparing(Query query) {
+        return mPreparingQuery == query;
+    }
+
+    public boolean isPrepared(Query query) {
+        return mPreparedQuery == query;
+    }
+
+    // < Implementation of IPluginServiceCallback.Stub>
+    @Override
+    public void onPause() throws RemoteException {
+        mPositionOffset =
+                (int) (System.currentTimeMillis() - mPositionTimeStamp) + mPositionOffset;
+        mPositionTimeStamp = System.currentTimeMillis();
+    }
+
+    @Override
+    public void onPlay() throws RemoteException {
+        mPositionTimeStamp = System.currentTimeMillis();
+    }
+
+    @Override
+    public void onPrepared() throws RemoteException {
+        Log.d(TAG, "onPrepared()");
+        mPositionOffset = 0;
+        mPositionTimeStamp = System.currentTimeMillis();
+        mPreparedQuery = mPreparingQuery;
+        mPreparingQuery = null;
+        mMediaPlayerCallback.onPrepared(mPreparedQuery);
+    }
+
+    @Override
+    public void onPlayerEndOfTrack() throws RemoteException {
+        Log.d(TAG, "onCompletion()");
+        mMediaPlayerCallback.onCompletion(mPreparedQuery);
+    }
+
+    @Override
+    public void onPlayerPositionChanged(int position, long timeStamp) throws RemoteException {
+        if (!mOverrideCurrentPosition) {
+            mPositionTimeStamp = timeStamp;
+            mPositionOffset = position;
+        }
+    }
+
+    @Override
+    public void onError(String message) throws RemoteException {
+        mMediaPlayerCallback.onError(message);
+    }
+    // </ Implementation of IPluginServiceCallback.Stub>
 
 }
