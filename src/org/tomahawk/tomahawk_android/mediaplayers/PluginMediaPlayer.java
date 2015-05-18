@@ -61,20 +61,22 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
 
     private Query mPreparingQuery;
 
-    private boolean mOverrideCurrentPosition = false;
+    private boolean mShowFakePosition = false;
 
-    private final ResetOverrideHandler mResetOverrideHandler = new ResetOverrideHandler(this);
+    private final DisableFakePositionHandler mDisableFakePositionHandler
+            = new DisableFakePositionHandler(this);
 
-    private static class ResetOverrideHandler extends WeakReferenceHandler<PluginMediaPlayer> {
+    private static class DisableFakePositionHandler
+            extends WeakReferenceHandler<PluginMediaPlayer> {
 
-        public ResetOverrideHandler(PluginMediaPlayer referencedObject) {
+        public DisableFakePositionHandler(PluginMediaPlayer referencedObject) {
             super(referencedObject);
         }
 
         @Override
         public void handleMessage(Message msg) {
             if (getReferencedObject() != null) {
-                getReferencedObject().mOverrideCurrentPosition = false;
+                getReferencedObject().mShowFakePosition = false;
             }
         }
     }
@@ -82,6 +84,10 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
     private long mPositionTimeStamp;
 
     private int mPositionOffset;
+
+    private long mFakePositionTimeStamp;
+
+    private int mFakePositionOffset;
 
     public PluginMediaPlayer(String pluginName, String packageName) {
         mPluginName = pluginName;
@@ -227,11 +233,11 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
                 } catch (RemoteException e) {
                     Log.e(TAG, "seekTo: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
-                mPositionOffset = msec;
-                mPositionTimeStamp = System.currentTimeMillis();
-                mOverrideCurrentPosition = true;
-                // After 1 second, we set mOverrideCurrentPosition to false again
-                mResetOverrideHandler.sendEmptyMessageDelayed(1337, 1000);
+                mFakePositionOffset = msec;
+                mFakePositionTimeStamp = System.currentTimeMillis();
+                mShowFakePosition = true;
+                // After 1 second, we set mShowFakePosition to false again
+                mDisableFakePositionHandler.sendEmptyMessageDelayed(1337, 1000);
             }
         });
     }
@@ -248,10 +254,19 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
      * @return the current track position
      */
     public int getPosition() {
-        if (mIsPlaying) {
-            return (int) (System.currentTimeMillis() - mPositionTimeStamp) + mPositionOffset;
+        if (mShowFakePosition) {
+            if (mIsPlaying) {
+                return (int) (System.currentTimeMillis() - mFakePositionTimeStamp)
+                        + mFakePositionOffset;
+            } else {
+                return mFakePositionOffset;
+            }
         } else {
-            return mPositionOffset;
+            if (mIsPlaying) {
+                return (int) (System.currentTimeMillis() - mPositionTimeStamp) + mPositionOffset;
+            } else {
+                return mPositionOffset;
+            }
         }
     }
 
@@ -298,10 +313,8 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
 
     @Override
     public void onPlayerPositionChanged(int position, long timeStamp) throws RemoteException {
-        if (!mOverrideCurrentPosition) {
-            mPositionTimeStamp = timeStamp;
-            mPositionOffset = position;
-        }
+        mPositionTimeStamp = timeStamp;
+        mPositionOffset = position;
     }
 
     @Override
