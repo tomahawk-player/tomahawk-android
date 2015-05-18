@@ -43,18 +43,18 @@ import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.PluginMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayerCallback;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
 import org.tomahawk.tomahawk_android.utils.MediaButtonHelper;
 import org.tomahawk.tomahawk_android.utils.MediaButtonReceiver;
-import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.tomahawk.tomahawk_android.utils.MusicFocusable;
 import org.tomahawk.tomahawk_android.utils.RemoteControlClientCompat;
 import org.tomahawk.tomahawk_android.utils.RemoteControlHelper;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
-import org.videolan.libvlc.EventHandler;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -70,7 +70,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
-import android.media.MediaPlayer;
 import android.media.RemoteControlClient;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -103,9 +102,7 @@ import de.greenrobot.event.EventBus;
 /**
  * This {@link Service} handles all playback related processes.
  */
-public class PlaybackService extends Service
-        implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener,
-        MediaPlayer.OnCompletionListener, MusicFocusable {
+public class PlaybackService extends Service implements MusicFocusable {
 
     private static final String TAG = PlaybackService.class.getSimpleName();
 
@@ -206,7 +203,7 @@ public class PlaybackService extends Service
 
     private PlaylistEntry mCurrentEntry;
 
-    private MediaPlayerInterface mCurrentMediaPlayer;
+    private TomahawkMediaPlayer mCurrentMediaPlayer;
 
     private Notification mNotification;
 
@@ -247,29 +244,7 @@ public class PlaybackService extends Service
 
     AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
 
-    private final List<MediaPlayerInterface> mMediaPlayers = new ArrayList<>();
-
-    private final Handler mVlcHandler = new Handler(new Handler.Callback() {
-        @Override
-        public boolean handleMessage(Message msg) {
-            Bundle data = msg.getData();
-            if (data != null) {
-                switch (data.getInt("event")) {
-                    case EventHandler.MediaPlayerEncounteredError:
-                        VLCMediaPlayer.getInstance().onError(null, MediaPlayer.MEDIA_ERROR_UNKNOWN,
-                                0);
-                        break;
-                    case EventHandler.MediaPlayerEndReached:
-                        VLCMediaPlayer.getInstance().onCompletion(null);
-                        break;
-                    default:
-                        return false;
-                }
-                return true;
-            }
-            return false;
-        }
-    });
+    private final List<TomahawkMediaPlayer> mMediaPlayers = new ArrayList<>();
 
     private final Target mLockscreenTarget = new Target() {
         @Override
@@ -444,6 +419,65 @@ public class PlaybackService extends Service
         }
     }
 
+    private TomahawkMediaPlayerCallback mMediaPlayerCallback = new TomahawkMediaPlayerCallback() {
+        @Override
+        public void onPrepared(Query query) {
+            if (query == getCurrentQuery()) {
+                Log.d(TAG, "MediaPlayer successfully prepared the track '"
+                        + getCurrentQuery().getName() + "' by '"
+                        + getCurrentQuery().getArtist().getName()
+                        + "' resolved by Resolver " + getCurrentQuery()
+                        .getPreferredTrackResult().getResolvedBy().getId());
+                boolean allPlayersReleased = true;
+                for (TomahawkMediaPlayer mediaPlayer : mMediaPlayers) {
+                    if (!mediaPlayer.isPrepared(getCurrentQuery())) {
+                        mediaPlayer.release();
+                    } else {
+                        allPlayersReleased = false;
+                    }
+                }
+                if (allPlayersReleased) {
+                    prepareCurrentQuery();
+                } else if (isPlaying()) {
+                    InfoSystem.getInstance().sendNowPlayingPostStruct(
+                            AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                                    TomahawkApp.PLUGINNAME_HATCHET),
+                            getCurrentQuery()
+                    );
+                }
+                handlePlayState();
+            } else {
+                Log.e(TAG, "onPrepared received for an unexpected Query: "
+                        + query.getName() + "' by '" + query.getArtist().getName()
+                        + "' resolved by Resolver "
+                        + query.getPreferredTrackResult().getResolvedBy().getId());
+            }
+        }
+
+        @Override
+        public void onCompletion(Query query) {
+            if (query == getCurrentQuery()) {
+                Log.d(TAG, "onCompletion");
+                if (hasNextEntry()) {
+                    next();
+                } else {
+                    pause();
+                }
+            }
+        }
+
+        @Override
+        public void onError(String message) {
+            Log.e(TAG, "onError - " + message);
+            giveUpAudioFocus();
+            if (hasNextEntry()) {
+                next();
+            } else {
+                pause();
+            }
+        }
+    };
+
     @SuppressWarnings("unused")
     public void onEventMainThread(PipeLine.ResultsEvent event) {
         if (getCurrentQuery() != null && getCurrentQuery() == event.mQuery) {
@@ -466,16 +500,6 @@ public class PlaybackService extends Service
             updateLockscreenControls();
             EventBus.getDefault().post(new PlayingTrackChangedEvent());
         }
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(VLCMediaPlayer.PreparedEvent event) {
-        EventHandler.getInstance().addHandler(mVlcHandler);
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(VLCMediaPlayer.ReleasedEvent event) {
-        EventHandler.getInstance().removeHandler(mVlcHandler);
     }
 
     @SuppressWarnings("unused")
@@ -608,73 +632,6 @@ public class PlaybackService extends Service
         mKillTimerHandler = null;
 
         Log.d(TAG, "PlaybackService has been destroyed");
-    }
-
-    /**
-     * Called if given {@link VLCMediaPlayer} has been prepared for playback
-     */
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        Log.d(TAG, "MediaPlayer successfully prepared the track '"
-                + getCurrentQuery().getName() + "' by '"
-                + getCurrentQuery().getArtist().getName()
-                + "' resolved by Resolver " + getCurrentQuery()
-                .getPreferredTrackResult().getResolvedBy().getId());
-        boolean allPlayersReleased = true;
-        for (MediaPlayerInterface mediaPlayer : mMediaPlayers) {
-            if (!mediaPlayer.isPrepared(getCurrentQuery())) {
-                mediaPlayer.release();
-            } else {
-                allPlayersReleased = false;
-            }
-        }
-        if (allPlayersReleased) {
-            prepareCurrentQuery();
-        } else if (isPlaying()) {
-            InfoSystem.getInstance().sendNowPlayingPostStruct(
-                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                            TomahawkApp.PLUGINNAME_HATCHET),
-                    getCurrentQuery()
-            );
-        }
-        handlePlayState();
-    }
-
-    /**
-     * Called if an error has occurred while trying to prepare {@link VLCMediaPlayer}
-     */
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        String whatString = "CODE UNSPECIFIED";
-        switch (what) {
-            case MediaPlayer.MEDIA_ERROR_UNKNOWN:
-                whatString = "MEDIA_ERROR_UNKNOWN";
-                break;
-            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
-                whatString = "MEDIA_ERROR_SERVER_DIED";
-        }
-        Log.e(TAG, "onError - " + whatString);
-        giveUpAudioFocus();
-        if (hasNextEntry()) {
-            next();
-        } else {
-            pause();
-        }
-        return false;
-    }
-
-    /**
-     * Called if given {@link org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer} has
-     * finished playing a song. Prepare the next track if possible.
-     */
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        Log.d(TAG, "onCompletion");
-        if (hasNextEntry()) {
-            next();
-        } else {
-            pause();
-        }
     }
 
     /**
@@ -1012,8 +969,8 @@ public class PlaybackService extends Service
                     public void run() {
                         if (isPlaying() && getCurrentQuery().getMediaPlayerInterface() != null) {
                             if (getCurrentQuery().getMediaPlayerInterface().prepare(
-                                    getApplication(), getCurrentQuery(), PlaybackService.this,
-                                    PlaybackService.this, PlaybackService.this) == null) {
+                                    getApplication(), getCurrentQuery(), mMediaPlayerCallback)
+                                    == null) {
                                 boolean isNetworkAvailable = isNetworkAvailable();
                                 if (isNetworkAvailable
                                         && getCurrentQuery().getPreferredTrackResult() != null) {

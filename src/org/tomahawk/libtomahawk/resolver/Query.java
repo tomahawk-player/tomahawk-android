@@ -22,7 +22,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
+import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.text.TextUtils;
@@ -229,7 +229,7 @@ public class Query implements TomahawkListItem {
         return sQueries.get(query.getCacheKey());
     }
 
-    public MediaPlayerInterface getMediaPlayerInterface() {
+    public TomahawkMediaPlayer getMediaPlayerInterface() {
         if (getPreferredTrackResult() != null) {
             return getPreferredTrackResult().getMediaPlayerInterface();
         } else {

@@ -22,13 +22,11 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Message;
@@ -40,7 +38,7 @@ import android.util.Log;
  * This class wraps all functionality to be able to directly playback spotify-resolved tracks with
  * OpenSLES .
  */
-public class SpotifyMediaPlayer extends PluginMediaPlayer implements MediaPlayerInterface {
+public class SpotifyMediaPlayer extends PluginMediaPlayer implements TomahawkMediaPlayer {
 
     private static final String TAG = SpotifyMediaPlayer.class.getSimpleName();
 
@@ -60,9 +58,7 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer implements MediaPlayer
 
     }
 
-    private MediaPlayer.OnPreparedListener mOnPreparedListener;
-
-    private MediaPlayer.OnCompletionListener mOnCompletionListener;
+    private TomahawkMediaPlayerCallback mMediaPlayerCallback;
 
     private boolean mIsPlaying;
 
@@ -164,13 +160,10 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer implements MediaPlayer
      * Prepare the given url
      */
     @Override
-    public MediaPlayerInterface prepare(Application application, final Query query,
-            MediaPlayer.OnPreparedListener onPreparedListener,
-            MediaPlayer.OnCompletionListener onCompletionListener,
-            MediaPlayer.OnErrorListener onErrorListener) {
+    public TomahawkMediaPlayer prepare(Application application, final Query query,
+            TomahawkMediaPlayerCallback callback) {
         Log.d(TAG, "prepare()");
-        mOnPreparedListener = onPreparedListener;
-        mOnCompletionListener = onCompletionListener;
+        mMediaPlayerCallback = callback;
         mPositionOffset = 0;
         mPositionTimeStamp = System.currentTimeMillis();
         mPreparedQuery = null;
@@ -232,27 +225,6 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer implements MediaPlayer
         return mPreparedQuery == query;
     }
 
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        Log.d(TAG, "onPrepared()");
-        mPositionOffset = 0;
-        mPositionTimeStamp = System.currentTimeMillis();
-        mPreparedQuery = mPreparingQuery;
-        mPreparingQuery = null;
-        mOnPreparedListener.onPrepared(mp);
-    }
-
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        Log.d(TAG, "onCompletion()");
-        mOnCompletionListener.onCompletion(mp);
-    }
-
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        return false;
-    }
-
     // < Implementation of IPluginServiceCallback.Stub>
     @Override
     public void onPause() throws RemoteException {
@@ -268,12 +240,18 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer implements MediaPlayer
 
     @Override
     public void onPrepared() throws RemoteException {
-        SpotifyMediaPlayer.this.onPrepared(null);
+        Log.d(TAG, "onPrepared()");
+        mPositionOffset = 0;
+        mPositionTimeStamp = System.currentTimeMillis();
+        mPreparedQuery = mPreparingQuery;
+        mPreparingQuery = null;
+        mMediaPlayerCallback.onPrepared(mPreparedQuery);
     }
 
     @Override
     public void onPlayerEndOfTrack() throws RemoteException {
-        onCompletion(null);
+        Log.d(TAG, "onCompletion()");
+        mMediaPlayerCallback.onCompletion(mPreparedQuery);
     }
 
     @Override
@@ -282,6 +260,11 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer implements MediaPlayer
             mPositionTimeStamp = timeStamp;
             mPositionOffset = position;
         }
+    }
+
+    @Override
+    public void onError(String message) throws RemoteException {
+        mMediaPlayerCallback.onError(message);
     }
     // </ Implementation of IPluginServiceCallback.Stub>
 

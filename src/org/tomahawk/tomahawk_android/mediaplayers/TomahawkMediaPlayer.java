@@ -15,14 +15,13 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.tomahawk_android.utils;
+package org.tomahawk.tomahawk_android.mediaplayers;
 
 import org.tomahawk.libtomahawk.resolver.Query;
 
 import android.app.Application;
-import android.media.MediaPlayer;
 
-public interface MediaPlayerInterface {
+public interface TomahawkMediaPlayer {
 
     void start();
 
@@ -30,10 +29,8 @@ public interface MediaPlayerInterface {
 
     void seekTo(int msec);
 
-    MediaPlayerInterface prepare(Application application, Query query,
-            MediaPlayer.OnPreparedListener onPreparedListener,
-            MediaPlayer.OnCompletionListener onCompletionListener,
-            MediaPlayer.OnErrorListener onErrorListener);
+    TomahawkMediaPlayer prepare(Application application, Query query,
+            TomahawkMediaPlayerCallback callback);
 
     void release();
 
@@ -44,11 +41,5 @@ public interface MediaPlayerInterface {
     boolean isPreparing(Query query);
 
     boolean isPrepared(Query query);
-
-    void onPrepared(MediaPlayer mp);
-
-    void onCompletion(MediaPlayer mp);
-
-    boolean onError(MediaPlayer mp, int what, int extra);
 
 }
