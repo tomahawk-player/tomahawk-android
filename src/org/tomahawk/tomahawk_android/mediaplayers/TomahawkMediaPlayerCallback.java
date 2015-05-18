@@ -15,19 +15,27 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.aidl;
+package org.tomahawk.tomahawk_android.mediaplayers;
 
-oneway interface IPluginServiceCallback {
+import org.tomahawk.libtomahawk.resolver.Query;
 
-    void onPause();
+public interface TomahawkMediaPlayerCallback {
 
-    void onPlay();
+    /**
+     * Called as soon as a {@link Query} has been prepared
+     */
+    void onPrepared(Query query);
 
-    void onPrepared();
+    /**
+     * Called if playback of the currently prepared {@link Query} has finished.
+     */
+    void onCompletion(Query query);
 
-    void onPlayerEndOfTrack();
-
-    void onPlayerPositionChanged(int position, long timeStamp);
-    
+    /**
+     * Called whenever an error occurred.
+     *
+     * @param message String containing error details
+     */
     void onError(String message);
+
 }

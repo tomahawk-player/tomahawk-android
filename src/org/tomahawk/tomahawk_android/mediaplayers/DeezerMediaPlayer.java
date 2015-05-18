@@ -33,17 +33,13 @@ import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 
 import android.app.Application;
-import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-public class DeezerMediaPlayer
-        implements MediaPlayerInterface, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+public class DeezerMediaPlayer implements TomahawkMediaPlayer {
 
     private static final String TAG = DeezerMediaPlayer.class.getSimpleName();
 
@@ -55,11 +51,7 @@ public class DeezerMediaPlayer
 
     }
 
-    private MediaPlayer.OnPreparedListener mOnPreparedListener;
-
-    private MediaPlayer.OnCompletionListener mOnCompletionListener;
-
-    private MediaPlayer.OnErrorListener mOnErrorListener;
+    private TomahawkMediaPlayerCallback mMediaPlayerCallback;
 
     private Query mPreparedQuery;
 
@@ -78,7 +70,10 @@ public class DeezerMediaPlayer
                 @Override
                 public void run() {
                     Log.d(TAG, "onBufferError: ", ex);
-                    onError(null, 0, 0);
+                    Log.d(TAG, "onError()");
+                    mPreparedQuery = null;
+                    mPreparingQuery = null;
+                    mMediaPlayerCallback.onError("onBufferError");
                 }
             });
         }
@@ -89,7 +84,9 @@ public class DeezerMediaPlayer
                 @Override
                 public void run() {
                     Log.d(TAG, "onPlayerError: ", ex);
-                    onError(null, 0, 0);
+                    mPreparedQuery = null;
+                    mPreparingQuery = null;
+                    mMediaPlayerCallback.onError("onPlayerError");
                 }
             });
         }
@@ -100,9 +97,13 @@ public class DeezerMediaPlayer
                 @Override
                 public void run() {
                     if (state == PlayerState.READY) {
-                        onPrepared(null);
+                        Log.d(TAG, "onPrepared()");
+                        mPreparedQuery = mPreparingQuery;
+                        mPreparingQuery = null;
+                        mMediaPlayerCallback.onPrepared(mPreparedQuery);
                     } else if (state == PlayerState.PLAYBACK_COMPLETED) {
-                        onCompletion(null);
+                        Log.d(TAG, "onCompletion()");
+                        mMediaPlayerCallback.onCompletion(mPreparedQuery);
                     }
                 }
             });
@@ -163,7 +164,10 @@ public class DeezerMediaPlayer
                     mPlayer.seek(msec);
                 } catch (Exception e) {
                     Log.e(TAG, "seekTo: " + e.getClass() + ": " + e.getLocalizedMessage());
-                    onError(null, 0, 0);
+                    Log.d(TAG, "onError()");
+                    mPreparedQuery = null;
+                    mPreparingQuery = null;
+                    mMediaPlayerCallback.onError("Exception while seeking");
                 }
             }
         }
@@ -173,14 +177,10 @@ public class DeezerMediaPlayer
      * Prepare the given url
      */
     @Override
-    public MediaPlayerInterface prepare(final Application application, final Query query,
-            MediaPlayer.OnPreparedListener onPreparedListener,
-            MediaPlayer.OnCompletionListener onCompletionListener,
-            MediaPlayer.OnErrorListener onErrorListener) {
+    public TomahawkMediaPlayer prepare(final Application application, final Query query,
+            TomahawkMediaPlayerCallback callback) {
         Log.d(TAG, "prepare()");
-        mOnPreparedListener = onPreparedListener;
-        mOnCompletionListener = onCompletionListener;
-        mOnErrorListener = onErrorListener;
+        mMediaPlayerCallback = callback;
         mPreparedQuery = null;
         mPreparingQuery = query;
         release();
@@ -261,27 +261,5 @@ public class DeezerMediaPlayer
     @Override
     public boolean isPrepared(Query query) {
         return mPreparedQuery == query;
-    }
-
-    @Override
-    public void onPrepared(MediaPlayer mp) {
-        Log.d(TAG, "onPrepared()");
-        mPreparedQuery = mPreparingQuery;
-        mPreparingQuery = null;
-        mOnPreparedListener.onPrepared(mp);
-    }
-
-    @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
-        Log.d(TAG, "onError()");
-        mPreparedQuery = null;
-        mPreparingQuery = null;
-        return mOnErrorListener.onError(mp, what, extra);
-    }
-
-    @Override
-    public void onCompletion(MediaPlayer mp) {
-        Log.d(TAG, "onCompletion()");
-        mOnCompletionListener.onCompletion(mp);
     }
 }

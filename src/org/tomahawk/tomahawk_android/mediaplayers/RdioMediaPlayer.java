@@ -28,7 +28,6 @@ import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAppKeysResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
 
 import android.app.Application;
 import android.media.AudioManager;
@@ -42,8 +41,9 @@ import de.greenrobot.event.EventBus;
 /**
  * This class wraps a standard {@link android.media.MediaPlayer} object.
  */
-public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
+public class RdioMediaPlayer
+        implements TomahawkMediaPlayer, android.media.MediaPlayer.OnPreparedListener,
+        android.media.MediaPlayer.OnErrorListener, android.media.MediaPlayer.OnCompletionListener {
 
     private static final String TAG = RdioMediaPlayer.class.getSimpleName();
 
@@ -53,13 +53,9 @@ public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPrep
 
     }
 
-    private MediaPlayer.OnPreparedListener mOnPreparedListener;
+    private TomahawkMediaPlayerCallback mMediaPlayerCallback;
 
-    private MediaPlayer.OnCompletionListener mOnCompletionListener;
-
-    private MediaPlayer.OnErrorListener mOnErrorListener;
-
-    private MediaPlayer mMediaPlayer;
+    private android.media.MediaPlayer mMediaPlayer;
 
     private Query mPreparedQuery;
 
@@ -152,14 +148,10 @@ public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPrep
      * Prepare the given url
      */
     @Override
-    public MediaPlayerInterface prepare(Application application, Query query,
-            MediaPlayer.OnPreparedListener onPreparedListener,
-            MediaPlayer.OnCompletionListener onCompletionListener,
-            MediaPlayer.OnErrorListener onErrorListener) {
+    public TomahawkMediaPlayer prepare(Application application, Query query,
+            TomahawkMediaPlayerCallback callback) {
         Log.d(TAG, "prepare()");
-        mOnPreparedListener = onPreparedListener;
-        mOnCompletionListener = onCompletionListener;
-        mOnErrorListener = onErrorListener;
+        mMediaPlayerCallback = callback;
         mPreparedQuery = null;
         mPreparingQuery = query;
         release();
@@ -260,24 +252,33 @@ public class RdioMediaPlayer implements MediaPlayerInterface, MediaPlayer.OnPrep
     }
 
     @Override
-    public void onPrepared(MediaPlayer mp) {
+    public void onPrepared(android.media.MediaPlayer mp) {
         Log.d(TAG, "onPrepared()");
         mPreparedQuery = mPreparingQuery;
         mPreparingQuery = null;
-        mOnPreparedListener.onPrepared(mp);
+        mMediaPlayerCallback.onPrepared(mPreparedQuery);
     }
 
     @Override
-    public boolean onError(MediaPlayer mp, int what, int extra) {
+    public boolean onError(android.media.MediaPlayer mp, int what, int extra) {
         Log.d(TAG, "onError()");
+        String whatString = "CODE UNSPECIFIED";
+        switch (what) {
+            case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                whatString = "MEDIA_ERROR_UNKNOWN";
+                break;
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                whatString = "MEDIA_ERROR_SERVER_DIED";
+        }
         mPreparedQuery = null;
         mPreparingQuery = null;
-        return mOnErrorListener.onError(mp, what, extra);
+        mMediaPlayerCallback.onError(whatString);
+        return false;
     }
 
     @Override
-    public void onCompletion(MediaPlayer mp) {
+    public void onCompletion(android.media.MediaPlayer mp) {
         Log.d(TAG, "onCompletion()");
-        mOnCompletionListener.onCompletion(mp);
+        mMediaPlayerCallback.onCompletion(mPreparedQuery);
     }
 }

@@ -26,7 +26,7 @@ import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
-import org.tomahawk.tomahawk_android.utils.MediaPlayerInterface;
+import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -38,7 +38,7 @@ public class Result {
     private static final ConcurrentHashMap<String, Result> sResults
             = new ConcurrentHashMap<>();
 
-    private MediaPlayerInterface mMediaPlayerInterface;
+    private TomahawkMediaPlayer mMediaPlayerInterface;
 
     private String mCacheKey;
 
@@ -151,7 +151,7 @@ public class Result {
         return sResults.get(key);
     }
 
-    public MediaPlayerInterface getMediaPlayerInterface() {
+    public TomahawkMediaPlayer getMediaPlayerInterface() {
         return mMediaPlayerInterface;
     }
 
