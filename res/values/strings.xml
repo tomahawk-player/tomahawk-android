@@ -209,4 +209,5 @@
     <item quantity="one">Choose a playlist to add %1$d track to:</item>
     <item quantity="other">Choose a playlist to add %1$d tracks to:</item>
   </plurals>
+  <string name="seeking_not_supported">Sorry, this resolver doesn\'t support seeking.</string>
 </resources>

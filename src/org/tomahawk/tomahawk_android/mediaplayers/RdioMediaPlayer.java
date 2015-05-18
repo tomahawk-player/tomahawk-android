@@ -21,11 +21,15 @@ import org.tomahawk.aidl.IPluginService;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.app.Application;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * This class wraps a standard {@link android.media.MediaPlayer} object.
@@ -73,5 +77,19 @@ public class RdioMediaPlayer extends PluginMediaPlayer implements TomahawkMediaP
 
             }
         };
+    }
+
+    @Override
+    public void seekTo(int msec) {
+        // Override seekTo since we can't seek in RdioMediaPlayer
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                // Notify user
+                Toast.makeText(TomahawkApp.getContext(),
+                        TomahawkApp.getContext().getString(R.string.seeking_not_supported),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
     }
 }
