@@ -94,6 +94,10 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
         mPackageName = packageName;
     }
 
+    public String getPackageName() {
+        return mPackageName;
+    }
+
     public ScriptResolver getScriptResolver() {
         ScriptResolver scriptResolver =
                 (ScriptResolver) PipeLine.getInstance().getResolver(mPluginName);
