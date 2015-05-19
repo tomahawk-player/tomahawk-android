@@ -21,16 +21,27 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
+import java.util.List;
 
 public class ResolverRedirectConfigDialog extends ConfigDialog {
 
@@ -45,10 +56,50 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         @Override
         public void onClick(View v) {
             startLoadingAnimation();
-            if (mScriptResolver.isEnabled()) {
-                mScriptResolver.logout();
+            if (isPluginInstalled()) {
+                if (mScriptResolver.isEnabled()) {
+                    mScriptResolver.logout();
+                } else {
+                    mScriptResolver.login();
+                }
             } else {
-                mScriptResolver.login();
+                String url = null;
+                if (Build.CPU_ABI.equals("x86")) {
+                    switch (mScriptResolver.getId()) {
+                        case TomahawkApp.PLUGINNAME_SPOTIFY:
+                            url = "http://download.tomahawk-player.org/android-plugins/"
+                                    + "tomahawk-android-spotify-x86-release.apk";
+                            break;
+                        case TomahawkApp.PLUGINNAME_DEEZER:
+                            url = "http://download.tomahawk-player.org/android-plugins/"
+                                    + "tomahawk-android-deezer-x86-release.apk";
+                            break;
+                        case TomahawkApp.PLUGINNAME_RDIO:
+                            url = "http://download.tomahawk-player.org/android-plugins/"
+                                    + "tomahawk-android-rdio-x86-release.apk";
+                            break;
+                    }
+                } else {
+                    switch (mScriptResolver.getId()) {
+                        case TomahawkApp.PLUGINNAME_SPOTIFY:
+                            url = "http://download.tomahawk-player.org/android-plugins/"
+                                    + "tomahawk-android-spotify-armv7a-release.apk";
+                            break;
+                        case TomahawkApp.PLUGINNAME_DEEZER:
+                            url = "http://download.tomahawk-player.org/android-plugins/"
+                                    + "tomahawk-android-deezer-armv7a-release.apk";
+                            break;
+                        case TomahawkApp.PLUGINNAME_RDIO:
+                            url = "http://download.tomahawk-player.org/android-plugins/"
+                                    + "tomahawk-android-rdio-armv7a-release.apk";
+                            break;
+                    }
+                }
+                if (url != null) {
+                    Intent i = new Intent(Intent.ACTION_VIEW);
+                    i.setData(Uri.parse(url));
+                    startActivity(i);
+                }
             }
         }
     }
@@ -81,9 +132,16 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         mRedirectButtonTextView = (TextView) button
                 .findViewById(R.id.config_redirect_button_text);
         mRedirectButtonTextView.setTextColor(buttonTextColor);
-        mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
-                ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
-                : getString(R.string.resolver_config_redirect_button_text_log_into));
+
+        if (isPluginInstalled()) {
+            mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
+                    ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
+                    : getString(R.string.resolver_config_redirect_button_text_log_into));
+        } else {
+            mRedirectButtonTextView.setText(
+                    getString(R.string.resolver_config_redirect_button_text_download_plugin));
+        }
+
         button.setOnClickListener(onClickListener);
         setDialogTitle(mScriptResolver.getName());
         hideNegativeButton();
@@ -101,9 +159,14 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         super.onResume();
 
         if (mScriptResolver != null) {
-            mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
-                    ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
-                    : getString(R.string.resolver_config_redirect_button_text_log_into));
+            if (isPluginInstalled()) {
+                mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
+                        ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
+                        : getString(R.string.resolver_config_redirect_button_text_log_into));
+            } else {
+                mRedirectButtonTextView.setText(
+                        getString(R.string.resolver_config_redirect_button_text_download_plugin));
+            }
         }
     }
 
@@ -133,5 +196,28 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
 
     @Override
     protected void onNegativeAction() {
+    }
+
+    private boolean isPluginInstalled() {
+        List<PackageInfo> packageInfos = getActivity().getPackageManager().getInstalledPackages(
+                PackageManager.GET_SERVICES);
+        String pluginPackageName = "";
+        switch (mScriptResolver.getId()) {
+            case TomahawkApp.PLUGINNAME_SPOTIFY:
+                pluginPackageName = SpotifyMediaPlayer.getInstance().getPackageName();
+                break;
+            case TomahawkApp.PLUGINNAME_DEEZER:
+                pluginPackageName = DeezerMediaPlayer.getInstance().getPackageName();
+                break;
+            case TomahawkApp.PLUGINNAME_RDIO:
+                pluginPackageName = RdioMediaPlayer.getInstance().getPackageName();
+                break;
+        }
+        for (PackageInfo info : packageInfos) {
+            if (pluginPackageName.equals(info.packageName)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

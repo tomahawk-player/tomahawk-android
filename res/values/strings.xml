@@ -180,6 +180,7 @@
   <string name="followers_count">Followers: %1$d, Following: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Log into</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Download Plugin for</string>
   <string name="ask_access_activity_header">Want to automatically save data about all the tracks you play on Hatchet?</string>
   <string name="ask_access_activity_text1">We\'ll do that for you! Please enable our service in your system settings.</string>
   <string name="button_close">Close</string>
