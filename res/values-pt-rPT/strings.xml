@@ -180,6 +180,7 @@
   <string name="followers_count">Seguidores: %1$d, seguindo: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Iniciar sessão em</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Fechar sessão em</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Transferir suplemento para</string>
   <string name="ask_access_activity_header">Gostaria de guardar os dados sobre as faixas reproduzidas no Hatchet?</string>
   <string name="ask_access_activity_text1">Podemos fazer isso por si! Ative o serviço nas definições do sistema.</string>
   <string name="button_close">Fechar</string>
@@ -208,4 +209,5 @@
     <item quantity="one">Escolha a lista de reprodução para adicionar %1$d faixa:</item>
     <item quantity="other">Escolha a lista de reprodução para adicionar %1$d faixas:</item>
   </plurals>
+  <string name="seeking_not_supported">Desculpe mas este \"resolver\" não permite procura.</string>
 </resources>
