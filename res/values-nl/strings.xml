@@ -5,6 +5,7 @@
   <string name="login">Inloggen</string>
   <string name="logout">Uitloggen</string>
   <string name="register">Registreren</string>
+  <string name="register_and_login">Registreren &amp; Inloggen</string>
   <string name="rescan">Nu opnieuw scannen</string>
   <string name="internal_storage">Interne opslag</string>
   <string name="tracks">Nummers</string>
@@ -119,6 +120,7 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s van %2$s</string>
+  <string name="time_afewseconds">een paar seconden geleden</string>
   <string name="users_playbacklog_suffix">%1$s heeft recent afgespeeld</string>
   <string name="users_favorites_suffix">%1$s\'s favorieten</string>
   <string name="users_playlist_suffix">%1$s\'s afspeellijst</string>
@@ -138,6 +140,7 @@
   <string name="followers_count">Volgers: %1$d, Volgend: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Aanmelden bij</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Afmelden bij</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Plug-in downloaden voor</string>
   <string name="ask_access_activity_header">Wilt u automatisch gegevens opslaan over alle nummer die u afspeelt via Hatchet?</string>
   <string name="ask_access_activity_text1">Dat zullen we voor u doen! Graag onze dienst inschakelen in uw systeeminstellingen.</string>
   <string name="button_close">Sluiten</string>
@@ -146,6 +149,19 @@
   <string name="connect_headertext">Selecteer de diensten die u wilt gebruiken. Tomahawk werkt beter wanneer u meer diensten activeert.</string>
   <string name="advanced">Geavanceerd</string>
   <string name="info">Informatie</string>
+  <string name="playbackpanel_seek_coachmark">U kunt spoelen in een nummer door de afspeelknop ingedrukt te houden.</string>
+  <string name="slidinglayout_enqueue_coachmark">Raak aan om het nummer toe te voegen aan de wachtrij.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Trek omhoog om de huidige afspeellijst weer te geven.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Trek omlaag om de afspeellijstlade te sluiten.</string>
   <string name="playbackfragment_navigation_coachmark_center">Veeg naar links/rechts om door te gaan naar het vorige/volgende nummer. Houdt ingedrukt om het contextmenu te openen. 2 keer tikken voegt het nummer toe aan uw favorieten.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="next_page">Volgende</string>
+  <string name="welcome_fragment_explanation_title">Opstartgids</string>
+  <string name="welcome_fragment_explanation_heading">Muziek is overal.\nNu hoeft u dat niet te zijn.</string>
+  <string name="welcome_fragment_hatchet_title">Wilt u sociaal zijn?</string>
+  <string name="welcome_fragment_setup_title">Verbinden</string>
+  <string name="welcome_fragment_done_title">Afgerond!</string>
+  <string name="welcome_fragment_done_heading">Alles is afgerond!</string>
+  <string name="welcome_fragment_done_text">Veel plezier met het ontdekken van de app en vergeet niet om uw mening te laten horen aan ons!</string>
+  <string name="seeking_not_supported">Onze excuses, deze resolver ondersteunt spoelen niet.</string>
 </resources>

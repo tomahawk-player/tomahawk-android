@@ -170,6 +170,7 @@
   <string name="followers_count">粉丝：%1$d，关注：%2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">登录到</string>
   <string name="resolver_config_redirect_button_text_log_out_of">注销</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">下载插件：</string>
   <string name="ask_access_activity_header">自动保存您在 Hatchet 上播放的曲目的数据？</string>
   <string name="ask_access_activity_text1">只需要在系统设置中启用此服务</string>
   <string name="button_close">关闭</string>
@@ -197,4 +198,5 @@
   <plurals name="add_to_playlist_headertext">
     <item quantity="other">将 %1$d 添加到播放列表：</item>
   </plurals>
+  <string name="seeking_not_supported">抱歉，此解析器不支持寻位。</string>
 </resources>
