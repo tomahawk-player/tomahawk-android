@@ -170,6 +170,7 @@
   <string name="followers_count">フォロワー: %1$d, フォロー中: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">ログインする</string>
   <string name="resolver_config_redirect_button_text_log_out_of">ログアウトする</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">プラグインのダウンロード...</string>
   <string name="ask_access_activity_header">Hatchetで再生したトラックの全てのデータを自動保存しますか？</string>
   <string name="ask_access_activity_text1">やらせて下さい。システム設定にサービスをオンにして下さい。</string>
   <string name="button_close">閉じる</string>
@@ -197,4 +198,5 @@
   <plurals name="add_to_playlist_headertext">
     <item quantity="other">プレイリストを選択して %1$d のトラックを追加します:</item>
   </plurals>
+  <string name="seeking_not_supported">申し訳ありません、このリゾルバーはシークをサポートしていません。</string>
 </resources>
