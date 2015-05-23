@@ -20,6 +20,7 @@
   <string name="no_track">sem faixa</string>
   <string name="save_playlist">Salvar a playlist atual</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Título</string>
   <string name="login_name_label">E-Mail/Nome de usuário</string>
   <string name="login_username">Nome de usuári</string>
   <string name="login_password">Senha</string>
@@ -39,14 +40,19 @@
   <string name="all">Todos</string>
   <string name="preferences_local_collection_text">Escolha os diretórios que deverão ser examinados para mídia local.</string>
   <string name="preferences_hatchet_text">Sincronizar seus dados com %1$s.</string>
+  <string name="preferences_playback">Reprodução</string>
+  <string name="preferences_equalizer">Equalizador</string>
+  <string name="preferences_equalizer_text">Personalizar a saída de áudio.</string>
   <string name="preferences_plug_and_play">Conectar para Tocar</string>
   <string name="preferences_plug_and_play_text">Iniciar música assim que o fone de ouvido é conectado.</string>
   <string name="preferences_audio_quality">Qualidade Preferencial do Áudio </string>
   <string name="preferences_audio_quality_text">A qualidade preferencial do áudio se não estiver conectado ao WiFi.</string>
   <string name="preferences_info">Informação</string>
   <string name="preferences_app_version">Versão-do-Aplicativo</string>
+  <string name="preferences_app_uservoice">Comentário</string>
   <string name="preferences_app_uservoice_text">Compartilhe suas ideias ou pergunte para o suporte</string>
   <string name="preferences_app_sendlog">Enviar Registro</string>
+  <string name="preferences_app_sendlog_issue">Problema</string>
   <string name="crash_dialog_title">O Tomahawk travou</string>
   <string name="crash_dialog_text">Um erro inesperado ocorreu, forçando a interrupção da aplicação. Por favor, nos ajude a arrumar isso enviando os dados do erro. Tudo que você precisa fazer é clicar em OK.</string>
   <string name="crash_dialog_comment_prompt">Abaixo, você pode fazer comentários sobre o problema :</string>
