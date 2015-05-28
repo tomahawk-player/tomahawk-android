@@ -33,6 +33,7 @@ import android.app.Application;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -65,7 +66,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     private final ConcurrentHashMap<Result, String> mTranslatedUrls
             = new ConcurrentHashMap<>();
 
-    private final Handler mVlcHandler = new Handler(new Handler.Callback() {
+    private final Handler mVlcHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
             Bundle data = msg.getData();
