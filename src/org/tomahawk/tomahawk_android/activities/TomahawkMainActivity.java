@@ -789,7 +789,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                                 Fragment.instantiate(TomahawkMainActivity.this,
                                         PlaybackFragment.class.getName(), bundle),
                                 null)
-                        .commit();
+                        .commitAllowingStateLoss();
                 FragmentUtils.addRootFragment(TomahawkMainActivity.this,
                         hatchetAuthUtils.getLoggedInUser());
 
