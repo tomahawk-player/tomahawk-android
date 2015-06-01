@@ -3,16 +3,18 @@
     "pluginName": "gmusic",
     "author": "Sam Hanes, Lalit Maganti, Enno Gottschalk",
     "email": "sam@maltera.com, lalitmaganti@gmail.com, mrmaffen@gmail.com",
-    "version": "0.4.4",
+    "version": "0.5.0",
     "website": "http://gettomahawk.com",
     "description": "Streams music from your Google Play Music locker and the entire Google Music catalog for subscribers.",
     "type": "resolver/javascript",
     "manifest": {
         "main": "contents/code/gmusic.js",
+        "scripts": [
+            "contents/code/asmcrypto.js"
+        ],
         "icon": "contents/images/icon.png",
         "iconWhite": "contents/images/iconWhite.png",
         "iconBackground": "contents/images/iconBackground.png",
-        "scripts": [],
         "resources": [
             "contents/code/config.ui",
             "contents/code/play-logo.png"
