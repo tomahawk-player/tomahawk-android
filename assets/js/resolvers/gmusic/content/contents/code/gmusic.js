@@ -37,9 +37,14 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
         timeout: 8
     },
 
-    _version:   '0.1',
+    _authUrl:   'https://android.clients.google.com/auth',
+    _userAgent: 'tomahawk-gmusic-0.5.0',
     _baseURL:   'https://www.googleapis.com/sj/v1/',
     _webURL:    'https://play.google.com/music/',
+    // Google Play Services key version 7.3.29:
+    _googlePlayKey: "AAAAgMom/1a/v0lblO2Ubrt60J2gcuXSljGFQXgcyZWveWLEwo6prwgi3iJIZdodyhKZQrNWp5nKJ3"
+    + "srRXcUW+F1BD3baEVGcmEgqaLZUNBjm057pKRI16kB0YppeGx5qIQ5QjKzsR8ETQbKLNWgRY0QRNVz34kMJR3P/LgHax"
+    + "/6rmf5AAAAAwEAAQ==",
 
     getConfigUi: function() {
         return {
@@ -636,46 +641,89 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
 
         this._loginLock = true;
 
+        var errorHandler = function (request) {
+            Tomahawk.log(name + " login failed:\n"
+                + request.status + " "
+                + request.statusText.trim() + "\n"
+                + request.responseText.trim());
+            for (var idx = 0; idx < that._loginCallbacks.length; idx++) {
+                that._loginCallbacks[idx].call(window);
+            }
+            if (that.doConfigTest) {
+                that.doConfigTest = false;
+                if (request.status == 403) {
+                    Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.InvalidCredentials);
+                } else {
+                    Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
+                }
+            }
+            that._loginCallbacks = null;
+            that._loginLock = false;
+        };
+
         var that = this;
         var name = this.settings.name;
-        Tomahawk.asyncRequest('https://www.google.com/accounts/ClientLogin',
-            function (request) {
-                that._token = request.responseText
-                    .match(/^Auth=(.*)$/m)[ 1 ];
-
-                Tomahawk.log(name + " logged in successfully");
-
-                for (var idx = 0; idx < that._loginCallbacks.length; idx++) {
-                    that._loginCallbacks[ idx ].call(window);
+        Tomahawk.asyncRequest(this._authUrl, function (request) {
+                var parsedRes = that._parseAuthResponse(request.responseText);
+                if (!parsedRes['Token']) {
+                    Tomahawk.log("There's no 'Token' in the response");
+                    Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
+                    return;
                 }
-                that._loginCallbacks = null;
-                that._loginLock = false;
+                Tomahawk.asyncRequest(that._authUrl, function (request) {
+                        var parsedRes = that._parseAuthResponse(request.responseText);
+                        if (!parsedRes['Auth']) {
+                            Tomahawk.log("There's no 'Auth' in the response");
+                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
+                            return;
+                        }
+                        that._token = parsedRes['Auth'];
+
+                        Tomahawk.log(name + " logged in successfully");
+
+                        for (var idx = 0; idx < that._loginCallbacks.length; idx++) {
+                            that._loginCallbacks[idx].call(window);
+                        }
+                        that._loginCallbacks = null;
+                        that._loginLock = false;
+                    }, {
+                        'Content-type': 'application/x-www-form-urlencoded',
+                        'User-Agent': that._userAgent
+                    }, {
+                        method: 'POST',
+                        data: "accountType=HOSTED_OR_GOOGLE"
+                        + "&Email=" + encodeURIComponent(that._email.trim())
+                        + "&has_permission=1"
+                        + "&EncryptedPasswd=" + parsedRes['Token']
+                        + "&service=sj"
+                        + "&source=android"
+                        + "&app=com.google.android.music"
+                        + "&client_sig=38918a453d07199354f8b19af05ec6562ced5788"
+                        + "&device_country=us"
+                        + "&operatorCountry=us"
+                        + "&lang=en"
+                        + "&sdk_version=17",
+                        errorHandler: errorHandler
+                    }
+                );
             }, {
-                'Content-type': 'application/x-www-form-urlencoded'
+                'Content-type': 'application/x-www-form-urlencoded',
+                'User-Agent': that._userAgent
             }, {
                 method: 'POST',
-                data: "accountType=HOSTED_OR_GOOGLE&Email=" + that._email.trim()
-                    + "&Passwd=" + encodeURIComponent(that._password.trim()) 
-                    + "&service=sj&source=tomahawk-gmusic-" + that._version,
-                errorHandler: function (request) {
-                    Tomahawk.log(name + " login failed:\n"
-                        + request.status + " "
-                        + request.statusText.trim() + "\n"
-                        + request.responseText.trim());
-                    for (var idx = 0; idx < that._loginCallbacks.length; idx++) {
-                        that._loginCallbacks[ idx ].call(window);
-                    }
-                    if (that.doConfigTest) {
-                        that.doConfigTest = false;
-                        if (request.status == 403) {
-                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.InvalidCredentials);
-                        } else {
-                            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
-                        }
-                    }
-                    that._loginCallbacks = null;
-                    that._loginLock = false;
-                }
+                data: "accountType=HOSTED_OR_GOOGLE"
+                + "&Email=" + encodeURIComponent(that._email.trim())
+                + "&has_permission=1"
+                + "&add_account=1"
+                + "&EncryptedPasswd=" + encodeURIComponent(that._buildSignature(that._email.trim(),
+                    that._password.trim()))
+                + "&service=ac2dm"
+                + "&source=android"
+                + "&device_country=us"
+                + "&operatorCountry=us"
+                + "&lang=en"
+                + "&sdk_version=17",
+                errorHandler: errorHandler
             }
         );
     },
@@ -761,6 +809,109 @@ var GMusicResolver = Tomahawk.extend( TomahawkResolver, {
             iconfile: '../images/icon.png',
             trackcount: this.trackCount
         };
+    },
+
+    _parseAuthResponse: function (res) {
+        parsedRes = {};
+        var lines = res.split("\n");
+        for (var i = 0; i < lines.length; i++) {
+            if (!lines[i]) {
+                continue;
+            }
+            var parts = lines[i].split("=");
+            parsedRes[parts[0]] = parts[1];
+        }
+        return parsedRes;
+    },
+
+    /**
+     * Author: jonleighton - https://gist.github.com/jonleighton/958841
+     */
+    _arrayBufferToBase64: function (arrayBuffer) {
+        var base64 = '';
+        var encodings = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
+
+        var bytes = new Uint8Array(arrayBuffer);
+        var byteLength = bytes.byteLength;
+        var byteRemainder = byteLength % 3;
+        var mainLength = byteLength - byteRemainder;
+
+        var a, b, c, d;
+        var chunk;
+
+        // Main loop deals with bytes in chunks of 3
+        for (var i = 0; i < mainLength; i = i + 3) {
+            // Combine the three bytes into a single integer
+            chunk = (bytes[i] << 16) | (bytes[i + 1] << 8) | bytes[i + 2];
+
+            // Use bitmasks to extract 6-bit segments from the triplet
+            a = (chunk & 16515072) >> 18; // 16515072 = (2^6 - 1) << 18
+            b = (chunk & 258048) >> 12; // 258048   = (2^6 - 1) << 12
+            c = (chunk & 4032) >> 6; // 4032     = (2^6 - 1) << 6
+            d = chunk & 63;              // 63       = 2^6 - 1
+
+            // Convert the raw binary segments to the appropriate ASCII encoding
+            base64 += encodings[a] + encodings[b] + encodings[c] + encodings[d]
+        }
+
+        // Deal with the remaining bytes and padding
+        if (byteRemainder == 1) {
+            chunk = bytes[mainLength];
+
+            a = (chunk & 252) >> 2; // 252 = (2^6 - 1) << 2
+
+            // Set the 4 least significant bits to zero
+            b = (chunk & 3) << 4;// 3   = 2^2 - 1
+
+            base64 += encodings[a] + encodings[b] + '=='
+        } else if (byteRemainder == 2) {
+            chunk = (bytes[mainLength] << 8) | bytes[mainLength + 1];
+
+            a = (chunk & 64512) >> 10; // 64512 = (2^6 - 1) << 10
+            b = (chunk & 1008) >> 4; // 1008  = (2^6 - 1) << 4
+
+            // Set the 2 least significant bits to zero
+            c = (chunk & 15) << 2;// 15    = 2^4 - 1
+
+            base64 += encodings[a] + encodings[b] + encodings[c] + '='
+        }
+
+        return base64
+    },
+
+    _buildSignature: function (email, password) {
+        var buffer = new ArrayBuffer(133);
+        var signature = new Uint8Array(buffer);
+
+        var keyBytes = asmCrypto.base64_to_bytes(this._googlePlayKey);
+
+        var hashBytes = asmCrypto.SHA1.bytes(keyBytes);
+        // 0 is always the first element
+        signature[0] = 0;
+        // the elements' next 4 bytes are set to the first 4 bytes of the sha-1 hash
+        signature.set(hashBytes.subarray(0, 4), 1);
+
+        // Now parse the modulus
+        var modLength = this._bytesToInt(keyBytes, 0);
+        var modulus = keyBytes.subarray(4, 4 + modLength);
+
+        // Now parse the exponent
+        var expLength = this._bytesToInt(keyBytes, 4 + modLength);
+        var exponent = keyBytes.subarray(8 + modLength, 8 + modLength + expLength);
+
+        // Ready to encrypt!
+        var pubkey = [modulus, exponent];
+        var clearBytes = asmCrypto.string_to_bytes(email + '\0' + password);
+        var encryptedBytes = asmCrypto.RSA_OAEP_SHA1.encrypt(clearBytes, pubkey);
+        signature.set(encryptedBytes, 5);
+
+        // Final url-safe encode in base64 and we're done
+        return this._arrayBufferToBase64(buffer);
+    },
+
+    _bytesToInt: function (byteArray, start) {
+        return (0xFF & byteArray[start]) << 24 | (0xFF & byteArray[(start + 1)]) << 16
+            | (0xFF & byteArray[(start + 2)]) << 8 | 0xFF & byteArray[(start + 3)]
     }
 });
 
