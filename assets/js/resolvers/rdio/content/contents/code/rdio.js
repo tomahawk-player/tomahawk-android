@@ -36,16 +36,6 @@ var RdioMetadataResolver = Tomahawk.extend(TomahawkResolver, {
 
     accessToken: [],
 
-    getAppKeys: function () {
-        var that = this;
-        return new RSVP.Promise(function (resolve, reject) {
-            resolve({
-                appKey: that.consumer[0],
-                appSecret: that.consumer[1]
-            });
-        });
-    },
-
     getAccessToken: function () {
         var that = this;
         return new RSVP.Promise(function (resolve, reject) {

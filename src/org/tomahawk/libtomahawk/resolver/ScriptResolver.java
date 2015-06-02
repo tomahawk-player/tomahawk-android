@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
-import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAppKeysResult;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverCollectionMetaData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverConfigUi;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverSettings;
@@ -535,9 +534,5 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
 
     public void getAccessToken(ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult> cb) {
         ScriptJob.start(mScriptObject, "getAccessToken", cb);
-    }
-
-    public void getAppKeys(ScriptJob.ResultsCallback<ScriptResolverAppKeysResult> cb) {
-        ScriptJob.start(mScriptObject, "getAppKeys", cb);
     }
 }

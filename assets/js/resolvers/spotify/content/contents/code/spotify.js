@@ -43,9 +43,6 @@ var SpotifyResolver = Tomahawk.extend(TomahawkResolver, {
 
     storageKeyAccessTokenExpires: "spotify_access_token_expires",
 
-    newConfigSaved: function () {
-    },
-
     /**
      * Get the access token. Refresh when it is expired.
      */
@@ -110,7 +107,7 @@ var SpotifyResolver = Tomahawk.extend(TomahawkResolver, {
         });
     },
 
-    login: function(callback) {
+    login: function() {
         Tomahawk.log("Starting login");
 
         var authUrl = "https://accounts.spotify.com/authorize";
@@ -187,7 +184,7 @@ var SpotifyResolver = Tomahawk.extend(TomahawkResolver, {
 
     spell: function(a){magic=function(b){return(b=(b)?b:this).split("").map(function(d){if(!d.match(/[A-Za-z]/)){return d}c=d.charCodeAt(0)>=96;k=(d.toLowerCase().charCodeAt(0)-96+12)%26+1;return String.fromCharCode(k+(c?96:64))}).join("")};return magic(a)},
 
-    init: function(cb) {
+    init: function() {
         Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
         Tomahawk.addCustomUrlHandler("spotify", "getStreamUrl", true);
         Tomahawk.addCustomUrlHandler("tomahawkspotifyresolver", "onRedirectCallback", true);
