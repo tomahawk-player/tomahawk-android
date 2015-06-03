@@ -27,7 +27,7 @@
   <string name="login_password_confirmation">Confirmação da senha</string>
   <string name="account_email_label">E-Mail (opcional)</string>
   <string name="error_field_required">Este campo é obrigatório</string>
-  <string name="error_passwords_dont_match">Senhas não combinam</string>
+  <string name="error_passwords_dont_match">As senhas não coincidem</string>
   <string name="error_invalid_credentials">Nome de usuário ou senha incorreto</string>
   <string name="error_invalid_account">Conta rejeitada pelo servidor</string>
   <string name="error_communication">Não foi possível a autenticação. Por favor, verifique a sua conexão.</string>
@@ -58,7 +58,7 @@
   <string name="crash_dialog_comment_prompt">Abaixo, você pode fazer comentários sobre o problema :</string>
   <string name="crash_dialog_ok_toast">Obrigado !</string>
   <string name="context_menu_play">Reproduzir</string>
-  <string name="context_menu_add_to_queue">Adicionar à Fileira</string>
+  <string name="context_menu_add_to_queue">Adicionar à Fila</string>
   <string name="context_menu_add_to_playlist">Adicionar a Playlist</string>
   <string name="context_menu_delete">Deletar</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
