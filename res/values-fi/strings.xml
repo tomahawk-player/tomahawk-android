@@ -198,7 +198,9 @@
   <string name="next_page">Seuraava</string>
   <string name="welcome_fragment_explanation_title">Aloittaminen</string>
   <string name="welcome_fragment_explanation_heading">Musiikki on kaikkialla.\nNyt sinun ei tarvitse olla.</string>
+  <string name="welcome_fragment_explanation_text">Lakkaa jahtaamasta musiikkia ympäri verkkoa – palveluihin, joita et käytä, tai lähteisiin, joihin et pääse. Kun Tomahawkille antaa kappaleen, albumin tai soittolistan nimen tai linkin, Tomahawk etsii parhaan käytettävissäsi olevan lähteen ja alkaa soittaa kappaletta sieltä.</string>
   <string name="welcome_fragment_hatchet_title">Haluatko jakaa?</string>
+  <string name="welcome_fragment_hatchet_text">Hatchetin avulla voit vihdoin säilyttää koko musiikkikokoelmasi yhdessä paikassa. Voit jakaa soittolistojasi ja suosikkikappaleitsi. Voit myös synkronoida tämän sovelluksen työpöytäkoneesi Tomahawkin kanssa.</string>
   <string name="welcome_fragment_setup_title">Yhdistä</string>
   <string name="welcome_fragment_done_title">Valmista!</string>
   <string name="welcome_fragment_done_heading">Kaikki on valmista!</string>
