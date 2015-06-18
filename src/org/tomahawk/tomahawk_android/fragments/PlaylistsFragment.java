@@ -40,7 +40,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -140,8 +139,6 @@ public class PlaylistsFragment extends TomahawkFragment {
             return;
         }
 
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-
         List playlists = new ArrayList();
         HatchetAuthenticatorUtils authenticatorUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
@@ -177,17 +174,8 @@ public class PlaylistsFragment extends TomahawkFragment {
             segments.add(new Segment(playlists, R.integer.grid_column_count,
                     R.dimen.padding_superlarge, R.dimen.padding_superlarge));
         }
-        if (getListAdapter() == null) {
-            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
-                    (TomahawkMainActivity) getActivity(), layoutInflater, segments, getListView(),
-                    this);
-            setListAdapter(tomahawkListAdapter);
-        } else {
-            getListAdapter().setSegments(segments, getListView());
-        }
+        fillAdapter(segments);
         showContentHeader(R.drawable.playlists_header);
-
-        onUpdateAdapterFinished();
     }
 
     @Override

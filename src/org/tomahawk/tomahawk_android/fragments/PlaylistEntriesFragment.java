@@ -29,12 +29,10 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
-import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
-import android.view.LayoutInflater;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -130,9 +128,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         mResolveQueriesHandler.removeCallbacksAndMessages(null);
         mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         List playlistEntries = new ArrayList();
-        TomahawkListAdapter tomahawkListAdapter;
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         if (mPlaylist != null) {
             if (!mPlaylist.isFilled()) {
                 refreshCurrentPlaylist();
@@ -140,13 +135,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 playlistEntries.addAll(mPlaylist.getEntries());
                 Segment segment = new Segment(R.string.playlist_details, playlistEntries);
                 segment.setShowNumeration(true, 1);
-                if (getListAdapter() == null) {
-                    tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater,
-                            segment, getListView(), this);
-                    setListAdapter(tomahawkListAdapter);
-                } else {
-                    getListAdapter().setSegments(segment, getListView());
-                }
+                fillAdapter(segment);
                 showContentHeader(mPlaylist);
                 showFancyDropDown(mPlaylist);
                 ThreadManager.getInstance()
@@ -174,8 +163,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             mShownQueries.add(((PlaylistEntry) playlistEntry).getQuery());
             mShownPlaylistEntries.add((PlaylistEntry) playlistEntry);
         }
-
-        onUpdateAdapterFinished();
     }
 
     protected void refreshCurrentPlaylist() {
