@@ -18,11 +18,8 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
-import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 
-import android.view.LayoutInflater;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -60,24 +57,13 @@ public class BiographyFragment extends TomahawkFragment {
             return;
         }
 
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-
         List bioText = new ArrayList<>();
         if (mArtist != null) {
             if (mArtist.getBio() == null) {
                 InfoSystem.getInstance().resolve(mArtist, false);
             }
             bioText.add(mArtist.getBio());
-            if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter =
-                        new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
-                                layoutInflater, new Segment(bioText), getListView(), this);
-                setListAdapter(tomahawkListAdapter);
-            } else {
-                getListAdapter().setSegments(new Segment(bioText), getListView());
-            }
+            fillAdapter(new Segment(bioText));
         }
-
-        onUpdateAdapterFinished();
     }
 }

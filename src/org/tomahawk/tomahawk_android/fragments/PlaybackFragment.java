@@ -348,9 +348,8 @@ public class PlaybackFragment extends TomahawkFragment {
             return;
         }
 
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        PlaybackService playbackService = activity.getPlaybackService();
+        PlaybackService playbackService =
+                ((TomahawkMainActivity) getActivity()).getPlaybackService();
         if (playbackService != null) {
             List<Segment> segments = new ArrayList<>();
             List entries = new ArrayList();
@@ -384,20 +383,8 @@ public class PlaybackFragment extends TomahawkFragment {
                 segment.setShowNumeration(true, 1);
                 segments.add(segment);
             }
-            if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                        layoutInflater, segments, getListView(), this);
-                tomahawkListAdapter.setShowPlaystate(true);
-                setListAdapter(tomahawkListAdapter);
-            } else {
-                getListAdapter().setSegments(segments, getListView());
-            }
+            fillAdapter(segments, mAlbumArtViewPager);
         }
-
-        updateShowPlaystate();
-        forceResolveVisibleItems(false);
-        setupNonScrollableSpacer();
-        setupScrollableSpacer(mAlbumArtViewPager);
     }
 
     private void setupAlbumArtAnimation() {

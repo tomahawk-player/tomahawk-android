@@ -29,13 +29,11 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
-import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -115,9 +113,6 @@ public class TracksFragment extends TomahawkFragment {
         mResolveQueriesHandler.removeCallbacksAndMessages(null);
         mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         ArrayList queries = new ArrayList();
-        TomahawkListAdapter tomahawkListAdapter;
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
         if (mAlbum != null) {
             queries.addAll(CollectionUtils.getAlbumTracks(mAlbum, mCollection));
             Segment segment = new Segment(mAlbum.getArtist().getName(), queries);
@@ -126,39 +121,21 @@ public class TracksFragment extends TomahawkFragment {
                 segment.setShowDuration(true);
             }
             segment.setShowNumeration(true, 1);
-            if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
-                        getListView(), this);
-                setListAdapter(tomahawkListAdapter);
-            } else {
-                getListAdapter().setSegments(segment, getListView());
-            }
+            fillAdapter(segment);
             showContentHeader(mAlbum);
             showAlbumFancyDropDown();
         } else if (mQuery != null) {
             queries.add(mQuery);
             Segment segment = new Segment(queries);
             segment.setShowDuration(true);
-            if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segment,
-                        getListView(), this);
-                setListAdapter(tomahawkListAdapter);
-            } else {
-                getListAdapter().setSegments(segment, getListView());
-            }
+            fillAdapter(segment);
             showContentHeader(mQuery);
             showFancyDropDown(mQuery);
         } else if (mQueryArray != null) {
             queries.addAll(mQueryArray);
             Segment segment = new Segment(queries);
             segment.setShowDuration(true);
-            if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
-                        layoutInflater, segment, getListView(), this);
-                setListAdapter(tomahawkListAdapter);
-            } else {
-                getListAdapter().setSegments(new Segment(queries), getListView());
-            }
+            fillAdapter(segment);
         } else {
             queries.addAll(CollectionManager.getInstance()
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getQueries());
@@ -201,20 +178,10 @@ public class TracksFragment extends TomahawkFragment {
                 Collections.sort(queries, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
             }
-            List<Segment> segments = new ArrayList<>();
-            segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, queries));
-            if (getListAdapter() == null) {
-                tomahawkListAdapter = new TomahawkListAdapter(activity, layoutInflater, segments,
-                        getListView(), this);
-                setListAdapter(tomahawkListAdapter);
-            } else {
-                getListAdapter().setSegments(segments, getListView());
-            }
+            fillAdapter(new Segment(initialPos, dropDownItems, spinnerClickListener, queries));
         }
 
         mShownQueries = queries;
-
-        onUpdateAdapterFinished();
     }
 
     private void showAlbumFancyDropDown() {

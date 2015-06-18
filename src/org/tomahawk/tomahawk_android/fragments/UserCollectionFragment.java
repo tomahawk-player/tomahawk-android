@@ -27,13 +27,11 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
-import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 
@@ -99,9 +97,6 @@ public class UserCollectionFragment extends TomahawkFragment {
             return;
         }
 
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-        List<Segment> segments = new ArrayList<>();
         ArrayList items = new ArrayList();
         if (mUser != null) {
             items.addAll(mUser.getStarredAlbums());
@@ -152,21 +147,12 @@ public class UserCollectionFragment extends TomahawkFragment {
             Collections.sort(items, new TomahawkListItemComparator(
                     TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
         }
-        segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, items,
+        fillAdapter(new Segment(initialPos, dropDownItems, spinnerClickListener, items,
                 R.integer.grid_column_count, R.dimen.padding_superlarge,
                 R.dimen.padding_superlarge));
-        if (getListAdapter() == null) {
-            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(activity,
-                    layoutInflater, segments, getListView(), this);
-            setListAdapter(tomahawkListAdapter);
-        } else {
-            getListAdapter().setSegments(segments, getListView());
-        }
         if (!getResources().getBoolean(R.bool.is_landscape)) {
-            getListView().setAreHeadersSticky(true);
+            setAreHeadersSticky(true);
         }
         showContentHeader(R.drawable.collection_header);
-
-        onUpdateAdapterFinished();
     }
 }

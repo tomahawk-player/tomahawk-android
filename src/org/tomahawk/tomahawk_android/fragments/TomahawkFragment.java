@@ -35,6 +35,7 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
@@ -44,11 +45,13 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
-import android.widget.BaseAdapter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -65,6 +68,8 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  */
 public abstract class TomahawkFragment extends TomahawkListFragment
         implements MultiColumnClickListener, AbsListView.OnScrollListener {
+
+    public static final String TAG = TomahawkFragment.class.getSimpleName();
 
     public static final String ALBUM = "album";
 
@@ -442,39 +447,64 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 collectionId, false);
     }
 
-    /**
-     * Get the {@link BaseAdapter} associated with this activity's ListView.
-     */
-    public TomahawkListAdapter getListAdapter() {
-        return mTomahawkListAdapter;
+    public void fillAdapter(Segment segment) {
+        List<Segment> segments = new ArrayList<>();
+        segments.add(segment);
+        fillAdapter(segments, null);
     }
 
-    /**
-     * Set the {@link BaseAdapter} associated with this activity's ListView.
-     */
-    public void setListAdapter(TomahawkListAdapter adapter) {
-        super.setListAdapter(adapter);
-        mTomahawkListAdapter = adapter;
-        getListView().setOnItemClickListener(mTomahawkListAdapter);
-        getListView().setOnItemLongClickListener(mTomahawkListAdapter);
+    public void fillAdapter(List<Segment> segments) {
+        fillAdapter(segments, null);
+    }
+
+    public void fillAdapter(final List<Segment> segments, final View headerSpacerForwardView) {
+        final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        if (activity != null && getListView() != null) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mTomahawkListAdapter == null) {
+                        LayoutInflater inflater = activity.getLayoutInflater();
+                        TomahawkListAdapter adapter = new TomahawkListAdapter(activity, inflater,
+                                segments, getListView(), TomahawkFragment.this);
+                        TomahawkFragment.super.setListAdapter(adapter);
+                        mTomahawkListAdapter = adapter;
+                        getListView().setOnItemClickListener(mTomahawkListAdapter);
+                        getListView().setOnItemLongClickListener(mTomahawkListAdapter);
+                    } else {
+                        mTomahawkListAdapter.setSegments(segments, getListView());
+                    }
+                    updateShowPlaystate();
+                    forceResolveVisibleItems(false);
+                    setupNonScrollableSpacer();
+                    setupScrollableSpacer(headerSpacerForwardView);
+                    if (headerSpacerForwardView == null) {
+                        setupAnimations();
+                    }
+                }
+            });
+        } else {
+            Log.e(TAG, "fillAdapter - getActivity() or getListView() returned null!");
+        }
+    }
+
+    public void setAreHeadersSticky(final boolean areHeadersSticky) {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if (getListView() != null) {
+                    getListView().setAreHeadersSticky(areHeadersSticky);
+                } else {
+                    Log.e(TAG, "setAreHeadersSticky - getListView() returned null!");
+                }
+            }
+        });
     }
 
     /**
      * Update this {@link TomahawkFragment}'s {@link TomahawkListAdapter} content
      */
     protected abstract void updateAdapter();
-
-    /**
-     * This method _MUST_ be called at the end of updateAdapter (with the exception of
-     * PlaybackFragment)
-     */
-    protected void onUpdateAdapterFinished() {
-        updateShowPlaystate();
-        forceResolveVisibleItems(false);
-        setupNonScrollableSpacer();
-        setupScrollableSpacer();
-        setupAnimations();
-    }
 
     /**
      * If the PlaybackService signals, that it is ready, this method is being called
@@ -510,16 +540,16 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected void updateShowPlaystate() {
         PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
-        if (getListAdapter() != null) {
+        if (mTomahawkListAdapter != null) {
             if (playbackService != null) {
-                getListAdapter().setShowPlaystate(true);
-                getListAdapter().setHighlightedItemIsPlaying(playbackService.isPlaying());
-                getListAdapter().setHighlightedEntry(playbackService.getCurrentEntry());
-                getListAdapter().setHighlightedQuery(playbackService.getCurrentQuery());
+                mTomahawkListAdapter.setShowPlaystate(true);
+                mTomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
+                mTomahawkListAdapter.setHighlightedEntry(playbackService.getCurrentEntry());
+                mTomahawkListAdapter.setHighlightedQuery(playbackService.getCurrentQuery());
             } else {
-                getListAdapter().setShowPlaystate(false);
+                mTomahawkListAdapter.setShowPlaystate(false);
             }
-            getListAdapter().notifyDataSetChanged();
+            mTomahawkListAdapter.notifyDataSetChanged();
         }
     }
 

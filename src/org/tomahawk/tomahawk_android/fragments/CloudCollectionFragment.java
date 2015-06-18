@@ -21,7 +21,6 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
-import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.os.Bundle;
@@ -81,18 +80,8 @@ public class CloudCollectionFragment extends TomahawkFragment {
         if (mCollection != null) {
             List artists = new ArrayList<>();
             artists.addAll(mCollection.getArtists());
-            if (getListAdapter() == null) {
-                TomahawkListAdapter tomahawkListAdapter =
-                        new TomahawkListAdapter((TomahawkMainActivity) getActivity(),
-                                getActivity().getLayoutInflater(), new Segment(artists),
-                                getListView(), this);
-                setListAdapter(tomahawkListAdapter);
-            } else {
-                getListAdapter().setSegments(new Segment(artists), getListView());
-            }
+            fillAdapter(new Segment(artists));
             showContentHeader(R.drawable.collection_header);
         }
-
-        onUpdateAdapterFinished();
     }
 }

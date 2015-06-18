@@ -41,10 +41,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
 
@@ -319,30 +316,11 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         segment.setLeftExtraPadding(extraPadding);
                         segments.add(segment);
                     }
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-                            if (activity != null && getListView() != null) {
-                                LayoutInflater layoutInflater = getActivity().getLayoutInflater();
-                                if (getListAdapter() == null) {
-                                    TomahawkListAdapter tomahawkListAdapter
-                                            = new TomahawkListAdapter(
-                                            activity, layoutInflater, segments, getListView(),
-                                            SocialActionsFragment.this);
-                                    setListAdapter(tomahawkListAdapter);
-                                } else {
-                                    getListAdapter().setSegments(segments, getListView());
-                                }
-                                if (mShowMode == SHOW_MODE_DASHBOARD
-                                        && !getResources().getBoolean(R.bool.is_landscape)) {
-                                    getListView().setAreHeadersSticky(true);
-                                }
-
-                                onUpdateAdapterFinished();
-                            }
-                        }
-                    });
+                    fillAdapter(segments);
+                    if (mShowMode == SHOW_MODE_DASHBOARD
+                            && !getResources().getBoolean(R.bool.is_landscape)) {
+                        setAreHeadersSticky(true);
+                    }
                 }
             }
         };
