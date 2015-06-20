@@ -383,7 +383,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 segment.setShowNumeration(true, 1);
                 segments.add(segment);
             }
-            fillAdapter(segments, mAlbumArtViewPager);
+            fillAdapter(segments, mAlbumArtViewPager, null);
         }
     }
 

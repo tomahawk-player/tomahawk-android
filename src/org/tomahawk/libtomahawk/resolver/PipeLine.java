@@ -28,8 +28,10 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
 
@@ -83,11 +85,14 @@ public class PipeLine {
 
     }
 
-    private final HashSet<ScriptAccount> mScriptAccounts = new HashSet<>();
+    private final Set<ScriptAccount> mScriptAccounts =
+            Collections.newSetFromMap(new ConcurrentHashMap<ScriptAccount, Boolean>());
 
-    private final HashSet<Resolver> mResolvers = new HashSet<>();
+    private final Set<Resolver> mResolvers =
+            Collections.newSetFromMap(new ConcurrentHashMap<Resolver, Boolean>());
 
-    private final HashSet<String> mRecentUrlLookups = new HashSet<>();
+    private final Set<String> mRecentUrlLookups =
+            Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     private PipeLine() {
         try {

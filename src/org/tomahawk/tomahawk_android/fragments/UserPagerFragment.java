@@ -126,7 +126,7 @@ public class UserPagerFragment extends PagerFragment {
 
         fragmentInfoList = new FragmentInfoList();
         fragmentInfo = new FragmentInfo();
-        fragmentInfo.mClass = UserCollectionFragment.class;
+        fragmentInfo.mClass = AlbumsFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_collection);
         fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());

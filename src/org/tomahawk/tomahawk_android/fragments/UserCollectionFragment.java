@@ -17,27 +17,18 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
-import android.widget.AdapterView;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 public class UserCollectionFragment extends TomahawkFragment {
 
@@ -64,26 +55,32 @@ public class UserCollectionFragment extends TomahawkFragment {
      * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, Object item) {
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+    public void onItemClick(View view, final Object item) {
         if (item instanceof Album) {
-            Collection userCollection = CollectionManager.getInstance()
+            final Collection userCollection = CollectionManager.getInstance()
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-            Bundle bundle = new Bundle();
-            if (userCollection.getAlbumTracks((Album) item, false).size() > 0) {
-                bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
-                bundle.putString(TomahawkFragment.COLLECTION_ID, userCollection.getId());
-                bundle.putInt(CONTENT_HEADER_MODE,
-                        ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-                FragmentUtils.replace(activity, TracksFragment.class, bundle);
-            } else {
-                bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
-                bundle.putString(TomahawkFragment.COLLECTION_ID, CollectionManager.getInstance()
-                        .getCollection(TomahawkApp.PLUGINNAME_HATCHET).getId());
-                bundle.putInt(CONTENT_HEADER_MODE,
-                        ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-                FragmentUtils.replace(activity, TracksFragment.class, bundle);
-            }
+            userCollection.hasAlbumTracks((Album) item).done(new DoneCallback<Boolean>() {
+                @Override
+                public void onDone(Boolean result) {
+                    TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+                    Bundle bundle = new Bundle();
+                    if (result) {
+                        bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
+                        bundle.putString(TomahawkFragment.COLLECTION_ID, userCollection.getId());
+                        bundle.putInt(CONTENT_HEADER_MODE,
+                                ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                        FragmentUtils.replace(activity, TracksFragment.class, bundle);
+                    } else {
+                        bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
+                        bundle.putString(TomahawkFragment.COLLECTION_ID,
+                                CollectionManager.getInstance()
+                                        .getCollection(TomahawkApp.PLUGINNAME_HATCHET).getId());
+                        bundle.putInt(CONTENT_HEADER_MODE,
+                                ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                        FragmentUtils.replace(activity, TracksFragment.class, bundle);
+                    }
+                }
+            });
         }
     }
 
@@ -93,7 +90,7 @@ public class UserCollectionFragment extends TomahawkFragment {
      */
     @Override
     protected void updateAdapter() {
-        if (!mIsResumed) {
+        /*if (!mIsResumed) {
             return;
         }
 
@@ -135,8 +132,8 @@ public class UserCollectionFragment extends TomahawkFragment {
         };
         int initialPos = preferences.getInt(USER_COLLECTION_SPINNER_POSITION, 0);
         if (initialPos == 0) {
-            Collection userColl = CollectionManager.getInstance().getCollection(
-                    TomahawkApp.PLUGINNAME_USERCOLLECTION);
+            UserCollection userColl = (UserCollection) CollectionManager.getInstance()
+                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
             Collections.sort(items, new TomahawkListItemComparator(
                     TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
                     userColl.getAlbumAddedTimeStamps()));
@@ -153,6 +150,6 @@ public class UserCollectionFragment extends TomahawkFragment {
         if (!getResources().getBoolean(R.bool.is_landscape)) {
             setAreHeadersSticky(true);
         }
-        showContentHeader(R.drawable.collection_header);
+        showContentHeader(R.drawable.collection_header);     */
     }
 }

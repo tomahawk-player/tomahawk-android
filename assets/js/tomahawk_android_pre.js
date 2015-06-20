@@ -22,15 +22,15 @@ Tomahawk.resolverData =
     };
 
 Tomahawk.createFuzzyIndex =
-    function (indexList) {
+    function (id, indexList) {
         if (indexList) {
-            Tomahawk.createFuzzyIndexString(JSON.stringify(indexList));
+            Tomahawk.createFuzzyIndexString(id, JSON.stringify(indexList));
         }
     };
 
 Tomahawk.searchFuzzyIndex =
-    function (query) {
-        var result = Tomahawk.searchFuzzyIndexString(query);
+    function (id, query) {
+        var result = Tomahawk.searchFuzzyIndexString(id, query);
         if (result) {
             return JSON.parse(result);
         } else {
@@ -39,8 +39,8 @@ Tomahawk.searchFuzzyIndex =
     };
 
 Tomahawk.resolveFromFuzzyIndex =
-    function (artist, album, title) {
-        var result = Tomahawk.resolveFromFuzzyIndexString(artist, album, title);
+    function (id, artist, album, title) {
+        var result = Tomahawk.resolveFromFuzzyIndexString(id, artist, album, title);
         if (result) {
             return JSON.parse(result);
         } else {

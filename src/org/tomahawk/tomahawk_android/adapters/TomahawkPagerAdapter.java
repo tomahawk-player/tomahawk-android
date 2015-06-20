@@ -34,7 +34,7 @@ public class TomahawkPagerAdapter extends FragmentStatePagerAdapter {
 
     private final long mContainerFragmentId;
 
-    private final List<FragmentInfo> mFragmentInfos;
+    private List<FragmentInfo> mFragmentInfos;
 
     public TomahawkPagerAdapter(FragmentManager fragmentManager, List<FragmentInfo> fragmentInfos,
             Class containerFragmentClass, long containerFragmentId) {
@@ -74,6 +74,11 @@ public class TomahawkPagerAdapter extends FragmentStatePagerAdapter {
     public void changeFragment(int position, FragmentInfo fragmentInfo) {
         mFragmentInfos.remove(position);
         mFragmentInfos.add(position, fragmentInfo);
+        notifyDataSetChanged();
+    }
+
+    public void changeFragments(List<FragmentInfo> fragmentInfos) {
+        mFragmentInfos = fragmentInfos;
         notifyDataSetChanged();
     }
 }

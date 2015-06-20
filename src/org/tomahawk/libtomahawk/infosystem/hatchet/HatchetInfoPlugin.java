@@ -26,8 +26,8 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.NativeCollection;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
@@ -78,6 +78,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -229,7 +230,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
     private boolean getParseConvert(InfoRequestData infoRequestData)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         QueryParams params = infoRequestData.getQueryParams();
-        Collection hatchetCollection = CollectionManager.getInstance()
+        NativeCollection hatchetCollection = (NativeCollection) CollectionManager.getInstance()
                 .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
         Hatchet hatchet = getImplementation(infoRequestData);
 
@@ -455,10 +456,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
                             }
                             Album convertedAlbum =
                                     InfoSystemUtils.convertToAlbum(album, artist.name, image);
-                            List<Query> convertedTracks =
+                            Set<Query> convertedTracks =
                                     InfoSystemUtils.convertToQueries(albumTracks,
                                             convertedAlbum.getName(), convertedArtist.getName());
-                            convertedAlbum.addQueries(convertedTracks);
                             convertedArtist.addAlbum(convertedAlbum);
                             hatchetCollection.addAlbum(convertedAlbum);
                             hatchetCollection.addArtistAlbum(convertedArtist, convertedAlbum);
@@ -515,10 +515,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
                                 if (artists != null) {
                                     Map<String, HatchetArtistInfo> artistsMap =
                                             InfoSystemUtils.listToMap(artists.artists);
-                                    List<Query> convertedTracks = InfoSystemUtils
+                                    Set<Query> convertedTracks = InfoSystemUtils
                                             .convertToQueries(tracks.tracks, album.getName(),
                                                     artistsMap);
-                                    album.addQueries(convertedTracks);
                                     hatchetCollection.addAlbumTracks(album, convertedTracks);
                                 }
                             }
@@ -664,7 +663,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                         params.userid, params.targettype, params.targetuserid, null, null, null,
                         params.type);
                 if (relationShips != null && relationShips.relationships != null) {
-                    List<Album> convertedAlbums = new ArrayList<>();
+                    Set<Album> convertedAlbums = new HashSet<>();
                     List<Artist> convertedArtists = new ArrayList<>();
                     Map<String, HatchetArtistInfo> artistsMap =
                             InfoSystemUtils.listToMap(relationShips.artists);

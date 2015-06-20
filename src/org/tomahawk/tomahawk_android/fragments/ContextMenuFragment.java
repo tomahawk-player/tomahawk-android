@@ -21,7 +21,6 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -52,7 +51,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
 import de.greenrobot.event.EventBus;
@@ -241,22 +239,28 @@ public class ContextMenuFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
-                    ArrayList<Query> queries;
-                    if (mTomahawkListItem instanceof Album) {
-                        Album album = (Album) mTomahawkListItem;
-                        queries = CollectionUtils.getAlbumTracks(album, mCollection);
-                    } else {
-                        queries = mTomahawkListItem.getQueries();
-                    }
-                    ArrayList<String> queryKeys = new ArrayList<>();
-                    for (Query query : queries) {
-                        queryKeys.add(query.getCacheKey());
-                    }
-                    Bundle bundle = new Bundle();
-                    bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                            ContentHeaderFragment.MODE_HEADER_STATIC);
-                    bundle.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
-                    FragmentUtils.replace(activity, PlaylistsFragment.class, bundle);
+                    /*CollectionUtils.getAlbumTracks(album, mCollection).done(
+                            new DoneCallback<TreeSet<Query>>() {
+                                @Override
+                                public void onDone(TreeSet<Query> result) {
+                                    if (mTomahawkListItem instanceof Album) {
+                                        Album album = (Album) mTomahawkListItem;
+                                    } else {
+                                        queries = mTomahawkListItem.getQueries();
+                                    }
+                                    ArrayList<String> queryKeys = new ArrayList<>();
+                                    for (Query query : queries) {
+                                        queryKeys.add(query.getCacheKey());
+                                    }
+                                    Bundle bundle = new Bundle();
+                                    bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                                            ContentHeaderFragment.MODE_HEADER_STATIC);
+                                    bundle.putStringArrayList(TomahawkFragment.QUERYARRAY,
+                                            queryKeys);
+                                    FragmentUtils
+                                            .replace(activity, PlaylistsFragment.class, bundle);
+                                }
+                            });     */
                 }
             });
         }

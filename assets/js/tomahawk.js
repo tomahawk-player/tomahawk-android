@@ -222,7 +222,25 @@ var TomahawkResolver = {
     }
 };
 
-Tomahawk.Resolver = {};
+Tomahawk.Resolver = {
+    init: function () {
+    },
+    scriptPath: function () {
+        return Tomahawk.resolverData().scriptPath;
+    },
+    getConfigUi: function () {
+        return {};
+    },
+    getUserConfig: function () {
+        return JSON.parse(window.localStorage[this.scriptPath()] || "{}");
+    },
+    saveUserConfig: function () {
+        window.localStorage[this.scriptPath()] = JSON.stringify(Tomahawk.resolverData().config);
+        this.newConfigSaved(Tomahawk.resolverData().config);
+    },
+    newConfigSaved: function () {
+    }
+};
 Tomahawk.Resolver.Promise = Tomahawk.extend(TomahawkResolver, {
     _adapter_resolve: function (qid, artist, album, title) {
         Promise.resolve(this.resolve(artist, album, title)).then(function(results){
@@ -842,6 +860,15 @@ Tomahawk.PluginManager = {
     }
 };
 
+Tomahawk.UrlType = {
+    Any: 0,
+    Playlist: 1,
+    Track: 2,
+    Album: 3,
+    Artist: 4,
+    XspfPlaylist: 5
+};
+
 
 Tomahawk.ConfigTestResultType = {
     Other: 0,
@@ -1105,11 +1132,494 @@ Tomahawk.Country = {
 };
 
 Tomahawk.Collection = {
-    BrowseCapability: {
-        Artists: 1,
-        Albums: 2,
-        Tracks: 4
+
+    cachedDbs: {},
+
+    Transaction: function (collection, id) {
+
+        this.ensureDb = function () {
+            var that = this;
+
+            return new Promise(function (resolve, reject) {
+                if (!collection.cachedDbs.hasOwnProperty(id)) {
+                    Tomahawk.log("Opening database");
+                    var estimatedSize = 5 * 1024 * 1024; // 5MB
+                    collection.cachedDbs[id] =
+                        openDatabase(id + "_collection", "", "Collection", estimatedSize);
+                    var m = new that.migrator(collection.cachedDbs[id]);
+
+                    m.migration(1, function (tx) {
+                        Tomahawk.log("Creating initial db tables");
+                        tx.executeSql("CREATE TABLE IF NOT EXISTS artists(" +
+                            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                            "artist TEXT ," +
+                            "artistDisambiguation TEXT," +
+                            "UNIQUE (artist, artistDisambiguation) ON CONFLICT IGNORE)", []);
+                        tx.executeSql("CREATE TABLE IF NOT EXISTS albumArtists(" +
+                            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                            "albumArtist TEXT ," +
+                            "albumArtistDisambiguation TEXT," +
+                            "UNIQUE (albumArtist, albumArtistDisambiguation) ON CONFLICT IGNORE)",
+                            []);
+                        tx.executeSql("CREATE TABLE IF NOT EXISTS albums(" +
+                            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                            "album TEXT," +
+                            "albumArtistId INTEGER," +
+                            "UNIQUE (album, albumArtistId) ON CONFLICT IGNORE," +
+                            "FOREIGN KEY(albumArtistId) REFERENCES albumArtists(_id))", []);
+                        tx.executeSql("CREATE TABLE IF NOT EXISTS artistAlbums(" +
+                            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                            "albumId INTEGER," +
+                            "artistId INTEGER," +
+                            "UNIQUE (albumId, artistId) ON CONFLICT IGNORE," +
+                            "FOREIGN KEY(albumId) REFERENCES albums(_id)," +
+                            "FOREIGN KEY(artistId) REFERENCES artists(_id))", []);
+                        tx.executeSql("CREATE TABLE IF NOT EXISTS tracks(" +
+                            "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                            "track TEXT," +
+                            "artistId INTEGER," +
+                            "albumId INTEGER," +
+                            "url TEXT," +
+                            "duration TEXT," +
+                            "linkUrl TEXT," +
+                            "UNIQUE (track, artistId, albumId) ON CONFLICT IGNORE," +
+                            "FOREIGN KEY(artistId) REFERENCES artists(_id)," +
+                            "FOREIGN KEY(albumId) REFERENCES albums(_id))", []);
+                    });
+                    //m.migration(2, function (tx) {
+                    //    //Tomahawk.log("Migrating to db version 2");
+                    //});
+
+                    m.execute();
+                }
+                resolve(collection.cachedDbs[id]);
+            });
+        };
+
+        // created by Max Aller <nanodeath@gmail.com>
+        this.migrator = function (db) {
+            var migrations = [];
+            this.migration = function (number, func) {
+                migrations[number] = func;
+            };
+            var migrate = function (number) {
+                if (migrations[number]) {
+                    db.changeVersion(db.version, String(number), function (t) {
+                        migrations[number](t);
+                    }, function (err) {
+                        if (console.error) {
+                            console.error("Error!: %o", err);
+                        }
+                    }, function () {
+                        migrate(number + 1);
+                    });
+                }
+            };
+            this.execute = function () {
+                var initialVersion = parseInt(db.version) || 0;
+                try {
+                    migrate(initialVersion + 1);
+                } catch (e) {
+                    if (console.error) {
+                        console.error(e);
+                    }
+                }
+            }
+        };
+
+        this.beginTransaction = function () {
+            var that = this;
+            return this.ensureDb().then(function (db) {
+                return new Promise(function (resolve, reject) {
+                    db.transaction(function (tx) {
+                        that.tx = tx;
+                        resolve();
+                    });
+                })
+            });
+        };
+
+        this.sql = function (sqlStatement, sqlArgs) {
+            var that = this;
+            return new Promise(function (resolve, reject) {
+                that.tx.executeSql(sqlStatement, sqlArgs,
+                    function (tx, results) {
+                        resolve(results);
+                    }, function (error) {
+                        Tomahawk.log(error);
+                        reject(error);
+                    });
+            })
+        };
+
+        this.sqlSelect = function (table, fields, where, join) {
+            var whereKeys = [];
+            var whereValues = [];
+            for (var whereKey in where) {
+                if (where.hasOwnProperty(whereKey)) {
+                    whereKeys.push(table + "." + whereKey + " = ?");
+                    whereValues.push(where[whereKey]);
+                }
+            }
+            var whereString = whereKeys.length > 0 ? " WHERE " + whereKeys.join(" AND ") : "";
+
+            var joinString = "";
+            for (var i = 0; join && i < join.length; i++) {
+                var joinConditions = [];
+                for (var joinKey in join[i].conditions) {
+                    if (join[i].conditions.hasOwnProperty(joinKey)) {
+                        joinConditions.push(table + "." + joinKey + " = " + join[i].table + "."
+                            + join[i].conditions[joinKey]);
+                    }
+                }
+                joinString += " INNER JOIN " + join[i].table + " ON "
+                    + joinConditions.join(" AND ");
+            }
+
+            var fieldsString = fields && fields.length > 0 ? fields.join(", ") : "*";
+            var statement = "SELECT " + fieldsString + " FROM " + table + joinString + whereString;
+            return this.sql(statement, whereValues);
+        };
+
+        this.sqlInsert = function (table, fields) {
+            var fieldsKeys = [];
+            var fieldsValues = [];
+            var valuesString = "";
+            for (var key in fields) {
+                if (fields.hasOwnProperty(key)) {
+                    fieldsKeys.push(key);
+                    fieldsValues.push(fields[key]);
+                    if (valuesString.length > 0) {
+                        valuesString += ", ";
+                    }
+                    valuesString += "?";
+                }
+            }
+            var statement = "INSERT INTO " + table + " (" + fieldsKeys.join(", ") + ") VALUES ("
+                + valuesString + ")";
+            return this.sql(statement, fieldsValues);
+        };
+
+        this.sqlDrop = function (table) {
+            var statement = "DROP TABLE IF EXISTS " + table;
+            return this.sql(statement, []);
+        };
+
+    },
+
+    addTracks: function (params) {
+        var id = params.id;
+        var tracks = params.tracks;
+
+        var cachedAlbumArtists = {},
+            cachedArtists = {},
+            cachedAlbums = {},
+            cachedArtistIds = {},
+            cachedAlbumIds = {};
+
+        var t = new Tomahawk.Collection.Transaction(this, id);
+        return t.beginTransaction().then(function () {
+            // First we insert all artists and albumArtists
+            var promises = [];
+            for (var i = 0; i < tracks.length; i++) {
+                (function (track) {
+                    promises.push(
+                        t.sqlInsert("artists", {
+                            artist: track.artist,
+                            artistDisambiguation: track.artistDisambiguation
+                        }),
+                        t.sqlInsert("albumArtists", {
+                            albumArtist: track.albumArtist,
+                            albumArtistDisambiguation: track.albumArtistDisambiguation
+                        })
+                    );
+                })(tracks[i]);
+            }
+            return Promise.all(promises);
+        }).then(function () {
+            // Get all artists' and albumArtists' db ids
+            return Promise.all([
+                t.sqlSelect("albumArtists"),
+                t.sqlSelect("artists")
+            ]);
+        }).then(function (resultsArray) {
+            // Store the db ids in a map
+            var i, row;
+            for (i = 0; i < resultsArray[0].rows.length; i++) {
+                row = resultsArray[0].rows[i];
+                cachedAlbumArtists[row.albumArtist + "♣" + row.albumArtistDisambiguation]
+                    = row._id;
+            }
+            for (i = 0; i < resultsArray[1].rows.length; i++) {
+                row = resultsArray[1].rows[i];
+                cachedArtists[row.artist + "♣" + row.artistDisambiguation] = row._id;
+                cachedArtistIds[row._id] = {
+                    artist: row.artist,
+                    artistDisambiguation: row.artistDisambiguation
+                };
+            }
+        }).then(function () {
+            // Insert all albums
+            var promises = [];
+            for (var i = 0; i < tracks.length; i++) {
+                (function (track) {
+                    var albumArtistId =
+                        cachedAlbumArtists[track.albumArtist + "♣"
+                        + track.albumArtistDisambiguation];
+                    promises.push(
+                        t.sqlInsert("albums", {
+                            album: track.album,
+                            albumArtistId: albumArtistId
+                        })
+                    );
+                })(tracks[i]);
+            }
+            return Promise.all(promises);
+        }).then(function () {
+            // Get the albums' db ids
+            return t.sqlSelect("albums");
+        }).then(function (results) {
+            // Store the db ids in a map
+            for (var i = 0; i < results.rows.length; i++) {
+                var row = results.rows[i];
+                cachedAlbums[row.album + "♣" + row.albumArtistId] = row._id;
+                cachedAlbumIds[row._id] = {
+                    album: row.album,
+                    albumArtistId: row.albumArtistId
+                };
+            }
+        }).then(function () {
+            // Now we are ready to insert the tracks
+            var promises = [];
+            for (var i = 0; i < tracks.length; i++) {
+                (function (track) {
+                    // Get all relevant ids that we stored in the previous steps
+                    var artistId =
+                        cachedArtists[track.artist + "♣" + track.artistDisambiguation];
+                    var albumArtistId =
+                        cachedAlbumArtists[track.albumArtist + "♣"
+                        + track.albumArtistDisambiguation];
+                    var albumId = cachedAlbums[track.album + "♣" + albumArtistId];
+                    promises.push(
+                        Promise.all([
+                            // Insert the artist <=> album relations
+                            t.sqlInsert("artistAlbums", {
+                                albumId: albumId,
+                                artistId: artistId
+                            }),
+                            // Insert the tracks
+                            t.sqlInsert("tracks", {
+                                track: track.track,
+                                artistId: artistId,
+                                albumId: albumId,
+                                url: track.url,
+                                duration: track.duration,
+                                linkUrl: track.linkUrl
+                            })
+                        ])
+                    );
+                })(tracks[i]);
+            }
+            return Promise.all(promises);
+        }).then(function () {
+            // Get the tracks' db ids
+            return t.sqlSelect("tracks", ["_id", "artistId", "albumId", "track"]);
+        }).then(function (results) {
+            // Add the db ids together with the basic metadata to the fuzzy index list
+            var fuzzyIndexList = [];
+            for (var i = 0; i < results.rows.length; i++) {
+                var row = results.rows[i];
+                fuzzyIndexList.push({
+                    id: row._id,
+                    artist: cachedArtistIds[row.artistId].artist,
+                    album: cachedAlbumIds[row.albumId].album,
+                    track: row.track
+                });
+            }
+            Tomahawk.createFuzzyIndex(id, fuzzyIndexList);
+        });
+    },
+
+    wipe: function (params) {
+        var id = params.id;
+
+        var that = this;
+
+        var t = new Tomahawk.Collection.Transaction(this, id);
+        return t.beginTransaction().then(function () {
+            return Promise.all([
+                t.sqlDrop("artists"),
+                t.sqlDrop("albumArtists"),
+                t.sqlDrop("albums"),
+                t.sqlDrop("artistAlbums"),
+                t.sqlDrop("tracks")
+            ]);
+        }).then(function () {
+            that.cachedDbs[id].changeVersion(that.cachedDbs[id].version, "", null,
+                function (err) {
+                    if (console.error) {
+                        console.error("Error!: %o", err);
+                    }
+                }, function () {
+                    delete that.cachedDbs[id];
+                    Tomahawk.deleteFuzzyIndex(id);
+                });
+        });
+    },
+
+    tracks: function (params, where) {
+        var id = params.id;
+
+        var t = new Tomahawk.Collection.Transaction(this, id);
+        return t.beginTransaction().then(function () {
+            return t.sqlSelect("tracks",
+                ["artist", "artistDisambiguation", "album", "track", "duration", "url", "linkUrl"],
+                where, [
+                    {
+                        table: "artists",
+                        conditions: {
+                            artistId: "_id"
+                        }
+                    }, {
+                        table: "albums",
+                        conditions: {
+                            albumId: "_id"
+                        }
+                    }
+                ]
+            );
+        }).then(function (results) {
+            var tracks = [];
+            for (var i = 0; i < results.rows.length; i++) {
+                var row = results.rows[i];
+                tracks.push({
+                    artist: row.artist,
+                    artistDisambiguation: row.artistDisambiguation,
+                    album: row.album,
+                    track: row.track,
+                    duration: row.duration,
+                    url: row.url,
+                    linkUrl: row.linkUrl
+                });
+            }
+            Tomahawk.log("tracks: " + JSON.stringify(tracks));
+            return tracks;
+        });
+    },
+
+    albums: function (params, where) {
+        var id = params.id;
+
+        var t = new Tomahawk.Collection.Transaction(this, id);
+        return t.beginTransaction().then(function () {
+            return t.sqlSelect("albums",
+                ["album", "albumArtist", "albumArtistDisambiguation"],
+                where, [
+                    {
+                        table: "albumArtists",
+                        conditions: {
+                            albumArtistId: "_id"
+                        }
+                    }
+                ]
+            );
+        }).then(function (results) {
+            var albums = [];
+            for (var i = 0; i < results.rows.length; i++) {
+                var row = results.rows[i];
+                albums.push({
+                    albumArtist: row.albumArtist,
+                    albumArtistDisambiguation: row.albumArtistDisambiguation,
+                    album: row.album
+                });
+            }
+            return albums;
+        });
+    },
+
+    artists: function (params) {
+        var id = params.id;
+
+        var t = new Tomahawk.Collection.Transaction(this, id);
+        return t.beginTransaction().then(function () {
+            return t.sqlSelect("artists", ["artist", "artistDisambiguation"]);
+        }).then(function (results) {
+            var artists = [];
+            for (var i = 0; i < results.rows.length; i++) {
+                var row = results.rows[i];
+                var result = {
+                    artist: row.artist,
+                    artistDisambiguation: row.artistDisambiguation
+                };
+                artists.push(result);
+            }
+            return artists;
+        });
+    },
+
+    artistAlbums: function (params) {
+        var id = params.id;
+        var artist = params.artist;
+        var artistDisambiguation = params.artistDisambiguation;
+
+        var that = this;
+
+        var t = new Tomahawk.Collection.Transaction(this, id);
+        return t.beginTransaction().then(function () {
+            return t.sqlSelect("artists", ["_id"], {
+                artist: artist,
+                artistDisambiguation: artistDisambiguation
+            });
+        }).then(function (results) {
+            var artistId = results.rows[0]._id;
+            return t.sqlSelect("artistAlbums", ["albumId"], {
+                artistId: artistId
+            });
+        }).then(function (results) {
+            var promises = [];
+            for (var i = 0; i < results.rows.length; i++) {
+                (function (dbAlbumId) {
+                    promises.push(
+                        that.albums(params, {
+                            "_id": dbAlbumId.albumId
+                        }).then(function (resultsArray) {
+                            return resultsArray[0];
+                        })
+                    );
+                })(results.rows[i]);
+            }
+            return Promise.all(promises);
+        });
+    },
+
+    albumTracks: function (params) {
+        var id = params.id;
+        var albumArtist = params.albumArtist;
+        var albumArtistDisambiguation = params.albumArtistDisambiguation;
+        var album = params.album;
+
+        var that = this;
+
+        var t = new Tomahawk.Collection.Transaction(this, id);
+        return t.beginTransaction().then(function () {
+            return t.sqlSelect("albumArtists", ["_id"], {
+                albumArtist: albumArtist,
+                albumArtistDisambiguation: albumArtistDisambiguation
+            });
+        }).then(function (results) {
+            var albumArtistId = results.rows[0]._id;
+            return t.sqlSelect("albums", ["_id"], {
+                album: album,
+                albumArtistId: albumArtistId
+            });
+        }).then(function (results) {
+            var albumId = results.rows[0]._id;
+            return that.tracks(params, {
+                albumId: albumId
+            });
+        });
     }
+
 };
 
 

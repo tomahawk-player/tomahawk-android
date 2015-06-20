@@ -49,7 +49,6 @@ import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.dialogs.AskAccessConfigDialog;
 import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
-import org.tomahawk.tomahawk_android.fragments.CloudCollectionFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
@@ -292,12 +291,12 @@ public class TomahawkMainActivity extends ActionBarActivity
             TomahawkMenuAdapter.ResourceHolder holder =
                     (TomahawkMenuAdapter.ResourceHolder) mDrawerList.getAdapter().getItem(position);
             Bundle bundle = new Bundle();
-            if (holder.isCloudCollection) {
-                bundle.putString(TomahawkFragment.COLLECTION_ID, holder.id);
+            if (holder.collection != null) {
+                bundle.putString(TomahawkFragment.COLLECTION_ID, holder.collection.getId());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_STATIC);
                 FragmentUtils
-                        .replace(TomahawkMainActivity.this, CloudCollectionFragment.class, bundle);
+                        .replace(TomahawkMainActivity.this, CollectionPagerFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_USERPAGE)) {
                 if (authenticatorUtils.getLoggedInUser() == null) {
                     return;
@@ -510,6 +509,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        PipeLine.getInstance();
 
         UserCollection userCollection = (UserCollection) CollectionManager.getInstance()
                 .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
@@ -1037,10 +1038,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 ScriptResolverCollection resolverCollection =
                         (ScriptResolverCollection) collection;
                 holder = new TomahawkMenuAdapter.ResourceHolder();
-                holder.id = resolverCollection.getId();
-                holder.title = resolverCollection.getName();
                 holder.collection = resolverCollection;
-                holder.isCloudCollection = true;
                 holders.add(holder);
             }
         }

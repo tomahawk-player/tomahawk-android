@@ -17,8 +17,10 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -47,6 +49,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ViewHolder {
@@ -192,7 +195,11 @@ public class ViewHolder {
                 artist.getImage(), Image.getSmallImageSize(), true);
     }
 
-    public void fillView(Album album) {
+    public void fillView(final Album album, Collection collection) {
+        if (collection == null) {
+            collection =
+                    CollectionManager.getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+        }
         TextView textView1 = (TextView) findViewById(R.id.textview1);
         textView1.setText(album.getName());
         TextView textView2 = (TextView) findViewById(R.id.textview2);
@@ -200,18 +207,16 @@ public class ViewHolder {
         ImageView imageView1 = (ImageView) findViewById(R.id.imageview1);
         TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView1,
                 album.getImage(), Image.getSmallImageSize(), false);
-        int songCount = CollectionManager.getInstance().getCollection(
-                TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbumTracks(album, false).size();
-        if (songCount == 0) {
-            songCount = CollectionManager.getInstance().getCollection(
-                    TomahawkApp.PLUGINNAME_HATCHET).getAlbumTracks(album, false).size();
-        }
-        TextView textView3 = (TextView) findViewById(R.id.textview3);
-        if (songCount > 0) {
-            textView3.setVisibility(View.VISIBLE);
-            textView3.setText(TomahawkApp.getContext().getResources()
-                    .getQuantityString(R.plurals.songs_with_count, songCount, songCount));
-        }
+        final TextView textView3 = (TextView) findViewById(R.id.textview3);
+        collection.getAlbumTracks(album, false).done(new DoneCallback<Set<Query>>() {
+            @Override
+            public void onDone(Set<Query> result) {
+                textView3.setVisibility(View.VISIBLE);
+                textView3.setText(TomahawkApp.getContext().getResources()
+                        .getQuantityString(R.plurals.songs_with_count, result.size(),
+                                result.size()));
+            }
+        });
     }
 
     public void fillView(Resolver resolver) {

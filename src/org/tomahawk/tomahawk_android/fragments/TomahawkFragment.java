@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -44,14 +45,18 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
+import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AbsListView;
+import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -447,17 +452,24 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 collectionId, false);
     }
 
+    public void fillAdapter(Segment segment, Collection collection) {
+        List<Segment> segments = new ArrayList<>();
+        segments.add(segment);
+        fillAdapter(segments, null, collection);
+    }
+
     public void fillAdapter(Segment segment) {
         List<Segment> segments = new ArrayList<>();
         segments.add(segment);
-        fillAdapter(segments, null);
+        fillAdapter(segments, null, null);
     }
 
     public void fillAdapter(List<Segment> segments) {
-        fillAdapter(segments, null);
+        fillAdapter(segments, null, null);
     }
 
-    public void fillAdapter(final List<Segment> segments, final View headerSpacerForwardView) {
+    public void fillAdapter(final List<Segment> segments, final View headerSpacerForwardView,
+            final Collection collection) {
         final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (activity != null && getListView() != null) {
             new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -466,7 +478,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     if (mTomahawkListAdapter == null) {
                         LayoutInflater inflater = activity.getLayoutInflater();
                         TomahawkListAdapter adapter = new TomahawkListAdapter(activity, inflater,
-                                segments, getListView(), TomahawkFragment.this);
+                                segments, collection, getListView(), TomahawkFragment.this);
                         TomahawkFragment.super.setListAdapter(adapter);
                         mTomahawkListAdapter = adapter;
                         getListView().setOnItemClickListener(mTomahawkListAdapter);
@@ -642,6 +654,31 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 }
             }
         }
+    }
+
+    protected AdapterView.OnItemSelectedListener constructDropdownListener(final String prefKey) {
+        return new AdapterView.OnItemSelectedListener() {
+            @SuppressLint("CommitPrefEdits")
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (getDropdownPos(prefKey) != position) {
+                    SharedPreferences preferences = PreferenceManager
+                            .getDefaultSharedPreferences(TomahawkApp.getContext());
+                    preferences.edit().putInt(prefKey, position).commit();
+                    updateAdapter();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        };
+    }
+
+    protected int getDropdownPos(String prefKey) {
+        SharedPreferences preferences = PreferenceManager
+                .getDefaultSharedPreferences(TomahawkApp.getContext());
+        return preferences.getInt(prefKey, 0);
     }
 }
 

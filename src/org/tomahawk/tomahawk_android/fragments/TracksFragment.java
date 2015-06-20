@@ -17,12 +17,14 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.collection.Track;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
@@ -32,14 +34,12 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.view.View;
-import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Track}s inside its {@link
@@ -112,100 +112,115 @@ public class TracksFragment extends TomahawkFragment {
 
         mResolveQueriesHandler.removeCallbacksAndMessages(null);
         mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
-        ArrayList queries = new ArrayList();
         if (mAlbum != null) {
-            queries.addAll(CollectionUtils.getAlbumTracks(mAlbum, mCollection));
-            Segment segment = new Segment(mAlbum.getArtist().getName(), queries);
-            if (CollectionUtils.allFromOneArtist(queries)) {
-                segment.setHideArtistName(true);
-                segment.setShowDuration(true);
-            }
-            segment.setShowNumeration(true, 1);
-            fillAdapter(segment);
-            showContentHeader(mAlbum);
-            showAlbumFancyDropDown();
+            CollectionUtils.getAlbumTracks(mAlbum, mCollection).done(
+                    new DoneCallback<Set<Query>>() {
+                        @Override
+                        public void onDone(Set<Query> queries) {
+                            mShownQueries = new ArrayList<>(queries);
+                            Segment segment = new Segment(mAlbum.getArtist().getName(),
+                                    new ArrayList<Object>(queries));
+                            if (CollectionUtils.allFromOneArtist(queries)) {
+                                segment.setHideArtistName(true);
+                                segment.setShowDuration(true);
+                            }
+                            segment.setShowNumeration(true, 1);
+                            fillAdapter(segment);
+                            showContentHeader(mAlbum);
+                            showAlbumFancyDropDown();
+                        }
+                    });
         } else if (mQuery != null) {
-            queries.add(mQuery);
-            Segment segment = new Segment(queries);
+            mShownQueries = new ArrayList<>();
+            mShownQueries.add(mQuery);
+            Segment segment = new Segment(new ArrayList<Object>(mShownQueries));
             segment.setShowDuration(true);
             fillAdapter(segment);
             showContentHeader(mQuery);
             showFancyDropDown(mQuery);
         } else if (mQueryArray != null) {
-            queries.addAll(mQueryArray);
-            Segment segment = new Segment(queries);
+            mShownQueries = new ArrayList<>();
+            mShownQueries.addAll(mQueryArray);
+            Segment segment = new Segment(new ArrayList<Object>(mShownQueries));
             segment.setShowDuration(true);
             fillAdapter(segment);
         } else {
-            queries.addAll(CollectionManager.getInstance()
-                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getQueries());
-            SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-            List<Integer> dropDownItems = new ArrayList<>();
-            dropDownItems.add(R.string.collection_dropdown_recently_added);
-            dropDownItems.add(R.string.collection_dropdown_alpha);
-            dropDownItems.add(R.string.collection_dropdown_alpha_artists);
-            AdapterView.OnItemSelectedListener spinnerClickListener
-                    = new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position,
-                        long id) {
-                    SharedPreferences preferences =
-                            PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-                    int initialPos = preferences.getInt(COLLECTION_TRACKS_SPINNER_POSITION, 0);
-                    if (initialPos != position) {
-                        preferences.edit().putInt(COLLECTION_TRACKS_SPINNER_POSITION, position)
-                                .commit();
-                        updateAdapter();
-                    }
-                }
+            Collection collection = mCollection != null ? mCollection
+                    : CollectionManager.getInstance().getCollection(
+                            TomahawkApp.PLUGINNAME_USERCOLLECTION);
+            collection.getQueries().done(
+                    new DoneCallback<Set<Query>>() {
+                        @Override
+                        public void onDone(Set<Query> queries) {
+                            mShownQueries = new ArrayList<>(queries);
+                            fillAdapter(
+                                    new Segment(getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION),
+                                            constructDropdownItems(),
+                                            constructDropdownListener(
+                                                    COLLECTION_TRACKS_SPINNER_POSITION),
+                                            new ArrayList<Object>(sortAlbums(mShownQueries))));
+                            showContentHeader(mAlbum);
+                            showAlbumFancyDropDown();
+                        }
+                    });
+        }
+    }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                }
-            };
-            int initialPos = preferences.getInt(COLLECTION_TRACKS_SPINNER_POSITION, 0);
-            if (initialPos == 0) {
-                Collection userColl = CollectionManager.getInstance().getCollection(
-                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
+    private List<Integer> constructDropdownItems() {
+        List<Integer> dropDownItems = new ArrayList<>();
+        dropDownItems.add(R.string.collection_dropdown_recently_added);
+        dropDownItems.add(R.string.collection_dropdown_alpha);
+        dropDownItems.add(R.string.collection_dropdown_alpha_artists);
+        return dropDownItems;
+    }
+
+    private List<Query> sortAlbums(List<Query> queries) {
+        switch (getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION)) {
+            case 0:
+                UserCollection userColl = (UserCollection) CollectionManager.getInstance()
+                        .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
                 Collections.sort(queries, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
                         userColl.getTrackAddedTimeStamps()));
-            } else if (initialPos == 1) {
+                break;
+            case 1:
                 Collections.sort(queries, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_ALPHA));
-            } else if (initialPos == 2) {
+                break;
+            case 2:
                 Collections.sort(queries, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
-            }
-            fillAdapter(new Segment(initialPos, dropDownItems, spinnerClickListener, queries));
+                break;
         }
-
-        mShownQueries = queries;
+        return queries;
     }
 
     private void showAlbumFancyDropDown() {
         if (mAlbum != null) {
-            final List<Collection> collections =
-                    CollectionManager.getInstance().getAvailableCollections(mAlbum);
-            int initialSelection = 0;
-            for (int i = 0; i < collections.size(); i++) {
-                if (collections.get(i) == mCollection) {
-                    initialSelection = i;
-                    break;
-                }
-            }
-            showFancyDropDown(mAlbum, initialSelection,
-                    FancyDropDown.convertToDropDownItemInfo(collections),
-                    new FancyDropDown.DropDownListener() {
+            CollectionManager.getInstance().getAvailableCollections(mAlbum).done(
+                    new DoneCallback<List<Collection>>() {
                         @Override
-                        public void onDropDownItemSelected(int position) {
-                            mCollection = collections.get(position);
-                            updateAdapter();
-                        }
+                        public void onDone(final List<Collection> result) {
+                            int initialSelection = 0;
+                            for (int i = 0; i < result.size(); i++) {
+                                if (result.get(i) == mCollection) {
+                                    initialSelection = i;
+                                    break;
+                                }
+                            }
+                            showFancyDropDown(mAlbum, initialSelection,
+                                    FancyDropDown.convertToDropDownItemInfo(result),
+                                    new FancyDropDown.DropDownListener() {
+                                        @Override
+                                        public void onDropDownItemSelected(int position) {
+                                            mCollection = result.get(position);
+                                            updateAdapter();
+                                        }
 
-                        @Override
-                        public void onCancel() {
+                                        @Override
+                                        public void onCancel() {
+                                        }
+                                    });
                         }
                     });
         }
