@@ -17,10 +17,12 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
@@ -29,15 +31,13 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.View;
-import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Artist}s inside its {@link
@@ -69,22 +69,30 @@ public class ArtistsFragment extends TomahawkFragment {
      * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, Object item) {
-        if (item instanceof Artist) {
-            Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.ARTIST, ((Artist) item).getCacheKey());
-            if (mCollection != null
-                    && mCollection.getArtistAlbums((Artist) item, false).size() > 0) {
-                bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
-            } else {
-                bundle.putString(TomahawkFragment.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
-            }
-            bundle.putInt(CONTENT_HEADER_MODE,
-                    ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
-            bundle.putLong(CONTAINER_FRAGMENT_ID,
-                    TomahawkMainActivity.getSessionUniqueId());
-            FragmentUtils.replace((TomahawkMainActivity) getActivity(), ArtistPagerFragment.class,
-                    bundle);
+    public void onItemClick(View view, final Object item) {
+        if (item instanceof Artist && mCollection != null) {
+            mCollection.hasArtistAlbums((Artist) item).done(
+                    new DoneCallback<Boolean>() {
+                        @Override
+                        public void onDone(Boolean result) {
+                            Bundle bundle = new Bundle();
+                            bundle.putString(TomahawkFragment.ARTIST,
+                                    ((Artist) item).getCacheKey());
+                            if (result) {
+                                bundle.putString(TomahawkFragment.COLLECTION_ID,
+                                        mCollection.getId());
+                            } else {
+                                bundle.putString(TomahawkFragment.COLLECTION_ID,
+                                        TomahawkApp.PLUGINNAME_HATCHET);
+                            }
+                            bundle.putInt(CONTENT_HEADER_MODE,
+                                    ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+                            bundle.putLong(CONTAINER_FRAGMENT_ID,
+                                    TomahawkMainActivity.getSessionUniqueId());
+                            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                                    ArtistPagerFragment.class, bundle);
+                        }
+                    });
         }
     }
 
@@ -98,7 +106,8 @@ public class ArtistsFragment extends TomahawkFragment {
             return;
         }
 
-        List artists = new ArrayList<>();
+        final List<Artist> artists = new ArrayList<>();
+
         if (mShowMode == SHOW_MODE_STARREDARTISTS) {
             ArrayList<Artist> starredArtists = DatabaseHelper.getInstance().getStarredArtists();
             for (Artist artist : starredArtists) {
@@ -108,58 +117,58 @@ public class ArtistsFragment extends TomahawkFragment {
                 }
             }
             artists.addAll(starredArtists);
-            fillAdapter(new Segment(artists));
+            fillAdapter(new Segment(new ArrayList<Object>(artists)));
         } else if (mArtistArray != null) {
             artists.addAll(mArtistArray);
-            fillAdapter(new Segment(artists));
+            fillAdapter(new Segment(new ArrayList<Object>(artists)));
         } else {
-            artists.addAll(CollectionManager.getInstance()
-                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getArtists());
-            for (Artist artist : DatabaseHelper.getInstance().getStarredArtists()) {
-                if (!artists.contains(artist)) {
-                    artists.add(artist);
-                }
-            }
-            SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-            List<Integer> dropDownItems = new ArrayList<>();
-            dropDownItems.add(R.string.collection_dropdown_recently_added);
-            dropDownItems.add(R.string.collection_dropdown_alpha);
-            AdapterView.OnItemSelectedListener spinnerClickListener
-                    = new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position,
-                        long id) {
-                    SharedPreferences preferences =
-                            PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-                    int initialPos = preferences.getInt(COLLECTION_ARTISTS_SPINNER_POSITION, 0);
-                    if (initialPos != position) {
-                        preferences.edit().putInt(COLLECTION_ARTISTS_SPINNER_POSITION, position)
-                                .commit();
-                        updateAdapter();
-                    }
-                }
-
-                @Override
-                public void onNothingSelected(AdapterView<?> parent) {
-                }
-            };
-            int initialPos = preferences.getInt(COLLECTION_ARTISTS_SPINNER_POSITION, 0);
-            if (initialPos == 0) {
-                Collection userColl = CollectionManager.getInstance().getCollection(
+            Collection collection;
+            if (mCollection != null) {
+                collection = mCollection;
+            } else {
+                collection = CollectionManager.getInstance().getCollection(
                         TomahawkApp.PLUGINNAME_USERCOLLECTION);
+                artists.addAll(DatabaseHelper.getInstance().getStarredArtists());
+            }
+            collection.getArtists().done(
+                    new DoneCallback<Set<Artist>>() {
+                        @Override
+                        public void onDone(Set<Artist> result) {
+                            artists.addAll(sortAlbums(new ArrayList<>(result)));
+                            fillAdapter(
+                                    new Segment(getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
+                                            constructDropdownItems(),
+                                            constructDropdownListener(
+                                                    COLLECTION_ARTISTS_SPINNER_POSITION),
+                                            new ArrayList<Object>(artists),
+                                            R.integer.grid_column_count, R.dimen.padding_superlarge,
+                                            R.dimen.padding_superlarge));
+                        }
+                    });
+        }
+    }
+
+    private List<Integer> constructDropdownItems() {
+        List<Integer> dropDownItems = new ArrayList<>();
+        dropDownItems.add(R.string.collection_dropdown_recently_added);
+        dropDownItems.add(R.string.collection_dropdown_alpha);
+        return dropDownItems;
+    }
+
+    private List<Artist> sortAlbums(List<Artist> artists) {
+        switch (getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION)) {
+            case 0:
+                UserCollection userColl = (UserCollection) CollectionManager.getInstance()
+                        .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
                 Collections.sort(artists, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
                         userColl.getArtistAddedTimeStamps()));
-            } else if (initialPos == 1) {
+                break;
+            case 1:
                 Collections.sort(artists, new TomahawkListItemComparator(
                         TomahawkListItemComparator.COMPARE_ALPHA));
-            }
-            List<Segment> segments = new ArrayList<>();
-            segments.add(new Segment(initialPos, dropDownItems, spinnerClickListener, artists,
-                    R.integer.grid_column_count, R.dimen.padding_superlarge,
-                    R.dimen.padding_superlarge));
-            fillAdapter(new Segment(artists));
+                break;
         }
+        return artists;
     }
 }

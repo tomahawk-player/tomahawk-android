@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This class holds the metadata retrieved via Hatchet.
  */
-public class HatchetCollection extends Collection {
+public class HatchetCollection extends NativeCollection {
 
     private final ConcurrentHashMap<Artist, List<Query>> mArtistTopHits
             = new ConcurrentHashMap<>();

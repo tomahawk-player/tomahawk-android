@@ -20,6 +20,10 @@ package org.tomahawk.libtomahawk.collection;
 
 import com.google.common.collect.Sets;
 
+import org.jdeferred.Deferred;
+import org.jdeferred.DonePipe;
+import org.jdeferred.Promise;
+import org.jdeferred.multiple.MultipleResults;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
@@ -29,6 +33,8 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.ADeferredObject;
+import org.tomahawk.libtomahawk.utils.BetterDeferredManager;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -547,25 +553,46 @@ public class CollectionManager {
         }
     }
 
-    public List<Collection> getAvailableCollections(Album album) {
-        List<Collection> collections = new ArrayList<>();
-        for (Collection collection : mCollections.values()) {
-            if (TomahawkApp.PLUGINNAME_HATCHET.equals(collection.getId())
-                    || collection.getAlbumTracks(album, false).size() > 0) {
-                collections.add(collection);
-            }
-        }
-        return collections;
+    public Promise<List<Collection>, Throwable, Object> getAvailableCollections(Artist artist) {
+        return getAvailableCollections((Object) artist);
     }
 
-    public List<Collection> getAvailableCollections(Artist artist) {
-        List<Collection> collections = new ArrayList<>();
-        for (Collection collection : mCollections.values()) {
-            if (TomahawkApp.PLUGINNAME_HATCHET.equals(collection.getId())
-                    || collection.getArtistAlbums(artist, false).size() > 0) {
+    public Promise<List<Collection>, Throwable, Object> getAvailableCollections(Album album) {
+        return getAvailableCollections((Object) album);
+    }
+
+    private Promise<List<Collection>, Throwable, Object> getAvailableCollections(Object object) {
+        final List<Collection> collections = new ArrayList<>();
+        final List<Deferred> deferreds = new ArrayList<>();
+        for (final Collection collection : mCollections.values()) {
+            if (!collection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET)) {
+                if (object instanceof Album) {
+                    deferreds.add(collection.hasAlbumTracks((Album) object));
+                } else {
+                    deferreds.add(collection.hasArtistAlbums((Artist) object));
+                }
                 collections.add(collection);
             }
         }
-        return collections;
+        BetterDeferredManager dm = new BetterDeferredManager();
+        return dm.when(deferreds).then(
+                new DonePipe<MultipleResults, List<Collection>, Throwable, Object>() {
+                    @Override
+                    public Promise<List<Collection>, Throwable, Object> pipeDone(
+                            MultipleResults result) {
+                        List<Collection> availableCollections = new ArrayList<>();
+                        for (int i = 0; i < result.size(); i++) {
+                            Object boolResult = result.get(i).getResult();
+                            if ((Boolean) boolResult) {
+                                availableCollections.add(collections.get(i));
+                            }
+                        }
+                        availableCollections
+                                .add(mCollections.get(TomahawkApp.PLUGINNAME_HATCHET));
+                        return new ADeferredObject<List<Collection>, Throwable, Object>()
+                                .resolve(availableCollections);
+                    }
+                }
+        );
     }
 }

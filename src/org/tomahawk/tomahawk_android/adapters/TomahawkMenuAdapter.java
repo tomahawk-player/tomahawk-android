@@ -17,9 +17,11 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverCollectionMetaData;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -58,8 +60,6 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
         public Image image;
 
         public User user;
-
-        public boolean isCloudCollection;
     }
 
     /**
@@ -123,13 +123,20 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
             return contentHeaderView;
         } else {
             View view = mLayoutInflater.inflate(R.layout.single_line_list_menu, parent, false);
-            TextView textView = (TextView) view
+            final TextView textView = (TextView) view
                     .findViewById(R.id.single_line_list_menu_textview);
-            ImageView imageView = (ImageView) view.findViewById(R.id.icon_menu_imageview);
-            textView.setText(holder.title.toUpperCase());
+            final ImageView imageView = (ImageView) view.findViewById(R.id.icon_menu_imageview);
             if (holder.collection != null) {
+                holder.collection.getMetaData().done(
+                        new DoneCallback<ScriptResolverCollectionMetaData>() {
+                            @Override
+                            public void onDone(ScriptResolverCollectionMetaData result) {
+                                textView.setText(result.prettyname);
+                            }
+                        });
                 holder.collection.loadIcon(imageView, false);
             } else {
+                textView.setText(holder.title.toUpperCase());
                 TomahawkUtils.loadDrawableIntoImageView(mActivity, imageView, holder.iconResId);
             }
             return view;
@@ -147,7 +154,7 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
      */
     @Override
     public View getHeaderView(int position, View convertView, ViewGroup parent) {
-        if (mResourceHolders.get(position).isCloudCollection) {
+        if (mResourceHolders.get(position).collection != null) {
             View headerView =
                     mLayoutInflater.inflate(R.layout.menu_header_cloudcollection, parent, false);
             TextView textView = (TextView) headerView.findViewById(R.id.textview1);
@@ -168,7 +175,7 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
      */
     @Override
     public long getHeaderId(int position) {
-        if (mResourceHolders.get(position).isCloudCollection) {
+        if (mResourceHolders.get(position).collection != null) {
             return 1;
         }
         return 0;

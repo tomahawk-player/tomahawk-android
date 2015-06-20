@@ -17,15 +17,18 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.jdeferred.Deferred;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Set;
 
 public class CollectionUtils {
 
-    public static ArrayList<Album> getArtistAlbums(Artist artist, Collection collection) {
+    public static Deferred<Set<Album>, String, Object> getArtistAlbums(Artist artist,
+            Collection collection) {
         if (collection != null) {
             return collection.getArtistAlbums(artist, false);
         } else {
@@ -35,17 +38,8 @@ public class CollectionUtils {
         }
     }
 
-    public static ArrayList<Query> getArtistTracks(Artist artist, Collection collection) {
-        if (collection != null) {
-            return collection.getArtistTracks(artist, false);
-        } else {
-            HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
-                    .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
-            return hatchetCollection.getArtistTracks(artist, false);
-        }
-    }
-
-    public static ArrayList<Query> getAlbumTracks(Album album, Collection collection) {
+    public static Deferred<Set<Query>, String, Object> getAlbumTracks(Album album,
+            Collection collection) {
         if (collection != null) {
             return collection.getAlbumTracks(album, true);
         } else {
@@ -61,13 +55,14 @@ public class CollectionUtils {
         return hatchetCollection.getArtistTopHits(artist);
     }
 
-    public static boolean allFromOneArtist(ArrayList<TomahawkListItem> items) {
+    public static boolean allFromOneArtist(java.util.Collection<Query> items) {
         if (items.size() < 2) {
             return true;
         }
-        TomahawkListItem item = items.get(0);
+        Iterator<Query> iterator = items.iterator();
+        Query item = iterator.next();
         for (int i = 1; i < items.size(); i++) {
-            TomahawkListItem itemToCompare = items.get(i);
+            Query itemToCompare = iterator.next();
             if (itemToCompare.getArtist() != item.getArtist()) {
                 return false;
             }

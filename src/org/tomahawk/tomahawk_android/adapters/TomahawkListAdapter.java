@@ -25,6 +25,7 @@ import com.daimajia.swipe.util.Attributes;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -73,6 +74,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private int mRowCount;
 
+    private Collection mCollection;
+
     private final MultiColumnClickListener mClickListener;
 
     private final LayoutInflater mLayoutInflater;
@@ -94,6 +97,25 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     private ProgressBar mProgressBar;
 
     private final SwipeItemAdapterMangerImpl mItemManager = new SwipeItemAdapterMangerImpl(this);
+
+    /**
+     * Constructs a new {@link TomahawkListAdapter}.
+     */
+    public TomahawkListAdapter(TomahawkMainActivity activity, LayoutInflater layoutInflater,
+            List<Segment> segments, Collection collection, StickyListHeadersListView listView,
+            MultiColumnClickListener clickListener) {
+        mActivity = activity;
+        mLayoutInflater = layoutInflater;
+        mClickListener = clickListener;
+        mSegments = segments;
+        mRowCount = 0;
+        for (Segment segment : mSegments) {
+            mRowCount += segment.size();
+        }
+        updateFooterSpacerHeight(listView);
+        mItemManager.setMode(Attributes.Mode.Single);
+        mCollection = collection;
+    }
 
     /**
      * Constructs a new {@link TomahawkListAdapter}.
@@ -140,15 +162,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         }
         updateFooterSpacerHeight(listView);
         notifyDataSetChanged();
-    }
-
-    /**
-     * Set the complete list of {@link Segment}
-     */
-    public void setSegments(Segment segment, StickyListHeadersListView listView) {
-        ArrayList<Segment> segments = new ArrayList<>();
-        segments.add(segment);
-        setSegments(segments, listView);
     }
 
     public void setShowContentHeaderSpacer(int headerSpacerHeight,
@@ -377,7 +390,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     viewHolder.fillView((Artist) item);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_album
                         || viewHolder.mLayoutId == R.layout.list_item_album) {
-                    viewHolder.fillView((Album) item);
+                    viewHolder.fillView((Album) item, mCollection);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
                     viewHolder.fillView((Resolver) item);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_playlist) {

@@ -202,7 +202,26 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
     protected void setupPager(List<FragmentInfoList> fragmentInfoLists, int initialPage,
             String selectorPosStorageKey) {
-        if (getView()==null){
+        if (getView() == null) {
+            return;
+        }
+
+        fillAdapter(fragmentInfoLists, initialPage);
+
+        mPageIndicator = (PageIndicator) getView().findViewById(R.id.page_indicator);
+        mPageIndicator.setVisibility(View.VISIBLE);
+        mPageIndicator.setup(mViewPager, fragmentInfoLists,
+                getActivity().findViewById(R.id.sliding_layout),
+                (Selector) getView().findViewById(R.id.selector), selectorPosStorageKey);
+        if (((TomahawkMainActivity) getActivity()).getSlidingUpPanelLayout().isPanelHidden()) {
+            onSlidingLayoutHidden();
+        } else {
+            onSlidingLayoutShown();
+        }
+    }
+
+    protected void fillAdapter(List<FragmentInfoList> fragmentInfoLists, int initialPage) {
+        if (getView() == null) {
             return;
         }
 
@@ -210,27 +229,18 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         for (FragmentInfoList list : fragmentInfoLists) {
             currentFragmentInfos.add(list.getCurrentFragmentInfo());
         }
-        TomahawkPagerAdapter pagerAdapter = new TomahawkPagerAdapter(getChildFragmentManager(),
-                currentFragmentInfos, ((Object) this).getClass(), mContainerFragmentId);
         mViewPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
         mViewPager.setOnPageChangeListener(this);
-        if (initialPage < 0) {
-            initialPage = mViewPager.getCurrentItem();
-        }
-        mViewPager.setAdapter(pagerAdapter);
-
-        mPageIndicator = (PageIndicator) getView().findViewById(R.id.page_indicator);
-        mPageIndicator.setVisibility(View.VISIBLE);
-        mPageIndicator.setup(mViewPager, fragmentInfoLists,
-                getActivity().findViewById(R.id.sliding_layout),
-                (Selector) getView().findViewById(R.id.selector), selectorPosStorageKey);
         if (initialPage >= 0) {
             mViewPager.setCurrentItem(initialPage);
         }
-        if (((TomahawkMainActivity) getActivity()).getSlidingUpPanelLayout().isPanelHidden()) {
-            onSlidingLayoutHidden();
+        if (mViewPager.getAdapter() == null) {
+            TomahawkPagerAdapter pagerAdapter = new TomahawkPagerAdapter(getChildFragmentManager(),
+                    currentFragmentInfos, ((Object) this).getClass(), mContainerFragmentId);
+            mViewPager.setAdapter(pagerAdapter);
         } else {
-            onSlidingLayoutShown();
+            TomahawkPagerAdapter pagerAdapter = (TomahawkPagerAdapter) mViewPager.getAdapter();
+            pagerAdapter.changeFragments(currentFragmentInfos);
         }
     }
 

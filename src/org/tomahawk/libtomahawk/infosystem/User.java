@@ -32,7 +32,9 @@ import android.util.SparseArray;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -75,7 +77,7 @@ public class User implements TomahawkListItem {
 
     private TreeMap<User, String> mFollowers;
 
-    private List<Album> mStarredAlbums = new ArrayList<>();
+    private Set<Album> mStarredAlbums = new HashSet<>();
 
     private List<Playlist> mPlaylists;
 
@@ -261,11 +263,11 @@ public class User implements TomahawkListItem {
         mFollowers = followers;
     }
 
-    public List<Album> getStarredAlbums() {
+    public Set<Album> getStarredAlbums() {
         return mStarredAlbums;
     }
 
-    public void setStarredAlbums(List<Album> starredAlbums) {
+    public void setStarredAlbums(Set<Album> starredAlbums) {
         mStarredAlbums = starredAlbums;
     }
 

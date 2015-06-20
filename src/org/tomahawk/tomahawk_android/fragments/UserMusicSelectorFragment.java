@@ -63,15 +63,6 @@ public class UserMusicSelectorFragment extends SelectorFragment {
 
         List<FragmentInfo> fragmentInfos = new ArrayList<>();
         FragmentInfo fragmentInfo = new FragmentInfo();
-        fragmentInfo.mClass = UserCollectionFragment.class;
-        fragmentInfo.mTitle = getString(R.string.drawer_title_collection);
-        fragmentInfo.mBundle = new Bundle();
-        fragmentInfo.mBundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-        fragmentInfo.mIconResId = R.drawable.ic_action_collection;
-        fragmentInfos.add(fragmentInfo);
-
-        fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = PlaylistEntriesFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_playlists);
         fragmentInfo.mBundle = new Bundle();

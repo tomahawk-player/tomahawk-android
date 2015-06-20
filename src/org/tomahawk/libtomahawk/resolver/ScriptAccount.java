@@ -20,7 +20,6 @@ package org.tomahawk.libtomahawk.resolver;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import org.tomahawk.libtomahawk.resolver.models.ScriptResolverCollectionMetaData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptCollectionPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptInfoPluginFactory;
@@ -40,6 +39,7 @@ import android.util.Log;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -80,9 +80,7 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
 
     private ScriptResolverMetaData mMetaData;
 
-    public ScriptResolverCollectionMetaData mCollectionMetaData;
-
-    public String mCollectionIconPath;
+    private Map<String, FuzzyIndex> mFuzzyIndexMap = new HashMap<>();
 
     public ScriptAccount(String path) {
         mPath = path;
@@ -199,7 +197,7 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         String rawJsonString = GsonHelper.get().toJson(config);
         PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext())
                 .edit().putString(buildPreferenceKey(), rawJsonString).commit();
-        mScriptResolver.resolverSaveUserConfig();
+        mScriptResolver.saveUserConfig();
     }
 
     /**
@@ -353,6 +351,26 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
                 + "'" + StringEscapeUtils.escapeJavaScript(headersString) + "',"
                 + status + ","
                 + "'" + StringEscapeUtils.escapeJavaScript(statusText) + "');");
+    }
+
+    public boolean hasFuzzyIndex(String id) {
+        return mFuzzyIndexMap.get(id) != null;
+    }
+
+    public FuzzyIndex getFuzzyIndex(String id) {
+        return mFuzzyIndexMap.get(id);
+    }
+
+    public void createFuzzyIndex(String id) {
+        if (mFuzzyIndexMap.get(id) != null) {
+            mFuzzyIndexMap.get(id).close();
+        }
+        FuzzyIndex fuzzyIndex = new FuzzyIndex();
+        String path = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
+                + File.separator + mName + "." + id + ".lucene";
+        if (fuzzyIndex.create(path, true)) {
+            mFuzzyIndexMap.put(id, fuzzyIndex);
+        }
     }
 
 }

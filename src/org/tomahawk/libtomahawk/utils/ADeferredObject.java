@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,22 +15,15 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk.resolver.models;
+package org.tomahawk.libtomahawk.utils;
 
-public class ScriptResolverCollectionMetaData {
+import org.jdeferred.android.AndroidDeferredObject;
+import org.jdeferred.impl.DeferredObject;
 
-    public String id;
+public class ADeferredObject<D, F, P> extends AndroidDeferredObject<D, F, P> {
 
-    public String prettyname;
-
-    public String description;
-
-    public String iconfile;
-
-    public int trackcount;
-
-    public int[] capabilities;
-
-    public ScriptResolverCollectionMetaData() {
+    public ADeferredObject() {
+        super(new DeferredObject<D, F, P>());
     }
+
 }

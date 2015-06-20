@@ -23,7 +23,6 @@ import com.google.gson.JsonObject;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
-import org.tomahawk.libtomahawk.resolver.models.ScriptResolverCollectionMetaData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverConfigUi;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverSettings;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverStreamUrlResult;
@@ -37,7 +36,6 @@ import android.os.Message;
 import android.util.Log;
 import android.widget.ImageView;
 
-import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.KeyManagementException;
@@ -86,10 +84,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     private boolean mUrlLookup;
 
     private boolean mConfigTestable;
-
-    private FuzzyIndex mFuzzyIndex;
-
-    private String mFuzzyIndexPath;
 
     private static final int TIMEOUT_HANDLER_MSG = 1337;
 
@@ -141,16 +135,8 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                 setEnabled(false);
             }
         }
-        mFuzzyIndexPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
-                + File.separator + getId() + ".lucene";
-        FuzzyIndex fuzzyIndex = new FuzzyIndex();
-        if (fuzzyIndex.create(mFuzzyIndexPath, false)) {
-            Log.d(TAG, "Found a fuzzy index at: " + mFuzzyIndexPath);
-            mFuzzyIndex = fuzzyIndex;
-        } else {
-            Log.d(TAG, "Didn't find a fuzzy index");
-        }
-        resolverInit();
+        settings();
+        init();
     }
 
     /**
@@ -213,20 +199,14 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     /**
      * This method calls the js function resolver.init().
      */
-    private void resolverInit() {
-        ScriptJob.start(mScriptObject, "init", new ScriptJob.ResultsEmptyCallback() {
-            @Override
-            public void onReportResults() {
-                resolverSettings();
-                collection();
-            }
-        });
+    private void init() {
+        ScriptJob.start(mScriptObject, "init");
     }
 
     /**
      * This method tries to get the {@link Resolver}'s settings.
      */
-    private void resolverSettings() {
+    private void settings() {
         ScriptJob.start(mScriptObject, "settings",
                 new ScriptJob.ResultsCallback<ScriptResolverSettings>(
                         ScriptResolverSettings.class) {
@@ -244,7 +224,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     /**
      * This method tries to save the {@link Resolver}'s UserConfig.
      */
-    public void resolverSaveUserConfig() {
+    public void saveUserConfig() {
         ScriptJob.start(mScriptObject, "saveUserConfig");
     }
 
@@ -276,31 +256,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                         event.mResult = results;
                         EventBus.getDefault().post(event);
                         mStopped = true;
-                    }
-                });
-    }
-
-    public void collection() {
-        ScriptJob.start(mScriptObject, "collection",
-                new ScriptJob.ResultsCallback<ScriptResolverCollectionMetaData>(
-                        ScriptResolverCollectionMetaData.class) {
-                    public void onReportResults(ScriptResolverCollectionMetaData results) {
-                        mScriptAccount.mCollectionMetaData = results;
-                        String iconPath = mScriptAccount.mCollectionMetaData.iconfile;
-                        if (iconPath != null) {
-                            int lastSlash =
-                                    mScriptAccount.getMetaData().manifest.main.lastIndexOf("/");
-                            String mainPath = mScriptAccount.getMetaData().manifest.main
-                                    .substring(0, lastSlash);
-                            while (iconPath.contains("../")) {
-                                iconPath = iconPath.replace("../", "");
-                                lastSlash = mainPath.lastIndexOf("/");
-                                mainPath = mainPath.substring(0, lastSlash);
-                            }
-                            mScriptAccount.mCollectionIconPath = "file:///android_asset/"
-                                    + mScriptAccount.getPath() + "/content/" + mainPath + "/"
-                                    + iconPath;
-                        }
                     }
                 });
     }
@@ -484,24 +439,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
 
     public boolean isConfigTestable() {
         return mConfigTestable;
-    }
-
-    public boolean hasFuzzyIndex() {
-        return mFuzzyIndex != null;
-    }
-
-    public FuzzyIndex getFuzzyIndex() {
-        return mFuzzyIndex;
-    }
-
-    public void createFuzzyIndex() {
-        if (mFuzzyIndex != null) {
-            mFuzzyIndex.close();
-        }
-        FuzzyIndex fuzzyIndex = new FuzzyIndex();
-        if (fuzzyIndex.create(mFuzzyIndexPath, true)) {
-            mFuzzyIndex = fuzzyIndex;
-        }
     }
 
     public void testConfig(Map<String, Object> config) {
