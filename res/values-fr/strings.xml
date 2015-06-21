@@ -189,6 +189,10 @@
   <string name="connect_headertext">Sélectionnez les services que vous souhaitez utiliser. Tomahawk fonctionne d\'autant mieux que plusieurs services sont activés.</string>
   <string name="advanced">Avancé</string>
   <string name="info">Info</string>
+  <string name="playbackpanel_seek_coachmark">Vous pouvez naviguer dans un morceau en restant pressé sur le bouton de lecture.</string>
+  <string name="slidinglayout_enqueue_coachmark">Pressez pour ajouter le morceau à la file.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Déplacez vers le haut pour voir la playlist en cours.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Déplacez vers le bas pour fermer le panneau de lecture.</string>
   <string name="playbackfragment_navigation_coachmark_center">Swipez à gauche/droite pour passer à la piste précédente/suivante. Maintenez appuyé pour ouvrir le menu contextuel. Appuyez deux fois pour ajouter aux favoris.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">Suivant</string>
@@ -197,7 +201,13 @@
   <string name="welcome_fragment_explanation_text">Arrêtez de chercher votre musique partout sur le web - de services que vous n\'utilisez pas en sources auxquelles vous n\'avez pas accès. Avec juste le titre ou un lien vers une chanson, un album ou une playlist, Tomahawk trouvera la meilleure source disponible et lancera la lecture, tout simplement.</string>
   <string name="welcome_fragment_hatchet_title">Vous vous sentez social ?</string>
   <string name="welcome_fragment_hatchet_text">Avec Hatchet, vous avez enfin la possibilité d\'avoir toute votre collection de musique au même endroit. Partagez vos playlists et vos morceaux favoris. Ou synchronisez simplement Tomahawk sur votre téléphone et votre ordinateur.</string>
+  <string name="welcome_fragment_setup_title">Connexion</string>
   <string name="welcome_fragment_done_title">C\'est fait !</string>
   <string name="welcome_fragment_done_heading">C\'est fait !</string>
+  <string name="welcome_fragment_done_text">Découvrez notre application et n\'hésitez pas à nous dire ce que vous en pensez !</string>
+  <plurals name="add_to_playlist_headertext">
+    <item quantity="one">Choisissez la playlist à laquelle ajouter %1$d morceau :</item>
+    <item quantity="other">Choisissez la playlist à laquelle ajouter %1$d morceaux :</item>
+  </plurals>
   <string name="seeking_not_supported">Désolé, cette source ne gère pas le déplacement dans les morceaux.</string>
 </resources>
