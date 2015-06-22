@@ -18,14 +18,11 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.jdeferred.Deferred;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
@@ -58,9 +55,6 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
-import java.util.TreeSet;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import de.greenrobot.event.EventBus;
 
@@ -73,16 +67,6 @@ public class UserCollection extends NativeCollection {
 
     private static final String HAS_SET_DEFAULTDIRS
             = "org.tomahawk.tomahawk_android.has_set_defaultdirs";
-
-    private static final int MODE_ARTIST = 0;
-
-    private static final int MODE_ALBUM = 1;
-
-    private static final int MODE_GENRE = 2;
-
-    private final ArrayList<MediaWrapper> mItemList;
-
-    private final ReadWriteLock mItemListLock;
 
     private boolean isStopping = false;
 
@@ -115,9 +99,6 @@ public class UserCollection extends NativeCollection {
     public UserCollection() {
         super(TomahawkApp.PLUGINNAME_USERCOLLECTION,
                 TomahawkApp.getContext().getString(R.string.local_collection_pretty_name), true);
-
-        mItemList = new ArrayList<>();
-        mItemListLock = new ReentrantReadWriteLock();
     }
 
     @Override
@@ -125,176 +106,8 @@ public class UserCollection extends NativeCollection {
 
     }
 
-    /**
-     * @return A {@link java.util.List} of all {@link Track}s in this {@link NativeCollection}
-     */
-    @Override
-    public Deferred<Set<Query>, String, Object> getQueries(boolean sorted) {
-        Set<Query> queries;
-        if (sorted) {
-            queries = new TreeSet<>(new QueryComparator(QueryComparator.COMPARE_ALPHA));
-        } else {
-            queries = new HashSet<>();
-        }
-        Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
-                TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        if (userCollectionResolver == null) {
-            return new ADeferredObject<Set<Query>, String, Object>().resolve(queries);
-        }
-        for (MediaWrapper media : getAudioItems()) {
-            Artist artist = Artist.get(media.getArtist());
-            Album album = Album.get(media.getAlbum(), artist);
-            if (!TextUtils.isEmpty(media.getArtworkURL())) {
-                album.setImage(Image.get(media.getArtworkURL(), false));
-            }
-            Track track = Track.get(media.getTitle(), album, artist);
-            track.setDuration(media.getLength());
-            track.setAlbumPos(media.getTrackNumber());
-            Query query = Query.get(media.getTitle(), media.getAlbum(), media.getArtist(), true);
-            Result result = Result.get(media.getLocation(), track, userCollectionResolver);
-            query.addTrackResult(result, 1f);
-            queries.add(query);
-            if (mAlbumTimeStamps.get(query.getAlbum()) == null
-                    || mAlbumTimeStamps.get(query.getAlbum()) < media.getLastModified()) {
-                mAlbumTimeStamps.put(query.getAlbum(), media.getLastModified());
-            }
-            if (mArtistTimeStamps.get(query.getArtist()) == null
-                    || mArtistTimeStamps.get(query.getArtist()) < media.getLastModified()) {
-                mArtistTimeStamps.put(query.getArtist(), media.getLastModified());
-            }
-            mQueryTimeStamps.put(query, media.getLastModified());
-        }
-        return new ADeferredObject<Set<Query>, String, Object>().resolve(queries);
-    }
-
-    /**
-     * @return A {@link java.util.List} of all {@link org.tomahawk.libtomahawk.collection.Artist}s
-     * in this {@link NativeCollection}
-     */
-    @Override
-    public Deferred<Set<Artist>, String, Object> getArtists(boolean sorted) {
-        HashMap<String, Artist> artistMap = new HashMap<>();
-        for (MediaWrapper media : getAudioItems()) {
-            if (media.getArtist() != null) {
-                if (!artistMap.containsKey(media.getArtist().toLowerCase())) {
-                    Artist artist = Artist.get(media.getArtist());
-                    artistMap.put(media.getArtist().toLowerCase(), artist);
-                    if (mArtistTimeStamps.get(artist) == null
-                            || mArtistTimeStamps.get(artist) < media.getLastModified()) {
-                        mArtistTimeStamps.put(artist, media.getLastModified());
-                    }
-                }
-            }
-        }
-        Set<Artist> artists;
-        if (sorted) {
-            artists = new TreeSet<>(new AlphaComparator());
-            artists.addAll(artistMap.values());
-        } else {
-            artists = new HashSet<>(artistMap.values());
-        }
-        return new ADeferredObject<Set<Artist>, String, Object>().resolve(artists);
-    }
-
-    /**
-     * @return A {@link java.util.List} of all {@link org.tomahawk.libtomahawk.collection.Artist}s
-     * in this {@link NativeCollection}
-     */
-    @Override
-    public Deferred<Set<Album>, String, Object> getAlbums(boolean sorted) {
-        HashMap<String, Album> albumMap = new HashMap<>();
-        for (MediaWrapper media : getAudioItems()) {
-            if (media.getAlbum() != null) {
-                if (!albumMap.containsKey(media.getAlbum().toLowerCase())) {
-                    Artist artist = Artist.get(media.getArtist());
-                    Album album = Album.get(media.getAlbum(), artist);
-                    if (!TextUtils.isEmpty(media.getArtworkURL())) {
-                        album.setImage(Image.get(media.getArtworkURL(), false));
-                    }
-                    albumMap.put(media.getAlbum().toLowerCase(), album);
-                    if (mAlbumTimeStamps.get(album) == null
-                            || mAlbumTimeStamps.get(album) < media.getLastModified()) {
-                        mAlbumTimeStamps.put(album, media.getLastModified());
-                    }
-                }
-            }
-        }
-        Set<Album> albums;
-        if (sorted) {
-            albums = new TreeSet<>(new AlphaComparator());
-            albums.addAll(albumMap.values());
-        } else {
-            albums = new HashSet<>(albumMap.values());
-        }
-        return new ADeferredObject<Set<Album>, String, Object>().resolve(albums);
-    }
-
-    /**
-     * @return A {@link java.util.List} of all {@link Album}s by the given Artist.
-     */
-    @Override
-    public Deferred<Set<Album>, String, Object> getArtistAlbums(Artist artist, boolean sorted) {
-        HashMap<String, Album> albumMap = new HashMap<>();
-        for (MediaWrapper media : getAudioItems(artist.getName(), null, MODE_ARTIST)) {
-            String albumName = media.getAlbum() != null ? media.getAlbum().toLowerCase() : "";
-            if (!albumMap.containsKey(albumName)) {
-                Album album = Album.get(albumName, artist);
-                if (!TextUtils.isEmpty(media.getArtworkURL())) {
-                    album.setImage(Image.get(media.getArtworkURL(), false));
-                }
-                albumMap.put(albumName, album);
-            }
-        }
-        Set<Album> albums;
-        if (sorted) {
-            albums = new TreeSet<>(new AlphaComparator());
-            albums.addAll(albumMap.values());
-        } else {
-            albums = new HashSet<>(albumMap.values());
-        }
-        return new ADeferredObject<Set<Album>, String, Object>().resolve(albums);
-    }
-
-    @Override
-    public Deferred<Boolean, String, Object> hasArtistAlbums(Artist artist) {
-        return new ADeferredObject<Boolean, String, Object>().resolve(
-                getAudioItems(artist.getName(), null, MODE_ARTIST).size() > 0);
-    }
-
-    /**
-     * @return A {@link java.util.List} of all {@link Track}s from the given Album.
-     */
-    @Override
-    public Deferred<Set<Query>, String, Object> getAlbumTracks(Album album, boolean sorted) {
-        Set<Query> queries;
-        if (sorted) {
-            queries = new TreeSet<>(new QueryComparator(QueryComparator.COMPARE_ALPHA));
-        } else {
-            queries = new HashSet<>();
-        }
-        Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
-                TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        if (userCollectionResolver == null) {
-            return new ADeferredObject<Set<Query>, String, Object>().resolve(
-                    queries);
-        }
-        for (MediaWrapper media : getAudioItems(album.getName(), null, MODE_ALBUM)) {
-            Artist artist = Artist.get(media.getArtist());
-            Track track = Track.get(media.getTitle(), album, artist);
-            track.setDuration(media.getLength());
-            track.setAlbumPos(media.getTrackNumber());
-            Query query = Query.get(media.getTitle(), media.getAlbum(), media.getArtist(), true);
-            Result result = Result.get(media.getLocation(), track, userCollectionResolver);
-            query.addTrackResult(result, 1f);
-            queries.add(query);
-        }
-        return new ADeferredObject<Set<Query>, String, Object>().resolve(queries);
-    }
-
-    @Override
-    public Deferred<Boolean, String, Object> hasAlbumTracks(Album album) {
-        return new ADeferredObject<Boolean, String, Object>().resolve(
-                getAudioItems(album.getName(), null, MODE_ALBUM).size() > 0);
+    public int getQueryCount() {
+        return mQueries.values().size();
     }
 
     public void loadMediaItems(boolean restart) {
@@ -324,91 +137,6 @@ public class UserCollection extends NativeCollection {
                 mLoadingThread.isAlive() &&
                 mLoadingThread.getState() != Thread.State.TERMINATED &&
                 mLoadingThread.getState() != Thread.State.NEW;
-    }
-
-    public boolean hasAudioItems() {
-        mItemListLock.readLock().lock();
-        for (int i = 0; i < mItemList.size(); i++) {
-            MediaWrapper item = mItemList.get(i);
-            if (item.getType() == MediaWrapper.TYPE_AUDIO) {
-                mItemListLock.readLock().unlock();
-                return true;
-            }
-        }
-        mItemListLock.readLock().unlock();
-        return false;
-    }
-
-    public ArrayList<MediaWrapper> getAudioItems() {
-        ArrayList<MediaWrapper> audioItems = new ArrayList<>();
-        mItemListLock.readLock().lock();
-        for (int i = 0; i < mItemList.size(); i++) {
-            MediaWrapper item = mItemList.get(i);
-            if (item.getType() == MediaWrapper.TYPE_AUDIO) {
-                audioItems.add(item);
-            }
-        }
-        mItemListLock.readLock().unlock();
-        return audioItems;
-    }
-
-    public ArrayList<MediaWrapper> getAudioItems(String name, String name2, int mode) {
-        ArrayList<MediaWrapper> audioItems = new ArrayList<>();
-        mItemListLock.readLock().lock();
-        for (int i = 0; i < mItemList.size(); i++) {
-            MediaWrapper item = mItemList.get(i);
-            if (item.getType() == MediaWrapper.TYPE_AUDIO) {
-
-                boolean valid = false;
-                switch (mode) {
-                    case MODE_ARTIST:
-                        valid = name.equalsIgnoreCase(item.getArtist()) && (name2 == null || name2
-                                .equalsIgnoreCase(item.getAlbum()));
-                        break;
-                    case MODE_ALBUM:
-                        valid = name.equalsIgnoreCase(item.getAlbum());
-                        break;
-                    case MODE_GENRE:
-                        valid = name.equalsIgnoreCase(item.getGenre()) && (name2 == null || name2
-                                .equals(item.getAlbum()));
-                        break;
-                    default:
-                        break;
-                }
-                if (valid) {
-                    audioItems.add(item);
-                }
-
-            }
-        }
-        mItemListLock.readLock().unlock();
-        return audioItems;
-    }
-
-    public ArrayList<MediaWrapper> getMediaItems() {
-        return mItemList;
-    }
-
-    public MediaWrapper getMediaItem(String location) {
-        mItemListLock.readLock().lock();
-        for (int i = 0; i < mItemList.size(); i++) {
-            MediaWrapper item = mItemList.get(i);
-            if (item.getLocation().equals(location)) {
-                mItemListLock.readLock().unlock();
-                return item;
-            }
-        }
-        mItemListLock.readLock().unlock();
-        return null;
-    }
-
-    public ArrayList<MediaWrapper> getMediaItems(List<String> pathList) {
-        ArrayList<MediaWrapper> items = new ArrayList<>();
-        for (int i = 0; i < pathList.size(); i++) {
-            MediaWrapper item = getMediaItem(pathList.get(i));
-            items.add(item);
-        }
-        return items;
     }
 
     private class GetMediaItemsRunnable implements Runnable {
@@ -446,11 +174,6 @@ public class UserCollection extends NativeCollection {
 
             // list of all added files
             HashSet<String> addedLocations = new HashSet<>();
-
-            // clear all old items
-            mItemListLock.writeLock().lock();
-            mItemList.clear();
-            mItemListLock.writeLock().unlock();
 
             MediaItemFilter mediaFileFilter = new MediaItemFilter();
 
@@ -506,7 +229,7 @@ public class UserCollection extends NativeCollection {
                         return;
                     }
                 }
-
+                ArrayList<MediaWrapper> mediaWrappers = new ArrayList<>();
                 // Process the stacked items
                 for (File file : mediaToScan) {
                     String fileURI = LibVLC.PathToURI(file.getPath());
@@ -516,14 +239,11 @@ public class UserCollection extends NativeCollection {
                          * user select an subfolder as well
                          */
                         if (!addedLocations.contains(fileURI)) {
-                            mItemListLock.writeLock().lock();
                             // get existing media item from database
-                            mItemList.add(existingMedias.get(fileURI));
-                            mItemListLock.writeLock().unlock();
+                            mediaWrappers.add(existingMedias.get(fileURI));
                             addedLocations.add(fileURI);
                         }
                     } else {
-                        mItemListLock.writeLock().lock();
                         // create new media item
                         final Media media = new Media(
                                 VLCMediaPlayer.getInstance().getLibVlcInstance(), fileURI);
@@ -533,21 +253,20 @@ public class UserCollection extends NativeCollection {
                         if ((media.getDuration() == 0 || (media.getTrackCount() != 0 && TextUtils
                                 .isEmpty(media.getTrack(0).codec))) &&
                                 fileURI.endsWith(".mod")) {
-                            mItemListLock.writeLock().unlock();
                             continue;
                         }
                         MediaWrapper mw = new MediaWrapper(media);
                         mw.setLastModified(file.lastModified());
-                        mItemList.add(mw);
+                        mediaWrappers.add(mw);
                         // Add this item to database
                         DatabaseHelper.getInstance().addMedia(mw);
-                        mItemListLock.writeLock().unlock();
                     }
                     if (isStopping) {
                         Log.d(TAG, "Stopping scan");
                         return;
                     }
                 }
+                processMediaWrappers(mediaWrappers);
             } finally {
                 // remove old files & folders from database if storage is mounted
                 if (!isStopping && Environment.getExternalStorageState()
@@ -564,6 +283,29 @@ public class UserCollection extends NativeCollection {
                     mRestartHandler.sendEmptyMessageDelayed(1, 200);
                 }
                 EventBus.getDefault().post(new CollectionManager.UpdatedEvent());
+            }
+        }
+
+        private void processMediaWrappers(List<MediaWrapper> mws) {
+            for (MediaWrapper mw : mws) {
+                Artist artist = Artist.get(mw.getArtist());
+                Album album = Album.get(mw.getAlbum(), artist);
+                if (!TextUtils.isEmpty(mw.getArtworkURL())) {
+                    album.setImage(Image.get(mw.getArtworkURL(), false));
+                }
+                Track track = Track.get(mw.getTitle(), album, artist);
+                track.setDuration(mw.getLength());
+                track.setAlbumPos(mw.getTrackNumber());
+                Query query = Query.get(mw.getTitle(), mw.getAlbum(), mw.getArtist(), true);
+                Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
+                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
+                Result result = Result.get(mw.getLocation(), track, userCollectionResolver);
+                query.addTrackResult(result, 1f);
+                addQuery(query, mw.getLastModified());
+                addArtist(artist);
+                addAlbum(album);
+                addAlbumTrack(album, query);
+                addArtistAlbum(artist, album);
             }
         }
     }

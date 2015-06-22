@@ -190,6 +190,6 @@ public class DataBaseResolver implements Resolver {
     public boolean isEnabled() {
         UserCollection userCollection = (UserCollection) CollectionManager.getInstance()
                 .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        return userCollection.hasAudioItems();
+        return userCollection.getQueryCount() > 0;
     }
 }

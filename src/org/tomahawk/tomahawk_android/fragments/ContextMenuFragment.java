@@ -22,7 +22,6 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -256,7 +255,7 @@ public class ContextMenuFragment extends Fragment {
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     if (mAlbum != null) {
-                        CollectionUtils.getAlbumTracks(mAlbum, mCollection).done(
+                        mCollection.getAlbumTracks(mAlbum, true).done(
                                 new DoneCallback<Set<Query>>() {
                                     @Override
                                     public void onDone(Set<Query> result) {

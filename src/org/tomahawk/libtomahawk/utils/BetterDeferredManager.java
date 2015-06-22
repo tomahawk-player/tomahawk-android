@@ -17,7 +17,6 @@
  */
 package org.tomahawk.libtomahawk.utils;
 
-import org.jdeferred.Deferred;
 import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDeferredManager;
 import org.jdeferred.multiple.MasterDeferredObject;
@@ -30,8 +29,8 @@ import java.util.Collection;
 public class BetterDeferredManager extends AndroidDeferredManager {
 
     public Promise<MultipleResults, OneReject, MasterProgress> when(
-            Collection<Deferred> deferreds) {
-        Promise[] array = deferreds.toArray(new Promise[deferreds.size()]);
+            Collection<Promise> promises) {
+        Promise[] array = promises.toArray(new Promise[promises.size()]);
         assertNotEmpty(array);
         return new MasterDeferredObject(array).promise();
     }
