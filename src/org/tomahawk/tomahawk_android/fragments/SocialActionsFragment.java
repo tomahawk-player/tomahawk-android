@@ -163,17 +163,13 @@ public class SocialActionsFragment extends TomahawkFragment implements
             }
         } else if (item instanceof Album) {
             bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
-            if (mCollection != null) {
-                bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
-            }
+            bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
             bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
             FragmentUtils.replace(activity, TracksFragment.class, bundle);
         } else if (item instanceof Artist) {
             bundle.putString(TomahawkFragment.ARTIST, ((Artist) item).getCacheKey());
-            if (mCollection != null) {
-                bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
-            }
+            bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
             bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
             bundle.putLong(CONTAINER_FRAGMENT_ID,

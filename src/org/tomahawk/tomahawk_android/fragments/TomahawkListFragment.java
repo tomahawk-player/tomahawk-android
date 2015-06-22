@@ -22,7 +22,6 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.StickyBaseAdapter;
-import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
 import android.content.Context;
@@ -58,9 +57,9 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
 
     private boolean restoreScrollPosition = true;
 
-    final private Handler mHandler = new Handler();
+    private final Handler mHandler = new Handler();
 
-    final private Runnable mRequestFocus = new Runnable() {
+    private final Runnable mRequestFocus = new Runnable() {
         public void run() {
             mList.focusableViewAvailable(mList);
         }
@@ -216,18 +215,11 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         }
     }
 
-    protected void showFancyDropDown(String text) {
-        if (mContainerFragmentClass == null) {
-            super.showFancyDropDown(text.toUpperCase());
-        }
-    }
-
     protected void showFancyDropDown(String text, int initialSelection,
             List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
             FancyDropDown.DropDownListener dropDownListener) {
         if (mContainerFragmentClass == null) {
-            super.showFancyDropDown(initialSelection, text.toUpperCase(), dropDownItemInfos,
-                    dropDownListener);
+            super.showFancyDropDown(initialSelection, text, dropDownItemInfos, dropDownListener);
         }
     }
 
@@ -241,19 +233,6 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         if (mContainerFragmentClass == null) {
             super.setupAnimations();
         }
-    }
-
-    protected void setupNonScrollableSpacer() {
-        setupNonScrollableSpacer(getListView());
-    }
-
-    protected void setupScrollableSpacer() {
-        setupScrollableSpacer(null);
-    }
-
-    protected void setupScrollableSpacer(View headerSpacerForwardView) {
-        setupScrollableSpacer((TomahawkListAdapter) getListAdapter(), getListView(),
-                headerSpacerForwardView);
     }
 
     /**
@@ -298,7 +277,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     /**
      * @return the current scrolling position of the list- or gridView
      */
-    public Parcelable getListState() {
+    private Parcelable getListState() {
         return getListView().getWrappedList().onSaveInstanceState();
     }
 

@@ -139,6 +139,17 @@ public class PlaybackFragment extends TomahawkFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(view) {
+            @Override
+            public void run() {
+                mHeaderScrollableHeight =
+                        getLayedOutView().getHeight() - mHeaderNonscrollableHeight;
+                setupScrollableSpacer((TomahawkListAdapter) getListAdapter(), getListView(),
+                        mAlbumArtViewPager);
+                setupNonScrollableSpacer(getListView());
+            }
+        });
+
         getListView().setFastScrollEnabled(false);
 
         mAlbumArtViewPager = (AlbumArtViewPager) view.findViewById(R.id.albumart_viewpager);
@@ -308,8 +319,7 @@ public class PlaybackFragment extends TomahawkFragment {
 
         if (playbackService != null) {
             mShownQueries = playbackService.getMergedPlaylist().getQueries();
-            mResolveQueriesHandler.removeCallbacksAndMessages(null);
-            mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
+            forceResolveVisibleItems(false);
         }
         updateAdapter();
 
@@ -331,12 +341,6 @@ public class PlaybackFragment extends TomahawkFragment {
         if (mAlbumArtSwipeAdapter != null) {
             mAlbumArtSwipeAdapter.updatePlaylist();
         }
-    }
-
-    @Override
-    public void onHeaderHeightChanged() {
-        setupScrollableSpacer(mAlbumArtViewPager);
-        setupNonScrollableSpacer();
     }
 
     /**

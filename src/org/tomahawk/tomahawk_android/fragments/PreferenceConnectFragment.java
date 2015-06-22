@@ -123,7 +123,7 @@ public class PreferenceConnectFragment extends TomahawkListFragment
             ((TomahawkListAdapter) getListAdapter()).setSegments(segments, getListView());
         }
 
-        setupNonScrollableSpacer();
+        setupNonScrollableSpacer(getListView());
     }
 
     @Override

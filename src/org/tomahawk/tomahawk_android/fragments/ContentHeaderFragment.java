@@ -184,22 +184,6 @@ public class ContentHeaderFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        if (mCurrentMode == MODE_HEADER_PLAYBACK) {
-            TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(view) {
-                @Override
-                public void run() {
-                    mHeaderScrollableHeight =
-                            getLayedOutView().getHeight() - mHeaderNonscrollableHeight;
-                    onHeaderHeightChanged();
-                }
-            });
-        }
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 
@@ -217,15 +201,8 @@ public class ContentHeaderFragment extends Fragment {
         ((TomahawkMainActivity) getActivity()).showGradientActionBar();
     }
 
-    public void onHeaderHeightChanged() {
-    }
-
     public boolean isDynamicHeader() {
         return mHeaderScrollableHeight > 0;
-    }
-
-    protected void showFancyDropDown(String text) {
-        showFancyDropDown(0, text, null, null);
     }
 
     protected void showFancyDropDown(int initialSelection, String text,
@@ -237,18 +214,18 @@ public class ContentHeaderFragment extends Fragment {
         }
 
         FancyDropDown fancyDropDown = (FancyDropDown) getView().findViewById(R.id.fancydropdown);
-        fancyDropDown.setup(initialSelection, text, dropDownItemInfos, dropDownListener);
+        fancyDropDown.setup(initialSelection, text.toUpperCase(), dropDownItemInfos,
+                dropDownListener);
     }
 
     /**
-     * Show a content header. A content header provides information about the current {@link
-     * org.tomahawk.tomahawk_android.utils.TomahawkListItem} that the user has navigated to. Like an
-     * AlbumArt image with the {@link org.tomahawk.libtomahawk.collection.Album}s name, which is
-     * shown at the top of the listview, if the user browses to a particular {@link
-     * org.tomahawk.libtomahawk.collection.Album} in his {@link org.tomahawk.libtomahawk.collection.UserCollection}.
+     * Show a content header. A content header provides information about the current Collection
+     * object that the user has navigated to. Like an AlbumArt image with the {@link
+     * org.tomahawk.libtomahawk.collection.Album}s name, which is shown at the top of the listview,
+     * if the user browses to a particular {@link org.tomahawk.libtomahawk.collection.Album} in his
+     * {@link org.tomahawk.libtomahawk.collection.UserCollection}.
      *
-     * @param item the {@link org.tomahawk.tomahawk_android.utils.TomahawkListItem}'s information to
-     *             show in the header view
+     * @param item the Collection object's information to show in the header view
      */
     protected void showContentHeader(final Object item) {
         if (getView() == null) {
@@ -304,9 +281,8 @@ public class ContentHeaderFragment extends Fragment {
             View.OnClickListener moreButtonListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String collectionId = mCollection != null ? mCollection.getId() : null;
                     FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
-                            collectionId, false);
+                            mCollection.getId(), false);
                 }
             };
             if (item instanceof Album) {

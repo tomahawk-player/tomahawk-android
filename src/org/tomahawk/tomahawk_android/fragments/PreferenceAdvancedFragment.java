@@ -123,7 +123,7 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
         setListAdapter(fakePreferencesAdapter);
 
         getListView().setOnItemClickListener(this);
-        setupNonScrollableSpacer();
+        setupNonScrollableSpacer(getListView());
     }
 
     /**

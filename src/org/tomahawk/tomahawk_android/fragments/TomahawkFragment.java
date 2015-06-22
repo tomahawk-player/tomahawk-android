@@ -99,25 +99,17 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     public static final String PREFERENCEID = "preferenceid";
 
-    public static final String SHOWDELETE = "showdelete";
-
     public static final String TOMAHAWKLISTITEM = "tomahawklistitem";
 
     public static final String TOMAHAWKLISTITEM_TYPE = "tomahawklistitem_type";
 
     public static final String FROM_PLAYBACKFRAGMENT = "from_playbackfragment";
 
-    public static final String USERNAME_STRING = "username_string";
-
-    public static final String PASSWORD_STRING = "password_string";
-
     public static final String QUERY_STRING = "query_string";
 
     public static final String SHOW_MODE = "show_mode";
 
     public static final String COLLECTION_ID = "collection_id";
-
-    public static final String LOG_DATA = "log_data";
 
     public static final String CONTENT_HEADER_MODE = "content_header_mode";
 
@@ -179,7 +171,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected int mShowMode;
 
-    protected final Handler mResolveQueriesHandler = new ResolveQueriesHandler(this);
+    private final Handler mResolveQueriesHandler = new ResolveQueriesHandler(this);
 
     private static class ResolveQueriesHandler extends WeakReferenceHandler<TomahawkFragment> {
 
@@ -357,6 +349,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             if (getArguments().containsKey(COLLECTION_ID)) {
                 mCollection = CollectionManager.getInstance()
                         .getCollection(getArguments().getString(COLLECTION_ID));
+            } else {
+                mCollection = CollectionManager.getInstance()
+                        .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
             }
             if (getArguments().containsKey(QUERY)
                     && !TextUtils.isEmpty(getArguments().getString(QUERY))) {
@@ -446,28 +441,27 @@ public abstract class TomahawkFragment extends TomahawkListFragment
      */
     @Override
     public boolean onItemLongClick(View view, Object item) {
-        String collectionId = mCollection != null ? mCollection.getId() : null;
         return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
-                collectionId, false);
+                mCollection.getId(), false);
     }
 
-    public void fillAdapter(Segment segment, Collection collection) {
+    protected void fillAdapter(Segment segment, Collection collection) {
         List<Segment> segments = new ArrayList<>();
         segments.add(segment);
         fillAdapter(segments, null, collection);
     }
 
-    public void fillAdapter(Segment segment) {
+    protected void fillAdapter(Segment segment) {
         List<Segment> segments = new ArrayList<>();
         segments.add(segment);
         fillAdapter(segments, null, null);
     }
 
-    public void fillAdapter(List<Segment> segments) {
+    protected void fillAdapter(List<Segment> segments) {
         fillAdapter(segments, null, null);
     }
 
-    public void fillAdapter(final List<Segment> segments, final View headerSpacerForwardView,
+    protected void fillAdapter(final List<Segment> segments, final View headerSpacerForwardView,
             final Collection collection) {
         final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (activity != null && getListView() != null) {
@@ -487,8 +481,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     }
                     updateShowPlaystate();
                     forceResolveVisibleItems(false);
-                    setupNonScrollableSpacer();
-                    setupScrollableSpacer(headerSpacerForwardView);
+                    setupNonScrollableSpacer(getListView());
+                    setupScrollableSpacer((TomahawkListAdapter) getListAdapter(), getListView(),
+                            headerSpacerForwardView);
                     if (headerSpacerForwardView == null) {
                         setupAnimations();
                     }
@@ -499,7 +494,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    public void setAreHeadersSticky(final boolean areHeadersSticky) {
+    protected void setAreHeadersSticky(final boolean areHeadersSticky) {
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
@@ -548,7 +543,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         updateShowPlaystate();
     }
 
-    protected void updateShowPlaystate() {
+    private void updateShowPlaystate() {
         PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
         if (mTomahawkListAdapter != null) {
@@ -578,8 +573,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void forceResolveVisibleItems(boolean wipeQueryCache) {
-        if (wipeQueryCache) {
+    protected void forceResolveVisibleItems(boolean reresolve) {
+        if (reresolve) {
             mCorrespondingQueries.clear();
         }
         mResolveQueriesHandler.removeCallbacksAndMessages(null);
@@ -624,7 +619,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void resolveItem(final Object object) {
+    private void resolveItem(final Object object) {
         if (object instanceof Playlist) {
             resolveItem((Playlist) object);
         } else if (object instanceof SocialAction) {
@@ -638,7 +633,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void resolveItem(final Playlist playlist) {
+    private void resolveItem(final Playlist playlist) {
         HatchetAuthenticatorUtils authenticatorUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
@@ -670,7 +665,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void resolveItem(SocialAction socialAction) {
+    private void resolveItem(SocialAction socialAction) {
         if (mResolvingItems.add(socialAction)) {
             if (socialAction.getTarget() != null) {
                 resolveItem(socialAction.getTarget());
@@ -685,7 +680,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void resolveItem(Album album) {
+    private void resolveItem(Album album) {
         if (mResolvingItems.add(album)) {
             if (album.getImage() == null) {
                 String requestId = InfoSystem.getInstance().resolve(album);
@@ -696,7 +691,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void resolveItem(Artist artist) {
+    private void resolveItem(Artist artist) {
         if (mResolvingItems.add(artist)) {
             if (artist.getImage() == null) {
                 mCorrespondingRequestIds.addAll(InfoSystem.getInstance().resolve(artist, false));
@@ -704,7 +699,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected void resolveItem(User user) {
+    private void resolveItem(User user) {
         if (mResolvingItems.add(user)) {
             if (user.getImage() == null) {
                 String requestId = InfoSystem.getInstance().resolve(user);
