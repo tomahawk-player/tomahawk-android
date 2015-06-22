@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -71,7 +70,7 @@ public class ArtistsFragment extends TomahawkFragment {
      */
     @Override
     public void onItemClick(View view, final Object item) {
-        if (item instanceof Artist && mCollection != null) {
+        if (item instanceof Artist) {
             mCollection.hasArtistAlbums((Artist) item).done(
                     new DoneCallback<Boolean>() {
                         @Override
@@ -123,15 +122,10 @@ public class ArtistsFragment extends TomahawkFragment {
             artists.addAll(mArtistArray);
             fillAdapter(new Segment(new ArrayList<Object>(artists)));
         } else {
-            Collection collection;
-            if (mCollection != null) {
-                collection = mCollection;
-            } else {
-                collection = CollectionManager.getInstance().getCollection(
-                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
+            if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
                 artists.addAll(DatabaseHelper.getInstance().getStarredArtists());
             }
-            collection.getArtists().done(
+            mCollection.getArtists().done(
                     new DoneCallback<Set<Artist>>() {
                         @Override
                         public void onDone(Set<Artist> result) {

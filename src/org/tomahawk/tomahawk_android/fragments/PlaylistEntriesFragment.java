@@ -125,8 +125,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             return;
         }
 
-        mResolveQueriesHandler.removeCallbacksAndMessages(null);
-        mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         List playlistEntries = new ArrayList();
         if (mPlaylist != null) {
             if (!mPlaylist.isFilled()) {
@@ -137,7 +135,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 segment.setShowNumeration(true, 1);
                 fillAdapter(segment);
                 showContentHeader(mPlaylist);
-                showFancyDropDown(mPlaylist.getName());
+                showFancyDropDown(0, mPlaylist.getName(), null, null);
                 ThreadManager.getInstance()
                         .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW) {
                             @Override

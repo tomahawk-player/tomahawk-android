@@ -112,8 +112,6 @@ public class TracksFragment extends TomahawkFragment {
             return;
         }
 
-        mResolveQueriesHandler.removeCallbacksAndMessages(null);
-        mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         if (mAlbum != null) {
             mCollection.getAlbumTracks(mAlbum, true).done(
                     new DoneCallback<Set<Query>>() {
@@ -139,7 +137,7 @@ public class TracksFragment extends TomahawkFragment {
             segment.setShowDuration(true);
             fillAdapter(segment);
             showContentHeader(mQuery);
-            showFancyDropDown(mQuery.getName());
+            showFancyDropDown(0, mQuery.getName(), null, null);
         } else if (mQueryArray != null) {
             mShownQueries = new ArrayList<>();
             mShownQueries.addAll(mQueryArray);
@@ -147,10 +145,7 @@ public class TracksFragment extends TomahawkFragment {
             segment.setShowDuration(true);
             fillAdapter(segment);
         } else {
-            Collection collection = mCollection != null ? mCollection
-                    : CollectionManager.getInstance().getCollection(
-                            TomahawkApp.PLUGINNAME_USERCOLLECTION);
-            collection.getQueries().done(
+            mCollection.getQueries().done(
                     new DoneCallback<Set<Query>>() {
                         @Override
                         public void onDone(Set<Query> queries) {
