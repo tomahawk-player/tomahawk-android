@@ -18,19 +18,17 @@
 package org.tomahawk.libtomahawk.infosystem;
 
 import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.AlphaComparable;
+import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.util.SparseArray;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -38,14 +36,11 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class User implements TomahawkListItem {
+public class User extends Cacheable implements AlphaComparable {
 
     public static final String PLAYLIST_PLAYBACKLOG_ID = "_playbackLog";
 
     public static final String PLAYLIST_FAVORTIES_ID = "_favorites";
-
-    private static final ConcurrentHashMap<String, User> sUsers
-            = new ConcurrentHashMap<>();
 
     private final String mId;
 
@@ -85,6 +80,8 @@ public class User implements TomahawkListItem {
      * Construct a new {@link User} with the given id
      */
     private User(String id) {
+        super(User.class, id);
+
         mId = id;
         mPlaybackLog = Playlist.get(id + User.PLAYLIST_PLAYBACKLOG_ID, "", "");
         mFavorites = Playlist.get(id + User.PLAYLIST_FAVORTIES_ID, "", "");
@@ -97,44 +94,17 @@ public class User implements TomahawkListItem {
      * @return {@link User} with the given id
      */
     public static User get(String id) {
-        User user = new User(id);
-        if (!sUsers.containsKey(user.getId())) {
-            sUsers.put(user.getId(), user);
-        }
-        return sUsers.get(user.getId());
+        Cacheable cacheable = get(User.class, id);
+        return cacheable != null ? (User) cacheable : new User(id);
     }
 
     public static User getUserById(String id) {
-        return sUsers.get(id);
-    }
-
-    /**
-     * @return A {@link java.util.List} of all {@link User}s
-     */
-    public static ArrayList<User> getUsers() {
-        ArrayList<User> users = new ArrayList<>(sUsers.values());
-        Collections.sort(users,
-                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
-        return users;
-    }
-
-    @Override
-    public String getCacheKey() {
-        return mId;
-    }
-
-    /**
-     * @return this object's name
-     */
-    @Override
-    public String toString() {
-        return mName;
+        return (User) get(User.class, id);
     }
 
     /**
      * @return this object' name
      */
-    @Override
     public String getName() {
         return mName;
     }
@@ -147,22 +117,6 @@ public class User implements TomahawkListItem {
                 TomahawkApp.getContext().getString(R.string.users_favorites_suffix, name));
     }
 
-    @Override
-    public Artist getArtist() {
-        return null;
-    }
-
-    @Override
-    public Album getAlbum() {
-        return null;
-    }
-
-    @Override
-    public ArrayList<Query> getQueries() {
-        return mPlaybackLog.getQueries();
-    }
-
-    @Override
     public Image getImage() {
         return mImage;
     }

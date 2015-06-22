@@ -20,8 +20,6 @@ package org.tomahawk.tomahawk_android.utils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.PlaylistEntry;
-import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
@@ -44,28 +42,11 @@ public class ShareUtils {
 
     public static final String DEFAULT_SHARE_PREFIX = "#musthear";
 
-    public static void sendShareIntent(Activity activity, TomahawkListItem item) {
+    public static void sendShareIntent(Activity activity, Album item) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
-        if (item instanceof PlaylistEntry) {
-            item = ((PlaylistEntry) item).getQuery();
-        } else if (item instanceof SocialAction) {
-            item = ((SocialAction) item).getTarget();
-        }
-
-        if (item instanceof Album) {
-            shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg((Album) item));
-            activity.startActivity(shareIntent);
-        } else if (item instanceof Artist) {
-            shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg((Artist) item));
-            activity.startActivity(shareIntent);
-        } else if (item instanceof Query) {
-            shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg((Query) item));
-            activity.startActivity(shareIntent);
-        } else if (item instanceof Playlist) {
-            shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg((Playlist) item));
-            activity.startActivity(shareIntent);
-        }
+        shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg(item));
+        activity.startActivity(shareIntent);
     }
 
     public static String generateLink(Album album) {
@@ -94,6 +75,14 @@ public class ShareUtils {
         return null;
     }
 
+
+    public static void sendShareIntent(Activity activity, Artist item) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg(item));
+        activity.startActivity(shareIntent);
+    }
+
     public static String generateLink(Artist artist) {
         if (artist != null) {
             String urlStr = sHatchetBaseUrl + "music/" + artist.getName();
@@ -114,6 +103,14 @@ public class ShareUtils {
             return DEFAULT_SHARE_PREFIX + " " + artist.getName() + " - " + generateLink(artist);
         }
         return null;
+    }
+
+
+    public static void sendShareIntent(Activity activity, Query item) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg(item));
+        activity.startActivity(shareIntent);
     }
 
     public static String generateLink(Query query) {
@@ -140,6 +137,14 @@ public class ShareUtils {
                     + " - " + generateLink(query);
         }
         return null;
+    }
+
+
+    public static void sendShareIntent(Activity activity, Playlist item) {
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_TEXT, ShareUtils.generateShareMsg(item));
+        activity.startActivity(shareIntent);
     }
 
     public static String generateLink(Playlist playlist, User user) {

@@ -17,24 +17,14 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
-
 import android.text.TextUtils;
 
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class represents a {@link Track}.
  */
-public class Track implements TomahawkListItem {
-
-    private static final ConcurrentHashMap<String, Track> sTracks
-            = new ConcurrentHashMap<>();
-
-    private final String mCacheKey;
+public class Track extends Cacheable {
 
     private final String mName;
 
@@ -54,14 +44,11 @@ public class Track implements TomahawkListItem {
      * Construct a new {@link Track}
      */
     private Track(String trackName, Album album, Artist artist) {
-        if (trackName == null) {
-            mName = "";
-        } else {
-            mName = trackName;
-        }
+        super(Track.class, getCacheKey(trackName, album.getName(), artist.getName()));
+
+        mName = trackName != null ? trackName : "";
         mAlbum = album;
         mArtist = artist;
-        mCacheKey = TomahawkUtils.getCacheKey(this);
     }
 
     /**
@@ -71,49 +58,18 @@ public class Track implements TomahawkListItem {
      * @return {@link Track} with the given id
      */
     public static Track get(String trackName, Album album, Artist artist) {
-        if (artist == null) {
-            artist = Artist.get("");
-        }
-        if (album == null) {
-            album = Album.get("", artist);
-        }
-        Track track = new Track(trackName, album, artist);
-        return ensureCache(track);
+        Cacheable cacheable = get(Track.class,
+                getCacheKey(trackName, album.getName(), artist.getName()));
+        return cacheable != null ? (Track) cacheable : new Track(trackName, album, artist);
     }
 
-    /**
-     * If Track is already in our cache, return that. Otherwise add it to the cache.
-     */
-    private static Track ensureCache(Track track) {
-        if (!sTracks.containsKey(track.getCacheKey())) {
-            sTracks.put(track.getCacheKey(), track);
-        }
-        return sTracks.get(track.getCacheKey());
-    }
-
-    public String getCacheKey() {
-        return mCacheKey;
-    }
-
-    /**
-     * Get the {@link org.tomahawk.libtomahawk.collection.Track} by providing its cache key
-     */
-    public static Track getTrackByKey(String key) {
-        return sTracks.get(key);
+    public static Track getByKey(String cacheKey) {
+        return (Track) get(Track.class, cacheKey);
     }
 
     /**
      * @return the {@link Track}'s name
      */
-    @Override
-    public String toString() {
-        return mName;
-    }
-
-    /**
-     * @return the {@link Track}'s name
-     */
-    @Override
     public String getName() {
         return mName;
     }
@@ -121,7 +77,6 @@ public class Track implements TomahawkListItem {
     /**
      * @return the {@link Track}'s {@link Artist}
      */
-    @Override
     public Artist getArtist() {
         return mArtist;
     }
@@ -129,17 +84,10 @@ public class Track implements TomahawkListItem {
     /**
      * @return the {@link Track}'s {@link Album}
      */
-    @Override
     public Album getAlbum() {
         return mAlbum;
     }
 
-    @Override
-    public ArrayList<Query> getQueries() {
-        return null;
-    }
-
-    @Override
     public Image getImage() {
         if (mAlbum.getImage() != null && !TextUtils.isEmpty(mAlbum.getImage().getImagePath())) {
             return mAlbum.getImage();

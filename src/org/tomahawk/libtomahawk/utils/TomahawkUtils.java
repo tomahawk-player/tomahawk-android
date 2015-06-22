@@ -12,21 +12,14 @@ import com.squareup.picasso.Target;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
-import org.tomahawk.libtomahawk.collection.PlaylistEntry;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.User;
-import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptInterface;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.CircularImageTransformation;
 import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -226,45 +219,6 @@ public class TomahawkUtils {
             Log.e(TAG, "stringToDate: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         return date;
-    }
-
-    public static String getCacheKey(String... strings) {
-        String result = "";
-        for (String s : strings) {
-            result += "\t\t" + s.toLowerCase();
-        }
-        return result;
-    }
-
-    public static String getCacheKey(TomahawkListItem tomahawkListItem) {
-        if (tomahawkListItem instanceof Artist) {
-            return getCacheKey(tomahawkListItem.getName());
-        } else if (tomahawkListItem instanceof Album) {
-            return getCacheKey(tomahawkListItem.getName(), tomahawkListItem.getArtist().getName());
-        } else if (tomahawkListItem instanceof Track) {
-            return getCacheKey(tomahawkListItem.getName(), tomahawkListItem.getAlbum().getName(),
-                    tomahawkListItem.getArtist().getName());
-        } else if (tomahawkListItem instanceof Query) {
-            Query query = ((Query) tomahawkListItem);
-            if (query.isFullTextQuery()) {
-                return getCacheKey(query.getFullTextQuery(), String.valueOf(query.isOnlyLocal()));
-            } else {
-                return getCacheKey(query.getBasicTrack().getCacheKey(), query.getResultHint());
-            }
-        } else if (tomahawkListItem instanceof PlaylistEntry) {
-            PlaylistEntry playlistEntry = ((PlaylistEntry) tomahawkListItem);
-            return getCacheKey(playlistEntry.getPlaylistId(), playlistEntry.getId());
-        }
-        return "";
-    }
-
-    public static String getCacheKey(Image image) {
-        return getCacheKey(image.getImagePath());
-    }
-
-    public static String getCacheKey(Result result) {
-        return getCacheKey(result.getTrack().getCacheKey(), result.getAlbum().getCacheKey(),
-                result.getArtist().getCacheKey(), result.getPath());
     }
 
     /**

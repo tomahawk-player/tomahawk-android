@@ -37,7 +37,6 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.os.Bundle;
@@ -225,7 +224,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     } else {
                         socialActionsList = mUser.getSocialActions();
                     }
-                    List<List<TomahawkListItem>> mergedActionsList = new ArrayList<>();
+                    List<List<SocialAction>> mergedActionsList = new ArrayList<>();
                     int i = 0;
                     while (socialActionsList.get(i) != null) {
                         List<SocialAction> socialActions = new ArrayList<>(
@@ -247,13 +246,13 @@ public class SocialActionsFragment extends TomahawkFragment implements
                                     && action && (socialAction.getTargetObject() instanceof Query
                                     || socialAction.getTargetObject() instanceof Album
                                     || socialAction.getTargetObject() instanceof Artist))) {
-                                List<TomahawkListItem> mergedActions = new ArrayList<>();
+                                List<SocialAction> mergedActions = new ArrayList<>();
                                 mergedActions.add(socialAction);
                                 if (socialAction.getTargetObject() instanceof Query) {
                                     mShownQueries.add((Query) socialAction.getTargetObject());
                                 }
                                 List<SocialAction> actionsToDelete = new ArrayList<>();
-                                for (TomahawkListItem item : socialActions) {
+                                for (Object item : socialActions) {
                                     SocialAction actionToCompare = (SocialAction) item;
                                     if (actionToCompare.getUser() == socialAction.getUser()
                                             && actionToCompare.getType().equals(
@@ -261,7 +260,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                                             && actionToCompare.getTargetObject().getClass()
                                             == socialAction.getTargetObject().getClass()) {
                                         boolean alreadyMerged = false;
-                                        for (TomahawkListItem mergedItem : mergedActions) {
+                                        for (Object mergedItem : mergedActions) {
                                             SocialAction mergedAction = (SocialAction) mergedItem;
                                             if (mergedAction.getTargetObject()
                                                     == actionToCompare.getTargetObject()) {

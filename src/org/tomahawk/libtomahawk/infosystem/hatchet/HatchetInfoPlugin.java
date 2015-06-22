@@ -25,12 +25,12 @@ import com.squareup.okhttp.OkHttpClient;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.NativeCollection;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
-import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -64,7 +64,6 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.util.Log;
@@ -141,8 +140,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
     private HatchetAuthenticatorUtils mHatchetAuthenticatorUtils;
 
-    private final ConcurrentHashMap<String, TomahawkListItem> mItemsToBeFilled
-            = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Object> mItemsToBeFilled = new ConcurrentHashMap<>();
 
     private final Hatchet mHatchet;
 
@@ -215,7 +213,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
      *                       results from the Hatchet API
      */
     @Override
-    public void resolve(InfoRequestData infoRequestData, TomahawkListItem itemToBeFilled) {
+    public void resolve(InfoRequestData infoRequestData, Object itemToBeFilled) {
         mItemsToBeFilled.put(infoRequestData.getRequestId(), itemToBeFilled);
         resolve(infoRequestData);
     }
@@ -459,7 +457,6 @@ public class HatchetInfoPlugin implements InfoPlugin {
                             Set<Query> convertedTracks =
                                     InfoSystemUtils.convertToQueries(albumTracks,
                                             convertedAlbum.getName(), convertedArtist.getName());
-                            convertedArtist.addAlbum(convertedAlbum);
                             hatchetCollection.addAlbum(convertedAlbum);
                             hatchetCollection.addArtistAlbum(convertedArtist, convertedAlbum);
                             hatchetCollection.addAlbumTracks(convertedAlbum, convertedTracks);
@@ -638,9 +635,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                                         user, track, artist, image));
                             }
                         }
-                        TreeMap<User, String> relationships =
-                                new TreeMap<>(new TomahawkListItemComparator(
-                                        TomahawkListItemComparator.COMPARE_ALPHA));
+                        TreeMap<User, String> relationships = new TreeMap<>(new AlphaComparator());
                         for (User user : convertedUsers) {
                             relationships.put(user, relationShipIds.get(user.getId()));
                         }

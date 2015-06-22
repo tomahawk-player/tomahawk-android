@@ -18,10 +18,10 @@
 package org.tomahawk.libtomahawk.database;
 
 import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
-import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
@@ -311,8 +311,7 @@ public class DatabaseHelper {
             playlistsCursor.moveToNext();
         }
         playlistsCursor.close();
-        Collections.sort(playListList,
-                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
+        Collections.sort(playListList, new AlphaComparator());
         mCachedPlaylists = playListList;
         return mCachedPlaylists;
     }

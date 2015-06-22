@@ -18,10 +18,11 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
+import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
+import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -160,13 +161,11 @@ public class ArtistsFragment extends TomahawkFragment {
             case 0:
                 UserCollection userColl = (UserCollection) CollectionManager.getInstance()
                         .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                Collections.sort(artists, new TomahawkListItemComparator(
-                        TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
-                        userColl.getArtistAddedTimeStamps()));
+                Collections.sort(artists,
+                        new LastModifiedComparator(userColl.getArtistTimeStamps()));
                 break;
             case 1:
-                Collections.sort(artists, new TomahawkListItemComparator(
-                        TomahawkListItemComparator.COMPARE_ALPHA));
+                Collections.sort(artists, new AlphaComparator());
                 break;
         }
         return artists;

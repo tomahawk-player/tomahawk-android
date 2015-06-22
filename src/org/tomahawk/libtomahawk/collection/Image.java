@@ -17,18 +17,15 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.res.Resources;
 import android.util.DisplayMetrics;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * Class which represents a Tomahawk {@link org.tomahawk.libtomahawk.collection.Image}.
  */
-public class Image {
+public class Image extends Cacheable {
 
     private static final float IMAGE_SIZE_SMALL = 0.2f;
 
@@ -37,11 +34,6 @@ public class Image {
     private static int sScreenHeightPixels = 0;
 
     private static int sScreenWidthPixels = 0;
-
-    private static final ConcurrentHashMap<String, Image> sImages
-            = new ConcurrentHashMap<>();
-
-    private String mCacheKey;
 
     private final String mImagePath;
 
@@ -55,24 +47,22 @@ public class Image {
      * Construct a new {@link org.tomahawk.libtomahawk.collection.Image}
      */
     private Image(String imagePath, boolean isHatchetImage) {
+        super(Image.class, getCacheKey(imagePath));
+
         mImagePath = imagePath;
         mIsHatchetImage = isHatchetImage;
-        if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
-        }
     }
 
     /**
      * Construct a new {@link org.tomahawk.libtomahawk.collection.Image}
      */
     private Image(String imagePath, boolean isHatchetImage, int width, int height) {
+        super(Image.class, getCacheKey(imagePath));
+
         mImagePath = imagePath;
         mIsHatchetImage = isHatchetImage;
         mWidth = width;
         mHeight = height;
-        if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
-        }
     }
 
     /**
@@ -81,12 +71,8 @@ public class Image {
      * static {@link java.util.concurrent.ConcurrentHashMap} yet, construct and add it.
      */
     public static Image get(String imagePath, boolean scaleItDown) {
-        Image image = new Image(imagePath, scaleItDown);
-        String key = TomahawkUtils.getCacheKey(image);
-        if (!sImages.containsKey(key)) {
-            sImages.put(key, image);
-        }
-        return sImages.get(key);
+        Cacheable cacheable = get(Image.class, getCacheKey(imagePath));
+        return cacheable != null ? (Image) cacheable : new Image(imagePath, scaleItDown);
     }
 
     /**
@@ -95,29 +81,9 @@ public class Image {
      * static {@link java.util.concurrent.ConcurrentHashMap} yet, construct and add it.
      */
     public static Image get(String imagePath, boolean scaleItDown, int width, int height) {
-        Image image = new Image(imagePath, scaleItDown, width, height);
-        return ensureCache(image);
-    }
-
-    /**
-     * If Image is already in our cache, return that. Otherwise add it to the cache.
-     */
-    private static Image ensureCache(Image image) {
-        if (!sImages.containsKey(image.getCacheKey())) {
-            sImages.put(image.getCacheKey(), image);
-        }
-        return sImages.get(image.getCacheKey());
-    }
-
-    public String getCacheKey() {
-        return mCacheKey;
-    }
-
-    /**
-     * Get the {@link org.tomahawk.libtomahawk.collection.Image} by providing its cache key
-     */
-    public static Image getImageByKey(String key) {
-        return sImages.get(key);
+        Cacheable cacheable = get(Image.class, getCacheKey(imagePath));
+        return cacheable != null ? (Image) cacheable
+                : new Image(imagePath, scaleItDown, width, height);
     }
 
     public String getImagePath() {

@@ -41,7 +41,6 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -415,7 +414,7 @@ public class InfoSystem {
      *                       results from its source
      * @return the created InfoRequestData's requestId
      */
-    public String resolve(int type, QueryParams params, TomahawkListItem itemToBeFilled) {
+    public String resolve(int type, QueryParams params, Object itemToBeFilled) {
         return resolve(type, params, itemToBeFilled, false);
     }
 
@@ -430,7 +429,7 @@ public class InfoSystem {
      *                            the lowest priority (useful for sync operations)
      * @return the created InfoRequestData's requestId
      */
-    public String resolve(int type, QueryParams params, TomahawkListItem itemToBeFilled,
+    public String resolve(int type, QueryParams params, Object itemToBeFilled,
             boolean isBackgroundRequest) {
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params,
@@ -461,8 +460,7 @@ public class InfoSystem {
      * @param itemToBeFilled  the item to automatically be filled after the InfoPlugin fetched the
      *                        results from its source
      */
-    public void resolve(InfoRequestData infoRequestData,
-            TomahawkListItem itemToBeFilled) {
+    public void resolve(InfoRequestData infoRequestData, Object itemToBeFilled) {
         for (InfoPlugin infoPlugin : mInfoPlugins) {
             infoPlugin.resolve(infoRequestData, itemToBeFilled);
         }

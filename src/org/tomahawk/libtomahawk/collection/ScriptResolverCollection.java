@@ -158,8 +158,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                     public void onReportResults(JsonArray results) {
                         Set<Artist> artists;
                         if (sorted) {
-                            artists = new TreeSet<>(new TomahawkListItemComparator(
-                                    TomahawkListItemComparator.COMPARE_ALPHA));
+                            artists = new TreeSet<>(new AlphaComparator());
                         } else {
                             artists = new HashSet<>();
                         }
@@ -189,8 +188,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                     public void onReportResults(JsonArray results) {
                         Set<Album> albums;
                         if (sorted) {
-                            albums = new TreeSet<>(new TomahawkListItemComparator(
-                                    TomahawkListItemComparator.COMPARE_ALPHA));
+                            albums = new TreeSet<>(new AlphaComparator());
                         } else {
                             albums = new HashSet<>();
                         }
@@ -226,8 +224,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                             public void onReportResults(JsonArray results) {
                                 Set<Album> albums;
                                 if (sorted) {
-                                    albums = new TreeSet<>(new TomahawkListItemComparator(
-                                            TomahawkListItemComparator.COMPARE_ALPHA));
+                                    albums = new TreeSet<>(new AlphaComparator());
                                 } else {
                                     albums = new HashSet<>();
                                 }

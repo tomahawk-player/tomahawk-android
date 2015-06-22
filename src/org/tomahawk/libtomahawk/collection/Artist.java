@@ -17,180 +17,48 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.QueryComparator;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * This class represents an {@link Artist}.
  */
-public class Artist implements TomahawkListItem {
-
-    private static final ConcurrentHashMap<String, Artist> sArtists
-            = new ConcurrentHashMap<>();
-
-    private String mCacheKey;
+public class Artist extends Cacheable implements AlphaComparable {
 
     private final String mName;
 
     private ListItemString mBio;
 
-    private final ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<>();
-
-    private final ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<>();
-
     private Image mImage;
 
     /**
-     * Construct a new {@link Artist} with the given name
+     * Construct a new {@link Artist}
      */
     private Artist(String artistName) {
-        if (artistName == null) {
-            mName = "";
-        } else {
-            mName = artistName;
-        }
-        if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
-        }
+        super(Artist.class, getCacheKey(artistName));
+
+        mName = artistName != null ? artistName : "";
     }
 
     /**
-     * Returns the {@link Artist} with the given id. If none exists in our static {@link
-     * ConcurrentHashMap} yet, construct and add it.
-     *
-     * @return {@link Artist} with the given id
+     * Returns the {@link Artist} with the given album name. If none exists in the cache yet,
+     * construct and add it.
      */
     public static Artist get(String artistName) {
-        Artist artist = new Artist(artistName);
-        return ensureCache(artist);
+        Cacheable cacheable = get(Artist.class, getCacheKey(artistName));
+        return cacheable != null ? (Artist) cacheable : new Artist(artistName);
     }
 
-    /**
-     * If Artist is already in our cache, return that. Otherwise add it to the cache.
-     */
-    private static Artist ensureCache(Artist artist) {
-        if (!sArtists.containsKey(artist.getCacheKey())) {
-            sArtists.put(artist.getCacheKey(), artist);
-        }
-        return sArtists.get(artist.getCacheKey());
-    }
-
-    public String getCacheKey() {
-        return mCacheKey;
-    }
-
-    /**
-     * Get the {@link org.tomahawk.libtomahawk.collection.Artist} by providing its cache key
-     */
-    public static Artist getArtistByKey(String key) {
-        return sArtists.get(key);
-    }
-
-    /**
-     * @return A {@link java.util.List} of all {@link Artist}s
-     */
-    public static ArrayList<Artist> getArtists() {
-        ArrayList<Artist> artists = new ArrayList<>(sArtists.values());
-        Collections.sort(artists,
-                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
-        return artists;
-    }
-
-    /**
-     * @return this object's name
-     */
-    @Override
-    public String toString() {
-        return mName;
+    public static Artist getByKey(String cacheKey) {
+        return (Artist) get(Artist.class, cacheKey);
     }
 
     /**
      * @return this object' name
      */
-    @Override
     public String getName() {
         return mName;
     }
 
-    /**
-     * @return this object
-     */
-    @Override
-    public Artist getArtist() {
-        return this;
-    }
-
-    /**
-     * This method returns the first {@link Album} of this object. If none exists, returns null.
-     * It's needed to comply to the {@link TomahawkListItem} interface.
-     *
-     * @return First {@link Album} of this object. If none exists, returns null.
-     */
-    @Override
-    public Album getAlbum() {
-        if (!mAlbums.isEmpty()) {
-            ArrayList<Album> albums = new ArrayList<>(mAlbums.values());
-            return albums.get(0);
-        }
-        return null;
-    }
-
-    /**
-     * @param query the {@link org.tomahawk.libtomahawk.resolver.Query} to be added
-     */
-    public void addQuery(Query query) {
-        synchronized (this) {
-            if (!mQueries.containsKey(query.getCacheKey())) {
-                mQueries.put(query.getCacheKey(), query);
-            }
-        }
-    }
-
-    /**
-     * @return list of all {@link org.tomahawk.libtomahawk.resolver.Query}s from this object.
-     */
-    @Override
-    public ArrayList<Query> getQueries() {
-        ArrayList<Query> queries;
-        queries = new ArrayList<>(mQueries.values());
-        Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALPHA));
-        return queries;
-    }
-
-    @Override
     public Image getImage() {
         return mImage;
-    }
-
-    /**
-     * Add an {@link Album} to this object
-     *
-     * @param album the {@link Album} to be added
-     */
-    public void addAlbum(Album album) {
-        synchronized (this) {
-            if (!mAlbums.containsKey(album.getCacheKey())) {
-                mAlbums.put(album.getCacheKey(), album);
-            }
-        }
-    }
-
-    /**
-     * Get a list of all {@link Album}s from this object.
-     *
-     * @return list of all {@link Album}s from this object.
-     */
-    public ArrayList<Album> getAlbums() {
-        ArrayList<Album> albums = new ArrayList<>(mAlbums.values());
-        Collections.sort(albums,
-                new TomahawkListItemComparator(TomahawkListItemComparator.COMPARE_ALPHA));
-        return albums;
     }
 
     public void setImage(Image image) {

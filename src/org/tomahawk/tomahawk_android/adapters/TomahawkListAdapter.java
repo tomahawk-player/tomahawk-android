@@ -39,7 +39,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.BiDirectionalFrame;
 
 import android.content.SharedPreferences;
@@ -172,8 +171,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     }
 
     /**
-     * Set whether or not to highlight the currently playing {@link TomahawkListItem} and show the
-     * play/pause state
+     * Set whether or not to highlight the currently playing {@link Query} and show the play/pause
+     * state
      */
     public void setShowPlaystate(boolean showPlaystate) {
         this.mShowPlaystate = showPlaystate;
@@ -403,10 +402,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                         || viewHolder.mLayoutId == R.layout.list_item_user) {
                     viewHolder.fillView((User) item);
                 } else if (viewHolder.mLayoutId == R.layout.single_line_list_item) {
-                    viewHolder.fillView(((TomahawkListItem) item).getName());
+                    viewHolder.fillView(((Playlist) item).getName());
                 } else if (viewHolder.mLayoutId == R.layout.list_item_text
                         || viewHolder.mLayoutId == R.layout.list_item_text_highlighted) {
-                    viewHolder.fillView(((TomahawkListItem) item).getName());
+                    viewHolder.fillView(((ListItemString) item).getText());
                 } else if (viewHolder.mLayoutId == R.layout.list_item_track_artist
                         || viewType == R.layout.list_item_numeration_track_artist
                         || viewType == R.layout.list_item_numeration_track_duration) {
