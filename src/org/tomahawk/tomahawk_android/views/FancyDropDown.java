@@ -91,10 +91,6 @@ public class FancyDropDown extends FrameLayout {
         inflate(getContext(), R.layout.fancydropdown, this);
     }
 
-    public void setup(String text) {
-        setup(0, text, null, null);
-    }
-
     public void setup(int initialSelection, String selectedText,
             List<DropDownItemInfo> dropDownItemInfos, DropDownListener dropDownListener) {
         mListener = dropDownListener;

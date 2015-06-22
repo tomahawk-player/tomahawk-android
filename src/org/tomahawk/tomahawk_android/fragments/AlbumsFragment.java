@@ -19,11 +19,13 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.AlphaComparator;
+import org.tomahawk.libtomahawk.collection.ArtistAlphaComparator;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
+import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -211,17 +213,14 @@ public class AlbumsFragment extends TomahawkFragment {
             case 0:
                 UserCollection userColl = (UserCollection) CollectionManager.getInstance()
                         .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                Collections.sort(albums, new TomahawkListItemComparator(
-                        TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
-                        userColl.getAlbumAddedTimeStamps()));
+                Collections.sort(albums, new LastModifiedComparator(
+                        userColl.getAlbumTimeStamps()));
                 break;
             case 1:
-                Collections.sort(albums, new TomahawkListItemComparator(
-                        TomahawkListItemComparator.COMPARE_ALPHA));
+                Collections.sort(albums, new AlphaComparator());
                 break;
             case 2:
-                Collections.sort(albums, new TomahawkListItemComparator(
-                        TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
+                Collections.sort(albums, new ArtistAlphaComparator());
                 break;
         }
         return albums;

@@ -23,7 +23,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PageIndicator;
 import org.tomahawk.tomahawk_android.views.Selector;
@@ -246,10 +245,10 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
     protected abstract void onInfoSystemResultsReported(InfoRequestData infoRequestData);
 
-    protected void showFancyDropDown(TomahawkListItem item, int initialSelection,
+    protected void showFancyDropDown(String selectedText, int initialSelection,
             List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
             FancyDropDown.DropDownListener dropDownListener) {
-        super.showFancyDropDown(initialSelection, item.getName().toUpperCase(), dropDownItemInfos,
+        super.showFancyDropDown(initialSelection, selectedText.toUpperCase(), dropDownItemInfos,
                 dropDownListener);
     }
 

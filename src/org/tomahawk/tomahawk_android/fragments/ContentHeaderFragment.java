@@ -225,13 +225,7 @@ public class ContentHeaderFragment extends Fragment {
     }
 
     protected void showFancyDropDown(String text) {
-        if (getView() == null) {
-            Log.e(TAG, "Couldn't setup FancyDropDown, because getView() is null!");
-            return;
-        }
-
-        FancyDropDown fancyDropDown = (FancyDropDown) getView().findViewById(R.id.fancydropdown);
-        fancyDropDown.setup(text);
+        showFancyDropDown(0, text, null, null);
     }
 
     protected void showFancyDropDown(int initialSelection, String text,

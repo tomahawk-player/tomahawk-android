@@ -33,7 +33,6 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.content.res.Resources;
@@ -416,7 +415,7 @@ public class ViewHolder {
         TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
                 userImageView1, socialAction.getUser(),
                 Image.getSmallImageSize(), userTextView);
-        TomahawkListItem targetObject = socialAction.getTargetObject();
+        Object targetObject = socialAction.getTargetObject();
         Resources resources = TomahawkApp.getContext().getResources();
         String userName = socialAction.getUser().getName();
         String phrase = "!FIXME! type: " + socialAction.getType()

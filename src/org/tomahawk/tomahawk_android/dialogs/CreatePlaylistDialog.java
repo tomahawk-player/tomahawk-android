@@ -56,7 +56,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
             String playlistId = getArguments().getString(TomahawkFragment.PLAYLIST);
             mPlaylist = DatabaseHelper.getInstance().getPlaylist(playlistId);
             if (mPlaylist == null) {
-                mPlaylist = Playlist.getPlaylistById(playlistId);
+                mPlaylist = Playlist.getByKey(playlistId);
                 if (mPlaylist == null) {
                     dismiss();
                 }

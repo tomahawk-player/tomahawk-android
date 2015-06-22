@@ -137,7 +137,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 segment.setShowNumeration(true, 1);
                 fillAdapter(segment);
                 showContentHeader(mPlaylist);
-                showFancyDropDown(mPlaylist);
+                showFancyDropDown(mPlaylist.getName());
                 ThreadManager.getInstance()
                         .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW) {
                             @Override

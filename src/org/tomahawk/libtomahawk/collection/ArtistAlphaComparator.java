@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Christopher Reichert <creichert07@gmail.com>
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,40 +17,22 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import java.util.Comparator;
+
 /**
- * This class represents an {@link ListItemString}.
+ * This class is used to compare two {@link Object}s.
  */
-public class ListItemString {
-
-    private final String mText;
-
-    private boolean mHighlighted;
+public class ArtistAlphaComparator implements Comparator<ArtistAlphaComparable> {
 
     /**
-     * Construct a new {@link ListItemString} with the given text
+     * The comparison method
+     *
+     * @param o1 First object to compare
+     * @param o2 Second object to compare
+     * @return int containing comparison score
      */
-    public ListItemString(String text, boolean highlighted) {
-        this(text);
-
-        mHighlighted = highlighted;
-    }
-
-    /**
-     * Construct a new {@link ListItemString} with the given text
-     */
-    public ListItemString(String text) {
-        if (text == null) {
-            mText = "";
-        } else {
-            mText = text;
-        }
-    }
-
-    public String getText() {
-        return mText;
-    }
-
-    public boolean isHighlighted() {
-        return mHighlighted;
+    @Override
+    public int compare(ArtistAlphaComparable o1, ArtistAlphaComparable o2) {
+        return o1.getArtist().getName().compareToIgnoreCase(o2.getArtist().getName());
     }
 }

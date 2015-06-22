@@ -19,7 +19,6 @@ package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -31,9 +30,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * A {@link Playlist} is a {@link org.tomahawk.libtomahawk.collection.Playlist} created by the user
  * and stored in the database
  */
-public class Playlist implements TomahawkListItem {
+public class Playlist extends Cacheable implements AlphaComparable {
 
-    private String mName = "";
+    private String mName;
 
     private ArrayList<PlaylistEntry> mEntries = new ArrayList<>();
 
@@ -56,13 +55,11 @@ public class Playlist implements TomahawkListItem {
      * Construct a new empty {@link Playlist}.
      */
     private Playlist(String id, String name, String currentRevision) {
-        if (name != null) {
-            mName = name;
-        }
+        super(Playlist.class, id);
+
+        mName = name != null ? name : "";
         mId = id;
-        if (currentRevision != null) {
-            mCurrentRevision = currentRevision;
-        }
+        mCurrentRevision = currentRevision != null ? currentRevision : "";
     }
 
     /**
@@ -72,18 +69,8 @@ public class Playlist implements TomahawkListItem {
      * @return {@link Playlist} with the given parameters
      */
     public static Playlist get(String id, String name, String currentRevision) {
-        Playlist playlist = new Playlist(id, name, currentRevision);
-        return ensureCache(playlist);
-    }
-
-    /**
-     * If PlaylistEntry is already in our cache, return that. Otherwise add it to the cache.
-     */
-    private static Playlist ensureCache(Playlist playlist) {
-        if (!sPlaylists.containsKey(playlist.getCacheKey())) {
-            sPlaylists.put(playlist.getCacheKey(), playlist);
-        }
-        return sPlaylists.get(playlist.getCacheKey());
+        Cacheable cacheable = get(Playlist.class, id);
+        return cacheable != null ? (Playlist) cacheable : new Playlist(id, name, currentRevision);
     }
 
     /**
@@ -136,12 +123,8 @@ public class Playlist implements TomahawkListItem {
      * Get the {@link org.tomahawk.libtomahawk.collection.Playlist} by providing its cache key. Only
      * use this for playlists that are not stored in the database!
      */
-    public static Playlist getPlaylistById(String key) {
-        return sPlaylists.get(key);
-    }
-
-    public String getCacheKey() {
-        return mId;
+    public static Playlist getByKey(String id) {
+        return (Playlist) get(Playlist.class, id);
     }
 
     public String getId() {
@@ -150,7 +133,7 @@ public class Playlist implements TomahawkListItem {
 
     public void setId(String id) {
         mId = id;
-        ensureCache(this);
+        put(Playlist.class, id, this);
     }
 
     public String getHatchetId() {
@@ -210,7 +193,6 @@ public class Playlist implements TomahawkListItem {
     /**
      * @return this object' name
      */
-    @Override
     public String getName() {
         return mName;
     }
@@ -359,34 +341,12 @@ public class Playlist implements TomahawkListItem {
         return mEntries.remove(entry);
     }
 
-    /**
-     * @return always null. This method needed to comply to the {@link TomahawkListItem} interface.
-     */
-    @Override
-    public Artist getArtist() {
-        return null;
-    }
-
-    /**
-     * @return always null. This method needed to comply to the {@link TomahawkListItem} interface.
-     */
-    @Override
-    public Album getAlbum() {
-        return null;
-    }
-
-    @Override
     public ArrayList<Query> getQueries() {
         ArrayList<Query> queries = new ArrayList<>();
         for (PlaylistEntry entry : mEntries) {
             queries.add(entry.getQuery());
         }
         return queries;
-    }
-
-    @Override
-    public Image getImage() {
-        return null;
     }
 
     public long getCount() {

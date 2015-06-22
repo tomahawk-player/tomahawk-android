@@ -178,7 +178,7 @@ public class MicroService extends Service {
                     MicroService.State state = MicroService.State
                             .valueOf(extras.getString(EXTRA_STATE));
 
-                    Track track = Track.getTrackByKey(extras.getString(EXTRA_TRACKKEY));
+                    Track track = Track.getByKey(extras.getString(EXTRA_TRACKKEY));
                     boolean isSameAsCurrentTrack = extras
                             .containsKey(EXTRA_IS_SAME_AS_CURRENT_TRACK);
                     String source = extras.getString(EXTRA_SOURCE);

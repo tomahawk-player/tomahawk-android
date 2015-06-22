@@ -154,17 +154,15 @@ public class UserCollection extends NativeCollection {
             Result result = Result.get(media.getLocation(), track, userCollectionResolver);
             query.addTrackResult(result, 1f);
             queries.add(query);
-            if (mAlbumAddedTimeStamps.get(query.getAlbum().getName()) == null
-                    || mAlbumAddedTimeStamps.get(query.getAlbum().getName()) < media
-                    .getLastModified()) {
-                mAlbumAddedTimeStamps.put(query.getAlbum().getName(), media.getLastModified());
+            if (mAlbumTimeStamps.get(query.getAlbum()) == null
+                    || mAlbumTimeStamps.get(query.getAlbum()) < media.getLastModified()) {
+                mAlbumTimeStamps.put(query.getAlbum(), media.getLastModified());
             }
-            if (mArtistAddedTimeStamps.get(query.getArtist().getName()) == null
-                    || mArtistAddedTimeStamps.get(query.getArtist().getName()) < media
-                    .getLastModified()) {
-                mArtistAddedTimeStamps.put(query.getArtist().getName(), media.getLastModified());
+            if (mArtistTimeStamps.get(query.getArtist()) == null
+                    || mArtistTimeStamps.get(query.getArtist()) < media.getLastModified()) {
+                mArtistTimeStamps.put(query.getArtist(), media.getLastModified());
             }
-            mTrackAddedTimeStamps.put(query, media.getLastModified());
+            mQueryTimeStamps.put(query, media.getLastModified());
         }
         return new ADeferredObject<Set<Query>, String, Object>().resolve(queries);
     }
@@ -181,18 +179,16 @@ public class UserCollection extends NativeCollection {
                 if (!artistMap.containsKey(media.getArtist().toLowerCase())) {
                     Artist artist = Artist.get(media.getArtist());
                     artistMap.put(media.getArtist().toLowerCase(), artist);
-                }
-                if (mArtistAddedTimeStamps.get(media.getArtist().toLowerCase()) == null
-                        || mArtistAddedTimeStamps.get(media.getArtist().toLowerCase()) < media
-                        .getLastModified()) {
-                    mArtistAddedTimeStamps
-                            .put(media.getArtist().toLowerCase(), media.getLastModified());
+                    if (mArtistTimeStamps.get(artist) == null
+                            || mArtistTimeStamps.get(artist) < media.getLastModified()) {
+                        mArtistTimeStamps.put(artist, media.getLastModified());
+                    }
                 }
             }
         }
         Set<Artist> artists;
         if (sorted) {
-            artists = new TreeSet<>(new TomahawkListItemComparator(QueryComparator.COMPARE_ALPHA));
+            artists = new TreeSet<>(new AlphaComparator());
             artists.addAll(artistMap.values());
         } else {
             artists = new HashSet<>(artistMap.values());
@@ -216,18 +212,16 @@ public class UserCollection extends NativeCollection {
                         album.setImage(Image.get(media.getArtworkURL(), false));
                     }
                     albumMap.put(media.getAlbum().toLowerCase(), album);
-                }
-                if (mAlbumAddedTimeStamps.get(media.getAlbum().toLowerCase()) == null
-                        || mAlbumAddedTimeStamps.get(media.getAlbum().toLowerCase()) < media
-                        .getLastModified()) {
-                    mAlbumAddedTimeStamps
-                            .put(media.getAlbum().toLowerCase(), media.getLastModified());
+                    if (mAlbumTimeStamps.get(album) == null
+                            || mAlbumTimeStamps.get(album) < media.getLastModified()) {
+                        mAlbumTimeStamps.put(album, media.getLastModified());
+                    }
                 }
             }
         }
         Set<Album> albums;
         if (sorted) {
-            albums = new TreeSet<>(new TomahawkListItemComparator(QueryComparator.COMPARE_ALPHA));
+            albums = new TreeSet<>(new AlphaComparator());
             albums.addAll(albumMap.values());
         } else {
             albums = new HashSet<>(albumMap.values());
@@ -253,7 +247,7 @@ public class UserCollection extends NativeCollection {
         }
         Set<Album> albums;
         if (sorted) {
-            albums = new TreeSet<>(new TomahawkListItemComparator(QueryComparator.COMPARE_ALPHA));
+            albums = new TreeSet<>(new AlphaComparator());
             albums.addAll(albumMap.values());
         } else {
             albums = new HashSet<>(albumMap.values());

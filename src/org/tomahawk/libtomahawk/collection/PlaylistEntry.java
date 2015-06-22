@@ -18,22 +18,14 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class represents a entry in a playlist. It is needed because we need to be able to
  * distinguish for example between two same queries in a Playlist.
  */
-public class PlaylistEntry implements TomahawkListItem {
-
-    private static final ConcurrentHashMap<String, PlaylistEntry> sPlaylistEntries
-            = new ConcurrentHashMap<>();
-
-    private final String mCacheKey;
+public class PlaylistEntry extends Cacheable {
 
     private final String mId;
 
@@ -45,10 +37,11 @@ public class PlaylistEntry implements TomahawkListItem {
      * Construct a new {@link org.tomahawk.libtomahawk.collection.PlaylistEntry}
      */
     private PlaylistEntry(String playlistId, Query query, String entryId) {
+        super(PlaylistEntry.class, getCacheKey(playlistId, entryId));
+
         mPlaylistId = playlistId;
         mQuery = query;
         mId = entryId;
-        mCacheKey = TomahawkUtils.getCacheKey(this);
     }
 
     /**
@@ -58,55 +51,13 @@ public class PlaylistEntry implements TomahawkListItem {
      * @return {@link PlaylistEntry} with the given parameters
      */
     public static PlaylistEntry get(String playlistId, Query query, String entryId) {
-        PlaylistEntry entry = new PlaylistEntry(playlistId, query, entryId);
-        return ensureCache(entry);
+        Cacheable cacheable = get(PlaylistEntry.class, getCacheKey(playlistId, entryId));
+        return cacheable != null ? (PlaylistEntry) cacheable
+                : new PlaylistEntry(playlistId, query, entryId);
     }
 
-    /**
-     * If PlaylistEntry is already in our cache, return that. Otherwise add it to the cache.
-     */
-    private static PlaylistEntry ensureCache(PlaylistEntry playlistEntry) {
-        if (!sPlaylistEntries.containsKey(playlistEntry.getCacheKey())) {
-            sPlaylistEntries.put(playlistEntry.getCacheKey(), playlistEntry);
-        }
-        return sPlaylistEntries.get(playlistEntry.getCacheKey());
-    }
-
-    /**
-     * Get the {@link org.tomahawk.libtomahawk.collection.PlaylistEntry} by providing its cache key
-     */
-    public static PlaylistEntry getPlaylistEntryByKey(String key) {
-        return sPlaylistEntries.get(key);
-    }
-
-    @Override
-    public String getCacheKey() {
-        return mCacheKey;
-    }
-
-    @Override
-    public String getName() {
-        return mQuery.getName();
-    }
-
-    @Override
-    public Artist getArtist() {
-        return mQuery.getArtist();
-    }
-
-    @Override
-    public Album getAlbum() {
-        return mQuery.getAlbum();
-    }
-
-    @Override
-    public ArrayList<Query> getQueries() {
-        return mQuery.getQueries();
-    }
-
-    @Override
-    public Image getImage() {
-        return mQuery.getImage();
+    public static PlaylistEntry getByKey(String cacheKey) {
+        return (PlaylistEntry) get(PlaylistEntry.class, cacheKey);
     }
 
     public String getId() {
@@ -119,5 +70,17 @@ public class PlaylistEntry implements TomahawkListItem {
 
     public Query getQuery() {
         return mQuery;
+    }
+
+    public String getName() {
+        return mQuery.getName();
+    }
+
+    public Artist getArtist() {
+        return mQuery.getArtist();
+    }
+
+    public Album getAlbum() {
+        return mQuery.getAlbum();
     }
 }

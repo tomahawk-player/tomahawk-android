@@ -17,30 +17,12 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.QueryComparator;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Class which represents a Tomahawk {@link Album}.
  */
-public class Album implements TomahawkListItem {
-
-    private static final ConcurrentHashMap<String, Album> sAlbums
-            = new ConcurrentHashMap<>();
-
-    private String mCacheKey;
-
-    private final HashSet<String> mQueryKeys = new HashSet<>();
-
-    private final ArrayList<Query> mQueries = new ArrayList<>();
+public class Album extends Cacheable implements AlphaComparable, ArtistAlphaComparable {
 
     private final String mName;
 
@@ -48,24 +30,14 @@ public class Album implements TomahawkListItem {
 
     private Image mImage;
 
-    private String mFirstYear;
-
-    private String mLastYear;
-
     /**
      * Construct a new {@link Album}
      */
     private Album(String albumName, Artist artist) {
-        if (albumName == null) {
-            mName = "";
-        } else {
-            mName = albumName;
-        }
+        super(Album.class, getCacheKey(albumName, artist.getName()));
+
+        mName = albumName != null ? albumName : "";
         mArtist = artist;
-        if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
-        }
-        mArtist.addAlbum(this);
     }
 
     /**
@@ -73,109 +45,24 @@ public class Album implements TomahawkListItem {
      * If none exists in our static {@link ConcurrentHashMap} yet, construct and add it.
      */
     public static Album get(String albumName, Artist artist) {
-        if (artist == null) {
-            artist = Artist.get("");
-        }
-        Album album = new Album(albumName, artist);
-        return ensureCache(album);
+        Cacheable cacheable = get(Album.class, getCacheKey(albumName, artist.getName()));
+        return cacheable != null ? (Album) cacheable : new Album(albumName, artist);
     }
 
-    /**
-     * If Album is already in our cache, return that. Otherwise add it to the cache.
-     */
-    private static Album ensureCache(Album album) {
-        if (!sAlbums.containsKey(album.getCacheKey())) {
-            sAlbums.put(album.getCacheKey(), album);
-        }
-        return sAlbums.get(album.getCacheKey());
-    }
-
-    public String getCacheKey() {
-        return mCacheKey;
-    }
-
-    /**
-     * Get the {@link org.tomahawk.libtomahawk.collection.Album} by providing its cache key
-     */
-    public static Album getAlbumByKey(String key) {
-        return sAlbums.get(key);
+    public static Album getByKey(String cacheKey) {
+        return (Album) get(Album.class, cacheKey);
     }
 
     /**
      * @return the {@link Album}'s name
      */
-    @Override
-    public String toString() {
-        return mName;
-    }
-
-    /**
-     * @return the {@link Album}'s name
-     */
-    @Override
     public String getName() {
         return mName;
     }
 
     /**
-     * @return the {@link Album}'s {@link Artist}
-     */
-    @Override
-    public Artist getArtist() {
-        return mArtist;
-    }
-
-    /**
-     * @return this {@link Album}
-     */
-    @Override
-    public Album getAlbum() {
-        return this;
-    }
-
-    /**
-     * Add a {@link Track} to this {@link Album}.
-     *
-     * @param query the {@link Track} to be added
-     */
-    public void addQuery(Query query) {
-        synchronized (this) {
-            if (!mQueryKeys.contains(query.getCacheKey())) {
-                mQueries.add(query);
-                mQueryKeys.add(query.getCacheKey());
-            }
-        }
-    }
-
-    /**
-     * Add a list of {@link Query}s to this {@link Album}.
-     *
-     * @param queries the list of {@link Query}s to be added
-     */
-    public void addQueries(List<Query> queries) {
-        for (Query query : queries) {
-            addQuery(query);
-        }
-    }
-
-    /**
-     * Get a list of all {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link Album}.
-     *
-     * @return list of all {@link org.tomahawk.libtomahawk.resolver.Query}s from this {@link Album}.
-     */
-    @Override
-    public ArrayList<Query> getQueries() {
-        ArrayList<Query> queries = new ArrayList<>(mQueries);
-        synchronized (this) {
-            Collections.sort(queries, new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
-        }
-        return queries;
-    }
-
-    /**
      * @return the filePath/url to this {@link Album}'s albumArt
      */
-    @Override
     public Image getImage() {
         return mImage;
     }
@@ -190,35 +77,10 @@ public class Album implements TomahawkListItem {
     }
 
     /**
-     * @return {@link String} containing the first year info
+     * @return the {@link Album}'s {@link Artist}
      */
-    public String getFirstYear() {
-        return mFirstYear;
-    }
-
-    /**
-     * Set the first year info
-     *
-     * @param firstYear {@link String} containing first year info
-     */
-    public void setFirstYear(String firstYear) {
-        mFirstYear = firstYear;
-    }
-
-    /**
-     * @return {@link String} containing the last year info
-     */
-    public String getLastYear() {
-        return mLastYear;
-    }
-
-    /**
-     * Set the last year info
-     *
-     * @param lastYear {@link String} containing last year info
-     */
-    public void setLastYear(String lastYear) {
-        mLastYear = lastYear;
+    public Artist getArtist() {
+        return mArtist;
     }
 
 }

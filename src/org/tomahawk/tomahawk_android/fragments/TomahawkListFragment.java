@@ -23,7 +23,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.StickyBaseAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
 import android.content.Context;
@@ -217,18 +216,18 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         }
     }
 
-    protected void showFancyDropDown(TomahawkListItem item) {
+    protected void showFancyDropDown(String text) {
         if (mContainerFragmentClass == null) {
-            super.showFancyDropDown(item.getName().toUpperCase());
+            super.showFancyDropDown(text.toUpperCase());
         }
     }
 
-    protected void showFancyDropDown(TomahawkListItem item, int initialSelection,
+    protected void showFancyDropDown(String text, int initialSelection,
             List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
             FancyDropDown.DropDownListener dropDownListener) {
         if (mContainerFragmentClass == null) {
-            super.showFancyDropDown(initialSelection, item.getName().toUpperCase(),
-                    dropDownItemInfos, dropDownListener);
+            super.showFancyDropDown(initialSelection, text.toUpperCase(), dropDownItemInfos,
+                    dropDownListener);
         }
     }
 

@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,16 +15,10 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk.infosystem;
+package org.tomahawk.libtomahawk.collection;
 
-import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+public interface AlphaComparable {
 
-public interface InfoPlugin {
-
-    void send(InfoRequestData infoRequestData, AuthenticatorUtils authenticatorUtils);
-
-    void resolve(InfoRequestData infoRequestData);
-
-    void resolve(InfoRequestData infoRequestData, Object itemToBeFilled);
+    String getName();
 
 }

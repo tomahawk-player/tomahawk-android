@@ -42,7 +42,7 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.annotation.SuppressLint;
@@ -68,8 +68,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
- * {@link PlaylistsFragment} and {@link SearchPagerFragment}. Provides all sorts of functionality to
- * those classes, related to displaying {@link TomahawkListItem}s in whichever needed way.
+ * {@link PlaylistsFragment} and {@link SearchPagerFragment}.
  */
 public abstract class TomahawkFragment extends TomahawkListFragment
         implements MultiColumnClickListener, AbsListView.OnScrollListener {
@@ -147,7 +146,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected final Set<String> mCorrespondingRequestIds =
             Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-    protected final HashSet<TomahawkListItem> mResolvingItems = new HashSet<>();
+    protected final HashSet<Object> mResolvingItems = new HashSet<>();
 
     protected final Set<Query> mCorrespondingQueries
             = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
@@ -296,7 +295,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         if (getArguments() != null) {
             if (getArguments().containsKey(ALBUM)
                     && !TextUtils.isEmpty(getArguments().getString(ALBUM))) {
-                mAlbum = Album.getAlbumByKey(getArguments().getString(ALBUM));
+                mAlbum = Album.getByKey(getArguments().getString(ALBUM));
                 if (mAlbum == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
@@ -312,7 +311,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 String playlistId = getArguments().getString(TomahawkFragment.PLAYLIST);
                 mPlaylist = DatabaseHelper.getInstance().getPlaylist(playlistId);
                 if (mPlaylist == null) {
-                    mPlaylist = Playlist.getPlaylistById(playlistId);
+                    mPlaylist = Playlist.getByKey(playlistId);
                     if (mPlaylist == null) {
                         getActivity().getSupportFragmentManager().popBackStack();
                         return;
@@ -331,7 +330,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
             if (getArguments().containsKey(ARTIST)
                     && !TextUtils.isEmpty(getArguments().getString(ARTIST))) {
-                mArtist = Artist.getArtistByKey(getArguments().getString(ARTIST));
+                mArtist = Artist.getByKey(getArguments().getString(ARTIST));
                 if (mArtist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
@@ -361,7 +360,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
             if (getArguments().containsKey(QUERY)
                     && !TextUtils.isEmpty(getArguments().getString(QUERY))) {
-                mQuery = Query.getQueryByKey(getArguments().getString(QUERY));
+                mQuery = Query.getByKey(getArguments().getString(QUERY));
                 if (mQuery == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
@@ -381,8 +380,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
             if (getArguments().containsKey(ARTISTARRAY)) {
                 mArtistArray = new ArrayList<>();
-                for (String userId : getArguments().getStringArrayList(ARTISTARRAY)) {
-                    Artist artist = Artist.getArtistByKey(userId);
+                for (String artistKey : getArguments().getStringArrayList(ARTISTARRAY)) {
+                    Artist artist = Artist.getByKey(artistKey);
                     if (artist != null) {
                         mArtistArray.add(artist);
                     }
@@ -390,8 +389,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
             if (getArguments().containsKey(ALBUMARRAY)) {
                 mAlbumArray = new ArrayList<>();
-                for (String userId : getArguments().getStringArrayList(ALBUMARRAY)) {
-                    Album album = Album.getAlbumByKey(userId);
+                for (String albumKey : getArguments().getStringArrayList(ALBUMARRAY)) {
+                    Album album = Album.getByKey(albumKey);
                     if (album != null) {
                         mAlbumArray.add(album);
                     }
@@ -399,8 +398,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
             if (getArguments().containsKey(QUERYARRAY)) {
                 mQueryArray = new ArrayList<>();
-                for (String userId : getArguments().getStringArrayList(QUERYARRAY)) {
-                    Query query = Query.getQueryByKey(userId);
+                for (String queryKey : getArguments().getStringArrayList(QUERYARRAY)) {
+                    Query query = Query.getByKey(queryKey);
                     if (query != null) {
                         mQueryArray.add(query);
                     }
@@ -616,41 +615,101 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 Object object = mTomahawkListAdapter.getItem(i);
                 if (object instanceof List) {
                     for (Object item : (List) object) {
-                        if (item instanceof TomahawkListItem) {
-                            resolveItem((TomahawkListItem) item);
-                        }
+                        resolveItem(item);
                     }
-                } else if (object instanceof TomahawkListItem) {
-                    resolveItem((TomahawkListItem) object);
+                } else {
+                    resolveItem(object);
                 }
             }
         }
     }
 
-    protected void resolveItem(TomahawkListItem item) {
-        InfoSystem infoSystem = InfoSystem.getInstance();
-        if (!mResolvingItems.contains(item)) {
-            mResolvingItems.add(item);
-            if (item instanceof SocialAction) {
-                resolveItem(((SocialAction) item).getTargetObject());
-                resolveItem(((SocialAction) item).getUser());
-            } else if (item instanceof Album) {
-                if (item.getImage() == null) {
-                    String requestId = InfoSystem.getInstance().resolve((Album) item);
-                    if (requestId != null) {
-                        mCorrespondingRequestIds.add(requestId);
+    protected void resolveItem(final Object object) {
+        if (object instanceof Playlist) {
+            resolveItem((Playlist) object);
+        } else if (object instanceof SocialAction) {
+            resolveItem((SocialAction) object);
+        } else if (object instanceof Album) {
+            resolveItem((Album) object);
+        } else if (object instanceof Artist) {
+            resolveItem((Artist) object);
+        } else if (object instanceof User) {
+            resolveItem((User) object);
+        }
+    }
+
+    protected void resolveItem(final Playlist playlist) {
+        HatchetAuthenticatorUtils authenticatorUtils
+                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        if (mUser == null || mUser == authenticatorUtils.getLoggedInUser()) {
+            TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
+                @Override
+                public void run() {
+                    if (mResolvingItems.add(playlist)) {
+                        Playlist pl = playlist;
+                        if (pl.getEntries().size() == 0) {
+                            pl = DatabaseHelper.getInstance().getPlaylist(pl.getId());
+                        }
+                        if (pl != null && pl.getEntries().size() > 0) {
+                            pl.updateTopArtistNames();
+                            DatabaseHelper.getInstance().updatePlaylist(pl);
+                            if (pl.getTopArtistNames() != null) {
+                                for (int i = 0; i < pl.getTopArtistNames().length && i < 5;
+                                        i++) {
+                                    resolveItem(Artist.get(pl.getTopArtistNames()[i]));
+                                }
+                            }
+                        } else {
+                            mResolvingItems.remove(pl);
+                        }
                     }
                 }
-            } else if (item instanceof Artist) {
-                if (item.getImage() == null) {
-                    mCorrespondingRequestIds.addAll(infoSystem.resolve((Artist) item, false));
+            };
+            ThreadManager.getInstance().execute(r);
+        }
+    }
+
+    protected void resolveItem(SocialAction socialAction) {
+        if (mResolvingItems.add(socialAction)) {
+            if (socialAction.getTarget() != null) {
+                resolveItem(socialAction.getTarget());
+            } else if (socialAction.getArtist() != null) {
+                resolveItem(socialAction.getArtist());
+            } else if (socialAction.getAlbum() != null) {
+                resolveItem(socialAction.getAlbum());
+            } else if (socialAction.getPlaylist() != null) {
+                resolveItem(socialAction.getPlaylist());
+            }
+            resolveItem(socialAction.getUser());
+        }
+    }
+
+    protected void resolveItem(Album album) {
+        if (mResolvingItems.add(album)) {
+            if (album.getImage() == null) {
+                String requestId = InfoSystem.getInstance().resolve(album);
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
                 }
-            } else if (item instanceof User) {
-                if (item.getImage() == null) {
-                    String requestId = InfoSystem.getInstance().resolve((User) item);
-                    if (requestId != null) {
-                        mCorrespondingRequestIds.add(requestId);
-                    }
+            }
+        }
+    }
+
+    protected void resolveItem(Artist artist) {
+        if (mResolvingItems.add(artist)) {
+            if (artist.getImage() == null) {
+                mCorrespondingRequestIds.addAll(InfoSystem.getInstance().resolve(artist, false));
+            }
+        }
+    }
+
+    protected void resolveItem(User user) {
+        if (mResolvingItems.add(user)) {
+            if (user.getImage() == null) {
+                String requestId = InfoSystem.getInstance().resolve(user);
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
                 }
             }
         }

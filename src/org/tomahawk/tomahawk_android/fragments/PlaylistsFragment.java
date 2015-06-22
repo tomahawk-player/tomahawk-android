@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
-import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -36,7 +35,6 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.os.Bundle;
@@ -176,44 +174,6 @@ public class PlaylistsFragment extends TomahawkFragment {
         }
         fillAdapter(segments);
         showContentHeader(R.drawable.playlists_header);
-    }
-
-    @Override
-    protected void resolveItem(final TomahawkListItem item) {
-        if (item instanceof Playlist) {
-            HatchetAuthenticatorUtils authenticatorUtils
-                    = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            if (mUser == null || mUser == authenticatorUtils.getLoggedInUser()) {
-                TomahawkRunnable r = new TomahawkRunnable(
-                        TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
-                    @Override
-                    public void run() {
-                        if (!mResolvingItems.contains(item)) {
-                            mResolvingItems.add(item);
-                            Playlist pl = (Playlist) item;
-                            if (pl.getEntries().size() == 0) {
-                                pl = DatabaseHelper.getInstance().getPlaylist(pl.getId());
-                            }
-                            if (pl != null && pl.getEntries().size() > 0) {
-                                pl.updateTopArtistNames();
-                                DatabaseHelper.getInstance().updatePlaylist(pl);
-                                if (pl.getTopArtistNames() != null) {
-                                    for (int i = 0; i < pl.getTopArtistNames().length && i < 5;
-                                            i++) {
-                                        PlaylistsFragment.super
-                                                .resolveItem(Artist.get(pl.getTopArtistNames()[i]));
-                                    }
-                                }
-                            } else {
-                                mResolvingItems.remove(item);
-                            }
-                        }
-                    }
-                };
-                ThreadManager.getInstance().execute(r);
-            }
-        }
     }
 
     private void refreshPlaylists() {

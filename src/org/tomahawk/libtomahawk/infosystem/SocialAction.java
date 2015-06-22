@@ -19,19 +19,14 @@ package org.tomahawk.libtomahawk.infosystem;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.concurrent.ConcurrentHashMap;
 
-public class SocialAction implements TomahawkListItem {
-
-    private static final ConcurrentHashMap<String, SocialAction> sSocialActions
-            = new ConcurrentHashMap<>();
+public class SocialAction extends Cacheable {
 
     private final String mId;
 
@@ -59,6 +54,8 @@ public class SocialAction implements TomahawkListItem {
      * Construct a new {@link SocialAction} with the given id
      */
     private SocialAction(String id) {
+        super(SocialAction.class, id);
+
         mId = id;
     }
 
@@ -69,55 +66,21 @@ public class SocialAction implements TomahawkListItem {
      * @return {@link SocialAction} with the given id
      */
     public static SocialAction get(String id) {
-        SocialAction socialAction = new SocialAction(id);
-        if (!sSocialActions.containsKey(socialAction.getId())) {
-            sSocialActions.put(socialAction.getId(), socialAction);
-        }
-        return sSocialActions.get(socialAction.getId());
+        Cacheable cacheable = get(SocialAction.class, id);
+        return cacheable != null ? (SocialAction) cacheable : new SocialAction(id);
     }
 
     /**
      * Get a SocialAction by providing its id
      */
-    public static SocialAction getSocialActionById(String id) {
-        return sSocialActions.get(id);
+    public static SocialAction getByKey(String id) {
+        return (SocialAction) get(SocialAction.class, id);
     }
 
-    /**
-     * @return A {@link java.util.List} of all {@link SocialAction}s
-     */
-    public static ArrayList<SocialAction> getSocialActions() {
-        return new ArrayList<>(sSocialActions.values());
-    }
-
-    @Override
-    public String getCacheKey() {
-        return mId;
-    }
-
-    @Override
     public String getName() {
         return null;
     }
 
-    @Override
-    public Artist getArtist() {
-        return mArtist;
-    }
-
-    @Override
-    public Album getAlbum() {
-        return mAlbum;
-    }
-
-    @Override
-    public ArrayList<Query> getQueries() {
-        ArrayList<Query> queries = new ArrayList<>();
-        queries.add(mQuery);
-        return queries;
-    }
-
-    @Override
     public Image getImage() {
         if (mQuery.getImage() != null) {
             return mQuery.getImage();
@@ -130,7 +93,7 @@ public class SocialAction implements TomahawkListItem {
         }
     }
 
-    public TomahawkListItem getTargetObject() {
+    public Object getTargetObject() {
         if (mTarget != null) {
             return mTarget;
         } else if (mArtist != null) {
@@ -157,8 +120,16 @@ public class SocialAction implements TomahawkListItem {
         mAction = action;
     }
 
+    public Album getAlbum() {
+        return mAlbum;
+    }
+
     public void setAlbum(Album album) {
         mAlbum = album;
+    }
+
+    public Artist getArtist() {
+        return mArtist;
     }
 
     public void setArtist(Artist artist) {

@@ -45,7 +45,7 @@ public class CollectionUtils {
         } else {
             HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
                     .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
-            return hatchetCollection.getAlbumTracks(album, false);
+            return hatchetCollection.getAlbumTracks(album, true);
         }
     }
 

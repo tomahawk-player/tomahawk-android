@@ -19,28 +19,21 @@ package org.tomahawk.libtomahawk.resolver;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
-import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
-
-import java.util.concurrent.ConcurrentHashMap;
+import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 
 /**
  * This class represents a {@link Result}, which will be returned by a {@link Resolver}.
  */
-public class Result {
-
-    private static final ConcurrentHashMap<String, Result> sResults
-            = new ConcurrentHashMap<>();
+public class Result extends Cacheable {
 
     private TomahawkMediaPlayer mMediaPlayerInterface;
-
-    private String mCacheKey;
 
     private Artist mArtist;
 
@@ -71,6 +64,9 @@ public class Result {
      * Construct a new {@link Result} with the given {@link Track}
      */
     private Result(String url, Track track, Resolver resolvedBy) {
+        super(Result.class, getCacheKey(url, track.getName(), track.getAlbum().getName(),
+                track.getArtist().getName()));
+
         if (url == null) {
             mPath = "";
         } else {
@@ -93,70 +89,45 @@ public class Result {
         mArtist = track.getArtist();
         mAlbum = track.getAlbum();
         mTrack = track;
-        if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
-        }
     }
 
     /**
      * Construct a new {@link Result} with the given {@link Artist}
      */
     private Result(Artist artist) {
+        super(Result.class, getCacheKey(artist.getName()));
+
         mArtist = artist;
-        mAlbum = artist.getAlbum();
-        if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
-        }
     }
 
     /**
      * Construct a new {@link Result} with the given {@link Album}
      */
     private Result(Album album) {
+        super(Result.class, getCacheKey(album.getName(), album.getArtist().getName()));
+
         mAlbum = album;
-        if (mCacheKey == null) {
-            mCacheKey = TomahawkUtils.getCacheKey(this);
-        }
     }
 
     public static Result get(String url, Track track, Resolver resolvedBy) {
-        Result result = new Result(url, track, resolvedBy);
-        return ensureCache(result);
+        Cacheable cacheable = get(Result.class, getCacheKey(url, track.getName(),
+                track.getAlbum().getName(), track.getArtist().getName()));
+        return cacheable != null ? (Result) cacheable : new Result(url, track, resolvedBy);
     }
 
     public static Result get(Artist artist) {
-        Result result = new Result(artist);
-        return ensureCache(result);
+        Cacheable cacheable = get(Result.class, getCacheKey(artist.getName()));
+        return cacheable != null ? (Result) cacheable : new Result(artist);
     }
 
     public static Result get(Album album) {
-        Result result = new Result(album);
-        return ensureCache(result);
-    }
-
-    /**
-     * If Result is already in our cache, return that. Otherwise add it to the cache.
-     */
-    private static Result ensureCache(Result result) {
-        if (!sResults.containsKey(result.getCacheKey())) {
-            sResults.put(result.getCacheKey(), result);
-        }
-        return sResults.get(result.getCacheKey());
-    }
-
-    /**
-     * Get the {@link Result} by providing its cache key
-     */
-    public static Result getResultByKey(String key) {
-        return sResults.get(key);
+        Cacheable cacheable = get(Result.class,
+                getCacheKey(album.getName(), album.getArtist().getName()));
+        return cacheable != null ? (Result) cacheable : new Result(album);
     }
 
     public TomahawkMediaPlayer getMediaPlayerInterface() {
         return mMediaPlayerInterface;
-    }
-
-    public String getCacheKey() {
-        return mCacheKey;
     }
 
     /**

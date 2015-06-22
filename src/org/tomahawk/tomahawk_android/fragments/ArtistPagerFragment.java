@@ -65,10 +65,8 @@ public class ArtistPagerFragment extends PagerFragment {
                         .getInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
             if (getArguments().containsKey(TomahawkFragment.ARTIST)
-                    && !TextUtils
-                    .isEmpty(getArguments().getString(TomahawkFragment.ARTIST))) {
-                mArtist = Artist.getArtistByKey(
-                        getArguments().getString(TomahawkFragment.ARTIST));
+                    && !TextUtils.isEmpty(getArguments().getString(TomahawkFragment.ARTIST))) {
+                mArtist = Artist.getByKey(getArguments().getString(TomahawkFragment.ARTIST));
                 if (mArtist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
@@ -103,7 +101,7 @@ public class ArtistPagerFragment extends PagerFragment {
                         }
                         getArguments().putString(TomahawkFragment.COLLECTION_ID,
                                 result.get(initialSelection).getId());
-                        showFancyDropDown(mArtist, initialSelection,
+                        showFancyDropDown(mArtist.getName(), initialSelection,
                                 FancyDropDown.convertToDropDownItemInfo(result),
                                 new FancyDropDown.DropDownListener() {
                                     @Override

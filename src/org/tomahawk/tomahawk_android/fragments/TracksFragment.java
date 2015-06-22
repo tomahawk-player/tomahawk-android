@@ -18,11 +18,13 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
+import org.tomahawk.libtomahawk.collection.AlphaComparator;
+import org.tomahawk.libtomahawk.collection.ArtistAlphaComparator;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.CollectionUtils;
+import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.TomahawkListItemComparator;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
@@ -137,7 +139,7 @@ public class TracksFragment extends TomahawkFragment {
             segment.setShowDuration(true);
             fillAdapter(segment);
             showContentHeader(mQuery);
-            showFancyDropDown(mQuery);
+            showFancyDropDown(mQuery.getName());
         } else if (mQueryArray != null) {
             mShownQueries = new ArrayList<>();
             mShownQueries.addAll(mQueryArray);
@@ -179,17 +181,14 @@ public class TracksFragment extends TomahawkFragment {
             case 0:
                 UserCollection userColl = (UserCollection) CollectionManager.getInstance()
                         .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                Collections.sort(queries, new TomahawkListItemComparator(
-                        TomahawkListItemComparator.COMPARE_RECENTLY_ADDED,
-                        userColl.getTrackAddedTimeStamps()));
+                Collections.sort(queries, new LastModifiedComparator(
+                        userColl.getQueryTimeStamps()));
                 break;
             case 1:
-                Collections.sort(queries, new TomahawkListItemComparator(
-                        TomahawkListItemComparator.COMPARE_ALPHA));
+                Collections.sort(queries, new AlphaComparator());
                 break;
             case 2:
-                Collections.sort(queries, new TomahawkListItemComparator(
-                        TomahawkListItemComparator.COMPARE_ARTIST_ALPHA));
+                Collections.sort(queries, new ArtistAlphaComparator());
                 break;
         }
         return queries;
@@ -208,7 +207,7 @@ public class TracksFragment extends TomahawkFragment {
                                     break;
                                 }
                             }
-                            showFancyDropDown(mAlbum, initialSelection,
+                            showFancyDropDown(mAlbum.getName(), initialSelection,
                                     FancyDropDown.convertToDropDownItemInfo(result),
                                     new FancyDropDown.DropDownListener() {
                                         @Override

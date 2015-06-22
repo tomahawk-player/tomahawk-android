@@ -22,13 +22,11 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkListItem;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.text.TextUtils;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -46,19 +44,16 @@ public abstract class NativeCollection extends Collection {
     protected ConcurrentHashMap<Album, Set<Query>> mAlbumTracks
             = new ConcurrentHashMap<>();
 
-    protected ConcurrentHashMap<Artist, Map<String, Query>> mArtistTracks
+    protected ConcurrentHashMap<Artist, Set<Album>> mArtistAlbums
             = new ConcurrentHashMap<>();
 
-    protected ConcurrentHashMap<Artist, Map<String, Album>> mArtistAlbums
+    protected final ConcurrentHashMap<Query, Long> mQueryTimeStamps
             = new ConcurrentHashMap<>();
 
-    protected final ConcurrentHashMap<TomahawkListItem, Long> mTrackAddedTimeStamps
+    protected final ConcurrentHashMap<Artist, Long> mArtistTimeStamps
             = new ConcurrentHashMap<>();
 
-    protected final ConcurrentHashMap<String, Long> mArtistAddedTimeStamps
-            = new ConcurrentHashMap<>();
-
-    protected final ConcurrentHashMap<String, Long> mAlbumAddedTimeStamps
+    protected final ConcurrentHashMap<Album, Long> mAlbumTimeStamps
             = new ConcurrentHashMap<>();
 
     protected NativeCollection(String id, String name, boolean isLocal) {
@@ -76,7 +71,6 @@ public abstract class NativeCollection extends Collection {
         mArtists = new ConcurrentHashMap<>();
         mAlbums = new ConcurrentHashMap<>();
         mAlbumTracks = new ConcurrentHashMap<>();
-        mArtistTracks = new ConcurrentHashMap<>();
         mArtistAlbums = new ConcurrentHashMap<>();
     }
 
@@ -85,18 +79,15 @@ public abstract class NativeCollection extends Collection {
             mQueries.put(query.getCacheKey(), query);
         }
         if (addedTimeStamp > 0) {
-            if (mAlbumAddedTimeStamps.get(query.getAlbum().getName().toLowerCase()) == null
-                    || mAlbumAddedTimeStamps.get(query.getAlbum().getName().toLowerCase())
-                    < addedTimeStamp) {
-                mAlbumAddedTimeStamps.put(query.getAlbum().getName().toLowerCase(), addedTimeStamp);
+            if (mAlbumTimeStamps.get(query.getAlbum()) == null
+                    || mAlbumTimeStamps.get(query.getAlbum()) < addedTimeStamp) {
+                mAlbumTimeStamps.put(query.getAlbum(), addedTimeStamp);
             }
-            if (mArtistAddedTimeStamps.get(query.getArtist().getName().toLowerCase()) == null
-                    || mArtistAddedTimeStamps.get(query.getArtist().getName().toLowerCase())
-                    < addedTimeStamp) {
-                mArtistAddedTimeStamps
-                        .put(query.getArtist().getName().toLowerCase(), addedTimeStamp);
+            if (mArtistTimeStamps.get(query.getArtist()) == null
+                    || mArtistTimeStamps.get(query.getArtist()) < addedTimeStamp) {
+                mArtistTimeStamps.put(query.getArtist(), addedTimeStamp);
             }
-            mTrackAddedTimeStamps.put(query, addedTimeStamp);
+            mQueryTimeStamps.put(query, addedTimeStamp);
         }
     }
 
@@ -134,8 +125,7 @@ public abstract class NativeCollection extends Collection {
             public void run() {
                 Set<Artist> artists;
                 if (sorted) {
-                    artists = new TreeSet<>(
-                            new TomahawkListItemComparator(QueryComparator.COMPARE_ALPHA));
+                    artists = new TreeSet<>(new AlphaComparator());
                     artists.addAll(mArtists.values());
                 } else {
                     artists = new HashSet<>(mArtists.values());
@@ -161,8 +151,7 @@ public abstract class NativeCollection extends Collection {
             public void run() {
                 Set<Album> albums;
                 if (sorted) {
-                    albums = new TreeSet<>(
-                            new TomahawkListItemComparator(QueryComparator.COMPARE_ALPHA));
+                    albums = new TreeSet<>(new AlphaComparator());
                     albums.addAll(mAlbums.values());
                 } else {
                     albums = new HashSet<>(mAlbums.values());
@@ -176,9 +165,9 @@ public abstract class NativeCollection extends Collection {
 
     public void addArtistAlbum(Artist artist, Album album) {
         if (mArtistAlbums.get(artist) == null) {
-            mArtistAlbums.put(artist, new ConcurrentHashMap<String, Album>());
+            mArtistAlbums.put(artist, new HashSet<Album>());
         }
-        mArtistAlbums.get(artist).put(album.getCacheKey(), album);
+        mArtistAlbums.get(artist).add(album);
     }
 
     @Override
@@ -190,13 +179,12 @@ public abstract class NativeCollection extends Collection {
             public void run() {
                 Set<Album> albums;
                 if (sorted) {
-                    albums = new TreeSet<>(
-                            new TomahawkListItemComparator(QueryComparator.COMPARE_ALPHA));
+                    albums = new TreeSet<>(new AlphaComparator());
                 } else {
                     albums = new HashSet<>(mAlbums.values());
                 }
                 if (mArtistAlbums.get(artist) != null) {
-                    albums.addAll(mArtistAlbums.get(artist).values());
+                    albums.addAll(mArtistAlbums.get(artist));
                 }
                 deferred.resolve(albums);
             }
@@ -248,15 +236,15 @@ public abstract class NativeCollection extends Collection {
                 .resolve(mAlbumTracks.get(album) != null && mAlbumTracks.get(album).size() > 0);
     }
 
-    public ConcurrentHashMap<TomahawkListItem, Long> getTrackAddedTimeStamps() {
-        return mTrackAddedTimeStamps;
+    public ConcurrentHashMap<Query, Long> getQueryTimeStamps() {
+        return mQueryTimeStamps;
     }
 
-    public ConcurrentHashMap<String, Long> getArtistAddedTimeStamps() {
-        return mArtistAddedTimeStamps;
+    public ConcurrentHashMap<Artist, Long> getArtistTimeStamps() {
+        return mArtistTimeStamps;
     }
 
-    public ConcurrentHashMap<String, Long> getAlbumAddedTimeStamps() {
-        return mAlbumAddedTimeStamps;
+    public ConcurrentHashMap<Album, Long> getAlbumTimeStamps() {
+        return mAlbumTimeStamps;
     }
 }
