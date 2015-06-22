@@ -17,43 +17,11 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.jdeferred.Deferred;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Set;
 
 public class CollectionUtils {
-
-    public static Deferred<Set<Album>, String, Object> getArtistAlbums(Artist artist,
-            Collection collection) {
-        if (collection != null) {
-            return collection.getArtistAlbums(artist, false);
-        } else {
-            HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
-                    .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
-            return hatchetCollection.getArtistAlbums(artist, false);
-        }
-    }
-
-    public static Deferred<Set<Query>, String, Object> getAlbumTracks(Album album,
-            Collection collection) {
-        if (collection != null) {
-            return collection.getAlbumTracks(album, true);
-        } else {
-            HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
-                    .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
-            return hatchetCollection.getAlbumTracks(album, true);
-        }
-    }
-
-    public static ArrayList<Query> getArtistTopHits(Artist artist) {
-        HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager
-                .getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
-        return hatchetCollection.getArtistTopHits(artist);
-    }
 
     public static boolean allFromOneArtist(java.util.Collection<Query> items) {
         if (items.size() < 2) {

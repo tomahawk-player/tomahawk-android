@@ -23,9 +23,9 @@ import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.ArtistAlphaComparator;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.CollectionUtils;
-import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -137,32 +137,40 @@ public class AlbumsFragment extends TomahawkFragment {
                     @Override
                     public void onDone(Set<Album> result) {
                         fillAdapter(new Segment(
-                                mCollection.getName() + " " + getString(R.string.albums),
-                                new ArrayList<Object>(result), R.integer.grid_column_count,
-                                R.dimen.padding_superlarge, R.dimen.padding_superlarge),
+                                        mCollection.getName() + " " + getString(R.string.albums),
+                                        new ArrayList<Object>(result), R.integer.grid_column_count,
+                                        R.dimen.padding_superlarge, R.dimen.padding_superlarge),
                                 mCollection);
                     }
                 });
             } else {
-                CollectionUtils.getArtistAlbums(mArtist, null).done(new DoneCallback<Set<Album>>() {
+                if (mCollection == null) {
+                    mCollection = CollectionManager.getInstance()
+                            .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+                }
+                mCollection.getArtistAlbums(mArtist, true).done(new DoneCallback<Set<Album>>() {
                     @Override
                     public void onDone(Set<Album> result) {
-                        List<Segment> segments = new ArrayList<>();
+                        final List<Segment> segments = new ArrayList<>();
                         Segment segment = new Segment(R.string.top_albums,
                                 new ArrayList<Object>(result),
                                 R.integer.grid_column_count, R.dimen.padding_superlarge,
                                 R.dimen.padding_superlarge);
                         segments.add(segment);
-                        ArrayList<Query> topHits =
-                                CollectionUtils.getArtistTopHits(mArtist);
-                        segment = new Segment(R.string.top_hits,
-                                new ArrayList<Object>(topHits));
-                        segment.setShowNumeration(true, 1);
-                        segment.setHideArtistName(true);
-                        segment.setShowDuration(true);
-                        segments.add(segment);
-                        mShownQueries = topHits;
-                        fillAdapter(segments);
+                        ((HatchetCollection) mCollection).getArtistTopHits(mArtist).done(
+                                new DoneCallback<Set<Query>>() {
+                                    @Override
+                                    public void onDone(Set<Query> result) {
+                                        Segment segment = new Segment(R.string.top_hits,
+                                                new ArrayList<Object>(result));
+                                        segment.setShowNumeration(true, 1);
+                                        segment.setHideArtistName(true);
+                                        segment.setShowDuration(true);
+                                        segments.add(segment);
+                                        mShownQueries.addAll(result);
+                                        fillAdapter(segments);
+                                    }
+                                });
                     }
                 });
             }

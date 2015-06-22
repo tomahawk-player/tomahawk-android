@@ -115,7 +115,7 @@ public class TracksFragment extends TomahawkFragment {
         mResolveQueriesHandler.removeCallbacksAndMessages(null);
         mResolveQueriesHandler.sendEmptyMessage(RESOLVE_QUERIES_REPORTER_MSG);
         if (mAlbum != null) {
-            CollectionUtils.getAlbumTracks(mAlbum, mCollection).done(
+            mCollection.getAlbumTracks(mAlbum, true).done(
                     new DoneCallback<Set<Query>>() {
                         @Override
                         public void onDone(Set<Query> queries) {

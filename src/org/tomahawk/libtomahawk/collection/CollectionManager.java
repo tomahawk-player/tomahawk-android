@@ -20,7 +20,6 @@ package org.tomahawk.libtomahawk.collection;
 
 import com.google.common.collect.Sets;
 
-import org.jdeferred.Deferred;
 import org.jdeferred.DonePipe;
 import org.jdeferred.Promise;
 import org.jdeferred.multiple.MultipleResults;
@@ -563,7 +562,7 @@ public class CollectionManager {
 
     private Promise<List<Collection>, Throwable, Object> getAvailableCollections(Object object) {
         final List<Collection> collections = new ArrayList<>();
-        final List<Deferred> deferreds = new ArrayList<>();
+        final List<Promise> deferreds = new ArrayList<>();
         for (final Collection collection : mCollections.values()) {
             if (!collection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET)) {
                 if (object instanceof Album) {

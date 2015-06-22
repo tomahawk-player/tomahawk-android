@@ -22,6 +22,7 @@ import com.google.gson.JsonElement;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
+import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Result;
@@ -112,8 +113,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Deferred<Set<Query>, String, Object> getQueries(final boolean sorted) {
-        final Deferred<Set<Query>, String, Object> deferred = new ADeferredObject<>();
+    public Promise<Set<Query>, Throwable, Void> getQueries(final boolean sorted) {
+        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
@@ -146,8 +147,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Deferred<Set<Artist>, String, Object> getArtists(final boolean sorted) {
-        final Deferred<Set<Artist>, String, Object> deferred = new ADeferredObject<>();
+    public Promise<Set<Artist>, Throwable, Void> getArtists(final boolean sorted) {
+        final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
@@ -176,8 +177,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Deferred<Set<Album>, String, Object> getAlbums(final boolean sorted) {
-        final Deferred<Set<Album>, String, Object> deferred = new ADeferredObject<>();
+    public Promise<Set<Album>, Throwable, Void> getAlbums(final boolean sorted) {
+        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
@@ -208,9 +209,9 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Deferred<Set<Album>, String, Object> getArtistAlbums(final Artist artist,
+    public Promise<Set<Album>, Throwable, Void> getArtistAlbums(final Artist artist,
             final boolean sorted) {
-        final Deferred<Set<Album>, String, Object> deferred = new ADeferredObject<>();
+        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
@@ -244,8 +245,9 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
         return deferred;
     }
 
-    public Deferred<Boolean, String, Object> hasArtistAlbums(final Artist artist) {
-        final Deferred<Boolean, String, Object> deferred = new ADeferredObject<>();
+    @Override
+    public Promise<Boolean, Throwable, Void> hasArtistAlbums(final Artist artist) {
+        final Deferred<Boolean, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
@@ -271,9 +273,9 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Deferred<Set<Query>, String, Object> getAlbumTracks(final Album album,
+    public Promise<Set<Query>, Throwable, Void> getAlbumTracks(final Album album,
             final boolean sorted) {
-        final Deferred<Set<Query>, String, Object> deferred = new ADeferredObject<>();
+        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
@@ -311,8 +313,9 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
         return deferred;
     }
 
-    public Deferred<Boolean, String, Object> hasAlbumTracks(final Album album) {
-        final Deferred<Boolean, String, Object> deferred = new ADeferredObject<>();
+    @Override
+    public Promise<Boolean, Throwable, Void> hasAlbumTracks(final Album album) {
+        final Deferred<Boolean, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {

@@ -17,7 +17,7 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import org.jdeferred.Deferred;
+import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.resolver.Query;
 
 import android.widget.ImageView;
@@ -48,32 +48,32 @@ public abstract class Collection {
         return mName;
     }
 
-    public Deferred<Set<Query>, String, Object> getQueries() {
+    public Promise<Set<Query>, Throwable, Void> getQueries() {
         return getQueries(true);
     }
 
-    public abstract Deferred<Set<Query>, String, Object> getQueries(boolean sorted);
+    public abstract Promise<Set<Query>, Throwable, Void> getQueries(boolean sorted);
 
-    public Deferred<Set<Artist>, String, Object> getArtists() {
+    public Promise<Set<Artist>, Throwable, Void> getArtists() {
         return getArtists(true);
     }
 
-    public abstract Deferred<Set<Artist>, String, Object> getArtists(boolean sorted);
+    public abstract Promise<Set<Artist>, Throwable, Void> getArtists(boolean sorted);
 
-    public Deferred<Set<Album>, String, Object> getAlbums() {
+    public Promise<Set<Album>, Throwable, Void> getAlbums() {
         return getAlbums(true);
     }
 
-    public abstract Deferred<Set<Album>, String, Object> getAlbums(boolean sorted);
+    public abstract Promise<Set<Album>, Throwable, Void> getAlbums(boolean sorted);
 
-    public abstract Deferred<Set<Album>, String, Object> getArtistAlbums(Artist artist,
+    public abstract Promise<Set<Album>, Throwable, Void> getArtistAlbums(Artist artist,
             boolean sorted);
 
-    public abstract Deferred<Boolean, String, Object> hasArtistAlbums(Artist artist);
+    public abstract Promise<Boolean, Throwable, Void> hasArtistAlbums(Artist artist);
 
-    public abstract Deferred<Set<Query>, String, Object> getAlbumTracks(Album album,
+    public abstract Promise<Set<Query>, Throwable, Void> getAlbumTracks(Album album,
             boolean sorted);
 
-    public abstract Deferred<Boolean, String, Object> hasAlbumTracks(Album album);
+    public abstract Promise<Boolean, Throwable, Void> hasAlbumTracks(Album album);
 
 }

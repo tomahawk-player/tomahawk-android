@@ -18,17 +18,18 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.jdeferred.Deferred;
+import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
-import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
+import org.tomahawk.libtomahawk.utils.BetterDeferredManager;
 
 import android.text.TextUtils;
 
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class NativeCollection extends Collection {
@@ -92,11 +93,11 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Deferred<Set<Query>, String, Object> getQueries(final boolean sorted) {
-        final Deferred<Set<Query>, String, Object> deferred = new ADeferredObject<>();
-        TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
+    public Promise<Set<Query>, Throwable, Void> getQueries(final boolean sorted) {
+        BetterDeferredManager dm = new BetterDeferredManager();
+        return dm.when(new Callable<Set<Query>>() {
             @Override
-            public void run() {
+            public Set<Query> call() throws Exception {
                 Set<Query> queries;
                 if (sorted) {
                     queries = new TreeSet<>(new QueryComparator(QueryComparator.COMPARE_ALPHA));
@@ -104,11 +105,9 @@ public abstract class NativeCollection extends Collection {
                 } else {
                     queries = new HashSet<>(mQueries.values());
                 }
-                deferred.resolve(queries);
+                return queries;
             }
-        };
-        ThreadManager.getInstance().execute(r);
-        return deferred;
+        });
     }
 
     public void addArtist(Artist artist) {
@@ -118,11 +117,11 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Deferred<Set<Artist>, String, Object> getArtists(final boolean sorted) {
-        final Deferred<Set<Artist>, String, Object> deferred = new ADeferredObject<>();
-        TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
+    public Promise<Set<Artist>, Throwable, Void> getArtists(final boolean sorted) {
+        BetterDeferredManager dm = new BetterDeferredManager();
+        return dm.when(new Callable<Set<Artist>>() {
             @Override
-            public void run() {
+            public Set<Artist> call() throws Exception {
                 Set<Artist> artists;
                 if (sorted) {
                     artists = new TreeSet<>(new AlphaComparator());
@@ -130,11 +129,9 @@ public abstract class NativeCollection extends Collection {
                 } else {
                     artists = new HashSet<>(mArtists.values());
                 }
-                deferred.resolve(artists);
+                return artists;
             }
-        };
-        ThreadManager.getInstance().execute(r);
-        return deferred;
+        });
     }
 
     public void addAlbum(Album album) {
@@ -144,11 +141,11 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Deferred<Set<Album>, String, Object> getAlbums(final boolean sorted) {
-        final Deferred<Set<Album>, String, Object> deferred = new ADeferredObject<>();
-        TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
+    public Promise<Set<Album>, Throwable, Void> getAlbums(final boolean sorted) {
+        BetterDeferredManager dm = new BetterDeferredManager();
+        return dm.when(new Callable<Set<Album>>() {
             @Override
-            public void run() {
+            public Set<Album> call() throws Exception {
                 Set<Album> albums;
                 if (sorted) {
                     albums = new TreeSet<>(new AlphaComparator());
@@ -156,11 +153,9 @@ public abstract class NativeCollection extends Collection {
                 } else {
                     albums = new HashSet<>(mAlbums.values());
                 }
-                deferred.resolve(albums);
+                return albums;
             }
-        };
-        ThreadManager.getInstance().execute(r);
-        return deferred;
+        });
     }
 
     public void addArtistAlbum(Artist artist, Album album) {
@@ -171,12 +166,12 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Deferred<Set<Album>, String, Object> getArtistAlbums(final Artist artist,
+    public Promise<Set<Album>, Throwable, Void> getArtistAlbums(final Artist artist,
             final boolean sorted) {
-        final Deferred<Set<Album>, String, Object> deferred = new ADeferredObject<>();
-        TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
+        BetterDeferredManager dm = new BetterDeferredManager();
+        return dm.when(new Callable<Set<Album>>() {
             @Override
-            public void run() {
+            public Set<Album> call() throws Exception {
                 Set<Album> albums;
                 if (sorted) {
                     albums = new TreeSet<>(new AlphaComparator());
@@ -186,15 +181,13 @@ public abstract class NativeCollection extends Collection {
                 if (mArtistAlbums.get(artist) != null) {
                     albums.addAll(mArtistAlbums.get(artist));
                 }
-                deferred.resolve(albums);
+                return albums;
             }
-        };
-        ThreadManager.getInstance().execute(r);
-        return deferred;
+        });
     }
 
-    public Deferred<Boolean, String, Object> hasArtistAlbums(Artist artist) {
-        final Deferred<Boolean, String, Object> deferred = new ADeferredObject<>();
+    public Promise<Boolean, Throwable, Void> hasArtistAlbums(Artist artist) {
+        final Deferred<Boolean, Throwable, Void> deferred = new ADeferredObject<>();
         return deferred
                 .resolve(mArtistAlbums.get(artist) != null && mArtistAlbums.get(artist).size() > 0);
     }
@@ -204,34 +197,35 @@ public abstract class NativeCollection extends Collection {
     }
 
     public void addAlbumTrack(Album album, Query query) {
+        if (mAlbumTracks.get(album) == null) {
+            mAlbumTracks.put(album, new HashSet<Query>());
+        }
         mAlbumTracks.get(album).add(query);
     }
 
     @Override
-    public Deferred<Set<Query>, String, Object> getAlbumTracks(final Album album,
+    public Promise<Set<Query>, Throwable, Void> getAlbumTracks(final Album album,
             final boolean sorted) {
-        final Deferred<Set<Query>, String, Object> deferred = new ADeferredObject<>();
-        TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
+        BetterDeferredManager dm = new BetterDeferredManager();
+        return dm.when(new Callable<Set<Query>>() {
             @Override
-            public void run() {
+            public Set<Query> call() throws Exception {
                 Set<Query> queries;
                 if (sorted) {
-                    queries = new TreeSet<>(new QueryComparator(QueryComparator.COMPARE_ALPHA));
+                    queries = new TreeSet<>(new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
                 } else {
                     queries = new HashSet<>();
                 }
                 if (mAlbumTracks.get(album) != null) {
                     queries.addAll(mAlbumTracks.get(album));
                 }
-                deferred.resolve(queries);
+                return queries;
             }
-        };
-        ThreadManager.getInstance().execute(r);
-        return deferred;
+        });
     }
 
-    public Deferred<Boolean, String, Object> hasAlbumTracks(Album album) {
-        Deferred<Boolean, String, Object> deferred = new ADeferredObject<>();
+    public Promise<Boolean, Throwable, Void> hasAlbumTracks(Album album) {
+        Deferred<Boolean, Throwable, Void> deferred = new ADeferredObject<>();
         return deferred
                 .resolve(mAlbumTracks.get(album) != null && mAlbumTracks.get(album).size() > 0);
     }
