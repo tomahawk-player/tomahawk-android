@@ -23,6 +23,7 @@ import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.OnSizeChangedListener;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
@@ -61,6 +62,10 @@ public class FancyDropDown extends FrameLayout {
 
     public String mText;
 
+    private OnSizeChangedListener mOnSizeChangedListener;
+
+    private boolean mCanBeVisible = false;
+
     public static class DropDownItemInfo {
 
         public String mText;
@@ -96,6 +101,7 @@ public class FancyDropDown extends FrameLayout {
         mListener = dropDownListener;
         mText = selectedText;
         ((TextView) findViewById(R.id.textview_selected)).setText(mText);
+        mCanBeVisible = true;
 
         if (dropDownItemInfos != null && dropDownItemInfos.size() > 0) {
             // Do we really need to update? Do the new infos differ from the old ones?
@@ -292,5 +298,22 @@ public class FancyDropDown extends FrameLayout {
             dropDownItemInfos.add(dropDownItemInfo);
         }
         return dropDownItemInfos;
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        if (mCanBeVisible) {
+            setVisibility(VISIBLE);
+        }
+
+        if (mOnSizeChangedListener != null) {
+            mOnSizeChangedListener.onSizeChanged(w, h, oldw, oldh);
+        }
+    }
+
+    public void setOnSizeChangedListener(OnSizeChangedListener listener) {
+        mOnSizeChangedListener = listener;
     }
 }

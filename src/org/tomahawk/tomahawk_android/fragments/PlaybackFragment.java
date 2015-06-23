@@ -408,7 +408,9 @@ public class PlaybackFragment extends TomahawkFragment {
                                     getLayedOutView().getHeight() / -4)
                             .setDuration(10000);
                     animator.setInterpolator(new AccelerateDecelerateInterpolator());
-                    addAnimator(animator);
+                    addAnimator(ANIM_ALBUMART_ID, animator);
+
+                    refreshAnimations();
                 }
             });
         }

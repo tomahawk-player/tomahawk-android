@@ -23,6 +23,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 import org.tomahawk.tomahawk_android.fragments.PagerFragment;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
+import org.tomahawk.tomahawk_android.utils.OnSizeChangedListener;
 
 import android.content.Context;
 import android.graphics.ColorFilter;
@@ -54,6 +55,8 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
     private Selector mSelector;
 
     private String mSelectorPosStorageKey;
+
+    private OnSizeChangedListener mOnSizeChangedListener;
 
     public PageIndicator(Context context) {
         super(context);
@@ -203,5 +206,18 @@ public class PageIndicator extends LinearLayout implements ViewPager.OnPageChang
 
     @Override
     public void onPageScrollStateChanged(int i) {
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+
+        if (mOnSizeChangedListener != null) {
+            mOnSizeChangedListener.onSizeChanged(w, h, oldw, oldh);
+        }
+    }
+
+    public void setOnSizeChangedListener(OnSizeChangedListener listener) {
+        mOnSizeChangedListener = listener;
     }
 }

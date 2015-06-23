@@ -37,24 +37,24 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.OnSizeChangedListener;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
+import org.tomahawk.tomahawk_android.views.PageIndicator;
 
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import de.greenrobot.event.EventBus;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 public class ContentHeaderFragment extends Fragment {
@@ -74,6 +74,16 @@ public class ContentHeaderFragment extends Fragment {
     public static final int MODE_HEADER_STATIC_SMALL = 5;
 
     public static final int MODE_HEADER_PLAYBACK = 6;
+
+    public static final int ANIM_BUTTON_ID = 0;
+
+    public static final int ANIM_FANCYDROPDOWN_ID = 1;
+
+    public static final int ANIM_IMAGEVIEW_ID = 2;
+
+    public static final int ANIM_ALBUMART_ID = 3;
+
+    public static final int ANIM_PAGEINDICATOR_ID = 4;
 
     public static class AnimateEvent {
 
@@ -104,7 +114,7 @@ public class ContentHeaderFragment extends Fragment {
         public int mReceiverFragmentPage;
     }
 
-    private final Set<ValueAnimator> mAnimators = new HashSet<>();
+    private final SparseArray<ValueAnimator> mAnimators = new SparseArray<>();
 
     protected boolean mShowFakeFollowing = false;
 
@@ -399,8 +409,8 @@ public class ContentHeaderFragment extends Fragment {
         }
     }
 
-    protected void addAnimator(ValueAnimator animator) {
-        mAnimators.add(animator);
+    protected void addAnimator(int id, ValueAnimator animator) {
+        mAnimators.put(id, animator);
     }
 
     protected void setupAnimations() {
@@ -437,24 +447,19 @@ public class ContentHeaderFragment extends Fragment {
             }
 
             setupImageViewAnimation(headerImage);
-
-            if (mContainerFragmentId >= 0) {
-                AnimateEvent event = new AnimateEvent();
-                event.mContainerFragmentId = mContainerFragmentId;
-                event.mContainerFragmentPage = mContainerFragmentPage;
-                event.mPlayTime = mLastPlayTime;
-                EventBus.getDefault().post(event);
-            } else {
-                animate(mLastPlayTime);
-            }
         }
+    }
+
+    protected void refreshAnimations() {
+        animate(mLastPlayTime);
     }
 
     private void setupFancyDropDownAnimation(final View view) {
         if (view != null) {
-            View fancyDropDown = view.findViewById(R.id.fancydropdown);
+            final FancyDropDown fancyDropDown =
+                    (FancyDropDown) view.findViewById(R.id.fancydropdown);
             if (fancyDropDown != null) {
-                TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(fancyDropDown) {
+                final Runnable r = new Runnable() {
                     @Override
                     public void run() {
                         // get resources first
@@ -469,17 +474,26 @@ public class ContentHeaderFragment extends Fragment {
                                 R.dimen.padding_superlarge);
 
                         // now calculate the animation goal and instantiate the animation
-                        int initialX = view.getWidth() / 2 - getLayedOutView().getWidth() / 2;
+                        int initialX = view.getWidth() / 2 - fancyDropDown.getWidth() / 2;
                         int initialY = view.getHeight() / 2 - dropDownHeight / 2;
                         PropertyValuesHolder pvhX = PropertyValuesHolder.ofFloat("x", initialX,
                                 superLargePadding);
                         PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("y", initialY,
                                 actionBarHeight + smallPadding);
                         ValueAnimator animator = ObjectAnimator
-                                .ofPropertyValuesHolder(getLayedOutView(), pvhX, pvhY)
+                                .ofPropertyValuesHolder(fancyDropDown, pvhX, pvhY)
                                 .setDuration(10000);
                         animator.setInterpolator(new LinearInterpolator());
-                        addAnimator(animator);
+                        addAnimator(ANIM_FANCYDROPDOWN_ID, animator);
+
+                        refreshAnimations();
+                    }
+                };
+                r.run();
+                fancyDropDown.setOnSizeChangedListener(new OnSizeChangedListener() {
+                    @Override
+                    public void onSizeChanged(int w, int h, int oldw, int oldh) {
+                        r.run();
                     }
                 });
             }
@@ -519,7 +533,9 @@ public class ContentHeaderFragment extends Fragment {
                                 initialY, actionBarHeight + smallPadding)
                                 .setDuration(10000);
                         animator.setInterpolator(new LinearInterpolator());
-                        addAnimator(animator);
+                        addAnimator(ANIM_BUTTON_ID, animator);
+
+                        refreshAnimations();
                     }
                 });
             }
@@ -537,7 +553,9 @@ public class ContentHeaderFragment extends Fragment {
                             initialY, view.getHeight() / -3)
                             .setDuration(10000);
                     animator.setInterpolator(new LinearInterpolator());
-                    addAnimator(animator);
+                    addAnimator(ANIM_IMAGEVIEW_ID, animator);
+
+                    refreshAnimations();
                 }
             });
         }
@@ -545,19 +563,29 @@ public class ContentHeaderFragment extends Fragment {
 
     private void setupPageIndicatorAnimation(final View view) {
         if (view != null) {
-            View indicatorView = view.findViewById(R.id.page_indicator);
+            final PageIndicator indicatorView =
+                    (PageIndicator) view.findViewById(R.id.page_indicator);
             if (indicatorView != null) {
-                TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(indicatorView) {
+                final Runnable r = new Runnable() {
                     @Override
                     public void run() {
                         // now calculate the animation goal and instantiate the animation
-                        int initialY = view.getHeight() - getLayedOutView().getHeight();
-                        ValueAnimator animator = ObjectAnimator.ofFloat(getLayedOutView(), "y",
+                        int initialY = view.getHeight() - indicatorView.getHeight();
+                        ValueAnimator animator = ObjectAnimator.ofFloat(indicatorView, "y",
                                 initialY,
-                                mHeaderNonscrollableHeight - getLayedOutView().getHeight())
+                                mHeaderNonscrollableHeight - indicatorView.getHeight())
                                 .setDuration(10000);
                         animator.setInterpolator(new LinearInterpolator());
-                        addAnimator(animator);
+                        addAnimator(ANIM_PAGEINDICATOR_ID, animator);
+
+                        refreshAnimations();
+                    }
+                };
+                r.run();
+                indicatorView.setOnSizeChangedListener(new OnSizeChangedListener() {
+                    @Override
+                    public void onSizeChanged(int w, int h, int oldw, int oldh) {
+                        r.run();
                     }
                 });
             }
@@ -566,10 +594,8 @@ public class ContentHeaderFragment extends Fragment {
 
     public void animate(int position) {
         mLastPlayTime = position;
-        for (ValueAnimator animator : mAnimators) {
-            if (animator != null) {
-                animator.setCurrentPlayTime(position);
-            }
+        for (int i = 0; i < mAnimators.size(); i++) {
+            mAnimators.valueAt(i).setCurrentPlayTime(position);
         }
     }
 }

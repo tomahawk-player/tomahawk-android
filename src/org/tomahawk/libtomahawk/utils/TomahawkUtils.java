@@ -831,7 +831,7 @@ public class TomahawkUtils {
 
     public static void afterViewGlobalLayout(final ViewRunnable viewRunnable) {
         if (viewRunnable.getLayedOutView().getHeight() > 0
-                || viewRunnable.getLayedOutView().getWidth() > 0) {
+                && viewRunnable.getLayedOutView().getWidth() > 0) {
             viewRunnable.run();
         } else {
             viewRunnable.getLayedOutView().getViewTreeObserver().addOnGlobalLayoutListener(
