@@ -113,6 +113,8 @@ public class TracksFragment extends TomahawkFragment {
         }
 
         if (mAlbum != null) {
+            showContentHeader(mAlbum);
+            showAlbumFancyDropDown();
             mCollection.getAlbumTracks(mAlbum, true).done(
                     new DoneCallback<Set<Query>>() {
                         @Override
@@ -126,8 +128,6 @@ public class TracksFragment extends TomahawkFragment {
                             }
                             segment.setShowNumeration(true, 1);
                             fillAdapter(segment);
-                            showContentHeader(mAlbum);
-                            showAlbumFancyDropDown();
                         }
                     });
         } else if (mQuery != null) {
@@ -156,8 +156,6 @@ public class TracksFragment extends TomahawkFragment {
                                             constructDropdownListener(
                                                     COLLECTION_TRACKS_SPINNER_POSITION),
                                             new ArrayList<Object>(sortAlbums(mShownQueries))));
-                            showContentHeader(mAlbum);
-                            showAlbumFancyDropDown();
                         }
                     });
         }
