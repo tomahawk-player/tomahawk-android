@@ -17,7 +17,7 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-public interface AlphaComparable {
+public interface AlphaComparable extends TomahawkComparable {
 
     String getName();
 

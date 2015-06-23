@@ -658,7 +658,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                         params.userid, params.targettype, params.targetuserid, null, null, null,
                         params.type);
                 if (relationShips != null && relationShips.relationships != null) {
-                    Set<Album> convertedAlbums = new HashSet<>();
+                    List<Album> convertedAlbums = new ArrayList<>();
                     List<Artist> convertedArtists = new ArrayList<>();
                     Map<String, HatchetArtistInfo> artistsMap =
                             InfoSystemUtils.listToMap(relationShips.artists);

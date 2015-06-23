@@ -20,15 +20,15 @@ package org.tomahawk.libtomahawk.collection;
 import org.jdeferred.Deferred;
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.BetterDeferredManager;
 
 import android.text.TextUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -93,19 +93,12 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<Set<Query>, Throwable, Void> getQueries(final boolean sorted) {
+    public Promise<List<Query>, Throwable, Void> getQueries() {
         BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Query>>() {
+        return dm.when(new Callable<List<Query>>() {
             @Override
-            public Set<Query> call() throws Exception {
-                Set<Query> queries;
-                if (sorted) {
-                    queries = new TreeSet<>(new QueryComparator(QueryComparator.COMPARE_ALPHA));
-                    queries.addAll(mQueries.values());
-                } else {
-                    queries = new HashSet<>(mQueries.values());
-                }
-                return queries;
+            public List<Query> call() throws Exception {
+                return new ArrayList<>(mQueries.values());
             }
         });
     }
@@ -117,19 +110,12 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<Set<Artist>, Throwable, Void> getArtists(final boolean sorted) {
+    public Promise<List<Artist>, Throwable, Void> getArtists() {
         BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Artist>>() {
+        return dm.when(new Callable<List<Artist>>() {
             @Override
-            public Set<Artist> call() throws Exception {
-                Set<Artist> artists;
-                if (sorted) {
-                    artists = new TreeSet<>(new AlphaComparator());
-                    artists.addAll(mArtists.values());
-                } else {
-                    artists = new HashSet<>(mArtists.values());
-                }
-                return artists;
+            public List<Artist> call() throws Exception {
+                return new ArrayList<>(mArtists.values());
             }
         });
     }
@@ -141,19 +127,12 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<Set<Album>, Throwable, Void> getAlbums(final boolean sorted) {
+    public Promise<List<Album>, Throwable, Void> getAlbums() {
         BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Album>>() {
+        return dm.when(new Callable<List<Album>>() {
             @Override
-            public Set<Album> call() throws Exception {
-                Set<Album> albums;
-                if (sorted) {
-                    albums = new TreeSet<>(new AlphaComparator());
-                    albums.addAll(mAlbums.values());
-                } else {
-                    albums = new HashSet<>(mAlbums.values());
-                }
-                return albums;
+            public List<Album> call() throws Exception {
+                return new ArrayList<>(mAlbums.values());
             }
         });
     }
@@ -166,18 +145,12 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<Set<Album>, Throwable, Void> getArtistAlbums(final Artist artist,
-            final boolean sorted) {
+    public Promise<List<Album>, Throwable, Void> getArtistAlbums(final Artist artist) {
         BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Album>>() {
+        return dm.when(new Callable<List<Album>>() {
             @Override
-            public Set<Album> call() throws Exception {
-                Set<Album> albums;
-                if (sorted) {
-                    albums = new TreeSet<>(new AlphaComparator());
-                } else {
-                    albums = new HashSet<>(mAlbums.values());
-                }
+            public List<Album> call() throws Exception {
+                List<Album> albums = new ArrayList<>();
                 if (mArtistAlbums.get(artist) != null) {
                     albums.addAll(mArtistAlbums.get(artist));
                 }
@@ -204,18 +177,12 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<Set<Query>, Throwable, Void> getAlbumTracks(final Album album,
-            final boolean sorted) {
+    public Promise<List<Query>, Throwable, Void> getAlbumTracks(final Album album) {
         BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Query>>() {
+        return dm.when(new Callable<List<Query>>() {
             @Override
-            public Set<Query> call() throws Exception {
-                Set<Query> queries;
-                if (sorted) {
-                    queries = new TreeSet<>(new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
-                } else {
-                    queries = new HashSet<>();
-                }
+            public List<Query> call() throws Exception {
+                List<Query> queries = new ArrayList<>();
                 if (mAlbumTracks.get(album) != null) {
                     queries.addAll(mAlbumTracks.get(album));
                 }

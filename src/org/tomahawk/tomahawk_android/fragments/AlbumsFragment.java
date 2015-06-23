@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -129,9 +130,10 @@ public class AlbumsFragment extends TomahawkFragment {
 
         if (mArtist != null) {
             if (!TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
-                mCollection.getArtistAlbums(mArtist, true).done(new DoneCallback<Set<Album>>() {
+                mCollection.getArtistAlbums(mArtist).done(new DoneCallback<List<Album>>() {
                     @Override
-                    public void onDone(Set<Album> result) {
+                    public void onDone(List<Album> result) {
+                        sortAlbums(result);
                         fillAdapter(new Segment(
                                         mCollection.getName() + " " + getString(R.string.albums),
                                         new ArrayList<Object>(result), R.integer.grid_column_count,
@@ -140,27 +142,29 @@ public class AlbumsFragment extends TomahawkFragment {
                     }
                 });
             } else {
-                mCollection.getArtistAlbums(mArtist, true).done(new DoneCallback<Set<Album>>() {
+                mCollection.getArtistAlbums(mArtist).done(new DoneCallback<List<Album>>() {
                     @Override
-                    public void onDone(Set<Album> result) {
+                    public void onDone(List<Album> result) {
                         final List<Segment> segments = new ArrayList<>();
+                        sortAlbums(result);
                         Segment segment = new Segment(R.string.top_albums,
-                                new ArrayList<Object>(result),
-                                R.integer.grid_column_count, R.dimen.padding_superlarge,
-                                R.dimen.padding_superlarge);
+                                new ArrayList<Object>(result), R.integer.grid_column_count,
+                                R.dimen.padding_superlarge, R.dimen.padding_superlarge);
                         segments.add(segment);
                         fillAdapter(segment);
                         ((HatchetCollection) mCollection).getArtistTopHits(mArtist).done(
-                                new DoneCallback<Set<Query>>() {
+                                new DoneCallback<List<Query>>() {
                                     @Override
-                                    public void onDone(Set<Query> result) {
+                                    public void onDone(List<Query> result) {
+                                        Collections.sort(result, new QueryComparator(
+                                                QueryComparator.COMPARE_ALBUMPOS));
+                                        mShownQueries = result;
                                         Segment segment = new Segment(R.string.top_hits,
-                                                new ArrayList<Object>(result));
+                                                new ArrayList<Object>(mShownQueries));
                                         segment.setShowNumeration(true, 1);
                                         segment.setHideArtistName(true);
                                         segment.setShowDuration(true);
                                         segments.add(segment);
-                                        mShownQueries.addAll(result);
                                         fillAdapter(segments);
                                     }
                                 });
@@ -170,11 +174,12 @@ public class AlbumsFragment extends TomahawkFragment {
         } else if (mAlbumArray != null) {
             fillAdapter(new Segment(new ArrayList<Object>(mAlbumArray)));
         } else if (mUser != null) {
-            Set<Album> albums = mUser.getStarredAlbums();
+            List<Album> albums = mUser.getStarredAlbums();
+            sortAlbums(albums);
             fillAdapter(new Segment(getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION),
                     constructDropdownItems(),
                     constructDropdownListener(COLLECTION_ALBUMS_SPINNER_POSITION),
-                    new ArrayList<Object>(sortAlbums(new ArrayList<>(albums))),
+                    new ArrayList<Object>(new ArrayList<>(albums)),
                     R.integer.grid_column_count, R.dimen.padding_superlarge,
                     R.dimen.padding_superlarge));
         } else {
@@ -182,14 +187,17 @@ public class AlbumsFragment extends TomahawkFragment {
             if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
                 albums.addAll(DatabaseHelper.getInstance().getStarredAlbums());
             }
-            mCollection.getAlbums().done(new DoneCallback<Set<Album>>() {
+            mCollection.getAlbums().done(new DoneCallback<List<Album>>() {
                 @Override
-                public void onDone(Set<Album> result) {
-                    albums.addAll(sortAlbums(new ArrayList<>(result)));
+                public void onDone(List<Album> result) {
+                    albums.addAll(result);
+                    List<Album> sortedAlbums = new ArrayList<>();
+                    sortedAlbums.addAll(albums);
+                    sortAlbums(sortedAlbums);
                     fillAdapter(new Segment(getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION),
                             constructDropdownItems(),
                             constructDropdownListener(COLLECTION_ALBUMS_SPINNER_POSITION),
-                            new ArrayList<Object>(albums), R.integer.grid_column_count,
+                            new ArrayList<Object>(sortedAlbums), R.integer.grid_column_count,
                             R.dimen.padding_superlarge, R.dimen.padding_superlarge), mCollection);
                 }
             });
@@ -204,7 +212,7 @@ public class AlbumsFragment extends TomahawkFragment {
         return dropDownItems;
     }
 
-    private List<Album> sortAlbums(List<Album> albums) {
+    private void sortAlbums(List<Album> albums) {
         switch (getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION)) {
             case 0:
                 UserCollection userColl = (UserCollection) CollectionManager.getInstance()
@@ -219,6 +227,5 @@ public class AlbumsFragment extends TomahawkFragment {
                 Collections.sort(albums, new ArtistAlphaComparator());
                 break;
         }
-        return albums;
     }
 }

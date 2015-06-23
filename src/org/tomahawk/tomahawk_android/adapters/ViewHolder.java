@@ -48,7 +48,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ViewHolder {
@@ -207,9 +206,9 @@ public class ViewHolder {
         TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView1,
                 album.getImage(), Image.getSmallImageSize(), false);
         final TextView textView3 = (TextView) findViewById(R.id.textview3);
-        collection.getAlbumTracks(album, false).done(new DoneCallback<Set<Query>>() {
+        collection.getAlbumTracks(album).done(new DoneCallback<List<Query>>() {
             @Override
-            public void onDone(Set<Query> result) {
+            public void onDone(List<Query> result) {
                 textView3.setVisibility(View.VISIBLE);
                 textView3.setText(TomahawkApp.getContext().getResources()
                         .getQuantityString(R.plurals.songs_with_count, result.size(),

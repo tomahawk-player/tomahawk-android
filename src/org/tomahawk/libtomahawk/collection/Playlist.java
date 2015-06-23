@@ -23,6 +23,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -95,7 +96,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
      * @return a reference to the constructed {@link Playlist}
      */
     public static Playlist fromQueryList(String name, String currentRevision,
-            ArrayList<Query> queries) {
+            List<Query> queries) {
         String id = TomahawkMainActivity.getLifetimeUniqueStringId();
         if (currentRevision == null) {
             currentRevision = "";
@@ -115,7 +116,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromQueryList(String name, ArrayList<Query> queries) {
+    public static Playlist fromQueryList(String name, List<Query> queries) {
         return Playlist.fromQueryList(name, null, queries);
     }
 

@@ -30,9 +30,7 @@ import android.util.SparseArray;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -72,7 +70,7 @@ public class User extends Cacheable implements AlphaComparable {
 
     private TreeMap<User, String> mFollowers;
 
-    private Set<Album> mStarredAlbums = new HashSet<>();
+    private List<Album> mStarredAlbums = new ArrayList<>();
 
     private List<Playlist> mPlaylists;
 
@@ -217,11 +215,11 @@ public class User extends Cacheable implements AlphaComparable {
         mFollowers = followers;
     }
 
-    public Set<Album> getStarredAlbums() {
+    public List<Album> getStarredAlbums() {
         return mStarredAlbums;
     }
 
-    public void setStarredAlbums(Set<Album> starredAlbums) {
+    public void setStarredAlbums(List<Album> starredAlbums) {
         mStarredAlbums = starredAlbums;
     }
 

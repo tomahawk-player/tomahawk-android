@@ -24,7 +24,6 @@ import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptAccount;
 import org.tomahawk.libtomahawk.resolver.ScriptJob;
@@ -40,9 +39,7 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.List;
 
 /**
  * This class represents a Collection which contains tracks/albums/artists retrieved by a
@@ -113,8 +110,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Promise<Set<Query>, Throwable, Void> getQueries(final boolean sorted) {
-        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<List<Query>, Throwable, Void> getQueries() {
+        final Deferred<List<Query>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
@@ -125,13 +122,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                     public void onReportResults(JsonArray results) {
                         ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
                                 mScriptAccount.getScriptResolver(), results);
-                        Set<Query> queries;
-                        if (sorted) {
-                            queries = new TreeSet<>(
-                                    new QueryComparator(QueryComparator.COMPARE_ALPHA));
-                        } else {
-                            queries = new HashSet<>();
-                        }
+                        List<Query> queries = new ArrayList<>();
                         for (Result r : parsedResults) {
                             Query query = Query.get(r, false);
                             float trackScore = query.howSimilar(r);
@@ -147,8 +138,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Promise<Set<Artist>, Throwable, Void> getArtists(final boolean sorted) {
-        final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<List<Artist>, Throwable, Void> getArtists() {
+        final Deferred<List<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
@@ -157,12 +148,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                 ScriptJob.start(mScriptObject, "artists", a, new ScriptJob.ResultsArrayCallback() {
                     @Override
                     public void onReportResults(JsonArray results) {
-                        Set<Artist> artists;
-                        if (sorted) {
-                            artists = new TreeSet<>(new AlphaComparator());
-                        } else {
-                            artists = new HashSet<>();
-                        }
+                        List<Artist> artists = new ArrayList<>();
                         for (JsonElement result : results) {
                             Artist artist = Artist
                                     .get(ScriptUtils.getNodeChildAsText(result, "artist"));
@@ -177,8 +163,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Promise<Set<Album>, Throwable, Void> getAlbums(final boolean sorted) {
-        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<List<Album>, Throwable, Void> getAlbums() {
+        final Deferred<List<Album>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
@@ -187,12 +173,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                 ScriptJob.start(mScriptObject, "albums", a, new ScriptJob.ResultsArrayCallback() {
                     @Override
                     public void onReportResults(JsonArray results) {
-                        Set<Album> albums;
-                        if (sorted) {
-                            albums = new TreeSet<>(new AlphaComparator());
-                        } else {
-                            albums = new HashSet<>();
-                        }
+                        List<Album> albums = new ArrayList<>();
                         for (JsonElement result : results) {
                             Artist albumArtist = Artist.get(
                                     ScriptUtils.getNodeChildAsText(result, "albumArtist"));
@@ -209,9 +190,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Promise<Set<Album>, Throwable, Void> getArtistAlbums(final Artist artist,
-            final boolean sorted) {
-        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<List<Album>, Throwable, Void> getArtistAlbums(final Artist artist) {
+        final Deferred<List<Album>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
@@ -223,12 +203,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                         new ScriptJob.ResultsArrayCallback() {
                             @Override
                             public void onReportResults(JsonArray results) {
-                                Set<Album> albums;
-                                if (sorted) {
-                                    albums = new TreeSet<>(new AlphaComparator());
-                                } else {
-                                    albums = new HashSet<>();
-                                }
+                                List<Album> albums = new ArrayList<>();
                                 for (JsonElement result : results) {
                                     Artist albumArtist = Artist.get(
                                             ScriptUtils.getNodeChildAsText(result, "albumArtist"));
@@ -273,9 +248,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Promise<Set<Query>, Throwable, Void> getAlbumTracks(final Album album,
-            final boolean sorted) {
-        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<List<Query>, Throwable, Void> getAlbumTracks(final Album album) {
+        final Deferred<List<Query>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
@@ -288,17 +262,9 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                         new ScriptJob.ResultsArrayCallback() {
                             @Override
                             public void onReportResults(JsonArray results) {
-                                ArrayList<Result> parsedResults =
-                                        ScriptUtils
-                                                .parseResultList(mScriptAccount.getScriptResolver(),
-                                                        results);
-                                Set<Query> queries;
-                                if (sorted) {
-                                    queries = new TreeSet<>(
-                                            new QueryComparator(QueryComparator.COMPARE_ALPHA));
-                                } else {
-                                    queries = new HashSet<>();
-                                }
+                                ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
+                                        mScriptAccount.getScriptResolver(), results);
+                                List<Query> queries = new ArrayList<>();
                                 for (Result r : parsedResults) {
                                     Query query = Query.get(r, false);
                                     float trackScore = query.howSimilar(r);

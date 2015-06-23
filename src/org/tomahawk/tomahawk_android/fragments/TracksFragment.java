@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -41,7 +42,6 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Track}s inside its {@link
@@ -115,21 +115,22 @@ public class TracksFragment extends TomahawkFragment {
         if (mAlbum != null) {
             showContentHeader(mAlbum);
             showAlbumFancyDropDown();
-            mCollection.getAlbumTracks(mAlbum, true).done(
-                    new DoneCallback<Set<Query>>() {
-                        @Override
-                        public void onDone(Set<Query> queries) {
-                            mShownQueries = new ArrayList<>(queries);
-                            Segment segment = new Segment(mAlbum.getArtist().getName(),
-                                    new ArrayList<Object>(queries));
-                            if (CollectionUtils.allFromOneArtist(queries)) {
-                                segment.setHideArtistName(true);
-                                segment.setShowDuration(true);
-                            }
-                            segment.setShowNumeration(true, 1);
-                            fillAdapter(segment);
-                        }
-                    });
+            mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<List<Query>>() {
+                @Override
+                public void onDone(List<Query> queries) {
+                    Collections.sort(queries,
+                            new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
+                    mShownQueries = queries;
+                    Segment segment = new Segment(mAlbum.getArtist().getName(),
+                            new ArrayList<Object>(mShownQueries));
+                    if (CollectionUtils.allFromOneArtist(mShownQueries)) {
+                        segment.setHideArtistName(true);
+                        segment.setShowDuration(true);
+                    }
+                    segment.setShowNumeration(true, 1);
+                    fillAdapter(segment);
+                }
+            });
         } else if (mQuery != null) {
             mShownQueries = new ArrayList<>();
             mShownQueries.add(mQuery);
@@ -139,25 +140,24 @@ public class TracksFragment extends TomahawkFragment {
             showContentHeader(mQuery);
             showFancyDropDown(0, mQuery.getName(), null, null);
         } else if (mQueryArray != null) {
-            mShownQueries = new ArrayList<>();
-            mShownQueries.addAll(mQueryArray);
+            mShownQueries = new ArrayList<>(mQueryArray);
             Segment segment = new Segment(new ArrayList<Object>(mShownQueries));
             segment.setShowDuration(true);
             fillAdapter(segment);
         } else {
-            mCollection.getQueries().done(
-                    new DoneCallback<Set<Query>>() {
-                        @Override
-                        public void onDone(Set<Query> queries) {
-                            mShownQueries = new ArrayList<>(queries);
-                            fillAdapter(
-                                    new Segment(getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION),
-                                            constructDropdownItems(),
-                                            constructDropdownListener(
-                                                    COLLECTION_TRACKS_SPINNER_POSITION),
-                                            new ArrayList<Object>(sortAlbums(mShownQueries))));
-                        }
-                    });
+            mCollection.getQueries().done(new DoneCallback<List<Query>>() {
+                @Override
+                public void onDone(List<Query> queries) {
+                    sortQueries(queries);
+                    mShownQueries = queries;
+                    fillAdapter(
+                            new Segment(getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION),
+                                    constructDropdownItems(),
+                                    constructDropdownListener(
+                                            COLLECTION_TRACKS_SPINNER_POSITION),
+                                    new ArrayList<Object>(mShownQueries)));
+                }
+            });
         }
     }
 
@@ -169,7 +169,7 @@ public class TracksFragment extends TomahawkFragment {
         return dropDownItems;
     }
 
-    private List<Query> sortAlbums(List<Query> queries) {
+    private void sortQueries(List<Query> queries) {
         switch (getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION)) {
             case 0:
                 UserCollection userColl = (UserCollection) CollectionManager.getInstance()
@@ -184,7 +184,6 @@ public class TracksFragment extends TomahawkFragment {
                 Collections.sort(queries, new ArtistAlphaComparator());
                 break;
         }
-        return queries;
     }
 
     private void showAlbumFancyDropDown() {

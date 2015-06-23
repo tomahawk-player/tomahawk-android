@@ -19,7 +19,6 @@ package org.tomahawk.libtomahawk.collection;
 
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.libtomahawk.utils.BetterDeferredManager;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -27,9 +26,8 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.widget.ImageView;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,13 +50,12 @@ public class HatchetCollection extends NativeCollection {
     /**
      * @return A {@link java.util.List} of all top hits {@link Track}s from the given Artist.
      */
-    public Promise<Set<Query>, Throwable, Void> getArtistTopHits(final Artist artist) {
+    public Promise<List<Query>, Throwable, Void> getArtistTopHits(final Artist artist) {
         BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Query>>() {
+        return dm.when(new Callable<List<Query>>() {
             @Override
-            public Set<Query> call() throws Exception {
-                Set<Query> queries = new TreeSet<>(
-                        new QueryComparator(QueryComparator.COMPARE_ALPHA));
+            public List<Query> call() throws Exception {
+                List<Query> queries = new ArrayList<>();
                 if (mArtistTopHits.get(artist) != null) {
                     queries.addAll(mArtistTopHits.get(artist));
                 }

@@ -143,7 +143,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected final Set<Query> mCorrespondingQueries
             = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
-    protected ArrayList<Query> mShownQueries = new ArrayList<>();
+    protected List<Query> mShownQueries = new ArrayList<>();
 
     protected ArrayList<Query> mQueryArray;
 
