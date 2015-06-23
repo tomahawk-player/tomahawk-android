@@ -24,7 +24,6 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
-import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -46,8 +45,6 @@ public class ArtistsFragment extends TomahawkFragment {
 
     public static final String COLLECTION_ARTISTS_SPINNER_POSITION
             = "org.tomahawk.tomahawk_android.collection_artists_spinner_position";
-
-    public static final int SHOW_MODE_STARREDARTISTS = 1;
 
     @Override
     public void onResume() {
@@ -106,17 +103,7 @@ public class ArtistsFragment extends TomahawkFragment {
 
         final List<Artist> artists = new ArrayList<>();
 
-        if (mShowMode == SHOW_MODE_STARREDARTISTS) {
-            ArrayList<Artist> starredArtists = DatabaseHelper.getInstance().getStarredArtists();
-            for (Artist artist : starredArtists) {
-                ArrayList<String> requestIds = InfoSystem.getInstance().resolve(artist, false);
-                for (String requestId : requestIds) {
-                    mCorrespondingRequestIds.add(requestId);
-                }
-            }
-            artists.addAll(starredArtists);
-            fillAdapter(new Segment(new ArrayList<Object>(artists)));
-        } else if (mArtistArray != null) {
+        if (mArtistArray != null) {
             artists.addAll(mArtistArray);
             fillAdapter(new Segment(new ArrayList<Object>(artists)));
         } else {
