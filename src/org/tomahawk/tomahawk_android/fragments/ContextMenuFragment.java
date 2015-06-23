@@ -54,7 +54,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 
@@ -255,13 +254,12 @@ public class ContextMenuFragment extends Fragment {
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     if (mAlbum != null) {
-                        mCollection.getAlbumTracks(mAlbum, true).done(
-                                new DoneCallback<Set<Query>>() {
-                                    @Override
-                                    public void onDone(Set<Query> result) {
-                                        showAddToPlaylist(activity, new ArrayList<>(result));
-                                    }
-                                });
+                        mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<List<Query>>() {
+                            @Override
+                            public void onDone(List<Query> result) {
+                                showAddToPlaylist(activity, new ArrayList<>(result));
+                            }
+                        });
                     } else if (mQuery != null) {
                         ArrayList<Query> queries = new ArrayList<>();
                         queries.add(mQuery);

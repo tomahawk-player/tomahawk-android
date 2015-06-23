@@ -37,7 +37,6 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Artist}s inside its {@link
@@ -71,28 +70,27 @@ public class ArtistsFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, final Object item) {
         if (item instanceof Artist) {
-            mCollection.hasArtistAlbums((Artist) item).done(
-                    new DoneCallback<Boolean>() {
-                        @Override
-                        public void onDone(Boolean result) {
-                            Bundle bundle = new Bundle();
-                            bundle.putString(TomahawkFragment.ARTIST,
-                                    ((Artist) item).getCacheKey());
-                            if (result) {
-                                bundle.putString(TomahawkFragment.COLLECTION_ID,
-                                        mCollection.getId());
-                            } else {
-                                bundle.putString(TomahawkFragment.COLLECTION_ID,
-                                        TomahawkApp.PLUGINNAME_HATCHET);
-                            }
-                            bundle.putInt(CONTENT_HEADER_MODE,
-                                    ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
-                            bundle.putLong(CONTAINER_FRAGMENT_ID,
-                                    TomahawkMainActivity.getSessionUniqueId());
-                            FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                                    ArtistPagerFragment.class, bundle);
-                        }
-                    });
+            mCollection.hasArtistAlbums((Artist) item).done(new DoneCallback<Boolean>() {
+                @Override
+                public void onDone(Boolean result) {
+                    Bundle bundle = new Bundle();
+                    bundle.putString(TomahawkFragment.ARTIST,
+                            ((Artist) item).getCacheKey());
+                    if (result) {
+                        bundle.putString(TomahawkFragment.COLLECTION_ID,
+                                mCollection.getId());
+                    } else {
+                        bundle.putString(TomahawkFragment.COLLECTION_ID,
+                                TomahawkApp.PLUGINNAME_HATCHET);
+                    }
+                    bundle.putInt(CONTENT_HEADER_MODE,
+                            ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
+                    bundle.putLong(CONTAINER_FRAGMENT_ID,
+                            TomahawkMainActivity.getSessionUniqueId());
+                    FragmentUtils.replace((TomahawkMainActivity) getActivity(),
+                            ArtistPagerFragment.class, bundle);
+                }
+            });
         }
     }
 
@@ -125,21 +123,21 @@ public class ArtistsFragment extends TomahawkFragment {
             if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
                 artists.addAll(DatabaseHelper.getInstance().getStarredArtists());
             }
-            mCollection.getArtists().done(
-                    new DoneCallback<Set<Artist>>() {
-                        @Override
-                        public void onDone(Set<Artist> result) {
-                            artists.addAll(sortAlbums(new ArrayList<>(result)));
-                            fillAdapter(
-                                    new Segment(getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
-                                            constructDropdownItems(),
-                                            constructDropdownListener(
-                                                    COLLECTION_ARTISTS_SPINNER_POSITION),
-                                            new ArrayList<Object>(artists),
-                                            R.integer.grid_column_count, R.dimen.padding_superlarge,
-                                            R.dimen.padding_superlarge));
-                        }
-                    });
+            mCollection.getArtists().done(new DoneCallback<List<Artist>>() {
+                @Override
+                public void onDone(List<Artist> result) {
+                    artists.addAll(result);
+                    sortArtists(artists);
+                    fillAdapter(
+                            new Segment(getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
+                                    constructDropdownItems(),
+                                    constructDropdownListener(
+                                            COLLECTION_ARTISTS_SPINNER_POSITION),
+                                    new ArrayList<Object>(artists),
+                                    R.integer.grid_column_count, R.dimen.padding_superlarge,
+                                    R.dimen.padding_superlarge));
+                }
+            });
         }
     }
 
@@ -150,7 +148,7 @@ public class ArtistsFragment extends TomahawkFragment {
         return dropDownItems;
     }
 
-    private List<Artist> sortAlbums(List<Artist> artists) {
+    private void sortArtists(List<Artist> artists) {
         switch (getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION)) {
             case 0:
                 UserCollection userColl = (UserCollection) CollectionManager.getInstance()
@@ -162,6 +160,5 @@ public class ArtistsFragment extends TomahawkFragment {
                 Collections.sort(artists, new AlphaComparator());
                 break;
         }
-        return artists;
     }
 }

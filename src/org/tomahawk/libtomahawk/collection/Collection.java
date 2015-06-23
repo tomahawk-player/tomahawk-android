@@ -22,7 +22,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 
 import android.widget.ImageView;
 
-import java.util.Set;
+import java.util.List;
 
 public abstract class Collection {
 
@@ -48,31 +48,17 @@ public abstract class Collection {
         return mName;
     }
 
-    public Promise<Set<Query>, Throwable, Void> getQueries() {
-        return getQueries(true);
-    }
+    public abstract Promise<List<Query>, Throwable, Void> getQueries();
 
-    public abstract Promise<Set<Query>, Throwable, Void> getQueries(boolean sorted);
+    public abstract Promise<List<Artist>, Throwable, Void> getArtists();
 
-    public Promise<Set<Artist>, Throwable, Void> getArtists() {
-        return getArtists(true);
-    }
+    public abstract Promise<List<Album>, Throwable, Void> getAlbums();
 
-    public abstract Promise<Set<Artist>, Throwable, Void> getArtists(boolean sorted);
-
-    public Promise<Set<Album>, Throwable, Void> getAlbums() {
-        return getAlbums(true);
-    }
-
-    public abstract Promise<Set<Album>, Throwable, Void> getAlbums(boolean sorted);
-
-    public abstract Promise<Set<Album>, Throwable, Void> getArtistAlbums(Artist artist,
-            boolean sorted);
+    public abstract Promise<List<Album>, Throwable, Void> getArtistAlbums(Artist artist);
 
     public abstract Promise<Boolean, Throwable, Void> hasArtistAlbums(Artist artist);
 
-    public abstract Promise<Set<Query>, Throwable, Void> getAlbumTracks(Album album,
-            boolean sorted);
+    public abstract Promise<List<Query>, Throwable, Void> getAlbumTracks(Album album);
 
     public abstract Promise<Boolean, Throwable, Void> hasAlbumTracks(Album album);
 

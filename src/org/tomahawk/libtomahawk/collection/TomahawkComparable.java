@@ -17,8 +17,6 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-public interface ArtistAlphaComparable extends TomahawkComparable {
-
-    Artist getArtist();
+public interface TomahawkComparable {
 
 }
