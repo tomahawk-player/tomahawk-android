@@ -144,8 +144,7 @@ public class PlaybackFragment extends TomahawkFragment {
             public void run() {
                 mHeaderScrollableHeight =
                         getLayedOutView().getHeight() - mHeaderNonscrollableHeight;
-                setupScrollableSpacer((TomahawkListAdapter) getListAdapter(), getListView(),
-                        mAlbumArtViewPager);
+                setupScrollableSpacer(getListAdapter(), getListView(), mAlbumArtViewPager);
                 setupNonScrollableSpacer(getListView());
             }
         });
