@@ -22,7 +22,7 @@ import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -143,17 +143,17 @@ public class SocialActionsFragment extends TomahawkFragment implements
             bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_STATIC_USER);
             FragmentUtils.replace(activity, UserPagerFragment.class, bundle);
-        } else if (item instanceof Query && ((Query) item).isPlayable()) {
-            Query query = (Query) item;
-            PlaybackService playbackService = activity.getPlaybackService();
-            if (playbackService != null && playbackService.getCurrentQuery() == query) {
-                playbackService.playPause();
-            } else {
+        } else if (item instanceof Query) {
+            PlaylistEntry entry = getListAdapter().getPlaylistEntry(item);
+            if (entry.getQuery().isPlayable()) {
+                PlaybackService playbackService = activity.getPlaybackService();
                 if (playbackService != null) {
-                    Playlist playlist = Playlist.fromQueryList(
-                            DatabaseHelper.CACHED_PLAYLIST_NAME, getShownQueries());
-                    playbackService.setPlaylist(playlist, playlist.getEntryWithQuery(query));
-                    playbackService.start();
+                    if (playbackService.getCurrentEntry() == entry) {
+                        playbackService.playPause();
+                    } else {
+                        playbackService.setPlaylist(getListAdapter().getPlaylist(), entry);
+                        playbackService.start();
+                    }
                 }
             }
         } else if (item instanceof Album) {

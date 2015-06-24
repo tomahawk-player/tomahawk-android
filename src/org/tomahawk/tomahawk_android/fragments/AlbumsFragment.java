@@ -24,7 +24,7 @@ import org.tomahawk.libtomahawk.collection.ArtistAlphaComparator;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
-import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -80,17 +80,14 @@ public class AlbumsFragment extends TomahawkFragment {
     public void onItemClick(View view, final Object item) {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (item instanceof Query) {
-            Query query = ((Query) item);
-            if (query.isPlayable()) {
+            PlaylistEntry entry = getListAdapter().getPlaylistEntry(item);
+            if (entry.getQuery().isPlayable()) {
                 PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null
-                        && playbackService.getCurrentQuery() == query) {
-                    playbackService.playPause();
-                } else {
-                    if (playbackService != null) {
-                        Playlist playlist = Playlist.fromQueryList(
-                                DatabaseHelper.CACHED_PLAYLIST_NAME, getShownQueries());
-                        playbackService.setPlaylist(playlist, playlist.getEntryWithQuery(query));
+                if (playbackService != null) {
+                    if (playbackService.getCurrentEntry() == entry) {
+                        playbackService.playPause();
+                    } else {
+                        playbackService.setPlaylist(getListAdapter().getPlaylist(), entry);
                         playbackService.start();
                     }
                 }
