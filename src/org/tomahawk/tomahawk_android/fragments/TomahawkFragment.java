@@ -143,8 +143,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected final Set<Query> mCorrespondingQueries
             = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
-    protected List<Query> mShownQueries = new ArrayList<>();
-
     protected ArrayList<Query> mQueryArray;
 
     protected ArrayList<Album> mAlbumArray;
@@ -573,6 +571,39 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
+    protected List<Query> getShownQueries() {
+        List<Query> queries = new ArrayList<>();
+        if (mTomahawkListAdapter != null) {
+            for (int i = 0; i < mTomahawkListAdapter.getCount(); i++) {
+                Object object = mTomahawkListAdapter.getItem(i);
+                if (object instanceof List) {
+                    for (Object item : (List) object) {
+                        Query q = extractQuery(item);
+                        if (q != null){
+                            queries.add(q);
+                        }
+                    }
+                } else if (object instanceof Query) {
+                    Query q = extractQuery(object);
+                    if (q != null){
+                        queries.add(q);
+                    }
+                }
+            }
+        }
+        return queries;
+    }
+
+    private Query extractQuery(Object object) {
+        if (object instanceof SocialAction
+                && ((SocialAction) object).getTargetObject() instanceof Query) {
+            return ((SocialAction) object).getQuery();
+        } else if (object instanceof Query) {
+            return (Query) object;
+        }
+        return null;
+    }
+
     protected void forceResolveVisibleItems(boolean reresolve) {
         if (reresolve) {
             mCorrespondingQueries.clear();
@@ -583,30 +614,15 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     private void resolveVisibleItems() {
-        resolveQueriesFromTo(mFirstVisibleItemLastTime - 5,
-                mFirstVisibleItemLastTime + mVisibleItemCount + 5);
-        resolveItemsFromTo(mFirstVisibleItemLastTime,
-                mFirstVisibleItemLastTime + mVisibleItemCount + 1);
+        resolveItemsFromTo(mFirstVisibleItemLastTime - 2,
+                mFirstVisibleItemLastTime + mVisibleItemCount + 2);
     }
 
-    private void resolveQueriesFromTo(final int start, final int end) {
-        Set<Query> qs = new HashSet<>();
-        for (int i = (start < 0 ? 0 : start); i < end && i < mShownQueries.size(); i++) {
-            Query q = mShownQueries.get(i);
-            if (!q.isSolved() && !mCorrespondingQueries.contains(q)) {
-                qs.add(q);
-            }
-        }
-        if (!qs.isEmpty()) {
-            HashSet<Query> queries = PipeLine.getInstance().resolve(qs);
-            mCorrespondingQueries.addAll(queries);
-        }
-    }
-
-    private void resolveItemsFromTo(final int start, final int end) {
+    private void resolveItemsFromTo(int start, int end) {
         if (mTomahawkListAdapter != null) {
-            for (int i = (start < 0 ? 0 : start); i < end && i < mTomahawkListAdapter.getCount();
-                    i++) {
+            start = Math.max(start, 0);
+            end = Math.min(end, mTomahawkListAdapter.getCount());
+            for (int i = start; i < end; i++) {
                 Object object = mTomahawkListAdapter.getItem(i);
                 if (object instanceof List) {
                     for (Object item : (List) object) {
@@ -620,7 +636,12 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     private void resolveItem(final Object object) {
-        if (object instanceof Playlist) {
+        if (object instanceof Query) {
+            Query q = (Query) object;
+            if (!q.isSolved() && !mCorrespondingQueries.contains(q)) {
+                mCorrespondingQueries.add(PipeLine.getInstance().resolve((Query) object));
+            }
+        } else if (object instanceof Playlist) {
             resolveItem((Playlist) object);
         } else if (object instanceof SocialAction) {
             resolveItem((SocialAction) object);
@@ -667,14 +688,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     private void resolveItem(SocialAction socialAction) {
         if (mResolvingItems.add(socialAction)) {
-            if (socialAction.getTarget() != null) {
-                resolveItem(socialAction.getTarget());
-            } else if (socialAction.getArtist() != null) {
-                resolveItem(socialAction.getArtist());
-            } else if (socialAction.getAlbum() != null) {
-                resolveItem(socialAction.getAlbum());
-            } else if (socialAction.getPlaylist() != null) {
-                resolveItem(socialAction.getPlaylist());
+            if (socialAction.getTargetObject() != null) {
+                resolveItem(socialAction.getTargetObject());
             }
             resolveItem(socialAction.getUser());
         }

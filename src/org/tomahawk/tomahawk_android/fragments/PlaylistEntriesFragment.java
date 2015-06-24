@@ -36,7 +36,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows a set of {@link
@@ -125,13 +124,12 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             return;
         }
 
-        List playlistEntries = new ArrayList();
         if (mPlaylist != null) {
             if (!mPlaylist.isFilled()) {
                 refreshCurrentPlaylist();
             } else {
-                playlistEntries.addAll(mPlaylist.getEntries());
-                Segment segment = new Segment(R.string.playlist_details, playlistEntries);
+                Segment segment = new Segment(R.string.playlist_details,
+                        new ArrayList<Object>(mPlaylist.getEntries()));
                 segment.setShowNumeration(true, 1);
                 fillAdapter(segment);
                 showContentHeader(mPlaylist);
@@ -153,13 +151,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                             }
                         });
             }
-        }
-
-        mShownQueries.clear();
-        mShownPlaylistEntries.clear();
-        for (Object playlistEntry : playlistEntries) {
-            mShownQueries.add(((PlaylistEntry) playlistEntry).getQuery());
-            mShownPlaylistEntries.add((PlaylistEntry) playlistEntry);
         }
     }
 

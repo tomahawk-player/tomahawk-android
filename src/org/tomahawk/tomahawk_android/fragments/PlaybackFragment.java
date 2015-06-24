@@ -314,13 +314,7 @@ public class PlaybackFragment extends TomahawkFragment {
     public void onPlaylistChanged() {
         super.onPlaylistChanged();
 
-        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                .getPlaybackService();
-
-        if (playbackService != null) {
-            mShownQueries = playbackService.getMergedPlaylist().getQueries();
-            forceResolveVisibleItems(false);
-        }
+        forceResolveVisibleItems(false);
         updateAdapter();
 
         refreshRepeatButtonState();
