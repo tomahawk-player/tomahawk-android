@@ -418,6 +418,13 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
         return getPreferredTrack().getName();
     }
 
+    /**
+     * @return the name that should be displayed
+     */
+    public String getPrettyName() {
+        return getName().length() > 0 ? getName() : "<unknown>";
+    }
+
     public Artist getArtist() {
         return getPreferredTrack().getArtist();
     }

@@ -69,7 +69,7 @@ public abstract class Cacheable {
                     result += "\t\t";
                 }
                 if (o instanceof String) {
-                    result += ((String) o).toLowerCase();
+                    result += ((String) o);
                 } else if (o instanceof Boolean) {
                     result += ((Boolean) o) ? "1" : "0";
                 } else {

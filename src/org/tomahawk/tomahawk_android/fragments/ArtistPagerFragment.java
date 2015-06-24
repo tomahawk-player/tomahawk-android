@@ -101,7 +101,7 @@ public class ArtistPagerFragment extends PagerFragment {
                         }
                         getArguments().putString(TomahawkFragment.COLLECTION_ID,
                                 result.get(initialSelection).getId());
-                        showFancyDropDown(initialSelection, mArtist.getName().toUpperCase(),
+                        showFancyDropDown(initialSelection, mArtist.getPrettyName().toUpperCase(),
                                 FancyDropDown.convertToDropDownItemInfo(result),
                                 new FancyDropDown.DropDownListener() {
                                     @Override

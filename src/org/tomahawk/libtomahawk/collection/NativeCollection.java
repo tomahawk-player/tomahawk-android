@@ -40,6 +40,8 @@ public abstract class NativeCollection extends Collection {
 
     protected ConcurrentHashMap<String, Artist> mArtists = new ConcurrentHashMap<>();
 
+    protected ConcurrentHashMap<String, Artist> mAlbumArtists = new ConcurrentHashMap<>();
+
     protected ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<>();
 
     protected ConcurrentHashMap<Album, Set<Query>> mAlbumTracks
@@ -104,9 +106,7 @@ public abstract class NativeCollection extends Collection {
     }
 
     public void addArtist(Artist artist) {
-        if (!TextUtils.isEmpty(artist.getName()) && !mArtists.containsKey(artist.getCacheKey())) {
-            mArtists.put(artist.getCacheKey(), artist);
-        }
+        mArtists.put(artist.getCacheKey(), artist);
     }
 
     @Override
@@ -120,10 +120,23 @@ public abstract class NativeCollection extends Collection {
         });
     }
 
+    public void addAlbumArtist(Artist artist) {
+        mAlbumArtists.put(artist.getCacheKey(), artist);
+    }
+
+    @Override
+    public Promise<List<Artist>, Throwable, Void> getAlbumArtists() {
+        BetterDeferredManager dm = new BetterDeferredManager();
+        return dm.when(new Callable<List<Artist>>() {
+            @Override
+            public List<Artist> call() throws Exception {
+                return new ArrayList<>(mAlbumArtists.values());
+            }
+        });
+    }
+
     public void addAlbum(Album album) {
-        if (!TextUtils.isEmpty(album.getName()) && !mAlbums.containsKey(album.getCacheKey())) {
-            mAlbums.put(album.getCacheKey(), album);
-        }
+        mAlbums.put(album.getCacheKey(), album);
     }
 
     @Override

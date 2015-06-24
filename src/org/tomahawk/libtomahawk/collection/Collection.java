@@ -52,6 +52,8 @@ public abstract class Collection {
 
     public abstract Promise<List<Artist>, Throwable, Void> getArtists();
 
+    public abstract Promise<List<Artist>, Throwable, Void> getAlbumArtists();
+
     public abstract Promise<List<Album>, Throwable, Void> getAlbums();
 
     public abstract Promise<List<Album>, Throwable, Void> getArtistAlbums(Artist artist);

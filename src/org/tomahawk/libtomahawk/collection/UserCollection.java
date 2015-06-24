@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
@@ -287,25 +288,53 @@ public class UserCollection extends NativeCollection {
         }
 
         private void processMediaWrappers(List<MediaWrapper> mws) {
+            Map<String, Set<String>> albumArtistsMap = new HashMap<>();
+            Map<String, Album> albumMap = new HashMap<>();
             for (MediaWrapper mw : mws) {
-                Artist artist = Artist.get(mw.getArtist());
-                Album album = Album.get(mw.getAlbum(), artist);
-                if (!TextUtils.isEmpty(mw.getArtworkURL())) {
-                    album.setImage(Image.get(mw.getArtworkURL(), false));
+                if (mw.getType() == MediaWrapper.TYPE_AUDIO) {
+                    String albumKey = mw.getAlbum() != null ? mw.getAlbum().toLowerCase() : "";
+                    if (albumArtistsMap.get(albumKey) == null) {
+                        albumArtistsMap.put(albumKey, new HashSet<String>());
+                    }
+                    albumArtistsMap.get(albumKey).add(mw.getArtist());
+                    Album album;
+                    if (albumArtistsMap.get(albumKey).size() > 1) {
+                        album = Album.get(mw.getAlbum(), Artist.COMPILATION_ARTIST);
+                    } else {
+                        Artist artist = Artist.get(mw.getArtist());
+                        album = Album.get(mw.getAlbum(), artist);
+                    }
+                    albumMap.put(albumKey, album);
                 }
-                Track track = Track.get(mw.getTitle(), album, artist);
-                track.setDuration(mw.getLength());
-                track.setAlbumPos(mw.getTrackNumber());
-                Query query = Query.get(mw.getTitle(), mw.getAlbum(), mw.getArtist(), true);
-                Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
-                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                Result result = Result.get(mw.getLocation(), track, userCollectionResolver);
-                query.addTrackResult(result, 1f);
-                addQuery(query, mw.getLastModified());
-                addArtist(artist);
-                addAlbum(album);
-                addAlbumTrack(album, query);
-                addArtistAlbum(artist, album);
+            }
+            for (MediaWrapper mw : mws) {
+                if (mw.getType() == MediaWrapper.TYPE_AUDIO) {
+                    Artist artist = Artist.get(mw.getArtist());
+                    String albumKey = mw.getAlbum() != null ? mw.getAlbum().toLowerCase() : "";
+                    Album album = albumMap.get(albumKey);
+                    if (!TextUtils.isEmpty(mw.getAlbum())
+                            && !TextUtils.isEmpty(mw.getArtworkURL())) {
+                        album.setImage(Image.get(mw.getArtworkURL(), false));
+                    }
+                    Track track = Track.get(mw.getTitle(), album, artist);
+                    track.setDuration(mw.getLength());
+                    track.setAlbumPos(mw.getTrackNumber());
+                    Query query = Query.get(mw.getTitle(), mw.getAlbum(), mw.getArtist(), true);
+                    Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
+                            TomahawkApp.PLUGINNAME_USERCOLLECTION);
+                    Result result = Result.get(mw.getLocation(), track, userCollectionResolver);
+                    query.addTrackResult(result, 1f);
+                    addQuery(query, mw.getLastModified());
+                    addArtist(artist);
+                    addAlbum(album);
+                    addAlbumTrack(album, query);
+                    addArtistAlbum(artist, album);
+                    if (mw.getAlbumArtist() != null) {
+                        Artist albumArtist = Artist.get(mw.getAlbumArtist());
+                        addAlbumArtist(albumArtist);
+                        addArtistAlbum(albumArtist, album);
+                    }
+                }
             }
         }
     }

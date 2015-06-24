@@ -1363,21 +1363,21 @@ public class PlaybackService extends Service implements MusicFocusable {
                 RemoteControlClientCompat.MetadataEditorCompat editor =
                         mRemoteControlClientCompat.editMetadata(true);
                 editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
-                        getCurrentQuery().getArtist().getName())
+                        getCurrentQuery().getArtist().getPrettyName())
                         .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
-                                getCurrentQuery().getArtist().getName())
+                                getCurrentQuery().getArtist().getPrettyName())
                         .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
-                                getCurrentQuery().getName())
+                                getCurrentQuery().getPrettyName())
                         .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
                                 getCurrentQuery().getPreferredTrack().getDuration());
-                if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getName())) {
+                if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getPrettyName())) {
                     editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
-                            getCurrentQuery().getAlbum().getName());
+                            getCurrentQuery().getAlbum().getPrettyName());
                 }
                 editor.apply();
                 Log.d(TAG, "Setting lockscreen metadata to: "
-                        + getCurrentQuery().getArtist().getName() + ", "
-                        + getCurrentQuery().getName());
+                        + getCurrentQuery().getArtist().getPrettyName() + ", "
+                        + getCurrentQuery().getPrettyName());
             }
 
             Picasso.with(TomahawkApp.getContext()).cancelRequest(mLockscreenTarget);

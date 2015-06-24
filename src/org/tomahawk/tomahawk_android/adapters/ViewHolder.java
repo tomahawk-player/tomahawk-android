@@ -88,7 +88,7 @@ public class ViewHolder {
     public void fillView(Query query, String numerationString, boolean showAsPlaying,
             View.OnClickListener swipeMenuButton1Listener, boolean showAsQueued) {
         TextView trackNameTextView = (TextView) findViewById(R.id.track_textview);
-        trackNameTextView.setText(query.getName());
+        trackNameTextView.setText(query.getPrettyName());
         setTextViewEnabled(trackNameTextView, query.isPlayable(), false);
 
         ImageView resolverImageView = (ImageView) ensureInflation(R.id.resolver_imageview_stub,
@@ -127,7 +127,7 @@ public class ViewHolder {
         if (mLayoutId == R.layout.list_item_numeration_track_artist
                 || mLayoutId == R.layout.list_item_track_artist) {
             TextView artistNameTextView = (TextView) findViewById(R.id.artist_textview);
-            artistNameTextView.setText(query.getArtist().getName());
+            artistNameTextView.setText(query.getArtist().getPrettyName());
             setTextViewEnabled(artistNameTextView, query.isPlayable(), false);
         }
         if (mLayoutId == R.layout.list_item_numeration_track_duration) {
@@ -187,7 +187,7 @@ public class ViewHolder {
 
     public void fillView(Artist artist) {
         TextView textView1 = (TextView) findViewById(R.id.textview1);
-        textView1.setText(artist.getName());
+        textView1.setText(artist.getPrettyName());
         ImageView imageView1 = (ImageView) findViewById(R.id.imageview1);
         TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView1,
                 artist.getImage(), Image.getSmallImageSize(), true);
@@ -199,9 +199,9 @@ public class ViewHolder {
                     CollectionManager.getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
         }
         TextView textView1 = (TextView) findViewById(R.id.textview1);
-        textView1.setText(album.getName());
+        textView1.setText(album.getPrettyName());
         TextView textView2 = (TextView) findViewById(R.id.textview2);
-        textView2.setText(album.getArtist().getName());
+        textView2.setText(album.getArtist().getPrettyName());
         ImageView imageView1 = (ImageView) findViewById(R.id.imageview1);
         TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView1,
                 album.getImage(), Image.getSmallImageSize(), false);

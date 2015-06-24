@@ -1557,6 +1557,26 @@ Tomahawk.Collection = {
         });
     },
 
+    albumArtists: function (params) {
+        var id = params.id;
+
+        var t = new Tomahawk.Collection.Transaction(this, id);
+        return t.beginTransaction().then(function () {
+            return t.sqlSelect("albumArtists", ["albumArtist", "albumArtistDisambiguation"]);
+        }).then(function (results) {
+            var artists = [];
+            for (var i = 0; i < results.rows.length; i++) {
+                var row = results.rows[i];
+                var result = {
+                    albumArtist: row.albumArtist,
+                    albumArtistDisambiguation: row.albumArtistDisambiguation
+                };
+                artists.push(result);
+            }
+            return artists;
+        });
+    },
+
     artistAlbums: function (params) {
         var id = params.id;
         var artist = params.artist;

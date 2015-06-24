@@ -163,6 +163,32 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
+    public Promise<List<Artist>, Throwable, Void> getAlbumArtists() {
+        final Deferred<List<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
+        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+            @Override
+            public void onDone(ScriptResolverCollectionMetaData result) {
+                HashMap<String, Object> a = new HashMap<>();
+                a.put("id", result.id);
+                ScriptJob.start(mScriptObject, "albumArtists", a,
+                        new ScriptJob.ResultsArrayCallback() {
+                            @Override
+                            public void onReportResults(JsonArray results) {
+                                List<Artist> artists = new ArrayList<>();
+                                for (JsonElement result : results) {
+                                    Artist artist = Artist.get(
+                                            ScriptUtils.getNodeChildAsText(result, "albumArtist"));
+                                    artists.add(artist);
+                                }
+                                deferred.resolve(artists);
+                            }
+                        });
+            }
+        });
+        return deferred;
+    }
+
+    @Override
     public Promise<List<Album>, Throwable, Void> getAlbums() {
         final Deferred<List<Album>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {

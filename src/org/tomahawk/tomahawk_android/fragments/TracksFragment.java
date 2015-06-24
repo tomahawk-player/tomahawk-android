@@ -121,7 +121,7 @@ public class TracksFragment extends TomahawkFragment {
                     Collections.sort(queries,
                             new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
                     mShownQueries = queries;
-                    Segment segment = new Segment(mAlbum.getArtist().getName(),
+                    Segment segment = new Segment(mAlbum.getArtist().getPrettyName(),
                             new ArrayList<Object>(mShownQueries));
                     if (CollectionUtils.allFromOneArtist(mShownQueries)) {
                         segment.setHideArtistName(true);
