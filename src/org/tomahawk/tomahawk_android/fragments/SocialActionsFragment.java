@@ -145,15 +145,13 @@ public class SocialActionsFragment extends TomahawkFragment implements
             FragmentUtils.replace(activity, UserPagerFragment.class, bundle);
         } else if (item instanceof Query && ((Query) item).isPlayable()) {
             Query query = (Query) item;
-            ArrayList<Query> queries = new ArrayList<>();
-            queries.addAll(mShownQueries);
             PlaybackService playbackService = activity.getPlaybackService();
             if (playbackService != null && playbackService.getCurrentQuery() == query) {
                 playbackService.playPause();
             } else {
-                Playlist playlist = Playlist.fromQueryList(DatabaseHelper.CACHED_PLAYLIST_NAME,
-                        queries);
                 if (playbackService != null) {
+                    Playlist playlist = Playlist.fromQueryList(
+                            DatabaseHelper.CACHED_PLAYLIST_NAME, getShownQueries());
                     playbackService.setPlaylist(playlist, playlist.getEntryWithQuery(query));
                     Class clss = mContainerFragmentClass != null ? mContainerFragmentClass
                             : ((Object) this).getClass();
@@ -212,7 +210,6 @@ public class SocialActionsFragment extends TomahawkFragment implements
         TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
             @Override
             public void run() {
-                mShownQueries.clear();
                 if (mUser != null) {
                     SparseArray<List<SocialAction>> socialActionsList;
                     if (mShowMode == SHOW_MODE_DASHBOARD) {
@@ -244,9 +241,6 @@ public class SocialActionsFragment extends TomahawkFragment implements
                                     || socialAction.getTargetObject() instanceof Artist))) {
                                 List<SocialAction> mergedActions = new ArrayList<>();
                                 mergedActions.add(socialAction);
-                                if (socialAction.getTargetObject() instanceof Query) {
-                                    mShownQueries.add((Query) socialAction.getTargetObject());
-                                }
                                 List<SocialAction> actionsToDelete = new ArrayList<>();
                                 for (Object item : socialActions) {
                                     SocialAction actionToCompare = (SocialAction) item;
@@ -266,11 +260,6 @@ public class SocialActionsFragment extends TomahawkFragment implements
                                         }
                                         if (!alreadyMerged) {
                                             mergedActions.add(actionToCompare);
-                                            if (actionToCompare
-                                                    .getTargetObject() instanceof Query) {
-                                                mShownQueries.add(
-                                                        (Query) actionToCompare.getTargetObject());
-                                            }
                                         }
                                         actionsToDelete.add(actionToCompare);
                                     }

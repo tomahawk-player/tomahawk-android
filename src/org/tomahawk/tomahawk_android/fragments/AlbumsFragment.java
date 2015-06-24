@@ -87,9 +87,9 @@ public class AlbumsFragment extends TomahawkFragment {
                         && playbackService.getCurrentQuery() == query) {
                     playbackService.playPause();
                 } else {
-                    Playlist playlist = Playlist.fromQueryList(
-                            TomahawkMainActivity.getLifetimeUniqueStringId(), mShownQueries);
                     if (playbackService != null) {
+                        Playlist playlist = Playlist.fromQueryList(
+                                DatabaseHelper.CACHED_PLAYLIST_NAME, getShownQueries());
                         playbackService.setPlaylist(playlist, playlist.getEntryWithQuery(query));
                         Class clss = mContainerFragmentClass != null ? mContainerFragmentClass
                                 : ((Object) this).getClass();
@@ -158,9 +158,8 @@ public class AlbumsFragment extends TomahawkFragment {
                                     public void onDone(List<Query> result) {
                                         Collections.sort(result, new QueryComparator(
                                                 QueryComparator.COMPARE_ALBUMPOS));
-                                        mShownQueries = result;
                                         Segment segment = new Segment(R.string.top_hits,
-                                                new ArrayList<Object>(mShownQueries));
+                                                new ArrayList<Object>(result));
                                         segment.setShowNumeration(true, 1);
                                         segment.setHideArtistName(true);
                                         segment.setShowDuration(true);
