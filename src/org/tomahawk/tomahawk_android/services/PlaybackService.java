@@ -75,7 +75,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -216,10 +215,6 @@ public class PlaybackService extends Service implements MusicFocusable {
     private boolean mShuffled;
 
     private boolean mRepeating;
-
-    private Class mReturnFragmentClass;
-
-    private Bundle mReturnFragmentArgs;
 
     // our RemoteControlClient object, which will use remote control APIs available in
     // SDK level >= 14, if they're available.
@@ -1067,19 +1062,6 @@ public class PlaybackService extends Service implements MusicFocusable {
         mPlaylist = playlist;
         mQueueStartPos = -1;
         setCurrentEntry(currentEntry);
-    }
-
-    public void setReturnFragment(Class clss, Bundle args) {
-        mReturnFragmentClass = clss;
-        mReturnFragmentArgs = args;
-    }
-
-    public Class getReturnFragmentClass() {
-        return mReturnFragmentClass;
-    }
-
-    public Bundle getReturnFragmentArgs() {
-        return mReturnFragmentArgs;
     }
 
     public int getQueueStartPos() {
