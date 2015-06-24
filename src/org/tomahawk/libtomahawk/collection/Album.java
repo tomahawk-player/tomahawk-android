@@ -61,6 +61,13 @@ public class Album extends Cacheable implements AlphaComparable, ArtistAlphaComp
     }
 
     /**
+     * @return the name that should be displayed
+     */
+    public String getPrettyName() {
+        return getName().length() > 0 ? getName() : "<unknown>";
+    }
+
+    /**
      * @return the filePath/url to this {@link Album}'s albumArt
      */
     public Image getImage() {

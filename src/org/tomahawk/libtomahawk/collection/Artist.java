@@ -22,6 +22,8 @@ package org.tomahawk.libtomahawk.collection;
  */
 public class Artist extends Cacheable implements AlphaComparable {
 
+    public static final Artist COMPILATION_ARTIST = new Artist("Various Artists");
+
     private final String mName;
 
     private ListItemString mBio;
@@ -51,10 +53,17 @@ public class Artist extends Cacheable implements AlphaComparable {
     }
 
     /**
-     * @return this object' name
+     * @return this object's name
      */
     public String getName() {
         return mName;
+    }
+
+    /**
+     * @return the name that should be displayed
+     */
+    public String getPrettyName() {
+        return getName().length() > 0 ? getName() : "<unknown>";
     }
 
     public Image getImage() {

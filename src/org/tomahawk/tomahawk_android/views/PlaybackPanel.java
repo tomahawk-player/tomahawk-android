@@ -268,8 +268,8 @@ public class PlaybackPanel extends FrameLayout {
 
     private void updateText() {
         if (mPlaybackService != null && mPlaybackService.getCurrentQuery() != null) {
-            mArtistTextView.setText(mPlaybackService.getCurrentQuery().getArtist().getName());
-            mTrackTextView.setText(mPlaybackService.getCurrentQuery().getName());
+            mArtistTextView.setText(mPlaybackService.getCurrentQuery().getArtist().getPrettyName());
+            mTrackTextView.setText(mPlaybackService.getCurrentQuery().getPrettyName());
         }
     }
 

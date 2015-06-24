@@ -428,16 +428,16 @@ public class ContextMenuFragment extends Fragment {
             TextView textView = (TextView) v.findViewById(R.id.textview);
             String cacheKey;
             if (mQuery != null) {
-                textView.setText(mQuery.getArtist().getName());
+                textView.setText(mQuery.getArtist().getPrettyName());
                 cacheKey = mQuery.getArtist().getCacheKey();
             } else if (mAlbum != null) {
-                textView.setText(mAlbum.getArtist().getName());
+                textView.setText(mAlbum.getArtist().getPrettyName());
                 cacheKey = mAlbum.getArtist().getCacheKey();
             } else if (mPlaylistEntry != null) {
-                textView.setText(mPlaylistEntry.getArtist().getName());
+                textView.setText(mPlaylistEntry.getArtist().getPrettyName());
                 cacheKey = mPlaylistEntry.getArtist().getCacheKey();
             } else {
-                textView.setText(mArtist.getName());
+                textView.setText(mArtist.getPrettyName());
                 cacheKey = mArtist.getCacheKey();
             }
             v.setOnClickListener(constructArtistNameClickListener(cacheKey));
