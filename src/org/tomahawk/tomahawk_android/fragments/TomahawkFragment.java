@@ -480,8 +480,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     updateShowPlaystate();
                     forceResolveVisibleItems(false);
                     setupNonScrollableSpacer(getListView());
-                    setupScrollableSpacer((TomahawkListAdapter) getListAdapter(), getListView(),
-                            headerSpacerForwardView);
+                    setupScrollableSpacer(getListAdapter(), getListView(), headerSpacerForwardView);
                     if (headerSpacerForwardView == null) {
                         setupAnimations();
                     }
@@ -490,6 +489,13 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         } else {
             Log.e(TAG, "fillAdapter - getActivity() or getListView() returned null!");
         }
+    }
+
+    /**
+     * Get the {@link TomahawkListAdapter} associated with this activity's ListView.
+     */
+    public TomahawkListAdapter getListAdapter() {
+        return (TomahawkListAdapter) super.getListAdapter();
     }
 
     protected void setAreHeadersSticky(final boolean areHeadersSticky) {
@@ -579,13 +585,13 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 if (object instanceof List) {
                     for (Object item : (List) object) {
                         Query q = extractQuery(item);
-                        if (q != null){
+                        if (q != null) {
                             queries.add(q);
                         }
                     }
                 } else if (object instanceof Query) {
                     Query q = extractQuery(object);
-                    if (q != null){
+                    if (q != null) {
                         queries.add(q);
                     }
                 }
