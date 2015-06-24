@@ -53,7 +53,9 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
@@ -66,6 +68,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         SwipeAdapterInterface {
 
     private static final String TAG = TomahawkListAdapter.class.getSimpleName();
+
+    public static final String TEMP_PLAYLIST_NAME = "Temporary playlist";
 
     private final TomahawkMainActivity mActivity;
 
@@ -97,6 +101,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private final SwipeItemAdapterMangerImpl mItemManager = new SwipeItemAdapterMangerImpl(this);
 
+    private Playlist mPlaylist;
+
+    private final Map<Object, PlaylistEntry> mPlaylistEntryMap = new HashMap<>();
+
     /**
      * Constructs a new {@link TomahawkListAdapter}.
      */
@@ -106,11 +114,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         mActivity = activity;
         mLayoutInflater = layoutInflater;
         mClickListener = clickListener;
-        mSegments = segments;
-        mRowCount = 0;
-        for (Segment segment : mSegments) {
-            mRowCount += segment.size();
-        }
+        setSegments(segments);
         updateFooterSpacerHeight(listView);
         mItemManager.setMode(Attributes.Mode.Single);
         mCollection = collection;
@@ -125,11 +129,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         mActivity = activity;
         mLayoutInflater = layoutInflater;
         mClickListener = clickListener;
-        mSegments = segments;
-        mRowCount = 0;
-        for (Segment segment : mSegments) {
-            mRowCount += segment.size();
-        }
+        setSegments(segments);
         updateFooterSpacerHeight(listView);
         mItemManager.setMode(Attributes.Mode.Single);
     }
@@ -143,9 +143,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         mActivity = activity;
         mLayoutInflater = layoutInflater;
         mClickListener = clickListener;
-        mSegments = new ArrayList<>();
-        mSegments.add(segment);
-        mRowCount = segment.size();
+        List<Segment> segments = new ArrayList<>();
+        segments.add(segment);
+        setSegments(segments);
         updateFooterSpacerHeight(listView);
         mItemManager.setMode(Attributes.Mode.Single);
     }
@@ -154,13 +154,56 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
      * Set the complete list of {@link Segment}
      */
     public void setSegments(List<Segment> segments, StickyListHeadersListView listView) {
+        setSegments(segments);
+
+        updateFooterSpacerHeight(listView);
+        notifyDataSetChanged();
+    }
+
+    private void setSegments(List<Segment> segments) {
         mSegments = segments;
         mRowCount = 0;
         for (Segment segment : mSegments) {
             mRowCount += segment.size();
         }
-        updateFooterSpacerHeight(listView);
-        notifyDataSetChanged();
+
+        mPlaylist =
+                Playlist.fromEntriesList(TEMP_PLAYLIST_NAME, "", new ArrayList<PlaylistEntry>());
+        mPlaylistEntryMap.clear();
+        for (int i = 0; i < getCount(); i++) {
+            Object object = getItem(i);
+            if (object instanceof List) {
+                for (Object item : (List) object) {
+                    extractPlaylistEntry(item);
+                }
+            } else {
+                extractPlaylistEntry(object);
+            }
+        }
+    }
+
+    private void extractPlaylistEntry(Object item) {
+        Query q = null;
+        if (item instanceof SocialAction
+                && ((SocialAction) item).getTargetObject() instanceof Query) {
+            q = ((SocialAction) item).getQuery();
+        } else if (item instanceof Query) {
+            q = (Query) item;
+        } else if (item instanceof PlaylistEntry) {
+            q = ((PlaylistEntry) item).getQuery();
+        }
+        if (q != null) {
+            PlaylistEntry entry = mPlaylist.addQuery(q);
+            mPlaylistEntryMap.put(item, entry);
+        }
+    }
+
+    public Playlist getPlaylist() {
+        return mPlaylist;
+    }
+
+    public PlaylistEntry getPlaylistEntry(Object item) {
+        return mPlaylistEntryMap.get(item);
     }
 
     public void setShowContentHeaderSpacer(int headerSpacerHeight,

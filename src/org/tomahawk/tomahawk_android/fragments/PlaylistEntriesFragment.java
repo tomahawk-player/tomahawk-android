@@ -88,22 +88,15 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, Object item) {
         if (item instanceof PlaylistEntry) {
-            PlaylistEntry entry = (PlaylistEntry) item;
+            PlaylistEntry entry = getListAdapter().getPlaylistEntry(item);
             if (entry.getQuery().isPlayable()) {
-                ArrayList<PlaylistEntry> entries = new ArrayList<>();
-                if (mPlaylist != null) {
-                    entries = mPlaylist.getEntries();
-                }
-                PlaybackService playbackService =
-                        ((TomahawkMainActivity) getActivity()).getPlaybackService();
-                if (playbackService != null && playbackService.getCurrentEntry() == entry) {
-                    playbackService.playPause();
-                } else {
-                    Playlist playlist = Playlist.fromEntriesList(
-                            DatabaseHelper.CACHED_PLAYLIST_NAME, "", entries);
-                    playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
-                    if (playbackService != null) {
-                        playbackService.setPlaylist(playlist, entry);
+                TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+                PlaybackService playbackService = activity.getPlaybackService();
+                if (playbackService != null) {
+                    if (playbackService.getCurrentEntry() == entry) {
+                        playbackService.playPause();
+                    } else {
+                        playbackService.setPlaylist(getListAdapter().getPlaylist(), entry);
                         playbackService.start();
                     }
                 }

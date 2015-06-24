@@ -24,10 +24,9 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.CollectionUtils;
 import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
-import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.tomahawk_android.R;
@@ -80,18 +79,15 @@ public class TracksFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, Object item) {
         if (item instanceof Query) {
-            Query query = (Query) item;
-            if (query.isPlayable()) {
+            PlaylistEntry entry = getListAdapter().getPlaylistEntry(item);
+            if (entry.getQuery().isPlayable()) {
                 TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
                 PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null && playbackService.getCurrentQuery() == query) {
-                    playbackService.playPause();
-                } else {
-                    if (playbackService != null) {
-                        Playlist playlist = Playlist.fromQueryList(
-                                DatabaseHelper.CACHED_PLAYLIST_NAME, getShownQueries());
-                        playlist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
-                        playbackService.setPlaylist(playlist, playlist.getEntryWithQuery(query));
+                if (playbackService != null) {
+                    if (playbackService.getCurrentEntry() == entry) {
+                        playbackService.playPause();
+                    } else {
+                        playbackService.setPlaylist(getListAdapter().getPlaylist(), entry);
                         playbackService.start();
                     }
                 }

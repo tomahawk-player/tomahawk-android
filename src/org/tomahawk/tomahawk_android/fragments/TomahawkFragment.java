@@ -151,8 +151,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected ArrayList<User> mUserArray;
 
-    protected final ArrayList<PlaylistEntry> mShownPlaylistEntries = new ArrayList<>();
-
     protected Album mAlbum;
 
     protected Artist mArtist;
@@ -577,39 +575,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         }
     }
 
-    protected List<Query> getShownQueries() {
-        List<Query> queries = new ArrayList<>();
-        if (mTomahawkListAdapter != null) {
-            for (int i = 0; i < mTomahawkListAdapter.getCount(); i++) {
-                Object object = mTomahawkListAdapter.getItem(i);
-                if (object instanceof List) {
-                    for (Object item : (List) object) {
-                        Query q = extractQuery(item);
-                        if (q != null) {
-                            queries.add(q);
-                        }
-                    }
-                } else if (object instanceof Query) {
-                    Query q = extractQuery(object);
-                    if (q != null) {
-                        queries.add(q);
-                    }
-                }
-            }
-        }
-        return queries;
-    }
-
-    private Query extractQuery(Object object) {
-        if (object instanceof SocialAction
-                && ((SocialAction) object).getTargetObject() instanceof Query) {
-            return ((SocialAction) object).getQuery();
-        } else if (object instanceof Query) {
-            return (Query) object;
-        }
-        return null;
-    }
-
     protected void forceResolveVisibleItems(boolean reresolve) {
         if (reresolve) {
             mCorrespondingQueries.clear();
@@ -642,12 +607,14 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     private void resolveItem(final Object object) {
-        if (object instanceof Query) {
-            Query q = (Query) object;
+        PlaylistEntry entry = mTomahawkListAdapter.getPlaylistEntry(object);
+        if (entry != null) {
+            Query q = entry.getQuery();
             if (!q.isSolved() && !mCorrespondingQueries.contains(q)) {
-                mCorrespondingQueries.add(PipeLine.getInstance().resolve((Query) object));
+                mCorrespondingQueries.add(PipeLine.getInstance().resolve(q));
             }
-        } else if (object instanceof Playlist) {
+        }
+        if (object instanceof Playlist) {
             resolveItem((Playlist) object);
         } else if (object instanceof SocialAction) {
             resolveItem((SocialAction) object);

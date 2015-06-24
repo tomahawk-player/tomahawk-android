@@ -310,10 +310,14 @@ public class Playlist extends Cacheable implements AlphaComparable {
 
     /**
      * Append {@link Query} at the end of this playlist
+     *
+     * @return the {@link PlaylistEntry} that got created and added to this {@link Playlist}
      */
-    public void addQuery(Query query) {
-        mEntries.add(PlaylistEntry.get(mId, query,
-                TomahawkMainActivity.getLifetimeUniqueStringId()));
+    public PlaylistEntry addQuery(Query query) {
+        PlaylistEntry entry = PlaylistEntry.get(mId, query,
+                TomahawkMainActivity.getLifetimeUniqueStringId());
+        mEntries.add(entry);
+        return entry;
     }
 
     /**
