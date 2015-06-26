@@ -64,6 +64,8 @@ public class SearchPagerFragment extends PagerFragment {
 
     private SearchFragmentReceiver mSearchFragmentReceiver;
 
+    private boolean mIsFirstBroadcast;
+
     /**
      * Handles incoming broadcasts.
      */
@@ -74,9 +76,10 @@ public class SearchPagerFragment extends PagerFragment {
             if (ConnectivityManager.CONNECTIVITY_ACTION.equals(intent.getAction())) {
                 boolean noConnectivity =
                         intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
-                if (!noConnectivity) {
+                if (!noConnectivity && !mIsFirstBroadcast) {
                     resolveFullTextQuery(mCurrentQueryString);
                 }
+                mIsFirstBroadcast = false;
             }
         }
     }
@@ -144,11 +147,12 @@ public class SearchPagerFragment extends PagerFragment {
     }
 
     @Override
-    public void onResume() {
-        super.onResume();
+    public void onStart() {
+        super.onStart();
 
         // Initialize and register Receiver
         if (mSearchFragmentReceiver == null) {
+            mIsFirstBroadcast = true;
             mSearchFragmentReceiver = new SearchFragmentReceiver();
             IntentFilter intentFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
             getActivity().registerReceiver(mSearchFragmentReceiver, intentFilter);
@@ -164,6 +168,11 @@ public class SearchPagerFragment extends PagerFragment {
                 mCorrespondingQueries.remove(query);
             }
         }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
 
         if (mSearchFragmentReceiver != null) {
             getActivity().unregisterReceiver(mSearchFragmentReceiver);
