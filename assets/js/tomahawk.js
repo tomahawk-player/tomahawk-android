@@ -523,7 +523,13 @@ Tomahawk.ajax = function(url, settings) {
             var str = [];
             for(var p in obj) {
                 if(obj[p] !== undefined) {
-                    str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    if (Array.isArray(obj[p])) {
+                        for (var i = 0; i < obj[p].length; i++) {
+                            str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p][i]));
+                        }
+                    } else {
+                        str.push(encodeURIComponent(p) + "=" + encodeURIComponent(obj[p]));
+                    }
                 }
             }
 
