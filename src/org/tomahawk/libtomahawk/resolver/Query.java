@@ -82,6 +82,9 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
                     return 1;
                 }
             }
+            if (r1 == r2) {
+                return 0;
+            }
             Float score1 = mTrackResultScores.get(r1);
             Float score2 = mTrackResultScores.get(r2);
             int scoreResult = score2.compareTo(score1);
@@ -100,8 +103,18 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
                 } else if (weightResult < 0) {
                     return -1;
                 } else {
-                    // Two identical trackScores and Resolver weights
-                    return 0;
+                    // We have two identical trackScores and Resolver weights.
+                    Integer hashCode1 = r1.hashCode();
+                    Integer hashCode2 = r2.hashCode();
+                    int hashCodeResult = hashCode1.compareTo(hashCode2);
+                    if (hashCodeResult > 0) {
+                        return 1;
+                    } else if (hashCodeResult < 0) {
+                        return -1;
+                    } else {
+                        // should never happen
+                        return 0;
+                    }
                 }
             }
         }
