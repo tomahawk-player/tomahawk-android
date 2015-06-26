@@ -239,6 +239,9 @@ Tomahawk.Resolver = {
         this.newConfigSaved(Tomahawk.resolverData().config);
     },
     newConfigSaved: function () {
+    },
+    getStreamUrl: function (params) {
+        return params;
     }
 };
 Tomahawk.Resolver.Promise = Tomahawk.extend(TomahawkResolver, {
@@ -846,17 +849,10 @@ Tomahawk.PluginManager = {
 
     invoke: function (requestId, objectId, methodName, params ) {
         Promise.resolve(this.invokeSync(requestId, objectId, methodName, params)).then(function (result) {
-            if (typeof result === 'object' || typeof result === 'undefined') {
-                Tomahawk.reportScriptJobResults({
-                    requestId: requestId,
-                    data: result
-                });
-            } else {
-                Tomahawk.reportScriptJobResults({
-                    requestId: requestId,
-                    error: "Scripts need to return objects for request: methodName: " + methodName + " params: " + JSON.stringify(params)
-                });
-            }
+            Tomahawk.reportScriptJobResults({
+                requestId: requestId,
+                data: result
+            });
         }, function (error) {
             Tomahawk.reportScriptJobResults({
                 requestId: requestId,
