@@ -1182,7 +1182,8 @@ Tomahawk.Collection = {
                             "artistId INTEGER," +
                             "albumId INTEGER," +
                             "url TEXT," +
-                            "duration TEXT," +
+                            "duration INTEGER," +
+                            "albumPos INTEGER," +
                             "linkUrl TEXT," +
                             "UNIQUE (track, artistId, albumId) ON CONFLICT IGNORE," +
                             "FOREIGN KEY(artistId) REFERENCES artists(_id)," +
@@ -1416,7 +1417,8 @@ Tomahawk.Collection = {
                                 albumId: albumId,
                                 url: track.url,
                                 duration: track.duration,
-                                linkUrl: track.linkUrl
+                                linkUrl: track.linkUrl,
+                                albumPos: track.albumPos
                             })
                         ])
                     );
@@ -1503,7 +1505,8 @@ Tomahawk.Collection = {
                     track: row.track,
                     duration: row.duration,
                     url: row.url,
-                    linkUrl: row.linkUrl
+                    linkUrl: row.linkUrl,
+                    albumPos: row.albumPos
                 });
             }
             return tracks;
