@@ -1427,6 +1427,7 @@ Tomahawk.Collection = {
             // Get the tracks' db ids
             return t.sqlSelect("tracks", ["_id", "artistId", "albumId", "track"]);
         }).then(function (results) {
+            Tomahawk.log("Added " + results.rows.length + " tracks to collection '" + id + "'");
             // Add the db ids together with the basic metadata to the fuzzy index list
             var fuzzyIndexList = [];
             for (var i = 0; i < results.rows.length; i++) {
@@ -1457,6 +1458,7 @@ Tomahawk.Collection = {
                 t.sqlDrop("tracks")
             ]);
         }).then(function () {
+            Tomahawk.log("Wiped collection '" + id + "'");
             that.cachedDbs[id].changeVersion(that.cachedDbs[id].version, "", null,
                 function (err) {
                     if (console.error) {
@@ -1504,7 +1506,6 @@ Tomahawk.Collection = {
                     linkUrl: row.linkUrl
                 });
             }
-            Tomahawk.log("tracks: " + JSON.stringify(tracks));
             return tracks;
         });
     },
