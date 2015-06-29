@@ -27,6 +27,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
@@ -41,6 +42,11 @@ public class HatchetCollection extends NativeCollection {
 
     public HatchetCollection() {
         super(TomahawkApp.PLUGINNAME_HATCHET, "", true);
+
+        mAlbums = Collections.newSetFromMap(new ConcurrentHashMap<Album, Boolean>());
+        mArtists = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
+        mAlbumArtists = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
+        mQueries = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
     }
 
     public void addArtistTopHits(Artist artist, List<Query> topHits) {

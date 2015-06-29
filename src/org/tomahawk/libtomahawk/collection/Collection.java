@@ -22,8 +22,8 @@ import org.tomahawk.libtomahawk.resolver.Query;
 
 import android.widget.ImageView;
 
-import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Collection {
 
@@ -31,9 +31,31 @@ public abstract class Collection {
 
     private final String mName;
 
+    protected Set<Album> mAlbums;
+
+    protected Set<Artist> mArtists;
+
+    protected Set<Artist> mAlbumArtists;
+
+    protected Set<Query> mQueries;
+
+    protected ConcurrentHashMap<Album, Set<Query>> mAlbumTracks
+            = new ConcurrentHashMap<>();
+
+    protected ConcurrentHashMap<Artist, Set<Album>> mArtistAlbums
+            = new ConcurrentHashMap<>();
+
     public Collection(String id, String name) {
         mId = id;
         mName = name;
+    }
+
+    public void wipe() {
+        mQueries.clear();
+        mArtists.clear();
+        mAlbums.clear();
+        mAlbumTracks.clear();
+        mArtistAlbums.clear();
     }
 
     /**
@@ -57,12 +79,10 @@ public abstract class Collection {
 
     public abstract Promise<Set<Album>, Throwable, Void> getAlbums();
 
-    public abstract Promise<List<Album>, Throwable, Void> getArtistAlbums(Artist artist);
+    public abstract Promise<Set<Album>, Throwable, Void> getArtistAlbums(Artist artist,
+            boolean onlyIfCached);
 
-    public abstract Promise<Boolean, Throwable, Void> hasArtistAlbums(Artist artist);
-
-    public abstract Promise<List<Query>, Throwable, Void> getAlbumTracks(Album album);
-
-    public abstract Promise<Boolean, Throwable, Void> hasAlbumTracks(Album album);
+    public abstract Promise<Set<Query>, Throwable, Void> getAlbumTracks(Album album,
+            boolean onlyIfCached);
 
 }

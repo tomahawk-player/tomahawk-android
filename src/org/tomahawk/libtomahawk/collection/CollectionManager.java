@@ -566,9 +566,9 @@ public class CollectionManager {
         for (final Collection collection : mCollections.values()) {
             if (!collection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET)) {
                 if (object instanceof Album) {
-                    deferreds.add(collection.hasAlbumTracks((Album) object));
+                    deferreds.add(collection.getAlbumTracks((Album) object, false));
                 } else {
-                    deferreds.add(collection.hasArtistAlbums((Artist) object));
+                    deferreds.add(collection.getArtistAlbums((Artist) object, false));
                 }
                 collections.add(collection);
             }
@@ -582,7 +582,7 @@ public class CollectionManager {
                         List<Collection> availableCollections = new ArrayList<>();
                         for (int i = 0; i < result.size(); i++) {
                             Object boolResult = result.get(i).getResult();
-                            if ((Boolean) boolResult) {
+                            if (((Set) boolResult).size() > 0) {
                                 availableCollections.add(collections.get(i));
                             }
                         }

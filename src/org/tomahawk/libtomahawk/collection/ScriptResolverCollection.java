@@ -41,7 +41,6 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -51,14 +50,6 @@ import java.util.Set;
 public class ScriptResolverCollection extends Collection implements ScriptPlugin {
 
     private final static String TAG = ScriptResolverCollection.class.getSimpleName();
-
-    private Set<Album> mCachedAlbums;
-
-    private Set<Artist> mCachedArtists;
-
-    private Set<Artist> mCachedAlbumArtists;
-
-    private Set<Query> mCachedQueries;
 
     private ScriptObject mScriptObject;
 
@@ -128,8 +119,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     @Override
     public Promise<Set<Query>, Throwable, Void> getQueries() {
         final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        if (mCachedQueries != null) {
-            deferred.resolve(mCachedQueries);
+        if (mQueries != null) {
+            deferred.resolve(mQueries);
         } else {
             getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
                 @Override
@@ -162,7 +153,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                     Log.d(TAG, "Converted " + parsedResults.size()
                                             + " trackResults in " + (
                                             System.currentTimeMillis() - time) + "ms");
-                                    mCachedQueries = queries;
+                                    mQueries = queries;
                                     deferred.resolve(queries);
                                 }
                             });
@@ -175,8 +166,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     @Override
     public Promise<Set<Artist>, Throwable, Void> getArtists() {
         final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
-        if (mCachedArtists != null) {
-            deferred.resolve(mCachedArtists);
+        if (mArtists != null) {
+            deferred.resolve(mArtists);
         } else {
             getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
                 @Override
@@ -203,7 +194,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                     Log.d(TAG,
                                             "Converted " + artists.size() + " artistResults in " + (
                                                     System.currentTimeMillis() - time) + "ms");
-                                    mCachedArtists = artists;
+                                    mArtists = artists;
                                     deferred.resolve(artists);
                                 }
                             });
@@ -216,8 +207,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     @Override
     public Promise<Set<Artist>, Throwable, Void> getAlbumArtists() {
         final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
-        if (mCachedAlbumArtists != null) {
-            deferred.resolve(mCachedAlbumArtists);
+        if (mAlbumArtists != null) {
+            deferred.resolve(mAlbumArtists);
         } else {
             getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
                 @Override
@@ -235,7 +226,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                                         .getNodeChildAsText(result, "albumArtist"));
                                         artists.add(artist);
                                     }
-                                    mCachedAlbumArtists = artists;
+                                    mAlbumArtists = artists;
                                     deferred.resolve(artists);
                                 }
                             });
@@ -248,8 +239,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     @Override
     public Promise<Set<Album>, Throwable, Void> getAlbums() {
         final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
-        if (mCachedAlbums != null) {
-            deferred.resolve(mCachedAlbums);
+        if (mAlbums != null) {
+            deferred.resolve(mAlbums);
         } else {
             getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
                 @Override
@@ -279,7 +270,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                     Log.d(TAG,
                                             "Converted " + albums.size() + " albumResults in " + (
                                                     System.currentTimeMillis() - time) + "ms");
-                                    mCachedAlbums = albums;
+                                    mAlbums = albums;
                                     deferred.resolve(albums);
                                 }
                             });
@@ -290,134 +281,98 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Promise<List<Album>, Throwable, Void> getArtistAlbums(final Artist artist) {
-        final Deferred<List<Album>, Throwable, Void> deferred = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                HashMap<String, Object> a = new HashMap<>();
-                a.put("id", result.id);
-                a.put("artist", artist.getName());
-                a.put("artistDisambiguation", "");
-                ScriptJob.start(mScriptObject, "artistAlbums", a,
-                        new ScriptJob.ResultsArrayCallback() {
-                            @Override
-                            public void onReportResults(JsonArray results) {
-                                List<Album> albums = new ArrayList<>();
-                                for (JsonElement result : results) {
-                                    Artist albumArtist = Artist.get(
-                                            ScriptUtils.getNodeChildAsText(result, "albumArtist"));
-                                    Album album = Album.get(
-                                            ScriptUtils.getNodeChildAsText(result, "album"),
-                                            albumArtist);
-                                    albums.add(album);
+    public Promise<Set<Album>, Throwable, Void> getArtistAlbums(final Artist artist,
+            boolean onlyIfCached) {
+        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+        if (mArtistAlbums.get(artist) != null) {
+            deferred.resolve(mArtistAlbums.get(artist));
+        } else if (!onlyIfCached) {
+            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+                @Override
+                public void onDone(ScriptResolverCollectionMetaData result) {
+                    HashMap<String, Object> a = new HashMap<>();
+                    a.put("id", result.id);
+                    a.put("artist", artist.getName());
+                    a.put("artistDisambiguation", "");
+                    ScriptJob.start(mScriptObject, "artistAlbums", a,
+                            new ScriptJob.ResultsArrayCallback() {
+                                @Override
+                                public void onReportResults(JsonArray results) {
+                                    Set<Album> albums = new HashSet<>();
+                                    for (JsonElement result : results) {
+                                        Artist albumArtist = Artist.get(
+                                                ScriptUtils
+                                                        .getNodeChildAsText(result, "albumArtist"));
+                                        Album album = Album.get(
+                                                ScriptUtils.getNodeChildAsText(result, "album"),
+                                                albumArtist);
+                                        albums.add(album);
+                                    }
+                                    mArtistAlbums.put(artist, albums);
+                                    deferred.resolve(albums);
                                 }
-                                deferred.resolve(albums);
-                            }
-                        });
-            }
-        });
+                            });
+                }
+            });
+        } else {
+            deferred.reject(new Throwable("No cached result available!"));
+        }
         return deferred;
     }
 
     @Override
-    public Promise<Boolean, Throwable, Void> hasArtistAlbums(final Artist artist) {
-        final Deferred<Boolean, Throwable, Void> deferred = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                HashMap<String, Object> a = new HashMap<>();
-                a.put("id", result.id);
-                a.put("artist", artist.getName());
-                a.put("artistDisambiguation", "");
-                ScriptJob.start(mScriptObject, "artistAlbums", a,
-                        new ScriptJob.ResultsArrayCallback() {
-                            @Override
-                            public void onReportResults(JsonArray results) {
-                                deferred.resolve(results.size() > 0);
-                            }
-                        }, new ScriptJob.FailureCallback() {
-                            @Override
-                            public void onReportFailure(String errormessage) {
-                                deferred.resolve(false);
-                            }
-                        });
-            }
-        });
-        return deferred;
-    }
-
-    @Override
-    public Promise<List<Query>, Throwable, Void> getAlbumTracks(final Album album) {
-        final Deferred<List<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<Set<Query>, Throwable, Void> getAlbumTracks(final Album album,
+            boolean onlyIfCached) {
+        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
         final long time = System.currentTimeMillis();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                Log.d("perftest", "getMetadata in " + (System.currentTimeMillis() - time) + "ms");
-                HashMap<String, Object> a = new HashMap<>();
-                a.put("id", result.id);
-                a.put("albumArtist", album.getArtist().getName());
-                a.put("albumArtistDisambiguation", "");
-                a.put("album", album.getName());
-                final long time = System.currentTimeMillis();
-                ScriptJob.start(mScriptObject, "albumTracks", a,
-                        new ScriptJob.ResultsArrayCallback() {
-                            @Override
-                            public void onReportResults(JsonArray results) {
-                                Log.d("perftest",
-                                        "albumTracks in " + (System.currentTimeMillis() - time)
-                                                + "ms");
-                                long time = System.currentTimeMillis();
-                                ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
-                                        mScriptAccount.getScriptResolver(), results);
-                                Log.d("perftest",
-                                        "albumTracks parsed in " + (System.currentTimeMillis()
-                                                - time) + "ms");
-                                time = System.currentTimeMillis();
-                                List<Query> queries = new ArrayList<>();
-                                for (Result r : parsedResults) {
-                                    Query query = Query.get(r, false);
-                                    float trackScore = query.howSimilar(r);
-                                    query.addTrackResult(r, trackScore);
-                                    queries.add(query);
+        if (mAlbumTracks.get(album) != null) {
+            deferred.resolve(mAlbumTracks.get(album));
+        } else if (!onlyIfCached) {
+            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+                @Override
+                public void onDone(ScriptResolverCollectionMetaData result) {
+                    Log.d("perftest",
+                            "getMetadata in " + (System.currentTimeMillis() - time) + "ms");
+                    HashMap<String, Object> a = new HashMap<>();
+                    a.put("id", result.id);
+                    a.put("albumArtist", album.getArtist().getName());
+                    a.put("albumArtistDisambiguation", "");
+                    a.put("album", album.getName());
+                    final long time = System.currentTimeMillis();
+                    ScriptJob.start(mScriptObject, "albumTracks", a,
+                            new ScriptJob.ResultsArrayCallback() {
+                                @Override
+                                public void onReportResults(JsonArray results) {
+                                    Log.d("perftest",
+                                            "albumTracks in " + (System.currentTimeMillis() - time)
+                                                    + "ms");
+                                    long time = System.currentTimeMillis();
+                                    ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
+                                            mScriptAccount.getScriptResolver(), results);
+                                    Log.d("perftest",
+                                            "albumTracks parsed in " + (System.currentTimeMillis()
+                                                    - time) + "ms");
+                                    time = System.currentTimeMillis();
+                                    Set<Query> queries = new HashSet<>();
+                                    for (Result r : parsedResults) {
+                                        Query query = Query.get(r, false);
+                                        float trackScore = query.howSimilar(r);
+                                        query.addTrackResult(r, trackScore);
+                                        queries.add(query);
+                                    }
+                                    Log.d("perftest",
+                                            "albumTracks converted in " + (
+                                                    System.currentTimeMillis()
+                                                            - time) + "ms");
+                                    mAlbumTracks.put(album, queries);
+                                    deferred.resolve(queries);
                                 }
-                                Log.d("perftest",
-                                        "albumTracks converted in " + (System.currentTimeMillis()
-                                                - time) + "ms");
-                                deferred.resolve(queries);
-                            }
-                        });
-            }
-        });
-        return deferred;
-    }
-
-    @Override
-    public Promise<Boolean, Throwable, Void> hasAlbumTracks(final Album album) {
-        final Deferred<Boolean, Throwable, Void> deferred = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                HashMap<String, Object> a = new HashMap<>();
-                a.put("id", result.id);
-                a.put("albumArtist", album.getArtist().getName());
-                a.put("albumArtistDisambiguation", "");
-                a.put("album", album.getName());
-                ScriptJob.start(mScriptObject, "albumTracks", a,
-                        new ScriptJob.ResultsArrayCallback() {
-                            @Override
-                            public void onReportResults(JsonArray results) {
-                                deferred.resolve(results.size() > 0);
-                            }
-                        }, new ScriptJob.FailureCallback() {
-                            @Override
-                            public void onReportFailure(String errormessage) {
-                                deferred.resolve(false);
-                            }
-                        });
-            }
-        });
+                            });
+                }
+            });
+        } else {
+            deferred.reject(new Throwable("No cached result available!"));
+        }
         return deferred;
     }
 }

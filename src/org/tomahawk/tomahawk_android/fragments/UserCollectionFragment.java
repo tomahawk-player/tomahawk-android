@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -29,6 +30,8 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.os.Bundle;
 import android.view.View;
+
+import java.util.Set;
 
 public class UserCollectionFragment extends TomahawkFragment {
 
@@ -59,12 +62,12 @@ public class UserCollectionFragment extends TomahawkFragment {
         if (item instanceof Album) {
             final Collection userCollection = CollectionManager.getInstance()
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-            userCollection.hasAlbumTracks((Album) item).done(new DoneCallback<Boolean>() {
+            userCollection.getAlbumTracks((Album) item, false).done(new DoneCallback<Set<Query>>() {
                 @Override
-                public void onDone(Boolean result) {
+                public void onDone(Set<Query> result) {
                     TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
                     Bundle bundle = new Bundle();
-                    if (result) {
+                    if (result.size() > 0) {
                         bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
                         bundle.putString(TomahawkFragment.COLLECTION_ID, userCollection.getId());
                         bundle.putInt(CONTENT_HEADER_MODE,

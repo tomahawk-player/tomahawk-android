@@ -48,6 +48,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -56,6 +57,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
 
@@ -97,9 +99,23 @@ public class UserCollection extends NativeCollection {
         }
     }
 
+    private final ConcurrentHashMap<Query, Long> mQueryTimeStamps
+            = new ConcurrentHashMap<>();
+
+    private final ConcurrentHashMap<Artist, Long> mArtistTimeStamps
+            = new ConcurrentHashMap<>();
+
+    private final ConcurrentHashMap<Album, Long> mAlbumTimeStamps
+            = new ConcurrentHashMap<>();
+
     public UserCollection() {
         super(TomahawkApp.PLUGINNAME_USERCOLLECTION,
                 TomahawkApp.getContext().getString(R.string.local_collection_pretty_name), true);
+
+        mAlbums = Collections.newSetFromMap(new ConcurrentHashMap<Album, Boolean>());
+        mArtists = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
+        mAlbumArtists = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
+        mQueries = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
     }
 
     @Override
@@ -336,6 +352,35 @@ public class UserCollection extends NativeCollection {
                 }
             }
         }
+    }
+
+    public void addQuery(Query query, long addedTimeStamp) {
+        if (!TextUtils.isEmpty(query.getName())) {
+            mQueries.add(query);
+        }
+        if (addedTimeStamp > 0) {
+            if (mAlbumTimeStamps.get(query.getAlbum()) == null
+                    || mAlbumTimeStamps.get(query.getAlbum()) < addedTimeStamp) {
+                mAlbumTimeStamps.put(query.getAlbum(), addedTimeStamp);
+            }
+            if (mArtistTimeStamps.get(query.getArtist()) == null
+                    || mArtistTimeStamps.get(query.getArtist()) < addedTimeStamp) {
+                mArtistTimeStamps.put(query.getArtist(), addedTimeStamp);
+            }
+            mQueryTimeStamps.put(query, addedTimeStamp);
+        }
+    }
+
+    public ConcurrentHashMap<Query, Long> getQueryTimeStamps() {
+        return mQueryTimeStamps;
+    }
+
+    public ConcurrentHashMap<Artist, Long> getArtistTimeStamps() {
+        return mArtistTimeStamps;
+    }
+
+    public ConcurrentHashMap<Album, Long> getAlbumTimeStamps() {
+        return mAlbumTimeStamps;
     }
 
     private final RestartHandler mRestartHandler = new RestartHandler(this);
