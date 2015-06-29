@@ -102,7 +102,7 @@ public class ArtistsFragment extends TomahawkFragment {
         }
 
         if (mArtistArray != null) {
-            fillAdapter(new Segment(new ArrayList<Object>(mArtistArray)));
+            fillAdapter(new Segment(mArtistArray));
         } else {
             final List<Artist> starredArtists;
             if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
@@ -120,8 +120,8 @@ public class ArtistsFragment extends TomahawkFragment {
                     fillAdapter(new Segment(getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
                             constructDropdownItems(),
                             constructDropdownListener(COLLECTION_ARTISTS_SPINNER_POSITION),
-                            new ArrayList<Object>(result), R.integer.grid_column_count,
-                            R.dimen.padding_superlarge, R.dimen.padding_superlarge));
+                            result, R.integer.grid_column_count, R.dimen.padding_superlarge,
+                            R.dimen.padding_superlarge));
                 }
             });
         }

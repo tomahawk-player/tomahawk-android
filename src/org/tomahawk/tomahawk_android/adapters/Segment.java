@@ -42,9 +42,9 @@ public class Segment {
 
     private final List<String> mHeaderStrings = new ArrayList<>();
 
-    private List<Object> mListItems = new ArrayList<>();
+    private List mListItems = new ArrayList<>();
 
-    private final List<List<Object>> mGridItems = new ArrayList<>();
+    private final List<List> mGridItems = new ArrayList<>();
 
     private int mSegmentSize = 0;
 
@@ -60,27 +60,27 @@ public class Segment {
 
     private int mLeftExtraPadding;
 
-    public Segment(List<Object> listItems, int headerLayoutId) {
+    public Segment(List listItems, int headerLayoutId) {
         this(listItems);
         mHeaderLayoutId = headerLayoutId;
     }
 
-    public Segment(List<Object> listItems) {
+    public Segment(List listItems) {
         mListItems = listItems;
         mSegmentSize = mListItems.size();
     }
 
-    public Segment(int headerStringResId, List<Object> listItems) {
+    public Segment(int headerStringResId, List listItems) {
         this(TomahawkApp.getContext().getString(headerStringResId), listItems);
     }
 
-    public Segment(String headerString, List<Object> listItems) {
+    public Segment(String headerString, List listItems) {
         this(listItems);
         mHeaderStrings.add(headerString);
         mHeaderLayoutId = R.layout.single_line_list_header;
     }
 
-    public Segment(String headerString, List<Object> listItems, int headerLayoutId) {
+    public Segment(String headerString, List listItems, int headerLayoutId) {
         this(listItems);
         mHeaderStrings.add(headerString);
         mHeaderLayoutId = headerLayoutId;
@@ -88,7 +88,7 @@ public class Segment {
 
     public Segment(int initialPos, List<Integer> headerStringResIds,
             AdapterView.OnItemSelectedListener spinnerClickListener,
-            List<Object> listItems) {
+            List listItems) {
         this(listItems);
         mInitialPos = initialPos;
         for (Integer resId : headerStringResIds) {
@@ -98,14 +98,14 @@ public class Segment {
         mSpinnerClickListener = spinnerClickListener;
     }
 
-    public Segment(List<Object> listItems, int columnCountResId,
+    public Segment(List listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId, int headerLayoutId) {
         this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
         mHeaderLayoutId = headerLayoutId;
     }
 
 
-    public Segment(List<Object> listItems, int columnCountResId,
+    public Segment(List listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId) {
         mShowAsGrid = true;
         Resources resources = TomahawkApp.getContext().getResources();
@@ -126,13 +126,13 @@ public class Segment {
         mSegmentSize += listItems.size();
     }
 
-    public Segment(int headerStringResId, List<Object> listItems, int columnCountResId,
+    public Segment(int headerStringResId, List listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId) {
         this(TomahawkApp.getContext().getString(headerStringResId), listItems, columnCountResId,
                 horizontalPaddingResId, verticalPaddingResId);
     }
 
-    public Segment(String headerString, List<Object> listItems, int columnCountResId,
+    public Segment(String headerString, List listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId) {
         this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
         mHeaderStrings.add(headerString);
@@ -141,7 +141,7 @@ public class Segment {
 
     public Segment(int initialPos, List<Integer> headerStringResIds,
             AdapterView.OnItemSelectedListener spinnerClickListener,
-            List<Object> listItems, int columnCountResId, int horizontalPaddingResId,
+            List listItems, int columnCountResId, int horizontalPaddingResId,
             int verticalPaddingResId) {
         this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
         mInitialPos = initialPos;

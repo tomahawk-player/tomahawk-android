@@ -113,8 +113,7 @@ public class TracksFragment extends TomahawkFragment {
                 public void onDone(List<Query> queries) {
                     Collections.sort(queries,
                             new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
-                    Segment segment = new Segment(mAlbum.getArtist().getPrettyName(),
-                            new ArrayList<Object>(queries));
+                    Segment segment = new Segment(mAlbum.getArtist().getPrettyName(), queries);
                     if (CollectionUtils.allFromOneArtist(queries)) {
                         segment.setHideArtistName(true);
                         segment.setShowDuration(true);
@@ -132,7 +131,7 @@ public class TracksFragment extends TomahawkFragment {
             showContentHeader(mQuery);
             showFancyDropDown(0, mQuery.getName(), null, null);
         } else if (mQueryArray != null) {
-            Segment segment = new Segment(new ArrayList<Object>(mQueryArray));
+            Segment segment = new Segment(mQueryArray);
             segment.setShowDuration(true);
             fillAdapter(segment);
         } else {
@@ -143,7 +142,7 @@ public class TracksFragment extends TomahawkFragment {
                     fillAdapter(new Segment(getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION),
                             constructDropdownItems(),
                             constructDropdownListener(COLLECTION_TRACKS_SPINNER_POSITION),
-                            new ArrayList<Object>(queries)));
+                            queries));
                 }
             });
         }

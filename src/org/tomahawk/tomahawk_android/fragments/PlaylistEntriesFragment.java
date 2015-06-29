@@ -35,8 +35,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.view.View;
 
-import java.util.ArrayList;
-
 /**
  * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows a set of {@link
  * org.tomahawk.libtomahawk.collection.Track}s inside its {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
@@ -118,8 +116,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             if (!mPlaylist.isFilled()) {
                 refreshCurrentPlaylist();
             } else {
-                Segment segment = new Segment(R.string.playlist_details,
-                        new ArrayList<Object>(mPlaylist.getEntries()));
+                Segment segment = new Segment(R.string.playlist_details, mPlaylist.getEntries());
                 segment.setShowNumeration(true, 1);
                 fillAdapter(segment);
                 showContentHeader(mPlaylist);
