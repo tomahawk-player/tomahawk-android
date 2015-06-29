@@ -23,6 +23,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import android.widget.ImageView;
 
 import java.util.List;
+import java.util.Set;
 
 public abstract class Collection {
 
@@ -48,13 +49,13 @@ public abstract class Collection {
         return mName;
     }
 
-    public abstract Promise<List<Query>, Throwable, Void> getQueries();
+    public abstract Promise<Set<Query>, Throwable, Void> getQueries();
 
-    public abstract Promise<List<Artist>, Throwable, Void> getArtists();
+    public abstract Promise<Set<Artist>, Throwable, Void> getArtists();
 
-    public abstract Promise<List<Artist>, Throwable, Void> getAlbumArtists();
+    public abstract Promise<Set<Artist>, Throwable, Void> getAlbumArtists();
 
-    public abstract Promise<List<Album>, Throwable, Void> getAlbums();
+    public abstract Promise<Set<Album>, Throwable, Void> getAlbums();
 
     public abstract Promise<List<Album>, Throwable, Void> getArtistAlbums(Artist artist);
 

@@ -31,7 +31,7 @@ import android.text.TextUtils;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 
 /**
  * A {@link Resolver} which resolves {@link Track}s via our local database. Or in other words:
@@ -115,9 +115,9 @@ public class DataBaseResolver implements Resolver {
         if (mReady) {
             mStopped = false;
             CollectionManager.getInstance().getCollection(mId)
-                    .getQueries().done(new DoneCallback<List<Query>>() {
+                    .getQueries().done(new DoneCallback<Set<Query>>() {
                 @Override
-                public void onDone(List<Query> result) {
+                public void onDone(Set<Query> result) {
                     ArrayList<Result> results = new ArrayList<>();
                     for (Query existingQuery : result) {
                         String existingTrackName = existingQuery.getName();

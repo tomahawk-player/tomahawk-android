@@ -24,9 +24,9 @@ import java.util.Map;
 /**
  * This class is used to compare two {@link Object}s.
  */
-public class LastModifiedComparator implements Comparator {
+public class LastModifiedComparator<T> implements Comparator<T> {
 
-    private Map<?, Long> mTimeStampMap;
+    private Map<T, Long> mTimeStampMap;
 
     /**
      * Construct this {@link LastModifiedComparator}
@@ -34,7 +34,7 @@ public class LastModifiedComparator implements Comparator {
      * @param timeStampMap the ConcurrentHashMap used to determine the timeStamps of the
      *                     TomahawkListItems which will be sorted
      */
-    public LastModifiedComparator(Map<?, Long> timeStampMap) {
+    public LastModifiedComparator(Map<T, Long> timeStampMap) {
         mTimeStampMap = new HashMap<>(timeStampMap);
     }
 
@@ -46,7 +46,7 @@ public class LastModifiedComparator implements Comparator {
      * @return int containing comparison score
      */
     @Override
-    public int compare(Object o1, Object o2) {
+    public int compare(T o1, T o2) {
         Long a1TimeStamp = mTimeStampMap.get(o1);
         if (a1TimeStamp == null) {
             a1TimeStamp = 0L;

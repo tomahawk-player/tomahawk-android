@@ -100,12 +100,12 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<List<Query>, Throwable, Void> getQueries() {
+    public Promise<Set<Query>, Throwable, Void> getQueries() {
         BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<List<Query>>() {
+        return dm.when(new Callable<Set<Query>>() {
             @Override
-            public List<Query> call() throws Exception {
-                return new ArrayList<>(mQueries);
+            public Set<Query> call() throws Exception {
+                return mQueries;
             }
         });
     }
@@ -115,12 +115,12 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<List<Artist>, Throwable, Void> getArtists() {
+    public Promise<Set<Artist>, Throwable, Void> getArtists() {
         BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<List<Artist>>() {
+        return dm.when(new Callable<Set<Artist>>() {
             @Override
-            public List<Artist> call() throws Exception {
-                return new ArrayList<>(mArtists);
+            public Set<Artist> call() throws Exception {
+                return mArtists;
             }
         });
     }
@@ -130,12 +130,12 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<List<Artist>, Throwable, Void> getAlbumArtists() {
+    public Promise<Set<Artist>, Throwable, Void> getAlbumArtists() {
         BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<List<Artist>>() {
+        return dm.when(new Callable<Set<Artist>>() {
             @Override
-            public List<Artist> call() throws Exception {
-                return new ArrayList<>(mAlbumArtists);
+            public Set<Artist> call() throws Exception {
+                return mAlbumArtists;
             }
         });
     }
@@ -145,12 +145,12 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<List<Album>, Throwable, Void> getAlbums() {
+    public Promise<Set<Album>, Throwable, Void> getAlbums() {
         BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<List<Album>>() {
+        return dm.when(new Callable<Set<Album>>() {
             @Override
-            public List<Album> call() throws Exception {
-                return new ArrayList<>(mAlbums);
+            public Set<Album> call() throws Exception {
+                return new HashSet<>(mAlbums);
             }
         });
     }

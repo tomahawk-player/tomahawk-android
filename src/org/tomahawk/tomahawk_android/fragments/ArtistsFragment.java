@@ -34,8 +34,10 @@ import android.os.Bundle;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Artist}s inside its {@link
@@ -110,18 +112,17 @@ public class ArtistsFragment extends TomahawkFragment {
             } else {
                 starredArtists = null;
             }
-            mCollection.getArtists().done(new DoneCallback<List<Artist>>() {
+            mCollection.getArtists().done(new DoneCallback<Set<Artist>>() {
                 @Override
-                public void onDone(List<Artist> result) {
+                public void onDone(Set<Artist> result) {
                     if (starredArtists != null) {
                         result.addAll(starredArtists);
                     }
-                    sortArtists(result);
                     fillAdapter(new Segment(getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
                             constructDropdownItems(),
                             constructDropdownListener(COLLECTION_ARTISTS_SPINNER_POSITION),
-                            result, R.integer.grid_column_count, R.dimen.padding_superlarge,
-                            R.dimen.padding_superlarge));
+                            sortArtists(result), R.integer.grid_column_count,
+                            R.dimen.padding_superlarge, R.dimen.padding_superlarge));
                 }
             });
         }
@@ -134,17 +135,24 @@ public class ArtistsFragment extends TomahawkFragment {
         return dropDownItems;
     }
 
-    private void sortArtists(List<Artist> artists) {
+    private List<Artist> sortArtists(Collection<Artist> artists) {
+        List<Artist> sortedArtists;
+        if (artists instanceof List) {
+            sortedArtists = (List<Artist>) artists;
+        } else {
+            sortedArtists = new ArrayList<>(artists);
+        }
         switch (getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION)) {
             case 0:
                 UserCollection userColl = (UserCollection) CollectionManager.getInstance()
                         .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                Collections.sort(artists,
-                        new LastModifiedComparator(userColl.getArtistTimeStamps()));
+                Collections.sort(sortedArtists,
+                        new LastModifiedComparator<>(userColl.getArtistTimeStamps()));
                 break;
             case 1:
-                Collections.sort(artists, new AlphaComparator());
+                Collections.sort(sortedArtists, new AlphaComparator());
                 break;
         }
+        return sortedArtists;
     }
 }
