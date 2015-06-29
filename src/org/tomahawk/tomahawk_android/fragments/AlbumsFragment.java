@@ -128,7 +128,7 @@ public class AlbumsFragment extends TomahawkFragment {
                         sortAlbums(result);
                         fillAdapter(new Segment(
                                         mCollection.getName() + " " + getString(R.string.albums),
-                                        new ArrayList<Object>(result), R.integer.grid_column_count,
+                                        result, R.integer.grid_column_count,
                                         R.dimen.padding_superlarge, R.dimen.padding_superlarge),
                                 mCollection);
                     }
@@ -139,9 +139,9 @@ public class AlbumsFragment extends TomahawkFragment {
                     public void onDone(List<Album> result) {
                         final List<Segment> segments = new ArrayList<>();
                         sortAlbums(result);
-                        Segment segment = new Segment(R.string.top_albums,
-                                new ArrayList<Object>(result), R.integer.grid_column_count,
-                                R.dimen.padding_superlarge, R.dimen.padding_superlarge);
+                        Segment segment = new Segment(R.string.top_albums, result,
+                                R.integer.grid_column_count, R.dimen.padding_superlarge,
+                                R.dimen.padding_superlarge);
                         segments.add(segment);
                         fillAdapter(segment);
                         ((HatchetCollection) mCollection).getArtistTopHits(mArtist).done(
@@ -150,8 +150,7 @@ public class AlbumsFragment extends TomahawkFragment {
                                     public void onDone(List<Query> result) {
                                         Collections.sort(result, new QueryComparator(
                                                 QueryComparator.COMPARE_ALBUMPOS));
-                                        Segment segment = new Segment(R.string.top_hits,
-                                                new ArrayList<Object>(result));
+                                        Segment segment = new Segment(R.string.top_hits, result);
                                         segment.setShowNumeration(true, 1);
                                         segment.setHideArtistName(true);
                                         segment.setShowDuration(true);
@@ -163,15 +162,14 @@ public class AlbumsFragment extends TomahawkFragment {
                 });
             }
         } else if (mAlbumArray != null) {
-            fillAdapter(new Segment(new ArrayList<Object>(mAlbumArray)));
+            fillAdapter(new Segment(mAlbumArray));
         } else if (mUser != null) {
             List<Album> albums = mUser.getStarredAlbums();
             sortAlbums(albums);
             fillAdapter(new Segment(getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION),
                     constructDropdownItems(),
                     constructDropdownListener(COLLECTION_ALBUMS_SPINNER_POSITION),
-                    new ArrayList<Object>(new ArrayList<>(albums)),
-                    R.integer.grid_column_count, R.dimen.padding_superlarge,
+                    albums, R.integer.grid_column_count, R.dimen.padding_superlarge,
                     R.dimen.padding_superlarge));
         } else {
             final List<Album> starredAlbums;
@@ -190,7 +188,7 @@ public class AlbumsFragment extends TomahawkFragment {
                     fillAdapter(new Segment(getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION),
                             constructDropdownItems(),
                             constructDropdownListener(COLLECTION_ALBUMS_SPINNER_POSITION),
-                            new ArrayList<Object>(result), R.integer.grid_column_count,
+                            result, R.integer.grid_column_count,
                             R.dimen.padding_superlarge, R.dimen.padding_superlarge), mCollection);
                 }
             });
