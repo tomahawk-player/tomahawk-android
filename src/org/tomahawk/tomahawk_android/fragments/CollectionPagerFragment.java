@@ -73,7 +73,7 @@ public class CollectionPagerFragment extends PagerFragment {
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
-        setupPager(fragmentInfoLists, initialPage, null);
+        setupPager(fragmentInfoLists, initialPage, null, 2);
     }
 
     @Override

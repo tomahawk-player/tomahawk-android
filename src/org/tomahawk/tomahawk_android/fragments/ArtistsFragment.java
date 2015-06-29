@@ -101,28 +101,27 @@ public class ArtistsFragment extends TomahawkFragment {
             return;
         }
 
-        final List<Artist> artists = new ArrayList<>();
-
         if (mArtistArray != null) {
-            artists.addAll(mArtistArray);
-            fillAdapter(new Segment(new ArrayList<Object>(artists)));
+            fillAdapter(new Segment(new ArrayList<Object>(mArtistArray)));
         } else {
+            final List<Artist> starredArtists;
             if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
-                artists.addAll(DatabaseHelper.getInstance().getStarredArtists());
+                starredArtists = DatabaseHelper.getInstance().getStarredArtists();
+            } else {
+                starredArtists = null;
             }
             mCollection.getArtists().done(new DoneCallback<List<Artist>>() {
                 @Override
                 public void onDone(List<Artist> result) {
-                    artists.addAll(result);
-                    sortArtists(artists);
-                    fillAdapter(
-                            new Segment(getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
-                                    constructDropdownItems(),
-                                    constructDropdownListener(
-                                            COLLECTION_ARTISTS_SPINNER_POSITION),
-                                    new ArrayList<Object>(artists),
-                                    R.integer.grid_column_count, R.dimen.padding_superlarge,
-                                    R.dimen.padding_superlarge));
+                    if (starredArtists != null) {
+                        result.addAll(starredArtists);
+                    }
+                    sortArtists(result);
+                    fillAdapter(new Segment(getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
+                            constructDropdownItems(),
+                            constructDropdownListener(COLLECTION_ARTISTS_SPINNER_POSITION),
+                            new ArrayList<Object>(result), R.integer.grid_column_count,
+                            R.dimen.padding_superlarge, R.dimen.padding_superlarge));
                 }
             });
         }

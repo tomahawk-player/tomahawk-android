@@ -86,7 +86,7 @@ public class ArtistPagerFragment extends PagerFragment {
     private void updatePager() {
         showContentHeader(mArtist);
 
-        setupPager(getFragmentInfoLists(), mInitialPage, null);
+        setupPager(getFragmentInfoLists(), mInitialPage, null, 1);
         CollectionManager.getInstance().getAvailableCollections(mArtist)
                 .done(new DoneCallback<List<Collection>>() {
                     @Override
@@ -108,7 +108,7 @@ public class ArtistPagerFragment extends PagerFragment {
                                     public void onDropDownItemSelected(int position) {
                                         getArguments().putString(TomahawkFragment.COLLECTION_ID,
                                                 result.get(position).getId());
-                                        fillAdapter(getFragmentInfoLists(), 0);
+                                        fillAdapter(getFragmentInfoLists(), 0, 1);
                                     }
 
                                     @Override

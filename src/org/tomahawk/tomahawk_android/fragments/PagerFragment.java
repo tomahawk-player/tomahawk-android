@@ -199,12 +199,12 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
     }
 
     protected void setupPager(List<FragmentInfoList> fragmentInfoLists, int initialPage,
-            String selectorPosStorageKey) {
+            String selectorPosStorageKey, int offscreenPageLimit) {
         if (getView() == null) {
             return;
         }
 
-        fillAdapter(fragmentInfoLists, initialPage);
+        fillAdapter(fragmentInfoLists, initialPage, offscreenPageLimit);
 
         mPageIndicator = (PageIndicator) getView().findViewById(R.id.page_indicator);
         mPageIndicator.setVisibility(View.VISIBLE);
@@ -218,7 +218,8 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         }
     }
 
-    protected void fillAdapter(List<FragmentInfoList> fragmentInfoLists, int initialPage) {
+    protected void fillAdapter(List<FragmentInfoList> fragmentInfoLists, int initialPage,
+            int offscreenPageLimit) {
         if (getView() == null) {
             return;
         }
@@ -229,6 +230,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         }
         mViewPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
         mViewPager.setOnPageChangeListener(this);
+        mViewPager.setOffscreenPageLimit(offscreenPageLimit);
         if (initialPage >= 0) {
             mViewPager.setCurrentItem(initialPage);
         }
