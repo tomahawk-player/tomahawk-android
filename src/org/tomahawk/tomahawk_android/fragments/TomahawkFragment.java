@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import com.google.common.collect.Sets;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
@@ -675,6 +676,17 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 if (requestId != null) {
                     mCorrespondingRequestIds.add(requestId);
                 }
+            }
+            if (mCollection != null) {
+                mCollection.getAlbumTracks(album, false).done(new DoneCallback<Set<Query>>() {
+                    @Override
+                    public void onDone(Set<Query> result) {
+                        if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+                            mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
+                                    ADAPTER_UPDATE_DELAY);
+                        }
+                    }
+                });
             }
         }
     }

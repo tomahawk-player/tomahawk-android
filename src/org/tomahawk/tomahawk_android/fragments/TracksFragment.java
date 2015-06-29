@@ -109,12 +109,15 @@ public class TracksFragment extends TomahawkFragment {
         if (mAlbum != null) {
             showContentHeader(mAlbum);
             showAlbumFancyDropDown();
-            mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<List<Query>>() {
+            mCollection.getAlbumTracks(mAlbum, false).done(new DoneCallback<Set<Query>>() {
                 @Override
-                public void onDone(List<Query> queries) {
-                    Collections.sort(queries,
+                public void onDone(Set<Query> queries) {
+                    List<Query> sortedQueries = new ArrayList<>();
+                    sortedQueries.addAll(queries);
+                    Collections.sort(sortedQueries,
                             new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
-                    Segment segment = new Segment(mAlbum.getArtist().getPrettyName(), queries);
+                    Segment segment = new Segment(mAlbum.getArtist().getPrettyName(),
+                            sortedQueries);
                     if (CollectionUtils.allFromOneArtist(queries)) {
                         segment.setHideArtistName(true);
                         segment.setShowDuration(true);

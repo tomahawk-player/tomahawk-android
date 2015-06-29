@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
+import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
@@ -69,13 +70,13 @@ public class ArtistsFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, final Object item) {
         if (item instanceof Artist) {
-            mCollection.hasArtistAlbums((Artist) item).done(new DoneCallback<Boolean>() {
+            mCollection.getArtistAlbums((Artist) item, false).done(new DoneCallback<Set<Album>>() {
                 @Override
-                public void onDone(Boolean result) {
+                public void onDone(Set<Album> result) {
                     Bundle bundle = new Bundle();
                     bundle.putString(TomahawkFragment.ARTIST,
                             ((Artist) item).getCacheKey());
-                    if (result) {
+                    if (result.size() > 0) {
                         bundle.putString(TomahawkFragment.COLLECTION_ID,
                                 mCollection.getId());
                     } else {

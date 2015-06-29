@@ -92,12 +92,12 @@ public class AlbumsFragment extends TomahawkFragment {
                 }
             }
         } else if (item instanceof Album) {
-            mCollection.hasAlbumTracks((Album) item).done(new DoneCallback<Boolean>() {
+            mCollection.getAlbumTracks((Album) item, false).done(new DoneCallback<Set<Query>>() {
                 @Override
-                public void onDone(Boolean result) {
+                public void onDone(Set<Query> result) {
                     Bundle bundle = new Bundle();
                     bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
-                    if (result) {
+                    if (result.size() > 0) {
                         bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
                     } else {
                         bundle.putString(TomahawkFragment.COLLECTION_ID,
@@ -123,9 +123,9 @@ public class AlbumsFragment extends TomahawkFragment {
 
         if (mArtist != null) {
             if (!TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
-                mCollection.getArtistAlbums(mArtist).done(new DoneCallback<List<Album>>() {
+                mCollection.getArtistAlbums(mArtist, false).done(new DoneCallback<Set<Album>>() {
                     @Override
-                    public void onDone(List<Album> result) {
+                    public void onDone(Set<Album> result) {
                         fillAdapter(new Segment(
                                         mCollection.getName() + " " + getString(R.string.albums),
                                         sortAlbums(result), R.integer.grid_column_count,
@@ -134,9 +134,9 @@ public class AlbumsFragment extends TomahawkFragment {
                     }
                 });
             } else {
-                mCollection.getArtistAlbums(mArtist).done(new DoneCallback<List<Album>>() {
+                mCollection.getArtistAlbums(mArtist, false).done(new DoneCallback<Set<Album>>() {
                     @Override
-                    public void onDone(List<Album> result) {
+                    public void onDone(Set<Album> result) {
                         final List<Segment> segments = new ArrayList<>();
                         Segment segment = new Segment(R.string.top_albums, sortAlbums(result),
                                 R.integer.grid_column_count, R.dimen.padding_superlarge,
