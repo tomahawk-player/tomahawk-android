@@ -108,7 +108,7 @@ public class UserCollection extends NativeCollection {
     }
 
     public int getQueryCount() {
-        return mQueries.values().size();
+        return mQueries.size();
     }
 
     public void loadMediaItems(boolean restart) {
@@ -297,14 +297,13 @@ public class UserCollection extends NativeCollection {
                         albumArtistsMap.put(albumKey, new HashSet<String>());
                     }
                     albumArtistsMap.get(albumKey).add(mw.getArtist());
-                    Album album;
-                    if (albumArtistsMap.get(albumKey).size() > 1) {
-                        album = Album.get(mw.getAlbum(), Artist.COMPILATION_ARTIST);
-                    } else {
+                    int artistCount = albumArtistsMap.get(albumKey).size();
+                    if (artistCount == 1) {
                         Artist artist = Artist.get(mw.getArtist());
-                        album = Album.get(mw.getAlbum(), artist);
+                        albumMap.put(albumKey, Album.get(mw.getAlbum(), artist));
+                    } else if (artistCount == 2) {
+                        albumMap.put(albumKey, Album.get(mw.getAlbum(), Artist.COMPILATION_ARTIST));
                     }
-                    albumMap.put(albumKey, album);
                 }
             }
             for (MediaWrapper mw : mws) {

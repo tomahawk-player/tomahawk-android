@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.utils.BetterDeferredManager;
 import android.text.TextUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -36,13 +37,17 @@ public abstract class NativeCollection extends Collection {
 
     private final boolean mIsLocal;
 
-    protected ConcurrentHashMap<String, Album> mAlbums = new ConcurrentHashMap<>();
+    protected Set<Album> mAlbums =
+            Collections.newSetFromMap(new ConcurrentHashMap<Album, Boolean>());
 
-    protected ConcurrentHashMap<String, Artist> mArtists = new ConcurrentHashMap<>();
+    protected Set<Artist> mArtists =
+            Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
 
-    protected ConcurrentHashMap<String, Artist> mAlbumArtists = new ConcurrentHashMap<>();
+    protected Set<Artist> mAlbumArtists =
+            Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
 
-    protected ConcurrentHashMap<String, Query> mQueries = new ConcurrentHashMap<>();
+    protected Set<Query> mQueries =
+            Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     protected ConcurrentHashMap<Album, Set<Query>> mAlbumTracks
             = new ConcurrentHashMap<>();
@@ -70,16 +75,16 @@ public abstract class NativeCollection extends Collection {
     }
 
     public void wipe() {
-        mQueries = new ConcurrentHashMap<>();
-        mArtists = new ConcurrentHashMap<>();
-        mAlbums = new ConcurrentHashMap<>();
-        mAlbumTracks = new ConcurrentHashMap<>();
-        mArtistAlbums = new ConcurrentHashMap<>();
+        mQueries.clear();
+        mArtists.clear();
+        mAlbums.clear();
+        mAlbumTracks.clear();
+        mArtistAlbums.clear();
     }
 
     public void addQuery(Query query, long addedTimeStamp) {
-        if (!TextUtils.isEmpty(query.getName()) && !mQueries.containsKey(query.getCacheKey())) {
-            mQueries.put(query.getCacheKey(), query);
+        if (!TextUtils.isEmpty(query.getName())) {
+            mQueries.add(query);
         }
         if (addedTimeStamp > 0) {
             if (mAlbumTimeStamps.get(query.getAlbum()) == null
@@ -100,13 +105,13 @@ public abstract class NativeCollection extends Collection {
         return dm.when(new Callable<List<Query>>() {
             @Override
             public List<Query> call() throws Exception {
-                return new ArrayList<>(mQueries.values());
+                return new ArrayList<>(mQueries);
             }
         });
     }
 
     public void addArtist(Artist artist) {
-        mArtists.put(artist.getCacheKey(), artist);
+        mArtists.add(artist);
     }
 
     @Override
@@ -115,13 +120,13 @@ public abstract class NativeCollection extends Collection {
         return dm.when(new Callable<List<Artist>>() {
             @Override
             public List<Artist> call() throws Exception {
-                return new ArrayList<>(mArtists.values());
+                return new ArrayList<>(mArtists);
             }
         });
     }
 
     public void addAlbumArtist(Artist artist) {
-        mAlbumArtists.put(artist.getCacheKey(), artist);
+        mAlbumArtists.add(artist);
     }
 
     @Override
@@ -130,13 +135,13 @@ public abstract class NativeCollection extends Collection {
         return dm.when(new Callable<List<Artist>>() {
             @Override
             public List<Artist> call() throws Exception {
-                return new ArrayList<>(mAlbumArtists.values());
+                return new ArrayList<>(mAlbumArtists);
             }
         });
     }
 
     public void addAlbum(Album album) {
-        mAlbums.put(album.getCacheKey(), album);
+        mAlbums.add(album);
     }
 
     @Override
@@ -145,7 +150,7 @@ public abstract class NativeCollection extends Collection {
         return dm.when(new Callable<List<Album>>() {
             @Override
             public List<Album> call() throws Exception {
-                return new ArrayList<>(mAlbums.values());
+                return new ArrayList<>(mAlbums);
             }
         });
     }
