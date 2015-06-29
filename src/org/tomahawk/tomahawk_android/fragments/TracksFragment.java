@@ -41,6 +41,7 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Track}s inside its {@link
@@ -135,14 +136,13 @@ public class TracksFragment extends TomahawkFragment {
             segment.setShowDuration(true);
             fillAdapter(segment);
         } else {
-            mCollection.getQueries().done(new DoneCallback<List<Query>>() {
+            mCollection.getQueries().done(new DoneCallback<Set<Query>>() {
                 @Override
-                public void onDone(List<Query> queries) {
-                    sortQueries(queries);
+                public void onDone(Set<Query> queries) {
                     fillAdapter(new Segment(getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION),
                             constructDropdownItems(),
                             constructDropdownListener(COLLECTION_TRACKS_SPINNER_POSITION),
-                            queries));
+                            sortQueries(queries)));
                 }
             });
         }
@@ -156,21 +156,28 @@ public class TracksFragment extends TomahawkFragment {
         return dropDownItems;
     }
 
-    private void sortQueries(List<Query> queries) {
+    private List<Query> sortQueries(java.util.Collection<Query> queries) {
+        List<Query> sortedQueries;
+        if (queries instanceof List) {
+            sortedQueries = (List<Query>) queries;
+        } else {
+            sortedQueries = new ArrayList<>(queries);
+        }
         switch (getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION)) {
             case 0:
                 UserCollection userColl = (UserCollection) CollectionManager.getInstance()
                         .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                Collections.sort(queries, new LastModifiedComparator(
-                        userColl.getQueryTimeStamps()));
+                Collections.sort(sortedQueries,
+                        new LastModifiedComparator<>(userColl.getQueryTimeStamps()));
                 break;
             case 1:
-                Collections.sort(queries, new AlphaComparator());
+                Collections.sort(sortedQueries, new AlphaComparator());
                 break;
             case 2:
-                Collections.sort(queries, new ArtistAlphaComparator());
+                Collections.sort(sortedQueries, new ArtistAlphaComparator());
                 break;
         }
+        return sortedQueries;
     }
 
     private void showAlbumFancyDropDown() {

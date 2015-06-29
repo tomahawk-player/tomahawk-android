@@ -40,7 +40,9 @@ import android.widget.ImageView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * This class represents a Collection which contains tracks/albums/artists retrieved by a
@@ -50,13 +52,13 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
 
     private final static String TAG = ScriptResolverCollection.class.getSimpleName();
 
-    private List<Album> mCachedAlbums;
+    private Set<Album> mCachedAlbums;
 
-    private List<Artist> mCachedArtists;
+    private Set<Artist> mCachedArtists;
 
-    private List<Artist> mCachedAlbumArtists;
+    private Set<Artist> mCachedAlbumArtists;
 
-    private List<Query> mCachedQueries;
+    private Set<Query> mCachedQueries;
 
     private ScriptObject mScriptObject;
 
@@ -124,8 +126,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Promise<List<Query>, Throwable, Void> getQueries() {
-        final Deferred<List<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<Set<Query>, Throwable, Void> getQueries() {
+        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
         if (mCachedQueries != null) {
             deferred.resolve(mCachedQueries);
         } else {
@@ -151,7 +153,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                                     + (
                                                     System.currentTimeMillis() - time) + "ms");
                                     time = System.currentTimeMillis();
-                                    List<Query> queries = new ArrayList<>();
+                                    Set<Query> queries = new HashSet<>();
                                     for (Result r : parsedResults) {
                                         Query query = Query.get(r, false);
                                         query.addTrackResult(r, 1f);
@@ -171,8 +173,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Promise<List<Artist>, Throwable, Void> getArtists() {
-        final Deferred<List<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<Set<Artist>, Throwable, Void> getArtists() {
+        final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
         if (mCachedArtists != null) {
             deferred.resolve(mCachedArtists);
         } else {
@@ -191,7 +193,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                                     System.currentTimeMillis() - timeBefore)
                                                     + "ms");
                                     long time = System.currentTimeMillis();
-                                    List<Artist> artists = new ArrayList<>();
+                                    Set<Artist> artists = new HashSet<>();
                                     for (JsonElement result : results) {
                                         Artist artist = Artist
                                                 .get(ScriptUtils
@@ -212,8 +214,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Promise<List<Artist>, Throwable, Void> getAlbumArtists() {
-        final Deferred<List<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<Set<Artist>, Throwable, Void> getAlbumArtists() {
+        final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
         if (mCachedAlbumArtists != null) {
             deferred.resolve(mCachedAlbumArtists);
         } else {
@@ -226,7 +228,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                             new ScriptJob.ResultsArrayCallback() {
                                 @Override
                                 public void onReportResults(JsonArray results) {
-                                    List<Artist> artists = new ArrayList<>();
+                                    Set<Artist> artists = new HashSet<>();
                                     for (JsonElement result : results) {
                                         Artist artist = Artist.get(
                                                 ScriptUtils
@@ -244,8 +246,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Promise<List<Album>, Throwable, Void> getAlbums() {
-        final Deferred<List<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<Set<Album>, Throwable, Void> getAlbums() {
+        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
         if (mCachedAlbums != null) {
             deferred.resolve(mCachedAlbums);
         } else {
@@ -264,7 +266,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                                     System.currentTimeMillis() - timeBefore)
                                                     + "ms");
                                     long time = System.currentTimeMillis();
-                                    List<Album> albums = new ArrayList<>();
+                                    Set<Album> albums = new HashSet<>();
                                     for (JsonElement result : results) {
                                         Artist albumArtist = Artist.get(
                                                 ScriptUtils
