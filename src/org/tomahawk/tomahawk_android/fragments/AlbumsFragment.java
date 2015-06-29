@@ -42,9 +42,7 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Album}s inside its {@link
@@ -176,21 +174,23 @@ public class AlbumsFragment extends TomahawkFragment {
                     R.integer.grid_column_count, R.dimen.padding_superlarge,
                     R.dimen.padding_superlarge));
         } else {
-            final Set<Album> albums = new HashSet<>();
+            final List<Album> starredAlbums;
             if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
-                albums.addAll(DatabaseHelper.getInstance().getStarredAlbums());
+                starredAlbums = DatabaseHelper.getInstance().getStarredAlbums();
+            } else {
+                starredAlbums = null;
             }
             mCollection.getAlbums().done(new DoneCallback<List<Album>>() {
                 @Override
                 public void onDone(List<Album> result) {
-                    albums.addAll(result);
-                    List<Album> sortedAlbums = new ArrayList<>();
-                    sortedAlbums.addAll(albums);
-                    sortAlbums(sortedAlbums);
+                    if (starredAlbums != null) {
+                        result.addAll(starredAlbums);
+                    }
+                    sortAlbums(result);
                     fillAdapter(new Segment(getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION),
                             constructDropdownItems(),
                             constructDropdownListener(COLLECTION_ALBUMS_SPINNER_POSITION),
-                            new ArrayList<Object>(sortedAlbums), R.integer.grid_column_count,
+                            new ArrayList<Object>(result), R.integer.grid_column_count,
                             R.dimen.padding_superlarge, R.dimen.padding_superlarge), mCollection);
                 }
             });

@@ -35,6 +35,7 @@ import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
+import android.util.Log;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
@@ -49,6 +50,14 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
 
     private final static String TAG = ScriptResolverCollection.class.getSimpleName();
 
+    private List<Album> mCachedAlbums;
+
+    private List<Artist> mCachedArtists;
+
+    private List<Artist> mCachedAlbumArtists;
+
+    private List<Query> mCachedQueries;
+
     private ScriptObject mScriptObject;
 
     private ScriptAccount mScriptAccount;
@@ -60,6 +69,11 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
 
         mScriptObject = object;
         mScriptAccount = account;
+
+        // initialize everything
+        getAlbums();
+        getQueries();
+        getArtists();
     }
 
     public Deferred<ScriptResolverCollectionMetaData, String, Object> getMetaData() {
@@ -112,106 +126,164 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     @Override
     public Promise<List<Query>, Throwable, Void> getQueries() {
         final Deferred<List<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                HashMap<String, Object> a = new HashMap<>();
-                a.put("id", result.id);
-                ScriptJob.start(mScriptObject, "tracks", a, new ScriptJob.ResultsArrayCallback() {
-                    @Override
-                    public void onReportResults(JsonArray results) {
-                        ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
-                                mScriptAccount.getScriptResolver(), results);
-                        List<Query> queries = new ArrayList<>();
-                        for (Result r : parsedResults) {
-                            Query query = Query.get(r, false);
-                            float trackScore = query.howSimilar(r);
-                            query.addTrackResult(r, trackScore);
-                            queries.add(query);
-                        }
-                        deferred.resolve(queries);
-                    }
-                });
-            }
-        });
+        if (mCachedQueries != null) {
+            deferred.resolve(mCachedQueries);
+        } else {
+            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+                @Override
+                public void onDone(ScriptResolverCollectionMetaData result) {
+                    HashMap<String, Object> a = new HashMap<>();
+                    a.put("id", result.id);
+                    final long timeBefore = System.currentTimeMillis();
+                    ScriptJob.start(mScriptObject, "tracks", a,
+                            new ScriptJob.ResultsArrayCallback() {
+                                @Override
+                                public void onReportResults(JsonArray results) {
+                                    Log.d(TAG,
+                                            "Received " + results.size() + " trackResults in " + (
+                                                    System.currentTimeMillis() - timeBefore)
+                                                    + "ms");
+                                    long time = System.currentTimeMillis();
+                                    ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
+                                            mScriptAccount.getScriptResolver(), results);
+                                    Log.d(TAG,
+                                            "Parsed " + parsedResults.size() + " trackResults in "
+                                                    + (
+                                                    System.currentTimeMillis() - time) + "ms");
+                                    time = System.currentTimeMillis();
+                                    List<Query> queries = new ArrayList<>();
+                                    for (Result r : parsedResults) {
+                                        Query query = Query.get(r, false);
+                                        query.addTrackResult(r, 1f);
+                                        queries.add(query);
+                                    }
+                                    Log.d(TAG, "Converted " + parsedResults.size()
+                                            + " trackResults in " + (
+                                            System.currentTimeMillis() - time) + "ms");
+                                    mCachedQueries = queries;
+                                    deferred.resolve(queries);
+                                }
+                            });
+                }
+            });
+        }
         return deferred;
     }
 
     @Override
     public Promise<List<Artist>, Throwable, Void> getArtists() {
         final Deferred<List<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                HashMap<String, Object> a = new HashMap<>();
-                a.put("id", result.id);
-                ScriptJob.start(mScriptObject, "artists", a, new ScriptJob.ResultsArrayCallback() {
-                    @Override
-                    public void onReportResults(JsonArray results) {
-                        List<Artist> artists = new ArrayList<>();
-                        for (JsonElement result : results) {
-                            Artist artist = Artist
-                                    .get(ScriptUtils.getNodeChildAsText(result, "artist"));
-                            artists.add(artist);
-                        }
-                        deferred.resolve(artists);
-                    }
-                });
-            }
-        });
+        if (mCachedArtists != null) {
+            deferred.resolve(mCachedArtists);
+        } else {
+            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+                @Override
+                public void onDone(ScriptResolverCollectionMetaData result) {
+                    HashMap<String, Object> a = new HashMap<>();
+                    a.put("id", result.id);
+                    final long timeBefore = System.currentTimeMillis();
+                    ScriptJob.start(mScriptObject, "artists", a,
+                            new ScriptJob.ResultsArrayCallback() {
+                                @Override
+                                public void onReportResults(JsonArray results) {
+                                    Log.d(TAG,
+                                            "Received " + results.size() + " artistResults in " + (
+                                                    System.currentTimeMillis() - timeBefore)
+                                                    + "ms");
+                                    long time = System.currentTimeMillis();
+                                    List<Artist> artists = new ArrayList<>();
+                                    for (JsonElement result : results) {
+                                        Artist artist = Artist
+                                                .get(ScriptUtils
+                                                        .getNodeChildAsText(result, "artist"));
+                                        artists.add(artist);
+                                    }
+                                    Log.d(TAG,
+                                            "Converted " + artists.size() + " artistResults in " + (
+                                                    System.currentTimeMillis() - time) + "ms");
+                                    mCachedArtists = artists;
+                                    deferred.resolve(artists);
+                                }
+                            });
+                }
+            });
+        }
         return deferred;
     }
 
     @Override
     public Promise<List<Artist>, Throwable, Void> getAlbumArtists() {
         final Deferred<List<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                HashMap<String, Object> a = new HashMap<>();
-                a.put("id", result.id);
-                ScriptJob.start(mScriptObject, "albumArtists", a,
-                        new ScriptJob.ResultsArrayCallback() {
-                            @Override
-                            public void onReportResults(JsonArray results) {
-                                List<Artist> artists = new ArrayList<>();
-                                for (JsonElement result : results) {
-                                    Artist artist = Artist.get(
-                                            ScriptUtils.getNodeChildAsText(result, "albumArtist"));
-                                    artists.add(artist);
+        if (mCachedAlbumArtists != null) {
+            deferred.resolve(mCachedAlbumArtists);
+        } else {
+            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+                @Override
+                public void onDone(ScriptResolverCollectionMetaData result) {
+                    HashMap<String, Object> a = new HashMap<>();
+                    a.put("id", result.id);
+                    ScriptJob.start(mScriptObject, "albumArtists", a,
+                            new ScriptJob.ResultsArrayCallback() {
+                                @Override
+                                public void onReportResults(JsonArray results) {
+                                    List<Artist> artists = new ArrayList<>();
+                                    for (JsonElement result : results) {
+                                        Artist artist = Artist.get(
+                                                ScriptUtils
+                                                        .getNodeChildAsText(result, "albumArtist"));
+                                        artists.add(artist);
+                                    }
+                                    mCachedAlbumArtists = artists;
+                                    deferred.resolve(artists);
                                 }
-                                deferred.resolve(artists);
-                            }
-                        });
-            }
-        });
+                            });
+                }
+            });
+        }
         return deferred;
     }
 
     @Override
     public Promise<List<Album>, Throwable, Void> getAlbums() {
         final Deferred<List<Album>, Throwable, Void> deferred = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                HashMap<String, Object> a = new HashMap<>();
-                a.put("id", result.id);
-                ScriptJob.start(mScriptObject, "albums", a, new ScriptJob.ResultsArrayCallback() {
-                    @Override
-                    public void onReportResults(JsonArray results) {
-                        List<Album> albums = new ArrayList<>();
-                        for (JsonElement result : results) {
-                            Artist albumArtist = Artist.get(
-                                    ScriptUtils.getNodeChildAsText(result, "albumArtist"));
-                            Album album = Album.get(
-                                    ScriptUtils.getNodeChildAsText(result, "album"), albumArtist);
-                            albums.add(album);
-                        }
-                        deferred.resolve(albums);
-                    }
-                });
-            }
-        });
+        if (mCachedAlbums != null) {
+            deferred.resolve(mCachedAlbums);
+        } else {
+            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+                @Override
+                public void onDone(ScriptResolverCollectionMetaData result) {
+                    final HashMap<String, Object> a = new HashMap<>();
+                    a.put("id", result.id);
+                    final long timeBefore = System.currentTimeMillis();
+                    ScriptJob.start(mScriptObject, "albums", a,
+                            new ScriptJob.ResultsArrayCallback() {
+                                @Override
+                                public void onReportResults(JsonArray results) {
+                                    Log.d(TAG,
+                                            "Received " + results.size() + " albumResults in " + (
+                                                    System.currentTimeMillis() - timeBefore)
+                                                    + "ms");
+                                    long time = System.currentTimeMillis();
+                                    List<Album> albums = new ArrayList<>();
+                                    for (JsonElement result : results) {
+                                        Artist albumArtist = Artist.get(
+                                                ScriptUtils
+                                                        .getNodeChildAsText(result, "albumArtist"));
+                                        Album album = Album.get(
+                                                ScriptUtils.getNodeChildAsText(result, "album"),
+                                                albumArtist);
+                                        albums.add(album);
+                                    }
+                                    Log.d(TAG,
+                                            "Converted " + albums.size() + " albumResults in " + (
+                                                    System.currentTimeMillis() - time) + "ms");
+                                    mCachedAlbums = albums;
+                                    deferred.resolve(albums);
+                                }
+                            });
+                }
+            });
+        }
         return deferred;
     }
 
@@ -276,20 +348,31 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     @Override
     public Promise<List<Query>, Throwable, Void> getAlbumTracks(final Album album) {
         final Deferred<List<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+        final long time = System.currentTimeMillis();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
+                Log.d("perftest", "getMetadata in " + (System.currentTimeMillis() - time) + "ms");
                 HashMap<String, Object> a = new HashMap<>();
                 a.put("id", result.id);
                 a.put("albumArtist", album.getArtist().getName());
                 a.put("albumArtistDisambiguation", "");
                 a.put("album", album.getName());
+                final long time = System.currentTimeMillis();
                 ScriptJob.start(mScriptObject, "albumTracks", a,
                         new ScriptJob.ResultsArrayCallback() {
                             @Override
                             public void onReportResults(JsonArray results) {
+                                Log.d("perftest",
+                                        "albumTracks in " + (System.currentTimeMillis() - time)
+                                                + "ms");
+                                long time = System.currentTimeMillis();
                                 ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
                                         mScriptAccount.getScriptResolver(), results);
+                                Log.d("perftest",
+                                        "albumTracks parsed in " + (System.currentTimeMillis()
+                                                - time) + "ms");
+                                time = System.currentTimeMillis();
                                 List<Query> queries = new ArrayList<>();
                                 for (Result r : parsedResults) {
                                     Query query = Query.get(r, false);
@@ -297,6 +380,9 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                     query.addTrackResult(r, trackScore);
                                     queries.add(query);
                                 }
+                                Log.d("perftest",
+                                        "albumTracks converted in " + (System.currentTimeMillis()
+                                                - time) + "ms");
                                 deferred.resolve(queries);
                             }
                         });

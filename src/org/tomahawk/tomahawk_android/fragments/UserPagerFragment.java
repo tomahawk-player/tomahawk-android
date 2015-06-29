@@ -183,7 +183,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
-        setupPager(fragmentInfoLists, initialPage, USERPAGER_SELECTOR_POSITION);
+        setupPager(fragmentInfoLists, initialPage, USERPAGER_SELECTOR_POSITION, 1);
     }
 
     @Override
