@@ -11,12 +11,12 @@
   <string name="tracks">Faixas</string>
   <string name="albums">Álbuns</string>
   <string name="artists">Artistas</string>
-  <string name="users">Utilizadores</string>
+  <string name="users">Usuários</string>
   <string name="top_hits">Melhores faixas</string>
   <string name="top_albums">Melhores álbuns</string>
   <string name="playlist_details">Detalhes da lista de reprodução</string>
   <string name="album_details">Detalhes do álbum</string>
-  <string name="search">Procura</string>
+  <string name="search">Busca</string>
   <string name="playlist">Lista de reprodução</string>
   <string name="shuffle_on_label">Modo aleatório ativo</string>
   <string name="shuffle_off_label">Modo aleatório inativo</string>
@@ -28,8 +28,8 @@
   <string name="create_playlist">Criar lista de reprodução</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Título</string>
-  <string name="login_name_label">E-Mail/Utilizador</string>
-  <string name="login_username">Nome de utilizador</string>
+  <string name="login_name_label">E-Mail/Usuário</string>
+  <string name="login_username">Nome de usuário</string>
   <string name="login_password">Palavra-passe</string>
   <string name="login_password_confirmation">Confirmação de palavra-passe</string>
   <string name="account_email_label">E-Mail (opcional)</string>
