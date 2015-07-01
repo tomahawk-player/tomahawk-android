@@ -17,13 +17,13 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.jdeferred.Deferred;
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.BetterDeferredManager;
+import org.tomahawk.libtomahawk.utils.ADeferredObject;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
 public abstract class NativeCollection extends Collection {
 
@@ -41,13 +41,8 @@ public abstract class NativeCollection extends Collection {
 
     @Override
     public Promise<Set<Query>, Throwable, Void> getQueries() {
-        BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Query>>() {
-            @Override
-            public Set<Query> call() throws Exception {
-                return mQueries;
-            }
-        });
+        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+        return deferred.resolve(mQueries);
     }
 
     public void addArtist(Artist artist) {
@@ -56,13 +51,8 @@ public abstract class NativeCollection extends Collection {
 
     @Override
     public Promise<Set<Artist>, Throwable, Void> getArtists() {
-        BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Artist>>() {
-            @Override
-            public Set<Artist> call() throws Exception {
-                return mArtists;
-            }
-        });
+        final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
+        return deferred.resolve(mArtists);
     }
 
     public void addAlbumArtist(Artist artist) {
@@ -71,13 +61,8 @@ public abstract class NativeCollection extends Collection {
 
     @Override
     public Promise<Set<Artist>, Throwable, Void> getAlbumArtists() {
-        BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Artist>>() {
-            @Override
-            public Set<Artist> call() throws Exception {
-                return mAlbumArtists;
-            }
-        });
+        final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
+        return deferred.resolve(mAlbumArtists);
     }
 
     public void addAlbum(Album album) {
@@ -86,13 +71,8 @@ public abstract class NativeCollection extends Collection {
 
     @Override
     public Promise<Set<Album>, Throwable, Void> getAlbums() {
-        BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Album>>() {
-            @Override
-            public Set<Album> call() throws Exception {
-                return new HashSet<>(mAlbums);
-            }
-        });
+        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+        return deferred.resolve(mAlbums);
     }
 
     public void addArtistAlbum(Artist artist, Album album) {
@@ -105,17 +85,12 @@ public abstract class NativeCollection extends Collection {
     @Override
     public Promise<Set<Album>, Throwable, Void> getArtistAlbums(final Artist artist,
             boolean onlyIfCached) {
-        BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Album>>() {
-            @Override
-            public Set<Album> call() throws Exception {
-                Set<Album> albums = new HashSet<>();
-                if (mArtistAlbums.get(artist) != null) {
-                    albums.addAll(mArtistAlbums.get(artist));
-                }
-                return albums;
-            }
-        });
+        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+        Set<Album> albums = new HashSet<>();
+        if (mArtistAlbums.get(artist) != null) {
+            albums.addAll(mArtistAlbums.get(artist));
+        }
+        return deferred.resolve(albums);
     }
 
     public void addAlbumTracks(Album album, Set<Query> queries) {
@@ -132,16 +107,11 @@ public abstract class NativeCollection extends Collection {
     @Override
     public Promise<Set<Query>, Throwable, Void> getAlbumTracks(final Album album,
             boolean onlyIfCached) {
-        BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<Set<Query>>() {
-            @Override
-            public Set<Query> call() throws Exception {
-                Set<Query> queries = new HashSet<>();
-                if (mAlbumTracks.get(album) != null) {
-                    queries.addAll(mAlbumTracks.get(album));
-                }
-                return queries;
-            }
-        });
+        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+        Set<Query> queries = new HashSet<>();
+        if (mAlbumTracks.get(album) != null) {
+            queries.addAll(mAlbumTracks.get(album));
+        }
+        return deferred.resolve(queries);
     }
 }

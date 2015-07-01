@@ -141,11 +141,17 @@ public class TracksFragment extends TomahawkFragment {
         } else {
             mCollection.getQueries().done(new DoneCallback<Set<Query>>() {
                 @Override
-                public void onDone(Set<Query> queries) {
-                    fillAdapter(new Segment(getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION),
-                            constructDropdownItems(),
-                            constructDropdownListener(COLLECTION_TRACKS_SPINNER_POSITION),
-                            sortQueries(queries)));
+                public void onDone(final Set<Query> queries) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fillAdapter(new Segment(
+                                    getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION),
+                                    constructDropdownItems(),
+                                    constructDropdownListener(COLLECTION_TRACKS_SPINNER_POSITION),
+                                    sortQueries(queries)));
+                        }
+                    }).start();
                 }
             });
         }

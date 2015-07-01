@@ -115,15 +115,21 @@ public class ArtistsFragment extends TomahawkFragment {
             }
             mCollection.getArtists().done(new DoneCallback<Set<Artist>>() {
                 @Override
-                public void onDone(Set<Artist> result) {
-                    if (starredArtists != null) {
-                        result.addAll(starredArtists);
-                    }
-                    fillAdapter(new Segment(getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
-                            constructDropdownItems(),
-                            constructDropdownListener(COLLECTION_ARTISTS_SPINNER_POSITION),
-                            sortArtists(result), R.integer.grid_column_count,
-                            R.dimen.padding_superlarge, R.dimen.padding_superlarge));
+                public void onDone(final Set<Artist> result) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (starredArtists != null) {
+                                result.addAll(starredArtists);
+                            }
+                            fillAdapter(new Segment(
+                                    getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
+                                    constructDropdownItems(),
+                                    constructDropdownListener(COLLECTION_ARTISTS_SPINNER_POSITION),
+                                    sortArtists(result), R.integer.grid_column_count,
+                                    R.dimen.padding_superlarge, R.dimen.padding_superlarge));
+                        }
+                    }).start();
                 }
             });
         }
