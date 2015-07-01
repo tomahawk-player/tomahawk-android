@@ -69,8 +69,8 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
         getArtists();
     }
 
-    public Deferred<ScriptResolverCollectionMetaData, String, Object> getMetaData() {
-        final Deferred<ScriptResolverCollectionMetaData, String, Object> deferred
+    public Deferred<ScriptResolverCollectionMetaData, Throwable, Void> getMetaData() {
+        final Deferred<ScriptResolverCollectionMetaData, Throwable, Void> deferred
                 = new ADeferredObject<>();
         if (mMetaData == null) {
             ScriptJob.start(mScriptObject, "settings",
@@ -80,6 +80,11 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                         public void onReportResults(ScriptResolverCollectionMetaData results) {
                             mMetaData = results;
                             deferred.resolve(results);
+                        }
+                    }, new ScriptJob.FailureCallback() {
+                        @Override
+                        public void onReportFailure(String errormessage) {
+                            deferred.reject(new Throwable(errormessage));
                         }
                     });
         } else {
@@ -156,6 +161,11 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                     mQueries = queries;
                                     deferred.resolve(queries);
                                 }
+                            }, new ScriptJob.FailureCallback() {
+                                @Override
+                                public void onReportFailure(String errormessage) {
+                                    deferred.resolve(new HashSet<Query>());
+                                }
                             });
                 }
             });
@@ -197,6 +207,11 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                     mArtists = artists;
                                     deferred.resolve(artists);
                                 }
+                            }, new ScriptJob.FailureCallback() {
+                                @Override
+                                public void onReportFailure(String errormessage) {
+                                    deferred.resolve(new HashSet<Artist>());
+                                }
                             });
                 }
             });
@@ -228,6 +243,11 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                     }
                                     mAlbumArtists = artists;
                                     deferred.resolve(artists);
+                                }
+                            }, new ScriptJob.FailureCallback() {
+                                @Override
+                                public void onReportFailure(String errormessage) {
+                                    deferred.resolve(new HashSet<Artist>());
                                 }
                             });
                 }
@@ -273,6 +293,11 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                     mAlbums = albums;
                                     deferred.resolve(albums);
                                 }
+                            }, new ScriptJob.FailureCallback() {
+                                @Override
+                                public void onReportFailure(String errormessage) {
+                                    deferred.resolve(new HashSet<Album>());
+                                }
                             });
                 }
             });
@@ -311,11 +336,16 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                     mArtistAlbums.put(artist, albums);
                                     deferred.resolve(albums);
                                 }
+                            }, new ScriptJob.FailureCallback() {
+                                @Override
+                                public void onReportFailure(String errormessage) {
+                                    deferred.resolve(new HashSet<Album>());
+                                }
                             });
                 }
             });
         } else {
-            deferred.reject(new Throwable("No cached result available!"));
+            deferred.resolve(new HashSet<Album>());
         }
         return deferred;
     }
@@ -367,11 +397,16 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                                     mAlbumTracks.put(album, queries);
                                     deferred.resolve(queries);
                                 }
+                            }, new ScriptJob.FailureCallback() {
+                                @Override
+                                public void onReportFailure(String errormessage) {
+                                    deferred.resolve(new HashSet<Query>());
+                                }
                             });
                 }
             });
         } else {
-            deferred.reject(new Throwable("No cached result available!"));
+            deferred.resolve(new HashSet<Query>());
         }
         return deferred;
     }

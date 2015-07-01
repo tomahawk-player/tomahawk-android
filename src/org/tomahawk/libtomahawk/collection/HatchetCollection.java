@@ -17,9 +17,10 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.jdeferred.Deferred;
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.BetterDeferredManager;
+import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -29,7 +30,6 @@ import android.widget.ImageView;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -57,17 +57,12 @@ public class HatchetCollection extends NativeCollection {
      * @return A {@link java.util.List} of all top hits {@link Track}s from the given Artist.
      */
     public Promise<List<Query>, Throwable, Void> getArtistTopHits(final Artist artist) {
-        BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(new Callable<List<Query>>() {
-            @Override
-            public List<Query> call() throws Exception {
-                List<Query> queries = new ArrayList<>();
-                if (mArtistTopHits.get(artist) != null) {
-                    queries.addAll(mArtistTopHits.get(artist));
-                }
-                return queries;
-            }
-        });
+        final Deferred<List<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+        List<Query> queries = new ArrayList<>();
+        if (mArtistTopHits.get(artist) != null) {
+            queries.addAll(mArtistTopHits.get(artist));
+        }
+        return deferred.resolve(queries);
     }
 
     @Override

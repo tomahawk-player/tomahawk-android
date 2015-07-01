@@ -20,9 +20,12 @@ package org.tomahawk.libtomahawk.collection;
 
 import com.google.common.collect.Sets;
 
-import org.jdeferred.DonePipe;
+import org.jdeferred.AlwaysCallback;
+import org.jdeferred.Deferred;
 import org.jdeferred.Promise;
+import org.jdeferred.android.AndroidDeferredManager;
 import org.jdeferred.multiple.MultipleResults;
+import org.jdeferred.multiple.OneReject;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
@@ -33,7 +36,6 @@ import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
-import org.tomahawk.libtomahawk.utils.BetterDeferredManager;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -91,6 +93,8 @@ public class CollectionManager {
 
     private final Set<String> mShowAsCreatedPlaylistMap =
             Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+
+    private AndroidDeferredManager mDeferredManager = new AndroidDeferredManager();
 
     private CollectionManager() {
         EventBus.getDefault().register(this);
@@ -552,46 +556,44 @@ public class CollectionManager {
         }
     }
 
-    public Promise<List<Collection>, Throwable, Object> getAvailableCollections(Artist artist) {
+    public Promise<List<Collection>, Throwable, Void> getAvailableCollections(Artist artist) {
         return getAvailableCollections((Object) artist);
     }
 
-    public Promise<List<Collection>, Throwable, Object> getAvailableCollections(Album album) {
+    public Promise<List<Collection>, Throwable, Void> getAvailableCollections(Album album) {
         return getAvailableCollections((Object) album);
     }
 
-    private Promise<List<Collection>, Throwable, Object> getAvailableCollections(Object object) {
+    private Promise<List<Collection>, Throwable, Void> getAvailableCollections(Object object) {
         final List<Collection> collections = new ArrayList<>();
-        final List<Promise> deferreds = new ArrayList<>();
+        List<Promise> promises = new ArrayList<>();
         for (final Collection collection : mCollections.values()) {
             if (!collection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET)) {
                 if (object instanceof Album) {
-                    deferreds.add(collection.getAlbumTracks((Album) object, false));
+                    promises.add(collection.getAlbumTracks((Album) object, false));
                 } else {
-                    deferreds.add(collection.getArtistAlbums((Artist) object, false));
+                    promises.add(collection.getArtistAlbums((Artist) object, false));
                 }
                 collections.add(collection);
             }
         }
-        BetterDeferredManager dm = new BetterDeferredManager();
-        return dm.when(deferreds).then(
-                new DonePipe<MultipleResults, List<Collection>, Throwable, Object>() {
+        final Deferred<List<Collection>, Throwable, Void> deferred = new ADeferredObject<>();
+        mDeferredManager.when(promises.toArray(new Promise[promises.size()])).always(
+                new AlwaysCallback<MultipleResults, OneReject>() {
                     @Override
-                    public Promise<List<Collection>, Throwable, Object> pipeDone(
-                            MultipleResults result) {
+                    public void onAlways(Promise.State state, MultipleResults resolved,
+                            OneReject rejected) {
                         List<Collection> availableCollections = new ArrayList<>();
-                        for (int i = 0; i < result.size(); i++) {
-                            Object boolResult = result.get(i).getResult();
-                            if (((Set) boolResult).size() > 0) {
+                        for (int i = 0; i < resolved.size(); i++) {
+                            Set set = (Set) resolved.get(i).getResult();
+                            if (set.size() > 0) {
                                 availableCollections.add(collections.get(i));
                             }
                         }
-                        availableCollections
-                                .add(mCollections.get(TomahawkApp.PLUGINNAME_HATCHET));
-                        return new ADeferredObject<List<Collection>, Throwable, Object>()
-                                .resolve(availableCollections);
+                        availableCollections.add(mCollections.get(TomahawkApp.PLUGINNAME_HATCHET));
+                        deferred.resolve(availableCollections);
                     }
-                }
-        );
+                });
+        return deferred;
     }
 }

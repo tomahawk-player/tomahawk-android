@@ -177,15 +177,22 @@ public class AlbumsFragment extends TomahawkFragment {
             }
             mCollection.getAlbums().done(new DoneCallback<Set<Album>>() {
                 @Override
-                public void onDone(Set<Album> result) {
-                    if (starredAlbums != null) {
-                        result.addAll(starredAlbums);
-                    }
-                    fillAdapter(new Segment(getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION),
-                            constructDropdownItems(),
-                            constructDropdownListener(COLLECTION_ALBUMS_SPINNER_POSITION),
-                            sortAlbums(result), R.integer.grid_column_count,
-                            R.dimen.padding_superlarge, R.dimen.padding_superlarge), mCollection);
+                public void onDone(final Set<Album> result) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (starredAlbums != null) {
+                                result.addAll(starredAlbums);
+                            }
+                            fillAdapter(new Segment(
+                                            getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION),
+                                            constructDropdownItems(), constructDropdownListener(
+                                            COLLECTION_ALBUMS_SPINNER_POSITION),
+                                            sortAlbums(result), R.integer.grid_column_count,
+                                            R.dimen.padding_superlarge, R.dimen.padding_superlarge),
+                                    mCollection);
+                        }
+                    }).start();
                 }
             });
         }
