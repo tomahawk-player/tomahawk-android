@@ -565,7 +565,7 @@ Tomahawk.ajax = function(url, settings) {
         }
     }
 
-    return new Promise(function (resolve, reject) {
+    return new RSVP.Promise(function (resolve, reject) {
         settings.errorHandler = reject;
         Tomahawk.asyncRequest(settings.url, resolve, settings.headers, settings);
     }).then(function(xhr) {
@@ -807,38 +807,38 @@ Tomahawk.PluginManager = {
         if (typeof this.objects[objectId][methodName] === 'function') {
             if (!Tomahawk.resolver.instance.apiVersion || Tomahawk.resolver.instance.apiVersion < 0.9) {
                 if (methodName == 'artists') {
-                    return new Promise(function (resolve, reject) {
+                    return new RSVP.Promise(function (resolve, reject) {
                         pluginManager.resolve[requestId] = resolve;
                         Tomahawk.resolver.instance.artists(requestId);
                     });
                 } else if (methodName == 'albums') {
-                    return new Promise(function (resolve, reject) {
+                    return new RSVP.Promise(function (resolve, reject) {
                         pluginManager.resolve[requestId] = resolve;
                         Tomahawk.resolver.instance.albums(requestId, params.artist);
                     });
                 } else if (methodName == 'tracks') {
-                    return new Promise(function (resolve, reject) {
+                    return new RSVP.Promise(function (resolve, reject) {
                         pluginManager.resolve[requestId] = resolve;
                         Tomahawk.resolver.instance.tracks(requestId, params.artist, params.album);
                     });
                 } else if (methodName == 'lookupUrl') {
-                    return new Promise(function (resolve, reject) {
+                    return new RSVP.Promise(function (resolve, reject) {
                         pluginManager.resolve[params.url] = resolve;
                         Tomahawk.resolver.instance.lookupUrl(params.url);
                     });
                 } else if (methodName == 'getStreamUrl') {
-                    return new Promise(function (resolve, reject) {
+                    return new RSVP.Promise(function (resolve, reject) {
                         pluginManager.resolve[requestId] = resolve;
                         Tomahawk.resolver.instance.getStreamUrl(requestId, params.url);
                     });
                 } else if (methodName == 'resolve') {
-                    return new Promise(function (resolve, reject) {
+                    return new RSVP.Promise(function (resolve, reject) {
                         pluginManager.resolve[requestId] = resolve;
                         Tomahawk.resolver.instance.resolve(requestId, params.artist,
                             params.album, params.track);
                     });
                 } else if (methodName == 'search') {
-                    return new Promise(function (resolve, reject) {
+                    return new RSVP.Promise(function (resolve, reject) {
                         pluginManager.resolve[requestId] = resolve;
                         Tomahawk.resolver.instance.search(requestId, params.query);
                     });
@@ -1146,7 +1146,7 @@ Tomahawk.Collection = {
         this.ensureDb = function () {
             var that = this;
 
-            return new Promise(function (resolve, reject) {
+            return new RSVP.Promise(function (resolve, reject) {
                 if (!collection.cachedDbs.hasOwnProperty(id)) {
                     Tomahawk.log("Opening database");
                     var estimatedSize = 5 * 1024 * 1024; // 5MB
@@ -1237,7 +1237,7 @@ Tomahawk.Collection = {
         this.beginTransaction = function () {
             var that = this;
             return this.ensureDb().then(function (db) {
-                return new Promise(function (resolve, reject) {
+                return new RSVP.Promise(function (resolve, reject) {
                     db.transaction(function (tx) {
                         that.tx = tx;
                         resolve();
@@ -1248,7 +1248,7 @@ Tomahawk.Collection = {
 
         this.sql = function (sqlStatement, sqlArgs) {
             var that = this;
-            return new Promise(function (resolve, reject) {
+            return new RSVP.Promise(function (resolve, reject) {
                 that.tx.executeSql(sqlStatement, sqlArgs,
                     function (tx, results) {
                         resolve(results);
