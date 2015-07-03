@@ -569,6 +569,10 @@ Tomahawk.ajax = function(url, settings) {
         settings.errorHandler = reject;
         Tomahawk.asyncRequest(settings.url, resolve, settings.headers, settings);
     }).then(function(xhr) {
+        if (settings.rawResponse) {
+            return xhr;
+        }
+
         var responseText = xhr.responseText;
         var contentType;
         if (settings.dataType === 'json') {
