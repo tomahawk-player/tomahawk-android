@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.resolver;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 
@@ -59,6 +60,11 @@ public class ScriptJob {
     public interface ResultsObjectCallback extends SuccessCallback {
 
         void onReportResults(JsonObject results);
+    }
+
+    public interface ResultsPrimitiveCallback extends SuccessCallback {
+
+        void onReportResults(JsonPrimitive results);
     }
 
     public interface ResultsEmptyCallback extends SuccessCallback {
@@ -230,6 +236,9 @@ public class ScriptJob {
         } else if (data instanceof JsonObject
                 && mSuccessCallback instanceof ResultsObjectCallback) {
             ((ResultsObjectCallback) mSuccessCallback).onReportResults((JsonObject) data);
+        } else if (data instanceof JsonPrimitive
+                && mSuccessCallback instanceof ResultsPrimitiveCallback) {
+            ((ResultsPrimitiveCallback) mSuccessCallback).onReportResults((JsonPrimitive) data);
         } else if (data instanceof JsonArray && mSuccessCallback instanceof ResultsArrayCallback) {
             ((ResultsArrayCallback) mSuccessCallback).onReportResults((JsonArray) data);
         } else if (mSuccessCallback instanceof ResultsEmptyCallback) {
