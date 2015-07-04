@@ -18,7 +18,7 @@
 package org.tomahawk.libtomahawk.resolver;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
@@ -442,14 +442,19 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     }
 
     public void testConfig(Map<String, Object> config) {
-        ScriptJob.start(mScriptObject, "testConfig", config, new ScriptJob.ResultsObjectCallback() {
-            @Override
-            public void onReportResults(JsonObject results) {
-                int type = ScriptUtils.getNodeChildAsInt(results, "result");
-                String message = ScriptUtils.getNodeChildAsText(results, "message");
-                onConfigTestResult(type, message);
-            }
-        });
+        ScriptJob.start(mScriptObject, "testConfig", config,
+                new ScriptJob.ResultsPrimitiveCallback() {
+                    @Override
+                    public void onReportResults(JsonPrimitive results) {
+                        if (results.isString()) {
+                            onConfigTestResult(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                                    results.getAsString());
+                        } else if (results.isNumber()
+                                && results.getAsInt() > 0 && results.getAsInt() < 8) {
+                            onConfigTestResult(results.getAsInt(), null);
+                        }
+                    }
+                });
     }
 
     public void onConfigTestResult(final int type, final String message) {
