@@ -1253,8 +1253,9 @@ Tomahawk.Collection = {
                 that.tx.executeSql(sqlStatement, sqlArgs,
                     function (tx, results) {
                         resolve(results);
-                    }, function (error) {
-                        Tomahawk.log(error);
+                    }, function (tx, error) {
+                        Tomahawk.log("Error in tx.executeSql: " + error.code + " - "
+                            + error.message);
                         reject(error);
                     });
             })
@@ -1294,14 +1295,12 @@ Tomahawk.Collection = {
             var fieldsValues = [];
             var valuesString = "";
             for (var key in fields) {
-                if (fields.hasOwnProperty(key)) {
-                    fieldsKeys.push(key);
-                    fieldsValues.push(fields[key]);
-                    if (valuesString.length > 0) {
-                        valuesString += ", ";
-                    }
-                    valuesString += "?";
+                fieldsKeys.push(key);
+                fieldsValues.push(fields[key]);
+                if (valuesString.length > 0) {
+                    valuesString += ", ";
                 }
+                valuesString += "?";
             }
             var statement = "INSERT INTO " + table + " (" + fieldsKeys.join(", ") + ") VALUES ("
                 + valuesString + ")";
@@ -1335,6 +1334,12 @@ Tomahawk.Collection = {
                 })
             ];
             for (var i = 0; i < tracks.length; i++) {
+                tracks[i].track = tracks[i].track || "";
+                tracks[i].album = tracks[i].album || "";
+                tracks[i].artist = tracks[i].artist || "";
+                tracks[i].artistDisambiguation = tracks[i].artistDisambiguation || "";
+                tracks[i].albumArtist = tracks[i].albumArtist || "";
+                tracks[i].albumArtistDisambiguation = tracks[i].albumArtistDisambiguation || "";
                 (function (track) {
                     promises.push(
                         t.sqlInsert("artists", {
