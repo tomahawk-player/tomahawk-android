@@ -39,17 +39,18 @@ if ((typeof Tomahawk === "undefined") || (Tomahawk === null)) {
 
 Tomahawk.apiVersion = "0.2.2";
 
-// install RSVP.Promise as global Promise
-if(window.Promise === undefined) {
-    window.Promise = window.RSVP.Promise;
-    window.RSVP.on('error', function(reason) {
-        if (reason) {
-            console.error(reason.message, reason);
-        } else {
-            console.error('Error: error thrown from RSVP but it was empty');
-        }
-    });
-}
+// install RSVP error handler for uncaught(!) errors
+RSVP.on('error', function (reason) {
+    var resolverName = "";
+    if (Tomahawk.resolver.instance) {
+        resolverName = Tomahawk.resolver.instance.settings.name + " - ";
+    }
+    if (reason) {
+        console.error(resolverName + 'Uncaught error:' + JSON.stringify(reason));
+    } else {
+        console.error(resolverName + 'Uncaught error: error thrown from RSVP but it was empty');
+    }
+});
 
 /**
  * Compares versions strings
