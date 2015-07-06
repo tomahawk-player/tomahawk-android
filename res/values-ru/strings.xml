@@ -61,6 +61,7 @@
   <string name="preferences_app_uservoice_text">Поделитесь идеями или спросите о поддержке</string>
   <string name="preferences_app_sendlog">Отправить логи</string>
   <string name="preferences_app_sendlog_text">Отправить ваши логи для отладки</string>
+  <string name="preferences_app_sendlog_dialog_text">Пожалуйста, кратко опишите проблему, которая у вас возникла и укажите ваш e-mail, чтобы мы могли связаться с вами. Спасибо!</string>
   <string name="preferences_app_sendlog_email">Ваш email</string>
   <string name="preferences_app_sendlog_issue">Ошибка</string>
   <string name="crash_dialog_title">Tomahawk прекратил работу</string>
