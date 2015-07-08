@@ -16,7 +16,10 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var TomahawkMetadataResolver = Tomahawk.extend(TomahawkResolver, {
+var TomahawkMetadataResolver = Tomahawk.extend(Tomahawk.Resolver, {
+
+    apiVersion: 0.9,
+
     settings: {
         name: 'Tomahawk Metadata',
         icon: 'tomahawk-metadata.png',
@@ -24,56 +27,49 @@ var TomahawkMetadataResolver = Tomahawk.extend(TomahawkResolver, {
         timeout: 15
     },
 
-    init: function () {
-        Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
-    },
+    canParseUrl: function (params) {
+        var url = params.url;
+        var type = params.type;
 
-    resolve: function (qid, artist, album, title) {
-        Tomahawk.addTrackResults({ results: [], qid: qid });
-    },
-
-    search: function (qid, searchString) {
-        Tomahawk.addTrackResults({ results: [], qid: qid });
-    },
-
-    canParseUrl: function (url, type) {
         switch (type) {
-            case TomahawkUrlType.Album:
+            case Tomahawk.UrlType.Album:
                 return /^tomahawk:\/\/view\/album\/?\?$/.test(url);
-            case TomahawkUrlType.Artist:
+            case Tomahawk.UrlType.Artist:
                 return /^tomahawk:\/\/view\/artist\/?\?$/.test(url);
-            case TomahawkUrlType.Track:
+            case Tomahawk.UrlType.Track:
                 return /^tomahawk:\/\/(queue\/add|play)\/track\/?\?$/.test(url);
             default:
                 return false;
         }
     },
 
-    lookupUrl: function (url) {
+    lookupUrl: function (params) {
+        var url = params.url;
+
         Tomahawk.log("lookupUrl: " + url);
         if (/^tomahawk:\/\/view\/album\/?\?$/.test(url)) {
             Tomahawk.log("Found an album");
             // We have to deal with an Album
-            Tomahawk.addUrlResult(url, {
-                type: 'album',
+            return {
+                type: Tomahawk.UrlType.Album,
                 artist: this._getQueryVariable(url, 'artist'),
-                name: this._getQueryVariable(url, 'name')
-            });
+                album: this._getQueryVariable(url, 'name')
+            };
         } else if (/^tomahawk:\/\/view\/artist\/?\?$/.test(url)) {
             Tomahawk.log("Found an artist");
             // We have to deal with an Artist
-            Tomahawk.addUrlResult(url, {
-                type: 'artist',
-                name: this._getQueryVariable(url, 'name')
-            });
+            return {
+                type: Tomahawk.UrlType.Artist,
+                artist: this._getQueryVariable(url, 'name')
+            };
         } else if (/^tomahawk:\/\/(queue\/add|play)\/track\/?\?$/.test(url)) {
             Tomahawk.log("Found a track");
             // We have to deal with a Track
-            Tomahawk.addUrlResult(url, {
-                type: "track",
+            return {
+                type: Tomahawk.UrlType.Track,
                 artist: this._getQueryVariable(url, 'artist'),
-                title: this._getQueryVariable(url, 'title')
-            });
+                track: this._getQueryVariable(url, 'title')
+            };
         }
     },
 

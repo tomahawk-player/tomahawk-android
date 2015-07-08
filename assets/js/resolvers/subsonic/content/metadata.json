@@ -3,7 +3,7 @@
     "pluginName": "subsonic",
     "author": "mack_t, Teo and Enno",
     "email": "teo@kde.org",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "website": "http://gettomahawk.com",
     "description": "Searches your Subsonic server for music to play.",
     "platform": "any",
@@ -17,8 +17,6 @@
         "iconBackground": "contents/images/iconBackground.png",
         "resources": [
             "contents/code/config.ui",
-            "contents/code/runnersid-icon.png",
-            "contents/code/subsonic-icon.png",
             "contents/code/subsonic.png"
         ]
     },

@@ -16,8 +16,5 @@
         "resources": [
             "contents/code/rdio.png"
         ]
-    },
-    "staticCapabilities": [
-        "configTestable"
-    ]
+    }
 }

@@ -1,9 +1,9 @@
 {
     "name": "Ampache",
     "pluginName": "ampache",
-    "author": "Dominik, Leo and Teo",
+    "author": "Dominik, Leo, Teo and Enno",
     "email": "teo@kde.org",
-    "version": "0.3.2",
+    "version": "0.4.0",
     "website": "http://gettomahawk.com",
     "description": "Connects to an Ampache or ownCloud server and resolves tracks.",
     "type": "resolver/javascript",

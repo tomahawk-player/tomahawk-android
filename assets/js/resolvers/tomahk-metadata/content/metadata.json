@@ -1,9 +1,9 @@
 {
 	"name": "toma.hk Metadata",
 	"pluginName": "tomahk-metadata",
-	"author": "Uwe L. Korn",
+	"author": "Uwe L. Korn and Enno",
 	"email": "uwelk@xhochy.com",
-	"version": "0.1.2",
+	"version": "0.2.0",
 	"website": "http://gettomahawk.com",
 	"description": "Supports loading and drag and drop of toma.hk URLs.",
 	"type": "resolver/javascript",

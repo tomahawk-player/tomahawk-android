@@ -1,9 +1,9 @@
 {
     "name": "Jamendo",
     "pluginName": "jamendo",
-    "author": "lasconic",
+    "author": "lasconic and Enno",
     "email": "lasconic@gmail.com",
-    "version": "0.1.5",
+    "version": "0.2.0",
     "website": "http://gettomahawk.com",
     "description": "Searches Jamendo's free music database.",
     "type": "resolver/javascript",
