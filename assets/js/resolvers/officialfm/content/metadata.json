@@ -1,9 +1,9 @@
 {
     "name": "Official.fm",
     "pluginName": "officialfm",
-    "author": "Leo and lasconic",
+    "author": "Leo, lasconic and Enno",
     "email": "lasconic@gmail.com",
-    "version": "1.0.7",
+    "version": "1.1.0",
     "website": "http://gettomahawk.com",
     "description": "Searches Official.fm for playable tracks.",
     "type": "resolver/javascript",

@@ -3,7 +3,7 @@
     "pluginName": "deezer",
     "author": "Uwe and Enno",
     "email": "uwelk@xhochy.com",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "website": "http://gettomahawk.com",
     "description": "Stream music with Deezer. Premium Deezer account required.",
     "type": "resolver/javascript",
@@ -16,8 +16,5 @@
         "resources": [
             "contents/code/deezer.png"
         ]
-    },
-    "staticCapabilities": [
-        "configTestable"
-    ]
+    }
 }

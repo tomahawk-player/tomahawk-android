@@ -3,7 +3,7 @@
 	"pluginName": "soundcloud",
 	"author": "Thierry Göckel",
 	"email": "thierry@strayrayday.lu",
-	"version": "0.9.7",
+	"version": "1.0.0",
 	"website": "http://gettomahawk.com",
 	"description": "Resolves to playable tracks on SoundCloud, including live, cover and remixed versions if specified.",
 	"type": "resolver/javascript",

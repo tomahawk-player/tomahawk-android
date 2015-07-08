@@ -16,7 +16,10 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 
-var HatchetMetadataResolver = Tomahawk.extend(TomahawkResolver, {
+var HatchetMetadataResolver = Tomahawk.extend(Tomahawk.Resolver, {
+
+    apiVersion: 0.9,
+
     settings: {
         name: 'Hatchet Metadata',
         icon: 'hatchet-metadata.png',
@@ -24,35 +27,28 @@ var HatchetMetadataResolver = Tomahawk.extend(TomahawkResolver, {
         timeout: 15
     },
 
-    init: function () {
-        Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
-    },
+    canParseUrl: function (params) {
+        var url = params.url;
+        var type = params.type;
 
-    resolve: function (qid, artist, album, title) {
-        Tomahawk.addTrackResults({ results: [], qid: qid });
-    },
-
-    search: function (qid, searchString) {
-        Tomahawk.addTrackResults({ results: [], qid: qid });
-    },
-
-    canParseUrl: function (url, type) {
         switch (type) {
-            case TomahawkUrlType.Album:
+            case Tomahawk.UrlType.Album:
                 return /^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/[^\/\n]+$/.test(url);
-            case TomahawkUrlType.Artist:
+            case Tomahawk.UrlType.Artist:
                 return /^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n][^\/\n_]+$/.test(url);
-            case TomahawkUrlType.Track:
+            case Tomahawk.UrlType.Track:
                 return /^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/_\/[^\/\n]+$/.test(url);
-            case TomahawkUrlType.Playlist:
+            case Tomahawk.UrlType.Playlist:
                 return /^https?:\/\/(www\.)?hatchet\.is\/people\/[^\/\n]+\/playlists\/[^\/\n]+$/.test(url);
             default:
                 return false;
         }
     },
 
-    lookupUrl: function (url) {
-        Tomahawk.log("lookupUrl: "+url);
+    lookupUrl: function (params) {
+        var url = params.url;
+
+        Tomahawk.log("lookupUrl: " + url);
         var urlParts =
             url.split('/').filter(function (item) {
                 return item.length != 0;
@@ -62,67 +58,66 @@ var HatchetMetadataResolver = Tomahawk.extend(TomahawkResolver, {
         if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/[^\/\n]+$/.test(url)) {
             Tomahawk.log("Found an album");
             // We have to deal with an Album
-            Tomahawk.addUrlResult(url, {
-                type: 'album',
+            return {
+                type: Tomahawk.UrlType.Album,
                 artist: urlParts[urlParts.length - 2],
-                name: urlParts[urlParts.length - 1]
-            });
+                album: urlParts[urlParts.length - 1]
+            };
         } else if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n][^\/\n_]+$/.test(url)) {
             Tomahawk.log("Found an artist");
             // We have to deal with an Artist
-            Tomahawk.addUrlResult(url, {
-                type: 'artist',
-                name: urlParts[urlParts.length - 1]
-            });
+            return {
+                type: Tomahawk.UrlType.Artist,
+                artist: urlParts[urlParts.length - 1]
+            };
         } else if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/_\/[^\/\n]+$/.test(url)) {
             Tomahawk.log("Found a track");
             // We have to deal with a Track
-            Tomahawk.addUrlResult(url, {
-                type: "track",
+            return {
+                type: Tomahawk.UrlType.Track,
                 artist: urlParts[urlParts.length - 3],
-                title: urlParts[urlParts.length - 1]
-            });
+                track: urlParts[urlParts.length - 1]
+            };
         } else if (/^https?:\/\/(www\.)?hatchet\.is\/people\/[^\/\n]+\/playlists\/[^\/\n]+$/.test(url)) {
             Tomahawk.log("Found a playlist");
             // We have to deal with a Playlist
             var match = url.match(/^https?:\/\/(?:www\.)?hatchet\.is\/people\/[^\/\n]+\/playlists\/([^\/\n]+)$/);
             var query = 'https://api.hatchet.is/v1/playlists/' + match[1];
             Tomahawk.log("Found playlist, calling url: '" + query + "'");
-            Tomahawk.asyncRequest(query, function (xhr) {
-                var res = JSON.parse(xhr.responseText);
-                var result = {
-                    type: "playlist",
+            return Tomahawk.get(query).then(function (res) {
+                var playlistEntries = {};
+                res.playlistEntries.forEach(function (item) {
+                    playlistEntries[item.id] = item;
+                });
+                var artists = {};
+                res.artists.forEach(function (item) {
+                    artists[item.id] = item;
+                });
+                var tracksMap = {};
+                res.tracks.forEach(function (item) {
+                    tracksMap[item.id] = item;
+                });
+                var tracks = res.playlists[0].playlistEntries.map(function (item) {
+                    var track = tracksMap[playlistEntries[item].track];
+                    return {
+                        type: "track",
+                        track: track.name,
+                        artist: artists[track.artist].name
+                    };
+                });
+                Tomahawk.log("Reported found playlist '" + result.title + "' containing "
+                    + tracks.length + " tracks");
+                return {
+                    type: Tomahawk.UrlType.Playlist,
                     title: res.playlists[0].title,
                     guid: res.playlists[0].id,
                     info: "A playlist on Hatchet.",
                     creator: res.playlists[0].user,
-                    url: url,
-                    tracks: []
+                    linkUrl: url,
+                    tracks: tracks
                 };
-                var playlistEntries = {};
-                res.playlistEntries.forEach( function (item) {
-                    playlistEntries[item.id] = item;
-                });
-                var artists = {};
-                res.artists.forEach( function (item) {
-                    artists[item.id] = item;
-                });
-                var tracks = {};
-                res.tracks.forEach( function (item) {
-                    tracks[item.id] = item;
-                });
-                result.tracks = res.playlists[0].playlistEntries.map( function (item) {
-                    var track = tracks[playlistEntries[item].track];
-                    return {
-                        type: "track",
-                        title: track.name,
-                        artist: artists[track.artist].name
-                    };
-                });
-                Tomahawk.addUrlResult(url, result);
-                Tomahawk.log("Reported found playlist '" + result.title + "' containing " + result.tracks.length + " tracks");
             });
-         }
+        }
     }
 });
 

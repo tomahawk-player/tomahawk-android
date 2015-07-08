@@ -21,6 +21,9 @@
  *   CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+/* globals Tomahawk, TomahawkResolver, async, TomahawkResolverCapability, TomahawkConfigTestResultType, TomahawkUrlType */
+
+
 var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
     settings: {
         name: 'Beats Music',
@@ -116,7 +119,7 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
             data: data,
             errorHandler: function (xhr) {
                 if (doConfigTest) {
-                    if (xhr.status == 404) {
+                    if (xhr.status === 404) {
                         Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.CommunicationError);
                     } else {
                         Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other,
@@ -131,7 +134,7 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
         this.login(null, true);
     },
 
-    spell: function(a){magic=function(b){return(b=(b)?b:this).split("").map(function(d){if(!d.match(/[A-Za-z]/)){return d}c=d.charCodeAt(0)>=96;k=(d.toLowerCase().charCodeAt(0)-96+12)%26+1;return String.fromCharCode(k+(c?96:64))}).join("")};return magic(a)},
+    spell: function(a){var magic=function(b){return(b=(b)?b:this).split("").map(function(d){if(!d.match(/[A-Za-z]/)){return d;}var c=d.charCodeAt(0)>=96;var k=(d.toLowerCase().charCodeAt(0)-96+12)%26+1;return String.fromCharCode(k+(c?96:64));}).join("");};return magic(a);},
 
     init: function(cb) {
         this.app_token = this.spell("s4fw8if4jfwxakawi7xud55c");
@@ -148,21 +151,24 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
 
     apiRequest: function (path, queryArgs, cb) {
         var queryArray = ["client_id=" + this.app_token];
-        for (key in queryArgs) {
+        for (var key in queryArgs) {
             queryArray.push(key + "=" + queryArgs[key]);
         }
         var url = this.endpoint + "/api" + path;
         url += "?" + queryArray.join("&");
         Tomahawk.asyncRequest(url, function (xhr) {
             var res = JSON.parse(xhr.responseText);
-            if (res.code == "OK") {
+            if (res.code === "OK") {
                 cb(res, xhr);
             }
         });
     },
 
     resolve: function (qid, artist, album, title) {
-        if (!this.loggedIn) return;
+        if (!this.loggedIn) {
+            Tomahawk.addTrackResults({qid: qid, results: []});
+            return;
+        }
 
         // TODO: Add album to search
         var that = this;
@@ -200,14 +206,14 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
         });
     },
 
-	search: function (qid, searchString) {
+    search: function (qid, searchString) {
         var that = this;
         // TODO: Search for albums and artists, too.
         Tomahawk.asyncRequest(this.endpoint +
             "/api/search?type=track&filters=streamable:true&limit=100&q=" +
             encodeURIComponent(searchString) + "&client_id=" + this.app_token, function (xhr) {
             var res = JSON.parse(xhr.responseText);
-            if (res.code == "OK" && res.data.length > 0) {
+            if (res.code === "OK" && res.data.length > 0) {
                 async.map(res.data, function (item, cb) {
                     var query = that.endpoint + "/api/tracks/" + item.id;
                     query += "?fields=artist_display_name&fields=duration";
@@ -216,7 +222,7 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
                     Tomahawk.asyncRequest(query, function (xhr2) {
                         var res2 = JSON.parse(xhr2.responseText);
                         Tomahawk.log(xhr2.responseText);
-                        if (res2.code == "OK") {
+                        if (res2.code === "OK") {
                             var result = {
                                 artist: res2.data.artist_display_name,
                                 bitrate: 320,
@@ -254,37 +260,39 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
                 });
             }
         });
-	},
+    },
 
     canParseUrl: function (url, type) {
         // We accept all beats.mu shortened urls as we need a HTTP request to get more information.
         if (/https?:\/\/beats.mu\//.test(url)) return true;
 
         switch (type) {
-        case TomahawkUrlType.Album:
-            return /https?:\/\/((on|listen)\.)?beatsmusic.com\/albums\/([^\/]*)\/?$/.test(url);
-        case TomahawkUrlType.Artist:
-            return /https?:\/\/((on|listen)\.)?beatsmusic.com\/artists\/([^\/]*)\/?$/.test(url);
-        case TomahawkUrlType.Playlist:
-            return this.loggedIn && /https?:\/\/((on|listen)\.)?beatsmusic.com\/playlists\/([^\/]*)\/?$/.test(url);
-        case TomahawkUrlType.Track:
-            return /https?:\/\/((on|listen)\.)?beatsmusic.com\/albums\/([^\/]*)\/tracks\//.test(url);
-        // case TomahawkUrlType.Any:
-        default:
-            return /https?:\/\/((on|listen)\.)?beatsmusic.com\/([^\/]*\/|)/.test(url);
+            case TomahawkUrlType.Album:
+                return /https?:\/\/((on|listen)\.)?beatsmusic.com\/albums\/([^\/]*)\/?$/.test(url);
+            case TomahawkUrlType.Artist:
+                return /https?:\/\/((on|listen)\.)?beatsmusic.com\/artists\/([^\/]*)\/?$/.test(url);
+            case TomahawkUrlType.Playlist:
+                return this.loggedIn && /https?:\/\/((on|listen)\.)?beatsmusic.com\/playlists\/([^\/]*)\/?$/.test(url);
+            case TomahawkUrlType.Track:
+                return /https?:\/\/((on|listen)\.)?beatsmusic.com\/albums\/([^\/]*)\/tracks\//.test(url);
+            // case TomahawkUrlType.Any:
+            default:
+                return /https?:\/\/((on|listen)\.)?beatsmusic.com\/([^\/]*\/|)/.test(url);
         }
     },
 
     lookupUrl: function (url) {
         // Todo: unshorten beats.mu
-
+        var match;
+        var query;
+        var that = this;
         if (/https?:\/\/((on|listen)\.)?beatsmusic.com\/albums\/([^\/]*)\/?$/.test(url)) {
             // Found an album URL
-            var match = url.match(/https?:\/\/((on|listen)\.)?beatsmusic.com\/albums\/([^\/]*)\/?$/);
-            var query = this.endpoint + "/api/albums/" + encodeURIComponent(match[3]) + "?client_id=" + this.app_token;
+            match = url.match(/https?:\/\/((on|listen)\.)?beatsmusic.com\/albums\/([^\/]*)\/?$/);
+            query = this.endpoint + "/api/albums/" + encodeURIComponent(match[3]) + "?client_id=" + this.app_token;
             Tomahawk.asyncRequest(query, function (xhr) {
                 var res = JSON.parse(xhr.responseText);
-                if (res.code == "OK") {
+                if (res.code === "OK") {
                     Tomahawk.addUrlResult(url, {
                         type: "album",
                         name: res.data.title,
@@ -293,11 +301,11 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
                 }
             });
         } else if (/https?:\/\/((on|listen)\.)?beatsmusic.com\/artists\/([^\/]*)\/?$/.test(url)) {
-            var match = url.match(/https?:\/\/((on|listen)\.)?beatsmusic.com\/artists\/([^\/]*)\/?$/);
-            var query = this.endpoint + "/api/artists/" + encodeURIComponent(match[3]) + "?client_id=" + this.app_token;
+            match = url.match(/https?:\/\/((on|listen)\.)?beatsmusic.com\/artists\/([^\/]*)\/?$/);
+            query = this.endpoint + "/api/artists/" + encodeURIComponent(match[3]) + "?client_id=" + this.app_token;
             Tomahawk.asyncRequest(query, function (xhr) {
                 var res = JSON.parse(xhr.responseText);
-                if (res.code == "OK") {
+                if (res.code === "OK") {
                     Tomahawk.addUrlResult(url, {
                         type: "artist",
                         name: res.data.name
@@ -305,11 +313,11 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
                 }
             });
         } else if (/https?:\/\/((on|listen)\.)?beatsmusic.com\/albums\/([^\/]*)\/tracks\//.test(url)) {
-            var match = url.match(/https?:\/\/((on|listen)\.)?beatsmusic.com\/albums\/([^\/]*)\/tracks\/([^\/]*)/);
-            var query = this.endpoint + "/api/tracks/" + encodeURIComponent(match[4]) + "?client_id=" + this.app_token;
+            match = url.match(/https?:\/\/((on|listen)\.)?beatsmusic.com\/albums\/([^\/]*)\/tracks\/([^\/]*)/);
+            query = this.endpoint + "/api/tracks/" + encodeURIComponent(match[4]) + "?client_id=" + this.app_token;
             Tomahawk.asyncRequest(query, function (xhr) {
                 var res = JSON.parse(xhr.responseText);
-                if (res.code == "OK") {
+                if (res.code === "OK") {
                     Tomahawk.addUrlResult(url, {
                         type: "track",
                         title: res.data.title,
@@ -318,12 +326,11 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
                 }
             });
         } else if (/https?:\/\/((on|listen)\.)?beatsmusic.com\/playlists\/([^\/]*)\/?$/.test(url)) {
-            var match = url.match(/https?:\/\/((on|listen)\.)?beatsmusic.com\/playlists\/([^\/]*)\/?$/);
-            var query = this.endpoint + "/api/playlists/" + encodeURIComponent(match[3]) + "?access_token=" + this.accessToken;
-            var that = this;
+            match = url.match(/https?:\/\/((on|listen)\.)?beatsmusic.com\/playlists\/([^\/]*)\/?$/);
+            query = this.endpoint + "/api/playlists/" + encodeURIComponent(match[3]) + "?access_token=" + this.accessToken;
             Tomahawk.asyncRequest(query, function (xhr) {
                 var res = JSON.parse(xhr.responseText);
-                if (res.code == "OK") {
+                if (res.code === "OK") {
                     var result = {
                         type: "playlist",
                         title: res.data.name,
@@ -337,7 +344,7 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
                         var query2 = that.endpoint + "/api/tracks/" + encodeURIComponent(item.id)  + "?client_id=" + that.app_token;
                         Tomahawk.asyncRequest(query2, function (xhr2) {
                             var res2 = JSON.parse(xhr2.responseText);
-                            if (res2.code == "OK") {
+                            if (res2.code === "OK") {
                                 cb(null, {
                                     type: "track",
                                     title: res2.data.title,
@@ -358,4 +365,3 @@ var BeatsMusicResolver = Tomahawk.extend(TomahawkResolver, {
 });
 
 Tomahawk.resolver.instance = BeatsMusicResolver;
-

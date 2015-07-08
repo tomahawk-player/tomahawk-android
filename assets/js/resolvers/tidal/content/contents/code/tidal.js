@@ -12,12 +12,12 @@
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
+var TidalResolver = Tomahawk.extend(Tomahawk.Resolver.Promise, {
     apiVersion: 0.9,
 
     /* This can also be used with WiMP service if you change next 2 lines */
-    api_location : 'https://listen.tidalhifi.com/v1/',
-    api_token : 'P5Xbeo5LFvESeDy6',
+    api_location: 'https://listen.tidalhifi.com/v1/',
+    api_token: 'P5Xbeo5LFvESeDy6',
 
     logged_in: null, // null, = not yet tried, 0 = pending, 1 = success, 2 = failed
 
@@ -30,11 +30,11 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
     },
 
     strQuality: ['LOW', 'HIGH', 'LOSSLESS'],
-    numQuality: [ 64,    320,    1411     ],
+    numQuality: [64, 320, 1411],
 
-    getConfigUi: function() {
+    getConfigUi: function () {
         return {
-            "widget": Tomahawk.readBase64( "config.ui" ),
+            "widget": Tomahawk.readBase64("config.ui"),
             fields: [{
                 name: "email",
                 widget: "email_edit",
@@ -43,7 +43,7 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
                 name: "password",
                 widget: "password_edit",
                 property: "text"
-            },{
+            }, {
                 name: "quality",
                 widget: "quality",
                 property: "currentIndex"
@@ -51,13 +51,11 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
         };
     },
 
-    newConfigSaved: function() {
-        var config = this.getUserConfig();
-
-        var changed = 
-            this._email !== config.email ||
-            this._password !== config.password ||
-            this._quality != config.quality;
+    newConfigSaved: function (newConfig) {
+        var changed =
+            this._email !== newConfig.email ||
+            this._password !== newConfig.password ||
+            this._quality != newConfig.quality;
 
         if (changed) {
             this.init();
@@ -66,17 +64,17 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
 
     testConfig: function (config) {
         return this._getLoginPromise(config).then(function () {
-            return { result: Tomahawk.ConfigTestResultType.Success };
-        } ,function(xhr) {
+            return Tomahawk.ConfigTestResultType.Success;
+        }, function (xhr) {
             if (xhr.status == 401) {
-                return { result: Tomahawk.ConfigTestResultType.InvalidCredentials };
+                return Tomahawk.ConfigTestResultType.InvalidCredentials;
             } else {
-                return { result: Tomahawk.ConfigTestResultType.CommunicationError };
+                return Tomahawk.ConfigTestResultType.CommunicationError;
             }
         });
     },
 
-    init: function() {
+    init: function () {
         var config = this.getUserConfig();
 
         this._email = config.email;
@@ -92,57 +90,61 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
         }
 
         Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
-        Tomahawk.addCustomUrlHandler( 'tidal', 'getStreamUrl', true );
 
-        return this._login(config);
+        this._login(config);
+    },
+
+    _convertTracks: function (entries) {
+        return entries.filter(function (entry) {
+            return entry.allowStreaming;
+        }).map(this._convertTrack, this);
     },
 
     _convertTrack: function (entry) {
         return {
-            artist:     entry.artist.name,
-            album:      entry.album.title,
-            track:      entry.title,
-            title:      entry.title,
-            year:       entry.year,
+            type: Tomahawk.UrlType.Track,
+            artist: entry.artist.name,
+            album: entry.album.title,
+            track: entry.title,
+            year: entry.year,
 
-            albumpos:   entry.trackNumber,
+            albumpos: entry.trackNumber,
             discnumber: entry.volumeNumber,
 
-            duration:   entry.duration,
+            duration: entry.duration,
 
-            url:        'tidal://track/' + entry.id,
-            hint:       'tidal://track/' + entry.id,
-            checked:    true,
-            bitrate:    this.numQuality[this._quality],
-            type:       "track",
+            url: 'tidal://track/' + entry.id,
+            hint: 'tidal://track/' + entry.id,
+            checked: true,
+            bitrate: this.numQuality[this._quality]
         };
     },
 
     _convertAlbum: function (entry) {
         return {
-            artist:     entry.artist.name,
-            name:       entry.title,
-            url:        entry.url,
-            type:       "album",
+            type: Tomahawk.UrlType.Album,
+            artist: entry.artist.name,
+            album: entry.title,
+            url: entry.url
         };
     },
 
     _convertArtist: function (entry) {
         return {
-            name: entry.name,
-            type: "artist",
+            type: Tomahawk.UrlType.Artist,
+            artist: entry.name
         };
     },
 
     _convertPlaylist: function (entry) {
         return {
-            title:      entry.title,
-            guid:       "tidal-playlist-" + entry.uuid,
-            info:       entry.description + " (from TidalHiFi)",
-            creator:    "tidal-user-" + entry.creator.id,
+            type: Tomahawk.UrlType.Playlist,
+            title: entry.title,
+            guid: "tidal-playlist-" + entry.uuid,
+            info: entry.description + " (from TidalHiFi)",
+            creator: "tidal-user-" + entry.creator.id,
             // TODO: Perhaps use tidal://playlist/uuid
-            url:        entry.url,
-            type:       "playlist"
+            url: entry.url
         };
     },
 
@@ -152,25 +154,24 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
 
         if (!this.logged_in) {
             return this._defer(this.search, [query], this);
-        } else if (this.logged_in ===2) {
+        } else if (this.logged_in === 2) {
             throw new Error('Failed login, cannot search.');
         }
 
         var that = this;
+        var settings = {
+            data: {
+                limit: limit || 9999,
+                query: query.replace(/[ \-]+/g, ' ').toLowerCase(),
 
-        var params = {
-            limit: limit || 9999,
-            query: query.replace(/[ \-]+/g, ' ').toLowerCase(),
-
-            sessionId: this._sessionId,
-            countryCode: this._countryCode
+                sessionId: this._sessionId,
+                countryCode: this._countryCode
+            }
         };
-
-        return Tomahawk.get(this.api_location + "search/tracks", {
-            data: params
-        }).then( function (response) {
-            return response.items.map(that._convertTrack, that);
-        });
+        return Tomahawk.get(this.api_location + "search/tracks", settings)
+            .then(function (response) {
+                return that._convertTracks(response.items);
+            });
     },
 
     resolve: function (params) {
@@ -178,7 +179,7 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
         var album = params.album;
         var track = params.track;
 
-        var query = [ artist, album, track ].join(' ');
+        var query = [artist, album, track].join(' ');
 
         return this.search({
             query: query,
@@ -186,19 +187,25 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
         });
     },
 
+    /**
+     * Splits the given url into 3 parts. see http://www.regexr.com/3ahue
+     * Returns array containing:
+     * [1]: 'tidalhifi' or 'wimpmusic'
+     * [2]: 'artist' or 'album' or 'track' or 'playlist' (removes the s)
+     * [3]: ID of resource (seems to be the same for both services!)
+     */
     _parseUrlPrefix: function (url) {
-        var match = url.match( /(?:https?:\/\/)?(?:listen|play|www)\.(tidalhifi|wimpmusic)\.com\/(?:v1\/)?([a-z]{3,}?)s?\/([\w\-]+)[\/?]?/ );
-        // http://www.regexr.com/3ahue
-        // 1: 'tidalhifi' or 'wimpmusic'
-        // 2: 'artist' or 'album' or 'track' or 'playlist' (removes the s)
-        // 3: ID of resource (seems to be the same for both services!)
-        return match;
+        return url.match(/(?:https?:\/\/)?(?:listen|play|www)\.(tidalhifi|wimpmusic)\.com\/(?:v1\/)?([a-z]{3,}?)s?\/([\w\-]+)[\/?]?/);
     },
 
-    canParseUrl: function (url, type) {
-        url = this._parseUrlPrefix(url);
-        if (!url) return false;
+    canParseUrl: function (params) {
+        var url = params.url;
+        var type = params.type;
 
+        url = this._parseUrlPrefix(url);
+        if (!url) {
+            throw new Error("Couldn't parse URL. Invalid format?");
+        }
         switch (type) {
             case TomahawkUrlType.Album:
                 return url[2] == 'album';
@@ -208,8 +215,6 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
                 return url[2] == 'track';
             case TomahawkUrlType.Playlist:
                 return url[2] == 'playlist';
-            default:
-                return true;
         }
     },
 
@@ -217,15 +222,16 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
         spaces = spaces || '';
 
         var str = '';
-        for (key in obj) {
-            if (typeof obj[key] === "object") {
-                var b = ["{", "}"]
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                var b = ["{", "}"];
                 if (obj[key].constructor == Array) {
                     b = ["[", "]"];
                 }
-                str += spaces+key+": "+b[0]+"\n"+this._debugPrint(obj[key], spaces+'    ')+"\n"+spaces+b[1]+'\n';
+                str += spaces + key + ": " + b[0] + "\n" + this._debugPrint(obj[key],
+                        spaces + '    ') + "\n" + spaces + b[1] + '\n';
             } else {
-                str += spaces+key+": "+obj[key]+"\n";
+                str += spaces + key + ": " + obj[key] + "\n";
             }
         }
         if (spaces != '') {
@@ -234,19 +240,14 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
             str.split('\n').map(Tomahawk.log, Tomahawk);
         }
     },
-    
+
     lookupUrl: function (params) {
         var url = params.url;
 
-        this.lookupUrlPromise(url).then(function (result) {
-            Tomahawk.addUrlResult(url, result);
-        }).catch(function (e) {
-            Tomahawk.addUrlResult(url, null);
-            Tomahawk.log("Error in lookupUrlPromise! " + e);
-        });
+        return this._getLookupUrlPromise(url);
     },
 
-    lookupUrlPromise: function (url) {
+    _getLookupUrlPromise: function (url) {
         if (!this.logged_in) {
             return this._defer(this.lookupUrl, [url], this);
         } else if (this.logged_in === 2) {
@@ -257,30 +258,29 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
 
         Tomahawk.log(url + " -> " + match[1] + " " + match[2] + " " + match[3]);
 
-        if (!match[1])
+        if (!match[1]) {
             throw new Error("Couldn't parse given URL: " + url);
+        }
 
         var that = this;
-        var cb = undefined;
-        var promise = null;
-        var suffix = '/';
+
         var params = {
             countryCode: this._countryCode,
             sessionId: this._sessionId,
-            limit:  9999,
+            limit: 9999
         };
 
         if (match[2] == 'album') {
             var rqUrl = this.api_location + 'albums/' + match[3];
 
-            var getInfo = Tomahawk.get(rqUrl, { data: params } );
-            var getTracks = Tomahawk.get(rqUrl + "/tracks", { data: params });
+            var getInfo = Tomahawk.get(rqUrl, {data: params});
+            var getTracks = Tomahawk.get(rqUrl + "/tracks", {data: params});
 
             Tomahawk.log(rqUrl);
 
-            return Promise.all([getInfo, getTracks]).then(function (response) {
+            return RSVP.Promise.all([getInfo, getTracks]).then(function (response) {
                 var result = that._convertAlbum(response[0]);
-                result.tracks = response[1].items.map(that._convertTrack, that);
+                result.tracks = that._convertTracks(response[1].items);
                 return result;
             });
 
@@ -305,12 +305,12 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
         } else if (match[2] == 'playlist') {
             var rqUrl = this.api_location + 'playlists/' + match[3];
 
-            var getInfo = Tomahawk.get(rqUrl, { data: params } );
-            var getTracks = Tomahawk.get(rqUrl + "/tracks", { data: params });
+            var getInfo = Tomahawk.get(rqUrl, {data: params});
+            var getTracks = Tomahawk.get(rqUrl + "/tracks", {data: params});
 
-            return Promise.all([getInfo, getTracks]).then( function (response) {
+            return RSVP.Promise.all([getInfo, getTracks]).then(function (response) {
                 var result = that._convertPlaylist(response[0]);
-                result.tracks = response[1].items.map(that._convertTrack, that);
+                result.tracks = that._convertTracks(response[1].items);
                 return result;
             });
         }
@@ -318,16 +318,18 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
 
     _parseUrn: function (urn) {
         // "tidal://track/18692667"
-        var match = urn.match( /^tidal:\/\/([a-z]+)\/(.+)$/ );
-        if (!match) return null;
+        var match = urn.match(/^tidal:\/\/([a-z]+)\/(.+)$/);
+        if (!match) {
+            return null;
+        }
 
         return {
-            type: match[ 1 ],
-            id:   match[ 2 ]
+            type: match[1],
+            id: match[2]
         };
     },
 
-    getStreamUrl: function(params) {
+    getStreamUrl: function (params) {
         var url = params.url;
 
         if (!this.logged_in) {
@@ -336,27 +338,26 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
             throw new Error('Failed login, cannot getStreamUrl.');
         }
 
-        var parsedUrn = this._parseUrn( url );
+        var parsedUrn = this._parseUrn(url);
 
         if (!parsedUrn || parsedUrn.type != 'track') {
-            Tomahawk.log( "Failed to get stream. Couldn't parse '" + url + "'" );
+            Tomahawk.log("Failed to get stream. Couldn't parse '" + url + "'");
             return;
         }
 
-        var params = {
-            token: this.api_token,
-            countryCode: this._countryCode,
-            soundQuality: this.strQuality[this._quality],
-            sessionId: this._sessionId
+        var settings = {
+            data: {
+                token: this.api_token,
+                countryCode: this._countryCode,
+                soundQuality: this.strQuality[this._quality],
+                sessionId: this._sessionId
+            }
         };
 
-        return Tomahawk.get(this.api_location + "tracks/"+parsedUrn.id+"/streamUrl", {
-            data: params
-        }).then( function (response) {
-            return {
-                url: response.url
-            };
-        });
+        return Tomahawk.get(this.api_location + "tracks/" + parsedUrn.id + "/streamUrl", settings)
+            .then(function (response) {
+                return response.url;
+            });
     },
 
     _defer: function (callback, args, scope) {
@@ -372,27 +373,29 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
     },
 
     _getLoginPromise: function (config) {
-        var params = "?token=" + this.api_token;
-        return Tomahawk.post( this.api_location + "login/username" + params, {
-                type: 'POST', // backwards compatibility for old versions of tomahawk.js
-                data: {
-                    "username": config.email.trim(),
-                    "password": config.password.trim()
-                },
-                headers: { 'Origin' : 'http://listen.tidalhifi.com' }
-            }
-        );
+        var settings = {
+            type: 'POST', // backwards compatibility for old versions of tomahawk.js
+            data: {
+                "username": config.email.trim(),
+                "password": config.password.trim()
+            },
+            headers: {'Origin': 'http://listen.tidalhifi.com'}
+        };
+        return Tomahawk.post(this.api_location + "login/username?token=" + this.api_token,
+            settings);
     },
 
     _login: function (config) {
         // If a login is already in progress don't start another!
-        if (this.logged_in === 0) return;
+        if (this.logged_in === 0) {
+            return;
+        }
         this.logged_in = 0;
 
         var that = this;
 
-        this._loginPromise = this._getLoginPromise(config).then(
-            function (resp) {
+        this._loginPromise = this._getLoginPromise(config)
+            .then(function (resp) {
                 Tomahawk.log(that.settings.name + " successfully logged in.");
 
                 that._countryCode = resp.countryCode;
@@ -400,8 +403,7 @@ var TidalResolver = Tomahawk.extend( Tomahawk.Resolver.Promise, {
                 that._userId = resp.userId;
 
                 that.logged_in = 1;
-            },
-            function (error) {
+            }, function (error) {
                 Tomahawk.log(that.settings.name + " failed login.");
 
                 delete that._countryCode;

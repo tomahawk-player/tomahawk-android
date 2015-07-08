@@ -30,7 +30,7 @@
    <item>
     <widget class="QLabel" name="label_3">
      <property name="text">
-      <string>Note that for the Google Music plug-in to work you must first login using the official Google Music iOS or Android app and play a song.  After you've done that Tomahawk should then be able to authenticate with your account.</string>
+      <string>For this plug-in to work you must first login using the official Google Music iOS or Android app and play a song.  After you've done that Tomahawk should then be able to authenticate with your account.</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -40,7 +40,7 @@
    <item>
     <widget class="QLabel" name="label_4">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Note: if you use 2-Step Verification, you must create an &lt;a href=&quot;https://support.google.com/accounts/answer/185833?hl=en&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;app-specifc password&lt;/span&gt;&lt;/a&gt; to use in Tomahawk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Note: If you use 2-Step Verification, then you must create an &lt;a href=&quot;https://support.google.com/accounts/answer/185833?hl=en&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#0000ff;&quot;&gt;app-specific password&lt;/span&gt;&lt;/a&gt; to use in Tomahawk.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>

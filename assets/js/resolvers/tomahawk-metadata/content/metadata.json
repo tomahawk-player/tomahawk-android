@@ -3,7 +3,7 @@
 	"pluginName": "tomahawk-metadata",
 	"author": "Enno Gottschalk",
 	"email": "mrmaffen@googlemail.com",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"website": "http://gettomahawk.com",
 	"description": "Supports loading/drag'n'drop of tomahawk:// URLs.",
 	"type": "resolver/javascript",

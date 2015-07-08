@@ -13,7 +13,10 @@
  *   all copies or substantial portions of the Software.
  */
 
-var DeezerMetadataResolver = Tomahawk.extend(TomahawkResolver, {
+var DeezerResolver = Tomahawk.extend(Tomahawk.Resolver, {
+
+    apiVersion: 0.9,
+
     settings: {
         name: 'Deezer',
         icon: 'deezer.png',
@@ -21,7 +24,7 @@ var DeezerMetadataResolver = Tomahawk.extend(TomahawkResolver, {
         timeout: 15
     },
 
-    appId : "138751",
+    appId: "138751",
 
     // Deezer requires the redirectUri to be in the domain that has been defined when
     // Tomahawk-Android has been registered on the Deezer Developer website
@@ -33,19 +36,18 @@ var DeezerMetadataResolver = Tomahawk.extend(TomahawkResolver, {
 
     getAccessToken: function () {
         var that = this;
-        return new Promise(function (resolve, reject) {
-            var accessToken = Tomahawk.localStorage.getItem(that.storageKeyAccessToken);
-            var accessTokenExpires =
-                Tomahawk.localStorage.getItem(that.storageKeyAccessTokenExpires);
-            if (accessToken !== null && accessToken.length > 0 && accessTokenExpires !== null) {
-                resolve({
-                    accessToken: accessToken,
-                    accessTokenExpires: accessTokenExpires
-                });
-            } else {
-                reject("There's no accessToken set.");
-            }
-        });
+
+        var accessToken = Tomahawk.localStorage.getItem(that.storageKeyAccessToken);
+        var accessTokenExpires =
+            Tomahawk.localStorage.getItem(that.storageKeyAccessTokenExpires);
+        if (accessToken !== null && accessToken.length > 0 && accessTokenExpires !== null) {
+            return {
+                accessToken: accessToken,
+                accessTokenExpires: accessTokenExpires
+            };
+        } else {
+            throw  new Error("There's no accessToken set.");
+        }
     },
 
     login: function () {
@@ -65,7 +67,7 @@ var DeezerMetadataResolver = Tomahawk.extend(TomahawkResolver, {
         Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Logout);
     },
 
-    isLoggedIn: function() {
+    isLoggedIn: function () {
         var accessToken = Tomahawk.localStorage.getItem(this.storageKeyAccessToken);
         return accessToken !== null && accessToken.length > 0;
     },
@@ -74,19 +76,17 @@ var DeezerMetadataResolver = Tomahawk.extend(TomahawkResolver, {
      * This function is being called from the native side whenever it has received a redirect
      * callback. In other words, the WebView shown to the user can call the js side here.
      */
-    onRedirectCallback: function(params) {
+    onRedirectCallback: function (params) {
         var url = params.url;
 
-        var that = this;
-
-        var error = this.getParameterByName(url, "error_reason");
+        var error = this._getParameterByName(url, "error_reason");
         if (error) {
             Tomahawk.log("Authorization failed: " + error);
             Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other, error);
         } else {
             Tomahawk.log("Authorization successful, received new access token ...");
-            this.accessToken = this.getParameterByName(url, "access_token");
-            this.accessTokenExpires = this.getParameterByName(url, "expires");
+            this.accessToken = this._getParameterByName(url, "access_token");
+            this.accessTokenExpires = this._getParameterByName(url, "expires");
             Tomahawk.localStorage.setItem(this.storageKeyAccessToken, this.accessToken);
             Tomahawk.localStorage.setItem(this.storageKeyAccessTokenExpires,
                 this.accessTokenExpires);
@@ -94,7 +94,10 @@ var DeezerMetadataResolver = Tomahawk.extend(TomahawkResolver, {
         }
     },
 
-    getParameterByName: function(url, name) {
+    /**
+     * Returns the value of the query parameter with the given name from the given URL.
+     */
+    _getParameterByName: function (url, name) {
         name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
         var regex = new RegExp("[\\?&#]" + name + "=([^&#]*)"), results = regex.exec(url);
         return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
@@ -107,39 +110,56 @@ var DeezerMetadataResolver = Tomahawk.extend(TomahawkResolver, {
         this.accessTokenExpires = Tomahawk.localStorage.getItem(this.storageKeyAccessTokenExpires);
     },
 
-    resolve: function (qid, artist, album, title) {
+    resolve: function (params) {
+        var artist = params.artist;
+        var album = params.album;
+        var track = params.track;
+
         var that = this;
-        var query = artist + " " + title;
-        Tomahawk.asyncRequest("http://api.deezer.com/search?q=" + query + "&limit=100",
-            function (xhr) {
-                var res = JSON.parse(xhr.responseText);
-                var results = [];
-                for (var i = 0; i < res.data.length; i++) {
-                    if (res.data[i].type == 'track' && res.data[i].readable) {
-                        var result = {
-                            source: that.settings.name,
-                            artist: res.data[i].artist.name,
-                            track: res.data[i].title,
-                            duration: res.data[i].duration,
-                            url: "deezer://track/" + res.data[i].id,
-                            album: res.data[i].album.title,
-                            linkUrl: res.data[i].link
-                        };
-                        results.push(result);
-                    }
+
+        var queryPart;
+        if (artist) {
+            queryPart = artist + " " + track;
+        } else {
+            queryPart = track;
+        }
+        var query = "http://api.deezer.com/search?q=" + encodeURIComponent(queryPart)
+            + "&limit=100";
+        return Tomahawk.get(query).then(function (response) {
+            var results = [];
+            for (var i = 0; i < response.data.length; i++) {
+                var item = response.data[i];
+                if (item.type == 'track' && item.readable) {
+                    results.push({
+                        source: that.settings.name,
+                        artist: item.artist.name,
+                        track: item.title,
+                        duration: item.duration,
+                        url: "deezer://track/" + item.id,
+                        album: item.album.title,
+                        linkUrl: item.link
+                    });
                 }
-                Tomahawk.addTrackResults({
-                    qid: qid,
-                    results: results
-                });
-            });
+            }
+            return results;
+        });
     },
 
-    search: function (qid, searchString) {
-        this.resolve(qid, "", "", searchString);
+    search: function (params) {
+        var query = params.query;
+
+        return this.resolve({
+            track: query
+        });
     },
 
-    canParseUrl: function (url, type) {
+    canParseUrl: function (params) {
+        var url = params.url;
+        var type = params.type;
+
+        if (!url) {
+            throw new Error("Provided url was empty or null!");
+        }
         switch (type) {
             case TomahawkUrlType.Album:
                 return /https?:\/\/(www\.)?deezer.com\/([^\/]*\/|)album\//.test(url);
@@ -155,71 +175,69 @@ var DeezerMetadataResolver = Tomahawk.extend(TomahawkResolver, {
         }
     },
 
-    lookupUrl: function (url) {
-        var that = this;
+    lookupUrl: function (params) {
+        var url = params.url;
+        Tomahawk.log("lookupUrl: " + url);
+
         var urlParts = url.split('/').filter(function (item) {
             return item.length != 0;
         }).map(decodeURIComponent);
+
         if (/https?:\/\/(www\.)?deezer.com\/([^\/]*\/|)artist\//.test(url)) {
             // We have to deal with an artist
             var query = 'https://api.deezer.com/2.0/artist/' + urlParts[urlParts.length - 1];
-            Tomahawk.asyncRequest(query, function (xhr) {
-                var res = JSON.parse(xhr.responseText);
-                Tomahawk.addUrlResult(url, {
-                    type: "artist",
-                    name: res.name
-                });
+            return Tomahawk.get(query).then(function (response) {
+                return {
+                    type: Tomahawk.UrlType.Artist,
+                    artist: response.name
+                };
             });
         } else if (/https?:\/\/(www\.)?deezer.com\/([^\/]*\/|)playlist\//.test(url)) {
-            // We have to deal with an album.
+            // We have to deal with a playlist.
             var query = 'https://api.deezer.com/2.0/playlist/' + urlParts[urlParts.length - 1];
-            Tomahawk.log(query);
-            Tomahawk.asyncRequest(query, function (xhr) {
-                var res = JSON.parse(xhr.responseText);
+            return Tomahawk.get(query).then(function (res) {
                 var query2 = 'https://api.deezer.com/2.0/playlist/' + res.creator.id;
-                Tomahawk.log(query2);
-                Tomahawk.asyncRequest(query2, function (xhr2) {
-                    var res2 = JSON.parse(xhr2.responseText);
-                    var result = {
-                        type: "playlist",
+                return Tomahawk.get(query2).then(function (res2) {
+                    return {
+                        type: Tomahawk.UrlType.Playlist,
                         title: res.title,
                         guid: "deezer-playlist-" + res.id.toString(),
                         info: "A playlist by " + res2.name + " on Deezer.",
                         creator: res2.name,
-                        url: res.link,
-                        tracks: []
+                        linkUrl: res.link,
+                        tracks: res.tracks.data.map(function (item) {
+                            return {
+                                type: Tomahawk.UrlType.Track,
+                                track: item.title,
+                                artist: item.artist.name
+                            };
+                        })
                     };
-                    result.tracks = res.tracks.data.map(function (item) {
-                        return { type: "track", title: item.title, artist: item.artist.name };
-                    });
-                    Tomahawk.addUrlResult(url, result);
                 });
             });
         } else if (/https?:\/\/(www\.)?deezer.com\/([^\/]*\/|)track\//.test(url)) {
-            // We have to deal with an album.
+            // We have to deal with a track.
             var query = 'https://api.deezer.com/2.0/track/' + urlParts[urlParts.length - 1];
-            Tomahawk.asyncRequest(query, function (xhr) {
-                var res = JSON.parse(xhr.responseText);
-                Tomahawk.addUrlResult(url, {
-                    type: "track",
-                    title: res.title,
-                    artist: res.artist.name,
-                });
+            return Tomahawk.get(query).then(function (res) {
+                return {
+                    type: Tomahawk.UrlType.Track,
+                    track: res.title,
+                    artist: res.artist.name
+                };
             });
         } else if (/https?:\/\/(www\.)?deezer.com\/([^\/]*\/|)album\//.test(url)) {
             // We have to deal with an album.
             var query = 'https://api.deezer.com/2.0/album/' + urlParts[urlParts.length - 1];
-            Tomahawk.asyncRequest(query, function (xhr) {
-                var res = JSON.parse(xhr.responseText);
-                Tomahawk.addUrlResult(url, {
-                    type: "album",
-                    name: res.title,
-                    artist: res.artist.name,
-                });
+            return Tomahawk.get(query).then(function (res) {
+                return {
+                    type: Tomahawk.UrlType.Album,
+                    album: res.title,
+                    artist: res.artist.name
+                };
             });
         }
     }
 });
 
-Tomahawk.resolver.instance = DeezerMetadataResolver;
+Tomahawk.resolver.instance = DeezerResolver;
 

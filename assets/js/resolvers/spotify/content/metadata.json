@@ -3,7 +3,7 @@
     "pluginName": "spotify",
     "author": "Uwe L. Korn, Enno Gottschalk",
     "email": "uwelk@xhochy.com",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "website": "http://gettomahawk.com",
     "description": "Stream music from Spotify. Requires a Premium account.",
     "type": "resolver/javascript",
