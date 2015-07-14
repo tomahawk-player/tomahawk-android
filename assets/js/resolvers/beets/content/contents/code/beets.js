@@ -70,22 +70,15 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var userConfig = this.getUserConfig();
         var that = this;
         this.server = userConfig.server || this.defaultServer;
-        this.useAuth = userConfig.useAuth;
-        if (this.useAuth) {
-            this.username = userConfig.username;
-            this.password = userConfig.password;
-        } else {
-            this.username = null;
-            this.password = null;
-        }
 
         var settings;
-        if (this.username && this.password) {
+        if (userConfig.useAuth) {
             settings = {
-                username: this.username,
-                password: this.password
+                username: userConfig.username,
+                password: userConfig.password
             };
         }
+
         Tomahawk.get(this.server + '/stats', settings).then(function (response) {
             var trackCount = parseInt(response.items);
             var albumCount = parseInt(response.albums);
@@ -138,13 +131,15 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
 
     testConfig: function (config) {
         var settings;
-        if (this.username && this.password) {
+        if (config.useAuth) {
             settings = {
-                username: this.username,
-                password: this.password
+                username: config.username,
+                password: config.password
             };
         }
-        Tomahawk.get(this.server + "/stats", settings).then(function () {
+        var server = userConfig.server || this.defaultServer;
+
+        Tomahawk.get(server + "/stats", settings).then(function () {
             return Tomahawk.ConfigTestResultType.Success;
         }, function (xhr) {
             if (xhr.status == 403) {

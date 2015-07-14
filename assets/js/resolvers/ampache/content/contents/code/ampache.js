@@ -92,7 +92,7 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
         this.password = userConfig.password;
         this.server = userConfig.server;
 
-        return this._login().then(function () {
+        return this._login(this.username, this.password, this.server).then(function () {
             if (that.auth) {
                 that._ensureCollection().then(function () {
                     Tomahawk.PluginManager.registerPlugin("collection", ampacheCollection);
@@ -153,21 +153,22 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
     testConfig: function (config) {
         var that = this;
 
-        return this._login().then(function (response) {
-            if (!that.auth) {
-                Tomahawk.log("auth failed!");
-                var error = response.getElementsByTagName("error")[0];
-                if (typeof error != 'undefined' && error.getAttribute("code") == "403") {
-                    return TomahawkConfigTestResultType.InvalidAccount;
+        return this._login(config.username, config.password, config.server)
+            .then(function (response) {
+                if (!that.auth) {
+                    Tomahawk.log("auth failed!");
+                    var error = response.getElementsByTagName("error")[0];
+                    if (typeof error != 'undefined' && error.getAttribute("code") == "403") {
+                        return TomahawkConfigTestResultType.InvalidAccount;
+                    } else {
+                        return TomahawkConfigTestResultType.InvalidCredentials;
+                    }
                 } else {
-                    return TomahawkConfigTestResultType.InvalidCredentials;
+                    return TomahawkConfigTestResultType.Success;
                 }
-            } else {
-                return TomahawkConfigTestResultType.Success;
-            }
-        }, function () {
-            return TomahawkConfigTestResultType.CommunicationError;
-        });
+            }, function () {
+                return TomahawkConfigTestResultType.CommunicationError;
+            });
     },
 
     _sanitizeConfig: function (config) {
@@ -184,24 +185,24 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
         return config;
     },
 
-    _handshake: function () {
+    _handshake: function (username, password, server) {
         var time = Tomahawk.timestamp();
         var key, passphrase;
         if (typeof CryptoJS !== "undefined" && typeof CryptoJS.SHA256 == "function") {
-            key = CryptoJS.SHA256(this.password).toString(CryptoJS.enc.Hex);
+            key = CryptoJS.SHA256(password).toString(CryptoJS.enc.Hex);
             passphrase = CryptoJS.SHA256(time + key).toString(CryptoJS.enc.Hex);
         } else {
-            key = Tomahawk.sha256(this.password);
+            key = Tomahawk.sha256(password);
             passphrase = Tomahawk.sha256(time + key);
         }
 
         var params = {};
-        params.user = this.username;
+        params.user = username;
         params.timestamp = time;
         params.version = 350001;
         params.auth = passphrase;
 
-        return this._apiCallBase(this.server, 'handshake',
+        return this._apiCallBase(server, 'handshake',
             params).then(this._parseHandshakeResult);
     },
 
@@ -226,18 +227,18 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
         };
     },
 
-    _login: function () {
-        var resolver = this;
-        return this._handshake().then(function (result) {
-            resolver.auth = result.auth;
-            resolver.trackCount = result.trackCount;
+    _login: function (username, password, server) {
+        var that = this;
+        return this._handshake(username, password, server).then(function (result) {
+            that.auth = result.auth;
+            that.trackCount = result.trackCount;
 
             Tomahawk.log("Ampache Resolver properly initialised!");
-            resolver._ready = true;
+            that._ready = true;
 
             // FIXME: the old timer should be cancelled ...
             if (result.pingInterval) {
-                window.setInterval(resolver._ping, result.pingInterval - 60);
+                window.setInterval(that._ping, result.pingInterval - 60);
             }
             return result;
         });
@@ -263,14 +264,14 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
         params = params || {};
         params.auth = this.auth;
 
-        var resolver = this;
+        var that = this;
         return this._apiCallBase(this.server, action, params).then(function (xmlDoc) {
             var error = xmlDoc.getElementsByTagName("error")[0];
             if (typeof error != 'undefined' && error.getAttribute("code") == "401") //session expired
             {
                 Tomahawk.log("Let's reauth for: " + action);
-                return resolver._login().then(function () {
-                    return resolver._apiCallBase(action, params);
+                return that._login(that.username, that.password, that.server).then(function () {
+                    return that._apiCallBase(action, params);
                 }, function () {
                     throw new Error("Could not renew session.");
                 });

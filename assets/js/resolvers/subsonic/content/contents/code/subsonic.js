@@ -196,11 +196,11 @@ var SubsonicResolver = Tomahawk.extend(Tomahawk.Resolver, {
     },
 
     testConfig: function (config) {
-        var url = this.subsonic_url + "/rest/ping.view";
+        var url = config.subsonic_url + "/rest/ping.view";
         var settings = {
             data: {
-                u: this.user,
-                p: this.password,
+                u: config.user,
+                p: config.password,
                 v: this._subsonicApiVersion,
                 c: "tomahawk",
                 f: "json"
