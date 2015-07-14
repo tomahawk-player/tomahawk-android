@@ -108,7 +108,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         this._key = s1;
 
         var that = this;
-        this._login().then(function () {
+        this._login(that._email, that._password).then(function () {
             return that._loadWebToken();
         }).then(function (webToken) {
             return that._loadSettings(webToken);
@@ -451,7 +451,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
      * already pending the callback (if one is provided) will be queued
      * to run when it is complete.
      */
-    _login: function () {
+    _login: function (email, password) {
         this._AuthToken = null;
 
         var that = this;
@@ -460,10 +460,10 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var settings = {
             data: {
                 "accountType": "HOSTED_OR_GOOGLE",
-                "Email": that._email.trim(),
+                "Email": email.trim(),
                 "has_permission": 1,
                 "add_account": 1,
-                "EncryptedPasswd": that._buildSignature(that._email.trim(), that._password.trim()),
+                "EncryptedPasswd": that._buildSignature(email.trim(), password.trim()),
                 "service": "ac2dm",
                 "source": "android",
                 "device_country": "us",
@@ -486,7 +486,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 var settings = {
                     data: {
                         "accountType": "HOSTED_OR_GOOGLE",
-                        "Email": that._email.trim(),
+                        "Email": email.trim(),
                         "has_permission": 1,
                         "EncryptedPasswd": parsedRes['Token'],
                         "service": "sj",
@@ -520,7 +520,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
 
     testConfig: function (config) {
         var that = this;
-        return this._login().then(function () {
+        return this._login(config.email, config.password).then(function () {
             return that._loadWebToken();
         }).then(function (webToken) {
             return that._loadSettings(webToken);
