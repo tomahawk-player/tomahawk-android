@@ -188,6 +188,7 @@
   <string name="authenticator_label" translate="false">Hatchet</string>
   <string name="connect">Connect</string>
   <string name="connect_headertext">Select the services you want to use. Tomahawk works better when more services are activated.</string>
+  <string name="connect_header_manualresolvers">Manually installed</string>
   <string name="advanced">Advanced</string>
   <string name="info">Info</string>
   <string name="playbackpanel_seek_coachmark">You can seek through a track with a long-press on the Play button.</string>

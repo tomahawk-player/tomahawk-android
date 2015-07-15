@@ -106,12 +106,25 @@ public class PreferenceConnectFragment extends TomahawkListFragment
             }
         });
         for (ScriptResolver scriptResolver : scriptResolvers) {
-            if (!scriptResolver.getId().contains("-metadata")) {
+            if (!scriptResolver.getId().contains("-metadata")
+                    && !scriptResolver.getScriptAccount().isManuallyInstalled()) {
                 resolvers.add(scriptResolver);
             }
         }
         segment = new Segment(resolvers, R.integer.grid_column_count,
                 R.dimen.padding_superlarge, R.dimen.padding_superlarge);
+        segments.add(segment);
+
+        resolvers.clear();
+        for (ScriptResolver scriptResolver : scriptResolvers) {
+            if (!scriptResolver.getId().contains("-metadata")
+                    && scriptResolver.getScriptAccount().isManuallyInstalled()) {
+                resolvers.add(scriptResolver);
+            }
+        }
+        segment = new Segment(R.string.connect_header_manualresolvers, resolvers,
+                R.integer.grid_column_count, R.dimen.padding_superlarge,
+                R.dimen.padding_superlarge);
         segments.add(segment);
 
         if (getListAdapter() == null) {
