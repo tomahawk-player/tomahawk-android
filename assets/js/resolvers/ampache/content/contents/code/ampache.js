@@ -153,6 +153,8 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
     testConfig: function (config) {
         var that = this;
 
+        this._sanitizeConfig(config);
+
         return this._login(config.username, config.password, config.server)
             .then(function (response) {
                 if (!that.auth) {
