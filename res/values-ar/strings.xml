@@ -213,6 +213,7 @@
   <string name="followers_count">المتابِعين: %1$d، المتابَعين: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">لِج إلى</string>
   <string name="resolver_config_redirect_button_text_log_out_of">اخرج من</string>
+  <string name="ask_access_activity_header">أتريد حفظ بيانات كلّ المقطوعات التي تشغّلها في Hatchet آليًّا؟</string>
   <string name="ask_access_activity_text1">سنفعل ذلك لك! فضلًا مكّن خدمتنا في إعدادات النّظام.</string>
   <string name="button_close">أغلق</string>
   <string name="view_album">اعرض الألبوم</string>
@@ -228,6 +229,7 @@
   <string name="welcome_fragment_explanation_title">البدء</string>
   <string name="welcome_fragment_explanation_heading">الموسيقى في كلّ مكان.\nليس عليك أن تكون كذلك الآن.</string>
   <string name="welcome_fragment_explanation_text">توقّف عن ملاحقة الموسيقى في الوِبّ وفي الخدمات الّتي لا تستخدمها، أو المصادر الّتي لا تملك نفاذًا إليها. أعطي اسم أو وصلة إلى أغنية، أو ألبوم أو قائمة تشغيل، وسيعثر توماهوك على أفضل مصدر متوفّر ويشغّله.</string>
+  <string name="welcome_fragment_hatchet_text">يمكنك بِـ Hatchet أخيرًا امتلاك تجميعة موسيقى في مكان واحد، أو مشاركة قوائم التّشغيل أو المقطوعات المفضّلة، أو ببساطة مزامنة التّطبيق بتاماهوك على سطح المكتب. </string>
   <string name="welcome_fragment_setup_title">اتّصل</string>
   <string name="welcome_fragment_done_title">تمّ!</string>
   <string name="welcome_fragment_done_heading">تمّ كلّ شيء!</string>
