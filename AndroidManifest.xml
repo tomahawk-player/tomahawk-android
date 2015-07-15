@@ -495,11 +495,19 @@
 
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <category android:name="android.intent.category.APP_MUSIC"/>
 
                 <data android:scheme="file"/>
+                <data android:host="*"/>
                 <data android:pathPattern=".*\\.axe"/>
+                <data android:pathPattern=".*\\..*\\.axe"/>
+                <data android:pathPattern=".*\\..*\\..*\\.axe"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.axe"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.axe"/>
                 <data android:pathPattern=".*\\.AXE"/>
+                <data android:pathPattern=".*\\..*\\.AXE"/>
+                <data android:pathPattern=".*\\..*\\..*\\.AXE"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.AXE"/>
+                <data android:pathPattern=".*\\..*\\..*\\..*\\..*\\.AXE"/>
             </intent-filter>
         </activity>
 
