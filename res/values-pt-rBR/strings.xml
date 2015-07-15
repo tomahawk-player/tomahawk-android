@@ -59,10 +59,12 @@
   <string name="preferences_audio_quality">Qualidade Preferencial do Áudio </string>
   <string name="preferences_audio_quality_text">A qualidade preferencial do áudio se não estiver conectado ao WiFi.</string>
   <string name="preferences_info">Informação</string>
-  <string name="preferences_app_version">Versão-do-Aplicativo</string>
+  <string name="preferences_app_version">Versão do Aplicativo</string>
   <string name="preferences_app_uservoice">Comentário</string>
   <string name="preferences_app_uservoice_text">Compartilhe suas ideias ou pergunte para o suporte</string>
   <string name="preferences_app_sendlog">Enviar Registro</string>
+  <string name="preferences_app_sendlog_text">Envie seu arquivo de registros para fins de análise de erros.</string>
+  <string name="preferences_app_sendlog_dialog_text">Por favor descreva brevemente o problema que você está tendo juntamente com seu email para que possamos te contatar caso necessário. Obrigado!</string>
   <string name="preferences_app_sendlog_email">Seu endereço de email</string>
   <string name="preferences_app_sendlog_issue">Problema</string>
   <string name="crash_dialog_title">O Tomahawk travou</string>
@@ -91,6 +93,7 @@
   <string name="drawer_header_cloudcollections">Coleções na Nuvem</string>
   <string name="collection_dropdown_recently_added">Recentemente Adicionado</string>
   <string name="collection_dropdown_alpha_artists">Artista A-Z</string>
+  <string name="collection_dropdown_play_count">Total de Reproduções</string>
   <string name="collection_dropdown_alpha_albums">Álbum A-Z</string>
   <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Histórico</string>
@@ -174,6 +177,10 @@
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Seguindo</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">Seguidores: %1$d, Seguindo: %2$d</string>
+  <string name="resolver_config_redirect_button_text_log_into">Entrar em</string>
+  <string name="resolver_config_redirect_button_text_log_out_of">Sair de</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Baixar Plugin para</string>
   <string name="ask_access_activity_header">Você quer salvar automaticamente dados sobre todas as faixas que você toca no Hatchet?</string>
   <string name="ask_access_activity_text1">Faremos isso para você! Por favor, habilite nosso serviço nos ajustes do seu sistema.</string>
   <string name="button_close">Fechar</string>
@@ -182,10 +189,25 @@
   <string name="connect_headertext">Selecione os serviços que você quer usar. O Tomahawk funciona melhor com mais seviços ativados.</string>
   <string name="advanced">Avançado</string>
   <string name="info">Informação</string>
+  <string name="playbackpanel_seek_coachmark">Você pode avançar/retroceder na faixa tocando e segurando o botão Play.</string>
+  <string name="slidinglayout_enqueue_coachmark">Toque para adicionar a faixa à fila.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Empurre para cima para ver a playlist atual</string>
+  <string name="playbackfragment_navigation_coachmark_up">Empurre para baixo para fechar a tela de reprodução</string>
+  <string name="playbackfragment_navigation_coachmark_center">Arraste para a esquerda/direita para pular para a próxima faixa ou a anterior. Toque e segure para abrir o menu de contexto. Toque duas vezes para adicionar aos seus favoritos.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">Próximo</string>
+  <string name="welcome_fragment_explanation_title">Começando</string>
+  <string name="welcome_fragment_explanation_heading">A música está por todos os lados.\nAgora você não precisa estar.</string>
+  <string name="welcome_fragment_explanation_text">Pare de ficar caçando músicas pela internet - de serviçoes que você não usa, ou fontes as quais você não tem acesso. Dê o nome ou link de uma música, álbum ou playlist, e o Tomahawk irá encontrar a melhor fonte disponível para você e toca-la.</string>
   <string name="welcome_fragment_hatchet_title">Quer socializar?</string>
+  <string name="welcome_fragment_hatchet_text">Com o Hatchet você pode finalmente ter sua coleção favorita de músicas em um único lugar. Compartilhe suas playlists e faixas favorites. Ou simplesmente sincronize o Aplicativo com o Tomahawk em seu computador.</string>
   <string name="welcome_fragment_setup_title">Conectar</string>
   <string name="welcome_fragment_done_title">Pronto!</string>
   <string name="welcome_fragment_done_heading">Tudo pronto!</string>
+  <string name="welcome_fragment_done_text">Divirta-se explorando o aplicativo e nos conte o que você acha!</string>
+  <plurals name="add_to_playlist_headertext">
+    <item quantity="one">Escolha uma playlist para adicionar %1$d:</item>
+    <item quantity="other">Escolha uma playlist para adicionar %1$d faixas:</item>
+  </plurals>
+  <string name="seeking_not_supported">Desculpe, esta fonte não permite avançar/retroceder pela música.</string>
 </resources>
