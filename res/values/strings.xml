@@ -211,4 +211,9 @@
     <item quantity="other">Choose a playlist to add %1$d tracks to:</item>
   </plurals>
   <string name="seeking_not_supported">Sorry, this resolver doesn\'t support seeking.</string>
+  <string name="install_plugin_title">Plugin installation</string>
+  <string name="install_plugin_warning">You are about to install a Tomahawk plugin from an unknown source. This can be a security risk.</string>
+  <string name="install_plugin_warning2">Do you really want to install this Plugin?</string>
+  <string name="uninstall_plugin_title">Uninstalling plugin</string>
+  <string name="uninstall_plugin_warning">Do you really want to uninstall this Plugin?</string>
 </resources>

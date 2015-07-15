@@ -779,11 +779,12 @@ Tomahawk.PluginManager = {
         Tomahawk.registerScriptPlugin(type, object.id);
     },
 
-    unregisterPlugin: function(type, object) {
-        this.objects[this.identifyObject(object)] = object;
+    unregisterPlugin: function (type, object) {
+        var objectId = typeof object === 'object' ? this.identifyObject(object) : object;
+        delete this.objects[objectId];
 
-        Tomahawk.log("unregisterPlugin: " + type + " id: " + object.id);
-        Tomahawk.unregisterScriptPlugin(type, object.id);
+        Tomahawk.log("unregisterPlugin: " + type + " id: " + objectId);
+        Tomahawk.unregisterScriptPlugin(type, objectId);
     },
 
     resolve: [],

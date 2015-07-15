@@ -113,8 +113,7 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
-                String completeIconPath = "file:///android_asset/" + mScriptAccount.getPath()
-                        + "/content/" + result.iconfile;
+                String completeIconPath = mScriptAccount.getPath() + "/content/" + result.iconfile;
                 TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                         completeIconPath);
             }

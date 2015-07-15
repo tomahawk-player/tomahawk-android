@@ -65,6 +65,8 @@ public abstract class ConfigDialog extends DialogFragment {
 
     private ImageView mConnectBgImageView;
 
+    private ImageView mRemoveButton;
+
     protected SmoothProgressBar mProgressBar;
 
     private boolean mResolverEnabled;
@@ -131,6 +133,8 @@ public abstract class ConfigDialog extends DialogFragment {
                 .findViewById(R.id.config_dialog_connect_bg_imageview);
         mProgressBar = (SmoothProgressBar) mDialogView
                 .findViewById(R.id.smoothprogressbar);
+        mRemoveButton = (ImageView) mDialogView
+                .findViewById(R.id.config_dialog_remove_button);
 
         mPositiveButton.setText(getString(R.string.ok).toUpperCase());
         mNegativeButton.setText(getString(R.string.cancel).toUpperCase());
@@ -184,6 +188,9 @@ public abstract class ConfigDialog extends DialogFragment {
 
     protected abstract void onNegativeAction();
 
+    protected void onRemoveAction() {
+    }
+
     protected void hideNegativeButton() {
         mNegativeButton.setVisibility(View.GONE);
     }
@@ -194,6 +201,17 @@ public abstract class ConfigDialog extends DialogFragment {
 
     protected void hideConnectImage() {
         mConnectImageView.setVisibility(View.GONE);
+    }
+
+    protected void showRemoveButton() {
+        TomahawkUtils.setTint(mRemoveButton.getDrawable(), R.color.tomahawk_red);
+        mRemoveButton.setVisibility(View.VISIBLE);
+        mRemoveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onRemoveAction();
+            }
+        });
     }
 
     protected void setConnectImageViewClickable() {

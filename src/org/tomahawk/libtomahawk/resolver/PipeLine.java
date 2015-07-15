@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -98,8 +99,21 @@ public class PipeLine {
         try {
             String[] plugins = TomahawkApp.getContext().getAssets().list("js/resolvers");
             for (String plugin : plugins) {
-                String path = "js/resolvers/" + plugin;
-                mScriptAccounts.add(new ScriptAccount(path));
+                String path = "/js/resolvers/" + plugin;
+                mScriptAccounts.add(new ScriptAccount(path, false));
+            }
+            String manualResolverDirPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
+                    + File.separator + "manualresolvers";
+            File manualResolverDir = new File(manualResolverDirPath);
+            plugins = manualResolverDir.list();
+            for (String plugin : plugins) {
+                if (!plugin.equals(".temp")) {
+                    String pluginPath = manualResolverDirPath + File.separator + plugin;
+                    File pluginFile = new File(pluginPath);
+                    if (pluginFile.isDirectory()) {
+                        mScriptAccounts.add(new ScriptAccount(pluginPath, true));
+                    }
+                }
             }
         } catch (IOException e) {
             Log.e(TAG, "PipeLine<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
@@ -132,12 +146,18 @@ public class PipeLine {
         return true;
     }
 
+    public void addScriptAccount(ScriptAccount scriptAccount) {
+        mScriptAccounts.add(scriptAccount);
+    }
+
     public void addResolver(Resolver resolver) {
         mResolvers.add(resolver);
+        EventBus.getDefault().post(new ResolversChangedEvent());
     }
 
     public void removeResolver(Resolver resolver) {
         mResolvers.remove(resolver);
+        EventBus.getDefault().post(new ResolversChangedEvent());
     }
 
     /**

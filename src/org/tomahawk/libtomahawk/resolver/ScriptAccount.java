@@ -40,7 +40,9 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +58,8 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
     public final static String ENABLED_KEY = "_enabled_";
 
     private String mPath;
+
+    private boolean mManuallyInstalled;
 
     private String mName;
 
@@ -82,20 +86,32 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
 
     private Map<String, FuzzyIndex> mFuzzyIndexMap = new HashMap<>();
 
-    public ScriptAccount(String path) {
-        mPath = path;
+    public ScriptAccount(String path, boolean manuallyInstalled) {
+        String prefix = manuallyInstalled ? "file://" : "file:///android_asset";
+        mPath = prefix + path;
+        mManuallyInstalled = manuallyInstalled;
         String[] parts = mPath.split("/");
         mName = parts[parts.length - 1];
         try {
-            String rawJsonString = TomahawkUtils.inputStreamToString(TomahawkApp.getContext()
-                    .getAssets().open(mPath + "/content/metadata.json"));
-            mMetaData = GsonHelper.get().fromJson(rawJsonString, ScriptResolverMetaData.class);
+            InputStream inputStream;
+            if (mManuallyInstalled) {
+                File metadataFile = new File(
+                        path + File.separator + "content" + File.separator + "metadata.json");
+                inputStream = new FileInputStream(metadataFile);
+            } else {
+                inputStream = TomahawkApp.getContext().getAssets()
+                        .open(path.substring(1) + "/content/metadata.json");
+            }
+            String metadataString = TomahawkUtils.inputStreamToString(inputStream);
+            mMetaData = GsonHelper.get().fromJson(metadataString, ScriptResolverMetaData.class);
             if (mMetaData == null) {
-                Log.e(TAG, "Couldn't read metadata.json. Cannot instantiate ScriptResolver.");
+                Log.e(TAG, "Couldn't read metadata.json. Cannot instantiate ScriptAccount.");
                 return;
             }
         } catch (IOException e) {
-            Log.e(TAG, "ScriptResolver: " + e.getClass() + ": " + e.getLocalizedMessage());
+            Log.e(TAG, "ScriptAccount: " + e.getClass() + ": " + e.getLocalizedMessage());
+            Log.e(TAG, "Couldn't read metadata.json. Cannot instantiate ScriptAccount.");
+            return;
         }
 
         mWebView = new WebView(TomahawkApp.getContext());
@@ -128,9 +144,11 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
                         + "\" type=\"text/javascript\"></script>"
                         + "<script src=\"file:///android_asset/js/cryptojs-core.js"
                         + "\" type=\"text/javascript\"></script>";
-                for (String scriptPath : mMetaData.manifest.scripts) {
-                    data += "<script src=\"file:///android_asset/" + mPath + "/content/"
-                            + scriptPath + "\" type=\"text/javascript\"></script>";
+                if (mMetaData.manifest.scripts != null) {
+                    for (String scriptPath : mMetaData.manifest.scripts) {
+                        data += "<script src=\"" + mPath + "/content/" + scriptPath
+                                + "\" type=\"text/javascript\"></script>";
+                    }
                 }
                 try {
                     String[] cryptoJsScripts =
@@ -152,8 +170,8 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
                         + "\" type=\"text/javascript\"></script>"
                         + "<script src=\"file:///android_asset/js/tomahawk_android_post.js"
                         + "\" type=\"text/javascript\"></script>"
-                        + "<script src=\"file:///android_asset/" + mPath + "/content/"
-                        + mMetaData.manifest.main + "\" type=\"text/javascript\"></script>"
+                        + "<script src=\"" + mPath + "/content/" + mMetaData.manifest.main
+                        + "\" type=\"text/javascript\"></script>"
                         + "</body></html>";
                 mWebView.setWebViewClient(new ScriptWebViewClient(ScriptAccount.this));
                 mWebView.addJavascriptInterface(new ScriptInterface(ScriptAccount.this),
@@ -213,6 +231,10 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         return result;
     }
 
+    public boolean isManuallyInstalled() {
+        return mManuallyInstalled;
+    }
+
     private String buildPreferenceKey() {
         return mMetaData.pluginName + "_" + CONFIG;
     }
@@ -222,9 +244,19 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
                 + "', Tomahawk.resolver.instance);");
     }
 
-    public void unregisterPlugin(String type) {
-        evaluateJavaScript("Tomahawk.PluginManager.unregisterPlugin('" + type
-                + "', Tomahawk.resolver.instance);");
+    public void unregisterAllPlugins() {
+        for (String objectId : mResolverPluginFactory.getScriptPlugins().keySet()) {
+            evaluateJavaScript("Tomahawk.PluginManager.unregisterPlugin('"
+                    + ScriptObject.TYPE_RESOLVER + "', " + objectId + ");");
+        }
+        for (String objectId : mCollectionPluginFactory.getScriptPlugins().keySet()) {
+            evaluateJavaScript("Tomahawk.PluginManager.unregisterPlugin('"
+                    + ScriptObject.TYPE_COLLECTION + "', " + objectId + ");");
+        }
+        for (String objectId : mInfoPluginFactory.getScriptPlugins().keySet()) {
+            evaluateJavaScript("Tomahawk.PluginManager.unregisterPlugin('"
+                    + ScriptObject.TYPE_INFOPLUGIN + "', " + objectId + ");");
+        }
     }
 
     public void startJob(final ScriptJob job) {
