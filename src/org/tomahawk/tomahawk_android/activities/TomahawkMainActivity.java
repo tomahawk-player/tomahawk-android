@@ -655,10 +655,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                     }
                 };
                 ThreadManager.getInstance().execute(r);
-            } else if (scheme != null && scheme.equals("file")
-                    && (pathSegments != null
+            } else if (pathSegments != null
                     && (pathSegments.get(pathSegments.size() - 1).endsWith(".axe")
-                    || pathSegments.get(pathSegments.size() - 1).endsWith(".AXE")))) {
+                    || pathSegments.get(pathSegments.size() - 1).endsWith(".AXE"))) {
                 InstallPluginConfigDialog dialog = new InstallPluginConfigDialog();
                 Bundle args = new Bundle();
                 args.putString(InstallPluginConfigDialog.PATH_TO_AXE_URI_STRING, data.toString());
