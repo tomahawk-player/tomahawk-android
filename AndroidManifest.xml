@@ -489,6 +489,18 @@
                 <data android:pathPattern=".*\\.xspf" />
                 <data android:pathPattern=".*\\.XSPF" />
             </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.APP_MUSIC"/>
+
+                <data android:scheme="file"/>
+                <data android:pathPattern=".*\\.axe"/>
+                <data android:pathPattern=".*\\.AXE"/>
+            </intent-filter>
         </activity>
 
         <activity android:name=".activities.WebViewActivity"

@@ -811,10 +811,10 @@ public class TomahawkUtils {
 
     /**
      * By default File#delete fails for non-empty directories, it works like "rm". We need something
-     * a little more brutual - this does the equivalent of "rm -r"
+     * a little more brutal - this does the equivalent of "rm -r"
      *
      * @param path Root File Path
-     * @return true iff the file and all sub files/directories have been removed
+     * @return true if the file and all sub files/directories have been removed
      */
     public static boolean deleteRecursive(File path) throws FileNotFoundException {
         if (!path.exists()) {

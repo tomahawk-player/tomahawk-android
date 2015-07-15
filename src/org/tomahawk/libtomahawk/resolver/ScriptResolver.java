@@ -158,22 +158,22 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
         TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                "file:///android_asset/" + mScriptAccount.getPath() + "/content/"
-                        + mScriptAccount.getMetaData().manifest.icon, grayOut);
+                mScriptAccount.getPath() + "/content/" + mScriptAccount.getMetaData().manifest.icon,
+                grayOut);
     }
 
     @Override
     public void loadIconWhite(ImageView imageView) {
         TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                "file:///android_asset/" + mScriptAccount.getPath() + "/content/"
-                        + mScriptAccount.getMetaData().manifest.iconWhite);
+                mScriptAccount.getPath() + "/content/" + mScriptAccount
+                        .getMetaData().manifest.iconWhite);
     }
 
     @Override
     public void loadIconBackground(ImageView imageView, boolean grayOut) {
         TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                "file:///android_asset/" + mScriptAccount.getPath() + "/content/"
-                        + mScriptAccount.getMetaData().manifest.iconBackground, grayOut);
+                mScriptAccount.getPath() + "/content/" + mScriptAccount
+                        .getMetaData().manifest.iconBackground, grayOut);
     }
 
     @Override

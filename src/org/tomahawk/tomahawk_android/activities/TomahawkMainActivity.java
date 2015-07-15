@@ -48,6 +48,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.dialogs.AskAccessConfigDialog;
+import org.tomahawk.tomahawk_android.dialogs.InstallPluginConfigDialog;
 import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
@@ -654,6 +655,15 @@ public class TomahawkMainActivity extends ActionBarActivity
                     }
                 };
                 ThreadManager.getInstance().execute(r);
+            } else if (scheme != null && scheme.equals("file")
+                    && (pathSegments != null
+                    && (pathSegments.get(pathSegments.size() - 1).endsWith(".axe")
+                    || pathSegments.get(pathSegments.size() - 1).endsWith(".AXE")))) {
+                InstallPluginConfigDialog dialog = new InstallPluginConfigDialog();
+                Bundle args = new Bundle();
+                args.putString(InstallPluginConfigDialog.PATH_TO_AXE_URI_STRING, data.toString());
+                dialog.setArguments(args);
+                dialog.show(getSupportFragmentManager(), null);
             } else {
                 String albumName = null;
                 String trackName = null;

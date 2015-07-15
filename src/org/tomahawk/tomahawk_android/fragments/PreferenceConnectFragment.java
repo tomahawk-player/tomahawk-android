@@ -89,13 +89,13 @@ public class PreferenceConnectFragment extends TomahawkListFragment
         List<Segment> segments = new ArrayList<>();
 
         // Add the header text item
-        List textItems = new ArrayList();
+        List<ListItemString> textItems = new ArrayList<>();
         textItems.add(new ListItemString(getString(R.string.connect_headertext)));
         Segment segment = new Segment(textItems);
         segments.add(segment);
 
         // Add all resolver grid items
-        List resolvers = new ArrayList();
+        List<Resolver> resolvers = new ArrayList<>();
         resolvers.add(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION));
         resolvers.add(new HatchetStubResolver());
         List<ScriptResolver> scriptResolvers = PipeLine.getInstance().getScriptResolvers();
