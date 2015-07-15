@@ -5,6 +5,7 @@
   <string name="login">Login</string>
   <string name="logout">Logout</string>
   <string name="register">Registrati</string>
+  <string name="register_and_login">Registra &amp; Accedi</string>
   <string name="rescan">Riscansiona ora</string>
   <string name="internal_storage">Memoria Interna</string>
   <string name="tracks">Tracce</string>
@@ -24,7 +25,9 @@
   <string name="unknown">sconosciuto</string>
   <string name="no_track">nessuna traccia</string>
   <string name="save_playlist">Salva la playlist corrente</string>
+  <string name="create_playlist">Crea una playlist</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Titolo</string>
   <string name="login_name_label">Email/Username</string>
   <string name="login_username">Nome utente</string>
   <string name="login_password">Password</string>
@@ -38,15 +41,20 @@
   <string name="error_simultaneous_streams">Azione non permessa, l\'account è in uso altrove.</string>
   <string name="error_account_expired">Il tuo account è scaduto.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Connesso a %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Disconnesso da %1$s</string>
   <string name="local_collection_pretty_name">Collezione Locale</string>
   <string name="local">In Locale</string>
   <string name="all">Tutte</string>
   <string name="preferences_local_collection_text">Scegli le cartelle dove effettuare la ricerca per i media in locale.</string>
   <string name="preferences_hatchet_text">Sincronizza i tuoi dati con %1$s.</string>
   <string name="preferences_playback">Riproduzione</string>
+  <string name="preferences_equalizer">Equalizzatore</string>
+  <string name="preferences_equalizer_text">Personalizza l\'output audio.</string>
   <string name="preferences_playback_data">Scrobbla tutto</string>
   <string name="preferences_playback_data_text">Scrobbla a %1$s tutte le tracce da tutti i lettori musicali sul telefono.</string>
+  <string name="preferences_plug_and_play">Inserisci per ascoltare</string>
   <string name="preferences_plug_and_play_text">Inizia a riprodurre musica non appena connetti delle cuffie.</string>
   <string name="preferences_audio_quality">Qualità Audio Preferita</string>
   <string name="preferences_audio_quality_text">La qualità audio preferita se non connesso a reti WiFi</string>
@@ -55,6 +63,10 @@
   <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Condividi le tue idee e chiedi supporto.</string>
   <string name="preferences_app_sendlog">Invia Log</string>
+  <string name="preferences_app_sendlog_text">Invia i log per aiutare a risolvere bachi dell\'applicazione.</string>
+  <string name="preferences_app_sendlog_dialog_text">Descrivere brevemente il problema riscontrato e fornire un indirizzo email per essere contattati in caso di necessità. Grazie!</string>
+  <string name="preferences_app_sendlog_email">Il tuo indirizzo email</string>
+  <string name="preferences_app_sendlog_issue">Problema</string>
   <string name="crash_dialog_title">Tomahawk si è chiuso inaspettatamente</string>
   <string name="crash_dialog_text">Si è verificato un errore inatteso che ha forzato la chiusura dell\'applicazione. Per favore aiutaci a correggerlo inviandoci i dettagli, tutto ciò che devi fare è cliccare su OK.</string>
   <string name="crash_dialog_comment_prompt">Puoi aggiungere un commento sul problema qui in basso:</string>
@@ -63,12 +75,15 @@
   <string name="context_menu_add_to_queue">Metti in Coda</string>
   <string name="context_menu_add_to_playlist">Aggiungi a Playlist</string>
   <string name="context_menu_delete">Elimina</string>
+  <string name="context_menu_removefromplaylist">Rimuovi dalla playlist</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <string name="context_menu_removefromcollection">Rimuovi da Collezione</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
   <string name="context_menu_addtocollection">Aggiungi a Collezione</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">Ti piace</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">Non ti piace più</string>
   <string name="context_menu_share">Condividi</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Collezione</string>
@@ -92,15 +107,59 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Segui</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">Suggerimenti sulle persone da seguire</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">%1$s adesso segue</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
+  <plurals name="socialaction_type_love_track">
+    <item quantity="one">A %1$s gli è piaciuta un acanzone</item>
+    <item quantity="other">A %1$s gli sono piaciute %2$d canzoni</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
+  <plurals name="socialaction_type_collected_track">
+    <item quantity="one">%1$s ha collezionato una canzone</item>
+    <item quantity="other">%1$s ha collezionato %2$d canzoni</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
+  <plurals name="socialaction_type_collected_album">
+    <item quantity="one">%1$s ha collezionato un album</item>
+    <item quantity="other">%1$s ha collezionato %2$d album</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
+  <plurals name="socialaction_type_collected_artist">
+    <item quantity="one">%1$s ha collezionato un artista</item>
+    <item quantity="other">%1$s ha collezionato %2$d artisti</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">%1$s ha commentato su</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
+  <plurals name="socialaction_type_latchon">
+    <item quantity="one">%1$s ha ascoltato assieme a un amico</item>
+    <item quantity="other">%1$s ha ascoltato insieme agli amici di %2$d</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
+  <plurals name="socialaction_type_createplaylist">
+    <item quantity="one">%1$s ha creato una playlist</item>
+    <item quantity="other">%1$s ha creato %2$d playlist</item>
+  </plurals>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s di %2$s</string>
+  <string name="time_afewseconds">poci secondi fa</string>
+  <plurals name="time_minute">
+    <item quantity="one">un minuto fa</item>
+    <item quantity="other">%1$d minuti fa</item>
+  </plurals>
+  <plurals name="time_hour">
+    <item quantity="one">un\'ora fa</item>
+    <item quantity="other">%1$d ore fa</item>
+  </plurals>
+  <plurals name="time_day">
+    <item quantity="one">un giorno fa</item>
+    <item quantity="other">%1$d giorni fa</item>
+  </plurals>
+  <string name="users_playbacklog_suffix">%1$s ha ascoltato di recente</string>
+  <string name="users_favorites_suffix">I Favoriti di %1$s</string>
+  <string name="users_playlist_suffix">La playlist di %1$s</string>
   <string name="music">Musica</string>
   <string name="biography">Biografia</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -108,18 +167,47 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Brani</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <plurals name="songs_with_count">
+    <item quantity="one">La canzone di %1$d</item>
+    <item quantity="other">Le canzoni di %1$d</item>
+  </plurals>
   <string name="activity">Attività</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Seguaci</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Seguiti</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">Persone che ti seguono: %1$d, Persone che stai seguendo: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Connesso a</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Disconnesso da</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Scarica plugin per</string>
   <string name="ask_access_activity_header">Vuoi che siano automaticamente salvati su Hatchet i dati di tutti i brani che riproduci?</string>
   <string name="ask_access_activity_text1">A questo penseremo noi! Per favore abilita il nostro servizio nelle impostazioni di sistema.</string>
   <string name="button_close">Chiudi</string>
   <string name="view_album">Vedi Album</string>
+  <string name="connect">Connettiti</string>
   <string name="connect_headertext">Seleziona i servizi che vuoi utilizzare. Tomahawk funziona meglio se più servizi sono attivati.</string>
+  <string name="advanced">Avanzate</string>
+  <string name="info">Informazioni</string>
+  <string name="playbackpanel_seek_coachmark">Puoi cercare nella canzone tenendo premuto sul bottone Esegui</string>
+  <string name="slidinglayout_enqueue_coachmark">Un tap per aggiungere la canzone in coda.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Tira su per vedere la playlist corrente.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Tira giu per chiudere l\'area di riproduzione.</string>
+  <string name="playbackfragment_navigation_coachmark_center">Scivola verso sinistra o destra per saltare alla canzone successiva o precedente. Tieni premuto per aprire il menu contestuale. Doppio tap per aggiungere ai favoriti.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="next_page">Successiva</string>
+  <string name="welcome_fragment_explanation_title">Iniziare</string>
+  <string name="welcome_fragment_explanation_heading">La musica è ovunque.\nMa tu non hai bisogno di spostarti.</string>
+  <string name="welcome_fragment_explanation_text">Non è più necessario cercare la musica nel web - tramite servizi che non usi o tramite fonti a cui non puoi accedere. Dato il nome o il link a una canzone, a un album o una playlist, Tomahawk troverà la miglior fonte disponibile e la suonerà per te.</string>
+  <string name="welcome_fragment_hatchet_title">Vuoi socializzare?</string>
+  <string name="welcome_fragment_hatchet_text">Con Hatchet puoi finalmente avere la tua collezione musicale in un singolo luogo. Condividi le tue playlist e canzoni preferite. Oppure sincronizza semplicemente l\'applicazione con Tomahawk sul tuo pc desktop.</string>
+  <string name="welcome_fragment_setup_title">Connettiti</string>
+  <string name="welcome_fragment_done_title">Fatto!</string>
+  <string name="welcome_fragment_done_heading">Tutto fatto!</string>
+  <string name="welcome_fragment_done_text">Divertiti ad esplorare l\'applicazione e a dirci cosa ne pensi!</string>
+  <plurals name="add_to_playlist_headertext">
+    <item quantity="one">Scegli una playlist per aggiungere la canzone %1$d:</item>
+    <item quantity="other">Scegli una playlist a cui aggiungere %1$d canzoni:</item>
+  </plurals>
+  <string name="seeking_not_supported">Spiacente, questo resolver non supporta la ricerca.</string>
 </resources>
