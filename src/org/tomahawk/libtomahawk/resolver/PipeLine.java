@@ -106,12 +106,14 @@ public class PipeLine {
                     + File.separator + "manualresolvers";
             File manualResolverDir = new File(manualResolverDirPath);
             plugins = manualResolverDir.list();
-            for (String plugin : plugins) {
-                if (!plugin.equals(".temp")) {
-                    String pluginPath = manualResolverDirPath + File.separator + plugin;
-                    File pluginFile = new File(pluginPath);
-                    if (pluginFile.isDirectory()) {
-                        mScriptAccounts.add(new ScriptAccount(pluginPath, true));
+            if (plugins != null) {
+                for (String plugin : plugins) {
+                    if (!plugin.equals(".temp")) {
+                        String pluginPath = manualResolverDirPath + File.separator + plugin;
+                        File pluginFile = new File(pluginPath);
+                        if (pluginFile.isDirectory()) {
+                            mScriptAccounts.add(new ScriptAccount(pluginPath, true));
+                        }
                     }
                 }
             }
