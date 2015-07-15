@@ -30,6 +30,8 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -75,29 +77,44 @@ public class InstallPluginConfigDialog extends ConfigDialog {
 
     @Override
     protected void onPositiveAction() {
-        String destDirPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
-                + File.separator + "manualresolvers" + File.separator + ".temp";
-        File destDir = new File(destDirPath);
-        try {
-            TomahawkUtils.deleteRecursive(destDir);
-        } catch (FileNotFoundException e) {
-            Log.d(TAG, "onPositiveAction: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-        try {
-            UnzipUtility.unzip(mPathToAxe, destDirPath);
-            File metadataFile = new File(destDirPath + File.separator + "content"
-                    + File.separator + "metadata.json");
-            FileInputStream inputStream = new FileInputStream(metadataFile);
-            String metadataString = TomahawkUtils.inputStreamToString(inputStream);
-            ScriptResolverMetaData metaData = GsonHelper.get().fromJson(metadataString,
-                    ScriptResolverMetaData.class);
-            File renamedFile = new File(destDir.getParent() + File.separator + metaData.pluginName
-                    + "_" + System.currentTimeMillis());
-            destDir.renameTo(renamedFile);
-            PipeLine.getInstance().addScriptAccount(new ScriptAccount(renamedFile.getPath(), true));
-        } catch (IOException e) {
-            Log.e(TAG, "onPositiveAction: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String destDirPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
+                        + File.separator + "manualresolvers" + File.separator + ".temp";
+                File destDir = new File(destDirPath);
+                try {
+                    TomahawkUtils.deleteRecursive(destDir);
+                } catch (FileNotFoundException e) {
+                    Log.d(TAG,
+                            "onPositiveAction: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+                try {
+                    if (UnzipUtility.unzip(mPathToAxe, destDirPath)) {
+                        File metadataFile = new File(destDirPath + File.separator + "content"
+                                + File.separator + "metadata.json");
+                        FileInputStream inputStream = new FileInputStream(metadataFile);
+                        String metadataString = TomahawkUtils.inputStreamToString(inputStream);
+                        ScriptResolverMetaData metaData = GsonHelper.get().fromJson(metadataString,
+                                ScriptResolverMetaData.class);
+                        final File renamedFile = new File(
+                                destDir.getParent() + File.separator + metaData.pluginName
+                                        + "_" + System.currentTimeMillis());
+                        destDir.renameTo(renamedFile);
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                PipeLine.getInstance().addScriptAccount(
+                                        new ScriptAccount(renamedFile.getPath(), true));
+                            }
+                        });
+                    }
+                } catch (IOException e) {
+                    Log.e(TAG,
+                            "onPositiveAction: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+            }
+        }).start();
         dismiss();
     }
 

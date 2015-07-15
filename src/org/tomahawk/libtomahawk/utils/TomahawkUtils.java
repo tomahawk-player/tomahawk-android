@@ -306,6 +306,93 @@ public class TomahawkUtils {
      * @param username        the username for HTTP Basic Auth (optional)
      * @param password        the password for HTTP Basic Auth (optional)
      * @param data            the body data included in POST requests (optional)
+     * @param followRedirects whether or not to follow redirects (also defines what is being
+     *                        returned)
+     * @return a HttpURLConnection
+     */
+    public static HttpURLConnection httpRequest(String method, String urlString,
+            Map<String, String> extraHeaders, final String username, final String password,
+            String data, boolean followRedirects)
+            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+        HttpURLConnection connection;
+
+        // Establish correct HTTP/HTTPS connection
+        URL url = new URL(urlString);
+        URLConnection urlConnection = url.openConnection();
+        if (urlConnection instanceof HttpsURLConnection) {
+            connection = (HttpsURLConnection) urlConnection;
+            connection = setSSLSocketFactory((HttpsURLConnection) urlConnection);
+        } else if (urlConnection instanceof HttpURLConnection) {
+            connection = (HttpURLConnection) urlConnection;
+        } else {
+            throw new MalformedURLException(
+                    "Connection could not be cast to HttpUrlConnection");
+        }
+
+        // Configure HTTP Basic Auth if available
+        if (username != null && password != null) {
+            Authenticator.setDefault(new Authenticator() {
+                @Override
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(username, password.toCharArray());
+                }
+            });
+        }
+
+        // Add headers if available
+        if (extraHeaders != null) {
+            for (String key : extraHeaders.keySet()) {
+                connection.setRequestProperty(key, extraHeaders.get(key));
+            }
+        }
+
+        // Set timeout to 15 sec
+        connection.setConnectTimeout(15000);
+        connection.setReadTimeout(15000);
+
+        // Set the given request method if available - default to "GET"
+        if (!TextUtils.isEmpty(method) && !method.equals(HTTP_METHOD_GET)) {
+            if (method.equals(HTTP_METHOD_POST)) {
+                connection.setRequestMethod(HTTP_METHOD_POST);
+                connection.setDoOutput(true);
+            } else {
+                connection.setRequestMethod(method);
+            }
+        } else {
+            connection.setRequestMethod(HTTP_METHOD_GET);
+            connection.setDoOutput(false);
+        }
+
+        // Send data string if available
+        if (!TextUtils.isEmpty(data)) {
+            connection.setFixedLengthStreamingMode(data.getBytes().length);
+            OutputStreamWriter out = null;
+            try {
+                out = new OutputStreamWriter(connection.getOutputStream());
+                out.write(data);
+            } finally {
+                if (out != null) {
+                    out.close();
+                }
+            }
+        }
+
+        // configure whether or not to follow redirects
+        connection.setInstanceFollowRedirects(followRedirects);
+
+        return connection;
+    }
+
+    /**
+     * Does a HTTP or HTTPS request
+     *
+     * @param method          the method that should be used ("GET" or "POST"), defaults to "GET"
+     *                        (optional)
+     * @param urlString       the complete url string to do the request with
+     * @param extraHeaders    extra headers that should be added to the request (optional)
+     * @param username        the username for HTTP Basic Auth (optional)
+     * @param password        the password for HTTP Basic Auth (optional)
+     * @param data            the body data included in POST requests (optional)
      * @param callback        a ScriptInterface.JsCallback that should be called if this request has
      *                        been successful (optional)
      * @param followRedirects whether or not to follow redirects (also defines what is being
@@ -317,72 +404,9 @@ public class TomahawkUtils {
             String data, ScriptInterface.JsCallback callback, boolean followRedirects)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         HttpResponse response = new HttpResponse();
-        HttpURLConnection connection = null;
+        HttpURLConnection connection = httpRequest(method, urlString, extraHeaders, username,
+                password, data, followRedirects);
         try {
-            // Establish correct HTTP/HTTPS connection
-            URL url = new URL(urlString);
-            URLConnection urlConnection = url.openConnection();
-            if (urlConnection instanceof HttpsURLConnection) {
-                connection = (HttpsURLConnection) urlConnection;
-                connection = setSSLSocketFactory((HttpsURLConnection) urlConnection);
-            } else if (urlConnection instanceof HttpURLConnection) {
-                connection = (HttpURLConnection) urlConnection;
-            } else {
-                throw new MalformedURLException(
-                        "Connection could not be cast to HttpUrlConnection");
-            }
-
-            // Configure HTTP Basic Auth if available
-            if (username != null && password != null) {
-                Authenticator.setDefault(new Authenticator() {
-                    @Override
-                    protected PasswordAuthentication getPasswordAuthentication() {
-                        return new PasswordAuthentication(username, password.toCharArray());
-                    }
-                });
-            }
-
-            // Add headers if available
-            if (extraHeaders != null) {
-                for (String key : extraHeaders.keySet()) {
-                    connection.setRequestProperty(key, extraHeaders.get(key));
-                }
-            }
-
-            // Set timeout to 15 sec
-            connection.setConnectTimeout(15000);
-            connection.setReadTimeout(15000);
-
-            // Set the given request method if available - default to "GET"
-            if (!TextUtils.isEmpty(method) && !method.equals(HTTP_METHOD_GET)) {
-                if (method.equals(HTTP_METHOD_POST)) {
-                    connection.setRequestMethod(HTTP_METHOD_POST);
-                    connection.setDoOutput(true);
-                } else {
-                    connection.setRequestMethod(method);
-                }
-            } else {
-                connection.setRequestMethod(HTTP_METHOD_GET);
-                connection.setDoOutput(false);
-            }
-
-            // Send data string if available
-            if (!TextUtils.isEmpty(data)) {
-                connection.setFixedLengthStreamingMode(data.getBytes().length);
-                OutputStreamWriter out = null;
-                try {
-                    out = new OutputStreamWriter(connection.getOutputStream());
-                    out.write(data);
-                } finally {
-                    if (out != null) {
-                        out.close();
-                    }
-                }
-            }
-
-            // configure whether or not to follow redirects
-            connection.setInstanceFollowRedirects(followRedirects);
-
             try {
                 response.mResponseText = inputStreamToString(connection.getInputStream());
             } catch (IOException e) {
