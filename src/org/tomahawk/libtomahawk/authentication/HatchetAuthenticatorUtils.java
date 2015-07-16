@@ -431,8 +431,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 logout();
                 onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
                         "Please reenter your Hatchet credentials");
-            } else {
-                onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR, "");
             }
         }
         return accessToken;
