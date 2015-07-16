@@ -177,6 +177,7 @@
   <string name="view_album">查看专辑</string>
   <string name="connect">连接</string>
   <string name="connect_headertext">请选择要使用的服务。激活的服务更多，Tomahawk 工作的越好。</string>
+  <string name="connect_header_manualresolvers">手动安装的</string>
   <string name="advanced">高级</string>
   <string name="info">信息</string>
   <string name="playbackpanel_seek_coachmark">你可以长按播放键来快进/快退。</string>
@@ -199,4 +200,9 @@
     <item quantity="other">将 %1$d 添加到播放列表：</item>
   </plurals>
   <string name="seeking_not_supported">抱歉，此解析器不支持寻位。</string>
+  <string name="install_plugin_title">插件安装</string>
+  <string name="install_plugin_warning">将会从未知源安装 Tomahawk 插件。此操作存在安全风险。</string>
+  <string name="install_plugin_warning2">您是否想安装此插件？</string>
+  <string name="uninstall_plugin_title">卸载插件</string>
+  <string name="uninstall_plugin_warning">您是否想卸载此插件？</string>
 </resources>
