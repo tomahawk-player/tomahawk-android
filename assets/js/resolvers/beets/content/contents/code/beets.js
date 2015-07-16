@@ -22,8 +22,6 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
 
     apiVersion: 0.9,
 
-    defaultServer: "http://localhost:8337",
-
     settings: {
         name: 'beets',
         icon: 'beets-icon.png',
@@ -66,20 +64,36 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
         });
     },
 
+    _sanitizeConfig: function (config) {
+        if (!config.server) {
+            config.server = "http://localhost:8337/";
+        } else {
+            if (config.server.search("^.*:\/\/") < 0) {
+                // couldn't find a proper protocol, so we default to "http://"
+                config.server = "http://" + config.server;
+            }
+            var url = new URL(config.server);
+            if (!url.port) {
+                url.port = 8337;
+            }
+            config.server = url.toString();
+        }
+
+        return config;
+    },
+
     init: function () {
-        var userConfig = this.getUserConfig();
-        var that = this;
-        this.server = userConfig.server || this.defaultServer;
+        var config = this._sanitizeConfig(this.getUserConfig());
 
         var settings;
-        if (userConfig.useAuth) {
+        if (config.useAuth) {
             settings = {
-                username: userConfig.username,
-                password: userConfig.password
+                username: config.username,
+                password: config.password
             };
         }
 
-        Tomahawk.get(this.server + '/stats', settings).then(function (response) {
+        Tomahawk.get(config.server + 'stats', settings).then(function (response) {
             var trackCount = parseInt(response.items);
             var albumCount = parseInt(response.albums);
             if (window.localStorage["beets_trackCount"] != trackCount
@@ -94,7 +108,7 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
                         + " to " + albumCount + ". ";
                 }
                 Tomahawk.log(msg + "Updating collection ...");
-                return Tomahawk.get(that.server + "/item", settings).then(function (response) {
+                return Tomahawk.get(config.server + "item", settings).then(function (response) {
                     var searchResults = [];
                     response.items.forEach(function (item) {
                         searchResults.push({
@@ -105,7 +119,7 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
                             album: item.album,
                             track: item.title,
                             albumpos: item.track,
-                            url: that.server + '/item/' + item.id + '/file',
+                            url: config.server + 'item/' + item.id + '/file',
                             duration: Math.floor(item.length)
                         });
                     });
@@ -130,6 +144,8 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
     },
 
     testConfig: function (config) {
+        config = this._sanitizeConfig(config);
+
         var settings;
         if (config.useAuth) {
             settings = {
@@ -137,9 +153,8 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 password: config.password
             };
         }
-        var server = userConfig.server || this.defaultServer;
 
-        Tomahawk.get(server + "/stats", settings).then(function () {
+        return Tomahawk.get(config.server + "stats", settings).then(function () {
             return Tomahawk.ConfigTestResultType.Success;
         }, function (xhr) {
             if (xhr.status == 403) {
