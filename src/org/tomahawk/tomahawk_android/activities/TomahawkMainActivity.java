@@ -48,6 +48,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
 import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.dialogs.AskAccessConfigDialog;
+import org.tomahawk.tomahawk_android.dialogs.GMusicConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.InstallPluginConfigDialog;
 import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
@@ -505,6 +506,14 @@ public class TomahawkMainActivity extends ActionBarActivity
         Intent intent = new Intent(this, WebViewActivity.class);
         intent.putExtra(WebViewActivity.URL_EXTRA, event.mUrl);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        GMusicConfigDialog.ActivityResultEvent event = new GMusicConfigDialog.ActivityResultEvent();
+        event.resultCode = resultCode;
+        event.requestCode = requestCode;
+        EventBus.getDefault().post(event);
     }
 
     @Override

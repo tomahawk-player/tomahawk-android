@@ -29,6 +29,7 @@ dependencies {
         transitive = false
     }
     compile "com.google.code.gson:gson:2.3.1"
+    compile 'com.google.android.gms:play-services:7.5.0'
     compile('com.stanfy:gson-xml-java:0.1.7') {
         exclude group: 'xmlpull', module: 'xmlpull'
     }

@@ -217,4 +217,5 @@
   <string name="install_plugin_warning2">Do you really want to install this Plugin?</string>
   <string name="uninstall_plugin_title">Uninstalling plugin</string>
   <string name="uninstall_plugin_warning">Do you really want to uninstall this Plugin?</string>
+  <string name="gmusic_info_text">Choose an account:</string>
 </resources>
