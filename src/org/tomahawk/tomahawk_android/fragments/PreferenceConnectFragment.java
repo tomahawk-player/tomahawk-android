@@ -31,6 +31,7 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.ConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.DirectoryChooserConfigDialog;
+import org.tomahawk.tomahawk_android.dialogs.GMusicConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.LoginConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverRedirectConfigDialog;
@@ -155,6 +156,9 @@ public class PreferenceConnectFragment extends TomahawkListFragment
                     break;
                 case TomahawkApp.PLUGINNAME_HATCHET:
                     dialog = new LoginConfigDialog();
+                    break;
+                case TomahawkApp.PLUGINNAME_GMUSIC:
+                    dialog = new GMusicConfigDialog();
                     break;
                 default:
                     dialog = new ResolverConfigDialog();

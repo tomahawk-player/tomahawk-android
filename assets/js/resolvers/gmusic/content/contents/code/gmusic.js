@@ -73,7 +73,9 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
     },
 
     newConfigSaved: function (newConfig) {
-        if (this._email !== newConfig.email || this._password !== newConfig.password) {
+        if (this._email !== newConfig.email
+            || this._password !== newConfig.password
+            || this._token !== newConfig.token) {
             Tomahawk.log("Invalidating cache");
             var that = this;
             gmusicCollection.wipe({id: gmusicCollection.settings.id}).then(function () {
@@ -88,8 +90,9 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var config = this.getUserConfig();
         this._email = config.email;
         this._password = config.password;
+        this._token = config.token;
 
-        if (!this._email || !this._password) {
+        if (!this._email || (!this._token && !this._password)) {
             Tomahawk.reportCapabilities(TomahawkResolverCapability.NullCapability);
             Tomahawk.log(name + " resolver not configured.");
             return;
@@ -108,9 +111,12 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         this._key = s1;
 
         var that = this;
-        this._login(that._email, that._password).then(function () {
-            return that._loadWebToken();
-        }).then(function (webToken) {
+
+        var promise = config.token ? that._loadWebToken() :
+            that._login(config.email, config.password).then(function () {
+                return that._loadWebToken();
+            });
+        promise.then(function (webToken) {
             return that._loadSettings(webToken);
         }).then(function () {
             return that._ensureCollection();
@@ -198,7 +204,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var settings = {
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'GoogleLogin auth=' + this._AuthToken
+                'Authorization': 'GoogleLogin auth=' + this._token
             }
         };
         if (nextPageToken) {
@@ -229,7 +235,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 q: query
             },
             headers: {
-                Authorization: 'GoogleLogin auth=' + this._AuthToken
+                Authorization: 'GoogleLogin auth=' + this._token
             }
         };
         if (max_results) {
@@ -357,7 +363,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
             + '=' + urn.id + '&slt=' + salt + '&sig=' + sig,
             headers: {
                 'Content-type': 'application/x-www-form-urlencoded',
-                'Authorization': 'GoogleLogin auth=' + this._AuthToken,
+                'Authorization': 'GoogleLogin auth=' + this._token,
                 'X-Device-ID': this._deviceId
             }
         }
@@ -374,7 +380,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
             },
             dataType: 'json',
             headers: {
-                'Authorization': 'GoogleLogin auth=' + this._AuthToken
+                'Authorization': 'GoogleLogin auth=' + this._token
             }
         };
         return Tomahawk.post(url, settings).then(function (response) {
@@ -432,7 +438,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
             needCookieHeader: true,
             rawResponse: true,
             headers: {
-                'Authorization': 'GoogleLogin auth=' + this._AuthToken
+                'Authorization': 'GoogleLogin auth=' + this._token
             }
         };
         return Tomahawk.ajax(url, settings).then(function (request) {
@@ -452,7 +458,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
      * to run when it is complete.
      */
     _login: function (email, password) {
-        this._AuthToken = null;
+        this._token = null;
 
         var that = this;
 
@@ -507,7 +513,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     if (!parsedRes['Auth']) {
                         throw new Error("There's no 'Auth' in the response");
                     }
-                    that._AuthToken = parsedRes['Auth'];
+                    that._token = parsedRes['Auth'];
 
                     Tomahawk.log("Google Play Music logged in successfully");
                 });
@@ -520,9 +526,12 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
 
     testConfig: function (config) {
         var that = this;
-        return this._login(config.email, config.password).then(function () {
-            return that._loadWebToken();
-        }).then(function (webToken) {
+
+        var promise = config.token ? that._loadWebToken() :
+            that._login(config.email, config.password).then(function () {
+                return that._loadWebToken();
+            });
+        return promise.then(function (webToken) {
             return that._loadSettings(webToken);
         }).then(function () {
             return Tomahawk.ConfigTestResultType.Success;
