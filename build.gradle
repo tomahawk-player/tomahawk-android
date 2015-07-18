@@ -58,9 +58,9 @@ dependencies {
  * Gets the version name from the latest Git tag
  */
 def getNewVersionName = { ->
-    boolean isChanged = 'git diff --cached'.execute(null, projectDir).text.length() > 0 ||
-            'git diff'.execute(null, projectDir).text.length() > 0
-    return 'git describe --tags'.execute(null, projectDir).text.replace('\n', '') +
+    boolean isChanged = 'git diff --cached'.execute([], projectDir).text.length() > 0 ||
+            'git diff'.execute([], projectDir).text.length() > 0
+    return 'git describe --tags'.execute([], projectDir).text.replace('\n', '') +
             (isChanged ? "_modified" : "")
 }
 
