@@ -177,6 +177,7 @@
   <string name="view_album">アルバムを表示</string>
   <string name="connect">接続</string>
   <string name="connect_headertext">利用したいサービスを選択してください。 トマホークは、より多くのサービスをアクティブにしたときに快適にご利用できます。</string>
+  <string name="connect_header_manualresolvers">手動でインストール</string>
   <string name="advanced">詳細</string>
   <string name="info">情報</string>
   <string name="playbackpanel_seek_coachmark">再生ボタンを長押しして、トラックをシークすることができます。</string>
@@ -199,4 +200,10 @@
     <item quantity="other">プレイリストを選択して %1$d のトラックを追加します:</item>
   </plurals>
   <string name="seeking_not_supported">申し訳ありません、このリゾルバーはシークをサポートしていません。</string>
+  <string name="install_plugin_title">プラグインのインストール</string>
+  <string name="install_plugin_warning">Tomahawk プラグインを不明なソースからインストールしようとしています。これはセキュリティのリスクがあります。</string>
+  <string name="install_plugin_warning2">このプラグインをインストールしてもよろしいですか?</string>
+  <string name="uninstall_plugin_title">プラグインのアンインストール</string>
+  <string name="uninstall_plugin_warning">このプラグインをアンインストールしてもよろしいですか?</string>
+  <string name="gmusic_info_text">アカウントの選択:</string>
 </resources>
