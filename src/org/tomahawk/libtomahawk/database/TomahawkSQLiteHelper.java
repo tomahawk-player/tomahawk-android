@@ -17,19 +17,11 @@
  */
 package org.tomahawk.libtomahawk.database;
 
-import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * This is a helper class to declare the different column names inside our database, and to create
@@ -279,109 +271,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
                 + ", which might destroy all old data");
-        if (oldVersion == 8 || oldVersion == 9 || oldVersion == 10) {
-            if (oldVersion == 8) {
-                db.execSQL(CREATE_TABLE_LOVED_ALBUMS);
-                db.execSQL(CREATE_TABLE_LOVED_ARTISTS);
-            }
-            if (oldVersion == 9) {
-                db.execSQL("DROP TABLE IF EXISTS `" + TABLE_PLAYLISTS + "`;");
-                db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
-                db.execSQL(CREATE_TABLE_PLAYLISTS);
-                db.execSQL(CREATE_TABLE_TRACKS);
-                // get all logged ops and their timestamps, so we can safely drop the table
-                List<InfoRequestData> loggedOps = new ArrayList<>();
-                List<Integer> timeStamps = new ArrayList<>();
-                String[] columns = new String[]{TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID,
-                        TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE,
-                        TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
-                        TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP};
-                Cursor opLogCursor = db.query(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
-                        columns, null, null, null, null, null);
-                opLogCursor.moveToFirst();
-                while (!opLogCursor.isAfterLast()) {
-                    String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-                    InfoRequestData infoRequestData = new InfoRequestData(requestId,
-                            opLogCursor.getInt(1), null, opLogCursor.getInt(0),
-                            InfoRequestData.HTTPTYPE_POST, opLogCursor.getString(2));
-                    loggedOps.add(infoRequestData);
-                    timeStamps.add(opLogCursor.getInt(3));
-                    opLogCursor.moveToNext();
-                }
-                opLogCursor.close();
-                db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOG + "`;");
-                db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOG);
-                // now repopulate the table with the old data
-                ContentValues values = new ContentValues();
-                db.beginTransaction();
-                for (int i = 0; i < loggedOps.size(); i++) {
-                    InfoRequestData loggedOp = loggedOps.get(i);
-                    values.clear();
-                    values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TYPE,
-                            loggedOp.getType());
-                    values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_HTTPTYPE,
-                            loggedOp.getHttpType());
-                    values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_JSONSTRING,
-                            loggedOp.getJsonStringToSend());
-                    values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP,
-                            timeStamps.get(i));
-                    db.insert(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG, null, values);
-                }
-                db.setTransactionSuccessful();
-                db.endTransaction();
-            }
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_PLAYLISTS + "`;");
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIADIRS + "`;");
-            db.execSQL(CREATE_TABLE_PLAYLISTS);
-            db.execSQL(CREATE_TABLE_TRACKS);
-            db.execSQL(CREATE_TABLE_MEDIA);
-            db.execSQL(CREATE_TABLE_MEDIADIRS);
-            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
-        } else if (oldVersion == 11) {
-            db.execSQL(CREATE_TABLE_MEDIA);
-            db.execSQL(CREATE_TABLE_MEDIADIRS);
-            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
-                    + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
-            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
-                    + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
-            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
-        } else if (oldVersion == 12) {
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
-            db.execSQL(CREATE_TABLE_MEDIA);
-            db.execSQL(CREATE_TABLE_MEDIADIRS);
-            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
-                    + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
-            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
-                    + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
-            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
-        } else if (oldVersion == 13 || oldVersion == 14) {
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
-            db.execSQL(CREATE_TABLE_MEDIA);
-            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
-                    + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
-            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
-                    + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
-            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
-        } else if (oldVersion == 15) {
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
-            db.execSQL(CREATE_TABLE_MEDIA);
-            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
-                    + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
-            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
-                    + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
-            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
-        } else if (oldVersion == 16) {
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
-            db.execSQL(CREATE_TABLE_MEDIA);
-            db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
-                    + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
-            db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
-        } else if (oldVersion == 17 || oldVersion == 18) {
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
-            db.execSQL(CREATE_TABLE_MEDIA);
-        } else {
+        if (oldVersion < 11) {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_PLAYLISTS + "`;");
@@ -393,6 +283,25 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
             db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIADIRS + "`;");
             onCreate(db);
+        } else {
+            if (oldVersion < 13) {
+                db.execSQL("DROP TABLE IF EXISTS `" + CREATE_TABLE_MEDIADIRS + "`;");
+                db.execSQL(CREATE_TABLE_MEDIADIRS);
+            }
+            if (oldVersion < 16) {
+                db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
+                        + PLAYLISTS_COLUMN_TOPARTISTS + "` TEXT");
+            }
+            if (oldVersion < 17) {
+                db.execSQL("ALTER TABLE `" + TABLE_PLAYLISTS + "` ADD COLUMN `"
+                        + PLAYLISTS_COLUMN_TRACKCOUNT + "` INTEGER");
+                db.execSQL("DROP TABLE IF EXISTS `" + TABLE_INFOSYSTEMOPLOGINFO + "`;");
+                db.execSQL(CREATE_TABLE_INFOSYSTEMOPLOGINFO);
+            }
+            if (oldVersion < 19) {
+                db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
+                db.execSQL(CREATE_TABLE_MEDIA);
+            }
         }
     }
 
