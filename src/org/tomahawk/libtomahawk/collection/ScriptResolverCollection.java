@@ -23,6 +23,7 @@ import com.google.gson.JsonElement;
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.Promise;
+import org.tomahawk.libtomahawk.database.CollectionDbManager;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptAccount;
@@ -129,43 +130,9 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
             getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
                 @Override
                 public void onDone(ScriptResolverCollectionMetaData result) {
-                    HashMap<String, Object> a = new HashMap<>();
-                    a.put("id", result.id);
-                    final long timeBefore = System.currentTimeMillis();
-                    ScriptJob.start(mScriptObject, "tracks", a,
-                            new ScriptJob.ResultsArrayCallback() {
-                                @Override
-                                public void onReportResults(JsonArray results) {
-                                    Log.d(TAG,
-                                            "Received " + results.size() + " trackResults in " + (
-                                                    System.currentTimeMillis() - timeBefore)
-                                                    + "ms");
-                                    long time = System.currentTimeMillis();
-                                    ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
-                                            mScriptAccount.getScriptResolver(), results);
-                                    Log.d(TAG,
-                                            "Parsed " + parsedResults.size() + " trackResults in "
-                                                    + (
-                                                    System.currentTimeMillis() - time) + "ms");
-                                    time = System.currentTimeMillis();
-                                    Set<Query> queries = new HashSet<>();
-                                    for (Result r : parsedResults) {
-                                        Query query = Query.get(r, false);
-                                        query.addTrackResult(r, 1f);
-                                        queries.add(query);
-                                    }
-                                    Log.d(TAG, "Converted " + parsedResults.size()
-                                            + " trackResults in " + (
-                                            System.currentTimeMillis() - time) + "ms");
-                                    mQueries = queries;
-                                    deferred.resolve(queries);
-                                }
-                            }, new ScriptJob.FailureCallback() {
-                                @Override
-                                public void onReportFailure(String errormessage) {
-                                    deferred.resolve(new HashSet<Query>());
-                                }
-                            });
+                    Set<Query> queries = CollectionDbManager.get().getCollectionDb(
+                            result.id, mScriptAccount.getScriptResolver()).tracks(null);
+                    deferred.resolve(queries);
                 }
             });
         }
