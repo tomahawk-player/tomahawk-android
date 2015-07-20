@@ -20,7 +20,9 @@ package org.tomahawk.libtomahawk.resolver;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import org.tomahawk.libtomahawk.database.CollectionDbManager;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptCollectionPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptInfoPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptResolverPluginFactory;
@@ -405,14 +407,31 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         }
     }
 
-    public void invokeNativeScriptJob(int requestId, String methodName,
-            Map<String, String> params) {
-        switch (methodName) {
-            case "collectionAddTracks":
-                //some method call
-                evaluateJavaScript("Tomahawk.reportNativeScriptJobResult(" + requestId + ");");
-                break;
+    public class CollectionAddTracksResult {
+
+        String id;
+
+        ScriptResolverTrack[] tracks;
+    }
+
+    public class CollectionWipeResult {
+
+        String id;
+    }
+
+    public void invokeNativeScriptJob(int requestId, String methodName, String paramsString) {
+        if (methodName.equals("collectionAddTracks")) {
+            CollectionAddTracksResult result =
+                    GsonHelper.get().fromJson(paramsString, CollectionAddTracksResult.class);
+            CollectionDbManager.get().getCollectionDb(result.id, getScriptResolver())
+                    .addTracks(result.tracks);
+        } else if (methodName.equals("collectionWipe")) {
+            CollectionWipeResult result =
+                    GsonHelper.get().fromJson(paramsString, CollectionWipeResult.class);
+            CollectionDbManager.get().getCollectionDb(result.id, getScriptResolver()).wipe();
         }
+        evaluateJavaScript(
+                "Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult(" + requestId + ");");
     }
 
 }

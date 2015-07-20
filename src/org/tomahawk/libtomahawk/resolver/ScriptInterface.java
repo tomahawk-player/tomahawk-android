@@ -315,7 +315,6 @@ public class ScriptInterface {
 
     @JavascriptInterface
     public void invokeNativeScriptJob(int requestId, String methodName, String paramsString) {
-        Map<String, String> params = GsonHelper.get().fromJson(paramsString, Map.class);
-        mScriptAccount.invokeNativeScriptJob(requestId, methodName, params);
+        mScriptAccount.invokeNativeScriptJob(requestId, methodName, paramsString);
     }
 }
