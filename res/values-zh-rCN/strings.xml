@@ -205,4 +205,5 @@
   <string name="install_plugin_warning2">您是否想安装此插件？</string>
   <string name="uninstall_plugin_title">卸载插件</string>
   <string name="uninstall_plugin_warning">您是否想卸载此插件？</string>
+  <string name="gmusic_info_text">请选择一个账号：</string>
 </resources>
