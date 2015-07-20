@@ -405,4 +405,14 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         }
     }
 
+    public void invokeNativeScriptJob(int requestId, String methodName,
+            Map<String, String> params) {
+        switch (methodName) {
+            case "collectionAddTracks":
+                //some method call
+                evaluateJavaScript("Tomahawk.reportNativeScriptJobResult(" + requestId + ");");
+                break;
+        }
+    }
+
 }

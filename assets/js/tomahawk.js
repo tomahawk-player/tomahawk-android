@@ -868,6 +868,24 @@ Tomahawk.PluginManager = {
     }
 };
 
+Tomahawk.NativeScriptJobManager = {
+    idCounter: 0,
+    deferreds: {},
+    invoke: function (methodName, params) {
+        var requestId = this.idCounter++;
+        Tomahawk.invokeNativeScriptJob(requestId, methodName, JSON.stringify(params));
+        this.deferreds[requestId] = RSVP.defer();
+        return this.deferreds[requestId].promise;
+    },
+    reportNativeScriptJobResult: function (requestId, result) {
+        var deferred = this.deferreds[requestId];
+        if (!deferred) {
+            Tomahawk.log("Deferred object with the given requestId is not present!");
+        }
+        deferred.resolve(result);
+    }
+};
+
 Tomahawk.UrlType = {
     Any: 0,
     Playlist: 1,

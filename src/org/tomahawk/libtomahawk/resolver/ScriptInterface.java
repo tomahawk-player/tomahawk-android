@@ -312,4 +312,10 @@ public class ScriptInterface {
     public void unregisterScriptPlugin(String type, String objectId) {
         mScriptAccount.unregisterScriptPlugin(type, objectId);
     }
+
+    @JavascriptInterface
+    public void invokeNativeScriptJob(int requestId, String methodName, String paramsString) {
+        Map<String, String> params = GsonHelper.get().fromJson(paramsString, Map.class);
+        mScriptAccount.invokeNativeScriptJob(requestId, methodName, params);
+    }
 }
