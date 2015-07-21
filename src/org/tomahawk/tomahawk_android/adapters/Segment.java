@@ -28,7 +28,7 @@ import java.util.List;
 
 public class Segment {
 
-    private boolean mShowAsGrid;
+    private int mColumnCount = 1;
 
     private int mHorizontalPadding;
 
@@ -43,10 +43,6 @@ public class Segment {
     private final List<String> mHeaderStrings = new ArrayList<>();
 
     private List mListItems = new ArrayList<>();
-
-    private final List<List> mGridItems = new ArrayList<>();
-
-    private int mSegmentSize = 0;
 
     private boolean mShowAsQueued;
 
@@ -67,7 +63,6 @@ public class Segment {
 
     public Segment(List listItems) {
         mListItems = listItems;
-        mSegmentSize = mListItems.size();
     }
 
     public Segment(int headerStringResId, List listItems) {
@@ -107,23 +102,11 @@ public class Segment {
 
     public Segment(List listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId) {
-        mShowAsGrid = true;
+        this(listItems);
         Resources resources = TomahawkApp.getContext().getResources();
         mHorizontalPadding = resources.getDimensionPixelSize(horizontalPaddingResId);
         mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
-        int columnCount = resources.getInteger(columnCountResId);
-        for (int i = 0; i < listItems.size(); i += columnCount) {
-            List<Object> row = new ArrayList<>();
-            for (int j = 0; j < columnCount; j++) {
-                if (i + j < listItems.size()) {
-                    row.add(listItems.get(i + j));
-                } else {
-                    row.add(null);
-                }
-            }
-            mGridItems.add(row);
-        }
-        mSegmentSize += listItems.size();
+        mColumnCount = resources.getInteger(columnCountResId);
     }
 
     public Segment(int headerStringResId, List listItems, int columnCountResId,
@@ -176,19 +159,32 @@ public class Segment {
     }
 
     public int size() {
-        return mShowAsGrid ? mGridItems.size() : mListItems.size();
-    }
-
-    public int segmentSize() {
-        return mSegmentSize;
+        return mListItems.size();
     }
 
     public Object get(int location) {
-        return mShowAsGrid ? mGridItems.get(location) : mListItems.get(location);
+        if (mColumnCount > 1) {
+            List<Object> list = new ArrayList<>();
+            for (int i = location * mColumnCount; i < location * mColumnCount + mColumnCount; i++) {
+                Object item = null;
+                if (i < mListItems.size()) {
+                    item = mListItems.get(i);
+                }
+                list.add(item);
+            }
+            return list;
+        } else {
+            return mListItems.get(location);
+        }
     }
 
     public Object getFirstSegmentItem() {
-        return mShowAsGrid ? mGridItems.get(0).get(0) : mListItems.get(0);
+        Object result = get(0);
+        if (result instanceof List) {
+            return ((List) get(0)).get(0);
+        } else {
+            return result;
+        }
     }
 
     public int getHorizontalPadding() {
