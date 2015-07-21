@@ -166,18 +166,22 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         for (Segment segment : mSegments) {
             mRowCount += segment.size();
         }
+    }
 
-        mPlaylist =
-                Playlist.fromEntriesList(TEMP_PLAYLIST_NAME, "", new ArrayList<PlaylistEntry>());
-        mPlaylistEntryMap.clear();
-        for (int i = 0; i < getCount(); i++) {
-            Object object = getItem(i);
-            if (object instanceof List) {
-                for (Object item : (List) object) {
-                    extractPlaylistEntry(item);
+    private void ensurePlaylist() {
+        if (mPlaylist == null) {
+            mPlaylist = Playlist.fromEntriesList(
+                    TEMP_PLAYLIST_NAME, "", new ArrayList<PlaylistEntry>());
+            mPlaylistEntryMap.clear();
+            for (int i = 0; i < getCount() && i < 200; i++) {
+                Object object = getItem(i);
+                if (object instanceof List) {
+                    for (Object item : (List) object) {
+                        extractPlaylistEntry(item);
+                    }
+                } else {
+                    extractPlaylistEntry(object);
                 }
-            } else {
-                extractPlaylistEntry(object);
             }
         }
     }
@@ -199,10 +203,12 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     }
 
     public Playlist getPlaylist() {
+        ensurePlaylist();
         return mPlaylist;
     }
 
     public PlaylistEntry getPlaylistEntry(Object item) {
+        ensurePlaylist();
         return mPlaylistEntryMap.get(item);
     }
 
