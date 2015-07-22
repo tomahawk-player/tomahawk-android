@@ -92,6 +92,7 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="users_playlist_suffix">%1$s\'s Перелік відтворення</string>
   <string name="music">Музика</string>
   <string name="biography">Біографія</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
