@@ -423,12 +423,11 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         if (methodName.equals("collectionAddTracks")) {
             CollectionAddTracksResult result =
                     GsonHelper.get().fromJson(paramsString, CollectionAddTracksResult.class);
-            CollectionDbManager.get().getCollectionDb(result.id, getScriptResolver())
-                    .addTracks(result.tracks);
+            CollectionDbManager.get().getCollectionDb(result.id).addTracks(result.tracks);
         } else if (methodName.equals("collectionWipe")) {
             CollectionWipeResult result =
                     GsonHelper.get().fromJson(paramsString, CollectionWipeResult.class);
-            CollectionDbManager.get().getCollectionDb(result.id, getScriptResolver()).wipe();
+            CollectionDbManager.get().getCollectionDb(result.id).wipe();
         }
         evaluateJavaScript(
                 "Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult(" + requestId + ");");

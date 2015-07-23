@@ -22,27 +22,41 @@ import org.tomahawk.libtomahawk.resolver.Query;
 
 import android.widget.ImageView;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class Collection {
 
+    public static final int SORT_NOT = -1;
+
+    public static final int SORT_ALPHA = 0;
+
+    public static final int SORT_ARTIST_ALPHA = 1;
+
+    public static final int SORT_LAST_MODIFIED = 2;
+
     private final String mId;
 
     private final String mName;
 
-    protected Set<Album> mAlbums;
+    protected Set<Album> mAlbums
+            = Collections.newSetFromMap(new ConcurrentHashMap<Album, Boolean>());
 
-    protected Set<Artist> mArtists;
+    protected Set<Artist> mArtists
+            = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
 
-    protected Set<Artist> mAlbumArtists;
+    protected Set<Artist> mAlbumArtists
+            = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
 
-    protected Set<Query> mQueries;
+    protected Set<Query> mQueries
+            = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
-    protected ConcurrentHashMap<Album, Set<Query>> mAlbumTracks
+    protected ConcurrentHashMap<Album, List<Query>> mAlbumTracks
             = new ConcurrentHashMap<>();
 
-    protected ConcurrentHashMap<Artist, Set<Album>> mArtistAlbums
+    protected ConcurrentHashMap<Artist, List<Album>> mArtistAlbums
             = new ConcurrentHashMap<>();
 
     public Collection(String id, String name) {
@@ -71,18 +85,34 @@ public abstract class Collection {
         return mName;
     }
 
-    public abstract Promise<Set<Query>, Throwable, Void> getQueries();
+    public Promise<CollectionCursor<Query>, Throwable, Void> getQueries() {
+        return getQueries(SORT_NOT);
+    }
 
-    public abstract Promise<Set<Artist>, Throwable, Void> getArtists();
+    public abstract Promise<CollectionCursor<Query>, Throwable, Void> getQueries(int sortMode);
 
-    public abstract Promise<Set<Artist>, Throwable, Void> getAlbumArtists();
+    public Promise<CollectionCursor<Artist>, Throwable, Void> getArtists() {
+        return getArtists(SORT_NOT);
+    }
 
-    public abstract Promise<Set<Album>, Throwable, Void> getAlbums();
+    public abstract Promise<CollectionCursor<Artist>, Throwable, Void> getArtists(int sortMode);
 
-    public abstract Promise<Set<Album>, Throwable, Void> getArtistAlbums(Artist artist,
-            boolean onlyIfCached);
+    public Promise<CollectionCursor<Artist>, Throwable, Void> getAlbumArtists() {
+        return getAlbumArtists(SORT_NOT);
+    }
 
-    public abstract Promise<Set<Query>, Throwable, Void> getAlbumTracks(Album album,
-            boolean onlyIfCached);
+    public abstract Promise<CollectionCursor<Artist>, Throwable, Void> getAlbumArtists(
+            int sortMode);
+
+    public Promise<CollectionCursor<Album>, Throwable, Void> getAlbums() {
+        return getAlbums(SORT_NOT);
+    }
+
+    public abstract Promise<CollectionCursor<Album>, Throwable, Void> getAlbums(int sortMode);
+
+    public abstract Promise<CollectionCursor<Album>, Throwable, Void> getArtistAlbums(
+            Artist artist);
+
+    public abstract Promise<CollectionCursor<Query>, Throwable, Void> getAlbumTracks(Album album);
 
 }

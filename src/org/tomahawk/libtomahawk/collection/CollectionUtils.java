@@ -19,18 +19,15 @@ package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
 
-import java.util.Iterator;
-
 public class CollectionUtils {
 
-    public static boolean allFromOneArtist(java.util.Collection<Query> items) {
+    public static boolean allFromOneArtist(CollectionCursor<Query> items) {
         if (items.size() < 2) {
             return true;
         }
-        Iterator<Query> iterator = items.iterator();
-        Query item = iterator.next();
+        Query item = items.get(0);
         for (int i = 1; i < items.size(); i++) {
-            Query itemToCompare = iterator.next();
+            Query itemToCompare = items.get(i);
             if (itemToCompare.getArtist() != item.getArtist()) {
                 return false;
             }

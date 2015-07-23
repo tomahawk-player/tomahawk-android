@@ -18,19 +18,14 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
-import org.tomahawk.libtomahawk.collection.AlphaComparator;
-import org.tomahawk.libtomahawk.collection.ArtistAlphaComparator;
 import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.CollectionUtils;
-import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -39,9 +34,7 @@ import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Track}s inside its {@link
@@ -109,16 +102,11 @@ public class TracksFragment extends TomahawkFragment {
         if (mAlbum != null) {
             showContentHeader(mAlbum);
             showAlbumFancyDropDown();
-            mCollection.getAlbumTracks(mAlbum, false).done(new DoneCallback<Set<Query>>() {
+            mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<CollectionCursor<Query>>() {
                 @Override
-                public void onDone(Set<Query> queries) {
-                    List<Query> sortedQueries = new ArrayList<>();
-                    sortedQueries.addAll(queries);
-                    Collections.sort(sortedQueries,
-                            new QueryComparator(QueryComparator.COMPARE_ALBUMPOS));
-                    Segment segment = new Segment(mAlbum.getArtist().getPrettyName(),
-                            sortedQueries);
-                    if (CollectionUtils.allFromOneArtist(queries)) {
+                public void onDone(CollectionCursor<Query> cursor) {
+                    Segment segment = new Segment(mAlbum.getArtist().getPrettyName(), cursor);
+                    if (CollectionUtils.allFromOneArtist(cursor)) {
                         segment.setHideArtistName(true);
                         segment.setShowDuration(true);
                     }
@@ -139,9 +127,9 @@ public class TracksFragment extends TomahawkFragment {
             segment.setShowDuration(true);
             fillAdapter(segment);
         } else {
-            mCollection.getQueries().done(new DoneCallback<Set<Query>>() {
+            mCollection.getQueries(getSortMode()).done(new DoneCallback<CollectionCursor<Query>>() {
                 @Override
-                public void onDone(final Set<Query> queries) {
+                public void onDone(final CollectionCursor<Query> cursor) {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -149,7 +137,7 @@ public class TracksFragment extends TomahawkFragment {
                                     getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION),
                                     constructDropdownItems(),
                                     constructDropdownListener(COLLECTION_TRACKS_SPINNER_POSITION),
-                                    sortQueries(queries)));
+                                    cursor));
                         }
                     }).start();
                 }
@@ -165,28 +153,17 @@ public class TracksFragment extends TomahawkFragment {
         return dropDownItems;
     }
 
-    private List<Query> sortQueries(java.util.Collection<Query> queries) {
-        List<Query> sortedQueries;
-        if (queries instanceof List) {
-            sortedQueries = (List<Query>) queries;
-        } else {
-            sortedQueries = new ArrayList<>(queries);
-        }
+    private int getSortMode() {
         switch (getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION)) {
             case 0:
-                UserCollection userColl = (UserCollection) CollectionManager.getInstance()
-                        .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                Collections.sort(sortedQueries,
-                        new LastModifiedComparator<>(userColl.getQueryTimeStamps()));
-                break;
+                return Collection.SORT_LAST_MODIFIED;
             case 1:
-                Collections.sort(sortedQueries, new AlphaComparator());
-                break;
+                return Collection.SORT_ALPHA;
             case 2:
-                Collections.sort(sortedQueries, new ArtistAlphaComparator());
-                break;
+                return Collection.SORT_ARTIST_ALPHA;
+            default:
+                return Collection.SORT_NOT;
         }
-        return sortedQueries;
     }
 
     private void showAlbumFancyDropDown() {

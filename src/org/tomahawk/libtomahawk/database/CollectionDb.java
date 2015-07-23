@@ -17,12 +17,7 @@
  */
 package org.tomahawk.libtomahawk.database;
 
-import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
 
 import android.content.ContentValues;
@@ -145,8 +140,6 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     private final SQLiteDatabase mDb;
 
-    private final ScriptResolver mScriptResolver;
-
     private static class JoinInfo {
 
         String table;
@@ -155,12 +148,11 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     }
 
-    public CollectionDb(Context context, String collectionId, ScriptResolver resolver) {
+    public CollectionDb(Context context, String collectionId) {
         super(context, collectionId + DB_FILE_SUFFIX, null, DB_VERSION);
 
         close();
         mDb = getWritableDatabase();
-        mScriptResolver = resolver;
     }
 
     @Override
@@ -198,26 +190,9 @@ public class CollectionDb extends SQLiteOpenHelper {
             mDb.insert(TABLE_ALBUMARTISTS, null, values);
         }
 
-        Map<String, Integer> cachedAlbumArtists = new HashMap<>();
-        Cursor cursor = mDb.query(TABLE_ALBUMARTISTS,
-                new String[]{ID, ALBUMARTISTS_ALBUMARTIST, ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION},
-                null, null, null, null, null);
-        try {
-            cursor.moveToFirst();
-            if (!cursor.isAfterLast()) {
-                do {
-                    cachedAlbumArtists.put(concatKeys(cursor.getString(1), cursor.getString(2)),
-                            cursor.getInt(0));
-                } while (cursor.moveToNext());
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
         Map<String, Integer> cachedArtists = new HashMap<>();
         Map<Integer, String> cachedArtistIds = new HashMap<>();
-        cursor = mDb.query(TABLE_ARTISTS,
+        Cursor cursor = mDb.query(TABLE_ARTISTS,
                 new String[]{ID, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION},
                 null, null, null, null, null);
         try {
@@ -252,7 +227,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             values.put(ALBUMS_ALBUM, track.album);
             int albumArtistId;
             if (albumArtists.get(track.album).size() == 1) {
-                albumArtistId = cachedAlbumArtists.get(
+                albumArtistId = cachedArtists.get(
                         concatKeys(track.artist, track.artistDisambiguation));
             } else {
                 albumArtistId = cachedArtists.get(
@@ -286,7 +261,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             values = new ContentValues();
             int albumArtistId;
             if (albumArtists.get(track.album).size() == 1) {
-                albumArtistId = cachedAlbumArtists.get(
+                albumArtistId = cachedArtists.get(
                         concatKeys(track.artist, track.artistDisambiguation));
             } else {
                 albumArtistId = cachedArtists.get(
@@ -302,7 +277,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             values.put(TRACKS_ARTISTID, artistId);
             values.put(TRACKS_ALBUMID, albumId);
             values.put(TRACKS_URL, track.url);
-            values.put(TRACKS_DURATION, track.duration);
+            values.put(TRACKS_DURATION, (int) track.duration);
             values.put(TRACKS_LINKURL, track.linkUrl);
             values.put(TRACKS_ALBUMPOS, track.albumPos);
             mDb.insert(TABLE_TRACKS, null, values);
@@ -327,50 +302,128 @@ public class CollectionDb extends SQLiteOpenHelper {
         mDb.execSQL(CREATE_TABLE_TRACKS);
     }
 
-    public synchronized Set<Query> tracks(Map<String, String> where) {
-        long time = System.currentTimeMillis();
-        mDb.beginTransaction();
+    public synchronized Cursor tracks(Map<String, String> where, String[] orderBy) {
         String[] fields = new String[]{ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION, ALBUMS_ALBUM,
                 TRACKS_TRACK, TRACKS_DURATION, TRACKS_URL, TRACKS_LINKURL, TRACKS_ALBUMPOS};
         List<JoinInfo> joinInfos = new ArrayList<>();
         JoinInfo joinInfo = new JoinInfo();
         joinInfo.table = TABLE_ARTISTS;
-        joinInfo.conditions.put(TRACKS_ARTISTID, ID);
+        joinInfo.conditions.put(TABLE_TRACKS + "." + TRACKS_ARTISTID, TABLE_ARTISTS + "." + ID);
         joinInfos.add(joinInfo);
         joinInfo = new JoinInfo();
         joinInfo.table = TABLE_ALBUMS;
-        joinInfo.conditions.put(TRACKS_ALBUMID, ID);
+        joinInfo.conditions.put(TABLE_TRACKS + "." + TRACKS_ALBUMID, TABLE_ALBUMS + "." + ID);
         joinInfos.add(joinInfo);
-        Cursor cursor = sqlSelect(TABLE_TRACKS, fields, where, joinInfos);
-        Set<Query> queries = new HashSet<>();
+        return sqlSelect(TABLE_TRACKS, fields, where, joinInfos, orderBy);
+    }
+
+    public synchronized Cursor albums(String[] orderBy) {
+        String[] fields = new String[]{ALBUMS_ALBUM, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION};
+        List<JoinInfo> joinInfos = new ArrayList<>();
+        JoinInfo joinInfo = new JoinInfo();
+        joinInfo.table = TABLE_ARTISTS;
+        joinInfo.conditions.put(
+                TABLE_ALBUMS + "." + ALBUMS_ALBUMARTISTID, TABLE_ARTISTS + "." + ID);
+        joinInfos.add(joinInfo);
+        return sqlSelect(TABLE_ALBUMS, fields, null, joinInfos, orderBy);
+    }
+
+    public synchronized Cursor artists(String[] orderBy) {
+        String[] fields = new String[]{ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION};
+        return sqlSelect(TABLE_ARTISTS, fields, null, null, orderBy);
+    }
+
+    public synchronized Cursor albumArtists(String[] orderBy) {
+        String[] fields = new String[]{ALBUMARTISTS_ALBUMARTIST,
+                ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION};
+        return sqlSelect(TABLE_ALBUMARTISTS, fields, null, null, orderBy);
+    }
+
+    public synchronized Cursor artistAlbums(String artist, String artistDisambiguation) {
+        String[] fields = new String[]{ID};
+        Map<String, String> where = new HashMap<>();
+        where.put(ARTISTS_ARTIST, artist);
+        where.put(ARTISTS_ARTISTDISAMBIGUATION, artistDisambiguation);
+        int artistId;
+        Cursor cursor = null;
         try {
-            cursor.moveToFirst();
-            if (!cursor.isAfterLast()) {
-                do {
-                    Artist artist = Artist.get(cursor.getString(0));
-                    Album album = Album.get(cursor.getString(2), artist);
-                    Track track = Track.get(cursor.getString(3), album, artist);
-                    track.setDuration(cursor.getInt(4));
-                    track.setAlbumPos(cursor.getInt(7));
-                    Result result = Result.get(cursor.getString(5), track, mScriptResolver);
-                    Query query = Query.get(result, false);
-                    queries.add(query);
-                } while (cursor.moveToNext());
+            cursor = sqlSelect(TABLE_ARTISTS, fields, where, null, null);
+            if (cursor.moveToFirst()) {
+                artistId = cursor.getInt(0);
+            } else {
+                Log.e(TAG, "albumArtists - Couldn't find artist with given name!");
+                return null;
             }
         } finally {
             if (cursor != null) {
                 cursor.close();
             }
         }
-        mDb.setTransactionSuccessful();
-        mDb.endTransaction();
-        Log.d(TAG, "Returned " + queries.size() + " tracks in "
-                + (System.currentTimeMillis() - time) + "ms");
-        return queries;
+        fields = new String[]{ALBUMS_ALBUM, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION};
+        where = new HashMap<>();
+        where.put(ARTISTALBUMS_ARTISTID, String.valueOf(artistId));
+        List<JoinInfo> joinInfos = new ArrayList<>();
+        JoinInfo joinInfo = new JoinInfo();
+        joinInfo.table = TABLE_ALBUMS;
+        joinInfo.conditions.put(
+                TABLE_ARTISTALBUMS + "." + ARTISTALBUMS_ALBUMID, TABLE_ALBUMS + "." + ID);
+        joinInfos.add(joinInfo);
+        joinInfo = new JoinInfo();
+        joinInfo.table = TABLE_ARTISTS;
+        joinInfo.conditions.put(
+                TABLE_ALBUMS + "." + ALBUMS_ALBUMARTISTID, TABLE_ARTISTS + "." + ID);
+        joinInfos.add(joinInfo);
+        return sqlSelect(TABLE_ARTISTALBUMS, fields, where, joinInfos, new String[]{ALBUMS_ALBUM});
+    }
+
+    public synchronized Cursor albumTracks(String album, String albumArtist,
+            String albumArtistDisambiguation) {
+        String[] fields = new String[]{ID};
+        Map<String, String> where = new HashMap<>();
+        where.put(ARTISTS_ARTIST, albumArtist);
+        where.put(ARTISTS_ARTISTDISAMBIGUATION, albumArtistDisambiguation);
+        int artistId;
+        Cursor cursor = null;
+        try {
+            cursor = sqlSelect(TABLE_ARTISTS, fields, where, null, null);
+            if (cursor.moveToFirst()) {
+                artistId = cursor.getInt(0);
+            } else {
+                Log.e(TAG, "albumTracks - Couldn't find artist with given name!");
+                return null;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        fields = new String[]{ID};
+        where = new HashMap<>();
+        where.put(ALBUMS_ALBUM, album);
+        where.put(ALBUMS_ALBUMARTISTID, String.valueOf(artistId));
+        int albumId;
+        cursor = null;
+        try {
+            cursor = sqlSelect(TABLE_ALBUMS, fields, where, null, null);
+            if (cursor.moveToFirst()) {
+                albumId = cursor.getInt(0);
+            } else {
+                Log.e(TAG, "albumTracks - Couldn't find album with given name!");
+                return null;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        where = new HashMap<>();
+        where.put(TRACKS_ALBUMID, String.valueOf(albumId));
+        return tracks(where, new String[]{TRACKS_ALBUMPOS});
     }
 
     private Cursor sqlSelect(String table, String[] fields, Map<String, String> where,
-            List<JoinInfo> joinInfos) {
+            List<JoinInfo> joinInfos, String[] orderBy) {
         String whereString = "";
         String[] whereValues = null;
         if (where != null) {
@@ -396,9 +449,21 @@ public class CollectionDb extends SQLiteOpenHelper {
                         joinString += " AND ";
                     }
                     notFirst = true;
-                    joinString += table + "." + joinKey + " = " + joinInfo.table + "."
-                            + joinInfo.conditions.get(joinKey);
+                    joinString += joinKey + " = " + joinInfo.conditions.get(joinKey);
                 }
+            }
+        }
+
+        String orderString = "";
+        if (orderBy != null) {
+            orderString = " ORDER BY ";
+            boolean notFirst = false;
+            for (String orderingTerm : orderBy) {
+                if (notFirst) {
+                    joinString += " , ";
+                }
+                notFirst = true;
+                orderString += orderingTerm;
             }
         }
 
@@ -414,7 +479,8 @@ public class CollectionDb extends SQLiteOpenHelper {
                 fieldsString += field;
             }
         }
-        String statement = "SELECT " + fieldsString + " FROM " + table + joinString + whereString;
+        String statement = "SELECT " + fieldsString + " FROM " + table + joinString + whereString
+                + orderString;
         return mDb.rawQuery(statement, whereValues);
     }
 

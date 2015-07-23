@@ -21,6 +21,7 @@ import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -54,7 +55,6 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import de.greenrobot.event.EventBus;
 
@@ -255,11 +255,16 @@ public class ContextMenuFragment extends Fragment {
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     if (mAlbum != null) {
-                        mCollection.getAlbumTracks(mAlbum, false)
-                                .done(new DoneCallback<Set<Query>>() {
+                        mCollection.getAlbumTracks(mAlbum)
+                                .done(new DoneCallback<CollectionCursor<Query>>() {
                                     @Override
-                                    public void onDone(Set<Query> result) {
-                                        showAddToPlaylist(activity, new ArrayList<>(result));
+                                    public void onDone(CollectionCursor<Query> cursor) {
+                                        List<Query> queries = new ArrayList<>();
+                                        for (int i = 0; i < cursor.size(); i++) {
+                                            queries.add(cursor.get(i));
+                                        }
+                                        cursor.close();
+                                        showAddToPlaylist(activity, queries);
                                     }
                                 });
                     } else if (mQuery != null) {

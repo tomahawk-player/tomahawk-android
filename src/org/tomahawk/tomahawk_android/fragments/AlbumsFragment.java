@@ -21,6 +21,8 @@ import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.ArtistAlphaComparator;
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
@@ -28,7 +30,6 @@ import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.QueryComparator;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -43,7 +44,6 @@ import android.view.View;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Album}s inside its {@link
@@ -92,17 +92,19 @@ public class AlbumsFragment extends TomahawkFragment {
                 }
             }
         } else if (item instanceof Album) {
-            mCollection.getAlbumTracks((Album) item, false).done(new DoneCallback<Set<Query>>() {
+            Album album = (Album) item;
+            mCollection.getAlbumTracks(album).done(new DoneCallback<CollectionCursor<Query>>() {
                 @Override
-                public void onDone(Set<Query> result) {
+                public void onDone(CollectionCursor<Query> cursor) {
                     Bundle bundle = new Bundle();
                     bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
-                    if (result.size() > 0) {
+                    if (cursor.size() > 0) {
                         bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
                     } else {
                         bundle.putString(TomahawkFragment.COLLECTION_ID,
                                 TomahawkApp.PLUGINNAME_HATCHET);
                     }
+                    cursor.close();
                     bundle.putInt(CONTENT_HEADER_MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                     FragmentUtils.replace((TomahawkMainActivity) getActivity(),
@@ -123,42 +125,45 @@ public class AlbumsFragment extends TomahawkFragment {
 
         if (mArtist != null) {
             if (!TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
-                mCollection.getArtistAlbums(mArtist, false).done(new DoneCallback<Set<Album>>() {
-                    @Override
-                    public void onDone(Set<Album> result) {
-                        fillAdapter(new Segment(
+                mCollection.getArtistAlbums(mArtist)
+                        .done(new DoneCallback<CollectionCursor<Album>>() {
+                            @Override
+                            public void onDone(CollectionCursor<Album> cursor) {
+                                Segment segment = new Segment(
                                         mCollection.getName() + " " + getString(R.string.albums),
-                                        sortAlbums(result), R.integer.grid_column_count,
-                                        R.dimen.padding_superlarge, R.dimen.padding_superlarge),
-                                mCollection);
-                    }
-                });
+                                        cursor, R.integer.grid_column_count,
+                                        R.dimen.padding_superlarge, R.dimen.padding_superlarge);
+                                fillAdapter(segment, mCollection);
+                            }
+                        });
             } else {
-                mCollection.getArtistAlbums(mArtist, false).done(new DoneCallback<Set<Album>>() {
-                    @Override
-                    public void onDone(Set<Album> result) {
-                        final List<Segment> segments = new ArrayList<>();
-                        Segment segment = new Segment(R.string.top_albums, sortAlbums(result),
-                                R.integer.grid_column_count, R.dimen.padding_superlarge,
-                                R.dimen.padding_superlarge);
-                        segments.add(segment);
-                        fillAdapter(segment);
-                        ((HatchetCollection) mCollection).getArtistTopHits(mArtist).done(
-                                new DoneCallback<List<Query>>() {
-                                    @Override
-                                    public void onDone(List<Query> result) {
-                                        Collections.sort(result, new QueryComparator(
-                                                QueryComparator.COMPARE_ALBUMPOS));
-                                        Segment segment = new Segment(R.string.top_hits, result);
-                                        segment.setShowNumeration(true, 1);
-                                        segment.setHideArtistName(true);
-                                        segment.setShowDuration(true);
-                                        segments.add(segment);
-                                        fillAdapter(segments);
-                                    }
-                                });
-                    }
-                });
+                HatchetCollection collection = (HatchetCollection) mCollection;
+                final List<Segment> segments = new ArrayList<>();
+                collection.getArtistAlbums(mArtist)
+                        .done(new DoneCallback<CollectionCursor<Album>>() {
+                            @Override
+                            public void onDone(CollectionCursor<Album> cursor) {
+                                Segment segment = new Segment(R.string.top_albums, cursor,
+                                        R.integer.grid_column_count, R.dimen.padding_superlarge,
+                                        R.dimen.padding_superlarge);
+                                segments.add(segment);
+                                fillAdapter(segments);
+                            }
+                        });
+                collection.getArtistTopHits(mArtist)
+                        .done(new DoneCallback<CollectionCursor<Query>>() {
+                            @Override
+                            public void onDone(CollectionCursor<Query> cursor) {
+                                String topHits =
+                                        TomahawkApp.getContext().getString(R.string.top_hits);
+                                Segment segment = new Segment(topHits, cursor);
+                                segment.setShowNumeration(true, 1);
+                                segment.setHideArtistName(true);
+                                segment.setShowDuration(true);
+                                segments.add(0, segment);
+                                fillAdapter(segments);
+                            }
+                        });
             }
         } else if (mAlbumArray != null) {
             fillAdapter(new Segment(mAlbumArray));
@@ -175,20 +180,20 @@ public class AlbumsFragment extends TomahawkFragment {
             } else {
                 starredAlbums = null;
             }
-            mCollection.getAlbums().done(new DoneCallback<Set<Album>>() {
+            mCollection.getAlbums(getSortMode()).done(new DoneCallback<CollectionCursor<Album>>() {
                 @Override
-                public void onDone(final Set<Album> result) {
+                public void onDone(final CollectionCursor<Album> cursor) {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
                             if (starredAlbums != null) {
-                                result.addAll(starredAlbums);
+                                cursor.mergeItems(getSortMode(), starredAlbums);
                             }
                             fillAdapter(new Segment(
                                             getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION),
                                             constructDropdownItems(), constructDropdownListener(
-                                            COLLECTION_ALBUMS_SPINNER_POSITION),
-                                            sortAlbums(result), R.integer.grid_column_count,
+                                            COLLECTION_ALBUMS_SPINNER_POSITION), cursor,
+                                            R.integer.grid_column_count,
                                             R.dimen.padding_superlarge, R.dimen.padding_superlarge),
                                     mCollection);
                         }
@@ -204,6 +209,19 @@ public class AlbumsFragment extends TomahawkFragment {
         dropDownItems.add(R.string.collection_dropdown_alpha);
         dropDownItems.add(R.string.collection_dropdown_alpha_artists);
         return dropDownItems;
+    }
+
+    private int getSortMode() {
+        switch (getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION)) {
+            case 0:
+                return Collection.SORT_LAST_MODIFIED;
+            case 1:
+                return Collection.SORT_ALPHA;
+            case 2:
+                return Collection.SORT_ARTIST_ALPHA;
+            default:
+                return Collection.SORT_NOT;
+        }
     }
 
     private List<Album> sortAlbums(java.util.Collection<Album> albums) {

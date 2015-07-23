@@ -17,7 +17,6 @@
  */
 package org.tomahawk.libtomahawk.database;
 
-import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import java.util.HashMap;
@@ -42,10 +41,10 @@ public class CollectionDbManager {
         return Holder.instance;
     }
 
-    public CollectionDb getCollectionDb(String collectionId, ScriptResolver resolver) {
+    public CollectionDb getCollectionDb(String collectionId) {
         CollectionDb db = mCollectionDbs.get(collectionId);
         if (db == null) {
-            db = new CollectionDb(TomahawkApp.getContext(), collectionId, resolver);
+            db = new CollectionDb(TomahawkApp.getContext(), collectionId);
             mCollectionDbs.put(collectionId, db);
         }
         return db;

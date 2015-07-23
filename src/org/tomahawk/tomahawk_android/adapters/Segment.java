@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -27,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Segment {
+
+    private static final String TAG = Segment.class.getSimpleName();
 
     private int mColumnCount = 1;
 
@@ -44,6 +47,8 @@ public class Segment {
 
     private List mListItems = new ArrayList<>();
 
+    private CollectionCursor mCollectionCursor;
+
     private boolean mShowAsQueued;
 
     private int mNumerationCorrection;
@@ -55,6 +60,10 @@ public class Segment {
     private boolean mHideArtistName;
 
     private int mLeftExtraPadding;
+
+    public Segment(CollectionCursor cursor) {
+        mCollectionCursor = cursor;
+    }
 
     public Segment(List listItems, int headerLayoutId) {
         this(listItems);
@@ -71,6 +80,12 @@ public class Segment {
 
     public Segment(String headerString, List listItems) {
         this(listItems);
+        mHeaderStrings.add(headerString);
+        mHeaderLayoutId = R.layout.single_line_list_header;
+    }
+
+    public Segment(String headerString, CollectionCursor cursor) {
+        this(cursor);
         mHeaderStrings.add(headerString);
         mHeaderLayoutId = R.layout.single_line_list_header;
     }
@@ -93,12 +108,23 @@ public class Segment {
         mSpinnerClickListener = spinnerClickListener;
     }
 
+    public Segment(int initialPos, List<Integer> headerStringResIds,
+            AdapterView.OnItemSelectedListener spinnerClickListener,
+            CollectionCursor cursor) {
+        this(cursor);
+        mInitialPos = initialPos;
+        for (Integer resId : headerStringResIds) {
+            mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
+        }
+        mHeaderLayoutId = R.layout.dropdown_header;
+        mSpinnerClickListener = spinnerClickListener;
+    }
+
     public Segment(List listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId, int headerLayoutId) {
         this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
         mHeaderLayoutId = headerLayoutId;
     }
-
 
     public Segment(List listItems, int columnCountResId,
             int horizontalPaddingResId, int verticalPaddingResId) {
@@ -122,11 +148,50 @@ public class Segment {
         mHeaderLayoutId = R.layout.single_line_list_header;
     }
 
+    public Segment(int headerStringResId, CollectionCursor cursor, int columnCountResId,
+            int horizontalPaddingResId, int verticalPaddingResId) {
+        this(cursor);
+        Resources resources = TomahawkApp.getContext().getResources();
+        mHorizontalPadding = resources.getDimensionPixelSize(horizontalPaddingResId);
+        mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
+        mColumnCount = resources.getInteger(columnCountResId);
+        mHeaderStrings.add(resources.getString(headerStringResId));
+        mHeaderLayoutId = R.layout.single_line_list_header;
+    }
+
+    public Segment(String headerString, CollectionCursor cursor, int columnCountResId,
+            int horizontalPaddingResId, int verticalPaddingResId) {
+        this(cursor);
+        Resources resources = TomahawkApp.getContext().getResources();
+        mHorizontalPadding = resources.getDimensionPixelSize(horizontalPaddingResId);
+        mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
+        mColumnCount = resources.getInteger(columnCountResId);
+        mHeaderStrings.add(headerString);
+        mHeaderLayoutId = R.layout.single_line_list_header;
+    }
+
     public Segment(int initialPos, List<Integer> headerStringResIds,
             AdapterView.OnItemSelectedListener spinnerClickListener,
             List listItems, int columnCountResId, int horizontalPaddingResId,
             int verticalPaddingResId) {
         this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
+        mInitialPos = initialPos;
+        for (Integer resId : headerStringResIds) {
+            mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
+        }
+        mHeaderLayoutId = R.layout.dropdown_header;
+        mSpinnerClickListener = spinnerClickListener;
+    }
+
+    public Segment(int initialPos, List<Integer> headerStringResIds,
+            AdapterView.OnItemSelectedListener spinnerClickListener,
+            CollectionCursor cursor, int columnCountResId,
+            int horizontalPaddingResId, int verticalPaddingResId) {
+        this(cursor);
+        Resources resources = TomahawkApp.getContext().getResources();
+        mHorizontalPadding = resources.getDimensionPixelSize(horizontalPaddingResId);
+        mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
+        mColumnCount = resources.getInteger(columnCountResId);
         mInitialPos = initialPos;
         for (Integer resId : headerStringResIds) {
             mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
@@ -159,7 +224,8 @@ public class Segment {
     }
 
     public int size() {
-        return mListItems.size();
+        int size = mCollectionCursor != null ? mCollectionCursor.size() : mListItems.size();
+        return (int) Math.ceil((float) size / mColumnCount);
     }
 
     public Object get(int location) {
@@ -167,14 +233,22 @@ public class Segment {
             List<Object> list = new ArrayList<>();
             for (int i = location * mColumnCount; i < location * mColumnCount + mColumnCount; i++) {
                 Object item = null;
-                if (i < mListItems.size()) {
+                if (mCollectionCursor != null && i < mCollectionCursor.size()) {
+                    item = mCollectionCursor.get(i);
+                } else if (i < mListItems.size()) {
                     item = mListItems.get(i);
                 }
                 list.add(item);
             }
             return list;
         } else {
-            return mListItems.get(location);
+            Object item;
+            if (mCollectionCursor != null) {
+                item = mCollectionCursor.get(location);
+            } else {
+                item = mListItems.get(location);
+            }
+            return item;
         }
     }
 
@@ -184,6 +258,12 @@ public class Segment {
             return ((List) get(0)).get(0);
         } else {
             return result;
+        }
+    }
+
+    public void close() {
+        if (mCollectionCursor != null) {
+            mCollectionCursor.close();
         }
     }
 

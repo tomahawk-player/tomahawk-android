@@ -28,7 +28,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import android.widget.ImageView;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -42,11 +41,6 @@ public class HatchetCollection extends NativeCollection {
 
     public HatchetCollection() {
         super(TomahawkApp.PLUGINNAME_HATCHET, "", true);
-
-        mAlbums = Collections.newSetFromMap(new ConcurrentHashMap<Album, Boolean>());
-        mArtists = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
-        mAlbumArtists = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
-        mQueries = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
     }
 
     public void addArtistTopHits(Artist artist, List<Query> topHits) {
@@ -56,13 +50,14 @@ public class HatchetCollection extends NativeCollection {
     /**
      * @return A {@link java.util.List} of all top hits {@link Track}s from the given Artist.
      */
-    public Promise<List<Query>, Throwable, Void> getArtistTopHits(final Artist artist) {
-        final Deferred<List<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<CollectionCursor<Query>, Throwable, Void> getArtistTopHits(final Artist artist) {
+        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
         List<Query> queries = new ArrayList<>();
         if (mArtistTopHits.get(artist) != null) {
             queries.addAll(mArtistTopHits.get(artist));
         }
-        return deferred.resolve(queries);
+        CollectionCursor<Query> collectionCursor = new CollectionCursor<>(queries, Query.class);
+        return deferred.resolve(collectionCursor);
     }
 
     @Override

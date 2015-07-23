@@ -77,7 +77,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
@@ -454,7 +453,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                             }
                             Album convertedAlbum =
                                     InfoSystemUtils.convertToAlbum(album, artist.name, image);
-                            Set<Query> convertedTracks =
+                            List<Query> convertedTracks =
                                     InfoSystemUtils.convertToQueries(albumTracks,
                                             convertedAlbum.getName(), convertedArtist.getName());
                             hatchetCollection.addAlbum(convertedAlbum);
@@ -512,7 +511,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                                 if (artists != null) {
                                     Map<String, HatchetArtistInfo> artistsMap =
                                             InfoSystemUtils.listToMap(artists.artists);
-                                    Set<Query> convertedTracks = InfoSystemUtils
+                                    List<Query> convertedTracks = InfoSystemUtils
                                             .convertToQueries(tracks.tracks, album.getName(),
                                                     artistsMap);
                                     hatchetCollection.addAlbumTracks(album, convertedTracks);

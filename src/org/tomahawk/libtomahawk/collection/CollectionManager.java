@@ -570,9 +570,9 @@ public class CollectionManager {
         for (final Collection collection : mCollections.values()) {
             if (!collection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET)) {
                 if (object instanceof Album) {
-                    promises.add(collection.getAlbumTracks((Album) object, false));
+                    promises.add(collection.getAlbumTracks((Album) object));
                 } else {
-                    promises.add(collection.getArtistAlbums((Artist) object, false));
+                    promises.add(collection.getArtistAlbums((Artist) object));
                 }
                 collections.add(collection);
             }
@@ -585,10 +585,12 @@ public class CollectionManager {
                             OneReject rejected) {
                         List<Collection> availableCollections = new ArrayList<>();
                         for (int i = 0; i < resolved.size(); i++) {
-                            Set set = (Set) resolved.get(i).getResult();
-                            if (set.size() > 0) {
+                            CollectionCursor cursor
+                                    = (CollectionCursor) resolved.get(i).getResult();
+                            if (cursor.size() > 0) {
                                 availableCollections.add(collections.get(i));
                             }
+                            cursor.close();
                         }
                         availableCollections.add(mCollections.get(TomahawkApp.PLUGINNAME_HATCHET));
                         deferred.resolve(availableCollections);

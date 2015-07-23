@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -426,6 +427,12 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         mAdapterUpdateHandler.removeCallbacksAndMessages(null);
 
         mIsResumed = false;
+
+        if (mTomahawkListAdapter != null) {
+            mTomahawkListAdapter.closeSegments();
+            setListAdapter(null);
+            mTomahawkListAdapter = null;
+        }
     }
 
     @Override
@@ -470,6 +477,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                         TomahawkListAdapter adapter = new TomahawkListAdapter(activity, inflater,
                                 segments, collection, getListView(), TomahawkFragment.this);
                         TomahawkFragment.super.setListAdapter(adapter);
+                        if (mTomahawkListAdapter != null) {
+                            mTomahawkListAdapter.closeSegments();
+                        }
                         mTomahawkListAdapter = adapter;
                         getListView().setOnItemClickListener(mTomahawkListAdapter);
                         getListView().setOnItemLongClickListener(mTomahawkListAdapter);
@@ -678,9 +688,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 }
             }
             if (mCollection != null) {
-                mCollection.getAlbumTracks(album, false).done(new DoneCallback<Set<Query>>() {
+                mCollection.getAlbumTracks(album).done(new DoneCallback<CollectionCursor<Query>>() {
                     @Override
-                    public void onDone(Set<Query> result) {
+                    public void onDone(CollectionCursor<Query> cursor) {
+                        cursor.close();
                         if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
                             mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
                                     ADAPTER_UPDATE_DELAY);

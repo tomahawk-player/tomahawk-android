@@ -116,7 +116,7 @@ public class PreferenceConnectFragment extends TomahawkListFragment
                 R.dimen.padding_superlarge, R.dimen.padding_superlarge);
         segments.add(segment);
 
-        resolvers.clear();
+        resolvers = new ArrayList<>();
         for (ScriptResolver scriptResolver : scriptResolvers) {
             if (!scriptResolver.getId().contains("-metadata")
                     && scriptResolver.getScriptAccount().isManuallyInstalled()) {
