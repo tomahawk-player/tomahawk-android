@@ -21,6 +21,7 @@ import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -48,7 +49,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ViewHolder {
@@ -208,13 +208,13 @@ public class ViewHolder {
                 album.getImage(), Image.getSmallImageSize(), false);
         final TextView textView3 = (TextView) findViewById(R.id.textview3);
         textView3.setVisibility(View.INVISIBLE);
-        collection.getAlbumTracks(album, true).done(new DoneCallback<Set<Query>>() {
+        collection.getAlbumTracks(album).done(new DoneCallback<CollectionCursor<Query>>() {
             @Override
-            public void onDone(Set<Query> result) {
+            public void onDone(CollectionCursor<Query> cursor) {
                 textView3.setVisibility(View.VISIBLE);
-                textView3.setText(TomahawkApp.getContext().getResources()
-                        .getQuantityString(R.plurals.songs_with_count, result.size(),
-                                result.size()));
+                textView3.setText(TomahawkApp.getContext().getResources().getQuantityString(
+                        R.plurals.songs_with_count, cursor.size(), cursor.size()));
+                cursor.close();
             }
         });
     }

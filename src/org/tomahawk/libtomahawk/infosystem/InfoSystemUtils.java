@@ -45,10 +45,8 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class InfoSystemUtils {
 
@@ -177,9 +175,9 @@ public class InfoSystemUtils {
     /**
      * Convert the given list of trackinfos to a list of queries
      */
-    public static Set<Query> convertToQueries(List<HatchetTrackInfo> tracks, String albumName,
+    public static List<Query> convertToQueries(List<HatchetTrackInfo> tracks, String albumName,
             Map<String, HatchetArtistInfo> artists) {
-        Set<Query> queries = new HashSet<>();
+        List<Query> queries = new ArrayList<>();
         if (tracks != null) {
             for (HatchetTrackInfo trackInfo : tracks) {
                 Query query = Query.get(trackInfo.name, albumName,
@@ -193,9 +191,9 @@ public class InfoSystemUtils {
     /**
      * Convert the given list of trackinfos to a list of queries
      */
-    public static Set<Query> convertToQueries(List<HatchetTrackInfo> tracks, String albumName,
+    public static List<Query> convertToQueries(List<HatchetTrackInfo> tracks, String albumName,
             String artistName) {
-        Set<Query> queries = new HashSet<>();
+        List<Query> queries = new ArrayList<>();
         if (tracks != null) {
             for (HatchetTrackInfo trackInfo : tracks) {
                 Query query = Query.get(trackInfo.name, albumName,

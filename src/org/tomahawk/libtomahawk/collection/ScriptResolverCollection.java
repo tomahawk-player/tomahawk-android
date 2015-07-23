@@ -17,32 +17,24 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.Promise;
+import org.tomahawk.libtomahawk.database.CollectionDb;
 import org.tomahawk.libtomahawk.database.CollectionDbManager;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptAccount;
 import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.ScriptObject;
 import org.tomahawk.libtomahawk.resolver.ScriptPlugin;
-import org.tomahawk.libtomahawk.resolver.ScriptUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverCollectionMetaData;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
+import android.database.Cursor;
 import android.util.Log;
 import android.widget.ImageView;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * This class represents a Collection which contains tracks/albums/artists retrieved by a
@@ -63,11 +55,6 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
 
         mScriptObject = object;
         mScriptAccount = account;
-
-        // initialize everything
-        getAlbums();
-        getQueries();
-        getArtists();
     }
 
     public Deferred<ScriptResolverCollectionMetaData, Throwable, Void> getMetaData() {
@@ -122,258 +109,154 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     }
 
     @Override
-    public Promise<Set<Query>, Throwable, Void> getQueries() {
-        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        if (mQueries != null) {
-            deferred.resolve(mQueries);
-        } else {
-            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-                @Override
-                public void onDone(ScriptResolverCollectionMetaData result) {
-                    Set<Query> queries = CollectionDbManager.get().getCollectionDb(
-                            result.id, mScriptAccount.getScriptResolver()).tracks(null);
-                    deferred.resolve(queries);
+    public Promise<CollectionCursor<Query>, Throwable, Void> getQueries(final int sortMode) {
+        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+            @Override
+            public void onDone(ScriptResolverCollectionMetaData result) {
+                String[] orderBy;
+                switch (sortMode) {
+                    case SORT_ALPHA:
+                        orderBy = new String[]{CollectionDb.TRACKS_TRACK};
+                        break;
+                    case SORT_ARTIST_ALPHA:
+                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                        break;
+                    case SORT_LAST_MODIFIED:
+                        orderBy = new String[]{CollectionDb.TRACKS_TRACK};    //TODO
+                        break;
+                    default:
+                        Log.e(TAG, "getQueries - sortMode not supported!");
+                        return;
                 }
-            });
-        }
+                Cursor cursor =
+                        CollectionDbManager.get().getCollectionDb(result.id).tracks(null, orderBy);
+                CollectionCursor<Query> collectionCursor = new CollectionCursor<>(cursor,
+                        Query.class, mScriptAccount.getScriptResolver());
+                deferred.resolve(collectionCursor);
+            }
+        });
         return deferred;
     }
 
     @Override
-    public Promise<Set<Artist>, Throwable, Void> getArtists() {
-        final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
-        if (mArtists != null) {
-            deferred.resolve(mArtists);
-        } else {
-            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-                @Override
-                public void onDone(ScriptResolverCollectionMetaData result) {
-                    HashMap<String, Object> a = new HashMap<>();
-                    a.put("id", result.id);
-                    final long timeBefore = System.currentTimeMillis();
-                    ScriptJob.start(mScriptObject, "artists", a,
-                            new ScriptJob.ResultsArrayCallback() {
-                                @Override
-                                public void onReportResults(JsonArray results) {
-                                    Log.d(TAG,
-                                            "Received " + results.size() + " artistResults in " + (
-                                                    System.currentTimeMillis() - timeBefore)
-                                                    + "ms");
-                                    long time = System.currentTimeMillis();
-                                    Set<Artist> artists = new HashSet<>();
-                                    for (JsonElement result : results) {
-                                        Artist artist = Artist
-                                                .get(ScriptUtils
-                                                        .getNodeChildAsText(result, "artist"));
-                                        artists.add(artist);
-                                    }
-                                    Log.d(TAG,
-                                            "Converted " + artists.size() + " artistResults in " + (
-                                                    System.currentTimeMillis() - time) + "ms");
-                                    mArtists = artists;
-                                    deferred.resolve(artists);
-                                }
-                            }, new ScriptJob.FailureCallback() {
-                                @Override
-                                public void onReportFailure(String errormessage) {
-                                    deferred.resolve(new HashSet<Artist>());
-                                }
-                            });
+    public Promise<CollectionCursor<Artist>, Throwable, Void> getArtists(final int sortMode) {
+        final Deferred<CollectionCursor<Artist>, Throwable, Void> deferred
+                = new ADeferredObject<>();
+        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+            @Override
+            public void onDone(ScriptResolverCollectionMetaData result) {
+                String[] orderBy;
+                switch (sortMode) {
+                    case SORT_ALPHA:
+                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                        break;
+                    case SORT_LAST_MODIFIED:
+                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};   //TODO
+                        break;
+                    default:
+                        Log.e(TAG, "getArtists - sortMode not supported!");
+                        return;
                 }
-            });
-        }
+                Cursor cursor =
+                        CollectionDbManager.get().getCollectionDb(result.id).artists(orderBy);
+                CollectionCursor<Artist> collectionCursor = new CollectionCursor<>(cursor,
+                        Artist.class, mScriptAccount.getScriptResolver());
+                deferred.resolve(collectionCursor);
+            }
+        });
         return deferred;
     }
 
     @Override
-    public Promise<Set<Artist>, Throwable, Void> getAlbumArtists() {
-        final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
-        if (mAlbumArtists != null) {
-            deferred.resolve(mAlbumArtists);
-        } else {
-            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-                @Override
-                public void onDone(ScriptResolverCollectionMetaData result) {
-                    HashMap<String, Object> a = new HashMap<>();
-                    a.put("id", result.id);
-                    ScriptJob.start(mScriptObject, "albumArtists", a,
-                            new ScriptJob.ResultsArrayCallback() {
-                                @Override
-                                public void onReportResults(JsonArray results) {
-                                    Set<Artist> artists = new HashSet<>();
-                                    for (JsonElement result : results) {
-                                        Artist artist = Artist.get(
-                                                ScriptUtils
-                                                        .getNodeChildAsText(result, "albumArtist"));
-                                        artists.add(artist);
-                                    }
-                                    mAlbumArtists = artists;
-                                    deferred.resolve(artists);
-                                }
-                            }, new ScriptJob.FailureCallback() {
-                                @Override
-                                public void onReportFailure(String errormessage) {
-                                    deferred.resolve(new HashSet<Artist>());
-                                }
-                            });
+    public Promise<CollectionCursor<Artist>, Throwable, Void> getAlbumArtists(final int sortMode) {
+        final Deferred<CollectionCursor<Artist>, Throwable, Void> deferred
+                = new ADeferredObject<>();
+        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+            @Override
+            public void onDone(ScriptResolverCollectionMetaData result) {
+                String[] orderBy;
+                switch (sortMode) {
+                    case SORT_ALPHA:
+                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                        break;
+                    case SORT_LAST_MODIFIED:
+                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};    //TODO
+                        break;
+                    default:
+                        Log.e(TAG, "getAlbumArtists - sortMode not supported!");
+                        return;
                 }
-            });
-        }
+                Cursor cursor =
+                        CollectionDbManager.get().getCollectionDb(result.id).albumArtists(orderBy);
+                CollectionCursor<Artist> collectionCursor = new CollectionCursor<>(cursor,
+                        Artist.class, mScriptAccount.getScriptResolver());
+                deferred.resolve(collectionCursor);
+            }
+        });
         return deferred;
     }
 
     @Override
-    public Promise<Set<Album>, Throwable, Void> getAlbums() {
-        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
-        if (mAlbums != null) {
-            deferred.resolve(mAlbums);
-        } else {
-            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-                @Override
-                public void onDone(ScriptResolverCollectionMetaData result) {
-                    final HashMap<String, Object> a = new HashMap<>();
-                    a.put("id", result.id);
-                    final long timeBefore = System.currentTimeMillis();
-                    ScriptJob.start(mScriptObject, "albums", a,
-                            new ScriptJob.ResultsArrayCallback() {
-                                @Override
-                                public void onReportResults(JsonArray results) {
-                                    Log.d(TAG,
-                                            "Received " + results.size() + " albumResults in " + (
-                                                    System.currentTimeMillis() - timeBefore)
-                                                    + "ms");
-                                    long time = System.currentTimeMillis();
-                                    Set<Album> albums = new HashSet<>();
-                                    for (JsonElement result : results) {
-                                        Artist albumArtist = Artist.get(
-                                                ScriptUtils
-                                                        .getNodeChildAsText(result, "albumArtist"));
-                                        Album album = Album.get(
-                                                ScriptUtils.getNodeChildAsText(result, "album"),
-                                                albumArtist);
-                                        albums.add(album);
-                                    }
-                                    Log.d(TAG,
-                                            "Converted " + albums.size() + " albumResults in " + (
-                                                    System.currentTimeMillis() - time) + "ms");
-                                    mAlbums = albums;
-                                    deferred.resolve(albums);
-                                }
-                            }, new ScriptJob.FailureCallback() {
-                                @Override
-                                public void onReportFailure(String errormessage) {
-                                    deferred.resolve(new HashSet<Album>());
-                                }
-                            });
+    public Promise<CollectionCursor<Album>, Throwable, Void> getAlbums(final int sortMode) {
+        final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+            @Override
+            public void onDone(ScriptResolverCollectionMetaData result) {
+                String[] orderBy;
+                switch (sortMode) {
+                    case SORT_ALPHA:
+                        orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};
+                        break;
+                    case SORT_ARTIST_ALPHA:
+                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                        break;
+                    case SORT_LAST_MODIFIED:
+                        orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};    //TODO
+                        break;
+                    default:
+                        Log.e(TAG, "getAlbums - sortMode not supported!");
+                        return;
                 }
-            });
-        }
+                Cursor cursor =
+                        CollectionDbManager.get().getCollectionDb(result.id).albums(orderBy);
+                CollectionCursor<Album> collectionCursor = new CollectionCursor<>(cursor,
+                        Album.class, mScriptAccount.getScriptResolver());
+                deferred.resolve(collectionCursor);
+            }
+        });
         return deferred;
     }
 
     @Override
-    public Promise<Set<Album>, Throwable, Void> getArtistAlbums(final Artist artist,
-            boolean onlyIfCached) {
-        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
-        if (mArtistAlbums.get(artist) != null) {
-            deferred.resolve(mArtistAlbums.get(artist));
-        } else if (!onlyIfCached) {
-            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-                @Override
-                public void onDone(ScriptResolverCollectionMetaData result) {
-                    HashMap<String, Object> a = new HashMap<>();
-                    a.put("id", result.id);
-                    a.put("artist", artist.getName());
-                    a.put("artistDisambiguation", "");
-                    ScriptJob.start(mScriptObject, "artistAlbums", a,
-                            new ScriptJob.ResultsArrayCallback() {
-                                @Override
-                                public void onReportResults(JsonArray results) {
-                                    Set<Album> albums = new HashSet<>();
-                                    for (JsonElement result : results) {
-                                        Artist albumArtist = Artist.get(
-                                                ScriptUtils
-                                                        .getNodeChildAsText(result, "albumArtist"));
-                                        Album album = Album.get(
-                                                ScriptUtils.getNodeChildAsText(result, "album"),
-                                                albumArtist);
-                                        albums.add(album);
-                                    }
-                                    mArtistAlbums.put(artist, albums);
-                                    deferred.resolve(albums);
-                                }
-                            }, new ScriptJob.FailureCallback() {
-                                @Override
-                                public void onReportFailure(String errormessage) {
-                                    deferred.resolve(new HashSet<Album>());
-                                }
-                            });
-                }
-            });
-        } else {
-            deferred.resolve(new HashSet<Album>());
-        }
+    public Promise<CollectionCursor<Album>, Throwable, Void> getArtistAlbums(final Artist artist) {
+        final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+            @Override
+            public void onDone(ScriptResolverCollectionMetaData result) {
+                Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
+                        .artistAlbums(artist.getName(), "");
+                CollectionCursor<Album> collectionCursor = new CollectionCursor<>(cursor,
+                        Album.class, mScriptAccount.getScriptResolver());
+                deferred.resolve(collectionCursor);
+            }
+        });
         return deferred;
     }
 
     @Override
-    public Promise<Set<Query>, Throwable, Void> getAlbumTracks(final Album album,
-            boolean onlyIfCached) {
-        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        final long time = System.currentTimeMillis();
-        if (mAlbumTracks.get(album) != null) {
-            deferred.resolve(mAlbumTracks.get(album));
-        } else if (!onlyIfCached) {
-            getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-                @Override
-                public void onDone(ScriptResolverCollectionMetaData result) {
-                    Log.d("perftest",
-                            "getMetadata in " + (System.currentTimeMillis() - time) + "ms");
-                    HashMap<String, Object> a = new HashMap<>();
-                    a.put("id", result.id);
-                    a.put("albumArtist", album.getArtist().getName());
-                    a.put("albumArtistDisambiguation", "");
-                    a.put("album", album.getName());
-                    final long time = System.currentTimeMillis();
-                    ScriptJob.start(mScriptObject, "albumTracks", a,
-                            new ScriptJob.ResultsArrayCallback() {
-                                @Override
-                                public void onReportResults(JsonArray results) {
-                                    Log.d("perftest",
-                                            "albumTracks in " + (System.currentTimeMillis() - time)
-                                                    + "ms");
-                                    long time = System.currentTimeMillis();
-                                    ArrayList<Result> parsedResults = ScriptUtils.parseResultList(
-                                            mScriptAccount.getScriptResolver(), results);
-                                    Log.d("perftest",
-                                            "albumTracks parsed in " + (System.currentTimeMillis()
-                                                    - time) + "ms");
-                                    time = System.currentTimeMillis();
-                                    Set<Query> queries = new HashSet<>();
-                                    for (Result r : parsedResults) {
-                                        Query query = Query.get(r, false);
-                                        float trackScore = query.howSimilar(r);
-                                        query.addTrackResult(r, trackScore);
-                                        queries.add(query);
-                                    }
-                                    Log.d("perftest",
-                                            "albumTracks converted in " + (
-                                                    System.currentTimeMillis()
-                                                            - time) + "ms");
-                                    mAlbumTracks.put(album, queries);
-                                    deferred.resolve(queries);
-                                }
-                            }, new ScriptJob.FailureCallback() {
-                                @Override
-                                public void onReportFailure(String errormessage) {
-                                    deferred.resolve(new HashSet<Query>());
-                                }
-                            });
-                }
-            });
-        } else {
-            deferred.resolve(new HashSet<Query>());
-        }
+    public Promise<CollectionCursor<Query>, Throwable, Void> getAlbumTracks(final Album album) {
+        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
+            @Override
+            public void onDone(ScriptResolverCollectionMetaData result) {
+                Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
+                        .albumTracks(album.getName(), album.getArtist().getName(), "");
+                CollectionCursor<Query> collectionCursor = new CollectionCursor<>(cursor,
+                        Query.class, mScriptAccount.getScriptResolver());
+                deferred.resolve(collectionCursor);
+            }
+        });
         return deferred;
     }
 }

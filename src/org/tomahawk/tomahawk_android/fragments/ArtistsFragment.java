@@ -19,11 +19,8 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
-import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -35,10 +32,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Artist}s inside its {@link
@@ -70,19 +64,21 @@ public class ArtistsFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, final Object item) {
         if (item instanceof Artist) {
-            mCollection.getArtistAlbums((Artist) item, false).done(new DoneCallback<Set<Album>>() {
+            Artist artist = (Artist) item;
+            mCollection.getArtistAlbums(artist).done(new DoneCallback<CollectionCursor<Album>>() {
                 @Override
-                public void onDone(Set<Album> result) {
+                public void onDone(CollectionCursor<Album> cursor) {
                     Bundle bundle = new Bundle();
                     bundle.putString(TomahawkFragment.ARTIST,
                             ((Artist) item).getCacheKey());
-                    if (result.size() > 0) {
+                    if (cursor.size() > 0) {
                         bundle.putString(TomahawkFragment.COLLECTION_ID,
                                 mCollection.getId());
                     } else {
                         bundle.putString(TomahawkFragment.COLLECTION_ID,
                                 TomahawkApp.PLUGINNAME_HATCHET);
                     }
+                    cursor.close();
                     bundle.putInt(CONTENT_HEADER_MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
                     bundle.putLong(CONTAINER_FRAGMENT_ID,
@@ -113,25 +109,28 @@ public class ArtistsFragment extends TomahawkFragment {
             } else {
                 starredArtists = null;
             }
-            mCollection.getArtists().done(new DoneCallback<Set<Artist>>() {
-                @Override
-                public void onDone(final Set<Artist> result) {
-                    new Thread(new Runnable() {
+            mCollection.getArtists(getSortMode())
+                    .done(new DoneCallback<CollectionCursor<Artist>>() {
                         @Override
-                        public void run() {
-                            if (starredArtists != null) {
-                                result.addAll(starredArtists);
-                            }
-                            fillAdapter(new Segment(
-                                    getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
-                                    constructDropdownItems(),
-                                    constructDropdownListener(COLLECTION_ARTISTS_SPINNER_POSITION),
-                                    sortArtists(result), R.integer.grid_column_count,
-                                    R.dimen.padding_superlarge, R.dimen.padding_superlarge));
+                        public void onDone(final CollectionCursor<Artist> cursor) {
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (starredArtists != null) {
+                                        cursor.mergeItems(getSortMode(), starredArtists);
+                                    }
+                                    fillAdapter(new Segment(
+                                            getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
+                                            constructDropdownItems(),
+                                            constructDropdownListener(
+                                                    COLLECTION_ARTISTS_SPINNER_POSITION),
+                                            cursor, R.integer.grid_column_count,
+                                            R.dimen.padding_superlarge,
+                                            R.dimen.padding_superlarge));
+                                }
+                            }).start();
                         }
-                    }).start();
-                }
-            });
+                    });
         }
     }
 
@@ -142,24 +141,14 @@ public class ArtistsFragment extends TomahawkFragment {
         return dropDownItems;
     }
 
-    private List<Artist> sortArtists(Collection<Artist> artists) {
-        List<Artist> sortedArtists;
-        if (artists instanceof List) {
-            sortedArtists = (List<Artist>) artists;
-        } else {
-            sortedArtists = new ArrayList<>(artists);
-        }
+    private int getSortMode() {
         switch (getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION)) {
             case 0:
-                UserCollection userColl = (UserCollection) CollectionManager.getInstance()
-                        .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                Collections.sort(sortedArtists,
-                        new LastModifiedComparator<>(userColl.getArtistTimeStamps()));
-                break;
+                return org.tomahawk.libtomahawk.collection.Collection.SORT_LAST_MODIFIED;
             case 1:
-                Collections.sort(sortedArtists, new AlphaComparator());
-                break;
+                return org.tomahawk.libtomahawk.collection.Collection.SORT_ALPHA;
+            default:
+                return org.tomahawk.libtomahawk.collection.Collection.SORT_NOT;
         }
-        return sortedArtists;
     }
 }

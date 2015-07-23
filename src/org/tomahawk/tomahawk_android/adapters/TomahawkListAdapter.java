@@ -168,6 +168,12 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         }
     }
 
+    public void closeSegments() {
+        for (Segment segment : mSegments) {
+            segment.close();
+        }
+    }
+
     private void ensurePlaylist() {
         if (mPlaylist == null) {
             mPlaylist = Playlist.fromEntriesList(
@@ -650,7 +656,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 viewHolder.fillHeaderView(segment.getHeaderString());
             } else if (layoutId == R.layout.list_header_socialaction) {
                 SocialAction socialAction = (SocialAction) segment.getFirstSegmentItem();
-                viewHolder.fillHeaderView(socialAction, segment.segmentSize());
+                viewHolder.fillHeaderView(socialAction, segment.size());
             }
             return view;
         } else {

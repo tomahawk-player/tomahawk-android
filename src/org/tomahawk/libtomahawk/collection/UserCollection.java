@@ -48,7 +48,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -111,11 +110,6 @@ public class UserCollection extends NativeCollection {
     public UserCollection() {
         super(TomahawkApp.PLUGINNAME_USERCOLLECTION,
                 TomahawkApp.getContext().getString(R.string.local_collection_pretty_name), true);
-
-        mAlbums = Collections.newSetFromMap(new ConcurrentHashMap<Album, Boolean>());
-        mArtists = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
-        mAlbumArtists = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
-        mQueries = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
     }
 
     @Override

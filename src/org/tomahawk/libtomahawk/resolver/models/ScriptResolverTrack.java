@@ -33,7 +33,7 @@ public class ScriptResolverTrack {
 
     public String url;
 
-    public int duration;
+    public float duration;
 
     public String linkUrl;
 

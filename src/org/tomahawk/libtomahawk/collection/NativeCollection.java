@@ -22,10 +22,14 @@ import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 public abstract class NativeCollection extends Collection {
+
+    private final static String TAG = NativeCollection.class.getSimpleName();
 
     private final boolean mIsLocal;
 
@@ -40,9 +44,26 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<Set<Query>, Throwable, Void> getQueries() {
-        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        return deferred.resolve(mQueries);
+    public Promise<CollectionCursor<Query>, Throwable, Void> getQueries(int sortMode) {
+        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+        Comparator comparator = null;
+        switch (sortMode) {
+            case SORT_ALPHA:
+                comparator = new AlphaComparator();
+                break;
+            case SORT_ARTIST_ALPHA:
+                comparator = new ArtistAlphaComparator();
+                break;
+            case SORT_LAST_MODIFIED:
+                comparator = new AlphaComparator();  //TODO
+                break;
+        }
+        List<Query> queries = new ArrayList<>(mQueries);
+        if (comparator != null) {
+            Collections.sort(queries, comparator);
+        }
+        CollectionCursor<Query> collectionCursor = new CollectionCursor<>(queries, Query.class);
+        return deferred.resolve(collectionCursor);
     }
 
     public void addArtist(Artist artist) {
@@ -50,9 +71,24 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<Set<Artist>, Throwable, Void> getArtists() {
-        final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
-        return deferred.resolve(mArtists);
+    public Promise<CollectionCursor<Artist>, Throwable, Void> getArtists(int sortMode) {
+        final Deferred<CollectionCursor<Artist>, Throwable, Void> deferred
+                = new ADeferredObject<>();
+        Comparator comparator = null;
+        switch (sortMode) {
+            case SORT_ALPHA:
+                comparator = new AlphaComparator();
+                break;
+            case SORT_LAST_MODIFIED:
+                comparator = new AlphaComparator();   //TODO
+                break;
+        }
+        List<Artist> artists = new ArrayList<>(mArtists);
+        if (comparator != null) {
+            Collections.sort(artists, comparator);
+        }
+        CollectionCursor<Artist> collectionCursor = new CollectionCursor<>(artists, Artist.class);
+        return deferred.resolve(collectionCursor);
     }
 
     public void addAlbumArtist(Artist artist) {
@@ -60,9 +96,24 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<Set<Artist>, Throwable, Void> getAlbumArtists() {
-        final Deferred<Set<Artist>, Throwable, Void> deferred = new ADeferredObject<>();
-        return deferred.resolve(mAlbumArtists);
+    public Promise<CollectionCursor<Artist>, Throwable, Void> getAlbumArtists(int sortMode) {
+        final Deferred<CollectionCursor<Artist>, Throwable, Void> deferred
+                = new ADeferredObject<>();
+        Comparator comparator = null;
+        switch (sortMode) {
+            case SORT_ALPHA:
+                comparator = new AlphaComparator();
+                break;
+            case SORT_LAST_MODIFIED:
+                comparator = new AlphaComparator();   //TODO
+                break;
+        }
+        List<Artist> artists = new ArrayList<>(mAlbumArtists);
+        if (comparator != null) {
+            Collections.sort(artists, comparator);
+        }
+        CollectionCursor<Artist> collectionCursor = new CollectionCursor<>(artists, Artist.class);
+        return deferred.resolve(collectionCursor);
     }
 
     public void addAlbum(Album album) {
@@ -70,48 +121,67 @@ public abstract class NativeCollection extends Collection {
     }
 
     @Override
-    public Promise<Set<Album>, Throwable, Void> getAlbums() {
-        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
-        return deferred.resolve(mAlbums);
+    public Promise<CollectionCursor<Album>, Throwable, Void> getAlbums(int sortMode) {
+        final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+        Comparator comparator = null;
+        switch (sortMode) {
+            case SORT_ALPHA:
+                comparator = new AlphaComparator();
+                break;
+            case SORT_ARTIST_ALPHA:
+                comparator = new ArtistAlphaComparator();
+                break;
+            case SORT_LAST_MODIFIED:
+                comparator = new AlphaComparator();   //TODO
+                break;
+        }
+        List<Album> albums = new ArrayList<>(mAlbums);
+        if (comparator != null) {
+            Collections.sort(albums, comparator);
+        }
+        CollectionCursor<Album> collectionCursor = new CollectionCursor<>(albums, Album.class);
+        return deferred.resolve(collectionCursor);
     }
 
     public void addArtistAlbum(Artist artist, Album album) {
         if (mArtistAlbums.get(artist) == null) {
-            mArtistAlbums.put(artist, new HashSet<Album>());
+            mArtistAlbums.put(artist, new ArrayList<Album>());
         }
         mArtistAlbums.get(artist).add(album);
     }
 
     @Override
-    public Promise<Set<Album>, Throwable, Void> getArtistAlbums(final Artist artist,
-            boolean onlyIfCached) {
-        final Deferred<Set<Album>, Throwable, Void> deferred = new ADeferredObject<>();
-        Set<Album> albums = new HashSet<>();
+    public Promise<CollectionCursor<Album>, Throwable, Void> getArtistAlbums(final Artist artist) {
+        final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+        List<Album> albums = new ArrayList<>();
         if (mArtistAlbums.get(artist) != null) {
             albums.addAll(mArtistAlbums.get(artist));
         }
-        return deferred.resolve(albums);
+        CollectionCursor<Album> collectionCursor
+                = new CollectionCursor<>(albums, Album.class);
+        return deferred.resolve(collectionCursor);
     }
 
-    public void addAlbumTracks(Album album, Set<Query> queries) {
+    public void addAlbumTracks(Album album, List<Query> queries) {
         mAlbumTracks.put(album, queries);
     }
 
     public void addAlbumTrack(Album album, Query query) {
         if (mAlbumTracks.get(album) == null) {
-            mAlbumTracks.put(album, new HashSet<Query>());
+            mAlbumTracks.put(album, new ArrayList<Query>());
         }
         mAlbumTracks.get(album).add(query);
     }
 
     @Override
-    public Promise<Set<Query>, Throwable, Void> getAlbumTracks(final Album album,
-            boolean onlyIfCached) {
-        final Deferred<Set<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        Set<Query> queries = new HashSet<>();
+    public Promise<CollectionCursor<Query>, Throwable, Void> getAlbumTracks(final Album album) {
+        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+        List<Query> queries = new ArrayList<>();
         if (mAlbumTracks.get(album) != null) {
             queries.addAll(mAlbumTracks.get(album));
         }
-        return deferred.resolve(queries);
+        CollectionCursor<Query> collectionCursor
+                = new CollectionCursor<>(queries, Query.class);
+        return deferred.resolve(collectionCursor);
     }
 }
