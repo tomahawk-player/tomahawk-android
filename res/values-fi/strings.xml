@@ -187,6 +187,7 @@
   <string name="view_album">Näytä albumi</string>
   <string name="connect">Yhdistä</string>
   <string name="connect_headertext">Valitse palvelut, joita haluat käyttää. Tomahawk toimii sitä paremmin, mitä enemmän palveluita on käytössä.</string>
+  <string name="connect_header_manualresolvers">Asennettu manuaalisesti</string>
   <string name="advanced">Lisäasetukset</string>
   <string name="info">Info</string>
   <string name="playbackpanel_seek_coachmark">Voit kelata kappaletta pitämällä soittopainiketta pohjassa pitkään.</string>
@@ -210,4 +211,10 @@
     <item quantity="other">Valitse soittolista, johon %1$d kappaletta lisätään:</item>
   </plurals>
   <string name="seeking_not_supported">Tämä selvitin ei tue kelaamista.</string>
+  <string name="install_plugin_title">Liitännäisen asennus</string>
+  <string name="install_plugin_warning">Olet asentamassa Tomahawk-liitännäistä tuntemattomasta lähteestä. Tämä voi olla tietoturvariski.</string>
+  <string name="install_plugin_warning2">Haluatko varmasti asentaa tämän liitännäisen?</string>
+  <string name="uninstall_plugin_title">Liitännäisen poisto</string>
+  <string name="uninstall_plugin_warning">Haluatko varmasti poistaa tämän liitännäisen?</string>
+  <string name="gmusic_info_text">Valitse tili:</string>
 </resources>
