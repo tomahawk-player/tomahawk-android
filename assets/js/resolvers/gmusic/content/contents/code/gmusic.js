@@ -112,12 +112,12 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
 
         var that = this;
 
-        var promise = config.token ? that._loadWebToken() :
+        var promise = config.token ? that._loadWebToken(config.token) :
             that._login(config.email, config.password).then(function () {
-                return that._loadWebToken();
+                return that._loadWebToken(config.token);
             });
         promise.then(function (webToken) {
-            return that._loadSettings(webToken);
+            return that._loadSettings(webToken, config.token);
         }).then(function () {
             return that._ensureCollection();
         }).then(function () {
@@ -369,7 +369,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         }
     },
 
-    _loadSettings: function (webToken) {
+    _loadSettings: function (webToken, token) {
         var that = this;
 
         var url = that._webURL + 'services/loadsettings';
@@ -380,7 +380,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
             },
             dataType: 'json',
             headers: {
-                'Authorization': 'GoogleLogin auth=' + this._token
+                'Authorization': 'GoogleLogin auth=' + token
             }
         };
         return Tomahawk.post(url, settings).then(function (response) {
@@ -429,7 +429,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         });
     },
 
-    _loadWebToken: function () {
+    _loadWebToken: function (token) {
         var that = this;
 
         var url = that._webURL + 'listen';
@@ -438,7 +438,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
             needCookieHeader: true,
             rawResponse: true,
             headers: {
-                'Authorization': 'GoogleLogin auth=' + this._token
+                'Authorization': 'GoogleLogin auth=' + token
             }
         };
         return Tomahawk.ajax(url, settings).then(function (request) {
@@ -527,12 +527,12 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
     testConfig: function (config) {
         var that = this;
 
-        var promise = config.token ? that._loadWebToken() :
+        var promise = config.token ? that._loadWebToken(config.token) :
             that._login(config.email, config.password).then(function () {
-                return that._loadWebToken();
+                return that._loadWebToken(config.token);
             });
         return promise.then(function (webToken) {
-            return that._loadSettings(webToken);
+            return that._loadSettings(webToken, config.token);
         }).then(function () {
             return Tomahawk.ConfigTestResultType.Success;
         }, function (error) {
