@@ -48,6 +48,8 @@ public class CollectionCursor<T> {
 
     private Cursor mCursor;
 
+    private int mCursorCount;
+
     private List<T> mItems;
 
     private Class<T> mClass;
@@ -56,6 +58,7 @@ public class CollectionCursor<T> {
 
     public CollectionCursor(Cursor cursor, Class<T> clss, ScriptResolver resolver) {
         mCursor = cursor;
+        mCursorCount = cursor.getCount();
         mClass = clss;
         mScriptResolver = resolver;
     }
@@ -120,7 +123,7 @@ public class CollectionCursor<T> {
         if (mIndex != null) {
             return mIndex.size();
         } else if (mCursor != null) {
-            return mCursor.getCount();
+            return mCursorCount;
         } else {
             return mItems.size();
         }
@@ -135,7 +138,7 @@ public class CollectionCursor<T> {
 
     private void updateIndex() {
         mIndex = new SparseArray<>();
-        int size1 = mCursor != null ? mCursor.getCount() : mItems.size();
+        int size1 = mCursor != null ? mCursorCount : mItems.size();
         int size2 = mMergedItems.size();
         int counter1 = 0;
         int counter2 = 0;
