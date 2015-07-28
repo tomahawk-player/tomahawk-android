@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
@@ -135,7 +136,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
      */
     @Override
     public void onItemClick(View view, Object item) {
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
 
         Bundle bundle = new Bundle();
         if (item instanceof User) {
@@ -144,18 +145,27 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     ContentHeaderFragment.MODE_HEADER_STATIC_USER);
             FragmentUtils.replace(activity, UserPagerFragment.class, bundle);
         } else if (item instanceof Query) {
-            PlaylistEntry entry = getListAdapter().getPlaylistEntry(item);
-            if (entry.getQuery().isPlayable()) {
-                PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null) {
-                    if (playbackService.getCurrentEntry() == entry) {
-                        playbackService.playPause();
-                    } else {
-                        playbackService.setPlaylist(getListAdapter().getPlaylist(), entry);
-                        playbackService.start();
+            getListAdapter().getPlaylistEntry(item).done(new DoneCallback<PlaylistEntry>() {
+                @Override
+                public void onDone(final PlaylistEntry entry) {
+                    if (entry.getQuery().isPlayable()) {
+                        final PlaybackService playbackService = activity.getPlaybackService();
+                        if (playbackService != null) {
+                            if (playbackService.getCurrentEntry() == entry) {
+                                playbackService.playPause();
+                            } else {
+                                getListAdapter().getPlaylist().done(new DoneCallback<Playlist>() {
+                                    @Override
+                                    public void onDone(Playlist playlist) {
+                                        playbackService.setPlaylist(playlist, entry);
+                                        playbackService.start();
+                                    }
+                                });
+                            }
+                        }
                     }
                 }
-            }
+            });
         } else if (item instanceof Album) {
             bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
             bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());

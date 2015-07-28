@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.CollectionUtils;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -73,19 +74,28 @@ public class TracksFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, Object item) {
         if (item instanceof Query) {
-            PlaylistEntry entry = getListAdapter().getPlaylistEntry(item);
-            if (entry.getQuery().isPlayable()) {
-                TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-                PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null) {
-                    if (playbackService.getCurrentEntry() == entry) {
-                        playbackService.playPause();
-                    } else {
-                        playbackService.setPlaylist(getListAdapter().getPlaylist(), entry);
-                        playbackService.start();
+            getListAdapter().getPlaylistEntry(item).done(new DoneCallback<PlaylistEntry>() {
+                @Override
+                public void onDone(final PlaylistEntry entry) {
+                    if (entry.getQuery().isPlayable()) {
+                        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+                        final PlaybackService playbackService = activity.getPlaybackService();
+                        if (playbackService != null) {
+                            if (playbackService.getCurrentEntry() == entry) {
+                                playbackService.playPause();
+                            } else {
+                                getListAdapter().getPlaylist().done(new DoneCallback<Playlist>() {
+                                    @Override
+                                    public void onDone(Playlist playlist) {
+                                        playbackService.setPlaylist(playlist, entry);
+                                        playbackService.start();
+                                    }
+                                });
+                            }
+                        }
                     }
                 }
-            }
+            });
         }
     }
 

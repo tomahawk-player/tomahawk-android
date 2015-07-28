@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
@@ -77,20 +78,29 @@ public class AlbumsFragment extends TomahawkFragment {
      */
     @Override
     public void onItemClick(View view, final Object item) {
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (item instanceof Query) {
-            PlaylistEntry entry = getListAdapter().getPlaylistEntry(item);
-            if (entry.getQuery().isPlayable()) {
-                PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null) {
-                    if (playbackService.getCurrentEntry() == entry) {
-                        playbackService.playPause();
-                    } else {
-                        playbackService.setPlaylist(getListAdapter().getPlaylist(), entry);
-                        playbackService.start();
+            getListAdapter().getPlaylistEntry(item).done(new DoneCallback<PlaylistEntry>() {
+                @Override
+                public void onDone(final PlaylistEntry entry) {
+                    if (entry.getQuery().isPlayable()) {
+                        final PlaybackService playbackService = activity.getPlaybackService();
+                        if (playbackService != null) {
+                            if (playbackService.getCurrentEntry() == entry) {
+                                playbackService.playPause();
+                            } else {
+                                getListAdapter().getPlaylist().done(new DoneCallback<Playlist>() {
+                                    @Override
+                                    public void onDone(Playlist playlist) {
+                                        playbackService.setPlaylist(playlist, entry);
+                                        playbackService.start();
+                                    }
+                                });
+                            }
+                        }
                     }
                 }
-            }
+            });
         } else if (item instanceof Album) {
             Album album = (Album) item;
             mCollection.getAlbumTracks(album).done(new DoneCallback<CollectionCursor<Query>>() {
