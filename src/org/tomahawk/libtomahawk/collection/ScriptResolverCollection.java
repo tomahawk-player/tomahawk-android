@@ -113,27 +113,32 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
         final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                String[] orderBy;
-                switch (sortMode) {
-                    case SORT_ALPHA:
-                        orderBy = new String[]{CollectionDb.TRACKS_TRACK};
-                        break;
-                    case SORT_ARTIST_ALPHA:
-                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
-                        break;
-                    case SORT_LAST_MODIFIED:
-                        orderBy = new String[]{CollectionDb.TRACKS_TRACK};    //TODO
-                        break;
-                    default:
-                        Log.e(TAG, "getQueries - sortMode not supported!");
-                        return;
-                }
-                Cursor cursor =
-                        CollectionDbManager.get().getCollectionDb(result.id).tracks(null, orderBy);
-                CollectionCursor<Query> collectionCursor = new CollectionCursor<>(cursor,
-                        Query.class, mScriptAccount.getScriptResolver());
-                deferred.resolve(collectionCursor);
+            public void onDone(final ScriptResolverCollectionMetaData result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String[] orderBy;
+                        switch (sortMode) {
+                            case SORT_ALPHA:
+                                orderBy = new String[]{CollectionDb.TRACKS_TRACK};
+                                break;
+                            case SORT_ARTIST_ALPHA:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                                break;
+                            case SORT_LAST_MODIFIED:
+                                orderBy = new String[]{CollectionDb.TRACKS_TRACK};    //TODO
+                                break;
+                            default:
+                                Log.e(TAG, "getQueries - sortMode not supported!");
+                                return;
+                        }
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
+                                .tracks(null, orderBy);
+                        CollectionCursor<Query> collectionCursor = new CollectionCursor<>(cursor,
+                                Query.class, mScriptAccount.getScriptResolver());
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
             }
         });
         return deferred;
@@ -145,24 +150,29 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                 = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                String[] orderBy;
-                switch (sortMode) {
-                    case SORT_ALPHA:
-                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
-                        break;
-                    case SORT_LAST_MODIFIED:
-                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};   //TODO
-                        break;
-                    default:
-                        Log.e(TAG, "getArtists - sortMode not supported!");
-                        return;
-                }
-                Cursor cursor =
-                        CollectionDbManager.get().getCollectionDb(result.id).artists(orderBy);
-                CollectionCursor<Artist> collectionCursor = new CollectionCursor<>(cursor,
-                        Artist.class, mScriptAccount.getScriptResolver());
-                deferred.resolve(collectionCursor);
+            public void onDone(final ScriptResolverCollectionMetaData result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String[] orderBy;
+                        switch (sortMode) {
+                            case SORT_ALPHA:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                                break;
+                            case SORT_LAST_MODIFIED:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};   //TODO
+                                break;
+                            default:
+                                Log.e(TAG, "getArtists - sortMode not supported!");
+                                return;
+                        }
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
+                                .artists(orderBy);
+                        CollectionCursor<Artist> collectionCursor = new CollectionCursor<>(cursor,
+                                Artist.class, mScriptAccount.getScriptResolver());
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
             }
         });
         return deferred;
@@ -174,24 +184,29 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                 = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                String[] orderBy;
-                switch (sortMode) {
-                    case SORT_ALPHA:
-                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
-                        break;
-                    case SORT_LAST_MODIFIED:
-                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};    //TODO
-                        break;
-                    default:
-                        Log.e(TAG, "getAlbumArtists - sortMode not supported!");
-                        return;
-                }
-                Cursor cursor =
-                        CollectionDbManager.get().getCollectionDb(result.id).albumArtists(orderBy);
-                CollectionCursor<Artist> collectionCursor = new CollectionCursor<>(cursor,
-                        Artist.class, mScriptAccount.getScriptResolver());
-                deferred.resolve(collectionCursor);
+            public void onDone(final ScriptResolverCollectionMetaData result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String[] orderBy;
+                        switch (sortMode) {
+                            case SORT_ALPHA:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                                break;
+                            case SORT_LAST_MODIFIED:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};    //TODO
+                                break;
+                            default:
+                                Log.e(TAG, "getAlbumArtists - sortMode not supported!");
+                                return;
+                        }
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
+                                .albumArtists(orderBy);
+                        CollectionCursor<Artist> collectionCursor = new CollectionCursor<>(cursor,
+                                Artist.class, mScriptAccount.getScriptResolver());
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
             }
         });
         return deferred;
@@ -202,27 +217,32 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
         final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                String[] orderBy;
-                switch (sortMode) {
-                    case SORT_ALPHA:
-                        orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};
-                        break;
-                    case SORT_ARTIST_ALPHA:
-                        orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
-                        break;
-                    case SORT_LAST_MODIFIED:
-                        orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};    //TODO
-                        break;
-                    default:
-                        Log.e(TAG, "getAlbums - sortMode not supported!");
-                        return;
-                }
-                Cursor cursor =
-                        CollectionDbManager.get().getCollectionDb(result.id).albums(orderBy);
-                CollectionCursor<Album> collectionCursor = new CollectionCursor<>(cursor,
-                        Album.class, mScriptAccount.getScriptResolver());
-                deferred.resolve(collectionCursor);
+            public void onDone(final ScriptResolverCollectionMetaData result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String[] orderBy;
+                        switch (sortMode) {
+                            case SORT_ALPHA:
+                                orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};
+                                break;
+                            case SORT_ARTIST_ALPHA:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                                break;
+                            case SORT_LAST_MODIFIED:
+                                orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};    //TODO
+                                break;
+                            default:
+                                Log.e(TAG, "getAlbums - sortMode not supported!");
+                                return;
+                        }
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
+                                .albums(orderBy);
+                        CollectionCursor<Album> collectionCursor = new CollectionCursor<>(cursor,
+                                Album.class, mScriptAccount.getScriptResolver());
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
             }
         });
         return deferred;
@@ -233,12 +253,17 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
         final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
-                        .artistAlbums(artist.getName(), "");
-                CollectionCursor<Album> collectionCursor = new CollectionCursor<>(cursor,
-                        Album.class, mScriptAccount.getScriptResolver());
-                deferred.resolve(collectionCursor);
+            public void onDone(final ScriptResolverCollectionMetaData result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
+                                .artistAlbums(artist.getName(), "");
+                        CollectionCursor<Album> collectionCursor = new CollectionCursor<>(cursor,
+                                Album.class, mScriptAccount.getScriptResolver());
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
             }
         });
         return deferred;
@@ -249,12 +274,17 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
         final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override
-            public void onDone(ScriptResolverCollectionMetaData result) {
-                Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
-                        .albumTracks(album.getName(), album.getArtist().getName(), "");
-                CollectionCursor<Query> collectionCursor = new CollectionCursor<>(cursor,
-                        Query.class, mScriptAccount.getScriptResolver());
-                deferred.resolve(collectionCursor);
+            public void onDone(final ScriptResolverCollectionMetaData result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
+                                .albumTracks(album.getName(), album.getArtist().getName(), "");
+                        CollectionCursor<Query> collectionCursor = new CollectionCursor<>(cursor,
+                                Query.class, mScriptAccount.getScriptResolver());
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
             }
         });
         return deferred;
