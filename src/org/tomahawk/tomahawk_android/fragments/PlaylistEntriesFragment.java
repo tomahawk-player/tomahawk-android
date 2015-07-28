@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -86,19 +87,28 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, Object item) {
         if (item instanceof PlaylistEntry) {
-            PlaylistEntry entry = getListAdapter().getPlaylistEntry(item);
-            if (entry.getQuery().isPlayable()) {
-                TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-                PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null) {
-                    if (playbackService.getCurrentEntry() == entry) {
-                        playbackService.playPause();
-                    } else {
-                        playbackService.setPlaylist(getListAdapter().getPlaylist(), entry);
-                        playbackService.start();
+            getListAdapter().getPlaylistEntry(item).done(new DoneCallback<PlaylistEntry>() {
+                @Override
+                public void onDone(final PlaylistEntry entry) {
+                    if (entry.getQuery().isPlayable()) {
+                        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+                        final PlaybackService playbackService = activity.getPlaybackService();
+                        if (playbackService != null) {
+                            if (playbackService.getCurrentEntry() == entry) {
+                                playbackService.playPause();
+                            } else {
+                                getListAdapter().getPlaylist().done(new DoneCallback<Playlist>() {
+                                    @Override
+                                    public void onDone(Playlist playlist) {
+                                        playbackService.setPlaylist(playlist, entry);
+                                        playbackService.start();
+                                    }
+                                });
+                            }
+                        }
                     }
                 }
-            }
+            });
         }
     }
 

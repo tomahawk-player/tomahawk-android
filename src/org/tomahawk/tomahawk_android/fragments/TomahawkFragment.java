@@ -618,13 +618,17 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     private void resolveItem(final Object object) {
-        PlaylistEntry entry = mTomahawkListAdapter.getPlaylistEntry(object);
-        if (entry != null) {
-            Query q = entry.getQuery();
-            if (!q.isSolved() && !mCorrespondingQueries.contains(q)) {
-                mCorrespondingQueries.add(PipeLine.getInstance().resolve(q));
+        mTomahawkListAdapter.getPlaylistEntry(object).done(new DoneCallback<PlaylistEntry>() {
+            @Override
+            public void onDone(PlaylistEntry entry) {
+                if (entry != null) {
+                    Query q = entry.getQuery();
+                    if (!q.isSolved() && !mCorrespondingQueries.contains(q)) {
+                        mCorrespondingQueries.add(PipeLine.getInstance().resolve(q));
+                    }
+                }
             }
-        }
+        });
         if (object instanceof Playlist) {
             resolveItem((Playlist) object);
         } else if (object instanceof SocialAction) {

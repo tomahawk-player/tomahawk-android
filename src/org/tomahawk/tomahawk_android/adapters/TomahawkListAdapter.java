@@ -23,6 +23,8 @@ import com.daimajia.swipe.interfaces.SwipeAdapterInterface;
 import com.daimajia.swipe.interfaces.SwipeItemMangerInterface;
 import com.daimajia.swipe.util.Attributes;
 
+import org.jdeferred.DonePipe;
+import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
@@ -33,6 +35,7 @@ import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -101,7 +104,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private final SwipeItemAdapterMangerImpl mItemManager = new SwipeItemAdapterMangerImpl(this);
 
-    private Playlist mPlaylist;
+    private ADeferredObject<Playlist, Throwable, Void> mGetPlaylistPromise;
 
     private final Map<Object, PlaylistEntry> mPlaylistEntryMap = new HashMap<>();
 
@@ -174,25 +177,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         }
     }
 
-    private void ensurePlaylist() {
-        if (mPlaylist == null) {
-            mPlaylist = Playlist.fromEntriesList(
-                    TEMP_PLAYLIST_NAME, "", new ArrayList<PlaylistEntry>());
-            mPlaylistEntryMap.clear();
-            for (int i = 0; i < getCount() && i < 200; i++) {
-                Object object = getItem(i);
-                if (object instanceof List) {
-                    for (Object item : (List) object) {
-                        extractPlaylistEntry(item);
-                    }
-                } else {
-                    extractPlaylistEntry(object);
-                }
-            }
-        }
-    }
-
-    private void extractPlaylistEntry(Object item) {
+    private void extractPlaylistEntry(Playlist playlist, Object item) {
         Query q = null;
         if (item instanceof SocialAction
                 && ((SocialAction) item).getTargetObject() instanceof Query) {
@@ -203,19 +188,45 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             q = ((PlaylistEntry) item).getQuery();
         }
         if (q != null) {
-            PlaylistEntry entry = mPlaylist.addQuery(q);
+            PlaylistEntry entry = playlist.addQuery(q);
             mPlaylistEntryMap.put(item, entry);
         }
     }
 
-    public Playlist getPlaylist() {
-        ensurePlaylist();
-        return mPlaylist;
+    public Promise<Playlist, Throwable, Void> getPlaylist() {
+        if (mGetPlaylistPromise == null) {
+            mGetPlaylistPromise = new ADeferredObject<>();
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    Playlist playlist = Playlist.fromEntriesList(
+                            TEMP_PLAYLIST_NAME, "", new ArrayList<PlaylistEntry>());
+                    mPlaylistEntryMap.clear();
+                    for (int i = 0; i < getCount(); i++) {
+                        Object object = getItem(i);
+                        if (object instanceof List) {
+                            for (Object item : (List) object) {
+                                extractPlaylistEntry(playlist, item);
+                            }
+                        } else {
+                            extractPlaylistEntry(playlist, object);
+                        }
+                    }
+                    mGetPlaylistPromise.resolve(playlist);
+                }
+            }).start();
+        }
+        return mGetPlaylistPromise;
     }
 
-    public PlaylistEntry getPlaylistEntry(Object item) {
-        ensurePlaylist();
-        return mPlaylistEntryMap.get(item);
+    public Promise<PlaylistEntry, Throwable, Void> getPlaylistEntry(final Object item) {
+        return getPlaylist().then(new DonePipe<Playlist, PlaylistEntry, Throwable, Void>() {
+            @Override
+            public Promise<PlaylistEntry, Throwable, Void> pipeDone(Playlist result) {
+                ADeferredObject<PlaylistEntry, Throwable, Void> deferred = new ADeferredObject<>();
+                return deferred.resolve(mPlaylistEntryMap.get(item));
+            }
+        });
     }
 
     public void setShowContentHeaderSpacer(int headerSpacerHeight,
