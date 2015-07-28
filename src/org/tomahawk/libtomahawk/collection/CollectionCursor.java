@@ -94,7 +94,7 @@ public class CollectionCursor<T> {
                     Artist artist = Artist.get(mCursor.getString(0));
                     Album album = Album.get(mCursor.getString(2), artist);
                     Track track = Track.get(mCursor.getString(3), album, artist);
-                    track.setDuration(mCursor.getInt(4));
+                    track.setDuration(mCursor.getInt(4) * 1000);
                     track.setAlbumPos(mCursor.getInt(7));
                     Result result = Result.get(mCursor.getString(5), track, mScriptResolver);
                     Query query = Query.get(result, false);
