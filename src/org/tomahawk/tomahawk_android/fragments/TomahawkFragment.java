@@ -477,9 +477,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                         TomahawkListAdapter adapter = new TomahawkListAdapter(activity, inflater,
                                 segments, collection, getListView(), TomahawkFragment.this);
                         TomahawkFragment.super.setListAdapter(adapter);
-                        if (mTomahawkListAdapter != null) {
-                            mTomahawkListAdapter.closeSegments();
-                        }
                         mTomahawkListAdapter = adapter;
                         getListView().setOnItemClickListener(mTomahawkListAdapter);
                         getListView().setOnItemLongClickListener(mTomahawkListAdapter);

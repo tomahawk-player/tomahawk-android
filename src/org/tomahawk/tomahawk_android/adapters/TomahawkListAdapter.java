@@ -164,6 +164,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     }
 
     private void setSegments(List<Segment> segments) {
+        closeSegments();
         mSegments = segments;
         mRowCount = 0;
         for (Segment segment : mSegments) {
@@ -172,8 +173,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     }
 
     public void closeSegments() {
-        for (Segment segment : mSegments) {
-            segment.close();
+        if (mSegments != null) {
+            for (Segment segment : mSegments) {
+                segment.close();
+            }
         }
     }
 
