@@ -78,6 +78,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private List<Segment> mSegments;
 
+    private boolean mSegmentsClosed;
+
     private int mRowCount;
 
     private Collection mCollection;
@@ -166,6 +168,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     private void setSegments(List<Segment> segments) {
         closeSegments();
         mSegments = segments;
+        mSegmentsClosed = false;
         mRowCount = 0;
         for (Segment segment : mSegments) {
             mRowCount += segment.size();
@@ -174,6 +177,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     public void closeSegments() {
         if (mSegments != null) {
+            mSegmentsClosed = true;
             for (Segment segment : mSegments) {
                 segment.close();
             }
@@ -206,6 +210,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                             TEMP_PLAYLIST_NAME, "", new ArrayList<PlaylistEntry>());
                     mPlaylistEntryMap.clear();
                     for (int i = 0; i < getCount(); i++) {
+                        if (mSegmentsClosed) {
+                            mGetPlaylistPromise.reject(null);
+                            return;
+                        }
                         Object object = getItem(i);
                         if (object instanceof List) {
                             for (Object item : (List) object) {
