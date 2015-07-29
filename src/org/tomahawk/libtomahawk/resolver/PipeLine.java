@@ -222,15 +222,9 @@ public class PipeLine {
         final TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
             @Override
             public void run() {
-                if (!forceOnlyLocal && q.isSolved()) {
-                    ResultsEvent event = new ResultsEvent();
-                    event.mQuery = q;
-                    EventBus.getDefault().post(event);
-                } else {
-                    for (Resolver resolver : mResolvers) {
-                        if (shouldResolve(resolver, q, forceOnlyLocal)) {
-                            resolver.resolve(q);
-                        }
+                for (Resolver resolver : mResolvers) {
+                    if (shouldResolve(resolver, q, forceOnlyLocal)) {
+                        resolver.resolve(q);
                     }
                 }
             }
@@ -272,9 +266,7 @@ public class PipeLine {
         HashSet<Query> queryKeys = new HashSet<>();
         if (queries != null) {
             for (Query query : queries) {
-                if (forceOnlyLocal || !query.isSolved()) {
-                    queryKeys.add(resolve(query, forceOnlyLocal));
-                }
+                queryKeys.add(resolve(query, forceOnlyLocal));
             }
         }
         return queryKeys;
@@ -317,9 +309,6 @@ public class PipeLine {
                             ResultsEvent event = new ResultsEvent();
                             event.mQuery = query;
                             EventBus.getDefault().post(event);
-                            if (query.isSolved()) {
-                                ThreadManager.getInstance().stop(query);
-                            }
                         }
                     }
                 }

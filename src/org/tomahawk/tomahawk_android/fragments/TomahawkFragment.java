@@ -620,7 +620,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             public void onDone(PlaylistEntry entry) {
                 if (entry != null) {
                     Query q = entry.getQuery();
-                    if (!q.isSolved() && !mCorrespondingQueries.contains(q)) {
+                    if (!mCorrespondingQueries.contains(q)) {
                         mCorrespondingQueries.add(PipeLine.getInstance().resolve(q));
                     }
                 }
