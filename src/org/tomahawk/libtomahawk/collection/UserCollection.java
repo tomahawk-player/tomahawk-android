@@ -70,26 +70,25 @@ public class UserCollection extends NativeCollection {
     private static final String HAS_SET_DEFAULTDIRS
             = "org.tomahawk.tomahawk_android.has_set_defaultdirs";
 
-    private boolean isStopping = false;
+    private static final List<String> TYPE_WHITELIST = Arrays.asList("vfat", "exfat", "sdcardfs",
+            "fuse", "ntfs", "fat32", "ext3", "ext4", "esdfs");
 
-    private boolean mRestart = false;
+    private static final List<String> TYPE_BLACKLIST = Arrays.asList("tmpfs");
 
-    protected Thread mLoadingThread;
+    private static final String[] MOUNT_WHITELIST = {"/mnt", "/Removable", "/storage"};
+
+    private static final String[] MOUNT_BLACKLIST = {"/mnt/secure", "/mnt/shell", "/mnt/asec",
+            "/mnt/obb", "/mnt/media_rw/extSdCard", "/mnt/media_rw/sdcard", "/storage/emulated"};
+
+    private static final String[] DEVICE_WHITELIST = {"/dev/block/vold", "/dev/fuse",
+            "/mnt/media_rw"};
 
     public final static HashSet<String> FOLDER_BLACKLIST;
 
     static {
-        final String[] folder_blacklist = {
-                "/alarms",
-                "/notifications",
-                "/ringtones",
-                "/media/alarms",
-                "/media/notifications",
-                "/media/ringtones",
-                "/media/audio/alarms",
-                "/media/audio/notifications",
-                "/media/audio/ringtones",
-                "/Android/data/"};
+        final String[] folder_blacklist = {"/alarms", "/notifications", "/ringtones",
+                "/media/alarms", "/media/notifications", "/media/ringtones", "/media/audio/alarms",
+                "/media/audio/notifications", "/media/audio/ringtones", "/Android/data/"};
 
         FOLDER_BLACKLIST = new HashSet<>();
         for (String item : folder_blacklist) {
@@ -97,6 +96,12 @@ public class UserCollection extends NativeCollection {
                     .add(android.os.Environment.getExternalStorageDirectory().getPath() + item);
         }
     }
+
+    private boolean mIsStopping = false;
+
+    private boolean mRestart = false;
+
+    private Thread mLoadingThread;
 
     private final ConcurrentHashMap<Query, Long> mQueryTimeStamps
             = new ConcurrentHashMap<>();
@@ -114,7 +119,6 @@ public class UserCollection extends NativeCollection {
 
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
-
     }
 
     public int getQueryCount() {
@@ -123,9 +127,9 @@ public class UserCollection extends NativeCollection {
 
     public void loadMediaItems(boolean restart) {
         if (restart && isWorking()) {
-            /* do a clean restart if a scan is ongoing */
+            // do a clean restart if a scan is ongoing
             mRestart = true;
-            isStopping = true;
+            mIsStopping = true;
         } else {
             loadMediaItems();
         }
@@ -133,14 +137,14 @@ public class UserCollection extends NativeCollection {
 
     public void loadMediaItems() {
         if (mLoadingThread == null || mLoadingThread.getState() == Thread.State.TERMINATED) {
-            isStopping = false;
+            mIsStopping = false;
             mLoadingThread = new Thread(new GetMediaItemsRunnable());
             mLoadingThread.start();
         }
     }
 
     public void stop() {
-        isStopping = true;
+        mIsStopping = true;
     }
 
     public boolean isWorking() {
@@ -152,19 +156,11 @@ public class UserCollection extends NativeCollection {
 
     private class GetMediaItemsRunnable implements Runnable {
 
-        private final Stack<File> directories = new Stack<>();
-
-        private final HashSet<String> directoriesScanned = new HashSet<>();
-
-        public GetMediaItemsRunnable() {
-        }
-
         @Override
         public void run() {
-            SharedPreferences preferences = PreferenceManager
-                    .getDefaultSharedPreferences(TomahawkApp.getContext());
-            Set<String> setDefaultDirs =
-                    preferences.getStringSet(HAS_SET_DEFAULTDIRS, null);
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+            Set<String> setDefaultDirs = preferences.getStringSet(HAS_SET_DEFAULTDIRS, null);
             if (setDefaultDirs == null) {
                 setDefaultDirs = new HashSet<>();
             }
@@ -177,27 +173,26 @@ public class UserCollection extends NativeCollection {
             preferences.edit().putStringSet(HAS_SET_DEFAULTDIRS, setDefaultDirs).commit();
 
             List<File> mediaDirs = DatabaseHelper.getInstance().getMediaDirs(false);
+            Stack<File> directories = new Stack<>();
             directories.addAll(mediaDirs);
 
             // get all existing media items
-            HashMap<String, MediaWrapper> existingMedias = DatabaseHelper.getInstance()
-                    .getMedias();
+            HashMap<String, MediaWrapper> existingMedias = DatabaseHelper.getInstance().getMedias();
 
             // list of all added files
             HashSet<String> addedLocations = new HashSet<>();
 
-            MediaItemFilter mediaFileFilter = new MediaItemFilter();
-
             ArrayList<File> mediaToScan = new ArrayList<>();
             try {
+                final HashSet<String> directoriesScanned = new HashSet<>();
                 // Count total files, and stack them
                 while (!directories.isEmpty()) {
                     File dir = directories.pop();
                     String dirPath = dir.getAbsolutePath();
 
                     // Skip some system folders
-                    if (dirPath.startsWith("/proc/") || dirPath.startsWith("/sys/") || dirPath
-                            .startsWith("/dev/")) {
+                    if (dirPath.startsWith("/proc/") || dirPath.startsWith("/sys/")
+                            || dirPath.startsWith("/dev/")) {
                         continue;
                     }
 
@@ -205,7 +200,8 @@ public class UserCollection extends NativeCollection {
                     try {
                         dirPath = dir.getCanonicalPath();
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        Log.e(TAG, "GetMediaItemsRunnable#run() - " + e.getClass() + ": "
+                                + e.getLocalizedMessage());
                     }
                     if (directoriesScanned.contains(dirPath)) {
                         continue;
@@ -220,8 +216,8 @@ public class UserCollection extends NativeCollection {
 
                     // Filter the extensions and the folders
                     try {
-                        File[] f;
-                        if ((f = dir.listFiles(mediaFileFilter)) != null) {
+                        File[] f = dir.listFiles(new MediaItemFilter());
+                        if (f != null) {
                             for (File file : f) {
                                 if (file.isFile()) {
                                     mediaToScan.add(file);
@@ -232,10 +228,12 @@ public class UserCollection extends NativeCollection {
                         }
                     } catch (Exception e) {
                         // listFiles can fail in OutOfMemoryError, go to the next folder
+                        Log.e(TAG, "GetMediaItemsRunnable#run() - " + e.getClass() + ": "
+                                + e.getLocalizedMessage());
                         continue;
                     }
 
-                    if (isStopping) {
+                    if (mIsStopping) {
                         Log.d(TAG, "Stopping scan");
                         return;
                     }
@@ -245,10 +243,8 @@ public class UserCollection extends NativeCollection {
                 for (File file : mediaToScan) {
                     String fileURI = LibVLC.PathToURI(file.getPath());
                     if (existingMedias.containsKey(fileURI)) {
-                        /**
-                         * only add file if it is not already in the list. eg. if
-                         * user select an subfolder as well
-                         */
+                        // only add file if it is not already in the list. eg. if a user selects a
+                        // subfolder as well
                         if (!addedLocations.contains(fileURI)) {
                             // get existing media item from database
                             mediaWrappers.add(existingMedias.get(fileURI));
@@ -260,10 +256,10 @@ public class UserCollection extends NativeCollection {
                                 VLCMediaPlayer.getInstance().getLibVlcInstance(), fileURI);
                         media.parse();
                         media.release();
-                        /* skip files with .mod extension and no duration */
-                        if ((media.getDuration() == 0 || (media.getTrackCount() != 0 && TextUtils
-                                .isEmpty(media.getTrack(0).codec))) &&
-                                fileURI.endsWith(".mod")) {
+                        // skip files with .mod extension and no duration
+                        if ((media.getDuration() == 0 || (media.getTrackCount() != 0
+                                && TextUtils.isEmpty(media.getTrack(0).codec)))
+                                && fileURI.endsWith(".mod")) {
                             continue;
                         }
                         MediaWrapper mw = new MediaWrapper(media);
@@ -272,7 +268,7 @@ public class UserCollection extends NativeCollection {
                         // Add this item to database
                         DatabaseHelper.getInstance().addMedia(mw);
                     }
-                    if (isStopping) {
+                    if (mIsStopping) {
                         Log.d(TAG, "Stopping scan");
                         return;
                     }
@@ -280,7 +276,7 @@ public class UserCollection extends NativeCollection {
                 processMediaWrappers(mediaWrappers);
             } finally {
                 // remove old files & folders from database if storage is mounted
-                if (!isStopping && Environment.getExternalStorageState()
+                if (!mIsStopping && Environment.getExternalStorageState()
                         .equals(Environment.MEDIA_MOUNTED)) {
                     for (String fileURI : addedLocations) {
                         existingMedias.remove(fileURI);
@@ -402,8 +398,8 @@ public class UserCollection extends NativeCollection {
         public boolean accept(File f) {
             boolean accepted = false;
             if (!f.isHidden()) {
-                if (f.isDirectory() && !FOLDER_BLACKLIST
-                        .contains(f.getPath().toLowerCase(Locale.ENGLISH))) {
+                if (f.isDirectory()
+                        && !FOLDER_BLACKLIST.contains(f.getPath().toLowerCase(Locale.ENGLISH))) {
                     accepted = true;
                 } else {
                     String fileName = f.getName().toLowerCase(Locale.ENGLISH);
@@ -425,24 +421,6 @@ public class UserCollection extends NativeCollection {
         ArrayList<String> list = new ArrayList<>();
         list.add(Environment.getExternalStorageDirectory().getPath());
 
-        List<String> typeWL =
-                Arrays.asList("vfat", "exfat", "sdcardfs", "fuse", "ntfs", "fat32", "ext3", "ext4",
-                        "esdfs");
-        List<String> typeBL = Arrays.asList("tmpfs");
-        String[] mountWL = {"/mnt", "/Removable", "/storage"};
-        String[] mountBL = {
-                "/mnt/secure",
-                "/mnt/shell",
-                "/mnt/asec",
-                "/mnt/obb",
-                "/mnt/media_rw/extSdCard",
-                "/mnt/media_rw/sdcard",
-                "/storage/emulated"};
-        String[] deviceWL = {
-                "/dev/block/vold",
-                "/dev/fuse",
-                "/mnt/media_rw"};
-
         try {
             bufReader = new BufferedReader(new FileReader("/proc/mounts"));
             String line;
@@ -454,14 +432,14 @@ public class UserCollection extends NativeCollection {
                 String type = tokens.nextToken();
 
                 // skip if already in list or if type/mountpoint is blacklisted
-                if (list.contains(mountpoint) || typeBL.contains(type)
-                        || doStringsStartWith(mountBL, mountpoint)) {
+                if (list.contains(mountpoint) || TYPE_BLACKLIST.contains(type)
+                        || doStringsStartWith(MOUNT_BLACKLIST, mountpoint)) {
                     continue;
                 }
 
                 // check that device is in whitelist, and either type or mountpoint is in a whitelist
-                if (doStringsStartWith(deviceWL, device) && (typeWL.contains(type)
-                        || doStringsStartWith(mountWL, mountpoint))) {
+                if (doStringsStartWith(DEVICE_WHITELIST, device) && (TYPE_WHITELIST.contains(type)
+                        || doStringsStartWith(MOUNT_WHITELIST, mountpoint))) {
                     list.add(mountpoint);
                 }
             }
