@@ -22,7 +22,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 public class CollectionUtils {
 
     public static boolean allFromOneArtist(CollectionCursor<Query> items) {
-        if (items.size() < 2) {
+        if (items == null || items.size() < 2) {
             return true;
         }
         Query item = items.get(0);

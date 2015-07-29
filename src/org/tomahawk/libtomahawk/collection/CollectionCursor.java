@@ -90,6 +90,10 @@ public class CollectionCursor<T> {
 
     private T rawGet(int location) {
         if (mCursor != null) {
+            if (mCursor.isClosed()) {
+                Log.d(TAG, "rawGet - Cursor has been closed.");
+                return null;
+            }
             mCursor.moveToPosition(location);
             T cachedItem = mCursorCache.get(location);
             if (cachedItem == null) {
@@ -144,6 +148,10 @@ public class CollectionCursor<T> {
         int counter2 = 0;
         int i = 0;
         while (counter1 < size1 || counter2 < size2) {
+            if (mCursor != null && mCursor.isClosed()) {
+                Log.e(TAG, "updateIndex - Aborting. Cursor has been closed.");
+                return;
+            }
             int compareResult;
             if (counter1 < size1 && counter2 < size2) {
                 compareResult =
