@@ -117,53 +117,60 @@ public class DataBaseResolver implements Resolver {
             CollectionManager.getInstance().getCollection(mId)
                     .getQueries().done(new DoneCallback<CollectionCursor<Query>>() {
                 @Override
-                public void onDone(CollectionCursor<Query> cursor) {
-                    ArrayList<Result> results = new ArrayList<>();
-                    for (int i = 0; i < cursor.size(); i++) {
-                        Query existingQuery = cursor.get(i);
-                        String existingTrackName = existingQuery.getName();
-                        String existingArtistName = existingQuery.getArtist().getName();
-                        String existingAlbumName = existingQuery.getAlbum().getName();
-                        if (queryToSearchFor.isFullTextQuery()) {
-                            if (!TextUtils.isEmpty(queryToSearchFor.getFullTextQuery())) {
-                                String toSearchForFullText = queryToSearchFor.getFullTextQuery();
-                                if (TomahawkUtils
-                                        .containsIgnoreCase(existingTrackName, toSearchForFullText)
-                                        || TomahawkUtils.containsIgnoreCase(existingArtistName,
-                                        toSearchForFullText)
-                                        || TomahawkUtils.containsIgnoreCase(existingAlbumName,
-                                        toSearchForFullText)
-                                        || TomahawkUtils.containsIgnoreCase(toSearchForFullText,
-                                        existingTrackName)
-                                        || TomahawkUtils.containsIgnoreCase(toSearchForFullText,
-                                        existingArtistName)
-                                        || TomahawkUtils.containsIgnoreCase(toSearchForFullText,
-                                        existingAlbumName)) {
-                                    results.add(existingQuery.getPreferredTrackResult());
-                                }
+                public void onDone(final CollectionCursor<Query> cursor) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            ArrayList<Result> results = new ArrayList<>();
+                            for (int i = 0; i < cursor.size(); i++) {
+                                Query existingQuery = cursor.get(i);
+                                String existingTrackName = existingQuery.getName();
+                                String existingArtistName = existingQuery.getArtist().getName();
+                                String existingAlbumName = existingQuery.getAlbum().getName();
+                                if (queryToSearchFor.isFullTextQuery()) {
+                                    if (!TextUtils.isEmpty(queryToSearchFor.getFullTextQuery())) {
+                                        String toSearchForFullText = queryToSearchFor
+                                                .getFullTextQuery();
+                                        if (TomahawkUtils.containsIgnoreCase(
+                                                existingTrackName, toSearchForFullText)
+                                                || TomahawkUtils.containsIgnoreCase(
+                                                existingArtistName, toSearchForFullText)
+                                                || TomahawkUtils.containsIgnoreCase(
+                                                existingAlbumName, toSearchForFullText)
+                                                || TomahawkUtils.containsIgnoreCase
+                                                (toSearchForFullText, existingTrackName)
+                                                || TomahawkUtils.containsIgnoreCase(
+                                                toSearchForFullText, existingArtistName)
+                                                || TomahawkUtils.containsIgnoreCase(
+                                                toSearchForFullText, existingAlbumName)) {
+                                            results.add(existingQuery.getPreferredTrackResult());
+                                        }
 
-                            }
-                        } else {
-                            if (!TextUtils.isEmpty(queryToSearchFor.getName()) &&
-                                    !TextUtils.isEmpty(queryToSearchFor.getArtist().getName())) {
-                                String toSearchTrackName = queryToSearchFor.getName();
-                                String toSearchArtistName = queryToSearchFor.getArtist().getName();
-                                if ((TomahawkUtils
-                                        .containsIgnoreCase(existingTrackName, toSearchTrackName)
-                                        || TomahawkUtils.containsIgnoreCase(toSearchTrackName,
-                                        existingTrackName))
-                                        && (TomahawkUtils.containsIgnoreCase(existingArtistName,
-                                        toSearchArtistName)
-                                        || TomahawkUtils
-                                        .containsIgnoreCase(toSearchArtistName,
-                                                existingArtistName))) {
-                                    results.add(existingQuery.getPreferredTrackResult());
+                                    }
+                                } else {
+                                    if (!TextUtils.isEmpty(queryToSearchFor.getName()) &&
+                                            !TextUtils.isEmpty(
+                                                    queryToSearchFor.getArtist().getName())) {
+                                        String toSearchTrackName = queryToSearchFor.getName();
+                                        String toSearchArtistName =
+                                                queryToSearchFor.getArtist().getName();
+                                        if ((TomahawkUtils.containsIgnoreCase(
+                                                existingTrackName, toSearchTrackName)
+                                                || TomahawkUtils.containsIgnoreCase(
+                                                toSearchTrackName, existingTrackName))
+                                                && (TomahawkUtils.containsIgnoreCase(
+                                                existingArtistName, toSearchArtistName)
+                                                || TomahawkUtils.containsIgnoreCase(
+                                                toSearchArtistName, existingArtistName))) {
+                                            results.add(existingQuery.getPreferredTrackResult());
+                                        }
+                                    }
                                 }
                             }
+                            PipeLine.getInstance().reportResults(queryToSearchFor, results, mId);
+                            mStopped = true;
                         }
-                    }
-                    PipeLine.getInstance().reportResults(queryToSearchFor, results, mId);
-                    mStopped = true;
+                    }).start();
                 }
             });
 
