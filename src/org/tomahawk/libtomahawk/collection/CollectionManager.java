@@ -587,10 +587,12 @@ public class CollectionManager {
                         for (int i = 0; i < resolved.size(); i++) {
                             CollectionCursor cursor
                                     = (CollectionCursor) resolved.get(i).getResult();
-                            if (cursor.size() > 0) {
-                                availableCollections.add(collections.get(i));
+                            if (cursor != null) {
+                                if (cursor.size() > 0) {
+                                    availableCollections.add(collections.get(i));
+                                }
+                                cursor.close();
                             }
-                            cursor.close();
                         }
                         availableCollections.add(mCollections.get(TomahawkApp.PLUGINNAME_HATCHET));
                         deferred.resolve(availableCollections);
