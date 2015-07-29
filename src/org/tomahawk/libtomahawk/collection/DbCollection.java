@@ -1,0 +1,239 @@
+/* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+package org.tomahawk.libtomahawk.collection;
+
+import org.jdeferred.Deferred;
+import org.jdeferred.DoneCallback;
+import org.jdeferred.Promise;
+import org.tomahawk.libtomahawk.database.CollectionDb;
+import org.tomahawk.libtomahawk.database.CollectionDbManager;
+import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.utils.ADeferredObject;
+
+import android.database.Cursor;
+import android.util.Log;
+
+/**
+ * This class represents a Collection which contains tracks/albums/artists which are being stored in
+ * a local sqlite db.
+ */
+public abstract class DbCollection extends Collection {
+
+    private final static String TAG = DbCollection.class.getSimpleName();
+
+    private Resolver mResolver;
+
+    public DbCollection(Resolver resolver) {
+        super(resolver.getId(), resolver.getPrettyName());
+
+        mResolver = resolver;
+    }
+
+    public abstract Promise<String, Throwable, Void> getCollectionId();
+
+    @Override
+    public Promise<CollectionCursor<Query>, Throwable, Void> getQueries(final int sortMode) {
+        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(final String result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String[] orderBy;
+                        switch (sortMode) {
+                            case SORT_ALPHA:
+                                orderBy = new String[]{CollectionDb.TRACKS_TRACK};
+                                break;
+                            case SORT_ARTIST_ALPHA:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                                break;
+                            case SORT_LAST_MODIFIED:
+                                orderBy = new String[]{CollectionDb.TRACKS_TRACK};    //TODO
+                                break;
+                            default:
+                                Log.e(TAG, "getQueries - sortMode not supported!");
+                                return;
+                        }
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result)
+                                .tracks(null, orderBy);
+                        CollectionCursor<Query> collectionCursor =
+                                new CollectionCursor<>(cursor, Query.class, mResolver);
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
+            }
+        });
+        return deferred;
+    }
+
+    @Override
+    public Promise<CollectionCursor<Artist>, Throwable, Void> getArtists(final int sortMode) {
+        final Deferred<CollectionCursor<Artist>, Throwable, Void> deferred
+                = new ADeferredObject<>();
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(final String result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String[] orderBy;
+                        switch (sortMode) {
+                            case SORT_ALPHA:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                                break;
+                            case SORT_LAST_MODIFIED:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};   //TODO
+                                break;
+                            default:
+                                Log.e(TAG, "getArtists - sortMode not supported!");
+                                return;
+                        }
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result)
+                                .artists(orderBy);
+                        CollectionCursor<Artist> collectionCursor =
+                                new CollectionCursor<>(cursor, Artist.class, mResolver);
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
+            }
+        });
+        return deferred;
+    }
+
+    @Override
+    public Promise<CollectionCursor<Artist>, Throwable, Void> getAlbumArtists(final int sortMode) {
+        final Deferred<CollectionCursor<Artist>, Throwable, Void> deferred
+                = new ADeferredObject<>();
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(final String result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String[] orderBy;
+                        switch (sortMode) {
+                            case SORT_ALPHA:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                                break;
+                            case SORT_LAST_MODIFIED:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};    //TODO
+                                break;
+                            default:
+                                Log.e(TAG, "getAlbumArtists - sortMode not supported!");
+                                return;
+                        }
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result)
+                                .albumArtists(orderBy);
+                        CollectionCursor<Artist> collectionCursor =
+                                new CollectionCursor<>(cursor, Artist.class, mResolver);
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
+            }
+        });
+        return deferred;
+    }
+
+    @Override
+    public Promise<CollectionCursor<Album>, Throwable, Void> getAlbums(final int sortMode) {
+        final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(final String result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        String[] orderBy;
+                        switch (sortMode) {
+                            case SORT_ALPHA:
+                                orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};
+                                break;
+                            case SORT_ARTIST_ALPHA:
+                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                                break;
+                            case SORT_LAST_MODIFIED:
+                                orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};    //TODO
+                                break;
+                            default:
+                                Log.e(TAG, "getAlbums - sortMode not supported!");
+                                return;
+                        }
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result)
+                                .albums(orderBy);
+                        CollectionCursor<Album> collectionCursor =
+                                new CollectionCursor<>(cursor, Album.class, mResolver);
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
+            }
+        });
+        return deferred;
+    }
+
+    @Override
+    public Promise<CollectionCursor<Album>, Throwable, Void> getArtistAlbums(final Artist artist) {
+        final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(final String result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result)
+                                .artistAlbums(artist.getName(), "");
+                        if (cursor == null) {
+                            deferred.resolve(null);
+                            return;
+                        }
+                        CollectionCursor<Album> collectionCursor =
+                                new CollectionCursor<>(cursor, Album.class, mResolver);
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
+            }
+        });
+        return deferred;
+    }
+
+    @Override
+    public Promise<CollectionCursor<Query>, Throwable, Void> getAlbumTracks(final Album album) {
+        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(final String result) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result)
+                                .albumTracks(album.getName(), album.getArtist().getName(), "");
+                        if (cursor == null) {
+                            deferred.resolve(null);
+                            return;
+                        }
+                        CollectionCursor<Query> collectionCursor =
+                                new CollectionCursor<>(cursor, Query.class, mResolver);
+                        deferred.resolve(collectionCursor);
+                    }
+                }).start();
+            }
+        });
+        return deferred;
+    }
+}

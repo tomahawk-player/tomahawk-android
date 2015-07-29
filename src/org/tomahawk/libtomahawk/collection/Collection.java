@@ -22,11 +22,6 @@ import org.tomahawk.libtomahawk.resolver.Query;
 
 import android.widget.ImageView;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-
 public abstract class Collection {
 
     public static final int SORT_NOT = -1;
@@ -41,39 +36,13 @@ public abstract class Collection {
 
     private final String mName;
 
-    protected Set<Album> mAlbums
-            = Collections.newSetFromMap(new ConcurrentHashMap<Album, Boolean>());
-
-    protected Set<Artist> mArtists
-            = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
-
-    protected Set<Artist> mAlbumArtists
-            = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
-
-    protected Set<Query> mQueries
-            = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
-
-    protected ConcurrentHashMap<Album, List<Query>> mAlbumTracks
-            = new ConcurrentHashMap<>();
-
-    protected ConcurrentHashMap<Artist, List<Album>> mArtistAlbums
-            = new ConcurrentHashMap<>();
-
     public Collection(String id, String name) {
         mId = id;
         mName = name;
     }
 
-    public void wipe() {
-        mQueries.clear();
-        mArtists.clear();
-        mAlbums.clear();
-        mAlbumTracks.clear();
-        mArtistAlbums.clear();
-    }
-
     /**
-     * Load this {@link NativeCollection}'s icon into the given {@link ImageView}
+     * Load this {@link Collection}'s icon into the given {@link ImageView}
      */
     public abstract void loadIcon(ImageView imageView, boolean grayOut);
 

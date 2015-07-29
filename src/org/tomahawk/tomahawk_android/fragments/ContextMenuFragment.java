@@ -263,18 +263,20 @@ public class ContextMenuFragment extends Fragment {
                                     @Override
                                     public void onDone(CollectionCursor<Query> cursor) {
                                         List<Query> queries = new ArrayList<>();
-                                        for (int i = 0; i < cursor.size(); i++) {
-                                            Query query = cursor.get(i);
-                                            if (query == null) {
-                                                Log.e(TAG, "setupContextMenuItems - Can't call "
-                                                        + "showAddToPlaylist. Cursor has been "
-                                                        + "closed.");
-                                                cursor.close();
-                                                return;
+                                        if (cursor != null) {
+                                            for (int i = 0; i < cursor.size(); i++) {
+                                                Query query = cursor.get(i);
+                                                if (query == null) {
+                                                    Log.e(TAG, "setupContextMenuItems - Can't call "
+                                                            + "showAddToPlaylist. Cursor has been "
+                                                            + "closed.");
+                                                    cursor.close();
+                                                    return;
+                                                }
+                                                queries.add(cursor.get(i));
                                             }
-                                            queries.add(cursor.get(i));
+                                            cursor.close();
                                         }
-                                        cursor.close();
                                         showAddToPlaylist(activity, queries);
                                     }
                                 });

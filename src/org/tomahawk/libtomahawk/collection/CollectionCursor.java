@@ -18,10 +18,11 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 
 import android.database.Cursor;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -54,13 +55,13 @@ public class CollectionCursor<T> {
 
     private Class<T> mClass;
 
-    private ScriptResolver mScriptResolver;
+    private Resolver mResolver;
 
-    public CollectionCursor(Cursor cursor, Class<T> clss, ScriptResolver resolver) {
+    public CollectionCursor(Cursor cursor, Class<T> clss, Resolver resolver) {
         mCursor = cursor;
         mCursorCount = cursor.getCount();
         mClass = clss;
-        mScriptResolver = resolver;
+        mResolver = resolver;
     }
 
     public CollectionCursor(List<T> items, Class<T> clss) {
@@ -103,13 +104,17 @@ public class CollectionCursor<T> {
                     Track track = Track.get(mCursor.getString(3), album, artist);
                     track.setDuration(mCursor.getInt(4) * 1000);
                     track.setAlbumPos(mCursor.getInt(7));
-                    Result result = Result.get(mCursor.getString(5), track, mScriptResolver);
+                    Result result = Result.get(mCursor.getString(5), track, mResolver);
                     Query query = Query.get(result, false);
                     query.addTrackResult(result, 1.0f);
                     cachedItem = (T) query;
                 } else if (mClass == Album.class) {
                     Artist artist = Artist.get(mCursor.getString(1));
                     Album album = Album.get(mCursor.getString(0), artist);
+                    String imagePath = mCursor.getString(3);
+                    if (!TextUtils.isEmpty(imagePath)) {
+                        album.setImage(Image.get(imagePath, false));
+                    }
                     cachedItem = (T) album;
                 } else if (mClass == Artist.class) {
                     Artist artist = Artist.get(mCursor.getString(0));
