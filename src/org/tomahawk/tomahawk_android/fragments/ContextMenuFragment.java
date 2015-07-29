@@ -46,6 +46,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -63,6 +64,8 @@ import de.greenrobot.event.EventBus;
  * dialog, so that it is fully customizable.
  */
 public class ContextMenuFragment extends Fragment {
+
+    private final static String TAG = ContextMenuFragment.class.getSimpleName();
 
     private Album mAlbum;
 
@@ -261,6 +264,14 @@ public class ContextMenuFragment extends Fragment {
                                     public void onDone(CollectionCursor<Query> cursor) {
                                         List<Query> queries = new ArrayList<>();
                                         for (int i = 0; i < cursor.size(); i++) {
+                                            Query query = cursor.get(i);
+                                            if (query == null) {
+                                                Log.e(TAG, "setupContextMenuItems - Can't call "
+                                                        + "showAddToPlaylist. Cursor has been "
+                                                        + "closed.");
+                                                cursor.close();
+                                                return;
+                                            }
                                             queries.add(cursor.get(i));
                                         }
                                         cursor.close();

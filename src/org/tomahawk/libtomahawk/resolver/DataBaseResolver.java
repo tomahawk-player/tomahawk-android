@@ -124,6 +124,10 @@ public class DataBaseResolver implements Resolver {
                             ArrayList<Result> results = new ArrayList<>();
                             for (int i = 0; i < cursor.size(); i++) {
                                 Query existingQuery = cursor.get(i);
+                                if (existingQuery == null) {
+                                    mStopped = true;
+                                    return;
+                                }
                                 String existingTrackName = existingQuery.getName();
                                 String existingArtistName = existingQuery.getArtist().getName();
                                 String existingAlbumName = existingQuery.getAlbum().getName();
