@@ -28,7 +28,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.NativeCollection;
+import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
@@ -227,7 +227,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
     private boolean getParseConvert(InfoRequestData infoRequestData)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         QueryParams params = infoRequestData.getQueryParams();
-        NativeCollection hatchetCollection = (NativeCollection) CollectionManager.getInstance()
+        HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager.getInstance()
                 .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
         Hatchet hatchet = getImplementation(infoRequestData);
 

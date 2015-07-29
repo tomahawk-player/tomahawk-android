@@ -19,17 +19,19 @@ package org.tomahawk.libtomahawk.resolver.models;
 
 public class ScriptResolverTrack {
 
-    public String track = "";
+    public String track;
 
-    public String album = "";
+    public String album;
 
-    public String artist = "";
+    public String imagePath;
 
-    public String artistDisambiguation = "";
+    public String artist;
 
-    public String albumArtist = "";
+    public String artistDisambiguation;
 
-    public String albumArtistDisambiguation = "";
+    public String albumArtist;
+
+    public String albumArtistDisambiguation;
 
     public String url;
 

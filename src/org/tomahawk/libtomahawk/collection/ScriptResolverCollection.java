@@ -19,10 +19,8 @@ package org.tomahawk.libtomahawk.collection;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
+import org.jdeferred.DonePipe;
 import org.jdeferred.Promise;
-import org.tomahawk.libtomahawk.database.CollectionDb;
-import org.tomahawk.libtomahawk.database.CollectionDbManager;
-import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptAccount;
 import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.ScriptObject;
@@ -32,15 +30,13 @@ import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.database.Cursor;
-import android.util.Log;
 import android.widget.ImageView;
 
 /**
  * This class represents a Collection which contains tracks/albums/artists retrieved by a
  * ScriptResolver.
  */
-public class ScriptResolverCollection extends Collection implements ScriptPlugin {
+public class ScriptResolverCollection extends DbCollection implements ScriptPlugin {
 
     private final static String TAG = ScriptResolverCollection.class.getSimpleName();
 
@@ -51,10 +47,45 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
     private ScriptResolverCollectionMetaData mMetaData;
 
     public ScriptResolverCollection(ScriptObject object, ScriptAccount account) {
-        super(account.getScriptResolver().getId(), account.getName());
+        super(account.getScriptResolver());
 
         mScriptObject = object;
         mScriptAccount = account;
+    }
+
+    @Override
+    public Promise<String, Throwable, Void> getCollectionId() {
+        final Deferred<ScriptResolverCollectionMetaData, Throwable, Void> deferred
+                = new ADeferredObject<>();
+        if (mMetaData == null) {
+            ScriptJob.start(mScriptObject, "settings",
+                    new ScriptJob.ResultsCallback<ScriptResolverCollectionMetaData>(
+                            ScriptResolverCollectionMetaData.class) {
+                        @Override
+                        public void onReportResults(ScriptResolverCollectionMetaData results) {
+                            mMetaData = results;
+                            deferred.resolve(results);
+                        }
+                    }, new ScriptJob.FailureCallback() {
+                        @Override
+                        public void onReportFailure(String errormessage) {
+                            deferred.reject(new Throwable(errormessage));
+                        }
+                    });
+            return deferred.then(
+                    new DonePipe<ScriptResolverCollectionMetaData, String, Throwable, Void>() {
+                        @Override
+                        public Promise<String, Throwable, Void> pipeDone(
+                                ScriptResolverCollectionMetaData result) {
+                            final Deferred<String, Throwable, Void> deferred
+                                    = new ADeferredObject<>();
+                            return deferred.resolve(result.id);
+                        }
+                    });
+        } else {
+            Deferred<String, Throwable, Void> d = new ADeferredObject<>();
+            return d.resolve(mMetaData.id);
+        }
     }
 
     public Deferred<ScriptResolverCollectionMetaData, Throwable, Void> getMetaData() {
@@ -106,195 +137,5 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                         completeIconPath);
             }
         });
-    }
-
-    @Override
-    public Promise<CollectionCursor<Query>, Throwable, Void> getQueries(final int sortMode) {
-        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(final ScriptResolverCollectionMetaData result) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String[] orderBy;
-                        switch (sortMode) {
-                            case SORT_ALPHA:
-                                orderBy = new String[]{CollectionDb.TRACKS_TRACK};
-                                break;
-                            case SORT_ARTIST_ALPHA:
-                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
-                                break;
-                            case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.TRACKS_TRACK};    //TODO
-                                break;
-                            default:
-                                Log.e(TAG, "getQueries - sortMode not supported!");
-                                return;
-                        }
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
-                                .tracks(null, orderBy);
-                        CollectionCursor<Query> collectionCursor = new CollectionCursor<>(cursor,
-                                Query.class, mScriptAccount.getScriptResolver());
-                        deferred.resolve(collectionCursor);
-                    }
-                }).start();
-            }
-        });
-        return deferred;
-    }
-
-    @Override
-    public Promise<CollectionCursor<Artist>, Throwable, Void> getArtists(final int sortMode) {
-        final Deferred<CollectionCursor<Artist>, Throwable, Void> deferred
-                = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(final ScriptResolverCollectionMetaData result) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String[] orderBy;
-                        switch (sortMode) {
-                            case SORT_ALPHA:
-                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
-                                break;
-                            case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};   //TODO
-                                break;
-                            default:
-                                Log.e(TAG, "getArtists - sortMode not supported!");
-                                return;
-                        }
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
-                                .artists(orderBy);
-                        CollectionCursor<Artist> collectionCursor = new CollectionCursor<>(cursor,
-                                Artist.class, mScriptAccount.getScriptResolver());
-                        deferred.resolve(collectionCursor);
-                    }
-                }).start();
-            }
-        });
-        return deferred;
-    }
-
-    @Override
-    public Promise<CollectionCursor<Artist>, Throwable, Void> getAlbumArtists(final int sortMode) {
-        final Deferred<CollectionCursor<Artist>, Throwable, Void> deferred
-                = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(final ScriptResolverCollectionMetaData result) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String[] orderBy;
-                        switch (sortMode) {
-                            case SORT_ALPHA:
-                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
-                                break;
-                            case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};    //TODO
-                                break;
-                            default:
-                                Log.e(TAG, "getAlbumArtists - sortMode not supported!");
-                                return;
-                        }
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
-                                .albumArtists(orderBy);
-                        CollectionCursor<Artist> collectionCursor = new CollectionCursor<>(cursor,
-                                Artist.class, mScriptAccount.getScriptResolver());
-                        deferred.resolve(collectionCursor);
-                    }
-                }).start();
-            }
-        });
-        return deferred;
-    }
-
-    @Override
-    public Promise<CollectionCursor<Album>, Throwable, Void> getAlbums(final int sortMode) {
-        final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(final ScriptResolverCollectionMetaData result) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        String[] orderBy;
-                        switch (sortMode) {
-                            case SORT_ALPHA:
-                                orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};
-                                break;
-                            case SORT_ARTIST_ALPHA:
-                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
-                                break;
-                            case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};    //TODO
-                                break;
-                            default:
-                                Log.e(TAG, "getAlbums - sortMode not supported!");
-                                return;
-                        }
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
-                                .albums(orderBy);
-                        CollectionCursor<Album> collectionCursor = new CollectionCursor<>(cursor,
-                                Album.class, mScriptAccount.getScriptResolver());
-                        deferred.resolve(collectionCursor);
-                    }
-                }).start();
-            }
-        });
-        return deferred;
-    }
-
-    @Override
-    public Promise<CollectionCursor<Album>, Throwable, Void> getArtistAlbums(final Artist artist) {
-        final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(final ScriptResolverCollectionMetaData result) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
-                                .artistAlbums(artist.getName(), "");
-                        if (cursor == null) {
-                            deferred.resolve(null);
-                            return;
-                        }
-                        CollectionCursor<Album> collectionCursor = new CollectionCursor<>(cursor,
-                                Album.class, mScriptAccount.getScriptResolver());
-                        deferred.resolve(collectionCursor);
-                    }
-                }).start();
-            }
-        });
-        return deferred;
-    }
-
-    @Override
-    public Promise<CollectionCursor<Query>, Throwable, Void> getAlbumTracks(final Album album) {
-        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
-            @Override
-            public void onDone(final ScriptResolverCollectionMetaData result) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
-                                .albumTracks(album.getName(), album.getArtist().getName(), "");
-                        if (cursor == null) {
-                            deferred.resolve(null);
-                            return;
-                        }
-                        CollectionCursor<Query> collectionCursor = new CollectionCursor<>(cursor,
-                                Query.class, mScriptAccount.getScriptResolver());
-                        deferred.resolve(collectionCursor);
-                    }
-                }).start();
-            }
-        });
-        return deferred;
     }
 }

@@ -56,6 +56,8 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     public static final String ALBUMS_ALBUM = "album";
 
+    public static final String ALBUMS_IMAGEPATH = "imagePath";
+
     public static final String ALBUMS_ALBUMARTISTID = "albumArtistId";
 
     public static final String TABLE_ARTISTALBUMS = "artistAlbums";
@@ -101,6 +103,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + ALBUMS_ALBUM + " TEXT,"
             + ALBUMS_ALBUMARTISTID + " INTEGER,"
+            + ALBUMS_IMAGEPATH + " TEXT,"
             + "UNIQUE (" + ALBUMS_ALBUM + ", " + ALBUMS_ALBUMARTISTID + ") ON CONFLICT IGNORE,"
             + "FOREIGN KEY(" + ALBUMS_ALBUMARTISTID + ") REFERENCES "
             + TABLE_ALBUMARTISTS + "(" + ID + "));";
@@ -134,7 +137,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             + "FOREIGN KEY(" + TRACKS_ALBUMID + ") REFERENCES "
             + TABLE_ALBUMS + "(" + ID + "));";
 
-    private static final int DB_VERSION = 1;
+    private static final int DB_VERSION = 2;
 
     private static final String DB_FILE_SUFFIX = "_collection.db";
 
@@ -168,6 +171,10 @@ public class CollectionDb extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
                 + ", which might destroy all old data");
+        if (oldVersion < 2) {
+            db.execSQL("ALTER TABLE `" + TABLE_ALBUMS + "` ADD COLUMN `"
+                    + ALBUMS_IMAGEPATH + "` TEXT");
+        }
     }
 
     public synchronized void addTracks(ScriptResolverTrack[] tracks) {
@@ -180,6 +187,24 @@ public class CollectionDb extends SQLiteOpenHelper {
 
         // First we insert all artists and albumArtists
         for (ScriptResolverTrack track : tracks) {
+            if (track.artist == null) {
+                track.artist = "";
+            }
+            if (track.artistDisambiguation == null) {
+                track.artistDisambiguation = "";
+            }
+            if (track.album == null) {
+                track.album = "";
+            }
+            if (track.albumArtist == null) {
+                track.albumArtist = "";
+            }
+            if (track.albumArtistDisambiguation == null) {
+                track.albumArtistDisambiguation = "";
+            }
+            if (track.track == null) {
+                track.track = "";
+            }
             values = new ContentValues();
             values.put(ARTISTS_ARTIST, track.artist);
             values.put(ARTISTS_ARTISTDISAMBIGUATION, track.artistDisambiguation);
@@ -234,6 +259,7 @@ public class CollectionDb extends SQLiteOpenHelper {
                         concatKeys(Artist.COMPILATION_ARTIST.getName(), ""));
             }
             values.put(ALBUMS_ALBUMARTISTID, albumArtistId);
+            values.put(ALBUMS_IMAGEPATH, track.imagePath);
             mDb.insert(TABLE_ALBUMS, null, values);
         }
 
@@ -318,7 +344,8 @@ public class CollectionDb extends SQLiteOpenHelper {
     }
 
     public synchronized Cursor albums(String[] orderBy) {
-        String[] fields = new String[]{ALBUMS_ALBUM, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION};
+        String[] fields = new String[]{ALBUMS_ALBUM, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION,
+                ALBUMS_IMAGEPATH};
         List<JoinInfo> joinInfos = new ArrayList<>();
         JoinInfo joinInfo = new JoinInfo();
         joinInfo.table = TABLE_ARTISTS;

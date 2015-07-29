@@ -71,14 +71,15 @@ public class ArtistsFragment extends TomahawkFragment {
                     Bundle bundle = new Bundle();
                     bundle.putString(TomahawkFragment.ARTIST,
                             ((Artist) item).getCacheKey());
-                    if (cursor.size() > 0) {
-                        bundle.putString(TomahawkFragment.COLLECTION_ID,
-                                mCollection.getId());
+                    if (cursor != null && cursor.size() > 0) {
+                        bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
                     } else {
                         bundle.putString(TomahawkFragment.COLLECTION_ID,
                                 TomahawkApp.PLUGINNAME_HATCHET);
                     }
-                    cursor.close();
+                    if (cursor != null) {
+                        cursor.close();
+                    }
                     bundle.putInt(CONTENT_HEADER_MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
                     bundle.putLong(CONTAINER_FRAGMENT_ID,

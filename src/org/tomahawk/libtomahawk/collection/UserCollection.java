@@ -18,12 +18,15 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.jdeferred.Deferred;
+import org.jdeferred.Promise;
+import org.tomahawk.libtomahawk.database.CollectionDb;
+import org.tomahawk.libtomahawk.database.CollectionDbManager;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.Resolver;
-import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
+import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.MediaWrapper;
@@ -63,7 +66,7 @@ import de.greenrobot.event.EventBus;
 /**
  * This class represents a user's local {@link UserCollection}.
  */
-public class UserCollection extends NativeCollection {
+public class UserCollection extends DbCollection {
 
     private static final String TAG = UserCollection.class.getSimpleName();
 
@@ -113,16 +116,17 @@ public class UserCollection extends NativeCollection {
             = new ConcurrentHashMap<>();
 
     public UserCollection() {
-        super(TomahawkApp.PLUGINNAME_USERCOLLECTION,
-                TomahawkApp.getContext().getString(R.string.local_collection_pretty_name), true);
+        super(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION));
+    }
+
+    @Override
+    public Promise<String, Throwable, Void> getCollectionId() {
+        Deferred<String, Throwable, Void> d = new ADeferredObject<>();
+        return d.resolve(TomahawkApp.PLUGINNAME_USERCOLLECTION);
     }
 
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
-    }
-
-    public int getQueryCount() {
-        return mQueries.size();
     }
 
     public void loadMediaItems(boolean restart) {
@@ -312,52 +316,24 @@ public class UserCollection extends NativeCollection {
                     }
                 }
             }
+            List<ScriptResolverTrack> tracks = new ArrayList<>();
             for (MediaWrapper mw : mws) {
                 if (mw.getType() == MediaWrapper.TYPE_AUDIO) {
-                    Artist artist = Artist.get(mw.getArtist());
-                    String albumKey = mw.getAlbum() != null ? mw.getAlbum().toLowerCase() : "";
-                    Album album = albumMap.get(albumKey);
-                    if (!TextUtils.isEmpty(mw.getAlbum())
-                            && !TextUtils.isEmpty(mw.getArtworkURL())) {
-                        album.setImage(Image.get(mw.getArtworkURL(), false));
-                    }
-                    Track track = Track.get(mw.getTitle(), album, artist);
-                    track.setDuration(mw.getLength());
-                    track.setAlbumPos(mw.getTrackNumber());
-                    Query query = Query.get(mw.getTitle(), mw.getAlbum(), mw.getArtist(), true);
-                    Resolver userCollectionResolver = PipeLine.getInstance().getResolver(
-                            TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                    Result result = Result.get(mw.getLocation(), track, userCollectionResolver);
-                    query.addTrackResult(result, 1f);
-                    addQuery(query, mw.getLastModified());
-                    addArtist(artist);
-                    addAlbum(album);
-                    addAlbumTrack(album, query);
-                    addArtistAlbum(artist, album);
-                    if (mw.getAlbumArtist() != null) {
-                        Artist albumArtist = Artist.get(mw.getAlbumArtist());
-                        addAlbumArtist(albumArtist);
-                        addArtistAlbum(albumArtist, album);
-                    }
+                    ScriptResolverTrack track = new ScriptResolverTrack();
+                    track.album = mw.getAlbum();
+                    track.albumArtist = mw.getAlbumArtist();
+                    track.track = mw.getTitle();
+                    track.artist = mw.getArtist();
+                    track.duration = mw.getLength();
+                    track.albumPos = mw.getTrackNumber();
+                    track.url = mw.getLocation();
+                    track.imagePath = mw.getArtworkURL();
+                    tracks.add(track);
                 }
             }
-        }
-    }
-
-    public void addQuery(Query query, long addedTimeStamp) {
-        if (!TextUtils.isEmpty(query.getName())) {
-            mQueries.add(query);
-        }
-        if (addedTimeStamp > 0) {
-            if (mAlbumTimeStamps.get(query.getAlbum()) == null
-                    || mAlbumTimeStamps.get(query.getAlbum()) < addedTimeStamp) {
-                mAlbumTimeStamps.put(query.getAlbum(), addedTimeStamp);
-            }
-            if (mArtistTimeStamps.get(query.getArtist()) == null
-                    || mArtistTimeStamps.get(query.getArtist()) < addedTimeStamp) {
-                mArtistTimeStamps.put(query.getArtist(), addedTimeStamp);
-            }
-            mQueryTimeStamps.put(query, addedTimeStamp);
+            CollectionDb db = CollectionDbManager.get().getCollectionDb(getId());
+            db.wipe();
+            db.addTracks(tracks.toArray(new ScriptResolverTrack[tracks.size()]));
         }
     }
 

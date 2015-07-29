@@ -108,13 +108,15 @@ public class AlbumsFragment extends TomahawkFragment {
                 public void onDone(CollectionCursor<Query> cursor) {
                     Bundle bundle = new Bundle();
                     bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
-                    if (cursor.size() > 0) {
+                    if (cursor != null && cursor.size() > 0) {
                         bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
                     } else {
                         bundle.putString(TomahawkFragment.COLLECTION_ID,
                                 TomahawkApp.PLUGINNAME_HATCHET);
                     }
-                    cursor.close();
+                    if (cursor != null) {
+                        cursor.close();
+                    }
                     bundle.putInt(CONTENT_HEADER_MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                     FragmentUtils.replace((TomahawkMainActivity) getActivity(),

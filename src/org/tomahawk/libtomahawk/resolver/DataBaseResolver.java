@@ -200,8 +200,6 @@ public class DataBaseResolver implements Resolver {
 
     @Override
     public boolean isEnabled() {
-        UserCollection userCollection = (UserCollection) CollectionManager.getInstance()
-                .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        return userCollection.getQueryCount() > 0;
+        return true;
     }
 }

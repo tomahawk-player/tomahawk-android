@@ -211,10 +211,14 @@ public class ViewHolder {
         collection.getAlbumTracks(album).done(new DoneCallback<CollectionCursor<Query>>() {
             @Override
             public void onDone(CollectionCursor<Query> cursor) {
+                int size = 0;
+                if (cursor != null) {
+                    size = cursor.size();
+                    cursor.close();
+                }
                 textView3.setVisibility(View.VISIBLE);
                 textView3.setText(TomahawkApp.getContext().getResources().getQuantityString(
-                        R.plurals.songs_with_count, cursor.size(), cursor.size()));
-                cursor.close();
+                        R.plurals.songs_with_count, size, size));
             }
         });
     }

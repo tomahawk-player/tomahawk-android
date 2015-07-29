@@ -692,7 +692,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 mCollection.getAlbumTracks(album).done(new DoneCallback<CollectionCursor<Query>>() {
                     @Override
                     public void onDone(CollectionCursor<Query> cursor) {
-                        cursor.close();
+                        if (cursor != null) {
+                            cursor.close();
+                        }
                         if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
                             mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
                                     ADAPTER_UPDATE_DELAY);
