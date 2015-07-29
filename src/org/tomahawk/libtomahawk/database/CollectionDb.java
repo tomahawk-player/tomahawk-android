@@ -351,7 +351,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             if (cursor.moveToFirst()) {
                 artistId = cursor.getInt(0);
             } else {
-                Log.e(TAG, "albumArtists - Couldn't find artist with given name!");
+                Log.e(TAG, "artistAlbums - Couldn't find artist with given name!");
                 return null;
             }
         } finally {

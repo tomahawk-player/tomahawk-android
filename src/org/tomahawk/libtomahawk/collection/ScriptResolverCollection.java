@@ -259,6 +259,10 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                     public void run() {
                         Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
                                 .artistAlbums(artist.getName(), "");
+                        if (cursor == null) {
+                            deferred.resolve(null);
+                            return;
+                        }
                         CollectionCursor<Album> collectionCursor = new CollectionCursor<>(cursor,
                                 Album.class, mScriptAccount.getScriptResolver());
                         deferred.resolve(collectionCursor);
@@ -280,6 +284,10 @@ public class ScriptResolverCollection extends Collection implements ScriptPlugin
                     public void run() {
                         Cursor cursor = CollectionDbManager.get().getCollectionDb(result.id)
                                 .albumTracks(album.getName(), album.getArtist().getName(), "");
+                        if (cursor == null) {
+                            deferred.resolve(null);
+                            return;
+                        }
                         CollectionCursor<Query> collectionCursor = new CollectionCursor<>(cursor,
                                 Query.class, mScriptAccount.getScriptResolver());
                         deferred.resolve(collectionCursor);
