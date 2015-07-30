@@ -386,7 +386,8 @@ public class CollectionDb extends SQLiteOpenHelper {
                 cursor.close();
             }
         }
-        fields = new String[]{ALBUMS_ALBUM, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION};
+        fields = new String[]{ALBUMS_ALBUM, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION,
+                ALBUMS_IMAGEPATH};
         where = new HashMap<>();
         where.put(ARTISTALBUMS_ARTISTID, String.valueOf(artistId));
         List<JoinInfo> joinInfos = new ArrayList<>();
