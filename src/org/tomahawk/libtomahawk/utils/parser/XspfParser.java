@@ -17,9 +17,7 @@
  */
 package org.tomahawk.libtomahawk.utils.parser;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
-
+import org.apache.commons.io.FileUtils;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonXmlHelper;
@@ -30,6 +28,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ public class XspfParser {
     public static Playlist parse(File file) {
         String xspfString = null;
         try {
-            xspfString = Files.toString(file, Charsets.UTF_8);
+            xspfString = FileUtils.readFileToString(file, Charset.forName("UTF-8"));
         } catch (IOException e) {
             Log.e(TAG, "parse: " + e.getClass() + ": " + e.getLocalizedMessage());
         }

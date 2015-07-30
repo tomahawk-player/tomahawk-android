@@ -1,10 +1,10 @@
 package org.tomahawk.libtomahawk.resolver;
 
-import com.google.common.base.Charsets;
-import com.google.common.io.Files;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverFuzzyIndex;
@@ -220,7 +220,8 @@ public class ScriptInterface {
                 + File.separator + "TomahawkWebViewStorage";
         new File(dirPath).mkdirs();
         try {
-            Files.write(value, new File(dirPath + File.separator + key), Charsets.UTF_8);
+            FileUtils.writeStringToFile(new File(dirPath + File.separator + key), value,
+                    Charsets.UTF_8);
         } catch (IOException e) {
             Log.e(TAG, "setItem: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
@@ -232,7 +233,8 @@ public class ScriptInterface {
                 + File.separator + "TomahawkWebViewStorage";
         new File(dirPath).mkdirs();
         try {
-            return Files.toString(new File(dirPath + File.separator + key), Charsets.UTF_8);
+            return FileUtils
+                    .readFileToString(new File(dirPath + File.separator + key), Charsets.UTF_8);
         } catch (IOException e) {
             Log.e(TAG, "getItem: " + e.getClass() + ": " + e.getLocalizedMessage());
         }

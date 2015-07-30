@@ -20,6 +20,8 @@ package org.tomahawk.libtomahawk.resolver;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.IOUtils;
 import org.tomahawk.libtomahawk.database.CollectionDbManager;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
@@ -28,7 +30,6 @@ import org.tomahawk.libtomahawk.resolver.plugins.ScriptInfoPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptResolverPluginFactory;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.StringEscapeUtils;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
@@ -104,7 +105,7 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
                 inputStream = TomahawkApp.getContext().getAssets()
                         .open(path.substring(1) + "/content/metadata.json");
             }
-            String metadataString = TomahawkUtils.inputStreamToString(inputStream);
+            String metadataString = IOUtils.toString(inputStream, Charsets.UTF_8);
             mMetaData = GsonHelper.get().fromJson(metadataString, ScriptResolverMetaData.class);
             if (mMetaData == null) {
                 Log.e(TAG, "Couldn't read metadata.json. Cannot instantiate ScriptAccount.");

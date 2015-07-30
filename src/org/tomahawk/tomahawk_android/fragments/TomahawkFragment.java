@@ -18,8 +18,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import com.google.common.collect.Sets;
-
 import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
@@ -61,6 +59,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -138,12 +137,12 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected boolean mIsResumed;
 
     protected final Set<String> mCorrespondingRequestIds =
-            Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+            Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     protected final HashSet<Object> mResolvingItems = new HashSet<>();
 
-    protected final Set<Query> mCorrespondingQueries
-            = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
+    protected final Set<Query> mCorrespondingQueries =
+            Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     protected ArrayList<Query> mQueryArray;
 

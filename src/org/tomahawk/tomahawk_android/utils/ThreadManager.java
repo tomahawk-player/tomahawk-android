@@ -17,11 +17,12 @@
  */
 package org.tomahawk.tomahawk_android.utils;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-
 import org.tomahawk.libtomahawk.resolver.Query;
 
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -50,10 +51,10 @@ public class ThreadManager {
 
     private final ThreadPoolExecutor mPlaybackThreadPool;
 
-    private final Multimap<Query, TomahawkRunnable> mQueryRunnableMap;
+    private final Map<Query, Collection<TomahawkRunnable>> mQueryRunnableMap;
 
     private ThreadManager() {
-        mQueryRunnableMap = HashMultimap.create();
+        mQueryRunnableMap = new ConcurrentHashMap<>();
         mThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
                 KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
         mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME,
@@ -69,19 +70,20 @@ public class ThreadManager {
     }
 
     public void execute(TomahawkRunnable r, Query query) {
-        synchronized (query) {
-            mQueryRunnableMap.put(query, r);
+        Collection<TomahawkRunnable> runnables = mQueryRunnableMap.get(query);
+        if (runnables == null) {
+            runnables = new HashSet<>();
         }
+        runnables.add(r);
+        mQueryRunnableMap.put(query, runnables);
         mThreadPool.execute(r);
     }
 
     public boolean stop(Query query) {
         boolean success = false;
-        synchronized (query) {
-            for (TomahawkRunnable r : mQueryRunnableMap.removeAll(query)) {
-                mThreadPool.remove(r);
-                success = true;
-            }
+        for (TomahawkRunnable r : mQueryRunnableMap.remove(query)) {
+            mThreadPool.remove(r);
+            success = true;
         }
         return success;
     }
