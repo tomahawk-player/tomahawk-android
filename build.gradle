@@ -19,7 +19,6 @@ repositories {
 
 dependencies {
     compile files("libs/RemoteMetadataProvider.jar")
-    compile 'com.android.support:multidex:1.0.0'
     compile "com.android.support:appcompat-v7:22.2.1"
     compile "com.android.support:support-v4:22.2.1"
     compile "se.emilsjolander:stickylistheaders:2.4.1"
@@ -73,7 +72,6 @@ android {
         renderscriptSupportModeEnabled true
         versionName '0.83'
         versionCode 830
-        multiDexEnabled true
     }
 
     lintOptions {
