@@ -17,11 +17,10 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-import com.google.common.base.Charsets;
-
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 
+import org.apache.commons.io.Charsets;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;

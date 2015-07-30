@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import com.google.common.collect.Sets;
-
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
@@ -41,6 +39,7 @@ import android.os.Bundle;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,7 +49,7 @@ public class SearchPagerFragment extends PagerFragment {
     private String mCurrentQueryString;
 
     protected final Set<Query> mCorrespondingQueries
-            = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
+            = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     private final ArrayList<String> mAlbumIds = new ArrayList<>();
 

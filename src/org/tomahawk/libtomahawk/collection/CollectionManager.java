@@ -18,8 +18,6 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
-import com.google.common.collect.Sets;
-
 import org.jdeferred.AlwaysCallback;
 import org.jdeferred.Deferred;
 import org.jdeferred.Promise;
@@ -42,6 +40,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -89,10 +88,10 @@ public class CollectionManager {
     private final HashSet<String> mResolvingHatchetIds = new HashSet<>();
 
     private final Set<String> mShowAsDeletedPlaylistMap =
-            Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+            Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     private final Set<String> mShowAsCreatedPlaylistMap =
-            Sets.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+            Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
     private AndroidDeferredManager mDeferredManager = new AndroidDeferredManager();
 

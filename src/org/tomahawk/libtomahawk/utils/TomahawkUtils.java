@@ -1,15 +1,11 @@
 package org.tomahawk.libtomahawk.utils;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimap;
-import com.google.common.io.CharStreams;
-import com.google.common.io.Closeables;
-
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
 
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.IOUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.tomahawk.libtomahawk.collection.Image;
@@ -46,22 +42,18 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -408,11 +400,12 @@ public class TomahawkUtils {
                 password, data, followRedirects);
         try {
             try {
-                response.mResponseText = inputStreamToString(connection.getInputStream());
+                response.mResponseText =
+                        IOUtils.toString(connection.getInputStream(), Charsets.UTF_8);
             } catch (IOException e) {
                 InputStream stream = connection.getErrorStream();
                 if (stream != null) {
-                    response.mResponseText = inputStreamToString(stream);
+                    response.mResponseText = IOUtils.toString(stream, Charsets.UTF_8);
                 }
             }
             response.mResponseHeaders = connection.getHeaderFields();
@@ -522,57 +515,6 @@ public class TomahawkUtils {
         sc.init(null, null, new java.security.SecureRandom());
         connection.setSSLSocketFactory(sc.getSocketFactory());
         return connection;
-    }
-
-    public static String paramsListToString(Map<String, String> params) {
-        Multimap<String, String> multimap = HashMultimap.create(params.size(), 1);
-        for (String key : params.keySet()) {
-            multimap.put(key, params.get(key));
-        }
-        return paramsListToString(multimap);
-    }
-
-    public static String paramsListToString(Multimap<String, String> params) {
-        StringBuilder result = new StringBuilder();
-        boolean first = true;
-
-        for (String key : params.keySet()) {
-            if (key != null) {
-                Collection<String> values = params.get(key);
-                for (String value : values) {
-                    if (value != null) {
-                        if (first) {
-                            first = false;
-                        } else {
-                            result.append("&");
-                        }
-                        try {
-                            result.append(URLEncoder.encode(key, "UTF-8"));
-                            result.append("=");
-                            result.append(URLEncoder.encode(value, "UTF-8"));
-                        } catch (UnsupportedEncodingException e) {
-                            Log.e(TAG, "paramsListToString: " + e.getClass() + ": " + e
-                                    .getLocalizedMessage());
-                        }
-                    }
-                }
-            }
-        }
-
-        return result.toString();
-    }
-
-    public static String inputStreamToString(InputStream inputStream) throws IOException {
-        String text;
-        InputStreamReader reader = new InputStreamReader(inputStream, Charsets.UTF_8);
-        boolean threw = true;
-        try {
-            text = CharStreams.toString(reader);
-            threw = false;
-        } finally {
-            Closeables.close(reader, threw);
-        }
-        return text;
     }
 
     /**

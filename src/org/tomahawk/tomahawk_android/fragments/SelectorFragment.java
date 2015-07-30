@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import com.google.common.collect.Sets;
-
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -37,6 +35,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +48,7 @@ public abstract class SelectorFragment extends Fragment {
     protected final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
     protected final Set<Query> mCorrespondingQueries
-            = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
+            = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     @SuppressWarnings("unused")
     public void onEventMainThread(PipeLine.ResultsEvent event) {

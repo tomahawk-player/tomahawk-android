@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
+import org.apache.commons.io.Charsets;
+import org.apache.commons.io.FileUtils;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptAccount;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
@@ -36,7 +38,6 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -93,8 +94,8 @@ public class InstallPluginConfigDialog extends ConfigDialog {
                     if (UnzipUtility.unzip(mPathToAxe, destDirPath)) {
                         File metadataFile = new File(destDirPath + File.separator + "content"
                                 + File.separator + "metadata.json");
-                        FileInputStream inputStream = new FileInputStream(metadataFile);
-                        String metadataString = TomahawkUtils.inputStreamToString(inputStream);
+                        String metadataString = FileUtils.readFileToString(metadataFile,
+                                Charsets.UTF_8);
                         ScriptResolverMetaData metaData = GsonHelper.get().fromJson(metadataString,
                                 ScriptResolverMetaData.class);
                         final File renamedFile = new File(

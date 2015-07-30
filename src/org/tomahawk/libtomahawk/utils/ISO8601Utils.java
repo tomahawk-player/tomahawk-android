@@ -1,7 +1,5 @@
 package org.tomahawk.libtomahawk.utils;
 
-import com.google.common.base.Strings;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -142,7 +140,9 @@ public class ISO8601Utils {
                     digitCount++;
                 }
                 String msString = date.substring(offset += 1, offset += digitCount);
-                msString = Strings.padEnd(msString, 3, '0');
+                while (msString.length() < 3) {
+                    msString += '0';
+                }
                 milliseconds = parseInt(msString, 0, 3);
             }
 

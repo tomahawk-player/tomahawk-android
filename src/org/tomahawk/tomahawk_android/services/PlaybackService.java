@@ -18,8 +18,6 @@
  */
 package org.tomahawk.tomahawk_android.services;
 
-import com.google.common.collect.Sets;
-
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
@@ -89,6 +87,7 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -185,7 +184,7 @@ public class PlaybackService extends Service implements MusicFocusable {
     private boolean mShowingNotification;
 
     protected final Set<Query> mCorrespondingQueries
-            = Sets.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
+            = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     protected final ConcurrentHashMap<String, String> mCorrespondingRequestIds
             = new ConcurrentHashMap<>();
