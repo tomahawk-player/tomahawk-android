@@ -120,9 +120,6 @@ public class GMusicConfigDialog extends ConfigDialog {
             radioButton.setText(account.name);
             mRadioGroup.addView(radioButton);
             mAccountMap.put(radioButton.getId(), account);
-            if (mAccountMap.size() == 1) {
-                mRadioGroup.check(radioButton.getId());
-            }
             if (loggedInAccountName != null && account.name.equals(loggedInAccountName)) {
                 mRadioGroup.check(radioButton.getId());
             }
