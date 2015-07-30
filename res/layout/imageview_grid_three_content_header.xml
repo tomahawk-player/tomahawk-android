@@ -22,11 +22,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-    <android.support.v7.widget.Space
-            android:id="@+id/anchor"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_centerVertical="true"/>
+    <Space android:id="@+id/anchor"
+           android:layout_width="match_parent"
+           android:layout_height="0dp"
+           android:layout_centerVertical="true"/>
 
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
