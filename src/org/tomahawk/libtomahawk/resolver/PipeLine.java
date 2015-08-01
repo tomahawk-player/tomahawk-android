@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
+import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.DbCollection;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -225,6 +228,13 @@ public class PipeLine {
                 for (Resolver resolver : mResolvers) {
                     if (shouldResolve(resolver, q, forceOnlyLocal)) {
                         resolver.resolve(q);
+                    }
+                }
+                if (!forceOnlyLocal && !q.isOnlyLocal()) {
+                    for (Collection collection : CollectionManager.getInstance().getCollections()) {
+                        if (collection instanceof DbCollection) {
+                            ((DbCollection) collection).resolve(q);
+                        }
                     }
                 }
             }

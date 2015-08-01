@@ -388,26 +388,6 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
                 + "'" + StringEscapeUtils.escapeJavaScript(statusText) + "');");
     }
 
-    public boolean hasFuzzyIndex(String id) {
-        return mFuzzyIndexMap.get(id) != null;
-    }
-
-    public FuzzyIndex getFuzzyIndex(String id) {
-        return mFuzzyIndexMap.get(id);
-    }
-
-    public void createFuzzyIndex(String id) {
-        if (mFuzzyIndexMap.get(id) != null) {
-            mFuzzyIndexMap.get(id).close();
-        }
-        FuzzyIndex fuzzyIndex = new FuzzyIndex();
-        String path = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
-                + File.separator + mName + "." + id + ".lucene";
-        if (fuzzyIndex.create(path, true)) {
-            mFuzzyIndexMap.put(id, fuzzyIndex);
-        }
-    }
-
     public class CollectionAddTracksResult {
 
         String id;

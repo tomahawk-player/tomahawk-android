@@ -108,6 +108,14 @@ public class CollectionCursor<T> {
                     Query query = Query.get(result, false);
                     query.addTrackResult(result, 1.0f);
                     cachedItem = (T) query;
+                } else if (mClass == Result.class) {
+                    Artist artist = Artist.get(mCursor.getString(0));
+                    Album album = Album.get(mCursor.getString(2), artist);
+                    Track track = Track.get(mCursor.getString(3), album, artist);
+                    track.setDuration(mCursor.getInt(4) * 1000);
+                    track.setAlbumPos(mCursor.getInt(7));
+                    Result result = Result.get(mCursor.getString(5), track, mResolver);
+                    cachedItem = (T) result;
                 } else if (mClass == Album.class) {
                     Artist artist = Artist.get(mCursor.getString(1));
                     Album album = Album.get(mCursor.getString(0), artist);
@@ -197,7 +205,7 @@ public class CollectionCursor<T> {
     private String getSortString(int location) {
         if (mCursor != null) {
             mCursor.moveToPosition(location);
-            if (mClass == Query.class) {
+            if (mClass == Query.class || mClass == Result.class) {
                 if (mSortMode == Collection.SORT_ALPHA) {
                     return mCursor.getString(3);
                 } else if (mSortMode == Collection.SORT_ARTIST_ALPHA) {

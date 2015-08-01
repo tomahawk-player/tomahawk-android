@@ -19,12 +19,15 @@ package org.tomahawk.libtomahawk.database;
 
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -143,6 +146,18 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     private final SQLiteDatabase mDb;
 
+    private static final String LAST_COLLECTION_DB_UPDATE_SUFFIX = "_last_collection_db_update";
+
+    private final String mLastUpdateStorageKey;
+
+    public static class WhereInfo {
+
+        public String connection;
+
+        public Map<String, String[]> where = new HashMap<>();
+
+    }
+
     private static class JoinInfo {
 
         String table;
@@ -154,8 +169,14 @@ public class CollectionDb extends SQLiteOpenHelper {
     public CollectionDb(Context context, String collectionId) {
         super(context, collectionId + DB_FILE_SUFFIX, null, DB_VERSION);
 
+        mLastUpdateStorageKey = collectionId + LAST_COLLECTION_DB_UPDATE_SUFFIX;
+
         close();
         mDb = getWritableDatabase();
+    }
+
+    public String getLastUpdateStorageKey() {
+        return mLastUpdateStorageKey;
     }
 
     @Override
@@ -313,6 +334,9 @@ public class CollectionDb extends SQLiteOpenHelper {
         mDb.endTransaction();
         Log.d(TAG, "Added " + tracks.length + " tracks in " + (System.currentTimeMillis() - time)
                 + "ms");
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+        preferences.edit().putLong(mLastUpdateStorageKey, System.currentTimeMillis()).commit();
     }
 
     public synchronized void wipe() {
@@ -328,9 +352,16 @@ public class CollectionDb extends SQLiteOpenHelper {
         mDb.execSQL(CREATE_TABLE_TRACKS);
     }
 
-    public synchronized Cursor tracks(Map<String, String> where, String[] orderBy) {
+    /**
+     * Convenience method. Uses a default set of fields.
+     */
+    public synchronized Cursor tracks(WhereInfo where, String[] orderBy) {
         String[] fields = new String[]{ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION, ALBUMS_ALBUM,
                 TRACKS_TRACK, TRACKS_DURATION, TRACKS_URL, TRACKS_LINKURL, TRACKS_ALBUMPOS};
+        return tracks(where, orderBy, fields);
+    }
+
+    public synchronized Cursor tracks(WhereInfo where, String[] orderBy, String[] fields) {
         List<JoinInfo> joinInfos = new ArrayList<>();
         JoinInfo joinInfo = new JoinInfo();
         joinInfo.table = TABLE_ARTISTS;
@@ -368,13 +399,14 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     public synchronized Cursor artistAlbums(String artist, String artistDisambiguation) {
         String[] fields = new String[]{ID};
-        Map<String, String> where = new HashMap<>();
-        where.put(ARTISTS_ARTIST, artist);
-        where.put(ARTISTS_ARTISTDISAMBIGUATION, artistDisambiguation);
+        WhereInfo whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(ARTISTS_ARTIST, new String[]{artist});
+        whereInfo.where.put(ARTISTS_ARTISTDISAMBIGUATION, new String[]{artistDisambiguation});
         int artistId;
         Cursor cursor = null;
         try {
-            cursor = sqlSelect(TABLE_ARTISTS, fields, where, null, null);
+            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null);
             if (cursor.moveToFirst()) {
                 artistId = cursor.getInt(0);
             } else {
@@ -388,8 +420,9 @@ public class CollectionDb extends SQLiteOpenHelper {
         }
         fields = new String[]{ALBUMS_ALBUM, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION,
                 ALBUMS_IMAGEPATH};
-        where = new HashMap<>();
-        where.put(ARTISTALBUMS_ARTISTID, String.valueOf(artistId));
+        whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(ARTISTALBUMS_ARTISTID, new String[]{String.valueOf(artistId)});
         List<JoinInfo> joinInfos = new ArrayList<>();
         JoinInfo joinInfo = new JoinInfo();
         joinInfo.table = TABLE_ALBUMS;
@@ -401,19 +434,21 @@ public class CollectionDb extends SQLiteOpenHelper {
         joinInfo.conditions.put(
                 TABLE_ALBUMS + "." + ALBUMS_ALBUMARTISTID, TABLE_ARTISTS + "." + ID);
         joinInfos.add(joinInfo);
-        return sqlSelect(TABLE_ARTISTALBUMS, fields, where, joinInfos, new String[]{ALBUMS_ALBUM});
+        return sqlSelect(TABLE_ARTISTALBUMS, fields, whereInfo, joinInfos,
+                new String[]{ALBUMS_ALBUM});
     }
 
     public synchronized Cursor albumTracks(String album, String albumArtist,
             String albumArtistDisambiguation) {
         String[] fields = new String[]{ID};
-        Map<String, String> where = new HashMap<>();
-        where.put(ARTISTS_ARTIST, albumArtist);
-        where.put(ARTISTS_ARTISTDISAMBIGUATION, albumArtistDisambiguation);
+        WhereInfo whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(ARTISTS_ARTIST, new String[]{albumArtist});
+        whereInfo.where.put(ARTISTS_ARTISTDISAMBIGUATION, new String[]{albumArtistDisambiguation});
         int artistId;
         Cursor cursor = null;
         try {
-            cursor = sqlSelect(TABLE_ARTISTS, fields, where, null, null);
+            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null);
             if (cursor.moveToFirst()) {
                 artistId = cursor.getInt(0);
             } else {
@@ -426,13 +461,14 @@ public class CollectionDb extends SQLiteOpenHelper {
             }
         }
         fields = new String[]{ID};
-        where = new HashMap<>();
-        where.put(ALBUMS_ALBUM, album);
-        where.put(ALBUMS_ALBUMARTISTID, String.valueOf(artistId));
+        whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(ALBUMS_ALBUM, new String[]{album});
+        whereInfo.where.put(ALBUMS_ALBUMARTISTID, new String[]{String.valueOf(artistId)});
         int albumId;
         cursor = null;
         try {
-            cursor = sqlSelect(TABLE_ALBUMS, fields, where, null, null);
+            cursor = sqlSelect(TABLE_ALBUMS, fields, whereInfo, null, null);
             if (cursor.moveToFirst()) {
                 albumId = cursor.getInt(0);
             } else {
@@ -445,25 +481,29 @@ public class CollectionDb extends SQLiteOpenHelper {
             }
         }
 
-        where = new HashMap<>();
-        where.put(TRACKS_ALBUMID, String.valueOf(albumId));
-        return tracks(where, new String[]{TRACKS_ALBUMPOS});
+        whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(TRACKS_ALBUMID, new String[]{String.valueOf(String.valueOf(albumId))});
+        return tracks(whereInfo, new String[]{TRACKS_ALBUMPOS});
     }
 
-    private Cursor sqlSelect(String table, String[] fields, Map<String, String> where,
+    private Cursor sqlSelect(String table, String[] fields, WhereInfo where,
             List<JoinInfo> joinInfos, String[] orderBy) {
         String whereString = "";
-        String[] whereValues = null;
+        List<String> allWhereValues = new ArrayList<>();
         if (where != null) {
             whereString = " WHERE ";
-            whereValues = where.values().toArray(new String[where.size()]);
             boolean notFirst = false;
-            for (String whereKey : where.keySet()) {
-                if (notFirst) {
-                    whereString += " AND ";
+            for (String whereKey : where.where.keySet()) {
+                String[] whereValues = where.where.get(whereKey);
+                for (String whereValue : whereValues) {
+                    if (notFirst) {
+                        whereString += " " + where.connection + " ";
+                    }
+                    notFirst = true;
+                    whereString += table + "." + whereKey + " = ?";
+                    allWhereValues.add(whereValue);
                 }
-                notFirst = true;
-                whereString += table + "." + whereKey + " = ?";
             }
         }
 
@@ -509,7 +549,11 @@ public class CollectionDb extends SQLiteOpenHelper {
         }
         String statement = "SELECT " + fieldsString + " FROM " + table + joinString + whereString
                 + orderString;
-        return mDb.rawQuery(statement, whereValues);
+        String[] allWhereValuesArray = null;
+        if (allWhereValues.size() > 0) {
+            allWhereValuesArray = allWhereValues.toArray(new String[allWhereValues.size()]);
+        }
+        return mDb.rawQuery(statement, allWhereValuesArray);
     }
 
     private static String concatKeys(Object... keys) {

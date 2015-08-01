@@ -7,7 +7,6 @@ import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverData;
-import org.tomahawk.libtomahawk.resolver.models.ScriptResolverFuzzyIndex;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -151,67 +150,6 @@ public class ScriptInterface {
                 }
             }
         }).start();
-    }
-
-    @JavascriptInterface
-    public boolean hasFuzzyIndex(String id) {
-        return mScriptAccount.hasFuzzyIndex(id);
-    }
-
-    @JavascriptInterface
-    public void addToFuzzyIndexString(String id, String stringifiedIndexList) {
-        if (mScriptAccount.hasFuzzyIndex(id)) {
-            ScriptResolverFuzzyIndex[] indexList = GsonHelper.get().fromJson(stringifiedIndexList,
-                    ScriptResolverFuzzyIndex[].class);
-            mScriptAccount.getFuzzyIndex(id).addScriptResolverFuzzyIndexList(indexList);
-        } else {
-            Log.e(TAG, "addToFuzzyIndexString: Couldn't add indexList to fuzzy index, no fuzzy "
-                    + "index available");
-        }
-    }
-
-    @JavascriptInterface
-    public void createFuzzyIndexString(String id, String stringifiedIndexList) {
-        mScriptAccount.createFuzzyIndex(id);
-        ScriptResolverFuzzyIndex[] indexList = GsonHelper.get().fromJson(stringifiedIndexList,
-                ScriptResolverFuzzyIndex[].class);
-        mScriptAccount.getFuzzyIndex(id).addScriptResolverFuzzyIndexList(indexList);
-    }
-
-    @JavascriptInterface
-    public String searchFuzzyIndexString(String id, String query) {
-        if (mScriptAccount.hasFuzzyIndex(id)) {
-            double[][] results = mScriptAccount.getFuzzyIndex(id).search(Query.get(query, false));
-            return GsonHelper.get().toJson(results);
-        } else {
-            Log.e(TAG, "searchFuzzyIndexString - ScriptResolver not set in ScriptAccount: "
-                    + mScriptAccount.getName());
-        }
-        return null;
-    }
-
-    @JavascriptInterface
-    public String resolveFromFuzzyIndexString(String id, String artist, String album,
-            String title) {
-        if (mScriptAccount.hasFuzzyIndex(id)) {
-            double[][] results = mScriptAccount.getFuzzyIndex(id).search(
-                    Query.get(title, album, artist, false));
-            return GsonHelper.get().toJson(results);
-        } else {
-            Log.e(TAG, "resolveFromFuzzyIndexString - ScriptResolver not set in ScriptAccount: "
-                    + mScriptAccount.getName());
-        }
-        return null;
-    }
-
-    @JavascriptInterface
-    public void deleteFuzzyIndex(String id) {
-        if (mScriptAccount.hasFuzzyIndex(id)) {
-            mScriptAccount.getFuzzyIndex(id).deleteIndex();
-        } else {
-            Log.e(TAG, "deleteFuzzyIndex - ScriptResolver not set in ScriptAccount: "
-                    + mScriptAccount.getName());
-        }
     }
 
     @JavascriptInterface

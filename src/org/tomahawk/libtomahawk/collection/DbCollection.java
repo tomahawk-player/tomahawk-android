@@ -22,12 +22,20 @@ import org.jdeferred.DoneCallback;
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.database.CollectionDb;
 import org.tomahawk.libtomahawk.database.CollectionDbManager;
+import org.tomahawk.libtomahawk.resolver.FuzzyIndex;
+import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.database.Cursor;
 import android.util.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * This class represents a Collection which contains tracks/albums/artists which are being stored in
@@ -37,6 +45,8 @@ public abstract class DbCollection extends Collection {
 
     private final static String TAG = DbCollection.class.getSimpleName();
 
+    private FuzzyIndex mFuzzyIndex;
+
     private Resolver mResolver;
 
     public DbCollection(Resolver resolver) {
@@ -45,7 +55,51 @@ public abstract class DbCollection extends Collection {
         mResolver = resolver;
     }
 
+    protected void initFuzzyIndex() {
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(final String collectionId) {
+                mFuzzyIndex = new FuzzyIndex(collectionId);
+            }
+        });
+    }
+
     public abstract Promise<String, Throwable, Void> getCollectionId();
+
+    public boolean resolve(final Query query) {
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(final String collectionId) {
+                TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
+                    @Override
+                    public void run() {
+                        List<FuzzyIndex.IndexResult> indexResults = mFuzzyIndex.searchIndex(query);
+                        if (indexResults.size() > 0) {
+                            String[] ids = new String[indexResults.size()];
+                            for (int i = 0; i < indexResults.size(); i++) {
+                                FuzzyIndex.IndexResult indexResult = indexResults.get(i);
+                                ids[i] = String.valueOf(indexResult.id);
+                            }
+                            CollectionDb.WhereInfo whereInfo = new CollectionDb.WhereInfo();
+                            whereInfo.connection = "OR";
+                            whereInfo.where.put(CollectionDb.ID, ids);
+                            Cursor cursor = CollectionDbManager.get().getCollectionDb(collectionId)
+                                    .tracks(whereInfo, null);
+                            CollectionCursor<Result> collectionCursor =
+                                    new CollectionCursor<>(cursor, Result.class, mResolver);
+                            ArrayList<Result> results = new ArrayList<>();
+                            for (int i = 0; i < collectionCursor.size(); i++) {
+                                results.add(collectionCursor.get(i));
+                            }
+                            PipeLine.getInstance().reportResults(query, results, mResolver.getId());
+                        }
+                    }
+                };
+                ThreadManager.getInstance().execute(r, query);
+            }
+        });
+        return true;
+    }
 
     @Override
     public Promise<CollectionCursor<Query>, Throwable, Void> getQueries(final int sortMode) {
