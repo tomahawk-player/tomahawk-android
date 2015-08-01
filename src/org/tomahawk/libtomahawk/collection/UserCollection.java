@@ -117,6 +117,8 @@ public class UserCollection extends DbCollection {
 
     public UserCollection() {
         super(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION));
+
+        initFuzzyIndex();
     }
 
     @Override

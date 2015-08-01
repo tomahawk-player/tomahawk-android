@@ -37,23 +37,33 @@ import org.apache.lucene.search.SearcherManager;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
-import org.tomahawk.libtomahawk.resolver.models.ScriptResolverFuzzyIndex;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.database.CollectionDb;
+import org.tomahawk.libtomahawk.database.CollectionDbManager;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FuzzyIndex {
 
     private final static String TAG = FuzzyIndex.class.getSimpleName();
 
-    public static final String EXPECTED_INDEX_SIZE_STORAGE_KEY = "_expected_index_size";
+    private static final String LUCENE_ROOT_FOLDER =
+            TomahawkApp.getContext().getFilesDir().getAbsolutePath() + File.separator + "lucene"
+                    + File.separator;
+
+    private static final String LAST_FUZZY_INDEX_UPDATE_SUFFIX = "_last_fuzzy_index_update";
+
+    private final String mLastUpdateStorageKey;
+
+    private String mCollectionId;
 
     private String mLucenePath;
 
@@ -61,35 +71,73 @@ public class FuzzyIndex {
 
     private SearcherManager mSearcherManager;
 
+    public static class IndexResult {
+
+        public int id;
+
+        public float score;
+    }
+
+    public FuzzyIndex(String collectionId) {
+        mCollectionId = collectionId;
+        mLucenePath = LUCENE_ROOT_FOLDER + collectionId;
+
+        CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(mCollectionId);
+
+        mLastUpdateStorageKey = mCollectionId + LAST_FUZZY_INDEX_UPDATE_SUFFIX;
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+        long lastDbUpdate = preferences.getLong(collectionDb.getLastUpdateStorageKey(), -1);
+        long lastIndexUpdate = preferences.getLong(mLastUpdateStorageKey, -2);
+        create(lastDbUpdate > lastIndexUpdate);
+    }
+
     /**
      * Tries to create a new fuzzy index
      *
-     * @param fileName the path to the folder where the fuzzy index should be created
      * @param recreate whether or not to wipe any previously existing index
      * @return whether or not the creation has been successful
      */
-    public synchronized boolean create(String fileName, boolean recreate) {
+    public synchronized boolean create(boolean recreate) {
+        CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(mCollectionId);
+        String[] fields = new String[]{CollectionDb.TABLE_TRACKS + "." + CollectionDb.ID,
+                CollectionDb.ARTISTS_ARTIST, CollectionDb.ALBUMS_ALBUM, CollectionDb.TRACKS_TRACK};
+        Cursor cursor = collectionDb.tracks(null, null, fields);
         try {
-            Log.d(TAG, "create - fileName:" + fileName + ", recreate:" + recreate);
-            mLucenePath = fileName;
+            Log.d(TAG, "create - recreate:" + recreate);
             beginIndexing(recreate);
-            endIndexing();
-            updateSearcherManager();
-            SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-            int expectedIndexSize = preferences.getInt(getExpectedIndexSizeStorageKey(), -1);
-            int numDocs = mSearcherManager.acquire().getIndexReader().numDocs();
-            Log.d(TAG, "create - fileName: " + fileName + ", numDocs: " + numDocs);
-            if (expectedIndexSize != numDocs) {
-                Log.e(TAG, "create - fileName: " + fileName + ", expectedIndexSize: "
-                        + expectedIndexSize + ", doesn't match.");
-                close();
-                return false;
+            if (recreate) {
+                Log.d(TAG, "Adding tracks to index - count: " + cursor.getCount());
+                cursor.moveToFirst();
+                if (!cursor.isAfterLast()) {
+                    do {
+                        Document document = new Document();
+                        document.add(new IntField("id", cursor.getInt(0),
+                                Field.Store.YES));
+                        document.add(new StringField("artist", cursor.getString(1),
+                                Field.Store.YES));
+                        document.add(new StringField("album", cursor.getString(2),
+                                Field.Store.YES));
+                        document.add(new StringField("track", cursor.getString(3),
+                                Field.Store.YES));
+                        mLuceneWriter.addDocument(document);
+                    } while (cursor.moveToNext());
+                }
+                SharedPreferences preferences =
+                        PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+                preferences.edit().putLong(mLastUpdateStorageKey, System.currentTimeMillis())
+                        .commit();
             }
         } catch (IOException e) {
             Log.e(TAG, "create - " + e.getClass() + ": " + e.getLocalizedMessage());
             close();
             return false;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+            endIndexing();
+            updateSearcherManager();
         }
         return true;
     }
@@ -121,49 +169,8 @@ public class FuzzyIndex {
         }
     }
 
-    public synchronized void addScriptResolverFuzzyIndexList(ScriptResolverFuzzyIndex[] indexList) {
-        try {
-            Log.d(TAG, "addScriptResolverFuzzyIndexList - count: " + indexList.length);
-            if (indexList.length > 0) {
-                Log.d(TAG,
-                        "addScriptResolverFuzzyIndexList - first index: id:" + indexList[0].id
-                                + ", artist:" + indexList[0].artist
-                                + ", album:" + indexList[0].album
-                                + ", track:" + indexList[0].track);
-            }
-            beginIndexing(true);
-            SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-            preferences.edit().putInt(getExpectedIndexSizeStorageKey(), indexList.length)
-                    .commit();
-            for (ScriptResolverFuzzyIndex index : indexList) {
-                Document document = new Document();
-                document.add(new IntField("id", index.id, Field.Store.YES));
-                document.add(new StringField("artist", index.artist, Field.Store.YES));
-                document.add(new StringField("album", index.album, Field.Store.YES));
-                document.add(new StringField("track", index.track, Field.Store.YES));
-                mLuceneWriter.addDocument(document);
-            }
-            endIndexing();
-            updateSearcherManager();
-        } catch (IOException e) {
-            Log.e(TAG, "addScriptResolverFuzzyIndexList - " + e.getClass() + ": " + e
-                    .getLocalizedMessage());
-        }
-    }
-
-    public synchronized void deleteIndex() {
-        try {
-            Log.d(TAG, "deleteIndex");
-            TomahawkUtils.deleteRecursive(new File(mLucenePath));
-        } catch (FileNotFoundException e) {
-            Log.e(TAG, "deleteIndex: " + e.getClass() + ": " + e
-                    .getLocalizedMessage());
-        }
-    }
-
-    public synchronized double[][] search(Query query) {
-        double[][] results = new double[][]{};
+    public synchronized List<IndexResult> searchIndex(Query query) {
+        List<IndexResult> indexResults = new ArrayList<>();
         try {
             BooleanQuery qry = new BooleanQuery();
             if (query.isFullTextQuery()) {
@@ -177,7 +184,7 @@ public class FuzzyIndex {
                 term = new Term("fulltext", escapedQuery);
                 fqry = new FuzzyQuery(term);
                 qry.add(fqry, BooleanClause.Occur.SHOULD);
-                Log.d(TAG, "search - fulltext: " + escapedQuery);
+                Log.d(TAG, "searchIndex - fulltext: " + escapedQuery);
             } else {
                 String escapedTrackName = MultiFieldQueryParser
                         .escape(query.getBasicTrack().getName());
@@ -189,29 +196,26 @@ public class FuzzyIndex {
                 term = new Term("artist", escapedArtistName);
                 fqry = new FuzzyQuery(term);
                 qry.add(fqry, BooleanClause.Occur.MUST);
-                Log.d(TAG, "search - non-fulltext: " + escapedArtistName + ", "
+                Log.d(TAG, "searchIndex - non-fulltext: " + escapedArtistName + ", "
                         + escapedTrackName);
             }
             IndexSearcher searcher = mSearcherManager.acquire();
             long time = System.currentTimeMillis();
             ScoreDoc[] hits = searcher.search(qry, 50).scoreDocs;
-            Log.d(TAG, "search - searching took " + (System.currentTimeMillis() - time) + "ms");
-            results = new double[hits.length][2];
-            for (int i = 0; i < hits.length; i++) {
-                ScoreDoc doc = hits[i];
+            Log.d(TAG,
+                    "searchIndex - searching took " + (System.currentTimeMillis() - time) + "ms");
+            for (ScoreDoc doc : hits) {
                 Document document = searcher.doc(doc.doc);
-                results[i][0] = document.getField("id").numericValue().intValue();
-                results[i][1] = doc.score;
-            }
-            if (results.length > 0) {
-                Log.d(TAG, "search - first result: id:" + results[0][0]
-                        + ", score: " + results[0][1]);
+                IndexResult indexResult = new IndexResult();
+                indexResult.id = document.getField("id").numericValue().intValue();
+                indexResult.score = doc.score;
+                indexResults.add(indexResult);
             }
             mSearcherManager.release(searcher);
         } catch (IOException e) {
-            Log.e(TAG, "search - " + e.getClass() + ": " + e.getLocalizedMessage());
+            Log.e(TAG, "searchIndex - " + e.getClass() + ": " + e.getLocalizedMessage());
         }
-        return results;
+        return indexResults;
     }
 
     /**
@@ -229,7 +233,7 @@ public class FuzzyIndex {
         if (recreate) {
             SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-            preferences.edit().putInt(getExpectedIndexSizeStorageKey(), 0).commit();
+            preferences.edit().putLong(mLastUpdateStorageKey, -2).commit();
             iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         } else {
             iwc.setOpenMode(IndexWriterConfig.OpenMode.APPEND);
@@ -248,13 +252,5 @@ public class FuzzyIndex {
                 Log.e(TAG, "endIndexing - " + e.getClass() + ": " + e.getLocalizedMessage());
             }
         }
-    }
-
-    private String getExpectedIndexSizeStorageKey() {
-        String[] parts = mLucenePath.split("/");
-        if (parts.length > 0) {
-            return parts[parts.length - 1] + EXPECTED_INDEX_SIZE_STORAGE_KEY;
-        }
-        return null;
     }
 }
