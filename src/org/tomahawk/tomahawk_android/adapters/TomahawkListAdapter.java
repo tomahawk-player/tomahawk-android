@@ -173,6 +173,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         for (Segment segment : mSegments) {
             mRowCount += segment.size();
         }
+
+        mGetPlaylistPromise = null;
     }
 
     public void closeSegments() {
