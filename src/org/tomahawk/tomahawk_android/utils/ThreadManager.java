@@ -81,9 +81,12 @@ public class ThreadManager {
 
     public boolean stop(Query query) {
         boolean success = false;
-        for (TomahawkRunnable r : mQueryRunnableMap.remove(query)) {
-            mThreadPool.remove(r);
-            success = true;
+        Collection<TomahawkRunnable> runnables = mQueryRunnableMap.remove(query);
+        if (runnables != null) {
+            for (TomahawkRunnable r : runnables) {
+                mThreadPool.remove(r);
+                success = true;
+            }
         }
         return success;
     }
