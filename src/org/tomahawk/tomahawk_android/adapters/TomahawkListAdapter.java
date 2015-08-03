@@ -190,7 +190,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         Query q = null;
         if (item instanceof SocialAction
                 && ((SocialAction) item).getTargetObject() instanceof Query) {
-            q = ((SocialAction) item).getQuery();
+            item = ((SocialAction) item).getTargetObject();
+            q = (Query) item;
         } else if (item instanceof Query) {
             q = (Query) item;
         } else if (item instanceof PlaylistEntry) {
