@@ -204,18 +204,16 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 }
             };
             return Tomahawk.get(searchUrl, settings).then(function (response) {
-                return {
-                    results: response.tracks.items.map(function (item) {
-                        return {
-                            artist: item.artists[0].name,
-                            album: item.album.name,
-                            duration: item.duration_ms / 1000,
-                            source: that.settings.name,
-                            track: item.name,
-                            url: "spotify://track/" + item.id
-                        };
-                    })
-                };
+                return response.tracks.items.map(function (item) {
+                    return {
+                        artist: item.artists[0].name,
+                        album: item.album.name,
+                        duration: item.duration_ms / 1000,
+                        source: that.settings.name,
+                        track: item.name,
+                        url: "spotify://track/" + item.id
+                    };
+                });
             });
         });
     },
@@ -236,18 +234,16 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 }
             };
             return Tomahawk.get(searchUrl, settings).then(function (response) {
-                return {
-                    results: response.tracks.items.map(function (item) {
-                        return {
-                            artist: item.artists[0].name,
-                            album: item.album.name,
-                            duration: item.duration_ms / 1000,
-                            source: that.settings.name,
-                            track: item.name,
-                            url: "spotify://track/" + item.id
-                        };
-                    })
-                };
+                return response.tracks.items.map(function (item) {
+                    return {
+                        artist: item.artists[0].name,
+                        album: item.album.name,
+                        duration: item.duration_ms / 1000,
+                        source: that.settings.name,
+                        track: item.name,
+                        url: "spotify://track/" + item.id
+                    };
+                });
             });
         });
     },
