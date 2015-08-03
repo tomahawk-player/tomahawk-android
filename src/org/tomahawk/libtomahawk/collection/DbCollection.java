@@ -91,6 +91,7 @@ public abstract class DbCollection extends Collection {
                             for (int i = 0; i < collectionCursor.size(); i++) {
                                 results.add(collectionCursor.get(i));
                             }
+                            collectionCursor.close();
                             PipeLine.getInstance().reportResults(query, results, mResolver.getId());
                         }
                     }
