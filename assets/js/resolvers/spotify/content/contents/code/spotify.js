@@ -188,52 +188,36 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var album = params.album;
         var track = params.track;
 
-        var that = this;
+        var q = "artist:" + artist + "+track:" + track;
+        if (album) {
+            q += "+album:" + album;
+        }
 
-        return this.getAccessToken().then(function (result) {
-            var searchUrl = "https://api.spotify.com/v1/search?market=from_token";
-            searchUrl += "&type=track";
-            searchUrl += "&q=artist:" + encodeURIComponent(artist);
-            searchUrl += "+track:" + encodeURIComponent(title);
-            if (album != "") {
-                searchUrl += "+album:" + encodeURIComponent(album);
-            }
-            var settings = {
-                headers: {
-                    Authorization: "Bearer " + result.accessToken
-                }
-            };
-            return Tomahawk.get(searchUrl, settings).then(function (response) {
-                return response.tracks.items.map(function (item) {
-                    return {
-                        artist: item.artists[0].name,
-                        album: item.album.name,
-                        duration: item.duration_ms / 1000,
-                        source: that.settings.name,
-                        track: item.name,
-                        url: "spotify://track/" + item.id
-                    };
-                });
-            });
-        });
+        return this._search(q);
     },
 
     search: function (params) {
         var query = params.query;
 
+        return this._search(query);
+    },
+
+    _search: function (query) {
         var that = this;
 
         return this.getAccessToken().then(function (result) {
-            var searchUrl = "https://api.spotify.com/v1/search?market=from_token";
-            // TODO: Artists and Albums
-            searchUrl += "&type=track";
-            searchUrl += "&q=" + encodeURIComponent(query);
+            var url = "https://api.spotify.com/v1/search";
             var settings = {
+                data: {
+                    market: "from_token",
+                    type: "track",
+                    q: query
+                },
                 headers: {
                     Authorization: "Bearer " + result.accessToken
                 }
             };
-            return Tomahawk.get(searchUrl, settings).then(function (response) {
+            return Tomahawk.get(url, settings).then(function (response) {
                 return response.tracks.items.map(function (item) {
                     return {
                         artist: item.artists[0].name,
