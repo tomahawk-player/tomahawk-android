@@ -41,67 +41,49 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
 
     storageKeyRefreshToken: "spotify_refresh_token",
 
-    storageKeyAccessToken: "spotify_access_token",
-
-    storageKeyAccessTokenExpires: "spotify_access_token_expires",
-
     /**
      * Get the access token. Refresh when it is expired.
      */
     getAccessToken: function () {
         var that = this;
-        if (new Date().getTime() + 60000 > that.accessTokenExpires) {
-            Tomahawk.log("Access token is no longer valid. We need to get a new one.");
-            var refreshToken = Tomahawk.localStorage.getItem(that.storageKeyRefreshToken);
-            if (refreshToken) {
-                Tomahawk.log("Fetching new access token ...");
-                var settings = {
-                    headers: {
-                        "Authorization": "Basic " + Tomahawk.base64Encode(that._spell(that.clientId)
-                            + ":" + that._spell(that.clientSecret)),
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    data: {
-                        "grant_type": "refresh_token",
-                        "refresh_token": refreshToken
-                    }
-                };
-                if (!that.getAccessTokenPromise) {
-                    that.getAccessTokenPromise =
-                        Tomahawk.post("https://accounts.spotify.com/api/token", settings)
-                            .then(function (res) {
-                                that.accessToken = res.access_token;
-                                that.accessTokenExpires = new Date().getTime() + res.expires_in
-                                    * 1000;
-                                Tomahawk.localStorage.setItem(that.storageKeyAccessToken,
-                                    that.accessToken);
-                                Tomahawk.localStorage.setItem(that.storageKeyAccessTokenExpires,
-                                    that.accessTokenExpires);
-                                Tomahawk.log("Received new access token!");
-                                return res.access_token;
-                            });
+        if (!this.getAccessTokenPromise || new Date().getTime() + 60000 > that.accessTokenExpires) {
+            Tomahawk.log("Access token is not valid. We need to get a new one.");
+            this.getAccessTokenPromise = new RSVP.Promise(function (resolve, reject) {
+                var refreshToken = Tomahawk.localStorage.getItem(that.storageKeyRefreshToken);
+                if (!refreshToken) {
+                    Tomahawk.log("Can't fetch new access token, because there's no stored refresh "
+                        + "token. Are you logged in?");
+                    reject("Can't fetch new access token, because there's no stored refresh"
+                        + " token. Are you logged in?");
                 }
-                that.getAccessTokenPromise.then(function () {
-                    delete that.getAccessTokenPromise;
-                    return {
-                        accessToken: that.accessToken
+                resolve(refreshToken);
+            }).then(function (result) {
+                    Tomahawk.log("Fetching new access token ...");
+                    var settings = {
+                        headers: {
+                            "Authorization": "Basic "
+                            + Tomahawk.base64Encode(that._spell(that.clientId)
+                                + ":" + that._spell(that.clientSecret)),
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        data: {
+                            "grant_type": "refresh_token",
+                            "refresh_token": result
+                        }
                     };
-                }, function (xhr) {
-                    delete that.getAccessTokenPromise;
-                    Tomahawk.log("Couldn't fetch new access token: " + xhr.responseText);
-                    throw new Error(xhr.responseText);
+                    return Tomahawk.post("https://accounts.spotify.com/api/token", settings)
+                        .then(function (res) {
+                            that.accessToken = res.access_token;
+                            that.accessTokenExpires = new Date().getTime() + res.expires_in
+                                * 1000;
+                            Tomahawk.log("Received new access token!");
+                            return {
+                                accessToken: res.access_token
+                            };
+                        });
                 });
-            } else {
-                Tomahawk.log("Can't fetch new access token, because there's no stored refresh "
-                    + "token. Are you logged in?");
-                throw new Error("Can't fetch new access token, because there's no stored refresh"
-                    + " token. Are you logged in?");
-            }
-        } else {
-            return {
-                accessToken: that.accessToken
-            };
         }
+        return this.getAccessTokenPromise;
     },
 
     login: function () {
@@ -157,11 +139,6 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
             var that = this;
             Tomahawk.post("https://accounts.spotify.com/api/token", settings)
                 .then(function (response) {
-                    that.accessToken = response.access_token;
-                    that.accessTokenExpires = new Date().getTime() + response.expires_in * 1000;
-                    Tomahawk.localStorage.setItem(that.storageKeyAccessToken, that.accessToken);
-                    Tomahawk.localStorage.setItem(that.storageKeyAccessTokenExpires,
-                        that.accessTokenExpires);
                     Tomahawk.localStorage.setItem(that.storageKeyRefreshToken,
                         response.refresh_token);
                     Tomahawk.log("Received new refresh token!");
@@ -196,9 +173,6 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
 
     init: function () {
         Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
-
-        this.accessToken = Tomahawk.localStorage.getItem(this.storageKeyAccessToken);
-        this.accessTokenExpires = Tomahawk.localStorage.getItem(this.storageKeyAccessTokenExpires);
     },
 
     getStreamUrl: function (params) {
