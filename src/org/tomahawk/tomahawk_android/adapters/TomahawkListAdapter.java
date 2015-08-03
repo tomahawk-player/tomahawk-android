@@ -45,6 +45,7 @@ import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.views.BiDirectionalFrame;
 
 import android.content.SharedPreferences;
+import android.database.StaleDataException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -174,7 +175,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             mRowCount += segment.size();
         }
 
-        mGetPlaylistPromise = null;
+        synchronized (this) {
+            mGetPlaylistPromise = null;
+        }
     }
 
     public void closeSegments() {
@@ -203,9 +206,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         }
     }
 
-    public Promise<Playlist, Throwable, Void> getPlaylist() {
+    public synchronized Promise<Playlist, Throwable, Void> getPlaylist() {
         if (mGetPlaylistPromise == null) {
-            mGetPlaylistPromise = new ADeferredObject<>();
+            final ADeferredObject<Playlist, Throwable, Void> promise = new ADeferredObject<>();
+            mGetPlaylistPromise = promise;
             new Thread(new Runnable() {
                 @Override
                 public void run() {
@@ -213,20 +217,34 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                             TEMP_PLAYLIST_NAME, "", new ArrayList<PlaylistEntry>());
                     mPlaylistEntryMap.clear();
                     for (int i = 0; i < getCount(); i++) {
-                        if (mSegmentsClosed) {
-                            mGetPlaylistPromise.reject(null);
+                        synchronized (TomahawkListAdapter.this) {
+                            if (mGetPlaylistPromise != promise || mSegmentsClosed) {
+                                promise.reject(null);
+                                return;
+                            }
+                        }
+                        try {
+                            Object object = getItem(i);
+                            if (object instanceof List) {
+                                for (Object item : (List) object) {
+                                    extractPlaylistEntry(playlist, item);
+                                }
+                            } else {
+                                extractPlaylistEntry(playlist, object);
+                            }
+                        } catch (StaleDataException e) {
+                            Log.d(TAG, "getPlaylist - Cursor closed. Aborting ...");
+                            promise.reject(null);
                             return;
                         }
-                        Object object = getItem(i);
-                        if (object instanceof List) {
-                            for (Object item : (List) object) {
-                                extractPlaylistEntry(playlist, item);
-                            }
+                    }
+                    synchronized (TomahawkListAdapter.this) {
+                        if (mGetPlaylistPromise != promise) {
+                            promise.reject(null);
                         } else {
-                            extractPlaylistEntry(playlist, object);
+                            promise.resolve(playlist);
                         }
                     }
-                    mGetPlaylistPromise.resolve(playlist);
                 }
             }).start();
         }
