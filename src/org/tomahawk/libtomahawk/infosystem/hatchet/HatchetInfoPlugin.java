@@ -443,21 +443,30 @@ public class HatchetInfoPlugin implements InfoPlugin {
                         for (HatchetAlbumInfo album : charts.albums) {
                             String imageId = InfoSystemUtils.carelessGet(album.images, 0);
                             HatchetImage image = InfoSystemUtils.carelessGet(imagesMap, imageId);
-                            List<HatchetTrackInfo> albumTracks = null;
+                            Album convertedAlbum =
+                                    InfoSystemUtils.convertToAlbum(album, artist.name, image);
                             if (album.tracks.size() > 0) {
                                 HatchetTracks tracks = hatchet.getTracks(album.tracks, null, null);
                                 if (tracks != null) {
-                                    albumTracks = tracks.tracks;
+                                    HashSet<String> artistIds = new HashSet<>();
+                                    for (HatchetTrackInfo trackInfo : tracks.tracks) {
+                                        artistIds.add(trackInfo.artist);
+                                    }
+                                    HatchetArtists trackArtists =
+                                            hatchet.getArtists(new ArrayList<>(artistIds), null);
+                                    if (trackArtists != null) {
+                                        Map<String, HatchetArtistInfo> artistsMap =
+                                                InfoSystemUtils.listToMap(trackArtists.artists);
+                                        List<Query> convertedTracks =
+                                                InfoSystemUtils.convertToQueries(tracks.tracks,
+                                                        convertedAlbum.getName(), artistsMap);
+                                        hatchetCollection.addAlbumTracks(
+                                                convertedAlbum, convertedTracks);
+                                    }
                                 }
                             }
-                            Album convertedAlbum =
-                                    InfoSystemUtils.convertToAlbum(album, artist.name, image);
-                            List<Query> convertedTracks =
-                                    InfoSystemUtils.convertToQueries(albumTracks,
-                                            convertedAlbum.getName(), convertedArtist.getName());
                             hatchetCollection.addAlbum(convertedAlbum);
                             hatchetCollection.addArtistAlbum(convertedArtist, convertedAlbum);
-                            hatchetCollection.addAlbumTracks(convertedAlbum, convertedTracks);
                             convertedAlbums.add(convertedAlbum);
                         }
                         hatchetCollection.addArtist(convertedArtist);
