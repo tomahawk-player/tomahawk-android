@@ -178,11 +178,8 @@ public class HatchetCollection extends Collection {
         return deferred.resolve(collectionCursor);
     }
 
-    public void addArtistAlbum(Artist artist, Album album) {
-        if (mArtistAlbums.get(artist) == null) {
-            mArtistAlbums.put(artist, new ArrayList<Album>());
-        }
-        mArtistAlbums.get(artist).add(album);
+    public void addArtistAlbums(Artist artist, List<Album> albums) {
+        mArtistAlbums.put(artist, albums);
     }
 
     @Override
@@ -199,13 +196,6 @@ public class HatchetCollection extends Collection {
 
     public void addAlbumTracks(Album album, List<Query> queries) {
         mAlbumTracks.put(album, queries);
-    }
-
-    public void addAlbumTrack(Album album, Query query) {
-        if (mAlbumTracks.get(album) == null) {
-            mAlbumTracks.put(album, new ArrayList<Query>());
-        }
-        mAlbumTracks.get(album).add(query);
     }
 
     @Override

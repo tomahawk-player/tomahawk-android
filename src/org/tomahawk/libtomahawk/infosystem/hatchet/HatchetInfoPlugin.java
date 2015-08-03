@@ -431,7 +431,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
                 HatchetArtists artists = hatchet.getArtists(params.ids, params.name);
                 if (artists != null && artists.artists != null) {
-                    List<Object> convertedAlbums = new ArrayList<>();
+                    List<Object> results = new ArrayList<>();
                     HatchetArtistInfo artist =
                             InfoSystemUtils.carelessGet(artists.artists, 0);
                     HatchetCharts charts = hatchet.getArtistsAlbums(artist.id);
@@ -440,6 +440,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                                 (Artist) mItemsToBeFilled.get(infoRequestData.getRequestId());
                         Map<String, HatchetImage> imagesMap =
                                 InfoSystemUtils.listToMap(charts.images);
+                        List<Album> convertedAlbums = new ArrayList<>();
                         for (HatchetAlbumInfo album : charts.albums) {
                             String imageId = InfoSystemUtils.carelessGet(album.images, 0);
                             HatchetImage image = InfoSystemUtils.carelessGet(imagesMap, imageId);
@@ -466,12 +467,13 @@ public class HatchetInfoPlugin implements InfoPlugin {
                                 }
                             }
                             hatchetCollection.addAlbum(convertedAlbum);
-                            hatchetCollection.addArtistAlbum(convertedArtist, convertedAlbum);
+                            results.add(convertedAlbum);
                             convertedAlbums.add(convertedAlbum);
                         }
+                        hatchetCollection.addArtistAlbums(convertedArtist, convertedAlbums);
                         hatchetCollection.addArtist(convertedArtist);
                     }
-                    infoRequestData.setResultList(convertedAlbums);
+                    infoRequestData.setResultList(results);
                     return true;
                 }
 
