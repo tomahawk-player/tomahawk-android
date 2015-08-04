@@ -232,7 +232,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                             } else {
                                 extractPlaylistEntry(playlist, object);
                             }
-                        } catch (StaleDataException e) {
+                        } catch (StaleDataException | IllegalStateException e) {
                             Log.d(TAG, "getPlaylist - Cursor closed. Aborting ...");
                             promise.reject(null);
                             return;
