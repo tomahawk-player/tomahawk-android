@@ -282,6 +282,12 @@ public class ContentHeaderFragment extends Fragment {
             ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
             TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                     (Integer) item);
+        } else if (item instanceof String) {
+            View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+            v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
+            ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
+            TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                    (String) item);
         } else if (item instanceof ColorDrawable) {
             View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
             v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;

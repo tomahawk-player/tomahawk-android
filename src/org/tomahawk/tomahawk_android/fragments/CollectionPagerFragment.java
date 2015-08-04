@@ -19,6 +19,8 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.DbCollection;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
@@ -43,6 +45,11 @@ public class CollectionPagerFragment extends PagerFragment {
             String collectionId = getArguments().getString(TomahawkFragment.COLLECTION_ID);
             Collection collection = CollectionManager.getInstance().getCollection(collectionId);
             getActivity().setTitle(collection.getName());
+            if (collection instanceof UserCollection) {
+                showContentHeader(R.drawable.collection_header);
+            } else if (collection instanceof DbCollection) {
+                showContentHeader(((DbCollection) collection).getIconBackgroundPath());
+            }
         } else {
             throw new RuntimeException("No collection-id provided to CollectionPagerFragment");
         }
@@ -53,8 +60,6 @@ public class CollectionPagerFragment extends PagerFragment {
                 initialPage = getArguments().getInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
         }
-
-        showContentHeader(R.drawable.collection_header);
 
         List<FragmentInfoList> fragmentInfoLists = new ArrayList<>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();

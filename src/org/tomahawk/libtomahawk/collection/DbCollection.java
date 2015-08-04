@@ -27,6 +27,8 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.libtomahawk.resolver.ScriptAccount;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -62,6 +64,14 @@ public abstract class DbCollection extends Collection {
                 mFuzzyIndex = new FuzzyIndex(collectionId);
             }
         });
+    }
+
+    public String getIconBackgroundPath() {
+        if (mResolver instanceof ScriptResolver) {
+            ScriptAccount account = ((ScriptResolver) mResolver).getScriptAccount();
+            return account.getPath() + "/content/" + account.getMetaData().manifest.iconBackground;
+        }
+        return null;
     }
 
     public abstract Promise<String, Throwable, Void> getCollectionId();
