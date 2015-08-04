@@ -30,6 +30,7 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -228,9 +229,27 @@ public class ViewHolder {
         textView1.setText(resolver.getPrettyName());
         ImageView imageView1 = (ImageView) findViewById(R.id.imageview1);
         imageView1.clearColorFilter();
-        resolver.loadIconBackground(imageView1, !resolver.isEnabled());
+        if (!(resolver instanceof ScriptResolver) ||
+                ((ScriptResolver) resolver).getScriptAccount().getMetaData()
+                        .manifest.iconBackground != null) {
+            resolver.loadIconBackground(imageView1, !resolver.isEnabled());
+        } else {
+            if (resolver.isEnabled()) {
+                imageView1.setBackgroundColor(TomahawkApp.getContext().getResources()
+                        .getColor(android.R.color.black));
+            } else {
+                imageView1.setBackgroundColor(TomahawkApp.getContext().getResources()
+                        .getColor(R.color.fallback_resolver_bg));
+            }
+        }
         ImageView imageView2 = (ImageView) findViewById(R.id.imageview2);
-        resolver.loadIconWhite(imageView2);
+        if (!(resolver instanceof ScriptResolver) ||
+                ((ScriptResolver) resolver).getScriptAccount().getMetaData()
+                        .manifest.iconWhite != null) {
+            resolver.loadIconWhite(imageView2);
+        } else {
+            resolver.loadIcon(imageView2, !resolver.isEnabled());
+        }
         View connectImageViewContainer = findViewById(R.id.connect_imageview);
         if (resolver.isEnabled()) {
             connectImageViewContainer.setVisibility(View.VISIBLE);

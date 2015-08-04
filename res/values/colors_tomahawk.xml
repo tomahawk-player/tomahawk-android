@@ -53,5 +53,6 @@
     <color name="hatchet_resolver_bg">#3892e3</color>
     <color name="hatchet_resolver_bg_transparent">#993892e3</color>
     <color name="deezer_resolver_bg">#22222c</color>
+    <color name="fallback_resolver_bg">#FF999999</color>
 
 </resources>

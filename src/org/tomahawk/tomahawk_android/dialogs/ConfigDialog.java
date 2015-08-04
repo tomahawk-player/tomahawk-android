@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -226,8 +227,18 @@ public abstract class ConfigDialog extends DialogFragment {
 
     protected void setStatus(Resolver resolver) {
         mResolverEnabled = resolver.isEnabled();
-        resolver.loadIconWhite(mStatusImageView);
-        resolver.loadIconBackground(mHeaderBackground, false);
+        if (!(resolver instanceof ScriptResolver) ||
+                ((ScriptResolver) resolver).getScriptAccount().getMetaData()
+                        .manifest.iconBackground != null) {
+            resolver.loadIconBackground(mHeaderBackground, false);
+        }
+        if (!(resolver instanceof ScriptResolver) ||
+                ((ScriptResolver) resolver).getScriptAccount().getMetaData()
+                        .manifest.iconWhite != null) {
+            resolver.loadIconWhite(mStatusImageView);
+        } else {
+            resolver.loadIcon(mStatusImageView, false);
+        }
         int resId = resolver.isEnabled() ? R.drawable.ic_connected : R.drawable.ic_connect;
         TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), mConnectImageView, resId);
         int bgResId = resolver.isEnabled() ? R.drawable.selectable_background_button_green
