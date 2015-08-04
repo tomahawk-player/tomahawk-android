@@ -49,6 +49,7 @@ dependencies {
     compile 'de.greenrobot:eventbus:2.4.0'
     compile "com.daimajia.swipelayout:library:1.1.8@aar"
     compile "org.jdeferred:jdeferred-android-aar:1.2.4"
+    compile "org.slf4j:slf4j-android:1.7.12"
 }
 
 /*
