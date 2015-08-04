@@ -73,7 +73,7 @@ public class LoginConfigDialog extends ConfigDialog {
 
         setDialogTitle(mAuthenticatorUtils.getPrettyName());
         if (TomahawkApp.PLUGINNAME_HATCHET.equals(mAuthenticatorUtils.getId())) {
-            setStatus(new HatchetStubResolver());
+            setStatus(HatchetStubResolver.get());
         } else {
             setStatus(PipeLine.getInstance().getResolver(mAuthenticatorUtils.getId()));
         }

@@ -19,7 +19,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.UserCollection;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.tomahawk.libtomahawk.resolver.UserCollectionStubResolver;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.views.DirectoryChooser;
@@ -49,7 +49,7 @@ public class DirectoryChooserConfigDialog extends ConfigDialog {
         directoryChooser.setup();
 
         setDialogTitle(getString(R.string.local_collection_pretty_name));
-        setStatus(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION));
+        setStatus(UserCollectionStubResolver.get());
         setPositiveButtonText(R.string.rescan);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());

@@ -38,8 +38,8 @@ import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.libtomahawk.resolver.UserCollectionStubResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.libtomahawk.utils.parser.XspfParser;
@@ -693,18 +693,15 @@ public class TomahawkMainActivity extends ActionBarActivity
                     trackName = pathSegments.get(pathSegments.size() - 1);
                 }
                 Query query = Query.get(trackName, albumName, artistName, false);
-                Resolver resolver =
-                        PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                if (resolver != null) {
-                    Result result = Result.get(data.toString(), query.getBasicTrack(), resolver);
-                    float trackScore = query.howSimilar(result);
-                    query.addTrackResult(result, trackScore);
-                    Bundle bundle = new Bundle();
-                    bundle.putString(TomahawkFragment.QUERY, query.getCacheKey());
-                    bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                            ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-                    FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
-                }
+                Result result = Result.get(data.toString(), query.getBasicTrack(),
+                        UserCollectionStubResolver.get());
+                float trackScore = query.howSimilar(result);
+                query.addTrackResult(result, trackScore);
+                Bundle bundle = new Bundle();
+                bundle.putString(TomahawkFragment.QUERY, query.getCacheKey());
+                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                        ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
             }
         }
     }

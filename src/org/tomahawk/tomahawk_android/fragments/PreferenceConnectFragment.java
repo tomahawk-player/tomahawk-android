@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.resolver.HatchetStubResolver;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.resolver.UserCollectionStubResolver;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -97,8 +98,8 @@ public class PreferenceConnectFragment extends TomahawkListFragment
 
         // Add all resolver grid items
         List<Resolver> resolvers = new ArrayList<>();
-        resolvers.add(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION));
-        resolvers.add(new HatchetStubResolver());
+        resolvers.add(UserCollectionStubResolver.get());
+        resolvers.add(HatchetStubResolver.get());
         List<ScriptResolver> scriptResolvers = PipeLine.getInstance().getScriptResolvers();
         Collections.sort(scriptResolvers, new Comparator<ScriptResolver>() {
             @Override

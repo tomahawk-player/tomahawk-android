@@ -123,7 +123,6 @@ public class PipeLine {
         } catch (IOException e) {
             Log.e(TAG, "PipeLine<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
-        addResolver(new DataBaseResolver());
     }
 
     public static PipeLine getInstance() {
@@ -254,7 +253,7 @@ public class PipeLine {
             } else {
                 return true;
             }
-        } else if (resolver instanceof DataBaseResolver) {
+        } else if (resolver instanceof UserCollectionStubResolver) {
             return true;
         }
         return false;

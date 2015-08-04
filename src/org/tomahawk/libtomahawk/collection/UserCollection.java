@@ -23,8 +23,8 @@ import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.database.CollectionDb;
 import org.tomahawk.libtomahawk.database.CollectionDbManager;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.UserCollectionStubResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -116,7 +116,7 @@ public class UserCollection extends DbCollection {
             = new ConcurrentHashMap<>();
 
     public UserCollection() {
-        super(PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION));
+        super(UserCollectionStubResolver.get());
 
         initFuzzyIndex();
     }
