@@ -128,7 +128,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
             mEnabled = (Boolean) getConfig().get(ScriptAccount.ENABLED_KEY);
         } else {
             if (TomahawkApp.PLUGINNAME_JAMENDO.equals(mId)
-                    || TomahawkApp.PLUGINNAME_OFFICIALFM.equals(mId)
                     || TomahawkApp.PLUGINNAME_SOUNDCLOUD.equals(mId)) {
                 setEnabled(true);
             } else {
