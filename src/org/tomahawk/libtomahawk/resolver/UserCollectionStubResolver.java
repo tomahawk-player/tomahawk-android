@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2013, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,8 +17,6 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -27,26 +25,35 @@ import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
 import android.graphics.drawable.ColorDrawable;
 import android.widget.ImageView;
 
-public class HatchetStubResolver implements Resolver {
+/**
+ * A stub {@link Resolver} that is associated with all local tracks.
+ */
+public class UserCollectionStubResolver implements Resolver {
 
     private static class Holder {
 
-        private static final HatchetStubResolver instance = new HatchetStubResolver();
+        private static final UserCollectionStubResolver instance = new UserCollectionStubResolver();
 
     }
 
-    private HatchetStubResolver() {
+    private UserCollectionStubResolver() {
     }
 
-    public static HatchetStubResolver get() {
+    public static UserCollectionStubResolver get() {
         return Holder.instance;
     }
 
+    /**
+     * @return whether or not this {@link Resolver} is ready
+     */
     @Override
     public boolean isReady() {
         return false;
     }
 
+    /**
+     * @return whether or not this {@link Resolver} is currently resolving
+     */
     @Override
     public boolean isResolving() {
         return false;
@@ -55,19 +62,20 @@ public class HatchetStubResolver implements Resolver {
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
         TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                R.drawable.ic_hatchet, grayOut);
+                R.drawable.ic_action_sd_storage, grayOut);
     }
 
     @Override
     public void loadIconWhite(ImageView imageView) {
         TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                R.drawable.ic_hatchet_white);
+                R.drawable.ic_action_sd_storage_light);
     }
 
     @Override
     public void loadIconBackground(ImageView imageView, boolean grayOut) {
         imageView.setImageDrawable(new ColorDrawable(
-                TomahawkApp.getContext().getResources().getColor(R.color.hatchet_resolver_bg)));
+                TomahawkApp.getContext().getResources()
+                        .getColor(R.color.local_collection_resolver_bg)));
         if (grayOut) {
             imageView.setColorFilter(GrayOutTransformation.getColorFilter());
         } else {
@@ -77,19 +85,31 @@ public class HatchetStubResolver implements Resolver {
 
     @Override
     public String getPrettyName() {
-        return HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME;
+        return TomahawkApp.getContext().getString(R.string.local_collection_pretty_name);
     }
 
+    /**
+     * Resolve the given {@link Query}.
+     *
+     * @param queryToSearchFor the {@link Query} which should be resolved
+     * @return whether or not the Resolver is ready to resolve
+     */
     @Override
     public boolean resolve(final Query queryToSearchFor) {
         return false;
     }
 
+    /**
+     * @return this {@link UserCollectionStubResolver}'s id
+     */
     @Override
     public String getId() {
-        return TomahawkApp.PLUGINNAME_HATCHET;
+        return TomahawkApp.PLUGINNAME_USERCOLLECTION;
     }
 
+    /**
+     * @return this {@link UserCollectionStubResolver}'s weight
+     */
     @Override
     public int getWeight() {
         return 0;
@@ -97,7 +117,6 @@ public class HatchetStubResolver implements Resolver {
 
     @Override
     public boolean isEnabled() {
-        return AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).isLoggedIn();
+        return true;
     }
 }
