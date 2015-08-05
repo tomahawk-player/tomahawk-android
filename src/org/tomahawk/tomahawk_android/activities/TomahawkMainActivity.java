@@ -182,6 +182,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private StickyListHeadersListView mDrawerList;
 
+    private TomahawkMenuAdapter mTomahawkMenuAdapter;
+
     private ActionBarDrawerToggle mDrawerToggle;
 
     private CharSequence mTitle;
@@ -1060,9 +1062,12 @@ public class TomahawkMainActivity extends ActionBarActivity
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                TomahawkMenuAdapter slideMenuAdapter =
-                        new TomahawkMenuAdapter(TomahawkMainActivity.this, holders);
-                mDrawerList.setAdapter(slideMenuAdapter);
+                if (mDrawerList.getAdapter() == null) {
+                    mTomahawkMenuAdapter = new TomahawkMenuAdapter(holders);
+                    mDrawerList.setAdapter(mTomahawkMenuAdapter);
+                } else {
+                    mTomahawkMenuAdapter.setResourceHolders(holders);
+                }
             }
         });
 
