@@ -224,8 +224,10 @@ public class ContentHeaderFragment extends Fragment {
         }
 
         FancyDropDown fancyDropDown = (FancyDropDown) getView().findViewById(R.id.fancydropdown);
-        fancyDropDown.setup(initialSelection, text.toUpperCase(), dropDownItemInfos,
-                dropDownListener);
+        if (fancyDropDown != null) {
+            fancyDropDown.setup(initialSelection, text.toUpperCase(), dropDownItemInfos,
+                    dropDownListener);
+        }
     }
 
     /**
