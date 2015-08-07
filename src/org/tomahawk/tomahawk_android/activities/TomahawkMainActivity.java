@@ -111,6 +111,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -695,9 +696,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                 dialog.setArguments(args);
                 dialog.show(getSupportFragmentManager(), null);
             } else {
-                String albumName = null;
-                String trackName = null;
-                String artistName = null;
+                String albumName;
+                String trackName;
+                String artistName;
                 try {
                     MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                     retriever.setDataSource(this, data);
@@ -708,10 +709,18 @@ public class TomahawkMainActivity extends ActionBarActivity
                     trackName =
                             retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
                     retriever.release();
-                } catch (IllegalArgumentException e) {
+                } catch (Exception e) {
                     Log.e(TAG, "handleIntent: " + e.getClass() + ": " + e.getLocalizedMessage());
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            String msg = TomahawkApp.getContext().getString(R.string.invalid_file);
+                            Toast.makeText(TomahawkApp.getContext(), msg, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    return;
                 }
-                if (TextUtils.isEmpty(trackName)) {
+                if (TextUtils.isEmpty(trackName) && pathSegments != null) {
                     trackName = pathSegments.get(pathSegments.size() - 1);
                 }
                 Query query = Query.get(trackName, albumName, artistName, false);
@@ -812,7 +821,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
             updateDrawer();
 
-            //Setup our services
             Intent intent = new Intent(TomahawkMainActivity.this,
                     PlaybackService.class);
             startService(intent);
