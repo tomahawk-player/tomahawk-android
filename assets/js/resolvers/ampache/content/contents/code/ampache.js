@@ -94,9 +94,7 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
 
         return this._login(this.username, this.password, this.server).then(function () {
             if (that.auth) {
-                that._ensureCollection().then(function () {
-                    Tomahawk.PluginManager.registerPlugin("collection", ampacheCollection);
-                });
+                that._ensureCollection();
             }
         });
     },
@@ -122,6 +120,7 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 if (songElements !== undefined && songElements.childNodes.length > 0) {
                     songs = xmlDoc.getElementsByTagName("song");
                 }
+                Tomahawk.PluginManager.registerPlugin("collection", ampacheCollection);
                 if (songs && songs.length > 0) {
                     Tomahawk.log("Collection needs to be updated");
 
@@ -139,6 +138,11 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     });
                 } else {
                     Tomahawk.log("Collection doesn't need to be updated");
+
+                    ampacheCollection.addTracks({
+                        id: ampacheCollection.settings.id,
+                        tracks: []
+                    });
                 }
             }, function (xhr) {
                 Tomahawk.log("Tomahawk.get failed: " + xhr.status + " - "
