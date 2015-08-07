@@ -36,13 +36,27 @@
 
     <TextView xmlns:android="http://schemas.android.com/apk/res/android"
               android:id="@+id/single_line_list_menu_textview"
-              android:layout_width="wrap_content"
+              android:layout_width="0dp"
               android:layout_height="wrap_content"
               android:layout_gravity="center_vertical"
+              android:layout_weight="1"
               android:paddingLeft="@dimen/padding_superlarge"
+              android:paddingRight="@dimen/padding_superlarge"
               android:ellipsize="marquee"
               android:singleLine="true"
               android:textColor="@color/primary_textcolor_inverted"
               android:textSize="@dimen/text_size_large"/>
+
+    <com.github.rahatarmanahmed.cpv.CircularProgressView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/circularprogressview"
+            android:layout_width="@dimen/menu_item_height"
+            android:layout_height="@dimen/menu_item_height"
+            android:padding="@dimen/padding_verysmall"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="@dimen/padding_superlarge"
+            app:cpv_color="@color/tomahawk_red"
+            app:cpv_thickness="2dp"
+            app:cpv_indeterminate="true"/>
 
 </LinearLayout>

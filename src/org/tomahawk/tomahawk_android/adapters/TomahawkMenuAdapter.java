@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import com.github.rahatarmanahmed.cpv.CircularProgressView;
+
 import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
@@ -55,6 +57,8 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
         public Image image;
 
         public User user;
+
+        public boolean isLoading;
     }
 
     /**
@@ -136,6 +140,14 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
                 textView.setText(holder.title.toUpperCase());
                 TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                         holder.iconResId);
+            }
+            CircularProgressView progressView =
+                    (CircularProgressView) view.findViewById(R.id.circularprogressview);
+            if (holder.isLoading) {
+                progressView.startAnimation();
+                progressView.setVisibility(View.VISIBLE);
+            } else {
+                progressView.setVisibility(View.GONE);
             }
             return view;
         }

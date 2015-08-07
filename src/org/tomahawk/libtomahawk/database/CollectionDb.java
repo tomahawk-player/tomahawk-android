@@ -150,6 +150,8 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     private final String mLastUpdateStorageKey;
 
+    private boolean mInitialized = false;
+
     public static class WhereInfo {
 
         public String connection;
@@ -196,6 +198,10 @@ public class CollectionDb extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE `" + TABLE_ALBUMS + "` ADD COLUMN `"
                     + ALBUMS_IMAGEPATH + "` TEXT");
         }
+    }
+
+    public boolean isInitialized() {
+        return mInitialized;
     }
 
     public synchronized void addTracks(ScriptResolverTrack[] tracks) {
@@ -332,6 +338,7 @@ public class CollectionDb extends SQLiteOpenHelper {
 
         mDb.setTransactionSuccessful();
         mDb.endTransaction();
+        mInitialized = true;
         Log.d(TAG, "Added " + tracks.length + " tracks in " + (System.currentTimeMillis() - time)
                 + "ms");
         SharedPreferences preferences =
