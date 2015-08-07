@@ -44,6 +44,10 @@ public class CollectionPagerFragment extends PagerFragment {
         if (getArguments().containsKey(TomahawkFragment.COLLECTION_ID)) {
             String collectionId = getArguments().getString(TomahawkFragment.COLLECTION_ID);
             Collection collection = CollectionManager.getInstance().getCollection(collectionId);
+            if (collection == null) {
+                getActivity().getSupportFragmentManager().popBackStack();
+                return;
+            }
             getActivity().setTitle(collection.getName());
             if (collection instanceof UserCollection) {
                 showContentHeader(R.drawable.collection_header);
