@@ -142,10 +142,12 @@ public class PlaybackFragment extends TomahawkFragment {
         TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(view) {
             @Override
             public void run() {
-                mHeaderScrollableHeight =
-                        getLayedOutView().getHeight() - mHeaderNonscrollableHeight;
-                setupScrollableSpacer(getListAdapter(), getListView(), mAlbumArtViewPager);
-                setupNonScrollableSpacer(getListView());
+                if (getListView() != null) {
+                    mHeaderScrollableHeight =
+                            getLayedOutView().getHeight() - mHeaderNonscrollableHeight;
+                    setupScrollableSpacer(getListAdapter(), getListView(), mAlbumArtViewPager);
+                    setupNonScrollableSpacer(getListView());
+                }
             }
         });
 

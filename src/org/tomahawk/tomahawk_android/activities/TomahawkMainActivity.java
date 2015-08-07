@@ -835,7 +835,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                         PreferenceManager.getDefaultSharedPreferences(this);
                 if (!preferences.getBoolean(
                         TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED, false)) {
-                    FragmentUtils.add(this, WelcomeFragment.class, null, R.id.content_viewer_frame);
+                    FragmentUtils.replace(this, WelcomeFragment.class, null,
+                            R.id.content_viewer_frame);
                 }
             } else {
                 boolean actionBarHidden = mSavedInstanceState

@@ -39,6 +39,7 @@ import org.tomahawk.tomahawk_android.dialogs.ResolverRedirectConfigDialog;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -129,16 +130,20 @@ public class PreferenceConnectFragment extends TomahawkListFragment
                 R.dimen.padding_superlarge);
         segments.add(segment);
 
-        if (getListAdapter() == null) {
-            TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
-                    (TomahawkMainActivity) getActivity(), getActivity().getLayoutInflater(),
-                    segments, getListView(), this);
-            setListAdapter(tomahawkListAdapter);
-        } else {
-            ((TomahawkListAdapter) getListAdapter()).setSegments(segments, getListView());
-        }
+        if (getListView() != null) {
+            if (getListAdapter() == null) {
+                TomahawkListAdapter tomahawkListAdapter = new TomahawkListAdapter(
+                        (TomahawkMainActivity) getActivity(), getActivity().getLayoutInflater(),
+                        segments, getListView(), this);
+                setListAdapter(tomahawkListAdapter);
+            } else {
+                ((TomahawkListAdapter) getListAdapter()).setSegments(segments, getListView());
+            }
 
-        setupNonScrollableSpacer(getListView());
+            setupNonScrollableSpacer(getListView());
+        } else {
+            Log.d(TAG, "Couldn't update adapter because getListView() returned null!");
+        }
     }
 
     @Override
