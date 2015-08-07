@@ -234,10 +234,7 @@ public class MicroService extends Service {
             } else {
                 artist = Artist.get(albumArtistName);
             }
-            Album album = null;
-            if (!TextUtils.isEmpty(albumName)) {
-                album = Album.get(albumName, artist);
-            }
+            Album album = Album.get(albumName, artist);
             Track track = Track.get(trackName, album, artist);
             if (sCurrentTrack != track) {
                 sCurrentTrack = track;
