@@ -193,7 +193,8 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     @SuppressWarnings("unused")
     public void onEvent(RequestSyncEvent event) {
         if (mContainerFragmentId == event.mContainerFragmentId
-                && mContainerFragmentPage == event.mPerformerFragmentPage) {
+                && mContainerFragmentPage == event.mPerformerFragmentPage
+                && getListView() != null) {
             PerformSyncEvent performSyncEvent = new PerformSyncEvent();
             performSyncEvent.mContainerFragmentId = event.mContainerFragmentId;
             performSyncEvent.mContainerFragmentPage = event.mReceiverFragmentPage;
@@ -206,7 +207,8 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     @SuppressWarnings("unused")
     public void onEventMainThread(PerformSyncEvent event) {
         if (mContainerFragmentId == event.mContainerFragmentId
-                && mContainerFragmentPage == event.mContainerFragmentPage) {
+                && mContainerFragmentPage == event.mContainerFragmentPage
+                && getListView() != null) {
             if (event.mFirstVisiblePosition == 0) {
                 getListView().setSelectionFromTop(0, event.mTop);
             } else if (getListView().getFirstVisiblePosition() == 0) {
@@ -278,7 +280,10 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
      * @return the current scrolling position of the list- or gridView
      */
     private Parcelable getListState() {
-        return getListView().getWrappedList().onSaveInstanceState();
+        if (getListView() != null) {
+            return getListView().getWrappedList().onSaveInstanceState();
+        }
+        return null;
     }
 
     /**
@@ -293,9 +298,11 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
      */
     public void setListAdapter(StickyBaseAdapter adapter) {
         mStickyBaseAdapter = adapter;
-        getListView().setAdapter(adapter);
-        if (restoreScrollPosition && mListState != null) {
-            getListView().getWrappedList().onRestoreInstanceState(mListState);
+        if (getListView() != null) {
+            getListView().setAdapter(adapter);
+            if (restoreScrollPosition && mListState != null) {
+                getListView().getWrappedList().onRestoreInstanceState(mListState);
+            }
         }
     }
 
