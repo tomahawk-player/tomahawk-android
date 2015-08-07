@@ -50,7 +50,8 @@ public class TracksFragment extends TomahawkFragment {
     public void onEventMainThread(CollectionManager.UpdatedEvent event) {
         super.onEventMainThread(event);
 
-        if (event.mUpdatedItemIds != null && event.mUpdatedItemIds.contains(mAlbum.getCacheKey())) {
+        if (event.mUpdatedItemIds != null && event.mUpdatedItemIds.contains(mAlbum.getCacheKey())
+                && mContainerFragmentClass == null) {
             showAlbumFancyDropDown();
         }
     }
@@ -111,7 +112,9 @@ public class TracksFragment extends TomahawkFragment {
 
         if (mAlbum != null) {
             showContentHeader(mAlbum);
-            showAlbumFancyDropDown();
+            if (mContainerFragmentClass == null) {
+                showAlbumFancyDropDown();
+            }
             mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<CollectionCursor<Query>>() {
                 @Override
                 public void onDone(CollectionCursor<Query> cursor) {
@@ -189,7 +192,7 @@ public class TracksFragment extends TomahawkFragment {
                                     break;
                                 }
                             }
-                            showFancyDropDown(mAlbum.getName(), initialSelection,
+                            showFancyDropDown(initialSelection, mAlbum.getName(),
                                     FancyDropDown.convertToDropDownItemInfo(result),
                                     new FancyDropDown.DropDownListener() {
                                         @Override

@@ -227,6 +227,9 @@ public class ContentHeaderFragment extends Fragment {
         if (fancyDropDown != null) {
             fancyDropDown.setup(initialSelection, text.toUpperCase(), dropDownItemInfos,
                     dropDownListener);
+        } else {
+            Log.e(TAG, "Couldn't setup FancyDropDown, because there is no FancyDropDown in the view"
+                    + " hierarchy");
         }
     }
 
