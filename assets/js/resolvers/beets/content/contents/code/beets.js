@@ -96,6 +96,7 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
         Tomahawk.get(config.server + 'stats', settings).then(function (response) {
             var trackCount = parseInt(response.items);
             var albumCount = parseInt(response.albums);
+            Tomahawk.PluginManager.registerPlugin("collection", beetsCollection);
             if (window.localStorage["beets_trackCount"] != trackCount
                 || window.localStorage["beets_albumCount"] != albumCount) {
                 var msg = "";
@@ -130,7 +131,6 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
                         }).then(function () {
                             window.localStorage["beets_trackCount"] = trackCount;
                             window.localStorage["beets_albumCount"] = albumCount;
-                            Tomahawk.PluginManager.registerPlugin("collection", beetsCollection);
                         });
                     });
                 });
@@ -138,7 +138,10 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 Tomahawk.log("Track count is still " + trackCount
                     + ". Album count is still " + albumCount
                     + ". No collection update necessary.");
-                Tomahawk.PluginManager.registerPlugin("collection", beetsCollection);
+                beetsCollection.addTracks({
+                    id: beetsCollection.settings.id,
+                    tracks: []
+                });
             }
         });
     },

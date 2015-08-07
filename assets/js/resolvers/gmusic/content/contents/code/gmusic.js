@@ -122,7 +122,6 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
             return that._ensureCollection();
         }).then(function () {
             that._ready = true;
-            Tomahawk.PluginManager.registerPlugin("collection", gmusicCollection);
         });
     },
 
@@ -173,6 +172,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         if (!this._requestPromise) {
             Tomahawk.log("Checking if collection needs to be updated");
             this._requestPromise = that._paginatedRequest(url).then(function (results) {
+                Tomahawk.PluginManager.registerPlugin("collection", gmusicCollection);
                 if (results && results.length > 0) {
                     Tomahawk.log("Collection needs to be updated");
 
@@ -188,6 +188,10 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     });
                 } else {
                     Tomahawk.log("Collection doesn't need to be updated");
+                    gmusicCollection.addTracks({
+                        id: gmusicCollection.settings.id,
+                        tracks: []
+                    });
                 }
             }, function (xhr) {
                 Tomahawk.log("paginatedRequest failed: " + xhr.status + " - "

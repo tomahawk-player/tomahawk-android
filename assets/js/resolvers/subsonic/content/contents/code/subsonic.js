@@ -83,7 +83,7 @@ var SubsonicResolver = Tomahawk.extend(Tomahawk.Resolver, {
     },
 
     init: function () {
-        var userConfig = this.getUserConfig();
+        var userConfig = this._sanitizeConfig(this.getUserConfig());
         if (!userConfig.user || !userConfig.password) {
             Tomahawk.log("Subsonic Resolver not properly configured!");
             return;
@@ -93,23 +93,29 @@ var SubsonicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         this.user = this.user.trim();
         this.password = this._hexEncode(userConfig.password);
         this.subsonic_url = userConfig.subsonic_url || "";
-        this.subsonic_url = this.subsonic_url.replace(/\/+$/, "");
-        if (!this.subsonic_url) {
-            this.subsonic_url = "http://localhost:4040";
-        } else {
-            if (this.subsonic_url.search(".*:\/\/") < 0) {
-                // couldn't find a proper protocol, so we default to "http://"
-                this.subsonic_url = "http://" + this.subsonic_url;
-            }
-            this.subsonic_url = this.subsonic_url.trim();
-        }
 
         Tomahawk.log("Subsonic resolver initalized, got credentials from config. user: "
             + this.user + ", subsonic_url: " + this.subsonic_url);
 
-        this._ensureCollection().then(function () {
-            Tomahawk.PluginManager.registerPlugin("collection", subsonicCollection);
-        });
+        this._ensureCollection();
+    },
+
+    _sanitizeConfig: function (config) {
+        if (!config.subsonic_url) {
+            config.subsonic_url = "http://localhost:4040/";
+        } else {
+            if (config.subsonic_url.search("^.*:\/\/") < 0) {
+                // couldn't find a proper protocol, so we default to "http://"
+                config.subsonic_url = "http://" + config.subsonic_url;
+            }
+            var url = new URL(config.subsonic_url);
+            if (!url.port) {
+                url.port = 4040;
+            }
+            config.subsonic_url = url.toString();
+        }
+
+        return config;
     },
 
     _buildStreamUrl: function (id) {
@@ -166,6 +172,7 @@ var SubsonicResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 settings.data.ifModifiedSince = window.localStorage["subsonic_last_cache_update"];
             }
             this._requestPromise = Tomahawk.get(url, settings).then(function (response) {
+                Tomahawk.PluginManager.registerPlugin("collection", subsonicCollection);
                 if (response["subsonic-response"].indexes) {
                     Tomahawk.log("Collection needs to be updated");
 
@@ -184,6 +191,10 @@ var SubsonicResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     });
                 } else {
                     Tomahawk.log("Collection doesn't need to be updated");
+                    subsonicCollection.addTracks({
+                        id: subsonicCollection.settings.id,
+                        tracks: []
+                    });
                 }
             }, function (xhr) {
                 Tomahawk.log("Tomahawk.get failed: " + xhr.status + " - "
@@ -196,6 +207,7 @@ var SubsonicResolver = Tomahawk.extend(Tomahawk.Resolver, {
     },
 
     testConfig: function (config) {
+        config = this._sanitizeConfig(config);
         var url = config.subsonic_url + "/rest/ping.view";
         var settings = {
             data: {
