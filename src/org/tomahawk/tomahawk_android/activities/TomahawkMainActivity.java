@@ -22,6 +22,7 @@ import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.uservoice.uservoicesdk.Config;
 import com.uservoice.uservoicesdk.UserVoice;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
@@ -29,6 +30,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.DbCollection;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
 import org.tomahawk.libtomahawk.collection.UserCollection;
@@ -111,8 +113,10 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
@@ -208,6 +212,8 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     private Runnable mRunAfterInit;
 
+    private Map<Collection, Boolean> mCollectionLoadingMap = new HashMap<>();
+
     private Handler mShouldShowAnimationHandler;
 
     private final Runnable mShouldShowAnimationRunnable = new Runnable() {
@@ -222,6 +228,20 @@ public class TomahawkMainActivity extends ActionBarActivity
                 mSmoothProgressBar.setVisibility(View.GONE);
             }
             mShouldShowAnimationHandler.postDelayed(mShouldShowAnimationRunnable, 500);
+            for (final Collection collection : CollectionManager.getInstance().getCollections()) {
+                if (collection instanceof DbCollection) {
+                    ((DbCollection) collection).isInitializing().then(new DoneCallback<Boolean>() {
+                        @Override
+                        public void onDone(Boolean result) {
+                            Boolean lastResult = mCollectionLoadingMap.get(collection);
+                            mCollectionLoadingMap.put(collection, result);
+                            if (lastResult == null || lastResult != result) {
+                                updateDrawer();
+                            }
+                        }
+                    });
+                }
+            }
         }
     };
 
@@ -1034,6 +1054,10 @@ public class TomahawkMainActivity extends ActionBarActivity
         holder.id = HUB_ID_COLLECTION;
         holder.title = getString(R.string.drawer_title_collection);
         holder.iconResId = R.drawable.ic_action_collection;
+        Collection userCollection = CollectionManager.getInstance().getCollection(
+                TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        Boolean isLoading = mCollectionLoadingMap.get(userCollection);
+        holder.isLoading = isLoading != null && isLoading;
         holders.add(holder);
         holder = new TomahawkMenuAdapter.ResourceHolder();
         holder.id = HUB_ID_LOVEDTRACKS;
@@ -1052,10 +1076,11 @@ public class TomahawkMainActivity extends ActionBarActivity
         holders.add(holder);
         for (Collection collection : CollectionManager.getInstance().getCollections()) {
             if (collection instanceof ScriptResolverCollection) {
-                ScriptResolverCollection resolverCollection =
-                        (ScriptResolverCollection) collection;
+                ScriptResolverCollection resolverCollection = (ScriptResolverCollection) collection;
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.collection = resolverCollection;
+                isLoading = mCollectionLoadingMap.get(resolverCollection);
+                holder.isLoading = isLoading != null && isLoading;
                 holders.add(holder);
             }
         }

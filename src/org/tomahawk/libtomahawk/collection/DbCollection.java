@@ -74,6 +74,18 @@ public abstract class DbCollection extends Collection {
         return null;
     }
 
+    public Promise<Boolean, Throwable, Void> isInitializing() {
+        final Deferred<Boolean, Throwable, Void> deferred = new ADeferredObject<>();
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(String collectionId) {
+                deferred.resolve(
+                        !CollectionDbManager.get().getCollectionDb(collectionId).isInitialized());
+            }
+        });
+        return deferred;
+    }
+
     public abstract Promise<String, Throwable, Void> getCollectionId();
 
     public boolean resolve(final Query query) {
