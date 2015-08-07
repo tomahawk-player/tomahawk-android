@@ -22,7 +22,6 @@ import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.StickyBaseAdapter;
-import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -35,8 +34,6 @@ import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.BaseAdapter;
 import android.widget.FrameLayout;
-
-import java.util.List;
 
 import de.greenrobot.event.EventBus;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -214,14 +211,6 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
             } else if (getListView().getFirstVisiblePosition() == 0) {
                 getListView().setSelection(1);
             }
-        }
-    }
-
-    protected void showFancyDropDown(String text, int initialSelection,
-            List<FancyDropDown.DropDownItemInfo> dropDownItemInfos,
-            FancyDropDown.DropDownListener dropDownListener) {
-        if (mContainerFragmentClass == null) {
-            super.showFancyDropDown(initialSelection, text, dropDownItemInfos, dropDownListener);
         }
     }
 
