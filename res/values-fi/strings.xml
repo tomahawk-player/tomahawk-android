@@ -217,4 +217,5 @@
   <string name="uninstall_plugin_title">Liitännäisen poisto</string>
   <string name="uninstall_plugin_warning">Haluatko varmasti poistaa tämän liitännäisen?</string>
   <string name="gmusic_info_text">Valitse tili:</string>
+  <string name="invalid_file">Tiedostoa ei voida avata.</string>
 </resources>

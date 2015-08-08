@@ -186,6 +186,7 @@
   <string name="view_album">Album ansehen</string>
   <string name="connect">Verbinden</string>
   <string name="connect_headertext">Wähle die Dienste aus, die Du verwenden möchtest. Tomahawk funktioniert besser, wenn mehrere Dienste aktiviert sind.</string>
+  <string name="connect_header_manualresolvers">Manuell installiert</string>
   <string name="advanced">Erweitert</string>
   <string name="info">Info</string>
   <string name="playbackpanel_seek_coachmark">Durchsuche den Track durch langes Drücken des Play-Buttons</string>
@@ -208,4 +209,6 @@
     <item quantity="one">Wähle eine Playlist aus, um %1$d Lied hinzuzufügen:</item>
     <item quantity="other">Wähle eine Playlist aus, um %1$d Lieder hinzuzufügen:</item>
   </plurals>
+  <string name="gmusic_info_text">Wählen Sie ein Konto aus:</string>
+  <string name="invalid_file">Kann Datei nicht öffnen.</string>
 </resources>
