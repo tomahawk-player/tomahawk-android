@@ -187,6 +187,7 @@
   <string name="view_album">Visualizar Álbum</string>
   <string name="connect">Conectar</string>
   <string name="connect_headertext">Selecione os serviços que você quer usar. O Tomahawk funciona melhor com mais seviços ativados.</string>
+  <string name="connect_header_manualresolvers">Instalado manualmente</string>
   <string name="advanced">Avançado</string>
   <string name="info">Informação</string>
   <string name="playbackpanel_seek_coachmark">Você pode avançar/retroceder na faixa tocando e segurando o botão Play.</string>
@@ -210,4 +211,11 @@
     <item quantity="other">Escolha uma playlist para adicionar %1$d faixas:</item>
   </plurals>
   <string name="seeking_not_supported">Desculpe, esta fonte não permite avançar/retroceder pela música.</string>
+  <string name="install_plugin_title">Instalação de plugin</string>
+  <string name="install_plugin_warning">Você está prestes a instalar um plugin do Tomahawk proveniente de fonte desconhecida. Isto pode ser um risco de segurança.</string>
+  <string name="install_plugin_warning2">Você deseja realmente instalar este plugin? </string>
+  <string name="uninstall_plugin_title">Desinstalando Plugin</string>
+  <string name="uninstall_plugin_warning">Você deseja realmente desinstalar este plugin? </string>
+  <string name="gmusic_info_text">Escolher uma conta:</string>
+  <string name="invalid_file">Não foi possível abrir o arquivo.</string>
 </resources>
