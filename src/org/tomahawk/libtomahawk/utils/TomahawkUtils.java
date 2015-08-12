@@ -758,15 +758,14 @@ public class TomahawkUtils {
 
     private static String buildImagePath(Image image, int width) {
         if (image.isHatchetImage()) {
-            int squareImageWidth = Math.min(image.getHeight(), image.getWidth());
+            int imageSize = Math.min(image.getHeight(), image.getWidth());
+            int actualWidth;
             if (isWifiAvailable()) {
-                if (squareImageWidth > width) {
-                    return image.getImagePath() + "?width=" + width + "&height=" + width;
-                }
-            } else if (squareImageWidth > width * 2 / 3) {
-                return image.getImagePath() + "?width=" + width * 2 / 3 + "&height="
-                        + width * 2 / 3;
+                actualWidth = Math.min(imageSize, width);
+            } else {
+                actualWidth = Math.min(imageSize, width * 2 / 3);
             }
+            return image.getImagePath() + "?width=" + actualWidth + "&height=" + actualWidth;
         }
         return image.getImagePath();
     }
