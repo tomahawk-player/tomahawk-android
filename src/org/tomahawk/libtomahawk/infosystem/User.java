@@ -19,6 +19,7 @@ package org.tomahawk.libtomahawk.infosystem;
 
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.AlphaComparable;
+import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -36,9 +37,9 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class User extends Cacheable implements AlphaComparable {
 
-    public static final String PLAYLIST_PLAYBACKLOG_ID = "_playbackLog";
+    private static final String PLAYLIST_PLAYBACKLOG_ID = "_playbackLog";
 
-    public static final String PLAYLIST_FAVORTIES_ID = "_favorites";
+    private static final String PLAYLIST_FAVORTIES_ID = "_favorites";
 
     private final String mId;
 
@@ -62,15 +63,17 @@ public class User extends Cacheable implements AlphaComparable {
 
     private final SparseArray<List<SocialAction>> mFriendsFeed = new SparseArray<>();
 
-    private final Playlist mPlaybackLog;
+    private Playlist mPlaybackLog;
 
-    private final Playlist mFavorites;
+    private Playlist mFavorites;
 
     private TreeMap<User, String> mFollowings;
 
     private TreeMap<User, String> mFollowers;
 
     private List<Album> mStarredAlbums = new ArrayList<>();
+
+    private List<Artist> mStarredArtists = new ArrayList<>();
 
     private List<Playlist> mPlaylists;
 
@@ -179,7 +182,7 @@ public class User extends Cacheable implements AlphaComparable {
         return mSocialActions;
     }
 
-    public void setSocialActions(ArrayList<SocialAction> socialActions, int pageNumber) {
+    public void setSocialActions(List<SocialAction> socialActions, int pageNumber) {
         mSocialActions.put(pageNumber, socialActions);
     }
 
@@ -187,7 +190,7 @@ public class User extends Cacheable implements AlphaComparable {
         return mFriendsFeed;
     }
 
-    public void setFriendsFeed(ArrayList<SocialAction> friendsFeed, int pageNumber) {
+    public void setFriendsFeed(List<SocialAction> friendsFeed, int pageNumber) {
         mFriendsFeed.put(pageNumber, friendsFeed);
     }
 
@@ -195,8 +198,16 @@ public class User extends Cacheable implements AlphaComparable {
         return mPlaybackLog;
     }
 
+    public void setPlaybackLog(Playlist playbackLog) {
+        mPlaybackLog = playbackLog;
+    }
+
     public Playlist getFavorites() {
         return mFavorites;
+    }
+
+    public void setFavorites(Playlist favorites) {
+        mFavorites = favorites;
     }
 
     public TreeMap<User, String> getFollowings() {
@@ -221,6 +232,15 @@ public class User extends Cacheable implements AlphaComparable {
 
     public void setStarredAlbums(List<Album> starredAlbums) {
         mStarredAlbums = starredAlbums;
+    }
+
+    public List<Artist> getStarredArtists() {
+        return mStarredArtists;
+    }
+
+    public void setStarredArtists(
+            List<Artist> starredArtists) {
+        mStarredArtists = starredArtists;
     }
 
     public List<Playlist> getPlaylists() {

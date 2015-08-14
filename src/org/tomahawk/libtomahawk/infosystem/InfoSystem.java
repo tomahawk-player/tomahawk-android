@@ -140,15 +140,14 @@ public class InfoSystem {
         if (artist != null) {
             QueryParams params = new QueryParams();
             params.name = artist.getName();
-            String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params,
-                    artist);
-            requestIds.add(requestId);
             if (full) {
-                requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS, params,
-                        artist);
+                String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS,
+                        params);
                 requestIds.add(requestId);
-                requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params,
-                        artist);
+                requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
+                requestIds.add(requestId);
+            } else {
+                String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
                 requestIds.add(requestId);
             }
         }
@@ -166,7 +165,7 @@ public class InfoSystem {
             QueryParams params = new QueryParams();
             params.name = album.getName();
             params.artistname = album.getArtist().getName();
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS, params, album);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS, params);
         }
         return null;
     }
@@ -182,7 +181,7 @@ public class InfoSystem {
             QueryParams params = new QueryParams();
             params.ids = new ArrayList<>();
             params.ids.add(user.getId());
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params, user);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS, params);
         }
         return null;
     }
@@ -205,7 +204,7 @@ public class InfoSystem {
             QueryParams params = new QueryParams();
             params.playlist_local_id = playlist.getId();
             params.playlist_id = playlist.getHatchetId();
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params, playlist);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params);
         }
         return null;
     }
@@ -237,8 +236,7 @@ public class InfoSystem {
             params.userid = user.getId();
             params.offset = String.valueOf(pageNumber * HatchetInfoPlugin.SOCIALACTIONS_LIMIT);
             params.limit = String.valueOf(HatchetInfoPlugin.SOCIALACTIONS_LIMIT);
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS,
-                    params, user);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, params);
         }
         return null;
     }
@@ -255,8 +253,7 @@ public class InfoSystem {
             params.userid = user.getId();
             params.offset = String.valueOf(pageNumber * HatchetInfoPlugin.FRIENDSFEED_LIMIT);
             params.limit = String.valueOf(HatchetInfoPlugin.FRIENDSFEED_LIMIT);
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED,
-                    params, user);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, params);
         }
         return null;
     }
@@ -271,8 +268,7 @@ public class InfoSystem {
         if (user != null) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG,
-                    params, user);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG, params);
         }
         return null;
     }
@@ -283,12 +279,11 @@ public class InfoSystem {
      * @param user the User to enrich with data from the InfoPlugins
      * @return the created InfoRequestData's requestId
      */
-    public String resolveFavorites(User user) {
+    public String resolveLovedItems(User user) {
         if (user != null) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, params, user,
-                    true);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, params, true);
         }
         return null;
     }
@@ -304,8 +299,7 @@ public class InfoSystem {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
             params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW;
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS,
-                    params, user);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FOLLOWS, params);
         }
         return null;
     }
@@ -321,46 +315,39 @@ public class InfoSystem {
             QueryParams params = new QueryParams();
             params.targetuserid = user.getId();
             params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW;
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWERS,
-                    params, user);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FOLLOWERS, params);
         }
         return null;
     }
 
     /**
-     * Fetch the given user's list of starred albums
+     * Fetch the given user's list of loved albums
      *
      * @return the created InfoRequestData's requestId
      */
-    public String resolveStarredAlbums(User user) {
+    public String resolveLovedAlbums(User user) {
         QueryParams params = new QueryParams();
         if (user != null) {
             params.userid = user.getId();
         }
         params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE;
         params.targettype = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ALBUM;
-        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS,
-                params, user, true);
+        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDALBUMS, params, true);
     }
 
     /**
-     * Fetch the given user's list of starred artists
+     * Fetch the given user's list of loved artists
      *
      * @return the created InfoRequestData's requestId
      */
-    public String resolveStarredArtists(User user) {
+    public String resolveLovedArtists(User user) {
         QueryParams params = new QueryParams();
         if (user != null) {
             params.userid = user.getId();
         }
         params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE;
         params.targettype = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ARTIST;
-        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS,
-                params, user, true);
-    }
-
-    public String resolvePlaylists(User user) {
-        return resolvePlaylists(user, false);
+        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDARTISTS, params, true);
     }
 
     public String resolvePlaylists(User user, boolean isBackgroundRequest) {
@@ -371,7 +358,7 @@ public class InfoSystem {
             InfoRequestData infoRequestData = new InfoRequestData(requestId,
                     InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, params,
                     isBackgroundRequest);
-            resolve(infoRequestData, user);
+            resolve(infoRequestData);
             return infoRequestData.getRequestId();
         }
         return null;
@@ -406,43 +393,6 @@ public class InfoSystem {
     }
 
     /**
-     * Build an InfoRequestData object with the given data and order results
-     *
-     * @param type           the type of the InfoRequestData object
-     * @param params         all parameters to be given to the InfoPlugin
-     * @param itemToBeFilled the item to automatically be filled after the InfoPlugin fetched the
-     *                       results from its source
-     * @return the created InfoRequestData's requestId
-     */
-    public String resolve(int type, QueryParams params, Object itemToBeFilled) {
-        return resolve(type, params, itemToBeFilled, false);
-    }
-
-    /**
-     * Build an InfoRequestData object with the given data and order results
-     *
-     * @param type                the type of the InfoRequestData object
-     * @param params              all parameters to be given to the InfoPlugin
-     * @param itemToBeFilled      the item to automatically be filled after the InfoPlugin fetched
-     *                            the results from its source
-     * @param isBackgroundRequest boolean indicating whether or not this request should be run with
-     *                            the lowest priority (useful for sync operations)
-     * @return the created InfoRequestData's requestId
-     */
-    public String resolve(int type, QueryParams params, Object itemToBeFilled,
-            boolean isBackgroundRequest) {
-        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
-        InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params,
-                isBackgroundRequest);
-        if (itemToBeFilled != null) {
-            resolve(infoRequestData, itemToBeFilled);
-        } else {
-            resolve(infoRequestData);
-        }
-        return infoRequestData.getRequestId();
-    }
-
-    /**
      * Order results for the given InfoRequestData object
      *
      * @param infoRequestData the InfoRequestData object to fetch results for
@@ -450,19 +400,6 @@ public class InfoSystem {
     public void resolve(InfoRequestData infoRequestData) {
         for (InfoPlugin infoPlugin : mInfoPlugins) {
             infoPlugin.resolve(infoRequestData);
-        }
-    }
-
-    /**
-     * Order results for the given InfoRequestData object
-     *
-     * @param infoRequestData the InfoRequestData object to fetch results for
-     * @param itemToBeFilled  the item to automatically be filled after the InfoPlugin fetched the
-     *                        results from its source
-     */
-    public void resolve(InfoRequestData infoRequestData, Object itemToBeFilled) {
-        for (InfoPlugin infoPlugin : mInfoPlugins) {
-            infoPlugin.resolve(infoRequestData, itemToBeFilled);
         }
     }
 

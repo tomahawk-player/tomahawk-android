@@ -40,35 +40,29 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_ALBUMS = 700;
 
+    public static final int INFOREQUESTDATA_TYPE_ALBUMS_TRACKS = 701;
+
     public static final int INFOREQUESTDATA_TYPE_USERS = 800;
 
-    public static final int INFOREQUESTDATA_TYPE_USERS_PLAYLISTS = 802;
+    public static final int INFOREQUESTDATA_TYPE_USERS_PLAYLISTS = 801;
 
-    public static final int INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS = 803;
+    public static final int INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS = 802;
 
-    public static final int INFOREQUESTDATA_TYPE_USERS_SOCIALACTIONS = 804;
+    public static final int INFOREQUESTDATA_TYPE_USERS_LOVEDALBUMS = 803;
 
-    public static final int INFOREQUESTDATA_TYPE_USERS_FRIENDSFEED = 805;
+    public static final int INFOREQUESTDATA_TYPE_USERS_LOVEDARTISTS = 804;
 
-    public static final int INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG = 806;
+    public static final int INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG = 805;
 
-    public static final int INFOREQUESTDATA_TYPE_USERS_LOGGEDIN_ID = 807;
+    public static final int INFOREQUESTDATA_TYPE_USERS_FOLLOWS = 806;
+
+    public static final int INFOREQUESTDATA_TYPE_USERS_FOLLOWERS = 807;
 
     public static final int INFOREQUESTDATA_TYPE_RELATIONSHIPS = 900;
 
-    public static final int INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWERS = 901;
+    public static final int INFOREQUESTDATA_TYPE_PLAYLISTS = 1000;
 
-    public static final int INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS = 902;
-
-    public static final int INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS = 903;
-
-    public static final int INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS = 904;
-
-    public static final int INFOREQUESTDATA_TYPE_PLAYLISTS_ENTRIES = 1000;
-
-    public static final int INFOREQUESTDATA_TYPE_PLAYLISTS = 1001;
-
-    public static final int INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES = 1002;
+    public static final int INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES = 1001;
 
     public static final int INFOREQUESTDATA_TYPE_SEARCHES = 1100;
 
@@ -235,7 +229,7 @@ public class InfoRequestData {
         return new ArrayList<>();
     }
 
-    public void setResultList(List<Object> objects) {
+    public void setResultList(List objects) {
         if (objects.size() > 0 && objects.get(0) != null) {
             if (mResultListMap == null) {
                 mResultListMap = new HashMap<>();

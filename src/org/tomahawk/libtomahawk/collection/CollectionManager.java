@@ -270,7 +270,7 @@ public class CollectionManager {
                         TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching loved tracks");
-            String requestId = InfoSystem.getInstance().resolveFavorites(
+            String requestId = InfoSystem.getInstance().resolveLovedItems(
                     hatchetAuthUtils.getLoggedInUser());
             if (requestId != null) {
                 mCorrespondingRequestIds.add(requestId);
@@ -293,7 +293,7 @@ public class CollectionManager {
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching starred artists");
             mCorrespondingRequestIds.add(InfoSystem.getInstance().
-                    resolveStarredArtists(hatchetAuthUtils.getLoggedInUser()));
+                    resolveLovedArtists(hatchetAuthUtils.getLoggedInUser()));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching starred artists");
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
@@ -312,7 +312,7 @@ public class CollectionManager {
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching starred albums");
             mCorrespondingRequestIds.add(InfoSystem.getInstance()
-                    .resolveStarredAlbums(hatchetAuthUtils.getLoggedInUser()));
+                    .resolveLovedAlbums(hatchetAuthUtils.getLoggedInUser()));
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching starred albums");
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
@@ -471,14 +471,12 @@ public class CollectionManager {
                         + fetchedList.getEntries().size());
                 DatabaseHelper.getInstance().storePlaylist(fetchedList, true);
             }
-        } else if (data.getType()
-                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDALBUMS) {
+        } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDALBUMS) {
             List<Album> fetchedAlbums = data.getResultList(Album.class);
             Log.d(TAG, "Hatchet sync - received list of starred albums, count: "
                     + fetchedAlbums.size());
             DatabaseHelper.getInstance().storeStarredAlbums(fetchedAlbums);
-        } else if (data.getType()
-                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_STARREDARTISTS) {
+        } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDARTISTS) {
             List<Artist> fetchedArtists = data.getResultList(Artist.class);
             Log.d(TAG, "Hatchet sync - received list of starred artists, count: "
                     + fetchedArtists.size());

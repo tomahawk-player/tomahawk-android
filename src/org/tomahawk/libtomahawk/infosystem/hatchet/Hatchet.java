@@ -17,16 +17,9 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet;
 
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetAlbums;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetArtists;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetCharts;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaybackLogsResponse;
+import com.google.gson.JsonObject;
+
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntries;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetRelationshipsStruct;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSearch;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetSocialActionResponse;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetTracks;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetUsers;
 
 import java.util.List;
 
@@ -44,89 +37,45 @@ import retrofit.mime.TypedInput;
 public interface Hatchet {
 
     @GET("/users")
-    HatchetUsers getUsers(
+    JsonObject getUsers(
             @Query("ids[]") List<String> ids,
             @Query("name") String name,
             @Query("random") String random,
             @Query("count") String count
     );
 
-    @GET("/users/{user-id}/playlists")
-    HatchetPlaylistEntries getUsersPlaylists(
-            @Path("user-id") String user_id
-    );
-
-    @GET("/users/{user-id}/lovedItems")
-    HatchetPlaylistEntries getUsersLovedItems(
-            @Path("user-id") String user_id
-    );
-
-    @GET("/users/{user-id}/socialActions")
-    HatchetSocialActionResponse getUsersSocialActions(
-            @Path("user-id") String user_id,
-            @Query("offset") String offset,
-            @Query("limit") String limit
-    );
-
-    @GET("/users/{user-id}/friendsFeed")
-    HatchetSocialActionResponse getUsersFriendsFeed(
-            @Path("user-id") String user_id,
-            @Query("offset") String offset,
-            @Query("limit") String limit
-    );
-
-    @GET("/users/{user-id}/playbackLog")
-    HatchetPlaybackLogsResponse getUsersPlaybackLog(
-            @Path("user-id") String user_id
-    );
-
-    @GET("/playlists/{playlist-id}/entries")
-    HatchetPlaylistEntries getPlaylistsEntries(
-            @Path("playlist-id") String playlist_id
-    );
-
-    @GET("/playlists/{playlist-id}")
-    HatchetPlaylistEntries getPlaylists(
-            @Path("playlist-id") String playlist_id
+    @GET("/playlists")
+    JsonObject getPlaylists(
+            @Query("ids[]") List<String> ids
     );
 
     @GET("/artists")
-    HatchetArtists getArtists(
+    JsonObject getArtists(
             @Query("ids[]") List<String> ids,
             @Query("name") String name
     );
 
-    @GET("/artists/{artist-id}/albums")
-    HatchetCharts getArtistsAlbums(
-            @Path("artist-id") String artist_id
-    );
-
-    @GET("/artists/{artist-id}/topHits")
-    HatchetCharts getArtistsTopHits(
-            @Path("artist-id") String artist_id
-    );
-
     @GET("/tracks")
-    HatchetTracks getTracks(
+    JsonObject getTracks(
             @Query("ids[]") List<String> ids,
             @Query("name") String name,
             @Query("artist_name") String artist_name
     );
 
     @GET("/albums")
-    HatchetAlbums getAlbums(
+    JsonObject getAlbums(
             @Query("ids[]") List<String> ids,
             @Query("name") String name,
             @Query("artist_name") String artist_name
     );
 
     @GET("/searches")
-    HatchetSearch getSearches(
+    JsonObject getSearches(
             @Query("term") String term
     );
 
     @GET("/relationships")
-    HatchetRelationshipsStruct getRelationships(
+    JsonObject getRelationships(
             @Query("ids[]") List<String> ids,
             @Query("user_id") String user_id,
             @Query("target_type") String target_type,
@@ -137,13 +86,18 @@ public interface Hatchet {
             @Query("type") String type
     );
 
-    @POST("/playbackLogEntries")
+    @GET("/images")
+    JsonObject getImages(
+            @Query("ids[]") List<String> ids
+    );
+
+    @POST("/playbacklogEntries")
     Response postPlaybackLogEntries(
             @Header("Authorization") String accesstoken,
             @Body TypedInput rawBody
     );
 
-    @POST("/playbackLogEntries/nowplaying")
+    @POST("/playbacklogEntries/nowplaying")
     Response postPlaybackLogEntriesNowPlaying(
             @Header("Authorization") String accesstoken,
             @Body TypedInput rawBody
