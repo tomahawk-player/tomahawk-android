@@ -189,94 +189,33 @@ public class InfoSystemUtils {
     }
 
     /**
-     * Convert the given list of trackinfos to a list of queries
-     */
-    public static List<Query> convertToQueries(List<HatchetTrackInfo> tracks, String albumName,
-            String artistName) {
-        List<Query> queries = new ArrayList<>();
-        if (tracks != null) {
-            for (HatchetTrackInfo trackInfo : tracks) {
-                Query query = Query.get(trackInfo.name, albumName,
-                        artistName, false, true);
-                queries.add(query);
-            }
-        }
-        return queries;
-    }
-
-    /**
-     * Fill the given User with the given HatchetUserInfo
-     */
-    public static User fillUser(User user, HatchetUserInfo userInfo, HatchetTrackInfo track,
-            HatchetArtistInfo artist, HatchetImage image) {
-        if (userInfo != null) {
-            if (track != null && artist != null) {
-                user.setNowPlaying(Query.get(track.name, null, artist.name, false));
-            }
-            if (userInfo.about != null) {
-                user.setAbout(userInfo.about);
-            }
-            if (userInfo.followCount >= 0) {
-                user.setFollowCount(userInfo.followCount);
-            }
-            if (userInfo.followersCount >= 0) {
-                user.setFollowersCount(userInfo.followersCount);
-            }
-            if (userInfo.totalPlays >= 0) {
-                user.setTotalPlays(userInfo.totalPlays);
-            }
-            user.setNowPlayingTimeStamp(userInfo.nowplayingtimestamp);
-            if (user.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
-                user.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
-                        image.width, image.height));
-            }
-        }
-        return user;
-    }
-
-    /**
      * Convert the given HatchetUserInfo into a User object
      */
     public static User convertToUser(HatchetUserInfo userInfo, HatchetTrackInfo track,
             HatchetArtistInfo artist, HatchetImage image) {
         User user = User.get(userInfo.id);
         user.setName(userInfo.name);
-        fillUser(user, userInfo, track, artist, image);
-        return user;
-    }
-
-    /**
-     * Fill the given SocialAction with the given HatchetSocialAction
-     */
-    public static SocialAction fillSocialAction(SocialAction socialAction,
-            HatchetSocialAction hatchetSocialAction, HatchetTrackInfo track,
-            HatchetArtistInfo artist, HatchetAlbumInfo album, HatchetUserInfo user,
-            HatchetUserInfo target, HatchetPlaylistInfo playlist) {
-        if (hatchetSocialAction != null) {
-            socialAction.setAction(hatchetSocialAction.action);
-            socialAction.setDate(hatchetSocialAction.date);
-            socialAction.setTimeStamp(hatchetSocialAction.timestamp);
-            socialAction.setType(hatchetSocialAction.type);
-            if (hatchetSocialAction.track != null) {
-                socialAction.setQuery(Query.get(track.name, null, artist.name, false));
-            }
-            if (hatchetSocialAction.artist != null) {
-                socialAction.setArtist(convertToArtist(artist, null));
-            }
-            if (hatchetSocialAction.album != null) {
-                socialAction.setAlbum(convertToAlbum(album, artist.name, null));
-            }
-            if (hatchetSocialAction.user != null) {
-                socialAction.setUser(convertToUser(user, null, null, null));
-            }
-            if (hatchetSocialAction.target != null) {
-                socialAction.setTarget(convertToUser(target, null, null, null));
-            }
-            if (hatchetSocialAction.playlist != null) {
-                socialAction.setPlaylist(convertToPlaylist(playlist));
-            }
+        if (track != null && artist != null) {
+            user.setNowPlaying(Query.get(track.name, null, artist.name, false));
         }
-        return socialAction;
+        if (userInfo.about != null) {
+            user.setAbout(userInfo.about);
+        }
+        if (userInfo.followCount >= 0) {
+            user.setFollowCount(userInfo.followCount);
+        }
+        if (userInfo.followersCount >= 0) {
+            user.setFollowersCount(userInfo.followersCount);
+        }
+        if (userInfo.totalPlays >= 0) {
+            user.setTotalPlays(userInfo.totalPlays);
+        }
+        user.setNowPlayingTimeStamp(userInfo.nowplayingtimestamp);
+        if (user.getImage() == null && image != null && !TextUtils.isEmpty(image.squareurl)) {
+            user.setImage(org.tomahawk.libtomahawk.collection.Image.get(image.squareurl, true,
+                    image.width, image.height));
+        }
+        return user;
     }
 
     /**
@@ -286,8 +225,28 @@ public class InfoSystemUtils {
             HatchetTrackInfo track, HatchetArtistInfo artist, HatchetAlbumInfo album,
             HatchetUserInfo user, HatchetUserInfo target, HatchetPlaylistInfo playlist) {
         SocialAction socialAction = SocialAction.get(hatchetSocialAction.id);
-        fillSocialAction(socialAction, hatchetSocialAction, track, artist, album, user, target,
-                playlist);
+        socialAction.setAction(hatchetSocialAction.action);
+        socialAction.setDate(hatchetSocialAction.date);
+        socialAction.setTimeStamp(hatchetSocialAction.timestamp);
+        socialAction.setType(hatchetSocialAction.type);
+        if (hatchetSocialAction.track != null) {
+            socialAction.setQuery(Query.get(track.name, null, artist.name, false));
+        }
+        if (hatchetSocialAction.artist != null) {
+            socialAction.setArtist(convertToArtist(artist, null));
+        }
+        if (hatchetSocialAction.album != null) {
+            socialAction.setAlbum(convertToAlbum(album, artist.name, null));
+        }
+        if (hatchetSocialAction.user != null) {
+            socialAction.setUser(convertToUser(user, null, null, null));
+        }
+        if (hatchetSocialAction.target != null) {
+            socialAction.setTarget(convertToUser(target, null, null, null));
+        }
+        if (hatchetSocialAction.playlist != null) {
+            socialAction.setPlaylist(convertToPlaylist(playlist));
+        }
         return socialAction;
     }
 

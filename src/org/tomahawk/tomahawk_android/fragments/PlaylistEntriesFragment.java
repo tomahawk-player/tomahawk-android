@@ -61,7 +61,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     mCorrespondingRequestIds.add(requestId);
                 }
             } else if (mPlaylist == mUser.getFavorites()) {
-                String requestId = InfoSystem.getInstance().resolveFavorites(mUser);
+                String requestId = InfoSystem.getInstance().resolveLovedItems(mUser);
                 if (requestId != null) {
                     mCorrespondingRequestIds.add(requestId);
                 }

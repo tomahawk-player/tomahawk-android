@@ -205,8 +205,7 @@ public class UserPagerFragment extends PagerFragment {
                 mCorrespondingRequestIds.add(requestId);
             }
         }
-        if (infoRequestData.getType()
-                == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS_USERS_FOLLOWINGS) {
+        if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FOLLOWS) {
             mShowFakeFollowing = false;
             mShowFakeNotFollowing = false;
         }
