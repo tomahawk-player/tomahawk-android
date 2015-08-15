@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -75,6 +76,21 @@ public class SocialActionsFragment extends TomahawkFragment implements
         if (mRandomUsersRequestId != null
                 && mRandomUsersRequestId.equals(event.mInfoRequestData.getRequestId())) {
             mSuggestedUsers = event.mInfoRequestData.getResultList(User.class);
+        }
+        if (event.mInfoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
+            if (HatchetInfoPlugin.HATCHET_SOCIALACTION_PARAMTYPE_FRIENDSFEED
+                    .equals(event.mInfoRequestData.getQueryParams().type)) {
+                int pageNumber = Integer.valueOf(event.mInfoRequestData.getQueryParams().offset) /
+                        HatchetInfoPlugin.FRIENDSFEED_LIMIT;
+                mUser.setFriendsFeed(event.mInfoRequestData.getResultList(SocialAction.class),
+                        pageNumber);
+            } else {
+                int pageNumber = Integer.valueOf(event.mInfoRequestData.getQueryParams().offset) /
+                        HatchetInfoPlugin.SOCIALACTIONS_LIMIT;
+                mUser.setSocialActions(event.mInfoRequestData.getResultList(SocialAction.class),
+                        pageNumber);
+            }
         }
     }
 

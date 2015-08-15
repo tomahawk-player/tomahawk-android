@@ -251,6 +251,7 @@ public class InfoSystem {
         if (user != null) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
+            params.type = HatchetInfoPlugin.HATCHET_SOCIALACTION_PARAMTYPE_FRIENDSFEED;
             params.offset = String.valueOf(pageNumber * HatchetInfoPlugin.FRIENDSFEED_LIMIT);
             params.limit = String.valueOf(HatchetInfoPlugin.FRIENDSFEED_LIMIT);
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, params);
@@ -267,7 +268,8 @@ public class InfoSystem {
     public String resolvePlaybackLog(User user) {
         if (user != null) {
             QueryParams params = new QueryParams();
-            params.userid = user.getId();
+            params.ids = new ArrayList<>();
+            params.ids.add(user.getId());
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYBACKLOG, params);
         }
         return null;
@@ -282,7 +284,8 @@ public class InfoSystem {
     public String resolveLovedItems(User user) {
         if (user != null) {
             QueryParams params = new QueryParams();
-            params.userid = user.getId();
+            params.ids = new ArrayList<>();
+            params.ids.add(user.getId());
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDITEMS, params, true);
         }
         return null;
@@ -297,8 +300,8 @@ public class InfoSystem {
     public String resolveFollowings(User user) {
         if (user != null) {
             QueryParams params = new QueryParams();
-            params.userid = user.getId();
-            params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW;
+            params.ids = new ArrayList<>();
+            params.ids.add(user.getId());
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FOLLOWS, params);
         }
         return null;
@@ -313,8 +316,8 @@ public class InfoSystem {
     public String resolveFollowers(User user) {
         if (user != null) {
             QueryParams params = new QueryParams();
-            params.targetuserid = user.getId();
-            params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW;
+            params.ids = new ArrayList<>();
+            params.ids.add(user.getId());
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FOLLOWERS, params);
         }
         return null;
@@ -326,13 +329,13 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolveLovedAlbums(User user) {
-        QueryParams params = new QueryParams();
         if (user != null) {
-            params.userid = user.getId();
+            QueryParams params = new QueryParams();
+            params.ids = new ArrayList<>();
+            params.ids.add(user.getId());
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDALBUMS, params, true);
         }
-        params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE;
-        params.targettype = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ALBUM;
-        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDALBUMS, params, true);
+        return null;
     }
 
     /**
@@ -341,13 +344,13 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolveLovedArtists(User user) {
-        QueryParams params = new QueryParams();
         if (user != null) {
-            params.userid = user.getId();
+            QueryParams params = new QueryParams();
+            params.ids = new ArrayList<>();
+            params.ids.add(user.getId());
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDARTISTS, params, true);
         }
-        params.type = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE;
-        params.targettype = HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TARGETTYPE_ARTIST;
-        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDARTISTS, params, true);
+        return null;
     }
 
     public String resolvePlaylists(User user, boolean isBackgroundRequest) {

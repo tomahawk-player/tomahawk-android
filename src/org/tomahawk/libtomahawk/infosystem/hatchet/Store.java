@@ -9,6 +9,7 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
 import org.tomahawk.libtomahawk.collection.Album;
+import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.ListItemString;
@@ -121,10 +122,10 @@ public class Store {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
                     JsonObject o = (JsonObject) element;
-                    String id = get(o, "id").getAsString();
-                    String url = get(o, "url").getAsString();
-                    int width = get(o, "width").getAsInt();
-                    int height = get(o, "height").getAsInt();
+                    String id = getAsString(o, "id");
+                    String url = getAsString(o, "url");
+                    int width = getAsInt(o, "width");
+                    int height = getAsInt(o, "height");
                     Image image = Image.get(url, true, width, height);
                     mCache.get(TYPE_IMAGES).put(id, image);
                     if (resultType == TYPE_IMAGES) {
@@ -138,9 +139,9 @@ public class Store {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
                     JsonObject o = (JsonObject) element;
-                    String id = get(o, "id").getAsString();
-                    String name = get(o, "name").getAsString();
-                    String wiki = get(o, "wikiabstract").getAsString();
+                    String id = getAsString(o, "id");
+                    String name = getAsString(o, "name");
+                    String wiki = getAsString(o, "wikiabstract");
                     Artist artist = Artist.get(name);
                     artist.setBio(new ListItemString(wiki));
                     JsonElement images = get(o, "images");
@@ -177,9 +178,9 @@ public class Store {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
                     JsonObject o = (JsonObject) element;
-                    String id = get(o, "id").getAsString();
-                    String name = get(o, "name").getAsString();
-                    String artistId = get(o, "artist").getAsString();
+                    String id = getAsString(o, "id");
+                    String name = getAsString(o, "name");
+                    String artistId = getAsString(o, "artist");
                     Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
                     Album album = Album.get(name, artist);
                     JsonElement images = get(o, "images");
@@ -208,9 +209,9 @@ public class Store {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
                     JsonObject o = (JsonObject) element;
-                    String id = get(o, "id").getAsString();
-                    String name = get(o, "name").getAsString();
-                    String artistId = get(o, "artist").getAsString();
+                    String id = getAsString(o, "id");
+                    String name = getAsString(o, "name");
+                    String artistId = getAsString(o, "artist");
                     Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
                     Query query = Query.get(name, null, artist.getName(), false, true);
                     mCache.get(TYPE_TRACKS).put(id, query);
@@ -225,22 +226,22 @@ public class Store {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
                     JsonObject o = (JsonObject) element;
-                    String id = get(o, "id").getAsString();
+                    String id = getAsString(o, "id");
                     User user = User.get(id);
-                    String name = get(o, "name").getAsString();
+                    String name = getAsString(o, "name");
                     user.setName(name);
-                    String about = get(o, "about").getAsString();
+                    String about = getAsString(o, "about");
                     user.setAbout(about);
-                    int followersCount = get(o, "followersCount").getAsInt();
+                    int followersCount = getAsInt(o, "followersCount");
                     user.setFollowersCount(followersCount);
-                    int followCount = get(o, "followCount").getAsInt();
+                    int followCount = getAsInt(o, "followCount");
                     user.setFollowCount(followCount);
-                    String nowplayingId = get(o, "nowplaying").getAsString();
+                    String nowplayingId = getAsString(o, "nowplaying");
                     if (nowplayingId != null) {
                         Query nowplaying = (Query) findRecord(nowplayingId, TYPE_TRACKS);
                         user.setNowPlaying(nowplaying);
                     }
-                    String nowplayingtimestamp = get(o, "nowplayingtimestamp").getAsString();
+                    String nowplayingtimestamp = getAsString(o, "nowplayingtimestamp");
                     user.setNowPlayingTimeStamp(ISO8601Utils.parse(nowplayingtimestamp));
 
                     if (requestType
@@ -299,12 +300,13 @@ public class Store {
                             storeRecords(follows, -1);
                             JsonElement relationships = get(follows, "relationships");
                             if (relationships instanceof JsonArray) {
-                                TreeMap<User, String> followsMap = new TreeMap<>();
+                                TreeMap<User, String> followsMap =
+                                        new TreeMap<>(new AlphaComparator());
                                 for (JsonElement relationship : (JsonArray) relationships) {
-                                    String relationshipId = get((JsonObject) relationship, "id")
-                                            .getAsString();
-                                    String userId = get((JsonObject) relationship,
-                                            isFollows ? "targetUser" : "user").getAsString();
+                                    JsonObject relationshipObj = (JsonObject) relationship;
+                                    String relationshipId = getAsString(relationshipObj, "id");
+                                    String userId = getAsString(relationshipObj,
+                                            isFollows ? "targetUser" : "user");
                                     User followedUser = (User) findRecord(userId, TYPE_USERS);
                                     followsMap.put(followedUser, relationshipId);
                                 }
@@ -338,8 +340,8 @@ public class Store {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
                     JsonObject o = (JsonObject) element;
-                    String id = get(o, "id").getAsString();
-                    String trackId = get(o, "track").getAsString();
+                    String id = getAsString(o, "id");
+                    String trackId = getAsString(o, "track");
                     Query query = (Query) findRecord(trackId, TYPE_TRACKS);
                     mCache.get(TYPE_PLAYLISTENTRIES).put(id, query);
                     if (resultType == TYPE_PLAYLISTENTRIES) {
@@ -353,9 +355,9 @@ public class Store {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
                     JsonObject o = (JsonObject) element;
-                    String id = get(o, "id").getAsString();
-                    String title = get(o, "title").getAsString();
-                    String currentrevision = get(o, "currentrevision").getAsString();
+                    String id = getAsString(o, "id");
+                    String title = getAsString(o, "title");
+                    String currentrevision = getAsString(o, "currentrevision");
                     Playlist playlist =
                             Playlist.fromQueryList(title, currentrevision, new ArrayList<Query>());
                     playlist.setHatchetId(id);
@@ -380,8 +382,8 @@ public class Store {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
                     JsonObject o = (JsonObject) element;
-                    String id = get(o, "id").getAsString();
-                    String trackId = get(o, "track").getAsString();
+                    String id = getAsString(o, "id");
+                    String trackId = getAsString(o, "track");
                     Query query = (Query) findRecord(trackId, TYPE_TRACKS);
                     mCache.get(TYPE_PLAYLISTENTRIES).put(id, query);
                     if (resultType == TYPE_PLAYLISTENTRIES) {
@@ -393,7 +395,7 @@ public class Store {
         elements = object.get("playbacklog");
         if (elements instanceof JsonObject) {
             JsonObject o = (JsonObject) elements;
-            String id = get(o, "id").getAsString();
+            String id = getAsString(o, "id");
             JsonArray playbacklogEntries = get(o, "playbacklogEntries").getAsJsonArray();
             ArrayList<Query> queries = new ArrayList<>();
             for (JsonElement element : playbacklogEntries) {
@@ -413,40 +415,40 @@ public class Store {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
                     JsonObject o = (JsonObject) element;
-                    String id = get(o, "id").getAsString();
+                    String id = getAsString(o, "id");
                     SocialAction socialAction = SocialAction.get(id);
-                    String action = get(o, "action").getAsString();
+                    String action = getAsString(o, "action");
                     socialAction.setAction(action);
-                    String date = get(o, "date").getAsString();
+                    String date = getAsString(o, "date");
                     socialAction.setDate(ISO8601Utils.parse(date));
-                    String actionType = get(o, "type").getAsString();
+                    String actionType = getAsString(o, "type");
                     socialAction.setType(actionType);
-                    String trackId = get(o, "track").getAsString();
+                    String trackId = getAsString(o, "track");
                     if (trackId != null) {
                         Query query = (Query) findRecord(trackId, TYPE_TRACKS);
                         socialAction.setQuery(query);
                     }
-                    String artistId = get(o, "artist").getAsString();
+                    String artistId = getAsString(o, "artist");
                     if (artistId != null) {
                         Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
                         socialAction.setArtist(artist);
                     }
-                    String albumId = get(o, "album").getAsString();
+                    String albumId = getAsString(o, "album");
                     if (albumId != null) {
                         Album album = (Album) findRecord(albumId, TYPE_ALBUMS);
                         socialAction.setAlbum(album);
                     }
-                    String userId = get(o, "user").getAsString();
+                    String userId = getAsString(o, "user");
                     if (userId != null) {
                         User user = (User) findRecord(userId, TYPE_USERS);
                         socialAction.setUser(user);
                     }
-                    String targetId = get(o, "target").getAsString();
+                    String targetId = getAsString(o, "target");
                     if (targetId != null) {
                         User target = (User) findRecord(targetId, TYPE_USERS);
                         socialAction.setTarget(target);
                     }
-                    String playlistId = get(o, "playlist").getAsString();
+                    String playlistId = getAsString(o, "playlist");
                     if (playlistId != null) {
                         Playlist playlist = (Playlist) findRecord(playlistId, TYPE_PLAYLISTS);
                         socialAction.setPlaylist(playlist);
@@ -463,31 +465,27 @@ public class Store {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
                     JsonObject o = (JsonObject) element;
-                    String id = get(o, "id").getAsString();
-                    float score = get(o, "score").getAsFloat();
+                    String id = getAsString(o, "id");
+                    float score = getAsFloat(o, "score");
                     SearchResult searchResult = null;
-                    JsonElement trackElement = get(o, "track");
-                    if (trackElement != null) {
-                        String trackId = trackElement.getAsString();
+                    String trackId = getAsString(o, "track");
+                    if (trackId != null) {
                         Query query = (Query) findRecord(trackId, TYPE_TRACKS);
                         searchResult = new SearchResult(score, query);
                     }
-                    JsonElement artistElement = get(o, "artist");
-                    if (artistElement != null) {
-                        String artistId = artistElement.getAsString();
+                    String artistId = getAsString(o, "artist");
+                    if (artistId != null) {
                         Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
                         searchResult = new SearchResult(score, artist);
                     }
-                    JsonElement albumElement = get(o, "album");
-                    if (albumElement != null) {
-                        String albumId = albumElement.getAsString();
+                    String albumId = getAsString(o, "album");
+                    if (albumId != null) {
                         Album album = (Album) findRecord(albumId, TYPE_ALBUMS);
                         searchResult = new SearchResult(score, album);
                     }
-                    JsonElement userElement = get(o, "user");
-                    if (userElement != null) {
-                        String albumId = userElement.getAsString();
-                        User album = (User) findRecord(albumId, TYPE_USERS);
+                    String userId = getAsString(o, "user");
+                    if (userId != null) {
+                        User album = (User) findRecord(userId, TYPE_USERS);
                         searchResult = new SearchResult(score, album);
                     }
                     if (searchResult == null) {
@@ -518,6 +516,30 @@ public class Store {
             }
         }
         return results;
+    }
+
+    public int getAsInt(JsonObject object, String memberName) throws IOException {
+        JsonElement element = get(object, memberName);
+        if (element != null && element.isJsonPrimitive()) {
+            return element.getAsInt();
+        }
+        return -1;
+    }
+
+    public float getAsFloat(JsonObject object, String memberName) throws IOException {
+        JsonElement element = get(object, memberName);
+        if (element != null && element.isJsonPrimitive()) {
+            return element.getAsFloat();
+        }
+        return -1;
+    }
+
+    public String getAsString(JsonObject object, String memberName) throws IOException {
+        JsonElement element = get(object, memberName);
+        if (element != null && element.isJsonPrimitive()) {
+            return element.getAsString();
+        }
+        return null;
     }
 
     public JsonElement get(JsonObject object, String memberName) throws IOException {

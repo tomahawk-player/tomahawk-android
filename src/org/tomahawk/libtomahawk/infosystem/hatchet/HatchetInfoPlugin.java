@@ -81,6 +81,8 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
     public static final String HATCHET_SEARCHITEM_TYPE_USER = "user";
 
+    public static final String HATCHET_SOCIALACTION_PARAMTYPE_FRIENDSFEED = "friendsFeed";
+
     public static final String HATCHET_SOCIALACTION_TYPE_LOVE = "love";
 
     public static final String HATCHET_SOCIALACTION_TYPE_FOLLOW = "follow";
@@ -279,10 +281,17 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 infoRequestData.setResultList(albums);
                 return true;
 
-            } else if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
+            } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
                 JsonObject object = hatchet.getSearches(params.term);
                 List searches = mStore.storeRecords(object, Store.TYPE_SEARCHES, type);
                 infoRequestData.setResultList(searches);
+                return true;
+
+            } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
+                JsonObject object = hatchet.getSocialActions(null, params.userid, params.type,
+                        params.offset, params.limit);
+                List socialActions = mStore.storeRecords(object, Store.TYPE_SOCIALACTIONS, type);
+                infoRequestData.setResultList(socialActions);
                 return true;
             }
         } catch (RetrofitError e) {

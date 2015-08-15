@@ -86,6 +86,15 @@ public interface Hatchet {
             @Query("type") String type
     );
 
+    @GET("/socialActions")
+    JsonObject getSocialActions(
+            @Query("ids[]") List<String> ids,
+            @Query("user_id") String user_id,
+            @Query("type") String type,
+            @Query("offset") String offset,
+            @Query("limit") String limit
+    );
+
     @GET("/images")
     JsonObject getImages(
             @Query("ids[]") List<String> ids
