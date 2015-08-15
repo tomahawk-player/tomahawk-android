@@ -36,17 +36,10 @@ public class ScriptInfoPlugin implements InfoPlugin, ScriptPlugin {
 
     @Override
     public void send(InfoRequestData infoRequestData, AuthenticatorUtils authenticatorUtils) {
-
     }
 
     @Override
     public void resolve(InfoRequestData infoRequestData) {
-
-    }
-
-    @Override
-    public void resolve(InfoRequestData infoRequestData, Object itemToBeFilled) {
-
     }
 
     @Override
