@@ -155,15 +155,13 @@ public class Store {
                             == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
                         JsonElement rawAlbums = get(o, "albums");
                         if (rawAlbums instanceof JsonObject) {
-                            List albums = storeRecords((JsonObject) rawAlbums, TYPE_ALBUMS);
-                            results.add(albums);
+                            results.addAll(storeRecords((JsonObject) rawAlbums, TYPE_ALBUMS));
                         }
                     } else if (requestType
                             == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
                         JsonElement rawTopHits = get(o, "topHits");
                         if (rawTopHits instanceof JsonObject) {
-                            List tracks = storeRecords((JsonObject) rawTopHits, TYPE_TRACKS);
-                            results.add(tracks);
+                            results.addAll(storeRecords((JsonObject) rawTopHits, TYPE_TRACKS));
                         }
                     }
                     mCache.get(TYPE_ARTISTS).put(id, artist);
@@ -193,8 +191,7 @@ public class Store {
                     if (requestType == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS_TRACKS) {
                         JsonElement rawTracks = get(o, "tracks");
                         if (rawTracks instanceof JsonObject) {
-                            List tracks = storeRecords((JsonObject) rawTracks, TYPE_TRACKS);
-                            results.add(tracks);
+                            results.addAll(storeRecords((JsonObject) rawTracks, TYPE_TRACKS));
                         }
                     }
                     mCache.get(TYPE_ALBUMS).put(id, album);
@@ -361,13 +358,20 @@ public class Store {
                     Playlist playlist =
                             Playlist.fromQueryList(title, currentrevision, new ArrayList<Query>());
                     playlist.setHatchetId(id);
-                    JsonElement entries = get(o, "playlistEntries");
-                    if (entries instanceof JsonArray) {
-                        playlist.setEntries(new ArrayList<PlaylistEntry>());
-                        for (JsonElement entry : (JsonArray) entries) {
-                            String entryId = entry.getAsString();
-                            Query query = (Query) findRecord(entryId, TYPE_PLAYLISTENTRIES);
-                            playlist.addQuery(query);
+                    if (requestType
+                            == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
+                        JsonElement rawEntries = get(o, "playlistEntries");
+                        if (rawEntries instanceof JsonObject) {
+                            storeRecords((JsonObject) rawEntries, -1);
+                            JsonElement entryIds = get((JsonObject) rawEntries, "playlistEntries");
+                            if (entryIds instanceof JsonArray) {
+                                playlist.setEntries(new ArrayList<PlaylistEntry>());
+                                for (JsonElement entry : (JsonArray) entryIds) {
+                                    String entryId = entry.getAsString();
+                                    Query query = (Query) findRecord(entryId, TYPE_PLAYLISTENTRIES);
+                                    playlist.addQuery(query);
+                                }
+                            }
                         }
                     }
                     mCache.get(TYPE_PLAYLISTS).put(id, playlist);
@@ -393,21 +397,25 @@ public class Store {
             }
         }
         elements = object.get("playbacklog");
-        if (elements instanceof JsonObject) {
-            JsonObject o = (JsonObject) elements;
-            String id = getAsString(o, "id");
-            JsonArray playbacklogEntries = get(o, "playbacklogEntries").getAsJsonArray();
-            ArrayList<Query> queries = new ArrayList<>();
-            for (JsonElement element : playbacklogEntries) {
-                String entryId = element.getAsString();
-                Query query = (Query) findRecord(entryId, TYPE_TRACKS);
-                queries.add(query);
-            }
-            Playlist playlist = Playlist.fromQueryList("Playbacklog", null, queries);
-            playlist.setHatchetId(id);
-            mCache.get(TYPE_PLAYLISTS).put(id, playlist);
-            if (resultType == TYPE_PLAYLISTS) {
-                results.add(playlist);
+        if (elements instanceof JsonArray) {
+            for (JsonElement element : (JsonArray) elements) {
+                if (element instanceof JsonObject) {
+                    JsonObject o = (JsonObject) elements;
+                    String id = getAsString(o, "id");
+                    JsonArray playbacklogEntries = get(o, "playbacklogEntries").getAsJsonArray();
+                    ArrayList<Query> queries = new ArrayList<>();
+                    for (JsonElement entry : playbacklogEntries) {
+                        String entryId = entry.getAsString();
+                        Query query = (Query) findRecord(entryId, TYPE_TRACKS);
+                        queries.add(query);
+                    }
+                    Playlist playlist = Playlist.fromQueryList("Playbacklog", null, queries);
+                    playlist.setHatchetId(id);
+                    mCache.get(TYPE_PLAYLISTS).put(id, playlist);
+                    if (resultType == TYPE_PLAYLISTS) {
+                        results.add(playlist);
+                    }
+                }
             }
         }
         elements = object.get("socialActions");
@@ -485,8 +493,13 @@ public class Store {
                     }
                     String userId = getAsString(o, "user");
                     if (userId != null) {
-                        User album = (User) findRecord(userId, TYPE_USERS);
-                        searchResult = new SearchResult(score, album);
+                        User user = (User) findRecord(userId, TYPE_USERS);
+                        searchResult = new SearchResult(score, user);
+                    }
+                    String playlistId = getAsString(o, "playlist");
+                    if (playlistId != null) {
+                        Playlist playlist = (Playlist) findRecord(playlistId, TYPE_PLAYLISTS);
+                        searchResult = new SearchResult(score, playlist);
                     }
                     if (searchResult == null) {
                         throw new IOException("searchResult contained no actual result object!");
@@ -499,20 +512,25 @@ public class Store {
             }
         }
         elements = object.get("searches");
-        if (elements instanceof JsonObject) {
-            JsonObject o = (JsonObject) elements;
-            String id = get(o, "id").getAsString();
-            JsonArray playbacklogEntries = get(o, "searchResults").getAsJsonArray();
-            ArrayList<SearchResult> searchResults = new ArrayList<>();
-            for (JsonElement element : playbacklogEntries) {
-                String entryId = element.getAsString();
-                SearchResult searchResult = (SearchResult) findRecord(entryId, TYPE_SEARCHRESULTS);
-                searchResults.add(searchResult);
-            }
-            Search search = new Search(searchResults);
-            mCache.get(TYPE_SEARCHES).put(id, search);
-            if (resultType == TYPE_SEARCHES) {
-                results.add(search);
+        if (elements instanceof JsonArray) {
+            for (JsonElement element : (JsonArray) elements) {
+                if (element instanceof JsonObject) {
+                    JsonObject o = (JsonObject) element;
+                    String id = get(o, "id").getAsString();
+                    JsonArray rawSearchResults = get(o, "searchResults").getAsJsonArray();
+                    ArrayList<SearchResult> searchResults = new ArrayList<>();
+                    for (JsonElement rawSearchResult : rawSearchResults) {
+                        String resultId = rawSearchResult.getAsString();
+                        SearchResult searchResult =
+                                (SearchResult) findRecord(resultId, TYPE_SEARCHRESULTS);
+                        searchResults.add(searchResult);
+                    }
+                    Search search = new Search(searchResults);
+                    mCache.get(TYPE_SEARCHES).put(id, search);
+                    if (resultType == TYPE_SEARCHES) {
+                        results.add(search);
+                    }
+                }
             }
         }
         return results;

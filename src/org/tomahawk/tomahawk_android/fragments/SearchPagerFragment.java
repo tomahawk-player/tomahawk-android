@@ -23,6 +23,8 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.infosystem.hatchet.Search;
+import org.tomahawk.libtomahawk.infosystem.hatchet.SearchResult;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
@@ -58,8 +60,6 @@ public class SearchPagerFragment extends PagerFragment {
     private final ArrayList<String> mSongIds = new ArrayList<>();
 
     private final ArrayList<String> mUserIds = new ArrayList<>();
-
-    private Image mContentHeaderImage;
 
     private SearchFragmentReceiver mSearchFragmentReceiver;
 
@@ -140,7 +140,7 @@ public class SearchPagerFragment extends PagerFragment {
             getActivity().setTitle(mCurrentQueryString);
         }
 
-        showContentHeader(mContentHeaderImage);
+        showContentHeader(null);
 
         updatePager(initialPage);
     }
@@ -267,26 +267,37 @@ public class SearchPagerFragment extends PagerFragment {
 
     @Override
     protected void onInfoSystemResultsReported(InfoRequestData infoRequestData) {
-        for (Artist artist : infoRequestData.getResultList(Artist.class)) {
-            if (mContentHeaderImage == null && artist.getImage() != null) {
-                mContentHeaderImage = artist.getImage();
-                showContentHeader(mContentHeaderImage);
+        List<Search> results = infoRequestData.getResultList(Search.class);
+        if (results != null && results.size() > 0) {
+            Search search = results.get(0);
+            float maxScore = 0f;
+            Image contentHeaderImage = null;
+            for (SearchResult result : search.getSearchResults()) {
+                Object resultObject = result.getResult();
+                if (resultObject instanceof Artist) {
+                    Artist artist = (Artist) resultObject;
+                    mArtistIds.add(artist.getCacheKey());
+                    if (artist.getImage() != null && result.getScore() > maxScore) {
+                        maxScore = result.getScore();
+                        contentHeaderImage = artist.getImage();
+                    }
+                } else if (resultObject instanceof Album) {
+                    Album album = (Album) resultObject;
+                    mAlbumIds.add(album.getCacheKey());
+                    if (album.getImage() != null && result.getScore() > maxScore) {
+                        maxScore = result.getScore();
+                        contentHeaderImage = album.getImage();
+                    }
+                } else if (resultObject instanceof User) {
+                    User user = (User) resultObject;
+                    mUserIds.add(user.getCacheKey());
+                    if (user.getImage() != null && result.getScore() > maxScore) {
+                        maxScore = result.getScore();
+                        contentHeaderImage = user.getImage();
+                    }
+                }
             }
-            mArtistIds.add(artist.getCacheKey());
-        }
-        for (Album album : infoRequestData.getResultList(Album.class)) {
-            if (mContentHeaderImage == null && album.getImage() != null) {
-                mContentHeaderImage = album.getImage();
-                showContentHeader(mContentHeaderImage);
-            }
-            mAlbumIds.add(album.getCacheKey());
-        }
-        for (User user : infoRequestData.getResultList(User.class)) {
-            if (mContentHeaderImage == null && user.getImage() != null) {
-                mContentHeaderImage = user.getImage();
-                showContentHeader(mContentHeaderImage);
-            }
-            mUserIds.add(user.getCacheKey());
+            showContentHeader(contentHeaderImage);
         }
         updatePager();
     }

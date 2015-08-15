@@ -270,8 +270,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 infoRequestData.setResultList(topHits);
                 return true;
 
-            } else if (type >= InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS
-                    && type < InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS + 100) {
+            } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
                 JsonObject object = hatchet.getAlbums(params.ids, params.name, params.artistname);
                 List albums = mStore.storeRecords(object, Store.TYPE_ALBUMS, type);
                 for (Object albumObject : albums) {
@@ -279,6 +278,15 @@ public class HatchetInfoPlugin implements InfoPlugin {
                     hatchetCollection.addAlbum(album);
                 }
                 infoRequestData.setResultList(albums);
+                return true;
+
+            } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS_TRACKS) {
+                JsonObject object = hatchet.getAlbums(params.ids, params.name, params.artistname);
+                List tracks = mStore.storeRecords(object, Store.TYPE_TRACKS, type);
+                Artist artist = Artist.get(params.artistname);
+                Album album = Album.get(params.name, artist);
+                hatchetCollection.addAlbumTracks(album, tracks);
+                infoRequestData.setResultList(tracks);
                 return true;
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
@@ -342,7 +350,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
                                 HatchetPlaylistEntries entries = hatchet.postPlaylists(accessToken,
                                         new TypedByteArray("application/json; charset=utf-8",
                                                 data.getBytes(Charsets.UTF_8)));
-                                infoRequestData.setResult(entries);
+                                List<HatchetPlaylistEntries> results = new ArrayList<>();
+                                results.add(entries);
+                                infoRequestData.setResultList(results);
                             } else if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_DELETE) {
                                 hatchet.deletePlaylists(accessToken,

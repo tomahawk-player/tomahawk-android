@@ -95,11 +95,6 @@ public class InfoRequestData {
     private boolean mIsBackgroundRequest;
 
     /**
-     * Storage member-variable. Used if a single object is the result.
-     */
-    private Map<Class, Object> mResultMap;
-
-    /**
      * Storage member-variable. Used if one or several list of objects are the result.
      */
     private Map<Class, List<Object>> mResultListMap;
@@ -198,25 +193,6 @@ public class InfoRequestData {
 
     public int getHttpType() {
         return mHttpType;
-    }
-
-    public <T> T getResult(Class<T> clss) {
-        if (mResultMap != null) {
-            Object object = mResultMap.get(clss);
-            if (object != null && object.getClass() == clss) {
-                return (T) object;
-            }
-        }
-        return null;
-    }
-
-    public void setResult(Object object) {
-        if (object != null) {
-            if (mResultMap == null) {
-                mResultMap = new HashMap<>();
-            }
-            mResultMap.put(object.getClass(), object);
-        }
     }
 
     public <T> List<T> getResultList(Class<T> clss) {

@@ -165,7 +165,7 @@ public class InfoSystem {
             QueryParams params = new QueryParams();
             params.name = album.getName();
             params.artistname = album.getArtist().getName();
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS, params);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS_TRACKS, params);
         }
         return null;
     }
@@ -659,13 +659,16 @@ public class InfoSystem {
                         == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
                     playlistIds.add(loggedOp.getQueryParams().playlist_local_id);
                 } else if (loggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
-                    HatchetPlaylistEntries entries =
-                            loggedOp.getResult(HatchetPlaylistEntries.class);
-                    if (entries != null && entries.playlists.size() > 0) {
-                        playlistIds.add(entries.playlists.get(0).id);
-                        DatabaseHelper.getInstance().updatePlaylistHatchetId(
-                                loggedOp.getQueryParams().playlist_local_id,
-                                entries.playlists.get(0).id);
+                    List<HatchetPlaylistEntries> results =
+                            loggedOp.getResultList(HatchetPlaylistEntries.class);
+                    if (results != null && results.size() > 0) {
+                        HatchetPlaylistEntries entries = results.get(0);
+                        if (entries != null && entries.playlists.size() > 0) {
+                            playlistIds.add(entries.playlists.get(0).id);
+                            DatabaseHelper.getInstance().updatePlaylistHatchetId(
+                                    loggedOp.getQueryParams().playlist_local_id,
+                                    entries.playlists.get(0).id);
+                        }
                     }
                 }
                 mLoggedOpsMap.remove(loggedOp.getLoggedOpId());
