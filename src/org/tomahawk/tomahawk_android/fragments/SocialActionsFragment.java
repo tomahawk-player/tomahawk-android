@@ -71,27 +71,25 @@ public class SocialActionsFragment extends TomahawkFragment implements
 
     @SuppressWarnings("unused")
     public void onEvent(InfoSystem.ResultsEvent event) {
-        super.onEvent(event);
-
         if (mRandomUsersRequestId != null
                 && mRandomUsersRequestId.equals(event.mInfoRequestData.getRequestId())) {
             mSuggestedUsers = event.mInfoRequestData.getResultList(User.class);
         }
         if (event.mInfoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
+            int pageNumber = Integer.valueOf(event.mInfoRequestData.getQueryParams().offset) /
+                    Integer.valueOf(event.mInfoRequestData.getQueryParams().limit);
             if (HatchetInfoPlugin.HATCHET_SOCIALACTION_PARAMTYPE_FRIENDSFEED
                     .equals(event.mInfoRequestData.getQueryParams().type)) {
-                int pageNumber = Integer.valueOf(event.mInfoRequestData.getQueryParams().offset) /
-                        HatchetInfoPlugin.FRIENDSFEED_LIMIT;
                 mUser.setFriendsFeed(event.mInfoRequestData.getResultList(SocialAction.class),
                         pageNumber);
             } else {
-                int pageNumber = Integer.valueOf(event.mInfoRequestData.getQueryParams().offset) /
-                        HatchetInfoPlugin.SOCIALACTIONS_LIMIT;
                 mUser.setSocialActions(event.mInfoRequestData.getResultList(SocialAction.class),
                         pageNumber);
             }
         }
+
+        super.onEvent(event);
     }
 
     @Override
