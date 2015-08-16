@@ -467,13 +467,14 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected void fillAdapter(final List<Segment> segments, final View headerSpacerForwardView,
             final Collection collection) {
         final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        if (activity != null && getListView() != null) {
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                if (activity != null && getListView() != null) {
                     if (mTomahawkListAdapter == null) {
                         LayoutInflater inflater = activity.getLayoutInflater();
-                        TomahawkListAdapter adapter = new TomahawkListAdapter(activity, inflater,
+                        TomahawkListAdapter adapter = new TomahawkListAdapter(activity,
+                                inflater,
                                 segments, collection, getListView(), TomahawkFragment.this);
                         TomahawkFragment.super.setListAdapter(adapter);
                         mTomahawkListAdapter = adapter;
@@ -485,15 +486,16 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     updateShowPlaystate();
                     forceResolveVisibleItems(false);
                     setupNonScrollableSpacer(getListView());
-                    setupScrollableSpacer(getListAdapter(), getListView(), headerSpacerForwardView);
+                    setupScrollableSpacer(getListAdapter(), getListView(),
+                            headerSpacerForwardView);
                     if (headerSpacerForwardView == null) {
                         setupAnimations();
                     }
+                } else {
+                    Log.e(TAG, "fillAdapter - getActivity() or getListView() returned null!");
                 }
-            });
-        } else {
-            Log.e(TAG, "fillAdapter - getActivity() or getListView() returned null!");
-        }
+            }
+        });
     }
 
     /**
