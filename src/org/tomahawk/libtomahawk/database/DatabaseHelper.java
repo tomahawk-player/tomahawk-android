@@ -61,14 +61,6 @@ public class DatabaseHelper {
 
     private static final String TAG = DatabaseHelper.class.getSimpleName();
 
-    public static final String CACHED_PLAYLIST_NAME = "Last used playlist";
-
-    public static final String CACHED_PLAYLIST_ID = "cached_playlist_id";
-
-    public static final String QUEUE_NAME = "Queue";
-
-    public static final String QUEUE_ID = "queue_id";
-
     public static final String LOVEDITEMS_PLAYLIST_NAME = "My loved tracks";
 
     public static final String LOVEDITEMS_PLAYLIST_ID = "loveditems_playlist_id";
@@ -112,14 +104,38 @@ public class DatabaseHelper {
      * @param reverseEntries set to true, if the order of the entries should be reversed before
      *                       storing in the database
      */
-    public void storePlaylist(final Playlist playlist, final boolean reverseEntries) {
-        ArrayList<PlaylistEntry> entries = playlist.getEntries();
+    public void storePlaylist(Playlist playlist, boolean reverseEntries) {
+        storePlaylist(playlist.getId(), playlist, reverseEntries);
+    }
+
+    /**
+     * Store the given {@link Playlist}
+     *
+     * @param playlist       the given {@link Playlist}
+     * @param reverseEntries set to true, if the order of the entries should be reversed before
+     *                       storing in the database
+     */
+    public void storeLovedItemsPlaylist(Playlist playlist, boolean reverseEntries) {
+        storePlaylist(LOVEDITEMS_PLAYLIST_ID, playlist, reverseEntries);
+    }
+
+    /**
+     * Store the given {@link Playlist}
+     *
+     * @param playlistId     the id under which to store the given {@link Playlist}
+     * @param playlist       the given {@link Playlist}
+     * @param reverseEntries set to true, if the order of the entries should be reversed before
+     *                       storing in the database
+     */
+    private void storePlaylist(final String playlistId, final Playlist playlist,
+            final boolean reverseEntries) {
+        List<PlaylistEntry> entries = playlist.getEntries();
 
         ContentValues values = new ContentValues();
         values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, playlist.getName());
         values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
                 playlist.getCurrentRevision());
-        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlist.getId());
+        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlistId);
         values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
                 playlist.getHatchetId());
         values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TRACKCOUNT, entries.size());
@@ -131,7 +147,7 @@ public class DatabaseHelper {
         // Delete every already associated Track entry
         mDatabase.delete(TomahawkSQLiteHelper.TABLE_TRACKS,
                 TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID + " = ?",
-                new String[]{playlist.getId()});
+                new String[]{playlistId});
 
         // Store every single Track in the database and store the relationship
         // by storing the playlists's id with it
@@ -143,7 +159,7 @@ public class DatabaseHelper {
                 entry = entries.get(i);
             }
             values.clear();
-            values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID, playlist.getId());
+            values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID, playlistId);
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_TRACKNAME,
                     entry.getQuery().getBasicTrack().getName());
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_ARTISTNAME,
@@ -167,7 +183,7 @@ public class DatabaseHelper {
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
         PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
-        event.mPlaylistId = playlist.getId();
+        event.mPlaylistId = playlistId;
         EventBus.getDefault().post(event);
     }
 
@@ -283,14 +299,6 @@ public class DatabaseHelper {
     }
 
     /**
-     * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with
-     * CACHED_PLAYLIST_ID as its id
-     */
-    public Playlist getCachedPlaylist() {
-        return getPlaylist(CACHED_PLAYLIST_ID);
-    }
-
-    /**
      * @return every stored {@link org.tomahawk.libtomahawk.collection.Playlist} in the database
      */
     public List<Playlist> getPlaylists() {
@@ -298,10 +306,8 @@ public class DatabaseHelper {
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID};
 
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
-                columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " != ? AND "
-                        + TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " != ?",
-                new String[]{CACHED_PLAYLIST_ID, LOVEDITEMS_PLAYLIST_ID}, null, null, null
-        );
+                columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " != ?",
+                new String[]{LOVEDITEMS_PLAYLIST_ID}, null, null, null);
         playlistsCursor.moveToFirst();
         while (!playlistsCursor.isAfterLast()) {
             Playlist playlist = getEmptyPlaylist(playlistsCursor.getString(0));
@@ -395,8 +401,9 @@ public class DatabaseHelper {
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
         if (playlistsCursor.moveToFirst()) {
-            Playlist playlist = Playlist.get(playlistId,
-                    playlistsCursor.getString(0), playlistsCursor.getString(1));
+            Playlist playlist = Playlist.get(playlistId);
+            playlist.setName(playlistsCursor.getString(0));
+            playlist.setCurrentRevision(playlistsCursor.getString(1));
             playlist.setHatchetId(playlistsCursor.getString(2));
             String rawTopArtistsString = playlistsCursor.getString(3);
             if (rawTopArtistsString != null && rawTopArtistsString.length() > 0) {
@@ -410,17 +417,8 @@ public class DatabaseHelper {
         return null;
     }
 
-    /**
-     * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.Playlist}
-     * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with playlistId as
-     * its id
-     */
-    public Playlist getPlaylist(String playlistId) {
-        if (playlistId.equals(LOVEDITEMS_PLAYLIST_ID)) {
-            return getPlaylist(playlistId, true);
-        } else {
-            return getPlaylist(playlistId, false);
-        }
+    public Playlist getLovedItemsPlaylist() {
+        return getPlaylist(LOVEDITEMS_PLAYLIST_ID, true);
     }
 
     /**
@@ -428,7 +426,16 @@ public class DatabaseHelper {
      * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with playlistId as
      * its id
      */
-    public Playlist getPlaylist(String playlistId, boolean reverseEntries) {
+    public Playlist getPlaylist(String playlistId) {
+        return getPlaylist(playlistId, false);
+    }
+
+    /**
+     * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.Playlist}
+     * @return the stored {@link org.tomahawk.libtomahawk.collection.Playlist} with playlistId as
+     * its id
+     */
+    private Playlist getPlaylist(String playlistId, boolean reverseEntries) {
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
                 TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
@@ -449,7 +456,7 @@ public class DatabaseHelper {
                     new String[]{playlistId}, null, null,
                     TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTENTRYINDEX + (reverseEntries
                             ? " DESC" : " ASC"));
-            ArrayList<PlaylistEntry> queries = new ArrayList<>();
+            ArrayList<PlaylistEntry> entries = new ArrayList<>();
             tracksCursor.moveToFirst();
             while (!tracksCursor.isAfterLast()) {
                 String trackName = tracksCursor.getString(0);
@@ -465,12 +472,11 @@ public class DatabaseHelper {
                     entryId = TomahawkMainActivity.getLifetimeUniqueStringId();
                 }
                 PlaylistEntry entry = PlaylistEntry.get(playlistId, query, entryId);
-                queries.add(entry);
+                entries.add(entry);
                 tracksCursor.moveToNext();
             }
-            Playlist playlist = Playlist.fromEntriesList(playlistsCursor.getString(0),
-                    playlistsCursor.getString(1), queries);
-            playlist.setId(playlistId);
+            Playlist playlist = Playlist.fromEntriesList(playlistId, playlistsCursor.getString(0),
+                    playlistsCursor.getString(1), entries);
             playlist.setHatchetId(playlistsCursor.getString(2));
             playlist.setFilled(true);
             tracksCursor.close();

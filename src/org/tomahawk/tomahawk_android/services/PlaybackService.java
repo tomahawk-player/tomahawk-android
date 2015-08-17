@@ -559,16 +559,10 @@ public class PlaybackService extends Service implements MusicFocusable {
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
-        mPlaylist = Playlist.fromEntriesList(DatabaseHelper.CACHED_PLAYLIST_NAME, "",
-                new ArrayList<PlaylistEntry>());
-        mPlaylist.setId(DatabaseHelper.CACHED_PLAYLIST_ID);
-        mQueue = Playlist.fromEntriesList(DatabaseHelper.QUEUE_NAME, "",
-                new ArrayList<PlaylistEntry>());
-        mQueue.setId(DatabaseHelper.QUEUE_ID);
-        mShuffledPlaylist = Playlist.fromEntriesList("", "", new ArrayList<PlaylistEntry>());
-        mShuffledPlaylist.setId(SHUFFLED_PLAYLIST_ID);
-        mMergedPlaylist = Playlist.fromEntriesList("", "", new ArrayList<PlaylistEntry>());
-        mMergedPlaylist.setId(MERGED_PLAYLIST_ID);
+        mPlaylist = Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), "");
+        mQueue = Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), "");
+        mShuffledPlaylist = Playlist.fromEmptyList(SHUFFLED_PLAYLIST_ID, "");
+        mMergedPlaylist = Playlist.fromEmptyList(MERGED_PLAYLIST_ID, "");
         Log.d(TAG, "PlaybackService has been created");
     }
 
@@ -807,7 +801,7 @@ public class PlaybackService extends Service implements MusicFocusable {
     }
 
     private ArrayList<PlaylistEntry> getShuffledPlaylistEntries() {
-        ArrayList<PlaylistEntry> entries = mPlaylist.getEntries();
+        List<PlaylistEntry> entries = mPlaylist.getEntries();
         Map<Artist, List<PlaylistEntry>> artistMap = new HashMap<>();
         for (PlaylistEntry entry : entries) {
             if (entry != mCurrentEntry) {
@@ -1410,7 +1404,7 @@ public class PlaybackService extends Service implements MusicFocusable {
         }
     }
 
-    private void resolveQueriesFromTo(ArrayList<PlaylistEntry> entries, int start, int end) {
+    private void resolveQueriesFromTo(List<PlaylistEntry> entries, int start, int end) {
         Set<Query> qs = new HashSet<>();
         for (int i = start; i < end; i++) {
             if (i >= 0 && i < entries.size()) {

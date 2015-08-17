@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.ISO8601Utils;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
 import android.util.SparseArray;
 
@@ -361,13 +362,13 @@ public class Store {
                     String id = getAsString(o, "id");
                     String title = getAsString(o, "title");
                     String currentrevision = getAsString(o, "currentrevision");
-                    Playlist playlist =
-                            Playlist.fromQueryList(title, currentrevision, new ArrayList<Query>());
-                    playlist.setHatchetId(id);
                     String localId = DatabaseHelper.getInstance().getPlaylistLocalId(id);
-                    if (localId != null) {
-                        playlist.setId(localId);
+                    if (localId == null) {
+                        localId = TomahawkMainActivity.getLifetimeUniqueStringId();
                     }
+                    Playlist playlist = Playlist.fromQueryList(localId, title, currentrevision,
+                            new ArrayList<Query>());
+                    playlist.setHatchetId(id);
                     JsonElement popularArtists = get(o, "popularArtists");
                     if (popularArtists instanceof JsonArray) {
                         ArrayList<String> topArtistNames = new ArrayList<>();
@@ -442,7 +443,9 @@ public class Store {
                         Query query = (Query) findRecord(entryId, TYPE_TRACKS);
                         queries.add(query);
                     }
-                    Playlist playlist = Playlist.fromQueryList("Playbacklog", null, queries);
+                    Playlist playlist = Playlist.fromQueryList(
+                            TomahawkMainActivity.getLifetimeUniqueStringId(), "Playbacklog", null,
+                            queries);
                     playlist.setHatchetId(id);
                     mCache.get(TYPE_PLAYLISTS).put(id, playlist);
                     if (resultType == TYPE_PLAYLISTS) {

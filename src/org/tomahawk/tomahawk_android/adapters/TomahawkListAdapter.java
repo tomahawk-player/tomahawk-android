@@ -214,7 +214,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 @Override
                 public void run() {
                     Playlist playlist = Playlist.fromEntriesList(
-                            TEMP_PLAYLIST_NAME, "", new ArrayList<PlaylistEntry>());
+                            TomahawkMainActivity.getLifetimeUniqueStringId(), TEMP_PLAYLIST_NAME,
+                            null, new ArrayList<PlaylistEntry>());
                     mPlaylistEntryMap.clear();
                     for (int i = 0; i < getCount(); i++) {
                         synchronized (TomahawkListAdapter.this) {

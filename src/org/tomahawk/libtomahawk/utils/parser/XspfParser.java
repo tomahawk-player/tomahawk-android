@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonXmlHelper;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
 import android.net.Uri;
 import android.util.Log;
@@ -79,7 +80,8 @@ public class XspfParser {
                     qs.add(Query.get(track.title, track.album, track.creator, false));
                 }
                 String title = xspfPlaylist.title == null ? "XSPF Playlist" : xspfPlaylist.title;
-                Playlist pl = Playlist.fromQueryList(title, qs);
+                Playlist pl = Playlist.fromQueryList(
+                        TomahawkMainActivity.getLifetimeUniqueStringId(), title, null, qs);
                 pl.setFilled(true);
                 return pl;
             }

@@ -39,7 +39,7 @@ public class User extends Cacheable implements AlphaComparable {
 
     private static final String PLAYLIST_PLAYBACKLOG_ID = "_playbackLog";
 
-    private static final String PLAYLIST_FAVORTIES_ID = "_favorites";
+    private static final String PLAYLIST_FAVORITES_ID = "_favorites";
 
     private final String mId;
 
@@ -84,8 +84,8 @@ public class User extends Cacheable implements AlphaComparable {
         super(User.class, id);
 
         mId = id;
-        mPlaybackLog = Playlist.get(id + User.PLAYLIST_PLAYBACKLOG_ID, "", "");
-        mFavorites = Playlist.get(id + User.PLAYLIST_FAVORTIES_ID, "", "");
+        mPlaybackLog = Playlist.fromEmptyList(id + User.PLAYLIST_PLAYBACKLOG_ID, "");
+        mFavorites = Playlist.fromEmptyList(id + User.PLAYLIST_FAVORITES_ID, "");
     }
 
     /**

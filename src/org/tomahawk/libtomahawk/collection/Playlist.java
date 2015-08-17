@@ -33,12 +33,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Playlist extends Cacheable implements AlphaComparable {
 
-    private String mName;
+    private String mName = "";
 
-    private ArrayList<PlaylistEntry> mEntries = new ArrayList<>();
-
-    private static final ConcurrentHashMap<String, Playlist> sPlaylists
-            = new ConcurrentHashMap<>();
+    private List<PlaylistEntry> mEntries = new ArrayList<>();
 
     private String mId;
 
@@ -55,12 +52,10 @@ public class Playlist extends Cacheable implements AlphaComparable {
     /**
      * Construct a new empty {@link Playlist}.
      */
-    private Playlist(String id, String name, String currentRevision) {
+    private Playlist(String id) {
         super(Playlist.class, id);
 
-        mName = name != null ? name : "";
         mId = id;
-        mCurrentRevision = currentRevision != null ? currentRevision : "";
     }
 
     /**
@@ -69,9 +64,9 @@ public class Playlist extends Cacheable implements AlphaComparable {
      *
      * @return {@link Playlist} with the given parameters
      */
-    public static Playlist get(String id, String name, String currentRevision) {
+    public static Playlist get(String id) {
         Cacheable cacheable = get(Playlist.class, id);
-        return cacheable != null ? (Playlist) cacheable : new Playlist(id, name, currentRevision);
+        return cacheable != null ? (Playlist) cacheable : new Playlist(id);
     }
 
     /**
@@ -79,15 +74,22 @@ public class Playlist extends Cacheable implements AlphaComparable {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromEntriesList(String name, String currentRevision,
-            ArrayList<PlaylistEntry> playlistEntries) {
-        String id = TomahawkMainActivity.getLifetimeUniqueStringId();
-        if (currentRevision == null) {
-            currentRevision = "";
-        }
-        Playlist pl = Playlist.get(id, name, currentRevision);
-        pl.setEntries(playlistEntries);
+    public static Playlist fromEntriesList(String id, String name, String currentRevision,
+            List<PlaylistEntry> entries) {
+        Playlist pl = Playlist.get(id);
+        pl.setEntries(entries);
+        pl.setName(name);
+        pl.setCurrentRevision(currentRevision);
         return pl;
+    }
+
+    /**
+     * Create a {@link Playlist} from a list of {@link PlaylistEntry}s.
+     *
+     * @return a reference to the constructed {@link Playlist}
+     */
+    public static Playlist fromEmptyList(String id, String name) {
+        return fromEntriesList(id, name, null, new ArrayList<PlaylistEntry>());
     }
 
     /**
@@ -95,29 +97,14 @@ public class Playlist extends Cacheable implements AlphaComparable {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromQueryList(String name, String currentRevision,
+    public static Playlist fromQueryList(String id, String name, String currentRevision,
             List<Query> queries) {
-        String id = TomahawkMainActivity.getLifetimeUniqueStringId();
-        if (currentRevision == null) {
-            currentRevision = "";
-        }
-        Playlist pl = Playlist.get(id, name, currentRevision);
-        ArrayList<PlaylistEntry> playlistEntries = new ArrayList<>();
+        List<PlaylistEntry> entries = new ArrayList<>();
         for (Query query : queries) {
-            playlistEntries.add(PlaylistEntry.get(id, query,
+            entries.add(PlaylistEntry.get(id, query,
                     TomahawkMainActivity.getLifetimeUniqueStringId()));
         }
-        pl.setEntries(playlistEntries);
-        return pl;
-    }
-
-    /**
-     * Create a {@link Playlist} from a list of {@link org.tomahawk.libtomahawk.resolver.Query}s.
-     *
-     * @return a reference to the constructed {@link Playlist}
-     */
-    public static Playlist fromQueryList(String name, List<Query> queries) {
-        return Playlist.fromQueryList(name, null, queries);
+        return fromEntriesList(id, name, currentRevision, entries);
     }
 
     /**
@@ -132,11 +119,6 @@ public class Playlist extends Cacheable implements AlphaComparable {
         return mId;
     }
 
-    public void setId(String id) {
-        mId = id;
-        put(Playlist.class, id, this);
-    }
-
     public String getHatchetId() {
         return mHatchetId;
     }
@@ -146,11 +128,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
     }
 
     public void setCurrentRevision(String currentRevision) {
-        if (currentRevision != null) {
-            mCurrentRevision = currentRevision;
-        } else {
-            mCurrentRevision = "";
-        }
+        mCurrentRevision = currentRevision == null ? "" : currentRevision;
     }
 
     public String getCurrentRevision() {
@@ -192,27 +170,25 @@ public class Playlist extends Cacheable implements AlphaComparable {
     }
 
     /**
-     * @return this object' name
+     * @return this {@link Playlist}'s name
      */
     public String getName() {
         return mName;
     }
 
     /**
-     * Set the name of this object
+     * Set the name of this {@link Playlist}
      *
      * @param name the name to be set
      */
     public void setName(String name) {
-        if (name != null) {
-            this.mName = name;
-        }
+        mName = name == null ? "" : name;
     }
 
     /**
      * Set this {@link Playlist}'s {@link Query}s
      */
-    public void setEntries(ArrayList<PlaylistEntry> entries) {
+    public void setEntries(List<PlaylistEntry> entries) {
         mEntries = entries;
     }
 
@@ -290,7 +266,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
     /**
      * Return all PlaylistEntries in the {@link Playlist}
      */
-    public ArrayList<PlaylistEntry> getEntries() {
+    public List<PlaylistEntry> getEntries() {
         return mEntries;
     }
 
@@ -324,7 +300,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
      * Append an {@link ArrayList} of {@link Query}s at the end of this playlist
      */
     public void addQueries(ArrayList<Query> queries) {
-        ArrayList<PlaylistEntry> playlistEntries = new ArrayList<>();
+        List<PlaylistEntry> playlistEntries = new ArrayList<>();
         for (Query query : queries) {
             playlistEntries.add(PlaylistEntry.get(mId, query,
                     TomahawkMainActivity.getLifetimeUniqueStringId()));
@@ -346,8 +322,8 @@ public class Playlist extends Cacheable implements AlphaComparable {
         return mEntries.remove(entry);
     }
 
-    public ArrayList<Query> getQueries() {
-        ArrayList<Query> queries = new ArrayList<>();
+    public List<Query> getQueries() {
+        List<Query> queries = new ArrayList<>();
         for (PlaylistEntry entry : mEntries) {
             queries.add(entry.getQuery());
         }
