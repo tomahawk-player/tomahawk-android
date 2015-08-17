@@ -231,8 +231,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type >= InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS
                     && type < InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS + 100) {
-                JsonObject object =
-                        hatchet.getUsers(params.ids, params.name, params.random, params.count);
+                JsonObject object = hatchet.getPlaylists(params.playlist_id);
                 List playlists = mStore.storeRecords(object, Store.TYPE_PLAYLISTS, type);
                 infoRequestData.setResultList(playlists);
                 return true;

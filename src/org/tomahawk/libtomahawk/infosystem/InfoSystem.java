@@ -204,7 +204,7 @@ public class InfoSystem {
             QueryParams params = new QueryParams();
             params.playlist_local_id = playlist.getId();
             params.playlist_id = playlist.getHatchetId();
-            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params);
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES, params);
         }
         return null;
     }
@@ -356,7 +356,8 @@ public class InfoSystem {
     public String resolvePlaylists(User user, boolean isBackgroundRequest) {
         if (user != null) {
             QueryParams params = new QueryParams();
-            params.userid = user.getId();
+            params.ids = new ArrayList<>();
+            params.ids.add(user.getId());
             String requestId = TomahawkMainActivity.getSessionUniqueStringId();
             InfoRequestData infoRequestData = new InfoRequestData(requestId,
                     InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, params,

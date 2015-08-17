@@ -15,6 +15,7 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -240,6 +241,11 @@ public class Store {
                     }
                     String nowplayingtimestamp = getAsString(o, "nowplayingtimestamp");
                     user.setNowPlayingTimeStamp(ISO8601Utils.parse(nowplayingtimestamp));
+                    String avatar = getAsString(o, "avatar");
+                    if (avatar != null) {
+                        Image image = (Image) findRecord(avatar, TYPE_IMAGES);
+                        user.setImage(image);
+                    }
 
                     if (requestType
                             == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS) {
@@ -358,20 +364,47 @@ public class Store {
                     Playlist playlist =
                             Playlist.fromQueryList(title, currentrevision, new ArrayList<Query>());
                     playlist.setHatchetId(id);
+                    String localId = DatabaseHelper.getInstance().getPlaylistLocalId(id);
+                    if (localId != null) {
+                        playlist.setId(localId);
+                    }
+                    JsonElement popularArtists = get(o, "popularArtists");
+                    if (popularArtists instanceof JsonArray) {
+                        ArrayList<String> topArtistNames = new ArrayList<>();
+                        for (JsonElement popularArtist : (JsonArray) popularArtists) {
+                            String artistId = popularArtist.getAsString();
+                            Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
+                            if (artist != null) {
+                                topArtistNames.add(artist.getName());
+                            }
+                        }
+                        playlist.setTopArtistNames(
+                                topArtistNames.toArray(new String[topArtistNames.size()]));
+                    }
                     if (requestType
                             == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
                         JsonElement rawEntries = get(o, "playlistEntries");
                         if (rawEntries instanceof JsonObject) {
-                            storeRecords((JsonObject) rawEntries, -1);
-                            JsonElement entryIds = get((JsonObject) rawEntries, "playlistEntries");
-                            if (entryIds instanceof JsonArray) {
+                            List entries =
+                                    storeRecords((JsonObject) rawEntries, TYPE_PLAYLISTENTRIES);
+                            if (entries != null) {
                                 playlist.setEntries(new ArrayList<PlaylistEntry>());
-                                for (JsonElement entry : (JsonArray) entryIds) {
-                                    String entryId = entry.getAsString();
-                                    Query query = (Query) findRecord(entryId, TYPE_PLAYLISTENTRIES);
-                                    playlist.addQuery(query);
+                                for (Object entry : entries) {
+                                    playlist.addQuery((Query) entry);
                                 }
+                                playlist.setFilled(true);
                             }
+                        }
+                    } else {
+                        JsonElement entryIds = get(o, "playlistEntries");
+                        if (entryIds instanceof JsonArray) {
+                            playlist.setEntries(new ArrayList<PlaylistEntry>());
+                            for (JsonElement entryId : (JsonArray) entryIds) {
+                                Query query = (Query) findRecord(
+                                        entryId.getAsString(), TYPE_PLAYLISTENTRIES);
+                                playlist.addQuery(query);
+                            }
+                            playlist.setFilled(true);
                         }
                     }
                     mCache.get(TYPE_PLAYLISTS).put(id, playlist);

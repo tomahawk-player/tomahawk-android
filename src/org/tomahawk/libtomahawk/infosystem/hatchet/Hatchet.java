@@ -49,6 +49,11 @@ public interface Hatchet {
             @Query("ids[]") List<String> ids
     );
 
+    @GET("/playlists/{id}")
+    JsonObject getPlaylists(
+            @Path("id") String id
+    );
+
     @GET("/artists")
     JsonObject getArtists(
             @Query("ids[]") List<String> ids,
