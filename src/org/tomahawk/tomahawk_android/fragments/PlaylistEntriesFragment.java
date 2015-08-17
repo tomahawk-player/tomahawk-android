@@ -25,6 +25,7 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -36,11 +37,30 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.view.View;
 
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * {@link org.tomahawk.tomahawk_android.fragments.TomahawkFragment} which shows a set of {@link
  * org.tomahawk.libtomahawk.collection.Track}s inside its {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class PlaylistEntriesFragment extends TomahawkFragment {
+
+    private Set<String> mResolvingTopArtistNames = new HashSet<>();
+
+    @SuppressWarnings("unused")
+    public void onEvent(InfoSystem.ResultsEvent event) {
+        if (event.mInfoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
+            List<Playlist> playlists = event.mInfoRequestData.getResultList(Playlist.class);
+            if (playlists != null && playlists.size() > 0) {
+                mPlaylist = playlists.get(0);
+            }
+        }
+
+        super.onEvent(event);
+    }
 
     @SuppressWarnings("unused")
     public void onEvent(DatabaseHelper.PlaylistsUpdatedEvent event) {
@@ -141,9 +161,12 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                                 }
                                 for (int i = 0; i < mPlaylist.getTopArtistNames().length && i < 5;
                                         i++) {
-                                    mCorrespondingRequestIds.addAll(InfoSystem.getInstance()
-                                            .resolve(Artist.get(mPlaylist.getTopArtistNames()[i]),
-                                                    false));
+                                    String artistName = mPlaylist.getTopArtistNames()[i];
+                                    if (mResolvingTopArtistNames.contains(artistName)) {
+                                        mCorrespondingRequestIds.addAll(InfoSystem.getInstance()
+                                                .resolve(Artist.get(artistName), false));
+                                        mResolvingTopArtistNames.add(artistName);
+                                    }
                                 }
                             }
                         });

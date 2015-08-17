@@ -345,6 +345,24 @@ public class DatabaseHelper {
     }
 
     /**
+     * @param hatchetId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.Playlist}
+     * @return the playlist's local id, null if playlist not found
+     */
+    public String getPlaylistLocalId(String hatchetId) {
+        String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID};
+
+        Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
+                columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID + " = ?",
+                new String[]{hatchetId}, null, null, null);
+        String localId = null;
+        if (playlistsCursor.moveToFirst()) {
+            localId = playlistsCursor.getString(0);
+        }
+        playlistsCursor.close();
+        return localId;
+    }
+
+    /**
      * @param playlistId the id by which to get the correct {@link org.tomahawk.libtomahawk.collection.Playlist}
      * @return the playlist's name, null if playlist not found
      */
