@@ -441,7 +441,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                     }
                     queries.add(query);
                 }
-                Playlist playlist = Playlist.fromQueryList(event.mResult.title, queries);
+                Playlist playlist = Playlist
+                        .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(),
+                                event.mResult.title, null, queries);
                 playlist.setFilled(true);
                 bundle.putString(TomahawkFragment.PLAYLIST, playlist.getId());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,

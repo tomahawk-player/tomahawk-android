@@ -102,7 +102,6 @@ public class CollectionManager {
         addCollection(new UserCollection());
         addCollection(new HatchetCollection());
 
-        ensureLovedItemsPlaylist();
         fetchAll();
     }
 
@@ -181,20 +180,6 @@ public class CollectionManager {
     }
 
     /**
-     * Store the PlaybackService's currentPlaylist
-     */
-    public void setCachedPlaylist(Playlist playlist) {
-        DatabaseHelper.getInstance().storePlaylist(playlist, false);
-    }
-
-    /**
-     * @return the previously cached {@link Playlist}
-     */
-    public Playlist getCachedPlaylist() {
-        return DatabaseHelper.getInstance().getCachedPlaylist();
-    }
-
-    /**
      * Remove or add a lovedItem-query from the LovedItems-Playlist, depending on whether or not it
      * is already a lovedItem
      */
@@ -242,22 +227,6 @@ public class CollectionManager {
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.getInstance().sendSocialActionPostStruct(hatchetAuthUtils, album,
                 HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
-    }
-
-    /**
-     * Update the loved items user-playlist and the contained queries.
-     */
-    private void ensureLovedItemsPlaylist() {
-        Playlist lovedItemsPlayList =
-                DatabaseHelper.getInstance().getPlaylist(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
-        if (lovedItemsPlayList == null) {
-            // If we don't yet have a Playlist to store loved items, we create and store an
-            // empty Playlist here
-            Playlist playlist = Playlist.fromQueryList(DatabaseHelper.LOVEDITEMS_PLAYLIST_NAME,
-                    new ArrayList<Query>());
-            playlist.setId(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
-            DatabaseHelper.getInstance().storePlaylist(playlist, false);
-        }
     }
 
     /**
@@ -485,10 +454,9 @@ public class CollectionManager {
                 String userName = hatchetAuthUtils.getUserName();
                 fetchedList.setName(TomahawkApp.getContext()
                         .getString(R.string.users_favorites_suffix, userName));
-                fetchedList.setId(DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
                 Log.d(TAG, "Hatchet sync - received list of loved tracks, count: "
                         + fetchedList.getEntries().size());
-                DatabaseHelper.getInstance().storePlaylist(fetchedList, true);
+                DatabaseHelper.getInstance().storeLovedItemsPlaylist(fetchedList, true);
             }
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDALBUMS) {
             List<User> results = data.getResultList(User.class);
