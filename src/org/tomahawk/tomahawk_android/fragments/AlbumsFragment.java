@@ -59,11 +59,6 @@ public class AlbumsFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        if (getArguments() != null) {
-            if (getArguments().containsKey(SHOW_MODE)) {
-                mShowMode = getArguments().getInt(SHOW_MODE);
-            }
-        }
         if (mContainerFragmentClass == null) {
             getActivity().setTitle("");
         }

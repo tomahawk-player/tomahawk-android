@@ -397,6 +397,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     }
                 }
             }
+            if (getArguments().containsKey(SHOW_MODE)) {
+                mShowMode = getArguments().getInt(SHOW_MODE);
+            }
         }
 
         StickyListHeadersListView list = getListView();
