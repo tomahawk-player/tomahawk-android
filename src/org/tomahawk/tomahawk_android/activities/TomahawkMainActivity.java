@@ -38,6 +38,7 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
@@ -315,7 +316,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             TomahawkMenuAdapter.ResourceHolder holder =
                     (TomahawkMenuAdapter.ResourceHolder) mDrawerList.getAdapter().getItem(position);
-            Bundle bundle = new Bundle();
+            final Bundle bundle = new Bundle();
             if (holder.collection != null) {
                 bundle.putString(TomahawkFragment.COLLECTION_ID, holder.collection.getId());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
@@ -323,26 +324,39 @@ public class TomahawkMainActivity extends ActionBarActivity
                 FragmentUtils
                         .replace(TomahawkMainActivity.this, CollectionPagerFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_USERPAGE)) {
-                if (authenticatorUtils.getLoggedInUser() == null) {
-                    return;
-                }
-                bundle.putString(TomahawkFragment.USER,
-                        authenticatorUtils.getLoggedInUser().getId());
-                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                        ContentHeaderFragment.MODE_HEADER_STATIC_USER);
-                FragmentUtils.replace(TomahawkMainActivity.this, UserPagerFragment.class, bundle);
+                User.getSelf().done(new DoneCallback<User>() {
+                    @Override
+                    public void onDone(User user) {
+                        bundle.putString(TomahawkFragment.USER, user.getId());
+                        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                                ContentHeaderFragment.MODE_HEADER_STATIC_USER);
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                FragmentUtils.replace(TomahawkMainActivity.this,
+                                        UserPagerFragment.class, bundle);
+                            }
+                        });
+                    }
+                });
             } else if (holder.id.equals(HUB_ID_FEED)) {
-                if (authenticatorUtils.getLoggedInUser() == null) {
-                    return;
-                }
-                bundle.putInt(TomahawkFragment.SHOW_MODE,
-                        SocialActionsFragment.SHOW_MODE_DASHBOARD);
-                bundle.putString(TomahawkFragment.USER,
-                        authenticatorUtils.getLoggedInUser().getId());
-                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                        ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
-                FragmentUtils
-                        .replace(TomahawkMainActivity.this, SocialActionsFragment.class, bundle);
+                User.getSelf().done(new DoneCallback<User>() {
+                    @Override
+                    public void onDone(User user) {
+                        bundle.putString(TomahawkFragment.USER, user.getId());
+                        bundle.putInt(TomahawkFragment.SHOW_MODE,
+                                SocialActionsFragment.SHOW_MODE_DASHBOARD);
+                        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                                ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                FragmentUtils.replace(TomahawkMainActivity.this,
+                                        SocialActionsFragment.class, bundle);
+                            }
+                        });
+                    }
+                });
             } else if (holder.id.equals(HUB_ID_COLLECTION)) {
                 bundle.putString(TomahawkFragment.COLLECTION_ID,
                         TomahawkApp.PLUGINNAME_USERCOLLECTION);
@@ -351,24 +365,39 @@ public class TomahawkMainActivity extends ActionBarActivity
                 FragmentUtils
                         .replace(TomahawkMainActivity.this, CollectionPagerFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_LOVEDTRACKS)) {
-                bundle.putString(PlaylistsFragment.PLAYLIST,
-                        DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
-                if (authenticatorUtils.getLoggedInUser() != null) {
-                    bundle.putString(TomahawkFragment.USER,
-                            authenticatorUtils.getLoggedInUser().getId());
-                }
-                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                        ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-                FragmentUtils
-                        .replace(TomahawkMainActivity.this, PlaylistEntriesFragment.class, bundle);
+                User.getSelf().done(new DoneCallback<User>() {
+                    @Override
+                    public void onDone(User user) {
+                        bundle.putString(PlaylistsFragment.PLAYLIST,
+                                DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
+                        bundle.putString(TomahawkFragment.USER, user.getId());
+                        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                                ContentHeaderFragment.MODE_HEADER_DYNAMIC);
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                FragmentUtils.replace(TomahawkMainActivity.this,
+                                        PlaylistEntriesFragment.class, bundle);
+                            }
+                        });
+                    }
+                });
             } else if (holder.id.equals(HUB_ID_PLAYLISTS)) {
-                if (authenticatorUtils.getLoggedInUser() != null) {
-                    bundle.putString(TomahawkFragment.USER,
-                            authenticatorUtils.getLoggedInUser().getId());
-                }
-                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                        ContentHeaderFragment.MODE_HEADER_STATIC);
-                FragmentUtils.replace(TomahawkMainActivity.this, PlaylistsFragment.class, bundle);
+                User.getSelf().done(new DoneCallback<User>() {
+                    @Override
+                    public void onDone(User user) {
+                        bundle.putString(TomahawkFragment.USER, user.getId());
+                        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                                ContentHeaderFragment.MODE_HEADER_STATIC);
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                FragmentUtils.replace(TomahawkMainActivity.this,
+                                        PlaylistsFragment.class, bundle);
+                            }
+                        });
+                    }
+                });
             } else if (holder.id.equals(HUB_ID_SETTINGS)) {
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_STATIC_SMALL);
@@ -804,16 +833,20 @@ public class TomahawkMainActivity extends ActionBarActivity
         UserVoice.init(config, TomahawkMainActivity.this);
 
         //Resolve currently logged-in user
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User user) {
+                String requestId = InfoSystem.getInstance().resolve(user);
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
+                }
+            }
+        });
+
+        //Ask for notification service access if hatchet user logged in
         HatchetAuthenticatorUtils hatchetAuthUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        String requestId =
-                InfoSystem.getInstance().resolve(hatchetAuthUtils.getLoggedInUser());
-        if (requestId != null) {
-            mCorrespondingRequestIds.add(requestId);
-        }
-
-        //Ask for notification service access if hatchet user logged in
         if (hatchetAuthUtils.isLoggedIn()) {
             attemptAskAccess();
         }
@@ -838,16 +871,27 @@ public class TomahawkMainActivity extends ActionBarActivity
                                         PlaybackFragment.class.getName(), bundle),
                                 null)
                         .commitAllowingStateLoss();
-                FragmentUtils.addRootFragment(TomahawkMainActivity.this,
-                        hatchetAuthUtils.getLoggedInUser());
+                User.getSelf().done(new DoneCallback<User>() {
+                    @Override
+                    public void onDone(final User user) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                FragmentUtils.addRootFragment(TomahawkMainActivity.this, user);
 
-                SharedPreferences preferences =
-                        PreferenceManager.getDefaultSharedPreferences(this);
-                if (!preferences.getBoolean(
-                        TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED, false)) {
-                    FragmentUtils.replace(this, WelcomeFragment.class, null,
-                            R.id.content_viewer_frame);
-                }
+                                SharedPreferences preferences =
+                                        PreferenceManager.getDefaultSharedPreferences(
+                                                TomahawkMainActivity.this);
+                                if (!preferences.getBoolean(
+                                        TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED,
+                                        false)) {
+                                    FragmentUtils.replace(TomahawkMainActivity.this,
+                                            WelcomeFragment.class, null, R.id.content_viewer_frame);
+                                }
+                            }
+                        });
+                    }
+                });
             } else {
                 boolean actionBarHidden = mSavedInstanceState
                         .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
@@ -1029,85 +1073,93 @@ public class TomahawkMainActivity extends ActionBarActivity
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 attemptAskAccess();
             }
-            HatchetAuthenticatorUtils authenticatorUtils
-                    = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            String requestId =
-                    InfoSystem.getInstance().resolve(authenticatorUtils.getLoggedInUser());
-            if (requestId != null) {
-                mCorrespondingRequestIds.add(requestId);
-            }
+            User.getSelf().done(new DoneCallback<User>() {
+                @Override
+                public void onDone(User user) {
+                    String requestId = InfoSystem.getInstance().resolve(user);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
+                }
+            });
         }
         updateDrawer();
     }
 
     public void updateDrawer() {
-        HatchetAuthenticatorUtils authenticatorUtils
-                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
-        mDrawerList = (StickyListHeadersListView) findViewById(R.id.left_drawer);
-        final ArrayList<TomahawkMenuAdapter.ResourceHolder> holders = new ArrayList<>();
-        TomahawkMenuAdapter.ResourceHolder holder = new TomahawkMenuAdapter.ResourceHolder();
-        if (authenticatorUtils.getLoggedInUser() != null) {
-            holder.id = HUB_ID_USERPAGE;
-            holder.title = authenticatorUtils.getLoggedInUser().getName();
-            holder.image = authenticatorUtils.getLoggedInUser().getImage();
-            holder.user = authenticatorUtils.getLoggedInUser();
-            holders.add(holder);
-            holder = new TomahawkMenuAdapter.ResourceHolder();
-            holder.id = HUB_ID_FEED;
-            holder.title = getString(R.string.drawer_title_feed);
-            holder.iconResId = R.drawable.ic_action_dashboard;
-            holders.add(holder);
-        }
-        holder = new TomahawkMenuAdapter.ResourceHolder();
-        holder.id = HUB_ID_COLLECTION;
-        holder.title = getString(R.string.drawer_title_collection);
-        holder.iconResId = R.drawable.ic_action_collection;
-        Collection userCollection = CollectionManager.getInstance().getCollection(
-                TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        Boolean isLoading = mCollectionLoadingMap.get(userCollection);
-        holder.isLoading = isLoading != null && isLoading;
-        holders.add(holder);
-        holder = new TomahawkMenuAdapter.ResourceHolder();
-        holder.id = HUB_ID_LOVEDTRACKS;
-        holder.title = getString(R.string.drawer_title_lovedtracks);
-        holder.iconResId = R.drawable.ic_action_favorites;
-        holders.add(holder);
-        holder = new TomahawkMenuAdapter.ResourceHolder();
-        holder.id = HUB_ID_PLAYLISTS;
-        holder.title = getString(R.string.drawer_title_playlists);
-        holder.iconResId = R.drawable.ic_action_playlist_light;
-        holders.add(holder);
-        holder = new TomahawkMenuAdapter.ResourceHolder();
-        holder.id = HUB_ID_SETTINGS;
-        holder.title = getString(R.string.drawer_title_settings);
-        holder.iconResId = R.drawable.ic_action_settings;
-        holders.add(holder);
-        for (Collection collection : CollectionManager.getInstance().getCollections()) {
-            if (collection instanceof ScriptResolverCollection) {
-                ScriptResolverCollection resolverCollection = (ScriptResolverCollection) collection;
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User user) {
+                HatchetAuthenticatorUtils authenticatorUtils
+                        = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
+                mDrawerList = (StickyListHeadersListView) findViewById(R.id.left_drawer);
+                final ArrayList<TomahawkMenuAdapter.ResourceHolder> holders = new ArrayList<>();
+                TomahawkMenuAdapter.ResourceHolder holder
+                        = new TomahawkMenuAdapter.ResourceHolder();
+                if (authenticatorUtils.isLoggedIn()) {
+                    holder.id = HUB_ID_USERPAGE;
+                    holder.title = user.getName();
+                    holder.image = user.getImage();
+                    holder.user = user;
+                    holders.add(holder);
+                    holder = new TomahawkMenuAdapter.ResourceHolder();
+                    holder.id = HUB_ID_FEED;
+                    holder.title = getString(R.string.drawer_title_feed);
+                    holder.iconResId = R.drawable.ic_action_dashboard;
+                    holders.add(holder);
+                }
                 holder = new TomahawkMenuAdapter.ResourceHolder();
-                holder.collection = resolverCollection;
-                isLoading = mCollectionLoadingMap.get(resolverCollection);
+                holder.id = HUB_ID_COLLECTION;
+                holder.title = getString(R.string.drawer_title_collection);
+                holder.iconResId = R.drawable.ic_action_collection;
+                Collection userCollection = CollectionManager.getInstance().getCollection(
+                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
+                Boolean isLoading = mCollectionLoadingMap.get(userCollection);
                 holder.isLoading = isLoading != null && isLoading;
                 holders.add(holder);
-            }
-        }
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                if (mDrawerList.getAdapter() == null) {
-                    mTomahawkMenuAdapter = new TomahawkMenuAdapter(holders);
-                    mDrawerList.setAdapter(mTomahawkMenuAdapter);
-                } else {
-                    mTomahawkMenuAdapter.setResourceHolders(holders);
+                holder = new TomahawkMenuAdapter.ResourceHolder();
+                holder.id = HUB_ID_LOVEDTRACKS;
+                holder.title = getString(R.string.drawer_title_lovedtracks);
+                holder.iconResId = R.drawable.ic_action_favorites;
+                holders.add(holder);
+                holder = new TomahawkMenuAdapter.ResourceHolder();
+                holder.id = HUB_ID_PLAYLISTS;
+                holder.title = getString(R.string.drawer_title_playlists);
+                holder.iconResId = R.drawable.ic_action_playlist_light;
+                holders.add(holder);
+                holder = new TomahawkMenuAdapter.ResourceHolder();
+                holder.id = HUB_ID_SETTINGS;
+                holder.title = getString(R.string.drawer_title_settings);
+                holder.iconResId = R.drawable.ic_action_settings;
+                holders.add(holder);
+                for (Collection collection : CollectionManager.getInstance().getCollections()) {
+                    if (collection instanceof ScriptResolverCollection) {
+                        ScriptResolverCollection resolverCollection
+                                = (ScriptResolverCollection) collection;
+                        holder = new TomahawkMenuAdapter.ResourceHolder();
+                        holder.collection = resolverCollection;
+                        isLoading = mCollectionLoadingMap.get(resolverCollection);
+                        holder.isLoading = isLoading != null && isLoading;
+                        holders.add(holder);
+                    }
                 }
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mDrawerList.getAdapter() == null) {
+                            mTomahawkMenuAdapter = new TomahawkMenuAdapter(holders);
+                            mDrawerList.setAdapter(mTomahawkMenuAdapter);
+                        } else {
+                            mTomahawkMenuAdapter.setResourceHolders(holders);
+                        }
+                    }
+                });
+
+                mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
             }
         });
-
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
     }
 
     public void closeDrawer() {

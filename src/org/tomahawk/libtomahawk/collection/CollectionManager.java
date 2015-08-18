@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.collection;
 
 import org.jdeferred.AlwaysCallback;
 import org.jdeferred.Deferred;
+import org.jdeferred.DoneCallback;
 import org.jdeferred.Promise;
 import org.jdeferred.android.AndroidDeferredManager;
 import org.jdeferred.multiple.MultipleResults;
@@ -115,11 +116,12 @@ public class CollectionManager {
                 fetchLovedItemsPlaylist();
             } else if (requestType
                     == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES) {
-                HatchetAuthenticatorUtils hatchetAuthUtils =
-                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                InfoSystem.getInstance()
-                        .resolvePlaybackLog(hatchetAuthUtils.getLoggedInUser());
+                User.getSelf().done(new DoneCallback<User>() {
+                    @Override
+                    public void onDone(User user) {
+                        InfoSystem.getInstance().resolvePlaybackLog(user);
+                    }
+                });
             } else if (requestType
                     == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS
                     || requestType
@@ -139,10 +141,12 @@ public class CollectionManager {
 
     @SuppressWarnings("unused")
     public void onEventAsync(HatchetAuthenticatorUtils.UserLoginEvent event) {
-        HatchetAuthenticatorUtils hatchetAuthUtils =
-                (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        InfoSystem.getInstance().resolvePlaybackLog(hatchetAuthUtils.getLoggedInUser());
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User user) {
+                InfoSystem.getInstance().resolvePlaybackLog(user);
+            }
+        });
         fetchAll();
     }
 
@@ -235,18 +239,22 @@ public class CollectionManager {
      * the API.
      */
     public void fetchLovedItemsPlaylist() {
-        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
-                AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching loved tracks");
-            String requestId = InfoSystem.getInstance().resolveLovedItems(
-                    hatchetAuthUtils.getLoggedInUser());
-            if (requestId != null) {
-                mCorrespondingRequestIds.add(requestId);
-            }
+            User.getSelf().done(new DoneCallback<User>() {
+                @Override
+                public void onDone(User user) {
+                    String requestId = InfoSystem.getInstance().resolveLovedItems(user);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
+                }
+            });
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching loved tracks");
+            HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                            TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
@@ -257,15 +265,22 @@ public class CollectionManager {
      * API.
      */
     public void fetchStarredArtists() {
-        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
-                AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching starred artists");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance().
-                    resolveLovedArtists(hatchetAuthUtils.getLoggedInUser()));
+            User.getSelf().done(new DoneCallback<User>() {
+                @Override
+                public void onDone(User user) {
+                    String requestId = InfoSystem.getInstance().resolveLovedArtists(user);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
+                }
+            });
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching starred artists");
+            HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                            TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
@@ -276,15 +291,22 @@ public class CollectionManager {
      * API.
      */
     public void fetchStarredAlbums() {
-        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
-                AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching starred albums");
-            mCorrespondingRequestIds.add(InfoSystem.getInstance()
-                    .resolveLovedAlbums(hatchetAuthUtils.getLoggedInUser()));
+            User.getSelf().done(new DoneCallback<User>() {
+                @Override
+                public void onDone(User user) {
+                    String requestId = InfoSystem.getInstance().resolveLovedAlbums(user);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
+                }
+            });
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching starred albums");
+            HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                            TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }
@@ -293,18 +315,22 @@ public class CollectionManager {
      * Fetch the Playlists from the Hatchet API and store it in the local db.
      */
     public void fetchPlaylists() {
-        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
-                AuthenticatorManager.getInstance().getAuthenticatorUtils(
-                        TomahawkApp.PLUGINNAME_HATCHET);
         if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
             Log.d(TAG, "Hatchet sync - fetching playlists");
-            String requestId = InfoSystem.getInstance()
-                    .resolvePlaylists(hatchetAuthUtils.getLoggedInUser(), true);
-            if (requestId != null) {
-                mCorrespondingRequestIds.add(requestId);
-            }
+            User.getSelf().done(new DoneCallback<User>() {
+                @Override
+                public void onDone(User user) {
+                    String requestId = InfoSystem.getInstance().resolvePlaylists(user, true);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
+                }
+            });
         } else {
             Log.d(TAG, "Hatchet sync - sending logged ops before fetching playlists");
+            HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                            TomahawkApp.PLUGINNAME_HATCHET);
             InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
         }
     }

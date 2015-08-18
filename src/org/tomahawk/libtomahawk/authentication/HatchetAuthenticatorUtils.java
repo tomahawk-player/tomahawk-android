@@ -18,11 +18,13 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
+import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.authentication.models.HatchetAuthResponse;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
+import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -93,6 +95,8 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     private final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
+    private ADeferredObject<String, Throwable, Void> mGetUserIdPromise;
+
     boolean mWaitingForAccountRemoval;
 
     public static class UserLoginEvent {
@@ -119,7 +123,9 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             if (event.mInfoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
                 List<User> users = event.mInfoRequestData.getResultList(User.class);
                 if (users != null && users.get(0) != null) {
-                    storeUserId(users.get(0).getId());
+                    String userId = users.get(0).getId();
+                    storeUserId(userId);
+                    mGetUserIdPromise.resolve(userId);
                 }
             }
         }
@@ -308,28 +314,25 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
         return true;
     }
 
-    private String getUserId() {
-        AccountManager am = AccountManager.get(TomahawkApp.getContext());
-        if (am != null && getAccount() != null) {
-            if (am.getUserData(getAccount(), USER_ID_HATCHET) != null) {
-                return am.getUserData(getAccount(), USER_ID_HATCHET);
-            } else {
-                String requestId = InfoSystem.getInstance().resolveUserId(getUserName());
-                if (requestId != null) {
-                    mCorrespondingRequestIds.add(requestId);
+    public Promise<String, Throwable, Void> getUserId() {
+        if (mGetUserIdPromise == null) {
+            mGetUserIdPromise = new ADeferredObject<>();
+            AccountManager am = AccountManager.get(TomahawkApp.getContext());
+            if (am != null && getAccount() != null) {
+                if (am.getUserData(getAccount(), USER_ID_HATCHET) != null) {
+                    mGetUserIdPromise.resolve(am.getUserData(getAccount(), USER_ID_HATCHET));
+                } else {
+                    String requestId = InfoSystem.getInstance().resolveUserId(getUserName());
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 }
+            } else {
+                mGetUserIdPromise.reject(new Throwable("No account present."));
+                mGetUserIdPromise = null;
             }
         }
-        return null;
-    }
-
-    public User getLoggedInUser() {
-        if (getUserId() != null) {
-            User user = User.get(getUserId());
-            user.setName(getUserName());
-            return user;
-        }
-        return null;
+        return mGetUserIdPromise;
     }
 
     /**

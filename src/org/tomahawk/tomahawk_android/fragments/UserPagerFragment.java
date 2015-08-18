@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -71,40 +72,45 @@ public class UserPagerFragment extends PagerFragment {
                 }
             }
         }
-        HatchetAuthenticatorUtils authUtils =
-                (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        User user = authUtils.getLoggedInUser();
-        if (user != null && user.getFollowings() == null) {
-            String requestId = InfoSystem.getInstance().resolveFollowings(user);
-            if (requestId != null) {
-                mCorrespondingRequestIds.add(requestId);
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User user) {
+                if (user != null && user.getFollowings() == null) {
+                    String requestId = InfoSystem.getInstance().resolveFollowings(user);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
+                }
             }
-        }
+        });
 
         mFollowButtonListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                HatchetAuthenticatorUtils authUtils =
+                final HatchetAuthenticatorUtils authUtils =
                         (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                if (authUtils.getLoggedInUser().getFollowings() != null
-                        && authUtils.getLoggedInUser().getFollowings().containsKey(mUser)) {
-                    String relationshipId =
-                            authUtils.getLoggedInUser().getFollowings().get(mUser);
-                    mCorrespondingRequestIds.add(InfoSystem.getInstance()
-                            .deleteRelationship(authUtils, relationshipId));
-                    mShowFakeNotFollowing = true;
-                    mShowFakeFollowing = false;
-                } else {
-                    String requestId = InfoSystem.getInstance()
-                            .sendRelationshipPostStruct(authUtils, mUser);
-                    if (requestId != null) {
-                        mCorrespondingRequestIds.add(requestId);
+                User.getSelf().done(new DoneCallback<User>() {
+                    @Override
+                    public void onDone(User user) {
+                        if (user.getFollowings() != null
+                                && user.getFollowings().containsKey(mUser)) {
+                            String relationshipId = user.getFollowings().get(mUser);
+                            mCorrespondingRequestIds.add(InfoSystem.getInstance()
+                                    .deleteRelationship(authUtils, relationshipId));
+                            mShowFakeNotFollowing = true;
+                            mShowFakeFollowing = false;
+                        } else {
+                            String requestId = InfoSystem.getInstance()
+                                    .sendRelationshipPostStruct(authUtils, mUser);
+                            if (requestId != null) {
+                                mCorrespondingRequestIds.add(requestId);
+                            }
+                            mShowFakeNotFollowing = false;
+                            mShowFakeFollowing = true;
+                        }
                     }
-                    mShowFakeNotFollowing = false;
-                    mShowFakeFollowing = true;
-                }
+                });
                 showContentHeader(mUser);
             }
         };
@@ -196,14 +202,15 @@ public class UserPagerFragment extends PagerFragment {
                 && sentLoggedOp.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS
                 && (sentLoggedOp.getHttpType() == InfoRequestData.HTTPTYPE_DELETE
                 || sentLoggedOp.getHttpType() == InfoRequestData.HTTPTYPE_POST)) {
-            HatchetAuthenticatorUtils authUtils
-                    = (HatchetAuthenticatorUtils) AuthenticatorManager
-                    .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            String requestId =
-                    InfoSystem.getInstance().resolveFollowings(authUtils.getLoggedInUser());
-            if (requestId != null) {
-                mCorrespondingRequestIds.add(requestId);
-            }
+            User.getSelf().done(new DoneCallback<User>() {
+                @Override
+                public void onDone(User user) {
+                    String requestId = InfoSystem.getInstance().resolveFollowings(user);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
+                }
+            });
         }
         if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FOLLOWS) {
             mShowFakeFollowing = false;

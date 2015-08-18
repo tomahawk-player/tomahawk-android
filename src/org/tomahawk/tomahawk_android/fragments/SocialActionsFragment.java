@@ -18,8 +18,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -106,15 +104,16 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     mCorrespondingRequestIds.add(requestId);
                 }
             }
-            HatchetAuthenticatorUtils authenticatorUtils
-                    = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            if (authenticatorUtils.getLoggedInUser() != null
-                    && authenticatorUtils.getLoggedInUser().getFollowCount() <= 5
-                    && mRandomUsersRequestId == null) {
-                mRandomUsersRequestId = InfoSystem.getInstance().getRandomUsers(5);
-                mCorrespondingRequestIds.add(mRandomUsersRequestId);
-            }
+            User.getSelf().done(new DoneCallback<User>() {
+                @Override
+                public void onDone(User user) {
+                    if (user.getFollowCount() >= 0 && user.getFollowCount() <= 5
+                            && mRandomUsersRequestId == null) {
+                        mRandomUsersRequestId = InfoSystem.getInstance().getRandomUsers(5);
+                        mCorrespondingRequestIds.add(mRandomUsersRequestId);
+                    }
+                }
+            });
         } else {
             if (mContainerFragmentClass == null) {
                 getActivity().setTitle("");
