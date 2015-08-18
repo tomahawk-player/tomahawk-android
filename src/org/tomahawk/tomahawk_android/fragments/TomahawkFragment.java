@@ -19,8 +19,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
@@ -305,15 +303,17 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                         getActivity().getSupportFragmentManager().popBackStack();
                         return;
                     } else {
-                        HatchetAuthenticatorUtils authenticatorUtils
-                                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                        if (mUser != authenticatorUtils.getLoggedInUser()) {
-                            String requestId = InfoSystem.getInstance().resolve(mPlaylist);
-                            if (requestId != null) {
-                                mCorrespondingRequestIds.add(requestId);
+                        User.getSelf().done(new DoneCallback<User>() {
+                            @Override
+                            public void onDone(User user) {
+                                if (mUser != user) {
+                                    String requestId = InfoSystem.getInstance().resolve(mPlaylist);
+                                    if (requestId != null) {
+                                        mCorrespondingRequestIds.add(requestId);
+                                    }
+                                }
                             }
-                        }
+                        });
                     }
                 }
             }
@@ -644,35 +644,38 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     private void resolveItem(final Playlist playlist) {
-        HatchetAuthenticatorUtils authenticatorUtils
-                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        if (mUser == null || mUser == authenticatorUtils.getLoggedInUser()) {
-            TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
-                @Override
-                public void run() {
-                    if (mResolvingItems.add(playlist)) {
-                        Playlist pl = playlist;
-                        if (pl.getEntries().size() == 0) {
-                            pl = DatabaseHelper.getInstance().getPlaylist(pl.getId());
-                        }
-                        if (pl != null && pl.getEntries().size() > 0) {
-                            pl.updateTopArtistNames();
-                            DatabaseHelper.getInstance().updatePlaylist(pl);
-                            if (pl.getTopArtistNames() != null) {
-                                for (int i = 0; i < pl.getTopArtistNames().length && i < 5;
-                                        i++) {
-                                    resolveItem(Artist.get(pl.getTopArtistNames()[i]));
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User user) {
+                if (mUser == null || mUser == user) {
+                    TomahawkRunnable r = new TomahawkRunnable(
+                            TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
+                        @Override
+                        public void run() {
+                            if (mResolvingItems.add(playlist)) {
+                                Playlist pl = playlist;
+                                if (pl.getEntries().size() == 0) {
+                                    pl = DatabaseHelper.getInstance().getPlaylist(pl.getId());
+                                }
+                                if (pl != null && pl.getEntries().size() > 0) {
+                                    pl.updateTopArtistNames();
+                                    DatabaseHelper.getInstance().updatePlaylist(pl);
+                                    if (pl.getTopArtistNames() != null) {
+                                        for (int i = 0; i < pl.getTopArtistNames().length && i < 5;
+                                                i++) {
+                                            resolveItem(Artist.get(pl.getTopArtistNames()[i]));
+                                        }
+                                    }
+                                } else {
+                                    mResolvingItems.remove(pl);
                                 }
                             }
-                        } else {
-                            mResolvingItems.remove(pl);
                         }
-                    }
+                    };
+                    ThreadManager.getInstance().execute(r);
                 }
-            };
-            ThreadManager.getInstance().execute(r);
-        }
+            }
+        });
     }
 
     private void resolveItem(SocialAction socialAction) {

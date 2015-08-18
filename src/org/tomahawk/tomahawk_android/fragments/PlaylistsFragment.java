@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
@@ -38,6 +39,8 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -59,9 +62,14 @@ public class PlaylistsFragment extends TomahawkFragment {
         HatchetAuthenticatorUtils authenticatorUtils
                 = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        if (mUser == null || mUser == authenticatorUtils.getLoggedInUser()) {
-            refreshPlaylists();
-        }
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User user) {
+                if (mUser == user) {
+                    refreshPlaylists();
+                }
+            }
+        });
     }
 
     @Override
@@ -138,11 +146,8 @@ public class PlaylistsFragment extends TomahawkFragment {
             return;
         }
 
-        List playlists = new ArrayList();
-        HatchetAuthenticatorUtils authenticatorUtils
-                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        List<Segment> segments = new ArrayList<>();
+        final List playlists = new ArrayList();
+        final List<Segment> segments = new ArrayList<>();
 
         if (mQueryArray != null) {
             // Add the header text item
@@ -153,28 +158,39 @@ public class PlaylistsFragment extends TomahawkFragment {
             segments.add(new Segment(textItems));
         }
 
-        if (mUser != null && mUser != authenticatorUtils.getLoggedInUser()) {
-            if (mUser.getPlaylists() == null) {
-                if (!mResolvingUsers.contains(mUser)) {
-                    String requestId = InfoSystem.getInstance().resolvePlaylists(mUser, false);
-                    if (requestId != null) {
-                        mCorrespondingRequestIds.add(requestId);
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User user) {
+                if (mUser != null && mUser != user) {
+                    if (mUser.getPlaylists() == null) {
+                        if (!mResolvingUsers.contains(mUser)) {
+                            String requestId = InfoSystem.getInstance()
+                                    .resolvePlaylists(mUser, false);
+                            if (requestId != null) {
+                                mCorrespondingRequestIds.add(requestId);
+                            }
+                            mResolvingUsers.add(mUser);
+                        }
+                    } else {
+                        playlists.addAll(mUser.getPlaylists());
                     }
-                    mResolvingUsers.add(mUser);
+                    segments.add(new Segment(playlists));
+                } else {
+                    playlists.add(CREATE_PLAYLIST_BUTTON_ID);
+                    mPlaylists = DatabaseHelper.getInstance().getCachedPlaylists();
+                    playlists.addAll(mPlaylists);
+                    segments.add(new Segment(playlists, R.integer.grid_column_count,
+                            R.dimen.padding_superlarge, R.dimen.padding_superlarge));
                 }
-            } else {
-                playlists.addAll(mUser.getPlaylists());
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        fillAdapter(segments);
+                        showContentHeader(R.drawable.playlists_header);
+                    }
+                });
             }
-            segments.add(new Segment(playlists));
-        } else {
-            playlists.add(CREATE_PLAYLIST_BUTTON_ID);
-            mPlaylists = DatabaseHelper.getInstance().getCachedPlaylists();
-            playlists.addAll(mPlaylists);
-            segments.add(new Segment(playlists, R.integer.grid_column_count,
-                    R.dimen.padding_superlarge, R.dimen.padding_superlarge));
-        }
-        fillAdapter(segments);
-        showContentHeader(R.drawable.playlists_header);
+        });
     }
 
     private void refreshPlaylists() {

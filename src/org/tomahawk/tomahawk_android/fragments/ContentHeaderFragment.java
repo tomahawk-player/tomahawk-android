@@ -21,8 +21,7 @@ import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.PropertyValuesHolder;
 import com.nineoldandroids.animation.ValueAnimator;
 
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
@@ -44,6 +43,8 @@ import org.tomahawk.tomahawk_android.views.PageIndicator;
 import android.content.res.Resources;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.util.SparseArray;
@@ -271,15 +272,15 @@ public class ContentHeaderFragment extends Fragment {
                         : R.id.content_header_static;
             }
         }
-        View contentHeader = TomahawkUtils.ensureInflation(getView(), stubResId, inflatedId);
+        final View contentHeader = TomahawkUtils.ensureInflation(getView(), stubResId, inflatedId);
         contentHeader.getLayoutParams().height =
                 mHeaderNonscrollableHeight + mHeaderScrollableHeight;
 
         //Now we fill the added views with data and inflate the correct imageview_grid depending on
         //what we need
-        int gridOneStubId = isPagerFragment ? R.id.imageview_grid_one_pager_stub
+        final int gridOneStubId = isPagerFragment ? R.id.imageview_grid_one_pager_stub
                 : R.id.imageview_grid_one_stub;
-        int gridOneResId = isPagerFragment ? R.id.imageview_grid_one_pager
+        final int gridOneResId = isPagerFragment ? R.id.imageview_grid_one_pager
                 : R.id.imageview_grid_one;
         if (item instanceof Integer) {
             View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
@@ -351,51 +352,62 @@ public class ContentHeaderFragment extends Fragment {
                         (ImageView) v.findViewById(R.id.imageview1), (Image) item,
                         Image.getSmallImageSize(), R.color.userpage_default_background);
             } else if (item instanceof User) {
-                HatchetAuthenticatorUtils authUtils =
-                        (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                boolean showFollowing = false;
-                boolean showNotFollowing = false;
-                if (mShowFakeFollowing || mShowFakeNotFollowing) {
-                    showFollowing = mShowFakeFollowing;
-                    showNotFollowing = mShowFakeNotFollowing;
-                } else if (authUtils.getLoggedInUser() != null) {
-                    User user = authUtils.getLoggedInUser();
-                    showFollowing = item != user && user.getFollowings() != null
-                            && user.getFollowings().containsKey(item);
-                    showNotFollowing = item != user && (user.getFollowings() == null
-                            || !user.getFollowings().containsKey(item));
-                }
-                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
-                v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
-                TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(),
-                        (ImageView) v.findViewById(R.id.imageview1),
-                        ((User) item).getImage(), Image.getSmallImageSize(),
-                        R.color.userpage_default_background);
-                TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
-                        (ImageView) contentHeader.findViewById(R.id.userimageview1),
-                        (User) item, Image.getSmallImageSize(),
-                        (TextView) contentHeader.findViewById(R.id.usertextview1));
-                TextView textView = (TextView) contentHeader.findViewById(R.id.textview1);
-                textView.setText(((User) item).getName().toUpperCase());
-                TextView followButton = (TextView) contentHeader.findViewById(R.id.followbutton1);
-                if (showFollowing) {
-                    followButton.setVisibility(View.VISIBLE);
-                    followButton.setBackgroundResource(
-                            R.drawable.selectable_background_button_green_filled);
-                    followButton.setOnClickListener(mFollowButtonListener);
-                    followButton.setText(TomahawkApp.getContext().getString(
-                            R.string.content_header_following).toUpperCase());
-                } else if (showNotFollowing) {
-                    followButton.setVisibility(View.VISIBLE);
-                    followButton.setBackgroundResource(
-                            R.drawable.selectable_background_button_green);
-                    followButton.setOnClickListener(mFollowButtonListener);
-                    followButton.setText(TomahawkApp.getContext().getString(
-                            R.string.content_header_follow).toUpperCase());
-                } else {
-                    followButton.setVisibility(View.GONE);
-                }
+                User.getSelf().done(new DoneCallback<User>() {
+                    @Override
+                    public void onDone(final User user) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                boolean showFollowing = false;
+                                boolean showNotFollowing = false;
+                                if (mShowFakeFollowing || mShowFakeNotFollowing) {
+                                    showFollowing = mShowFakeFollowing;
+                                    showNotFollowing = mShowFakeNotFollowing;
+                                } else if (!user.isOffline()) {
+                                    showFollowing = item != user && user.getFollowings() != null
+                                            && user.getFollowings().containsKey(item);
+                                    showNotFollowing = item != user && (user.getFollowings() == null
+                                            || !user.getFollowings().containsKey(item));
+                                }
+                                View v = TomahawkUtils
+                                        .ensureInflation(getView(), gridOneStubId, gridOneResId);
+                                v.getLayoutParams().height = mHeaderNonscrollableHeight
+                                        + mHeaderScrollableHeight;
+                                TomahawkUtils.loadBlurredImageIntoImageView(
+                                        TomahawkApp.getContext(),
+                                        (ImageView) v.findViewById(R.id.imageview1),
+                                        ((User) item).getImage(), Image.getSmallImageSize(),
+                                        R.color.userpage_default_background);
+                                TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
+                                        (ImageView) contentHeader.findViewById(R.id.userimageview1),
+                                        (User) item, Image.getSmallImageSize(),
+                                        (TextView) contentHeader.findViewById(R.id.usertextview1));
+                                TextView textView =
+                                        (TextView) contentHeader.findViewById(R.id.textview1);
+                                textView.setText(((User) item).getName().toUpperCase());
+                                TextView followButton =
+                                        (TextView) contentHeader.findViewById(R.id.followbutton1);
+                                if (showFollowing) {
+                                    followButton.setVisibility(View.VISIBLE);
+                                    followButton.setBackgroundResource(
+                                            R.drawable.selectable_background_button_green_filled);
+                                    followButton.setOnClickListener(mFollowButtonListener);
+                                    followButton.setText(TomahawkApp.getContext().getString(
+                                            R.string.content_header_following).toUpperCase());
+                                } else if (showNotFollowing) {
+                                    followButton.setVisibility(View.VISIBLE);
+                                    followButton.setBackgroundResource(
+                                            R.drawable.selectable_background_button_green);
+                                    followButton.setOnClickListener(mFollowButtonListener);
+                                    followButton.setText(TomahawkApp.getContext().getString(
+                                            R.string.content_header_follow).toUpperCase());
+                                } else {
+                                    followButton.setVisibility(View.GONE);
+                                }
+                            }
+                        });
+                    }
+                });
             }
         }
     }

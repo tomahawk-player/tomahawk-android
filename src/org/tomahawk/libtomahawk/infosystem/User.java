@@ -17,6 +17,11 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
+import org.jdeferred.Promise;
+import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
+import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.AlphaComparable;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -24,6 +29,7 @@ import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -37,11 +43,18 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class User extends Cacheable implements AlphaComparable {
 
+    private static User mSelf = new User("self");
+
+    static {
+        mSelf.setName("Myself");
+        mSelf.setIsOffline(true);
+    }
+
     private static final String PLAYLIST_PLAYBACKLOG_ID = "_playbackLog";
 
     private static final String PLAYLIST_FAVORITES_ID = "_favorites";
 
-    private final String mId;
+    private String mId;
 
     private String mName;
 
@@ -49,9 +62,9 @@ public class User extends Cacheable implements AlphaComparable {
 
     private String mAbout;
 
-    private int mFollowCount;
+    private int mFollowCount = -1;
 
-    private int mFollowersCount;
+    private int mFollowersCount = -1;
 
     private Query mNowPlaying;
 
@@ -77,6 +90,8 @@ public class User extends Cacheable implements AlphaComparable {
 
     private List<Playlist> mPlaylists;
 
+    private boolean mIsOffline;
+
     /**
      * Construct a new {@link User} with the given id
      */
@@ -101,6 +116,39 @@ public class User extends Cacheable implements AlphaComparable {
 
     public static User getUserById(String id) {
         return (User) get(User.class, id);
+    }
+
+    public static Promise<User, Throwable, Void> getSelf() {
+        final ADeferredObject<User, Throwable, Void> deferred = new ADeferredObject<>();
+        final HatchetAuthenticatorUtils authUtils = (HatchetAuthenticatorUtils) AuthenticatorManager
+                .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        authUtils.getUserId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(String result) {
+                mSelf.setName(authUtils.getUserName());
+                mSelf.setId(result);
+                deferred.resolve(mSelf);
+            }
+        }).fail(new FailCallback<Throwable>() {
+            @Override
+            public void onFail(Throwable result) {
+                deferred.resolve(mSelf);
+            }
+        });
+        return deferred;
+    }
+
+    public boolean isOffline() {
+        return mIsOffline;
+    }
+
+    public void setIsOffline(boolean isOffline) {
+        mIsOffline = isOffline;
+    }
+
+    private void setId(String id) {
+        mId = id;
+        put(User.class, id, this);
     }
 
     /**

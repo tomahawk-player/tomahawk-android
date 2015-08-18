@@ -18,8 +18,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -27,8 +25,8 @@ import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -179,25 +177,28 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
                     @Override
                     public void run() {
-                        HatchetAuthenticatorUtils authenticatorUtils
-                                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                        if (mUser != authenticatorUtils.getLoggedInUser()) {
-                            String requestId = InfoSystem.getInstance().resolve(mPlaylist);
-                            if (requestId != null) {
-                                mCorrespondingRequestIds.add(requestId);
-                            }
-                        } else {
-                            Playlist playlist =
-                                    DatabaseHelper.getInstance().getPlaylist(mPlaylist.getId());
-                            if (playlist != null) {
-                                mPlaylist = playlist;
-                                if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-                                    mAdapterUpdateHandler.sendEmptyMessageDelayed(
-                                            ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
+                        User.getSelf().done(new DoneCallback<User>() {
+                            @Override
+                            public void onDone(User user) {
+                                if (mUser != user) {
+                                    String requestId = InfoSystem.getInstance().resolve(mPlaylist);
+                                    if (requestId != null) {
+                                        mCorrespondingRequestIds.add(requestId);
+                                    }
+                                } else {
+                                    Playlist playlist = DatabaseHelper.getInstance()
+                                            .getPlaylist(mPlaylist.getId());
+                                    if (playlist != null) {
+                                        mPlaylist = playlist;
+                                        if (!mAdapterUpdateHandler
+                                                .hasMessages(ADAPTER_UPDATE_MSG)) {
+                                            mAdapterUpdateHandler.sendEmptyMessageDelayed(
+                                                    ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
+                                        }
+                                    }
                                 }
                             }
-                        }
+                        });
                     }
                 }
         );
