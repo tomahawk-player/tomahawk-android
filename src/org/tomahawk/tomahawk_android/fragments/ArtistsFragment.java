@@ -47,11 +47,6 @@ public class ArtistsFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        if (getArguments() != null) {
-            if (getArguments().containsKey(SHOW_MODE)) {
-                mShowMode = getArguments().getInt(SHOW_MODE);
-            }
-        }
         updateAdapter();
     }
 

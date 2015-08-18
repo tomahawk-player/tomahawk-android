@@ -96,38 +96,33 @@ public class SocialActionsFragment extends TomahawkFragment implements
     public void onResume() {
         super.onResume();
 
-        if (getArguments() != null) {
-            if (getArguments().containsKey(SHOW_MODE)) {
-                mShowMode = getArguments().getInt(SHOW_MODE);
-                if (mShowMode == SHOW_MODE_DASHBOARD) {
-                    if (mContainerFragmentClass == null) {
-                        getActivity().setTitle(getString(R.string.drawer_title_feed).toUpperCase());
-                    }
-                    for (int i = 0; i < mUser.getFriendsFeed().size(); i++) {
-                        String requestId = InfoSystem.getInstance().resolveFriendsFeed(mUser, i);
-                        if (requestId != null) {
-                            mCorrespondingRequestIds.add(requestId);
-                        }
-                    }
-                    HatchetAuthenticatorUtils authenticatorUtils
-                            = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                            .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                    if (authenticatorUtils.getLoggedInUser() != null
-                            && authenticatorUtils.getLoggedInUser().getFollowCount() <= 5
-                            && mRandomUsersRequestId == null) {
-                        mRandomUsersRequestId = InfoSystem.getInstance().getRandomUsers(5);
-                        mCorrespondingRequestIds.add(mRandomUsersRequestId);
-                    }
-                } else {
-                    if (mContainerFragmentClass == null) {
-                        getActivity().setTitle("");
-                    }
-                    for (int i = 0; i < mUser.getSocialActions().size(); i++) {
-                        String requestId = InfoSystem.getInstance().resolveSocialActions(mUser, i);
-                        if (requestId != null) {
-                            mCorrespondingRequestIds.add(requestId);
-                        }
-                    }
+        if (mShowMode == SHOW_MODE_DASHBOARD) {
+            if (mContainerFragmentClass == null) {
+                getActivity().setTitle(getString(R.string.drawer_title_feed).toUpperCase());
+            }
+            for (int i = 0; i < mUser.getFriendsFeed().size(); i++) {
+                String requestId = InfoSystem.getInstance().resolveFriendsFeed(mUser, i);
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
+                }
+            }
+            HatchetAuthenticatorUtils authenticatorUtils
+                    = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+            if (authenticatorUtils.getLoggedInUser() != null
+                    && authenticatorUtils.getLoggedInUser().getFollowCount() <= 5
+                    && mRandomUsersRequestId == null) {
+                mRandomUsersRequestId = InfoSystem.getInstance().getRandomUsers(5);
+                mCorrespondingRequestIds.add(mRandomUsersRequestId);
+            }
+        } else {
+            if (mContainerFragmentClass == null) {
+                getActivity().setTitle("");
+            }
+            for (int i = 0; i < mUser.getSocialActions().size(); i++) {
+                String requestId = InfoSystem.getInstance().resolveSocialActions(mUser, i);
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
                 }
             }
         }

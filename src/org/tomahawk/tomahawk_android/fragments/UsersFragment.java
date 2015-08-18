@@ -43,20 +43,15 @@ public class UsersFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        if (getArguments() != null) {
-            if (getArguments().containsKey(SHOW_MODE)) {
-                mShowMode = getArguments().getInt(SHOW_MODE);
-                if (mShowMode == SHOW_MODE_TYPE_FOLLOWERS) {
-                    String requestId = InfoSystem.getInstance().resolveFollowers(mUser);
-                    if (requestId != null) {
-                        mCorrespondingRequestIds.add(requestId);
-                    }
-                } else {
-                    String requestId = InfoSystem.getInstance().resolveFollowings(mUser);
-                    if (requestId != null) {
-                        mCorrespondingRequestIds.add(requestId);
-                    }
-                }
+        if (mShowMode == SHOW_MODE_TYPE_FOLLOWERS) {
+            String requestId = InfoSystem.getInstance().resolveFollowers(mUser);
+            if (requestId != null) {
+                mCorrespondingRequestIds.add(requestId);
+            }
+        } else {
+            String requestId = InfoSystem.getInstance().resolveFollowings(mUser);
+            if (requestId != null) {
+                mCorrespondingRequestIds.add(requestId);
             }
         }
         if (mContainerFragmentClass == null) {
