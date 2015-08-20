@@ -29,6 +29,7 @@ import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -80,6 +81,8 @@ public class ContextMenuFragment extends Fragment {
     private Collection mCollection;
 
     private boolean mFromPlaybackFragment;
+
+    private boolean mHideRemoveButton;
 
     private final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
@@ -159,6 +162,10 @@ public class ContextMenuFragment extends Fragment {
 
     private void unpackArgs() {
         if (getArguments() != null) {
+            if (getArguments().containsKey(TomahawkFragment.HIDE_REMOVE_BUTTON)) {
+                mHideRemoveButton = getArguments()
+                        .getBoolean(TomahawkFragment.HIDE_REMOVE_BUTTON);
+            }
             if (getArguments().containsKey(TomahawkFragment.FROM_PLAYBACKFRAGMENT)) {
                 mFromPlaybackFragment = getArguments()
                         .getBoolean(TomahawkFragment.FROM_PLAYBACKFRAGMENT);
@@ -382,8 +389,7 @@ public class ContextMenuFragment extends Fragment {
         if (mPlaylist != null || mPlaylistEntry != null) {
             final String playlistId = mPlaylist != null ? mPlaylist.getId()
                     : mPlaylistEntry.getPlaylistId();
-            if (!DatabaseHelper.LOVEDITEMS_PLAYLIST_ID.equals(playlistId)
-                    && DatabaseHelper.getInstance().getEmptyPlaylist(playlistId) != null) {
+            if (!mHideRemoveButton) {
                 int stringResId;
                 if (mPlaylistEntry != null) {
                     stringResId = R.string.context_menu_removefromplaylist;
@@ -412,16 +418,22 @@ public class ContextMenuFragment extends Fragment {
         }
     }
 
-    private void showAddToPlaylist(TomahawkMainActivity activity, List<Query> queries) {
-        ArrayList<String> queryKeys = new ArrayList<>();
-        for (Query query : queries) {
-            queryKeys.add(query.getCacheKey());
-        }
-        Bundle bundle = new Bundle();
-        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                ContentHeaderFragment.MODE_HEADER_STATIC);
-        bundle.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
-        FragmentUtils.replace(activity, PlaylistsFragment.class, bundle);
+    private void showAddToPlaylist(final TomahawkMainActivity activity, final List<Query> queries) {
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User user) {
+                ArrayList<String> queryKeys = new ArrayList<>();
+                for (Query query : queries) {
+                    queryKeys.add(query.getCacheKey());
+                }
+                Bundle bundle = new Bundle();
+                bundle.putString(TomahawkFragment.USER, user.getId());
+                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                        ContentHeaderFragment.MODE_HEADER_STATIC);
+                bundle.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
+                FragmentUtils.replace(activity, PlaylistsFragment.class, bundle);
+            }
+        });
     }
 
     private void setupTextViews(View view) {

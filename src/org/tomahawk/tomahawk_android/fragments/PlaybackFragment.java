@@ -81,7 +81,8 @@ public class PlaybackFragment extends TomahawkFragment {
 
         @Override
         public void onShowContextMenu(Query query) {
-            FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), query, null, true);
+            FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), query, null, true,
+                    true);
         }
 
         @Override
@@ -269,7 +270,7 @@ public class PlaybackFragment extends TomahawkFragment {
             AnimationUtils
                     .fade(activity.getPlaybackPanel(), AnimationUtils.DURATION_CONTEXTMENU, false);
             return FragmentUtils
-                    .showContextMenu((TomahawkMainActivity) getActivity(), item, null, false);
+                    .showContextMenu((TomahawkMainActivity) getActivity(), item, null, false, true);
         }
         return false;
     }

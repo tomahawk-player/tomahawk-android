@@ -368,8 +368,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 User.getSelf().done(new DoneCallback<User>() {
                     @Override
                     public void onDone(User user) {
-                        bundle.putString(PlaylistsFragment.PLAYLIST,
-                                DatabaseHelper.LOVEDITEMS_PLAYLIST_ID);
+                        bundle.putInt(TomahawkFragment.SHOW_MODE,
+                                PlaylistEntriesFragment.SHOW_MODE_LOVEDITEMS);
                         bundle.putString(TomahawkFragment.USER, user.getId());
                         bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                                 ContentHeaderFragment.MODE_HEADER_DYNAMIC);

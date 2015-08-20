@@ -17,6 +17,7 @@
  */
 package org.tomahawk.libtomahawk.database;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -25,6 +26,7 @@ import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -61,17 +63,15 @@ public class DatabaseHelper {
 
     private static final String TAG = DatabaseHelper.class.getSimpleName();
 
-    public static final String LOVEDITEMS_PLAYLIST_NAME = "My loved tracks";
+    private static final String LOVEDITEMS_PLAYLIST_NAME = "My loved tracks";
 
-    public static final String LOVEDITEMS_PLAYLIST_ID = "loveditems_playlist_id";
+    private static final String LOVEDITEMS_PLAYLIST_ID = "loveditems_playlist_id";
 
     public static final int FALSE = 0;
 
     public static final int TRUE = 1;
 
     public static final int CHUNK_SIZE = 50;
-
-    private List<Playlist> mCachedPlaylists = new ArrayList<>();
 
     private static class Holder {
 
@@ -302,7 +302,7 @@ public class DatabaseHelper {
      * @return every stored {@link org.tomahawk.libtomahawk.collection.Playlist} in the database
      */
     public List<Playlist> getPlaylists() {
-        List<Playlist> playListList = new ArrayList<>();
+        final List<Playlist> playListList = new ArrayList<>();
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID};
 
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
@@ -318,18 +318,13 @@ public class DatabaseHelper {
         }
         playlistsCursor.close();
         Collections.sort(playListList, new AlphaComparator());
-        mCachedPlaylists = playListList;
-        return mCachedPlaylists;
-    }
-
-    /**
-     * This method doesn't return the actual data from the database, but rather the last set that
-     * has been read. Used for performance reasons.
-     *
-     * @return the cached TreeSet of Playlists
-     */
-    public List<Playlist> getCachedPlaylists() {
-        return mCachedPlaylists;
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User user) {
+                user.setPlaylists(playListList);
+            }
+        });
+        return playListList;
     }
 
     /**

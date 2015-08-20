@@ -139,7 +139,7 @@ public class FragmentUtils {
      *                     album's tracklist from a specific collection)
      */
     public static boolean showContextMenu(TomahawkMainActivity activity, Object item,
-            String collectionId, boolean isFromPlaybackFragment) {
+            String collectionId, boolean isFromPlaybackFragment, boolean hideRemoveButton) {
         if (item == null
                 || (item instanceof SocialAction
                 && ((SocialAction) item).getTargetObject() instanceof User)
@@ -153,6 +153,9 @@ public class FragmentUtils {
         }
         if (isFromPlaybackFragment) {
             args.putBoolean(TomahawkFragment.FROM_PLAYBACKFRAGMENT, true);
+        }
+        if (hideRemoveButton) {
+            args.putBoolean(TomahawkFragment.HIDE_REMOVE_BUTTON, true);
         }
         if (item instanceof Query) {
             args.putString(TomahawkFragment.TOMAHAWKLISTITEM,

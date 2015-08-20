@@ -104,6 +104,7 @@ public class CollectionManager {
         addCollection(new HatchetCollection());
 
         fetchAll();
+        refreshUserPlaylists();
     }
 
     @SuppressWarnings("unused")
@@ -148,6 +149,19 @@ public class CollectionManager {
             }
         });
         fetchAll();
+    }
+
+    public Promise<Void, Throwable, Void> refreshUserPlaylists() {
+        final ADeferredObject<Void, Throwable, Void> deferred = new ADeferredObject<>();
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User result) {
+                result.setPlaylists(DatabaseHelper.getInstance().getPlaylists());
+                result.setFavorites(DatabaseHelper.getInstance().getLovedItemsPlaylist());
+                deferred.resolve(null);
+            }
+        });
+        return deferred;
     }
 
     public void fetchAll() {

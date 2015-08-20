@@ -104,6 +104,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     public static final String FROM_PLAYBACKFRAGMENT = "from_playbackfragment";
 
+    public static final String HIDE_REMOVE_BUTTON = "hide_remove_button";
+
     public static final String QUERY_STRING = "query_string";
 
     public static final String SHOW_MODE = "show_mode";
@@ -164,7 +166,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     private int mVisibleItemCount = 0;
 
-    protected int mShowMode;
+    protected int mShowMode = -1;
 
     private final Handler mResolveQueriesHandler = new ResolveQueriesHandler(this);
 
@@ -295,26 +297,22 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             }
             if (getArguments().containsKey(PLAYLIST)
                     && !TextUtils.isEmpty(getArguments().getString(PLAYLIST))) {
-                String playlistId = getArguments().getString(TomahawkFragment.PLAYLIST);
-                mPlaylist = DatabaseHelper.getInstance().getPlaylist(playlistId);
+                mPlaylist = Playlist.getByKey(getArguments().getString(TomahawkFragment.PLAYLIST));
                 if (mPlaylist == null) {
-                    mPlaylist = Playlist.getByKey(playlistId);
-                    if (mPlaylist == null) {
-                        getActivity().getSupportFragmentManager().popBackStack();
-                        return;
-                    } else {
-                        User.getSelf().done(new DoneCallback<User>() {
-                            @Override
-                            public void onDone(User user) {
-                                if (mUser != user) {
-                                    String requestId = InfoSystem.getInstance().resolve(mPlaylist);
-                                    if (requestId != null) {
-                                        mCorrespondingRequestIds.add(requestId);
-                                    }
+                    getActivity().getSupportFragmentManager().popBackStack();
+                    return;
+                } else {
+                    User.getSelf().done(new DoneCallback<User>() {
+                        @Override
+                        public void onDone(User user) {
+                            if (mUser != user) {
+                                String requestId = InfoSystem.getInstance().resolve(mPlaylist);
+                                if (requestId != null) {
+                                    mCorrespondingRequestIds.add(requestId);
                                 }
                             }
-                        });
-                    }
+                        }
+                    });
                 }
             }
             if (getArguments().containsKey(ARTIST)
@@ -448,7 +446,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     @Override
     public boolean onItemLongClick(View view, Object item) {
         return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
-                mCollection.getId(), false);
+                mCollection.getId(), false, mHideRemoveButton);
     }
 
     protected void fillAdapter(Segment segment, Collection collection) {

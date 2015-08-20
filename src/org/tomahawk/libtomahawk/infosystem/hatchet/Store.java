@@ -430,11 +430,11 @@ public class Store {
                 }
             }
         }
-        elements = object.get("playbacklog");
+        elements = object.get("playbacklogs");
         if (elements instanceof JsonArray) {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
-                    JsonObject o = (JsonObject) elements;
+                    JsonObject o = (JsonObject) element;
                     String id = getAsString(o, "id");
                     JsonArray playbacklogEntries = get(o, "playbacklogEntries").getAsJsonArray();
                     ArrayList<Query> queries = new ArrayList<>();
@@ -447,6 +447,7 @@ public class Store {
                             TomahawkMainActivity.getLifetimeUniqueStringId(), "Playbacklog", null,
                             queries);
                     playlist.setHatchetId(id);
+                    playlist.setFilled(true);
                     mCache.get(TYPE_PLAYLISTS).put(id, playlist);
                     if (resultType == TYPE_PLAYLISTS) {
                         results.add(playlist);

@@ -23,7 +23,6 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
-import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
@@ -33,10 +32,10 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
+import android.util.Log;
 import android.view.View;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -45,25 +44,16 @@ import java.util.Set;
  */
 public class PlaylistEntriesFragment extends TomahawkFragment {
 
+    public static final int SHOW_MODE_LOVEDITEMS = 0;
+
+    public static final int SHOW_MODE_PLAYBACKLOG = 1;
+
     private Set<String> mResolvingTopArtistNames = new HashSet<>();
-
-    @SuppressWarnings("unused")
-    public void onEvent(InfoSystem.ResultsEvent event) {
-        if (event.mInfoRequestData.getType()
-                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
-            List<Playlist> playlists = event.mInfoRequestData.getResultList(Playlist.class);
-            if (playlists != null && playlists.size() > 0) {
-                mPlaylist = playlists.get(0);
-            }
-        }
-
-        super.onEvent(event);
-    }
 
     @SuppressWarnings("unused")
     public void onEvent(DatabaseHelper.PlaylistsUpdatedEvent event) {
         if (mPlaylist != null && mPlaylist.getId().equals(event.mPlaylistId)) {
-            refreshCurrentPlaylist();
+            refreshUserPlaylists();
         }
     }
 
@@ -72,28 +62,37 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         super.onResume();
 
         CollectionManager.getInstance().fetchPlaylists();
-        if (mUser != null) {
-            if (mPlaylist == mUser.getPlaybackLog()) {
-                String requestId = InfoSystem.getInstance().resolvePlaybackLog(mUser);
-                if (requestId != null) {
-                    mCorrespondingRequestIds.add(requestId);
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User user) {
+                if (mUser != null) {
+                    if (mShowMode == SHOW_MODE_PLAYBACKLOG) {
+                        String requestId = InfoSystem.getInstance().resolvePlaybackLog(mUser);
+                        if (requestId != null) {
+                            mCorrespondingRequestIds.add(requestId);
+                        }
+                    } else if (mShowMode == SHOW_MODE_LOVEDITEMS) {
+                        mHideRemoveButton = true;
+                        if (mUser == user) {
+                            CollectionManager.getInstance().fetchLovedItemsPlaylist();
+                            refreshUserPlaylists();
+                        } else {
+                            String requestId = InfoSystem.getInstance().resolveLovedItems(mUser);
+                            if (requestId != null) {
+                                mCorrespondingRequestIds.add(requestId);
+                            }
+                        }
+                    }
+                    if (mUser != user) {
+                        mHideRemoveButton = true;
+                    }
                 }
-            } else if (mPlaylist == mUser.getFavorites()) {
-                String requestId = InfoSystem.getInstance().resolveLovedItems(mUser);
-                if (requestId != null) {
-                    mCorrespondingRequestIds.add(requestId);
+                if (mContainerFragmentClass == null) {
+                    getActivity().setTitle("");
                 }
+                updateAdapter();
             }
-        }
-        if (mPlaylist != null) {
-            if (DatabaseHelper.LOVEDITEMS_PLAYLIST_ID.equals(mPlaylist.getId())) {
-                CollectionManager.getInstance().fetchLovedItemsPlaylist();
-            }
-        }
-        if (mContainerFragmentClass == null) {
-            getActivity().setTitle("");
-        }
-        updateAdapter();
+        });
     }
 
     /**
@@ -140,30 +139,43 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             return;
         }
 
-        if (mPlaylist != null) {
-            if (!mPlaylist.isFilled()) {
-                refreshCurrentPlaylist();
+        if (getPlaylist() != null) {
+            if (!getPlaylist().isFilled()) {
+                User.getSelf().done(new DoneCallback<User>() {
+                    @Override
+                    public void onDone(User user) {
+                        if (mUser != user && mShowMode < 0) {
+                            String requestId = InfoSystem.getInstance().resolve(mPlaylist);
+                            if (requestId != null) {
+                                mCorrespondingRequestIds.add(requestId);
+                            }
+                        }
+                    }
+                });
             } else {
-                Segment segment = new Segment(R.string.playlist_details, mPlaylist.getEntries());
+                Segment segment = new Segment(R.string.playlist_details,
+                        getPlaylist().getEntries());
                 segment.setShowNumeration(true, 1);
                 fillAdapter(segment);
-                showContentHeader(mPlaylist);
-                showFancyDropDown(0, mPlaylist.getName(), null, null);
+                showContentHeader(getPlaylist());
+                showFancyDropDown(0, getPlaylist().getName(), null, null);
                 ThreadManager.getInstance()
                         .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW) {
                             @Override
                             public void run() {
-                                if (mPlaylist.getTopArtistNames() == null
-                                        || mPlaylist.getTopArtistNames().length == 0) {
-                                    mPlaylist.updateTopArtistNames();
-                                }
-                                for (int i = 0; i < mPlaylist.getTopArtistNames().length && i < 5;
-                                        i++) {
-                                    String artistName = mPlaylist.getTopArtistNames()[i];
-                                    if (mResolvingTopArtistNames.contains(artistName)) {
-                                        mCorrespondingRequestIds.addAll(InfoSystem.getInstance()
-                                                .resolve(Artist.get(artistName), false));
-                                        mResolvingTopArtistNames.add(artistName);
+                                if (getPlaylist().getTopArtistNames() == null
+                                        || getPlaylist().getTopArtistNames().length == 0) {
+                                    getPlaylist().updateTopArtistNames();
+                                } else {
+                                    for (int i = 0;
+                                            i < getPlaylist().getTopArtistNames().length && i < 5;
+                                            i++) {
+                                        String artistName = getPlaylist().getTopArtistNames()[i];
+                                        if (mResolvingTopArtistNames.contains(artistName)) {
+                                            mCorrespondingRequestIds.addAll(InfoSystem.getInstance()
+                                                    .resolve(Artist.get(artistName), false));
+                                            mResolvingTopArtistNames.add(artistName);
+                                        }
                                     }
                                 }
                             }
@@ -172,35 +184,29 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
         }
     }
 
-    protected void refreshCurrentPlaylist() {
-        ThreadManager.getInstance().execute(
-                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
-                    @Override
-                    public void run() {
-                        User.getSelf().done(new DoneCallback<User>() {
-                            @Override
-                            public void onDone(User user) {
-                                if (mUser != user) {
-                                    String requestId = InfoSystem.getInstance().resolve(mPlaylist);
-                                    if (requestId != null) {
-                                        mCorrespondingRequestIds.add(requestId);
-                                    }
-                                } else {
-                                    Playlist playlist = DatabaseHelper.getInstance()
-                                            .getPlaylist(mPlaylist.getId());
-                                    if (playlist != null) {
-                                        mPlaylist = playlist;
-                                        if (!mAdapterUpdateHandler
-                                                .hasMessages(ADAPTER_UPDATE_MSG)) {
-                                            mAdapterUpdateHandler.sendEmptyMessageDelayed(
-                                                    ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
-                                        }
-                                    }
-                                }
-                            }
-                        });
-                    }
+    private Playlist getPlaylist() {
+        if (mUser != null) {
+            if (mShowMode == SHOW_MODE_PLAYBACKLOG) {
+                return mUser.getPlaybackLog();
+            } else if (mShowMode == SHOW_MODE_LOVEDITEMS) {
+                return mUser.getFavorites();
+            }
+        } else if (mPlaylist != null) {
+            return mPlaylist;
+        }
+        Log.e(TAG, "mUser and mShowMode null or mPlaylist null.");
+        return null;
+    }
+
+    private void refreshUserPlaylists() {
+        CollectionManager.getInstance().refreshUserPlaylists().done(new DoneCallback<Void>() {
+            @Override
+            public void onDone(Void result) {
+                if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+                    mAdapterUpdateHandler.sendEmptyMessageDelayed(
+                            ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
                 }
-        );
+            }
+        });
     }
 }
