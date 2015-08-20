@@ -101,7 +101,7 @@ public class PreferenceConnectFragment extends TomahawkListFragment
         List<Resolver> resolvers = new ArrayList<>();
         resolvers.add(UserCollectionStubResolver.get());
         resolvers.add(HatchetStubResolver.get());
-        List<ScriptResolver> scriptResolvers = PipeLine.getInstance().getScriptResolvers();
+        List<ScriptResolver> scriptResolvers = PipeLine.get().getScriptResolvers();
         Collections.sort(scriptResolvers, new Comparator<ScriptResolver>() {
             @Override
             public int compare(ScriptResolver lhs, ScriptResolver rhs) {

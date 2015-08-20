@@ -200,7 +200,7 @@ public class ViewHolder {
     public void fillView(final Album album, Collection collection) {
         if (collection == null) {
             collection =
-                    CollectionManager.getInstance().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+                    CollectionManager.get().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
         }
         TextView textView1 = (TextView) findViewById(R.id.textview1);
         textView1.setText(album.getPrettyName());

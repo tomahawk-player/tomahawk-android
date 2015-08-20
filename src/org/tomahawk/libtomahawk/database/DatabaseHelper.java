@@ -93,7 +93,7 @@ public class DatabaseHelper {
         mDatabase = dbHelper.getWritableDatabase();
     }
 
-    public static DatabaseHelper getInstance() {
+    public static DatabaseHelper get() {
         return Holder.instance;
     }
 
@@ -1312,7 +1312,7 @@ public class DatabaseHelper {
     public static void setPicture(MediaWrapper m, Bitmap p) {
         Log.d(TAG, "Setting new picture for " + m.getTitle());
         try {
-            getInstance().updateMedia(
+            get().updateMedia(
                     m.getLocation(),
                     TomahawkSQLiteHelper.mediaColumn.MEDIA_PICTURE,
                     p);

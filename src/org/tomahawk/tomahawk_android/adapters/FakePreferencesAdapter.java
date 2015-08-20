@@ -67,7 +67,7 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putInt(mKey, position);
                 editor.commit();
-                SpotifyMediaPlayer.getInstance().setBitRate(position);
+                SpotifyMediaPlayer.get().setBitRate(position);
             }
         }
 

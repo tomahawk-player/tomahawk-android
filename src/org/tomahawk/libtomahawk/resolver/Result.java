@@ -75,13 +75,13 @@ public class Result extends Cacheable {
         }
         mResolvedBy = resolvedBy;
         if (TomahawkApp.PLUGINNAME_SPOTIFY.equals(mResolvedBy.getId())) {
-            mMediaPlayerInterface = SpotifyMediaPlayer.getInstance();
+            mMediaPlayerInterface = SpotifyMediaPlayer.get();
         } else if (TomahawkApp.PLUGINNAME_RDIO.equals(mResolvedBy.getId())) {
-            mMediaPlayerInterface = RdioMediaPlayer.getInstance();
+            mMediaPlayerInterface = RdioMediaPlayer.get();
         } else if (TomahawkApp.PLUGINNAME_DEEZER.equals(mResolvedBy.getId())) {
-            mMediaPlayerInterface = DeezerMediaPlayer.getInstance();
+            mMediaPlayerInterface = DeezerMediaPlayer.get();
         } else {
-            mMediaPlayerInterface = VLCMediaPlayer.getInstance();
+            mMediaPlayerInterface = VLCMediaPlayer.get();
             if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(mResolvedBy.getId())) {
                 mIsLocal = true;
             }

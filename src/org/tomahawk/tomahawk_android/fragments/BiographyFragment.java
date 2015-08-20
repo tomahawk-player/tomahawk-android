@@ -60,7 +60,7 @@ public class BiographyFragment extends TomahawkFragment {
         List bioText = new ArrayList<>();
         if (mArtist != null) {
             if (mArtist.getBio() == null) {
-                InfoSystem.getInstance().resolve(mArtist, false);
+                InfoSystem.get().resolve(mArtist, false);
             }
             bioText.add(mArtist.getBio());
             fillAdapter(new Segment(bioText));

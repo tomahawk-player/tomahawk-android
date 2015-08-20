@@ -238,9 +238,9 @@ public class MicroService extends Service {
             Track track = Track.get(trackName, album, artist);
             if (sCurrentTrack != track) {
                 sCurrentTrack = track;
-                AuthenticatorUtils utils = AuthenticatorManager.getInstance()
+                AuthenticatorUtils utils = AuthenticatorManager.get()
                         .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                InfoSystem.getInstance()
+                InfoSystem.get()
                         .sendNowPlayingPostStruct(utils, Query.get(track, false));
                 Log.d(TAG, "Scrobbling track: '" + track.getName() + "' - '"
                         + track.getArtist().getName() + "' - '" + track.getAlbum().getName());

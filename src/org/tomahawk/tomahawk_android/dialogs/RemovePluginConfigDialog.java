@@ -48,7 +48,7 @@ public class RemovePluginConfigDialog extends ConfigDialog {
         if (getArguments() != null && getArguments().containsKey(TomahawkFragment.PREFERENCEID)) {
             String resolverId = getArguments().getString(
                     TomahawkFragment.PREFERENCEID);
-            mScriptResolver = (ScriptResolver) PipeLine.getInstance().getResolver(resolverId);
+            mScriptResolver = (ScriptResolver) PipeLine.get().getResolver(resolverId);
         }
 
         TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);

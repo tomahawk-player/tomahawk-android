@@ -114,11 +114,11 @@ public abstract class DbCollection extends Collection {
                                 results.add(collectionCursor.get(i));
                             }
                             collectionCursor.close();
-                            PipeLine.getInstance().reportResults(query, results, mResolver.getId());
+                            PipeLine.get().reportResults(query, results, mResolver.getId());
                         }
                     }
                 };
-                ThreadManager.getInstance().execute(r, query);
+                ThreadManager.get().execute(r, query);
             }
         });
         return true;

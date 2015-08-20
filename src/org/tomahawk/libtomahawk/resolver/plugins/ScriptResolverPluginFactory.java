@@ -31,11 +31,11 @@ public class ScriptResolverPluginFactory extends ScriptPluginFactory<ScriptResol
 
     @Override
     public void addPlugin(ScriptResolver resolver) {
-        PipeLine.getInstance().addResolver(resolver);
+        PipeLine.get().addResolver(resolver);
     }
 
     @Override
     public void removePlugin(ScriptResolver resolver) {
-        PipeLine.getInstance().removeResolver(resolver);
+        PipeLine.get().removeResolver(resolver);
     }
 }

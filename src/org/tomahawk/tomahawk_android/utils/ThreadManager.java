@@ -61,7 +61,7 @@ public class ThreadManager {
                 KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
     }
 
-    public static ThreadManager getInstance() {
+    public static ThreadManager get() {
         return Holder.instance;
     }
 

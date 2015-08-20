@@ -41,7 +41,7 @@ public class DeezerMediaPlayer extends PluginMediaPlayer implements TomahawkMedi
         super(TomahawkApp.PLUGINNAME_DEEZER, "org.tomahawk.deezerplugin");
     }
 
-    public static DeezerMediaPlayer getInstance() {
+    public static DeezerMediaPlayer get() {
         return Holder.instance;
     }
 

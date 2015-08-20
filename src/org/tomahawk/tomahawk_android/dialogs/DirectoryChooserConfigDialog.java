@@ -68,7 +68,7 @@ public class DirectoryChooserConfigDialog extends ConfigDialog {
 
     @Override
     protected void onPositiveAction() {
-        UserCollection userCollection = (UserCollection) CollectionManager.getInstance()
+        UserCollection userCollection = (UserCollection) CollectionManager.get()
                 .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
         userCollection.loadMediaItems(true);
         dismiss();

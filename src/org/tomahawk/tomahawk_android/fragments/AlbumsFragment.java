@@ -183,7 +183,7 @@ public class AlbumsFragment extends TomahawkFragment {
         } else {
             final List<Album> starredAlbums;
             if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
-                starredAlbums = DatabaseHelper.getInstance().getStarredAlbums();
+                starredAlbums = DatabaseHelper.get().getStarredAlbums();
             } else {
                 starredAlbums = null;
             }
@@ -240,7 +240,7 @@ public class AlbumsFragment extends TomahawkFragment {
         }
         switch (getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION)) {
             case 0:
-                UserCollection userColl = (UserCollection) CollectionManager.getInstance()
+                UserCollection userColl = (UserCollection) CollectionManager.get()
                         .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
                 Collections.sort(sortedAlbums,
                         new LastModifiedComparator<>(userColl.getAlbumTimeStamps()));

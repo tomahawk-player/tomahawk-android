@@ -105,7 +105,7 @@ public class InfoSystem {
         mInfoPlugins.add(new HatchetInfoPlugin());
     }
 
-    public static InfoSystem getInstance() {
+    public static InfoSystem get() {
         return Holder.instance;
     }
 
@@ -424,7 +424,7 @@ public class InfoSystem {
             InfoRequestData infoRequestData = new InfoRequestData(requestId,
                     InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES, null,
                     InfoRequestData.HTTPTYPE_POST, jsonString);
-            DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+            DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                     (int) (timeStamp / 1000));
             sendLoggedOps(authenticatorUtils);
         }
@@ -469,7 +469,7 @@ public class InfoSystem {
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, null,
                 InfoRequestData.HTTPTYPE_POST, jsonString);
-        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+        DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
     }
@@ -506,7 +506,7 @@ public class InfoSystem {
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params,
                 InfoRequestData.HTTPTYPE_POST, jsonString);
-        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+        DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         return sendLoggedOps(authenticatorUtils);
     }
@@ -528,7 +528,7 @@ public class InfoSystem {
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES, params,
                 InfoRequestData.HTTPTYPE_POST, jsonString);
-        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+        DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
     }
@@ -541,7 +541,7 @@ public class InfoSystem {
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params,
                 InfoRequestData.HTTPTYPE_DELETE, null);
-        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+        DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
     }
@@ -556,7 +556,7 @@ public class InfoSystem {
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES, params,
                 InfoRequestData.HTTPTYPE_DELETE, null);
-        DatabaseHelper.getInstance().addOpToInfoSystemOpLog(infoRequestData,
+        DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
     }
@@ -625,7 +625,7 @@ public class InfoSystem {
 
     public synchronized List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
         List<String> requestIds = new ArrayList<>();
-        List<InfoRequestData> loggedOps = DatabaseHelper.getInstance().getLoggedOps();
+        List<InfoRequestData> loggedOps = DatabaseHelper.get().getLoggedOps();
         for (InfoRequestData loggedOp : loggedOps) {
             if (!mLoggedOpsMap.containsKey(loggedOp.getLoggedOpId())) {
                 mLoggedOpsMap.put(loggedOp.getLoggedOpId(), loggedOp);
@@ -666,7 +666,7 @@ public class InfoSystem {
                         HatchetPlaylistEntries entries = results.get(0);
                         if (entries != null && entries.playlists.size() > 0) {
                             playlistIds.add(entries.playlists.get(0).id);
-                            DatabaseHelper.getInstance().updatePlaylistHatchetId(
+                            DatabaseHelper.get().updatePlaylistHatchetId(
                                     loggedOp.getQueryParams().playlist_local_id,
                                     entries.playlists.get(0).id);
                         }
@@ -680,8 +680,8 @@ public class InfoSystem {
                 mPlaylistsLoggedOpsMap.remove(loggedOp.getLoggedOpId());
             }
             trySendingQueuedOps();
-            DatabaseHelper.getInstance().removeOpsFromInfoSystemOpLog(loggedOps);
-            if (DatabaseHelper.getInstance().getLoggedOpsCount() == 0) {
+            DatabaseHelper.get().removeOpsFromInfoSystemOpLog(loggedOps);
+            if (DatabaseHelper.get().getLoggedOpsCount() == 0) {
                 if (!requestTypes.isEmpty()) {
                     OpLogIsEmptiedEvent event = new OpLogIsEmptiedEvent();
                     event.mRequestTypes = requestTypes;
@@ -697,11 +697,11 @@ public class InfoSystem {
             while (!mQueuedLoggedOps.isEmpty()) {
                 InfoRequestData queuedLoggedOp = mQueuedLoggedOps.remove(0);
                 QueryParams params = queuedLoggedOp.getQueryParams();
-                String hatchetId = DatabaseHelper.getInstance()
+                String hatchetId = DatabaseHelper.get()
                         .getPlaylistHatchetId(params.playlist_local_id);
                 if (hatchetId != null) {
                     params.playlist_id = hatchetId;
-                    send(queuedLoggedOp, AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                    send(queuedLoggedOp, AuthenticatorManager.get().getAuthenticatorUtils(
                             TomahawkApp.PLUGINNAME_HATCHET));
                 } else {
                     Log.e(TAG, "Hatchet sync - Couldn't send queued logged op, because the stored "
@@ -716,6 +716,6 @@ public class InfoSystem {
         mSentRequests.put(loggedOp.getRequestId(), loggedOp);
         ArrayList<String> doneRequestsIds = new ArrayList<>();
         doneRequestsIds.add(loggedOp.getRequestId());
-        InfoSystem.getInstance().onLoggedOpsSent(doneRequestsIds, true);
+        InfoSystem.get().onLoggedOpsSent(doneRequestsIds, true);
     }
 }

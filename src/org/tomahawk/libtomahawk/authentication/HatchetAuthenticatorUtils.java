@@ -151,7 +151,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 ensureAccessTokens();
             }
         }
-        CollectionManager.getInstance().fetchAll();
+        CollectionManager.get().fetchAll();
         AuthenticatorManager.ConfigTestResultEvent event
                 = new AuthenticatorManager.ConfigTestResultEvent();
         event.mComponent = this;
@@ -200,7 +200,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     @Override
     public void register(final String name, final String password, final String email) {
-        ThreadManager.getInstance().execute(
+        ThreadManager.get().execute(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
                     @Override
                     public void run() {
@@ -240,7 +240,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
 
     @Override
     public void login(Activity activity, final String name, final String password) {
-        ThreadManager.getInstance().execute(
+        ThreadManager.get().execute(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
                     @Override
                     public void run() {
@@ -322,7 +322,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 if (am.getUserData(getAccount(), USER_ID_HATCHET) != null) {
                     mGetUserIdPromise.resolve(am.getUserData(getAccount(), USER_ID_HATCHET));
                 } else {
-                    String requestId = InfoSystem.getInstance().resolveUserId(getUserName());
+                    String requestId = InfoSystem.get().resolveUserId(getUserName());
                     if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
                     }

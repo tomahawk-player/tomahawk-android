@@ -221,16 +221,16 @@ public class TomahawkMainActivity extends ActionBarActivity
     private final Runnable mShouldShowAnimationRunnable = new Runnable() {
         @Override
         public void run() {
-            if (ThreadManager.getInstance().isActive()
+            if (ThreadManager.get().isActive()
                     || (mPlaybackService != null && mPlaybackService.isPreparing())
-                    || ((UserCollection) CollectionManager.getInstance()
+                    || ((UserCollection) CollectionManager.get()
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION)).isWorking()) {
                 mSmoothProgressBar.setVisibility(View.VISIBLE);
             } else {
                 mSmoothProgressBar.setVisibility(View.GONE);
             }
             mShouldShowAnimationHandler.postDelayed(mShouldShowAnimationRunnable, 500);
-            for (final Collection collection : CollectionManager.getInstance().getCollections()) {
+            for (final Collection collection : CollectionManager.get().getCollections()) {
                 if (collection instanceof DbCollection) {
                     ((DbCollection) collection).isInitializing().then(new DoneCallback<Boolean>() {
                         @Override
@@ -290,9 +290,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                 boolean noConnectivity =
                         intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
                 if (!noConnectivity) {
-                    AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.getInstance()
+                    AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                             .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                    InfoSystem.getInstance().sendLoggedOps(hatchetAuthUtils);
+                    InfoSystem.get().sendLoggedOps(hatchetAuthUtils);
                 }
             }
         }
@@ -312,7 +312,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             HatchetAuthenticatorUtils authenticatorUtils
-                    = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                    = (HatchetAuthenticatorUtils) AuthenticatorManager.get()
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             TomahawkMenuAdapter.ResourceHolder holder =
                     (TomahawkMenuAdapter.ResourceHolder) mDrawerList.getAdapter().getItem(position);
@@ -574,9 +574,9 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        PipeLine.getInstance();
+        PipeLine.get();
 
-        UserCollection userCollection = (UserCollection) CollectionManager.getInstance()
+        UserCollection userCollection = (UserCollection) CollectionManager.get()
                 .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
         userCollection.loadMediaItems(true);
 
@@ -692,7 +692,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                     || host.contains("toma.hk") || host.contains("beatsmusic.com")
                     || host.contains("deezer.com") || host.contains("rdio.com")
                     || host.contains("soundcloud.com")))) {
-                PipeLine.getInstance().lookupUrl(data.toString());
+                PipeLine.get().lookupUrl(data.toString());
             } else if ((pathSegments != null
                     && pathSegments.get(pathSegments.size() - 1).endsWith(".xspf"))
                     || (intent.getType() != null
@@ -717,7 +717,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                         }
                     }
                 };
-                ThreadManager.getInstance().execute(r);
+                ThreadManager.get().execute(r);
             } else if (pathSegments != null
                     && (pathSegments.get(pathSegments.size() - 1).endsWith(".axe")
                     || pathSegments.get(pathSegments.size() - 1).endsWith(".AXE"))) {
@@ -836,7 +836,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         User.getSelf().done(new DoneCallback<User>() {
             @Override
             public void onDone(User user) {
-                String requestId = InfoSystem.getInstance().resolve(user);
+                String requestId = InfoSystem.get().resolve(user);
                 if (requestId != null) {
                     mCorrespondingRequestIds.add(requestId);
                 }
@@ -845,7 +845,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         //Ask for notification service access if hatchet user logged in
         HatchetAuthenticatorUtils hatchetAuthUtils
-                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                = (HatchetAuthenticatorUtils) AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         if (hatchetAuthUtils.isLoggedIn()) {
             attemptAskAccess();
@@ -968,7 +968,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             @Override
             public boolean onQueryTextSubmit(String query) {
                 if (query != null && !TextUtils.isEmpty(query)) {
-                    DatabaseHelper.getInstance().addEntryToSearchHistory(query);
+                    DatabaseHelper.get().addEntryToSearchHistory(query);
                     Bundle bundle = new Bundle();
                     bundle.putString(TomahawkFragment.QUERY_STRING, query);
                     bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
@@ -986,7 +986,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Cursor cursor = DatabaseHelper.getInstance().getSearchHistoryCursor(newText);
+                Cursor cursor = DatabaseHelper.get().getSearchHistoryCursor(newText);
                 if (cursor.getCount() != 0) {
                     String[] columns = new String[]{
                             TomahawkSQLiteHelper.SEARCHHISTORY_COLUMN_ENTRY};
@@ -1076,7 +1076,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             User.getSelf().done(new DoneCallback<User>() {
                 @Override
                 public void onDone(User user) {
-                    String requestId = InfoSystem.getInstance().resolve(user);
+                    String requestId = InfoSystem.get().resolve(user);
                     if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
                     }
@@ -1091,7 +1091,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             @Override
             public void onDone(User user) {
                 HatchetAuthenticatorUtils authenticatorUtils
-                        = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
+                        = (HatchetAuthenticatorUtils) AuthenticatorManager.get()
                         .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                 // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
                 mDrawerList = (StickyListHeadersListView) findViewById(R.id.left_drawer);
@@ -1114,7 +1114,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 holder.id = HUB_ID_COLLECTION;
                 holder.title = getString(R.string.drawer_title_collection);
                 holder.iconResId = R.drawable.ic_action_collection;
-                Collection userCollection = CollectionManager.getInstance().getCollection(
+                Collection userCollection = CollectionManager.get().getCollection(
                         TomahawkApp.PLUGINNAME_USERCOLLECTION);
                 Boolean isLoading = mCollectionLoadingMap.get(userCollection);
                 holder.isLoading = isLoading != null && isLoading;
@@ -1134,7 +1134,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 holder.title = getString(R.string.drawer_title_settings);
                 holder.iconResId = R.drawable.ic_action_settings;
                 holders.add(holder);
-                for (Collection collection : CollectionManager.getInstance().getCollections()) {
+                for (Collection collection : CollectionManager.get().getCollections()) {
                     if (collection instanceof ScriptResolverCollection) {
                         ScriptResolverCollection resolverCollection
                                 = (ScriptResolverCollection) collection;
@@ -1400,7 +1400,7 @@ public class TomahawkMainActivity extends ActionBarActivity
      * listener, if the user is logged into Hatchet and we don't already have access
      */
     public void askAccess() {
-        if (AuthenticatorManager.getInstance()
+        if (AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).isLoggedIn()) {
             SharedPreferences preferences = PreferenceManager
                     .getDefaultSharedPreferences(TomahawkApp.getContext());

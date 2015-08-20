@@ -163,7 +163,7 @@ public class SearchPagerFragment extends PagerFragment {
         super.onPause();
 
         for (Query query : mCorrespondingQueries) {
-            if (ThreadManager.getInstance().stop(query)) {
+            if (ThreadManager.get().stop(query)) {
                 mCorrespondingQueries.remove(query);
             }
         }
@@ -257,8 +257,8 @@ public class SearchPagerFragment extends PagerFragment {
         mUserIds.clear();
         mCurrentQueryString = fullTextQuery;
         mCorrespondingRequestIds.clear();
-        mCorrespondingRequestIds.add(InfoSystem.getInstance().resolve(fullTextQuery));
-        Query query = PipeLine.getInstance().resolve(fullTextQuery, false);
+        mCorrespondingRequestIds.add(InfoSystem.get().resolve(fullTextQuery));
+        Query query = PipeLine.get().resolve(fullTextQuery, false);
         if (query != null) {
             mCorrespondingQueries.clear();
             mCorrespondingQueries.add(query);

@@ -82,7 +82,7 @@ public abstract class SelectorFragment extends Fragment {
         super.onPause();
 
         for (Query query : mCorrespondingQueries) {
-            if (ThreadManager.getInstance().stop(query)) {
+            if (ThreadManager.get().stop(query)) {
                 mCorrespondingQueries.remove(query);
             }
         }

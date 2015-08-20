@@ -289,7 +289,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else {
-                    String requestId = InfoSystem.getInstance().resolve(mAlbum);
+                    String requestId = InfoSystem.get().resolve(mAlbum);
                     if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
                     }
@@ -306,7 +306,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                         @Override
                         public void onDone(User user) {
                             if (mUser != user) {
-                                String requestId = InfoSystem.getInstance().resolve(mPlaylist);
+                                String requestId = InfoSystem.get().resolve(mPlaylist);
                                 if (requestId != null) {
                                     mCorrespondingRequestIds.add(requestId);
                                 }
@@ -322,7 +322,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else {
-                    ArrayList<String> requestIds = InfoSystem.getInstance().resolve(mArtist, false);
+                    ArrayList<String> requestIds = InfoSystem.get().resolve(mArtist, false);
                     for (String requestId : requestIds) {
                         mCorrespondingRequestIds.add(requestId);
                     }
@@ -335,17 +335,17 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else if (mUser.getName() == null) {
-                    String requestId = InfoSystem.getInstance().resolve(mUser);
+                    String requestId = InfoSystem.get().resolve(mUser);
                     if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
                     }
                 }
             }
             if (getArguments().containsKey(COLLECTION_ID)) {
-                mCollection = CollectionManager.getInstance()
+                mCollection = CollectionManager.get()
                         .getCollection(getArguments().getString(COLLECTION_ID));
             } else {
-                mCollection = CollectionManager.getInstance()
+                mCollection = CollectionManager.get()
                         .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
             }
             if (getArguments().containsKey(QUERY)
@@ -356,7 +356,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     return;
                 } else {
                     ArrayList<String> requestIds =
-                            InfoSystem.getInstance().resolve(mQuery.getArtist(), false);
+                            InfoSystem.get().resolve(mQuery.getArtist(), false);
                     for (String requestId : requestIds) {
                         mCorrespondingRequestIds.add(requestId);
                     }
@@ -419,7 +419,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         super.onPause();
 
         for (Query query : mCorrespondingQueries) {
-            if (ThreadManager.getInstance().stop(query)) {
+            if (ThreadManager.get().stop(query)) {
                 mCorrespondingQueries.remove(query);
             }
         }
@@ -623,7 +623,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 if (entry != null) {
                     Query q = entry.getQuery();
                     if (!mCorrespondingQueries.contains(q)) {
-                        mCorrespondingQueries.add(PipeLine.getInstance().resolve(q));
+                        mCorrespondingQueries.add(PipeLine.get().resolve(q));
                     }
                 }
             }
@@ -653,11 +653,11 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                             if (mResolvingItems.add(playlist)) {
                                 Playlist pl = playlist;
                                 if (pl.getEntries().size() == 0) {
-                                    pl = DatabaseHelper.getInstance().getPlaylist(pl.getId());
+                                    pl = DatabaseHelper.get().getPlaylist(pl.getId());
                                 }
                                 if (pl != null && pl.getEntries().size() > 0) {
                                     pl.updateTopArtistNames();
-                                    DatabaseHelper.getInstance().updatePlaylist(pl);
+                                    DatabaseHelper.get().updatePlaylist(pl);
                                     if (pl.getTopArtistNames() != null) {
                                         for (int i = 0; i < pl.getTopArtistNames().length && i < 5;
                                                 i++) {
@@ -670,7 +670,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                             }
                         }
                     };
-                    ThreadManager.getInstance().execute(r);
+                    ThreadManager.get().execute(r);
                 }
             }
         });
@@ -688,7 +688,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     private void resolveItem(Album album) {
         if (mResolvingItems.add(album)) {
             if (album.getImage() == null) {
-                String requestId = InfoSystem.getInstance().resolve(album);
+                String requestId = InfoSystem.get().resolve(album);
                 if (requestId != null) {
                     mCorrespondingRequestIds.add(requestId);
                 }
@@ -713,7 +713,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     private void resolveItem(Artist artist) {
         if (mResolvingItems.add(artist)) {
             if (artist.getImage() == null) {
-                mCorrespondingRequestIds.addAll(InfoSystem.getInstance().resolve(artist, false));
+                mCorrespondingRequestIds.addAll(InfoSystem.get().resolve(artist, false));
             }
         }
     }
@@ -721,7 +721,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     private void resolveItem(User user) {
         if (mResolvingItems.add(user)) {
             if (user.getImage() == null) {
-                String requestId = InfoSystem.getInstance().resolve(user);
+                String requestId = InfoSystem.get().resolve(user);
                 if (requestId != null) {
                     mCorrespondingRequestIds.add(requestId);
                 }

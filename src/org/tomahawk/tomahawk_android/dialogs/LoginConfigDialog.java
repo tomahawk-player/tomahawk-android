@@ -61,7 +61,7 @@ public class LoginConfigDialog extends ConfigDialog {
                 .containsKey(TomahawkFragment.PREFERENCEID)) {
             String authenticatorId = getArguments().getString(
                     TomahawkFragment.PREFERENCEID);
-            mAuthenticatorUtils = AuthenticatorManager.getInstance().getAuthenticatorUtils(
+            mAuthenticatorUtils = AuthenticatorManager.get().getAuthenticatorUtils(
                     authenticatorId);
         }
 
@@ -75,7 +75,7 @@ public class LoginConfigDialog extends ConfigDialog {
         if (TomahawkApp.PLUGINNAME_HATCHET.equals(mAuthenticatorUtils.getId())) {
             setStatus(HatchetStubResolver.get());
         } else {
-            setStatus(PipeLine.getInstance().getResolver(mAuthenticatorUtils.getId()));
+            setStatus(PipeLine.get().getResolver(mAuthenticatorUtils.getId()));
         }
         hideNegativeButton();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

@@ -121,7 +121,7 @@ public class User extends Cacheable implements AlphaComparable {
     public static Promise<User, Throwable, Void> getSelf() {
         final ADeferredObject<User, Throwable, Void> deferred = new ADeferredObject<>();
         final HatchetAuthenticatorUtils authUtils = (HatchetAuthenticatorUtils) AuthenticatorManager
-                .getInstance().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+                .get().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         authUtils.getUserId().done(new DoneCallback<String>() {
             @Override
             public void onDone(String result) {

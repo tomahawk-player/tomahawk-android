@@ -206,7 +206,7 @@ public class ContextMenuFragment extends Fragment {
                 }
             }
             if (getArguments().containsKey(TomahawkFragment.COLLECTION_ID)) {
-                mCollection = CollectionManager.getInstance()
+                mCollection = CollectionManager.get()
                         .getCollection(getArguments().getString(TomahawkFragment.COLLECTION_ID));
             }
         }
@@ -306,8 +306,8 @@ public class ContextMenuFragment extends Fragment {
         if (mAlbum != null || mArtist != null) {
             int drawableResId;
             int stringResId;
-            if ((mAlbum != null && DatabaseHelper.getInstance().isItemLoved(mAlbum))
-                    || (mArtist != null && DatabaseHelper.getInstance().isItemLoved(mArtist))) {
+            if ((mAlbum != null && DatabaseHelper.get().isItemLoved(mAlbum))
+                    || (mArtist != null && DatabaseHelper.get().isItemLoved(mArtist))) {
                 drawableResId = R.drawable.ic_action_collection_underlined;
                 stringResId = R.string.context_menu_removefromcollection;
             } else {
@@ -325,9 +325,9 @@ public class ContextMenuFragment extends Fragment {
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     if (mAlbum != null) {
-                        CollectionManager.getInstance().toggleLovedItem(mAlbum);
+                        CollectionManager.get().toggleLovedItem(mAlbum);
                     } else {
-                        CollectionManager.getInstance().toggleLovedItem(mArtist);
+                        CollectionManager.get().toggleLovedItem(mArtist);
                     }
                 }
             });
@@ -338,7 +338,7 @@ public class ContextMenuFragment extends Fragment {
             final Query query = mQuery != null ? mQuery : mPlaylistEntry.getQuery();
             int drawableResId;
             int stringResId;
-            if (DatabaseHelper.getInstance().isItemLoved(query)) {
+            if (DatabaseHelper.get().isItemLoved(query)) {
                 drawableResId = R.drawable.ic_action_favorites_underlined;
                 stringResId = R.string.context_menu_unlove;
             } else {
@@ -355,7 +355,7 @@ public class ContextMenuFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
-                    CollectionManager.getInstance().toggleLovedItem(query);
+                    CollectionManager.get().toggleLovedItem(query);
                 }
             });
         }
@@ -407,10 +407,10 @@ public class ContextMenuFragment extends Fragment {
                     public void onClick(View v) {
                         getActivity().getSupportFragmentManager().popBackStack();
                         if (mPlaylistEntry != null) {
-                            CollectionManager.getInstance().deletePlaylistEntry(playlistId,
+                            CollectionManager.get().deletePlaylistEntry(playlistId,
                                     mPlaylistEntry.getId());
                         } else {
-                            CollectionManager.getInstance().deletePlaylist(playlistId);
+                            CollectionManager.get().deletePlaylist(playlistId);
                         }
                     }
                 });
@@ -540,7 +540,7 @@ public class ContextMenuFragment extends Fragment {
                 TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
                         album.getImage(), Image.getLargeImageSize(), true, false);
             } else {
-                String requestId = InfoSystem.getInstance().resolve(album);
+                String requestId = InfoSystem.get().resolve(album);
                 if (requestId != null) {
                     mCorrespondingRequestIds.add(requestId);
                 }

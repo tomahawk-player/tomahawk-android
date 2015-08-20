@@ -172,18 +172,18 @@ public class UserCollection extends DbCollection {
             }
             for (String defaultDir : getStorageDirectories()) {
                 if (!setDefaultDirs.contains(defaultDir)) {
-                    DatabaseHelper.getInstance().addMediaDir(defaultDir);
+                    DatabaseHelper.get().addMediaDir(defaultDir);
                     setDefaultDirs.add(defaultDir);
                 }
             }
             preferences.edit().putStringSet(HAS_SET_DEFAULTDIRS, setDefaultDirs).commit();
 
-            List<File> mediaDirs = DatabaseHelper.getInstance().getMediaDirs(false);
+            List<File> mediaDirs = DatabaseHelper.get().getMediaDirs(false);
             Stack<File> directories = new Stack<>();
             directories.addAll(mediaDirs);
 
             // get all existing media items
-            HashMap<String, MediaWrapper> existingMedias = DatabaseHelper.getInstance().getMedias();
+            HashMap<String, MediaWrapper> existingMedias = DatabaseHelper.get().getMedias();
 
             // list of all added files
             HashSet<String> addedLocations = new HashSet<>();
@@ -259,7 +259,7 @@ public class UserCollection extends DbCollection {
                     } else {
                         // create new media item
                         final Media media = new Media(
-                                VLCMediaPlayer.getInstance().getLibVlcInstance(), fileURI);
+                                VLCMediaPlayer.get().getLibVlcInstance(), fileURI);
                         media.parse();
                         media.release();
                         // skip files with .mod extension and no duration
@@ -272,7 +272,7 @@ public class UserCollection extends DbCollection {
                         mw.setLastModified(file.lastModified());
                         mediaWrappers.add(mw);
                         // Add this item to database
-                        DatabaseHelper.getInstance().addMedia(mw);
+                        DatabaseHelper.get().addMedia(mw);
                     }
                     if (mIsStopping) {
                         Log.d(TAG, "Stopping scan");
@@ -287,7 +287,7 @@ public class UserCollection extends DbCollection {
                     for (String fileURI : addedLocations) {
                         existingMedias.remove(fileURI);
                     }
-                    DatabaseHelper.getInstance().removeMedias(existingMedias.keySet());
+                    DatabaseHelper.get().removeMedias(existingMedias.keySet());
                 }
 
                 if (mRestart) {

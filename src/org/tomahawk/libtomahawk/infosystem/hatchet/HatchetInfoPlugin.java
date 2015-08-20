@@ -196,13 +196,13 @@ public class HatchetInfoPlugin implements InfoPlugin {
             public void run() {
                 try {
                     boolean success = getParseConvert(infoRequestData);
-                    InfoSystem.getInstance().reportResults(infoRequestData, success);
+                    InfoSystem.get().reportResults(infoRequestData, success);
                 } catch (KeyManagementException | NoSuchAlgorithmException | IOException e) {
                     Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
             }
         };
-        ThreadManager.getInstance().execute(runnable);
+        ThreadManager.get().execute(runnable);
     }
 
     /**
@@ -215,7 +215,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
     private boolean getParseConvert(InfoRequestData infoRequestData)
             throws NoSuchAlgorithmException, KeyManagementException, IOException {
         QueryParams params = infoRequestData.getQueryParams();
-        HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager.getInstance()
+        HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager.get()
                 .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
         Hatchet hatchet = getImplementation(infoRequestData);
 
@@ -396,10 +396,10 @@ public class HatchetInfoPlugin implements InfoPlugin {
                                 + ": " + e.getLocalizedMessage());
                     }
                 }
-                InfoSystem.getInstance().onLoggedOpsSent(doneRequestsIds, success);
-                InfoSystem.getInstance().reportResults(infoRequestData, success);
+                InfoSystem.get().onLoggedOpsSent(doneRequestsIds, success);
+                InfoSystem.get().reportResults(infoRequestData, success);
             }
         };
-        ThreadManager.getInstance().execute(runnable);
+        ThreadManager.get().execute(runnable);
     }
 }

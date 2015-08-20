@@ -44,12 +44,12 @@ public class UsersFragment extends TomahawkFragment {
         super.onResume();
 
         if (mShowMode == SHOW_MODE_TYPE_FOLLOWERS) {
-            String requestId = InfoSystem.getInstance().resolveFollowers(mUser);
+            String requestId = InfoSystem.get().resolveFollowers(mUser);
             if (requestId != null) {
                 mCorrespondingRequestIds.add(requestId);
             }
         } else {
-            String requestId = InfoSystem.getInstance().resolveFollowings(mUser);
+            String requestId = InfoSystem.get().resolveFollowings(mUser);
             if (requestId != null) {
                 mCorrespondingRequestIds.add(requestId);
             }

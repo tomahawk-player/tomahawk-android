@@ -54,7 +54,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
         if (getArguments() != null && getArguments()
                 .containsKey(TomahawkFragment.PLAYLIST)) {
             String playlistId = getArguments().getString(TomahawkFragment.PLAYLIST);
-            mPlaylist = DatabaseHelper.getInstance().getPlaylist(playlistId);
+            mPlaylist = DatabaseHelper.get().getPlaylist(playlistId);
             if (mPlaylist == null) {
                 mPlaylist = Playlist.getByKey(playlistId);
                 if (mPlaylist == null) {
@@ -90,7 +90,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
                     ? getString(R.string.playlist)
                     : mNameEditText.getText().toString();
             mPlaylist.setName(playlistName);
-            CollectionManager.getInstance().createPlaylist(mPlaylist);
+            CollectionManager.get().createPlaylist(mPlaylist);
             Bundle bundle = new Bundle();
             bundle.putString(TomahawkFragment.PLAYLIST, mPlaylist.getId());
             bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,

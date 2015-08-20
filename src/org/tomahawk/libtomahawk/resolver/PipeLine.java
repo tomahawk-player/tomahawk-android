@@ -125,7 +125,7 @@ public class PipeLine {
         }
     }
 
-    public static PipeLine getInstance() {
+    public static PipeLine get() {
         return Holder.instance;
     }
 
@@ -230,7 +230,7 @@ public class PipeLine {
                     }
                 }
                 if (!forceOnlyLocal && !q.isOnlyLocal()) {
-                    for (Collection collection : CollectionManager.getInstance().getCollections()) {
+                    for (Collection collection : CollectionManager.get().getCollections()) {
                         if (collection instanceof DbCollection) {
                             ((DbCollection) collection).resolve(q);
                         }
@@ -238,7 +238,7 @@ public class PipeLine {
                 }
             }
         };
-        ThreadManager.getInstance().execute(r, q);
+        ThreadManager.get().execute(r, q);
         return q;
     }
 
@@ -302,7 +302,7 @@ public class PipeLine {
         } else {
             priority = TomahawkRunnable.PRIORITY_IS_REPORTING;
         }
-        ThreadManager.getInstance().execute(
+        ThreadManager.get().execute(
                 new TomahawkRunnable(priority) {
                     @Override
                     public void run() {

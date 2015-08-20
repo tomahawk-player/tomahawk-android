@@ -31,11 +31,11 @@ public class ScriptInfoPluginFactory extends ScriptPluginFactory<ScriptInfoPlugi
 
     @Override
     public void addPlugin(ScriptInfoPlugin scriptPlugin) {
-        InfoSystem.getInstance().addInfoPlugin(scriptPlugin);
+        InfoSystem.get().addInfoPlugin(scriptPlugin);
     }
 
     @Override
     public void removePlugin(ScriptInfoPlugin scriptPlugin) {
-        InfoSystem.getInstance().removeInfoPlugin(scriptPlugin);
+        InfoSystem.get().removeInfoPlugin(scriptPlugin);
     }
 }

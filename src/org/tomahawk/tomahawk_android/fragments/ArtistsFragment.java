@@ -101,7 +101,7 @@ public class ArtistsFragment extends TomahawkFragment {
         } else {
             final List<Artist> starredArtists;
             if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
-                starredArtists = DatabaseHelper.getInstance().getStarredArtists();
+                starredArtists = DatabaseHelper.get().getStarredArtists();
             } else {
                 starredArtists = null;
             }

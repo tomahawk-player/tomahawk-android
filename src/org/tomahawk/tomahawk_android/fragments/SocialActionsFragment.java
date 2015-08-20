@@ -99,7 +99,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                 getActivity().setTitle(getString(R.string.drawer_title_feed).toUpperCase());
             }
             for (int i = 0; i < mUser.getFriendsFeed().size(); i++) {
-                String requestId = InfoSystem.getInstance().resolveFriendsFeed(mUser, i);
+                String requestId = InfoSystem.get().resolveFriendsFeed(mUser, i);
                 if (requestId != null) {
                     mCorrespondingRequestIds.add(requestId);
                 }
@@ -109,7 +109,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                 public void onDone(User user) {
                     if (user.getFollowCount() >= 0 && user.getFollowCount() <= 5
                             && mRandomUsersRequestId == null) {
-                        mRandomUsersRequestId = InfoSystem.getInstance().getRandomUsers(5);
+                        mRandomUsersRequestId = InfoSystem.get().getRandomUsers(5);
                         mCorrespondingRequestIds.add(mRandomUsersRequestId);
                     }
                 }
@@ -119,7 +119,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                 getActivity().setTitle("");
             }
             for (int i = 0; i < mUser.getSocialActions().size(); i++) {
-                String requestId = InfoSystem.getInstance().resolveSocialActions(mUser, i);
+                String requestId = InfoSystem.get().resolveSocialActions(mUser, i);
                 if (requestId != null) {
                     mCorrespondingRequestIds.add(requestId);
                 }
@@ -323,7 +323,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                 }
             }
         };
-        ThreadManager.getInstance().execute(r);
+        ThreadManager.get().execute(r);
     }
 
     @Override
@@ -336,7 +336,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
             if (mShowMode == SHOW_MODE_DASHBOARD) {
                 if (!mResolvingPages.contains(mUser.getFriendsFeed().size())) {
                     mResolvingPages.add(mUser.getFriendsFeed().size());
-                    String requestId = InfoSystem.getInstance()
+                    String requestId = InfoSystem.get()
                             .resolveFriendsFeed(mUser, mUser.getFriendsFeed().size());
                     if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
@@ -345,7 +345,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
             } else {
                 if (!mResolvingPages.contains(mUser.getSocialActions().size())) {
                     mResolvingPages.add(mUser.getSocialActions().size());
-                    String requestId = InfoSystem.getInstance()
+                    String requestId = InfoSystem.get()
                             .resolveSocialActions(mUser, mUser.getSocialActions().size());
                     if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);

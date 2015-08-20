@@ -89,7 +89,7 @@ public class PlaybackFragment extends TomahawkFragment {
         public void onDoubleTap(Query query) {
             final ImageView imageView =
                     (ImageView) getView().findViewById(R.id.imageview_favorite_doubletap);
-            if (DatabaseHelper.getInstance().isItemLoved(query)) {
+            if (DatabaseHelper.get().isItemLoved(query)) {
                 TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                         R.drawable.ic_action_unfavorite_large);
             } else {
@@ -104,7 +104,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 }
             };
             new Handler().postDelayed(r, 2000);
-            CollectionManager.getInstance().toggleLovedItem(query);
+            CollectionManager.get().toggleLovedItem(query);
         }
     };
 
