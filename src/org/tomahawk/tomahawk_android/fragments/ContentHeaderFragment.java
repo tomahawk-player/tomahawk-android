@@ -137,6 +137,8 @@ public class ContentHeaderFragment extends Fragment {
 
     protected Collection mCollection;
 
+    protected boolean mHideRemoveButton;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -304,7 +306,7 @@ public class ContentHeaderFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
-                            mCollection.getId(), false);
+                            mCollection.getId(), false, mHideRemoveButton);
                 }
             };
             if (item instanceof Album) {

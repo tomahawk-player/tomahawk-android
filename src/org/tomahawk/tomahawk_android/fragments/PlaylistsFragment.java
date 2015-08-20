@@ -18,8 +18,6 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
-import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -29,14 +27,11 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -55,13 +50,8 @@ public class PlaylistsFragment extends TomahawkFragment {
 
     private final HashSet<User> mResolvingUsers = new HashSet<>();
 
-    private List<Playlist> mPlaylists = new ArrayList<>();
-
     @SuppressWarnings("unused")
     public void onEventAsync(DatabaseHelper.PlaylistsUpdatedEvent event) {
-        HatchetAuthenticatorUtils authenticatorUtils
-                = (HatchetAuthenticatorUtils) AuthenticatorManager.getInstance()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         User.getSelf().done(new DoneCallback<User>() {
             @Override
             public void onDone(User user) {
@@ -76,8 +66,16 @@ public class PlaylistsFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        CollectionManager.getInstance().fetchPlaylists();
-        refreshPlaylists();
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User user) {
+                if (mUser == user) {
+                    CollectionManager.getInstance().fetchPlaylists();
+                } else {
+                    mHideRemoveButton = true;
+                }
+            }
+        });
 
         if (mContainerFragmentClass == null) {
             getActivity().setTitle(getString(R.string.drawer_title_playlists).toUpperCase());
@@ -134,7 +132,8 @@ public class PlaylistsFragment extends TomahawkFragment {
     @Override
     public boolean onItemLongClick(View view, Object item) {
         return item.equals(CREATE_PLAYLIST_BUTTON_ID) || FragmentUtils
-                .showContextMenu((TomahawkMainActivity) getActivity(), item, null, false);
+                .showContextMenu((TomahawkMainActivity) getActivity(), item, null, false,
+                        mHideRemoveButton);
     }
 
     /**
@@ -146,7 +145,6 @@ public class PlaylistsFragment extends TomahawkFragment {
             return;
         }
 
-        final List playlists = new ArrayList();
         final List<Segment> segments = new ArrayList<>();
 
         if (mQueryArray != null) {
@@ -161,27 +159,25 @@ public class PlaylistsFragment extends TomahawkFragment {
         User.getSelf().done(new DoneCallback<User>() {
             @Override
             public void onDone(User user) {
-                if (mUser != null && mUser != user) {
-                    if (mUser.getPlaylists() == null) {
-                        if (!mResolvingUsers.contains(mUser)) {
-                            String requestId = InfoSystem.getInstance()
-                                    .resolvePlaylists(mUser, false);
-                            if (requestId != null) {
-                                mCorrespondingRequestIds.add(requestId);
-                            }
-                            mResolvingUsers.add(mUser);
-                        }
-                    } else {
-                        playlists.addAll(mUser.getPlaylists());
-                    }
-                    segments.add(new Segment(playlists));
-                } else {
+                List playlists = new ArrayList();
+                if (mUser == user) {
                     playlists.add(CREATE_PLAYLIST_BUTTON_ID);
-                    mPlaylists = DatabaseHelper.getInstance().getCachedPlaylists();
-                    playlists.addAll(mPlaylists);
-                    segments.add(new Segment(playlists, R.integer.grid_column_count,
-                            R.dimen.padding_superlarge, R.dimen.padding_superlarge));
                 }
+                if (mUser.getPlaylists() == null) {
+                    if (mUser == user) {
+                        refreshPlaylists();
+                    } else if (!mResolvingUsers.contains(mUser)) {
+                        String requestId = InfoSystem.getInstance().resolvePlaylists(mUser, false);
+                        if (requestId != null) {
+                            mCorrespondingRequestIds.add(requestId);
+                        }
+                        mResolvingUsers.add(mUser);
+                    }
+                } else {
+                    playlists.addAll(mUser.getPlaylists());
+                }
+                segments.add(new Segment(playlists, R.integer.grid_column_count,
+                        R.dimen.padding_superlarge, R.dimen.padding_superlarge));
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
@@ -194,17 +190,15 @@ public class PlaylistsFragment extends TomahawkFragment {
     }
 
     private void refreshPlaylists() {
-        ThreadManager.getInstance().execute(
-                new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
-                    @Override
-                    public void run() {
-                        mPlaylists = DatabaseHelper.getInstance().getPlaylists();
-                        if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-                            mAdapterUpdateHandler.sendEmptyMessageDelayed(
-                                    ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
-                        }
-                    }
-                });
+        CollectionManager.getInstance().refreshUserPlaylists().done(new DoneCallback<Void>() {
+            @Override
+            public void onDone(Void result) {
+                if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+                    mAdapterUpdateHandler.sendEmptyMessageDelayed(
+                            ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
+                }
+            }
+        });
     }
 
 }

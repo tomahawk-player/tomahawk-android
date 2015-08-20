@@ -149,8 +149,8 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo.mClass = PlaylistEntriesFragment.class;
         fragmentInfo.mTitle = getString(R.string.history);
         fragmentInfo.mBundle = getChildFragmentBundle();
-        fragmentInfo.mBundle.putString(TomahawkFragment.PLAYLIST,
-                mUser.getPlaybackLog().getCacheKey());
+        fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
+                PlaylistEntriesFragment.SHOW_MODE_PLAYBACKLOG);
         fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_history;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
@@ -158,8 +158,8 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo.mClass = PlaylistEntriesFragment.class;
         fragmentInfo.mTitle = getString(R.string.drawer_title_lovedtracks);
         fragmentInfo.mBundle = getChildFragmentBundle();
-        fragmentInfo.mBundle.putString(TomahawkFragment.PLAYLIST,
-                mUser.getFavorites().getCacheKey());
+        fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
+                PlaylistEntriesFragment.SHOW_MODE_LOVEDITEMS);
         fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_favorites;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
