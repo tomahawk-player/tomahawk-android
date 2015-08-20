@@ -433,8 +433,8 @@ public class PlaybackService extends Service implements MusicFocusable {
                 if (allPlayersReleased) {
                     prepareCurrentQuery();
                 } else if (isPlaying()) {
-                    InfoSystem.getInstance().sendNowPlayingPostStruct(
-                            AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                    InfoSystem.get().sendNowPlayingPostStruct(
+                            AuthenticatorManager.get().getAuthenticatorUtils(
                                     TomahawkApp.PLUGINNAME_HATCHET),
                             getCurrentQuery()
                     );
@@ -518,10 +518,10 @@ public class PlaybackService extends Service implements MusicFocusable {
 
         EventBus.getDefault().register(this);
 
-        mMediaPlayers.add(VLCMediaPlayer.getInstance());
-        mMediaPlayers.add(DeezerMediaPlayer.getInstance());
-        mMediaPlayers.add(SpotifyMediaPlayer.getInstance());
-        mMediaPlayers.add(RdioMediaPlayer.getInstance());
+        mMediaPlayers.add(VLCMediaPlayer.get());
+        mMediaPlayers.add(DeezerMediaPlayer.get());
+        mMediaPlayers.add(SpotifyMediaPlayer.get());
+        mMediaPlayers.add(RdioMediaPlayer.get());
 
         startService(new Intent(this, MicroService.class));
 
@@ -580,7 +580,7 @@ public class PlaybackService extends Service implements MusicFocusable {
             } else if (intent.getAction().equals(ACTION_NEXT)) {
                 next();
             } else if (intent.getAction().equals(ACTION_FAVORITE)) {
-                CollectionManager.getInstance().toggleLovedItem(getCurrentQuery());
+                CollectionManager.get().toggleLovedItem(getCurrentQuery());
             } else if (intent.getAction().equals(ACTION_EXIT)) {
                 pause(true);
             }
@@ -716,8 +716,8 @@ public class PlaybackService extends Service implements MusicFocusable {
                         if (getCurrentQuery().getMediaPlayerInterface().isPlaying(getCurrentQuery())
                                 && getCurrentQuery().getMediaPlayerInterface()
                                 .isPrepared(getCurrentQuery())) {
-                            InfoSystem.getInstance().sendPlaybackEntryPostStruct(
-                                    AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                            InfoSystem.get().sendPlaybackEntryPostStruct(
+                                    AuthenticatorManager.get().getAuthenticatorUtils(
                                             TomahawkApp.PLUGINNAME_HATCHET)
                             );
                             getCurrentQuery().getMediaPlayerInterface().pause();
@@ -940,13 +940,13 @@ public class PlaybackService extends Service implements MusicFocusable {
                 mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
                 if (getCurrentQuery().getImage() == null) {
-                    ArrayList<String> requestIds = InfoSystem.getInstance().resolve(
+                    ArrayList<String> requestIds = InfoSystem.get().resolve(
                             getCurrentQuery().getArtist(), false);
                     for (String requestId : requestIds) {
                         mCorrespondingRequestIds.put(requestId, getCurrentQuery().getCacheKey());
                     }
                     String requestId =
-                            InfoSystem.getInstance().resolve(getCurrentQuery().getAlbum());
+                            InfoSystem.get().resolve(getCurrentQuery().getAlbum());
                     if (requestId != null) {
                         mCorrespondingRequestIds.put(requestId, getCurrentQuery().getCacheKey());
                     }
@@ -982,7 +982,7 @@ public class PlaybackService extends Service implements MusicFocusable {
                         }
                     }
                 };
-                ThreadManager.getInstance().executePlayback(r);
+                ThreadManager.get().executePlayback(r);
             } else {
                 next();
             }
@@ -1243,7 +1243,7 @@ public class PlaybackService extends Service implements MusicFocusable {
                             .setImageViewResource(R.id.notification_large_imageview_playpause,
                                     R.drawable.ic_player_play_light);
                 }
-                if (DatabaseHelper.getInstance().isItemLoved(getCurrentQuery())) {
+                if (DatabaseHelper.get().isItemLoved(getCurrentQuery())) {
                     mLargeNotificationView
                             .setImageViewResource(R.id.notification_large_imageview_favorite,
                                     R.drawable.ic_action_favorites_underlined);
@@ -1415,7 +1415,7 @@ public class PlaybackService extends Service implements MusicFocusable {
             }
         }
         if (!qs.isEmpty()) {
-            HashSet<Query> queries = PipeLine.getInstance().resolve(qs);
+            HashSet<Query> queries = PipeLine.get().resolve(qs);
             mCorrespondingQueries.addAll(queries);
         }
     }
@@ -1430,9 +1430,9 @@ public class PlaybackService extends Service implements MusicFocusable {
     }
 
     private void releaseAllPlayers() {
-        VLCMediaPlayer.getInstance().release();
-        SpotifyMediaPlayer.getInstance().release();
-        RdioMediaPlayer.getInstance().release();
-        DeezerMediaPlayer.getInstance().release();
+        VLCMediaPlayer.get().release();
+        SpotifyMediaPlayer.get().release();
+        RdioMediaPlayer.get().release();
+        DeezerMediaPlayer.get().release();
     }
 }

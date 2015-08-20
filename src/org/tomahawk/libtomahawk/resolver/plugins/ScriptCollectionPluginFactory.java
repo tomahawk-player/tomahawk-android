@@ -31,11 +31,11 @@ public class ScriptCollectionPluginFactory extends ScriptPluginFactory<ScriptRes
 
     @Override
     public void addPlugin(ScriptResolverCollection scriptPlugin) {
-        CollectionManager.getInstance().addCollection(scriptPlugin);
+        CollectionManager.get().addCollection(scriptPlugin);
     }
 
     @Override
     public void removePlugin(ScriptResolverCollection scriptPlugin) {
-        CollectionManager.getInstance().removeCollection(scriptPlugin);
+        CollectionManager.get().removeCollection(scriptPlugin);
     }
 }

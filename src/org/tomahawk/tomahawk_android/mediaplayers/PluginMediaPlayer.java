@@ -100,7 +100,7 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
 
     public ScriptResolver getScriptResolver() {
         ScriptResolver scriptResolver =
-                (ScriptResolver) PipeLine.getInstance().getResolver(mPluginName);
+                (ScriptResolver) PipeLine.get().getResolver(mPluginName);
         if (scriptResolver == null) {
             Log.e(TAG, "getScriptResolver - Couldn't find associated ScriptResolver!");
         }

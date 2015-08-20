@@ -112,7 +112,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments().containsKey(TomahawkFragment.PREFERENCEID)) {
             String id = getArguments().getString(TomahawkFragment.PREFERENCEID);
-            mScriptResolver = (ScriptResolver) PipeLine.getInstance().getResolver(id);
+            mScriptResolver = (ScriptResolver) PipeLine.get().getResolver(id);
         }
 
         TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
@@ -204,13 +204,13 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         String pluginPackageName = "";
         switch (mScriptResolver.getId()) {
             case TomahawkApp.PLUGINNAME_SPOTIFY:
-                pluginPackageName = SpotifyMediaPlayer.getInstance().getPackageName();
+                pluginPackageName = SpotifyMediaPlayer.get().getPackageName();
                 break;
             case TomahawkApp.PLUGINNAME_DEEZER:
-                pluginPackageName = DeezerMediaPlayer.getInstance().getPackageName();
+                pluginPackageName = DeezerMediaPlayer.get().getPackageName();
                 break;
             case TomahawkApp.PLUGINNAME_RDIO:
-                pluginPackageName = RdioMediaPlayer.getInstance().getPackageName();
+                pluginPackageName = RdioMediaPlayer.get().getPackageName();
                 break;
         }
         for (PackageInfo info : packageInfos) {

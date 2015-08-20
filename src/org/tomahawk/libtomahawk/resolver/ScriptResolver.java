@@ -214,7 +214,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                         mWeight = results.weight;
                         mTimeout = results.timeout * 1000;
                         mReady = true;
-                        PipeLine.getInstance().onResolverReady(ScriptResolver.this);
+                        PipeLine.get().onResolverReady(ScriptResolver.this);
                         resolverGetConfigUi();
                     }
                 });
@@ -277,7 +277,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                 public void onReportResults(JsonArray results) {
                     ArrayList<Result> parsedResults =
                             ScriptUtils.parseResultList(ScriptResolver.this, results);
-                    PipeLine.getInstance().reportResults(query, parsedResults, mId);
+                    PipeLine.get().reportResults(query, parsedResults, mId);
                     mTimeOutHandler.removeCallbacksAndMessages(null);
                     mStopped = true;
                 }
@@ -385,7 +385,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
 
     @Override
     public boolean isEnabled() {
-        AuthenticatorUtils utils = AuthenticatorManager.getInstance().getAuthenticatorUtils(mId);
+        AuthenticatorUtils utils = AuthenticatorManager.get().getAuthenticatorUtils(mId);
         if (utils != null) {
             return utils.isLoggedIn();
         }

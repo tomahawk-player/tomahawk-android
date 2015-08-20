@@ -48,7 +48,7 @@ public class RdioMediaPlayer extends PluginMediaPlayer implements TomahawkMediaP
         super(TomahawkApp.PLUGINNAME_RDIO, "org.tomahawk.rdioplugin");
     }
 
-    public static RdioMediaPlayer getInstance() {
+    public static RdioMediaPlayer get() {
         return Holder.instance;
     }
 

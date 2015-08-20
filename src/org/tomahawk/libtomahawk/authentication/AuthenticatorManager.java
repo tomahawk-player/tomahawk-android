@@ -68,7 +68,7 @@ public class AuthenticatorManager {
                 hatchetAuthenticatorUtils);
     }
 
-    public static AuthenticatorManager getInstance() {
+    public static AuthenticatorManager get() {
         return Holder.instance;
     }
 

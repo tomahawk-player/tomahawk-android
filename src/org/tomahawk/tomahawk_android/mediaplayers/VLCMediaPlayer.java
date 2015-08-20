@@ -114,7 +114,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
         return mLibVLC;
     }
 
-    public static VLCMediaPlayer getInstance() {
+    public static VLCMediaPlayer get() {
         return Holder.instance;
     }
 

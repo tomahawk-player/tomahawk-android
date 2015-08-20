@@ -179,7 +179,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
     private void fillViews() {
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        mLibVLC = VLCMediaPlayer.getInstance().getLibVlcInstance();
+        mLibVLC = VLCMediaPlayer.get().getLibVlcInstance();
         float[] bands = mLibVLC.getBands();
         String[] presets = mLibVLC.getPresets();
         if (mEqualizerValues == null) {

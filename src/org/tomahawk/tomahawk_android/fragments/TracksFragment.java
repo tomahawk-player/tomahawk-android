@@ -181,7 +181,7 @@ public class TracksFragment extends TomahawkFragment {
 
     private void showAlbumFancyDropDown() {
         if (mAlbum != null) {
-            CollectionManager.getInstance().getAvailableCollections(mAlbum).done(
+            CollectionManager.get().getAvailableCollections(mAlbum).done(
                     new DoneCallback<List<Collection>>() {
                         @Override
                         public void onDone(final List<Collection> result) {

@@ -74,8 +74,8 @@ public class RedirectConfigDialog extends ConfigDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments().containsKey(TomahawkFragment.PREFERENCEID)) {
             String id = getArguments().getString(TomahawkFragment.PREFERENCEID);
-            mScriptResolver = (ScriptResolver) PipeLine.getInstance().getResolver(id);
-            mAuthenticatorUtils = AuthenticatorManager.getInstance().getAuthenticatorUtils(id);
+            mScriptResolver = (ScriptResolver) PipeLine.get().getResolver(id);
+            mAuthenticatorUtils = AuthenticatorManager.get().getAuthenticatorUtils(id);
         }
 
         TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);

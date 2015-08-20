@@ -362,7 +362,7 @@ public class Store {
                     String id = getAsString(o, "id");
                     String title = getAsString(o, "title");
                     String currentrevision = getAsString(o, "currentrevision");
-                    String localId = DatabaseHelper.getInstance().getPlaylistLocalId(id);
+                    String localId = DatabaseHelper.get().getPlaylistLocalId(id);
                     if (localId == null) {
                         localId = TomahawkMainActivity.getLifetimeUniqueStringId();
                     }

@@ -105,7 +105,7 @@ public class InstallPluginConfigDialog extends ConfigDialog {
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                PipeLine.getInstance().addScriptAccount(
+                                PipeLine.get().addScriptAccount(
                                         new ScriptAccount(renamedFile.getPath(), true));
                             }
                         });

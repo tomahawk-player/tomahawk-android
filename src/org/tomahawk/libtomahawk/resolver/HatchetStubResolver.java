@@ -97,7 +97,7 @@ public class HatchetStubResolver implements Resolver {
 
     @Override
     public boolean isEnabled() {
-        return AuthenticatorManager.getInstance()
+        return AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).isLoggedIn();
     }
 }

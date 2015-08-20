@@ -288,10 +288,10 @@ public class FancyDropDown extends FrameLayout {
                 dropDownItemInfo.mText = TomahawkApp.getContext().getString(R.string.all);
             } else if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(collection.getId())) {
                 dropDownItemInfo.mText = TomahawkApp.getContext().getString(R.string.local);
-                dropDownItemInfo.mResolver = PipeLine.getInstance()
+                dropDownItemInfo.mResolver = PipeLine.get()
                         .getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION);
             } else {
-                Resolver resolver = PipeLine.getInstance().getResolver(collection.getId());
+                Resolver resolver = PipeLine.get().getResolver(collection.getId());
                 dropDownItemInfo.mText = resolver.getId();
                 dropDownItemInfo.mResolver = resolver;
             }

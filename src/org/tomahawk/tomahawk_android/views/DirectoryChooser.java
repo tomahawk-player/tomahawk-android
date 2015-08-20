@@ -104,9 +104,9 @@ public class DirectoryChooser extends FrameLayout implements
                     = new DirectoryChooserAdapter.CustomDirectory();
             dir.file = folder;
             try {
-                dir.isWhitelisted = DatabaseHelper.getInstance()
+                dir.isWhitelisted = DatabaseHelper.get()
                         .isMediaDirWhiteListed(folder.getCanonicalPath());
-                dir.isMediaDirComplete = DatabaseHelper.getInstance()
+                dir.isMediaDirComplete = DatabaseHelper.get()
                         .isMediaDirComplete(folder.getCanonicalPath());
             } catch (IOException e) {
                 Log.e(TAG, "setup: " + e.getClass() + ": " + e.getLocalizedMessage());
@@ -126,10 +126,10 @@ public class DirectoryChooser extends FrameLayout implements
                 public void onDirectoryChecked(File chosenSubFolder, boolean isChecked) {
                     try {
                         if (isChecked) {
-                            DatabaseHelper.getInstance()
+                            DatabaseHelper.get()
                                     .addMediaDir(chosenSubFolder.getCanonicalPath());
                         } else {
-                            DatabaseHelper.getInstance()
+                            DatabaseHelper.get()
                                     .removeMediaDir(chosenSubFolder.getCanonicalPath());
                         }
                     } catch (IOException e) {

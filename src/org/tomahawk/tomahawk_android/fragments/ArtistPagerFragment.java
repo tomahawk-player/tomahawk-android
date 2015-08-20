@@ -71,7 +71,7 @@ public class ArtistPagerFragment extends PagerFragment {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else {
-                    ArrayList<String> requestIds = InfoSystem.getInstance()
+                    ArrayList<String> requestIds = InfoSystem.get()
                             .resolve(mArtist, true);
                     for (String requestId : requestIds) {
                         mCorrespondingRequestIds.add(requestId);
@@ -87,7 +87,7 @@ public class ArtistPagerFragment extends PagerFragment {
         showContentHeader(mArtist);
 
         setupPager(getFragmentInfoLists(), mInitialPage, null, 1);
-        CollectionManager.getInstance().getAvailableCollections(mArtist)
+        CollectionManager.get().getAvailableCollections(mArtist)
                 .done(new DoneCallback<List<Collection>>() {
                     @Override
                     public void onDone(final List<Collection> result) {

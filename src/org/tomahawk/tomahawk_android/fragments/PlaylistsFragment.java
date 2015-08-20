@@ -70,7 +70,7 @@ public class PlaylistsFragment extends TomahawkFragment {
             @Override
             public void onDone(User user) {
                 if (mUser == user) {
-                    CollectionManager.getInstance().fetchPlaylists();
+                    CollectionManager.get().fetchPlaylists();
                 } else {
                     mHideRemoveButton = true;
                 }
@@ -99,7 +99,7 @@ public class PlaylistsFragment extends TomahawkFragment {
                     entries.add(PlaylistEntry.get(playlistId, query,
                             TomahawkMainActivity.getLifetimeUniqueStringId()));
                 }
-                CollectionManager.getInstance().addPlaylistEntries(playlistId, entries);
+                CollectionManager.get().addPlaylistEntries(playlistId, entries);
             }
             Bundle bundle = new Bundle();
             bundle.putString(TomahawkFragment.PLAYLIST, playlistId);
@@ -167,7 +167,7 @@ public class PlaylistsFragment extends TomahawkFragment {
                     if (mUser == user) {
                         refreshPlaylists();
                     } else if (!mResolvingUsers.contains(mUser)) {
-                        String requestId = InfoSystem.getInstance().resolvePlaylists(mUser, false);
+                        String requestId = InfoSystem.get().resolvePlaylists(mUser, false);
                         if (requestId != null) {
                             mCorrespondingRequestIds.add(requestId);
                         }
@@ -190,7 +190,7 @@ public class PlaylistsFragment extends TomahawkFragment {
     }
 
     private void refreshPlaylists() {
-        CollectionManager.getInstance().refreshUserPlaylists().done(new DoneCallback<Void>() {
+        CollectionManager.get().refreshUserPlaylists().done(new DoneCallback<Void>() {
             @Override
             public void onDone(Void result) {
                 if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {

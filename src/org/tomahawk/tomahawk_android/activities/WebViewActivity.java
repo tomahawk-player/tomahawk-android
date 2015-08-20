@@ -52,19 +52,19 @@ public class WebViewActivity extends Activity {
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url.startsWith("tomahawkspotifyresolver")) {
                     ScriptResolver urlHandler = (ScriptResolver)
-                            PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
+                            PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
                     urlHandler.onRedirectCallback(url);
                     finish();
                     return true;
                 } else if (url.startsWith("tomahawkdeezerresolver")) {
                     ScriptResolver urlHandler = (ScriptResolver)
-                            PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_DEEZER);
+                            PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_DEEZER);
                     urlHandler.onRedirectCallback(url);
                     finish();
                     return true;
                 } else if (url.startsWith("tomahawkrdioresolver")) {
                     ScriptResolver urlHandler = (ScriptResolver)
-                            PipeLine.getInstance().getResolver(TomahawkApp.PLUGINNAME_RDIO);
+                            PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_RDIO);
                     urlHandler.onRedirectCallback(url);
                     finish();
                     return true;
@@ -85,7 +85,7 @@ public class WebViewActivity extends Activity {
         } else {
             AuthenticatorManager.ConfigTestResultEvent event
                     = new AuthenticatorManager.ConfigTestResultEvent();
-            event.mComponent = PipeLine.getInstance()
+            event.mComponent = PipeLine.get()
                     .getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
             EventBus.getDefault().post(event);
             super.onBackPressed();

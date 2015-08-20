@@ -53,7 +53,7 @@ public class UserMusicSelectorFragment extends SelectorFragment {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else if (mUser.getName() == null) {
-                    String requestId = InfoSystem.getInstance().resolve(mUser);
+                    String requestId = InfoSystem.get().resolve(mUser);
                     if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
                     }

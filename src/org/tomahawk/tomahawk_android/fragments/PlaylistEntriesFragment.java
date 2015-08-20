@@ -61,23 +61,23 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        CollectionManager.getInstance().fetchPlaylists();
+        CollectionManager.get().fetchPlaylists();
         User.getSelf().done(new DoneCallback<User>() {
             @Override
             public void onDone(User user) {
                 if (mUser != null) {
                     if (mShowMode == SHOW_MODE_PLAYBACKLOG) {
-                        String requestId = InfoSystem.getInstance().resolvePlaybackLog(mUser);
+                        String requestId = InfoSystem.get().resolvePlaybackLog(mUser);
                         if (requestId != null) {
                             mCorrespondingRequestIds.add(requestId);
                         }
                     } else if (mShowMode == SHOW_MODE_LOVEDITEMS) {
                         mHideRemoveButton = true;
                         if (mUser == user) {
-                            CollectionManager.getInstance().fetchLovedItemsPlaylist();
+                            CollectionManager.get().fetchLovedItemsPlaylist();
                             refreshUserPlaylists();
                         } else {
-                            String requestId = InfoSystem.getInstance().resolveLovedItems(mUser);
+                            String requestId = InfoSystem.get().resolveLovedItems(mUser);
                             if (requestId != null) {
                                 mCorrespondingRequestIds.add(requestId);
                             }
@@ -145,7 +145,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     @Override
                     public void onDone(User user) {
                         if (mUser != user && mShowMode < 0) {
-                            String requestId = InfoSystem.getInstance().resolve(mPlaylist);
+                            String requestId = InfoSystem.get().resolve(mPlaylist);
                             if (requestId != null) {
                                 mCorrespondingRequestIds.add(requestId);
                             }
@@ -159,7 +159,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 fillAdapter(segment);
                 showContentHeader(getPlaylist());
                 showFancyDropDown(0, getPlaylist().getName(), null, null);
-                ThreadManager.getInstance()
+                ThreadManager.get()
                         .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW) {
                             @Override
                             public void run() {
@@ -172,7 +172,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                                             i++) {
                                         String artistName = getPlaylist().getTopArtistNames()[i];
                                         if (mResolvingTopArtistNames.contains(artistName)) {
-                                            mCorrespondingRequestIds.addAll(InfoSystem.getInstance()
+                                            mCorrespondingRequestIds.addAll(InfoSystem.get()
                                                     .resolve(Artist.get(artistName), false));
                                             mResolvingTopArtistNames.add(artistName);
                                         }
@@ -199,7 +199,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
     }
 
     private void refreshUserPlaylists() {
-        CollectionManager.getInstance().refreshUserPlaylists().done(new DoneCallback<Void>() {
+        CollectionManager.get().refreshUserPlaylists().done(new DoneCallback<Void>() {
             @Override
             public void onDone(Void result) {
                 if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {

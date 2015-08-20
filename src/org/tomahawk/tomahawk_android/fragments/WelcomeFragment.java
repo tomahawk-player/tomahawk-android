@@ -88,7 +88,7 @@ public class WelcomeFragment extends Fragment {
                             false);
                     ProgressBar progressBar = (ProgressBar) v.findViewById(R.id.smoothprogressbar);
                     HatchetAuthenticatorUtils authenticatorUtils = (HatchetAuthenticatorUtils)
-                            AuthenticatorManager.getInstance().getAuthenticatorUtils(
+                            AuthenticatorManager.get().getAuthenticatorUtils(
                                     TomahawkApp.PLUGINNAME_HATCHET);
                     mHatchetLoginRegisterView =
                             (HatchetLoginRegisterView) v.findViewById(R.id.hatchetloginregister);

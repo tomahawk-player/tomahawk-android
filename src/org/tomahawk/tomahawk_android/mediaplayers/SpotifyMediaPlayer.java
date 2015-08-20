@@ -60,7 +60,7 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
         super(TomahawkApp.PLUGINNAME_SPOTIFY, "org.tomahawk.spotifyplugin");
     }
 
-    public static SpotifyMediaPlayer getInstance() {
+    public static SpotifyMediaPlayer get() {
         return Holder.instance;
     }
 
