@@ -37,7 +37,10 @@ import android.database.Cursor;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * This class represents a Collection which contains tracks/albums/artists which are being stored in
@@ -48,6 +51,9 @@ public abstract class DbCollection extends Collection {
     private final static String TAG = DbCollection.class.getSimpleName();
 
     private FuzzyIndex mFuzzyIndex;
+
+    private Set<Query> mWaitingQueries = Collections
+            .newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     private Resolver mResolver;
 
@@ -61,7 +67,20 @@ public abstract class DbCollection extends Collection {
         getCollectionId().done(new DoneCallback<String>() {
             @Override
             public void onDone(final String collectionId) {
-                mFuzzyIndex = new FuzzyIndex(collectionId);
+                TomahawkRunnable r = new TomahawkRunnable(
+                        TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
+                    @Override
+                    public void run() {
+                        mFuzzyIndex = new FuzzyIndex(collectionId);
+                        for (Query query : mWaitingQueries) {
+                            mWaitingQueries.remove(query);
+                            resolve(query);
+                        }
+                        Log.d(TAG, collectionId
+                                + " - Fuzzy index initialized. Resolving all waiting queries.");
+                    }
+                };
+                ThreadManager.get().execute(r);
             }
         });
     }
@@ -92,33 +111,46 @@ public abstract class DbCollection extends Collection {
         getCollectionId().done(new DoneCallback<String>() {
             @Override
             public void onDone(final String collectionId) {
-                TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
-                    @Override
-                    public void run() {
-                        List<FuzzyIndex.IndexResult> indexResults = mFuzzyIndex.searchIndex(query);
-                        if (indexResults.size() > 0) {
-                            String[] ids = new String[indexResults.size()];
-                            for (int i = 0; i < indexResults.size(); i++) {
-                                FuzzyIndex.IndexResult indexResult = indexResults.get(i);
-                                ids[i] = String.valueOf(indexResult.id);
-                            }
-                            CollectionDb.WhereInfo whereInfo = new CollectionDb.WhereInfo();
-                            whereInfo.connection = "OR";
-                            whereInfo.where.put(CollectionDb.ID, ids);
-                            Cursor cursor = CollectionDbManager.get().getCollectionDb(collectionId)
-                                    .tracks(whereInfo, null);
-                            CollectionCursor<Result> collectionCursor =
-                                    new CollectionCursor<>(cursor, Result.class, mResolver);
-                            ArrayList<Result> results = new ArrayList<>();
-                            for (int i = 0; i < collectionCursor.size(); i++) {
-                                results.add(collectionCursor.get(i));
-                            }
-                            collectionCursor.close();
-                            PipeLine.get().reportResults(query, results, mResolver.getId());
-                        }
+                if (mFuzzyIndex == null) {
+                    mWaitingQueries.add(query);
+                    Log.d(TAG, collectionId + " - Added query to the waiting queue because the "
+                            + "FuzzyIndex is still initializing.");
+                } else {
+                    // Always make sure that no queries are waiting to be resolved
+                    for (Query query : mWaitingQueries) {
+                        mWaitingQueries.remove(query);
+                        resolve(query);
                     }
-                };
-                ThreadManager.get().execute(r, query);
+                    TomahawkRunnable r = new TomahawkRunnable(
+                            TomahawkRunnable.PRIORITY_IS_RESOLVING) {
+                        @Override
+                        public void run() {
+                            List<FuzzyIndex.IndexResult> indexResults =
+                                    mFuzzyIndex.searchIndex(query);
+                            if (indexResults.size() > 0) {
+                                String[] ids = new String[indexResults.size()];
+                                for (int i = 0; i < indexResults.size(); i++) {
+                                    FuzzyIndex.IndexResult indexResult = indexResults.get(i);
+                                    ids[i] = String.valueOf(indexResult.id);
+                                }
+                                CollectionDb.WhereInfo whereInfo = new CollectionDb.WhereInfo();
+                                whereInfo.connection = "OR";
+                                whereInfo.where.put(CollectionDb.ID, ids);
+                                Cursor cursor = CollectionDbManager.get()
+                                        .getCollectionDb(collectionId).tracks(whereInfo, null);
+                                CollectionCursor<Result> collectionCursor =
+                                        new CollectionCursor<>(cursor, Result.class, mResolver);
+                                ArrayList<Result> results = new ArrayList<>();
+                                for (int i = 0; i < collectionCursor.size(); i++) {
+                                    results.add(collectionCursor.get(i));
+                                }
+                                collectionCursor.close();
+                                PipeLine.get().reportResults(query, results, mResolver.getId());
+                            }
+                        }
+                    };
+                    ThreadManager.get().execute(r, query);
+                }
             }
         });
         return true;
@@ -129,7 +161,7 @@ public abstract class DbCollection extends Collection {
         final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
         getCollectionId().done(new DoneCallback<String>() {
             @Override
-            public void onDone(final String result) {
+            public void onDone(final String collectionId) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -145,10 +177,11 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.TRACKS_TRACK};    //TODO
                                 break;
                             default:
-                                Log.e(TAG, "getQueries - sortMode not supported!");
+                                Log.e(TAG,
+                                        collectionId + " - getQueries - sortMode not supported!");
                                 return;
                         }
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result)
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(collectionId)
                                 .tracks(null, orderBy);
                         CollectionCursor<Query> collectionCursor =
                                 new CollectionCursor<>(cursor, Query.class, mResolver);
@@ -166,7 +199,7 @@ public abstract class DbCollection extends Collection {
                 = new ADeferredObject<>();
         getCollectionId().done(new DoneCallback<String>() {
             @Override
-            public void onDone(final String result) {
+            public void onDone(final String collectionId) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -179,10 +212,11 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};   //TODO
                                 break;
                             default:
-                                Log.e(TAG, "getArtists - sortMode not supported!");
+                                Log.e(TAG,
+                                        collectionId + " - getArtists - sortMode not supported!");
                                 return;
                         }
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result)
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(collectionId)
                                 .artists(orderBy);
                         CollectionCursor<Artist> collectionCursor =
                                 new CollectionCursor<>(cursor, Artist.class, mResolver);
@@ -200,7 +234,7 @@ public abstract class DbCollection extends Collection {
                 = new ADeferredObject<>();
         getCollectionId().done(new DoneCallback<String>() {
             @Override
-            public void onDone(final String result) {
+            public void onDone(final String collectionId) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -213,10 +247,11 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};    //TODO
                                 break;
                             default:
-                                Log.e(TAG, "getAlbumArtists - sortMode not supported!");
+                                Log.e(TAG, collectionId
+                                        + " - getAlbumArtists - sortMode not supported!");
                                 return;
                         }
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result)
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(collectionId)
                                 .albumArtists(orderBy);
                         CollectionCursor<Artist> collectionCursor =
                                 new CollectionCursor<>(cursor, Artist.class, mResolver);
@@ -233,7 +268,7 @@ public abstract class DbCollection extends Collection {
         final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
         getCollectionId().done(new DoneCallback<String>() {
             @Override
-            public void onDone(final String result) {
+            public void onDone(final String collectionId) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -249,10 +284,10 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};    //TODO
                                 break;
                             default:
-                                Log.e(TAG, "getAlbums - sortMode not supported!");
+                                Log.e(TAG, collectionId + " - getAlbums - sortMode not supported!");
                                 return;
                         }
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result)
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(collectionId)
                                 .albums(orderBy);
                         CollectionCursor<Album> collectionCursor =
                                 new CollectionCursor<>(cursor, Album.class, mResolver);
