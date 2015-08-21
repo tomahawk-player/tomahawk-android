@@ -38,6 +38,7 @@ import android.util.SparseArray;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -92,6 +93,8 @@ public class User extends Cacheable implements AlphaComparable {
 
     private boolean mIsOffline;
 
+    private Map<Object, String> mRelationshipIds = new ConcurrentHashMap<>();
+
     /**
      * Construct a new {@link User} with the given id
      */
@@ -136,6 +139,14 @@ public class User extends Cacheable implements AlphaComparable {
             }
         });
         return deferred;
+    }
+
+    public void putRelationShipId(Object object, String relationShipId) {
+        mRelationshipIds.put(object, relationShipId);
+    }
+
+    public String getRelationShipId(Object object) {
+        return mRelationshipIds.get(object);
     }
 
     public boolean isOffline() {

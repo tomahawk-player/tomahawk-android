@@ -333,13 +333,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
                                     new TypedByteArray("application/json; charset=utf-8",
                                             data.getBytes(Charsets.UTF_8)));
                         } else if (infoRequestData.getType()
-                                == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING) {
-                            hatchet.postPlaybackLogEntriesNowPlaying(accessToken,
-                                    new TypedByteArray("application/json; charset=utf-8",
-                                            data.getBytes(Charsets.UTF_8)));
-                        } else if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
-                            hatchet.postSocialActions(accessToken,
+                            //legacy for users with v1 loggedOps in their queue
+                            hatchet.postRelationship(accessToken,
                                     new TypedByteArray("application/json; charset=utf-8",
                                             data.getBytes(Charsets.UTF_8)));
                         } else if (infoRequestData.getType()
@@ -368,13 +364,11 @@ public class HatchetInfoPlugin implements InfoPlugin {
                             if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_POST) {
                                 hatchet.postPlaylistsPlaylistEntries(accessToken,
-                                        infoRequestData.getQueryParams().playlist_id,
                                         new TypedByteArray("application/json; charset=utf-8",
                                                 data.getBytes(Charsets.UTF_8)));
                             } else if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_DELETE) {
                                 hatchet.deletePlaylistsPlaylistEntries(accessToken,
-                                        infoRequestData.getQueryParams().playlist_id,
                                         infoRequestData.getQueryParams().entry_id);
                             }
                         } else if (infoRequestData.getType()

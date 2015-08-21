@@ -17,17 +17,21 @@
  */
 package org.tomahawk.libtomahawk.infosystem.hatchet.models;
 
+import java.util.Date;
+
 public class HatchetPlaylistEntryRequest {
+
+    public int playlist;
 
     public String albumString;
 
     public String artistString;
 
-    public String playlist;
-
-    public String track;
-
     public String trackString;
+
+    public int position;
+
+    public Date timestamp;
 
     public HatchetPlaylistEntryRequest() {
     }
