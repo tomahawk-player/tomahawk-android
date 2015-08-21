@@ -553,7 +553,7 @@ public class Store {
             for (JsonElement element : (JsonArray) elements) {
                 if (element instanceof JsonObject) {
                     JsonObject o = (JsonObject) element;
-                    String id = get(o, "id").getAsString();
+                    String id = getAsString(o, "id");
                     JsonArray rawSearchResults = get(o, "searchResults").getAsJsonArray();
                     ArrayList<SearchResult> searchResults = new ArrayList<>();
                     for (JsonElement rawSearchResult : rawSearchResults) {
@@ -566,6 +566,35 @@ public class Store {
                     mCache.get(TYPE_SEARCHES).put(id, search);
                     if (resultType == TYPE_SEARCHES) {
                         results.add(search);
+                    }
+                }
+            }
+        }
+        elements = object.get("relationships");
+        if (elements instanceof JsonArray) {
+            for (JsonElement element : (JsonArray) elements) {
+                if (element instanceof JsonObject) {
+                    JsonObject o = (JsonObject) element;
+                    String id = getAsString(o, "id");
+                    String type = getAsString(o, "type");
+                    if (type.equals(HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE)) {
+                        String userId = getAsString(o, "user");
+                        User user = (User) findRecord(userId, TYPE_USERS);
+                        String trackId = getAsString(o, "targetTrack");
+                        if (trackId != null) {
+                            Query query = (Query) findRecord(trackId, TYPE_TRACKS);
+                            user.putRelationShipId(query, id);
+                        }
+                        String albumId = getAsString(o, "targetAlbum");
+                        if (albumId != null) {
+                            Album album = (Album) findRecord(albumId, TYPE_ALBUMS);
+                            user.putRelationShipId(album, id);
+                        }
+                        String artistId = getAsString(o, "targetArtist");
+                        if (artistId != null) {
+                            Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
+                            user.putRelationShipId(artist, id);
+                        }
                     }
                 }
             }

@@ -68,8 +68,6 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES = 1200;
 
-    public static final int INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES_NOWPLAYING = 1201;
-
     public static final int INFOREQUESTDATA_TYPE_SOCIALACTIONS = 1300;
 
     public static final int HTTPTYPE_GET = 0;
@@ -220,6 +218,10 @@ public class InfoRequestData {
 
     public String getJsonStringToSend() {
         return mJsonStringToSend;
+    }
+
+    public void setJsonStringToSend(String jsonStringToSend) {
+        mJsonStringToSend = jsonStringToSend;
     }
 
     public int getLoggedOpId() {

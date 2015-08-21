@@ -27,6 +27,8 @@ public class HatchetPlaybackLogEntry {
 
     public String trackString;
 
+    public String type;
+
     public Date timestamp;
 
     public HatchetPlaybackLogEntry() {

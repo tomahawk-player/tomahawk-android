@@ -33,7 +33,6 @@ import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.infosystem.User;
-import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.R;
@@ -201,7 +200,7 @@ public class CollectionManager {
      * Remove or add a lovedItem-query from the LovedItems-Playlist, depending on whether or not it
      * is already a lovedItem
      */
-    public void toggleLovedItem(Query query) {
+    public void toggleLovedItem(final Query query) {
         boolean doSweetSweetLovin = !DatabaseHelper.get().isItemLoved(query);
         Log.d(TAG, "Hatchet sync - " + (doSweetSweetLovin ? "loved" : "unloved") + " track "
                 + query.getName() + " by " + query.getArtist().getName() + " on "
@@ -211,13 +210,27 @@ public class CollectionManager {
         event.mUpdatedItemIds = new HashSet<>();
         event.mUpdatedItemIds.add(query.getCacheKey());
         EventBus.getDefault().post(event);
-        AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
+        final AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        InfoSystem.get().sendSocialActionPostStruct(hatchetAuthUtils, query,
-                HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
+        if (doSweetSweetLovin) {
+            InfoSystem.get().sendRelationshipPostStruct(hatchetAuthUtils, query);
+        } else {
+            User.getSelf().done(new DoneCallback<User>() {
+                @Override
+                public void onDone(User result) {
+                    String relationShipId = result.getRelationShipId(query);
+                    if (relationShipId == null) {
+                        Log.e(TAG, "Can't unlove track, because there's no relationshipId"
+                                + " associated with it.");
+                        return;
+                    }
+                    InfoSystem.get().deleteRelationship(hatchetAuthUtils, relationShipId);
+                }
+            });
+        }
     }
 
-    public void toggleLovedItem(Artist artist) {
+    public void toggleLovedItem(final Artist artist) {
         boolean doSweetSweetLovin = !DatabaseHelper.get().isItemLoved(artist);
         Log.d(TAG, "Hatchet sync - " + (doSweetSweetLovin ? "starred" : "unstarred") + " artist "
                 + artist.getName());
@@ -226,13 +239,27 @@ public class CollectionManager {
         event.mUpdatedItemIds = new HashSet<>();
         event.mUpdatedItemIds.add(artist.getCacheKey());
         EventBus.getDefault().post(event);
-        AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
+        final AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        InfoSystem.get().sendSocialActionPostStruct(hatchetAuthUtils, artist,
-                HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
+        if (doSweetSweetLovin) {
+            InfoSystem.get().sendRelationshipPostStruct(hatchetAuthUtils, artist);
+        } else {
+            User.getSelf().done(new DoneCallback<User>() {
+                @Override
+                public void onDone(User result) {
+                    String relationShipId = result.getRelationShipId(artist);
+                    if (relationShipId == null) {
+                        Log.e(TAG, "Can't unlove artist, because there's no relationshipId"
+                                + " associated with it.");
+                        return;
+                    }
+                    InfoSystem.get().deleteRelationship(hatchetAuthUtils, relationShipId);
+                }
+            });
+        }
     }
 
-    public void toggleLovedItem(Album album) {
+    public void toggleLovedItem(final Album album) {
         boolean doSweetSweetLovin = !DatabaseHelper.get().isItemLoved(album);
         Log.d(TAG, "Hatchet sync - " + (doSweetSweetLovin ? "starred" : "unstarred") + " album "
                 + album.getName() + " by " + album.getArtist().getName());
@@ -241,10 +268,24 @@ public class CollectionManager {
         event.mUpdatedItemIds = new HashSet<>();
         event.mUpdatedItemIds.add(album.getCacheKey());
         EventBus.getDefault().post(event);
-        AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
+        final AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        InfoSystem.get().sendSocialActionPostStruct(hatchetAuthUtils, album,
-                HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE, doSweetSweetLovin);
+        if (doSweetSweetLovin) {
+            InfoSystem.get().sendRelationshipPostStruct(hatchetAuthUtils, album);
+        } else {
+            User.getSelf().done(new DoneCallback<User>() {
+                @Override
+                public void onDone(User result) {
+                    String relationShipId = result.getRelationShipId(album);
+                    if (relationShipId == null) {
+                        Log.e(TAG, "Can't unlove album, because there's no relationshipId"
+                                + " associated with it.");
+                        return;
+                    }
+                    InfoSystem.get().deleteRelationship(hatchetAuthUtils, relationShipId);
+                }
+            });
+        }
     }
 
     /**
@@ -585,7 +626,7 @@ public class CollectionManager {
             DatabaseHelper.get().deleteEntryInPlaylist(playlistId, entryId);
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            InfoSystem.get().deletePlaylistEntry(hatchetAuthUtils, playlistId, entryId);
+            InfoSystem.get().deletePlaylistEntry(hatchetAuthUtils, entryId);
         } else {
             Log.e(TAG, "Hatchet sync - couldn't delete entry in playlist, playlistId: "
                     + playlistId + ", entryId: " + entryId);

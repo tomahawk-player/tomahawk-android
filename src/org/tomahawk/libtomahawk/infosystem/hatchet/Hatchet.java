@@ -111,28 +111,15 @@ public interface Hatchet {
             @Body TypedInput rawBody
     );
 
-    @POST("/playbacklogEntries/nowplaying")
-    Response postPlaybackLogEntriesNowPlaying(
-            @Header("Authorization") String accesstoken,
-            @Body TypedInput rawBody
-    );
-
-    @POST("/socialActions")
-    Response postSocialActions(
-            @Header("Authorization") String accesstoken,
-            @Body TypedInput rawBody
-    );
-
     @POST("/playlists")
     HatchetPlaylistEntries postPlaylists(
             @Header("Authorization") String accesstoken,
             @Body TypedInput rawBody
     );
 
-    @POST("/playlists/{playlist-id}/playlistEntries")
+    @POST("/playlistEntries")
     HatchetPlaylistEntries postPlaylistsPlaylistEntries(
             @Header("Authorization") String accesstoken,
-            @Path("playlist-id") String playlist_id,
             @Body TypedInput rawBody
     );
 
@@ -155,10 +142,9 @@ public interface Hatchet {
             @Path("playlist-id") String playlist_id
     );
 
-    @DELETE("/playlists/{playlist-id}/playlistEntries/{entry-id}")
+    @DELETE("/playlistEntries/{entry-id}")
     Response deletePlaylistsPlaylistEntries(
             @Header("Authorization") String accesstoken,
-            @Path("playlist-id") String playlist_id,
             @Path("entry-id") String entry_id
     );
 
