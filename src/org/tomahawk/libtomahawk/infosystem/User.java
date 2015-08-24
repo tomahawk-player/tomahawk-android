@@ -33,8 +33,6 @@ import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.util.SparseArray;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -73,9 +71,13 @@ public class User extends Cacheable implements AlphaComparable {
 
     private int mTotalPlays;
 
-    private final SparseArray<List<SocialAction>> mSocialActions = new SparseArray<>();
+    private final TreeMap<Date, List<SocialAction>> mSocialActions = new TreeMap<>();
 
-    private final SparseArray<List<SocialAction>> mFriendsFeed = new SparseArray<>();
+    private final TreeMap<Date, List<SocialAction>> mFriendsFeed = new TreeMap<>();
+
+    private Date mSocialActionsNextDate = new Date();
+
+    private Date mFriendsFeedNextDate = new Date();
 
     private Playlist mPlaybackLog;
 
@@ -237,20 +239,40 @@ public class User extends Cacheable implements AlphaComparable {
         mTotalPlays = totalPlays;
     }
 
-    public SparseArray<List<SocialAction>> getSocialActions() {
+    public TreeMap<Date, List<SocialAction>> getSocialActions() {
         return mSocialActions;
     }
 
-    public void setSocialActions(List<SocialAction> socialActions, int pageNumber) {
-        mSocialActions.put(pageNumber, socialActions);
+    public void setSocialActions(List<SocialAction> socialActions, Date date) {
+        mSocialActions.put(date, socialActions);
+        SocialAction socialAction = socialActions.get(socialActions.size() - 1);
+        if (socialAction != null) {
+            if (socialAction.getDate().getTime() < date.getTime()) {
+                mSocialActionsNextDate = socialAction.getDate();
+            }
+        }
     }
 
-    public SparseArray<List<SocialAction>> getFriendsFeed() {
+    public Date getSocialActionsNextDate() {
+        return mSocialActionsNextDate;
+    }
+
+    public TreeMap<Date, List<SocialAction>> getFriendsFeed() {
         return mFriendsFeed;
     }
 
-    public void setFriendsFeed(List<SocialAction> friendsFeed, int pageNumber) {
-        mFriendsFeed.put(pageNumber, friendsFeed);
+    public void setFriendsFeed(List<SocialAction> friendsFeed, Date date) {
+        mFriendsFeed.put(date, friendsFeed);
+        SocialAction socialAction = friendsFeed.get(friendsFeed.size() - 1);
+        if (socialAction != null) {
+            if (socialAction.getDate().getTime() < date.getTime()) {
+                mFriendsFeedNextDate = socialAction.getDate();
+            }
+        }
+    }
+
+    public Date getFriendsFeedNextDate() {
+        return mFriendsFeedNextDate;
     }
 
     public Playlist getPlaybackLog() {

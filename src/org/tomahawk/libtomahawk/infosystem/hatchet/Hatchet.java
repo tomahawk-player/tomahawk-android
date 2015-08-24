@@ -96,7 +96,7 @@ public interface Hatchet {
             @Query("ids[]") List<String> ids,
             @Query("user_id") String user_id,
             @Query("type") String type,
-            @Query("offset") String offset,
+            @Query("before_date") String before_date,
             @Query("limit") String limit
     );
 

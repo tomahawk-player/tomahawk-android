@@ -40,13 +40,15 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.os.Bundle;
-import android.util.SparseArray;
 import android.view.View;
 import android.widget.AbsListView;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeMap;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
@@ -61,7 +63,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
 
     public static final int SHOW_MODE_DASHBOARD = 1;
 
-    public final HashSet<Integer> mResolvingPages = new HashSet<>();
+    public final HashSet<Date> mResolvingPages = new HashSet<>();
 
     private List<User> mSuggestedUsers;
 
@@ -75,15 +77,13 @@ public class SocialActionsFragment extends TomahawkFragment implements
         }
         if (event.mInfoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
-            int pageNumber = Integer.valueOf(event.mInfoRequestData.getQueryParams().offset) /
-                    Integer.valueOf(event.mInfoRequestData.getQueryParams().limit);
             if (HatchetInfoPlugin.HATCHET_SOCIALACTION_PARAMTYPE_FRIENDSFEED
                     .equals(event.mInfoRequestData.getQueryParams().type)) {
                 mUser.setFriendsFeed(event.mInfoRequestData.getResultList(SocialAction.class),
-                        pageNumber);
+                        event.mInfoRequestData.getQueryParams().before_date);
             } else {
                 mUser.setSocialActions(event.mInfoRequestData.getResultList(SocialAction.class),
-                        pageNumber);
+                        event.mInfoRequestData.getQueryParams().before_date);
             }
         }
 
@@ -98,8 +98,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
             if (mContainerFragmentClass == null) {
                 getActivity().setTitle(getString(R.string.drawer_title_feed).toUpperCase());
             }
-            for (int i = 0; i < mUser.getFriendsFeed().size(); i++) {
-                String requestId = InfoSystem.get().resolveFriendsFeed(mUser, i);
+            for (Date date : mUser.getFriendsFeed().keySet()) {
+                String requestId = InfoSystem.get().resolveFriendsFeed(mUser, date);
                 if (requestId != null) {
                     mCorrespondingRequestIds.add(requestId);
                 }
@@ -118,8 +118,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
             if (mContainerFragmentClass == null) {
                 getActivity().setTitle("");
             }
-            for (int i = 0; i < mUser.getSocialActions().size(); i++) {
-                String requestId = InfoSystem.get().resolveSocialActions(mUser, i);
+            for (Date date : mUser.getSocialActions().keySet()) {
+                String requestId = InfoSystem.get().resolveSocialActions(mUser, date);
                 if (requestId != null) {
                     mCorrespondingRequestIds.add(requestId);
                 }
@@ -226,68 +226,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
             @Override
             public void run() {
                 if (mUser != null) {
-                    SparseArray<List<SocialAction>> socialActionsList;
-                    if (mShowMode == SHOW_MODE_DASHBOARD) {
-                        socialActionsList = mUser.getFriendsFeed();
-                    } else {
-                        socialActionsList = mUser.getSocialActions();
-                    }
-                    List<List<SocialAction>> mergedActionsList = new ArrayList<>();
-                    int i = 0;
-                    while (socialActionsList.get(i) != null) {
-                        List<SocialAction> socialActions = new ArrayList<>(
-                                socialActionsList.get(i));
-                        i++;
-                        while (socialActions.size() > 0) {
-                            SocialAction socialAction = socialActions.remove(0);
-
-                            boolean action = Boolean.valueOf(socialAction.getAction());
-                            String type = socialAction.getType();
-                            if (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST.equals(
-                                    type)
-                                    || HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON.equals(
-                                    type)
-                                    || HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW.equals(
-                                    type)
-                                    || (HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE.equals(
-                                    type)
-                                    && action && (socialAction.getTargetObject() instanceof Query
-                                    || socialAction.getTargetObject() instanceof Album
-                                    || socialAction.getTargetObject() instanceof Artist))) {
-                                List<SocialAction> mergedActions = new ArrayList<>();
-                                mergedActions.add(socialAction);
-                                List<SocialAction> actionsToDelete = new ArrayList<>();
-                                for (Object item : socialActions) {
-                                    SocialAction actionToCompare = (SocialAction) item;
-                                    if (actionToCompare.getUser() == socialAction.getUser()
-                                            && actionToCompare.getType().equals(
-                                            socialAction.getType())
-                                            && actionToCompare.getTargetObject().getClass()
-                                            == socialAction.getTargetObject().getClass()) {
-                                        boolean alreadyMerged = false;
-                                        for (Object mergedItem : mergedActions) {
-                                            SocialAction mergedAction = (SocialAction) mergedItem;
-                                            if (mergedAction.getTargetObject()
-                                                    == actionToCompare.getTargetObject()) {
-                                                alreadyMerged = true;
-                                                break;
-                                            }
-                                        }
-                                        if (!alreadyMerged) {
-                                            mergedActions.add(actionToCompare);
-                                        }
-                                        actionsToDelete.add(actionToCompare);
-                                    }
-                                }
-                                for (SocialAction actionToDelete : actionsToDelete) {
-                                    socialActions.remove(actionToDelete);
-                                }
-                                mergedActionsList.add(mergedActions);
-                            }
-                        }
-                    }
-
-                    final List<Segment> segments = new ArrayList<>();
+                    List<Segment> segments = new ArrayList<>();
                     int extraPadding = TomahawkApp.getContext().getResources()
                             .getDimensionPixelSize(R.dimen.padding_medium)
                             + TomahawkUtils.convertDpToPixel(32);
@@ -299,20 +238,15 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         segment.setLeftExtraPadding(extraPadding);
                         segments.add(segment);
                     }
-                    for (List mergedActions : mergedActionsList) {
-                        SocialAction first = (SocialAction) mergedActions.get(0);
-                        Segment segment;
-                        if (first.getTargetObject() instanceof Album
-                                || first.getTargetObject() instanceof User
-                                || first.getTargetObject() instanceof Artist) {
-                            segment = new Segment(mergedActions,
-                                    R.integer.grid_column_count_feed,
-                                    R.dimen.padding_superlarge, R.dimen.padding_small,
-                                    R.layout.list_header_socialaction);
-                        } else {
-                            segment = new Segment(mergedActions, R.layout.list_header_socialaction);
-                        }
-                        segment.setLeftExtraPadding(extraPadding);
+                    TreeMap<Date, List<SocialAction>> socialActionsList;
+                    if (mShowMode == SHOW_MODE_DASHBOARD) {
+                        socialActionsList = mUser.getFriendsFeed();
+                    } else {
+                        socialActionsList = mUser.getSocialActions();
+                    }
+                    List<List<SocialAction>> mergedActions = mergeSocialActions(socialActionsList);
+                    for (List<SocialAction> actions : mergedActions) {
+                        Segment segment = toSegment(actions);
                         segments.add(segment);
                     }
                     fillAdapter(segments);
@@ -334,24 +268,86 @@ public class SocialActionsFragment extends TomahawkFragment implements
         if (firstVisibleItem + visibleItemCount + 5 > totalItemCount) {
             mShowMode = getArguments().getInt(SHOW_MODE);
             if (mShowMode == SHOW_MODE_DASHBOARD) {
-                if (!mResolvingPages.contains(mUser.getFriendsFeed().size())) {
-                    mResolvingPages.add(mUser.getFriendsFeed().size());
+                if (!mResolvingPages.contains(mUser.getFriendsFeedNextDate())) {
+                    mResolvingPages.add(mUser.getFriendsFeedNextDate());
                     String requestId = InfoSystem.get()
-                            .resolveFriendsFeed(mUser, mUser.getFriendsFeed().size());
+                            .resolveFriendsFeed(mUser, mUser.getFriendsFeedNextDate());
                     if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
                     }
                 }
             } else {
-                if (!mResolvingPages.contains(mUser.getSocialActions().size())) {
-                    mResolvingPages.add(mUser.getSocialActions().size());
+                if (!mResolvingPages.contains(mUser.getSocialActionsNextDate())) {
+                    mResolvingPages.add(mUser.getSocialActionsNextDate());
                     String requestId = InfoSystem.get()
-                            .resolveSocialActions(mUser, mUser.getSocialActions().size());
+                            .resolveSocialActions(mUser, mUser.getSocialActionsNextDate());
                     if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
                     }
                 }
             }
         }
+    }
+
+    private List<List<SocialAction>> mergeSocialActions(TreeMap<Date, List<SocialAction>> actions) {
+        List<List<SocialAction>> mergedActionsList = new ArrayList<>();
+        Set<SocialAction> checkedActions = new HashSet<>();
+        for (List<SocialAction> socialActions : actions.descendingMap().values()) {
+            for (SocialAction socialAction : socialActions) {
+                if (!checkedActions.contains(socialAction)
+                        && shouldDisplayAction(socialAction)) {
+                    List<SocialAction> mergedActions = new ArrayList<>();
+                    mergedActions.add(socialAction);
+                    checkedActions.add(socialAction);
+                    for (SocialAction actionToCompare : socialActions) {
+                        if (!checkedActions.contains(actionToCompare)
+                                && shouldMergeAction(actionToCompare, socialAction)) {
+                            mergedActions.add(actionToCompare);
+                            checkedActions.add(actionToCompare);
+                        }
+                    }
+                    mergedActionsList.add(mergedActions);
+                }
+            }
+        }
+        return mergedActionsList;
+    }
+
+    private boolean shouldDisplayAction(SocialAction socialAction) {
+        boolean action = Boolean.valueOf(socialAction.getAction());
+        String type = socialAction.getType();
+        return HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST.equals(type)
+                || HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LATCHON.equals(type)
+                || HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_FOLLOW.equals(type)
+                || (action && HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE.equals(type));
+    }
+
+    private boolean shouldMergeAction(SocialAction actionToCompare, SocialAction socialAction) {
+        return actionToCompare.getUser() == socialAction.getUser()
+                && actionToCompare.getType().equals(socialAction.getType())
+                && actionToCompare.getTargetObject().getClass()
+                == socialAction.getTargetObject().getClass();
+    }
+
+    private Segment toSegment(List<SocialAction> actions) {
+        SocialAction first = actions.get(0);
+        Segment segment;
+        if (first.getTargetObject() instanceof Album
+                || first.getTargetObject() instanceof User
+                || first.getTargetObject() instanceof Artist
+                || first.getTargetObject() instanceof Playlist) {
+            segment = new Segment(actions,
+                    R.integer.grid_column_count_feed,
+                    R.dimen.padding_superlarge, R.dimen.padding_small,
+                    R.layout.list_header_socialaction);
+        } else {
+            segment = new Segment(actions,
+                    R.layout.list_header_socialaction);
+        }
+        int extraPadding = TomahawkApp.getContext().getResources()
+                .getDimensionPixelSize(R.dimen.padding_medium)
+                + TomahawkUtils.convertDpToPixel(32);
+        segment.setLeftExtraPadding(extraPadding);
+        return segment;
     }
 }

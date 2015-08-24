@@ -36,6 +36,7 @@ import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntries;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
+import org.tomahawk.libtomahawk.utils.ISO8601Utils;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -296,7 +297,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
                 JsonObject object = hatchet.getSocialActions(null, params.userid, params.type,
-                        params.offset, params.limit);
+                        ISO8601Utils.format(params.before_date), params.limit);
                 List socialActions = mStore.storeRecords(object, Store.TYPE_SOCIALACTIONS, type);
                 infoRequestData.setResultList(socialActions);
                 return true;
