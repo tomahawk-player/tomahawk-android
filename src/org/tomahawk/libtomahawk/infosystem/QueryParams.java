@@ -1,6 +1,7 @@
 package org.tomahawk.libtomahawk.infosystem;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 public class QueryParams {
 
@@ -32,7 +33,7 @@ public class QueryParams {
 
     public String count = null;
 
-    public String offset = null;
-
     public String limit = null;
+
+    public Date before_date = null;
 }

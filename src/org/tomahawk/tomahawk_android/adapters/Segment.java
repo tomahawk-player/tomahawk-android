@@ -223,9 +223,12 @@ public class Segment {
         return mSpinnerClickListener;
     }
 
-    public int size() {
-        int size = mCollectionCursor != null ? mCollectionCursor.size() : mListItems.size();
-        return (int) Math.ceil((float) size / mColumnCount);
+    public int getCount() {
+        return mCollectionCursor != null ? mCollectionCursor.size() : mListItems.size();
+    }
+
+    public int getRowCount() {
+        return (int) Math.ceil((float) getCount() / mColumnCount);
     }
 
     public Object get(int location) {

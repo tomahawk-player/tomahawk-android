@@ -223,14 +223,15 @@ public class InfoSystem {
     /**
      * Fill up the given user with metadata fetched from all added InfoPlugins
      *
-     * @param user the User to enrich with data from the InfoPlugins
+     * @param user       the User for which to get the socialActions
+     * @param beforeDate the Date that specifies which socialActions to fetch
      * @return the created InfoRequestData's requestId
      */
-    public String resolveSocialActions(User user, int pageNumber) {
+    public String resolveSocialActions(User user, Date beforeDate) {
         if (user != null) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
-            params.offset = String.valueOf(pageNumber * HatchetInfoPlugin.SOCIALACTIONS_LIMIT);
+            params.before_date = beforeDate;
             params.limit = String.valueOf(HatchetInfoPlugin.SOCIALACTIONS_LIMIT);
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, params);
         }
@@ -240,15 +241,16 @@ public class InfoSystem {
     /**
      * Fill up the given user with metadata fetched from all added InfoPlugins
      *
-     * @param user the User to enrich with data from the InfoPlugins
+     * @param user       the User to enrich with data from the InfoPlugins
+     * @param beforeDate the Date that specifies which socialActions to fetch
      * @return the created InfoRequestData's requestId
      */
-    public String resolveFriendsFeed(User user, int pageNumber) {
+    public String resolveFriendsFeed(User user, Date beforeDate) {
         if (user != null) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
             params.type = HatchetInfoPlugin.HATCHET_SOCIALACTION_PARAMTYPE_FRIENDSFEED;
-            params.offset = String.valueOf(pageNumber * HatchetInfoPlugin.FRIENDSFEED_LIMIT);
+            params.before_date = beforeDate;
             params.limit = String.valueOf(HatchetInfoPlugin.FRIENDSFEED_LIMIT);
             return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS, params);
         }

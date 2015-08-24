@@ -38,8 +38,6 @@ public class SocialAction extends Cacheable {
 
     private Date mDate;
 
-    private Date mTimeStamp;
-
     private Playlist mPlaylist;
 
     private User mTarget;
@@ -142,14 +140,6 @@ public class SocialAction extends Cacheable {
 
     public void setDate(Date date) {
         mDate = date;
-    }
-
-    public Date getTimeStamp() {
-        return mTimeStamp;
-    }
-
-    public void setTimeStamp(Date timeStamp) {
-        mTimeStamp = timeStamp;
     }
 
     public Playlist getPlaylist() {

@@ -172,7 +172,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         mSegmentsClosed = false;
         mRowCount = 0;
         for (Segment segment : mSegments) {
-            mRowCount += segment.size();
+            mRowCount += segment.getRowCount();
         }
 
         synchronized (this) {
@@ -604,11 +604,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         int counter = 0;
         int correctedPos = position;
         for (Segment segment : mSegments) {
-            counter += segment.size();
+            counter += segment.getRowCount();
             if (position < counter) {
                 return segment.get(correctedPos);
             } else {
-                correctedPos -= segment.size();
+                correctedPos -= segment.getRowCount();
             }
         }
         return null;
@@ -624,7 +624,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         }
         int counter = 0;
         for (Segment segment : mSegments) {
-            counter += segment.size();
+            counter += segment.getRowCount();
             if (position < counter) {
                 return segment;
             }
@@ -643,11 +643,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         int counter = 0;
         int correctedPos = position;
         for (Segment segment : mSegments) {
-            counter += segment.size();
+            counter += segment.getRowCount();
             if (position < counter) {
                 return correctedPos;
             } else {
-                correctedPos -= segment.size();
+                correctedPos -= segment.getRowCount();
             }
         }
         return 0;
@@ -700,7 +700,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 viewHolder.fillHeaderView(segment.getHeaderString());
             } else if (layoutId == R.layout.list_header_socialaction) {
                 SocialAction socialAction = (SocialAction) segment.getFirstSegmentItem();
-                viewHolder.fillHeaderView(socialAction, segment.size());
+                viewHolder.fillHeaderView(socialAction, segment.getCount());
             }
             return view;
         } else {
