@@ -1086,9 +1086,9 @@ public class PlaybackService extends Service implements MusicFocusable {
     }
 
     /**
-     * Add given {@link ArrayList} of {@link org.tomahawk.libtomahawk.resolver.Query}s to the Queue
+     * Add given {@link List} of {@link org.tomahawk.libtomahawk.resolver.Query}s to the Queue
      */
-    public void addQueriesToQueue(ArrayList<Query> queries) {
+    public void addQueriesToQueue(List<Query> queries) {
         Log.d(TAG, "addQueriesToQueue count: " + queries.size());
         mQueue.addQueries(queries);
         mMergedPlaylist.setEntries(getMergedPlaylistEntries());
@@ -1096,9 +1096,6 @@ public class PlaybackService extends Service implements MusicFocusable {
         onTrackChanged();
     }
 
-    /**
-     * Add given {@link ArrayList} of {@link org.tomahawk.libtomahawk.resolver.Query}s to the Queue
-     */
     public void deleteQueryInQueue(PlaylistEntry entry) {
         Log.d(TAG, "deleteQueryInQueue");
         if (mQueue.deleteEntry(entry)) {

@@ -416,6 +416,48 @@ public class ContextMenuFragment extends Fragment {
                 });
             }
         }
+
+        // set up "Add to queue" context menu item
+        if (mAlbum != null || mQuery != null || mPlaylistEntry != null || mPlaylist != null) {
+            int drawableResId = R.drawable.ic_action_queue;
+            int stringResId = R.string.context_menu_add_to_queue;
+            v = TomahawkUtils.ensureInflation(view, R.id.context_menu_addtoqueue_stub,
+                    R.id.context_menu_addtoqueue);
+            textView = (TextView) v.findViewById(R.id.textview);
+            imageView = (ImageView) v.findViewById(R.id.imageview);
+            imageView.setImageResource(drawableResId);
+            textView.setText(stringResId);
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                    if (mAlbum != null) {
+                        mCollection.getAlbumTracks(mAlbum).done(
+                                new DoneCallback<CollectionCursor<Query>>() {
+                                    @Override
+                                    public void onDone(CollectionCursor<Query> collectionCursor) {
+                                        List<Query> albumTracks = new ArrayList<>();
+                                        for (int i = 0; i < collectionCursor.size(); i++) {
+                                            albumTracks.add(collectionCursor.get(i));
+                                        }
+                                        ((TomahawkMainActivity) getActivity())
+                                                .getPlaybackService()
+                                                .addQueriesToQueue(albumTracks);
+                                    }
+                                });
+                    } else if (mQuery != null) {
+                        ((TomahawkMainActivity) getActivity()).getPlaybackService()
+                                .addQueryToQueue(mQuery);
+                    } else if (mPlaylistEntry != null) {
+                        ((TomahawkMainActivity) getActivity()).getPlaybackService()
+                                .addQueryToQueue(mPlaylistEntry.getQuery());
+                    } else if (mPlaylist != null) {
+                        ((TomahawkMainActivity) getActivity()).getPlaybackService()
+                                .addQueriesToQueue(mPlaylist.getQueries());
+                    }
+                }
+            });
+        }
     }
 
     private void showAddToPlaylist(final TomahawkMainActivity activity, final List<Query> queries) {

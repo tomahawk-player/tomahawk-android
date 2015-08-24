@@ -100,6 +100,13 @@
                           android:layout_height="wrap_content"
                           android:layout_weight="1"/>
 
+                <ViewStub android:id="@+id/context_menu_addtoqueue_stub"
+                          android:layout="@layout/context_menu_item"
+                          android:inflatedId="@+id/context_menu_addtoqueue"
+                          android:layout_width="0dp"
+                          android:layout_height="wrap_content"
+                          android:layout_weight="1"/>
+
                 <ViewStub android:id="@+id/context_menu_share_stub"
                           android:layout="@layout/context_menu_item"
                           android:inflatedId="@+id/context_menu_share"
