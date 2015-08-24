@@ -299,7 +299,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
     /**
      * Append an {@link ArrayList} of {@link Query}s at the end of this playlist
      */
-    public void addQueries(ArrayList<Query> queries) {
+    public void addQueries(List<Query> queries) {
         List<PlaylistEntry> playlistEntries = new ArrayList<>();
         for (Query query : queries) {
             playlistEntries.add(PlaylistEntry.get(mId, query,
