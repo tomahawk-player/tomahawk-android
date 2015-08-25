@@ -67,7 +67,7 @@ public class HatchetCollection extends Collection {
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
         TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                R.drawable.ic_hatchet, grayOut);
+                R.drawable.ic_hatchet, grayOut ? R.color.disabled_resolver : 0);
     }
 
     public void wipe() {

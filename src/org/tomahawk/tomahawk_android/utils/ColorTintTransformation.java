@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.utils;
 
 import com.squareup.picasso.Transformation;
 
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.graphics.Bitmap;
@@ -32,19 +31,22 @@ import android.graphics.PorterDuffColorFilter;
 import static android.graphics.Bitmap.createBitmap;
 import static android.graphics.Paint.ANTI_ALIAS_FLAG;
 
-public class GrayOutTransformation implements Transformation {
+public class ColorTintTransformation implements Transformation {
 
-    public GrayOutTransformation() {
+    private int mColorResId;
+
+    public ColorTintTransformation(int colorResId) {
+        mColorResId = colorResId;
     }
 
     @Override
     public Bitmap transform(Bitmap source) {
         Bitmap result = createBitmap(source.getWidth(), source.getHeight(), source.getConfig());
 
-        ColorFilter grayOutFilter = getColorFilter();
+        ColorFilter filter = getColorFilter(mColorResId);
 
         Paint paint = new Paint(ANTI_ALIAS_FLAG);
-        paint.setColorFilter(grayOutFilter);
+        paint.setColorFilter(filter);
 
         Canvas canvas = new Canvas(result);
         canvas.drawBitmap(source, 0, 0, paint);
@@ -56,12 +58,12 @@ public class GrayOutTransformation implements Transformation {
 
     @Override
     public String key() {
-        return "GrayscaleTransformation";
+        return "ColorTintTransformation";
     }
 
-    public static ColorFilter getColorFilter() {
+    public static ColorFilter getColorFilter(int colorResId) {
         return new PorterDuffColorFilter(
-                TomahawkApp.getContext().getResources()
-                        .getColor(R.color.disabled_resolver), PorterDuff.Mode.MULTIPLY);
+                TomahawkApp.getContext().getResources().getColor(colorResId),
+                PorterDuff.Mode.MULTIPLY);
     }
 }
