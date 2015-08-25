@@ -20,7 +20,7 @@ package org.tomahawk.libtomahawk.resolver;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
+import org.tomahawk.tomahawk_android.utils.ColorTintTransformation;
 
 import android.graphics.drawable.ColorDrawable;
 import android.widget.ImageView;
@@ -62,7 +62,7 @@ public class UserCollectionStubResolver implements Resolver {
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
         TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                R.drawable.ic_action_sd_storage, grayOut);
+                R.drawable.ic_action_sd_storage, grayOut ? R.color.disabled_resolver : 0);
     }
 
     @Override
@@ -77,7 +77,8 @@ public class UserCollectionStubResolver implements Resolver {
                 TomahawkApp.getContext().getResources()
                         .getColor(R.color.local_collection_resolver_bg)));
         if (grayOut) {
-            imageView.setColorFilter(GrayOutTransformation.getColorFilter());
+            imageView.setColorFilter(ColorTintTransformation.getColorFilter(
+                    R.color.disabled_resolver));
         } else {
             imageView.clearColorFilter();
         }

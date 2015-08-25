@@ -45,7 +45,7 @@
                 android:layout_gravity="left|center_vertical"
                 android:background="@drawable/selectable_background_ring_tomahawk"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_player_repeat_light"
+                android:src="@drawable/repeat_all"
                 android:visibility="gone"/>
 
         <LinearLayout android:id="@+id/close_button"

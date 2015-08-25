@@ -105,7 +105,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
                 org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
         if (mPlaybackService != null) {
             if (mPlaybackService.getMergedPlaylist().size() > 0) {
-                if (mPlaybackService.isRepeating()) {
+                if (mPlaybackService.getRepeatingMode() != PlaybackService.NOT_REPEATING) {
                     position = position % mPlaybackService.getMergedPlaylist().size();
                 }
                 Query query =
@@ -137,7 +137,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
         if (mPlaybackService == null || mPlaybackService.getMergedPlaylist().size() == 0) {
             return 1;
         }
-        if (mPlaybackService.isRepeating()) {
+        if (mPlaybackService.getRepeatingMode() != PlaybackService.NOT_REPEATING) {
             return FAKE_INFINITY_COUNT;
         }
         return mPlaybackService.getMergedPlaylist().size();
@@ -180,11 +180,11 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
      */
     private void setCurrentItem(PlaylistEntry entry, boolean smoothScroll) {
         int position = mPlaybackService.getMergedPlaylist().getIndexOfEntry(entry);
-        if (mPlaybackService.isRepeating()) {
+        if (mPlaybackService.getRepeatingMode() != PlaybackService.NOT_REPEATING) {
             position += mFakeInfinityOffset;
         }
         if (position != mViewPager.getCurrentItem()) {
-            if (mPlaybackService.isRepeating()) {
+            if (mPlaybackService.getRepeatingMode() != PlaybackService.NOT_REPEATING) {
                 int currentItem = mViewPager.getCurrentItem();
                 if (position == (currentItem % mPlaybackService.getMergedPlaylist().size()) + 1
                         || ((currentItem % mPlaybackService.getMergedPlaylist().size())

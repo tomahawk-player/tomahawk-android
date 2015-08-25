@@ -15,7 +15,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.CircularImageTransformation;
-import org.tomahawk.tomahawk_android.utils.GrayOutTransformation;
+import org.tomahawk.tomahawk_android.utils.ColorTintTransformation;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -638,23 +638,23 @@ public class TomahawkUtils {
      */
     public static void loadDrawableIntoImageView(Context context, ImageView imageView,
             String path) {
-        loadDrawableIntoImageView(context, imageView, path, false);
+        loadDrawableIntoImageView(context, imageView, path, 0);
     }
 
     /**
      * Load a {@link android.graphics.Bitmap} asynchronously
      *
-     * @param context   the context needed for fetching resources
-     * @param imageView the {@link android.widget.ImageView}, which will be used to show the {@link
-     *                  android.graphics.Bitmap}
-     * @param path      the path to the image
-     * @param grayOut   whether or not to gray out the resolver icon
+     * @param context    the context needed for fetching resources
+     * @param imageView  the {@link android.widget.ImageView}, which will be used to show the {@link
+     *                   android.graphics.Bitmap}
+     * @param path       the path to the image
+     * @param colorResId the color with which to tint the imageview drawable
      */
     public static void loadDrawableIntoImageView(Context context, ImageView imageView,
-            String path, boolean grayOut) {
+            String path, int colorResId) {
         RequestCreator creator = Picasso.with(context).load(path);
-        if (grayOut) {
-            creator.transform(new GrayOutTransformation());
+        if (colorResId > 0) {
+            creator.transform(new ColorTintTransformation(colorResId));
         }
         creator.error(R.drawable.ic_action_error).into(imageView);
     }
@@ -669,7 +669,7 @@ public class TomahawkUtils {
      */
     public static void loadDrawableIntoImageView(Context context, ImageView imageView,
             int drawableResId) {
-        loadDrawableIntoImageView(context, imageView, drawableResId, false);
+        loadDrawableIntoImageView(context, imageView, drawableResId, 0);
     }
 
     /**
@@ -679,13 +679,13 @@ public class TomahawkUtils {
      * @param imageView     the {@link android.widget.ImageView}, which will be used to show the
      *                      {@link android.graphics.drawable.Drawable}
      * @param drawableResId the resource id of the drawable to load into the imageview
-     * @param grayOut       whether or not to gray out the resolver icon
+     * @param colorResId    the color with which to tint the imageview drawable
      */
     public static void loadDrawableIntoImageView(Context context, ImageView imageView,
-            int drawableResId, boolean grayOut) {
+            int drawableResId, int colorResId) {
         RequestCreator creator = Picasso.with(context).load(drawableResId);
-        if (grayOut) {
-            creator.transform(new GrayOutTransformation());
+        if (colorResId > 0) {
+            creator.transform(new ColorTintTransformation(colorResId));
         }
         creator.error(R.drawable.ic_action_error).into(imageView);
     }

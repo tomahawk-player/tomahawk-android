@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.resolver.models.ScriptResolverSettings;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverStreamUrlResult;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
@@ -158,7 +159,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     public void loadIcon(ImageView imageView, boolean grayOut) {
         TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                 mScriptAccount.getPath() + "/content/" + mScriptAccount.getMetaData().manifest.icon,
-                grayOut);
+                grayOut ? R.color.disabled_resolver : 0);
     }
 
     @Override
@@ -172,7 +173,8 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     public void loadIconBackground(ImageView imageView, boolean grayOut) {
         TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                 mScriptAccount.getPath() + "/content/" + mScriptAccount
-                        .getMetaData().manifest.iconBackground, grayOut);
+                        .getMetaData().manifest.iconBackground,
+                grayOut ? R.color.disabled_resolver : 0);
     }
 
     @Override

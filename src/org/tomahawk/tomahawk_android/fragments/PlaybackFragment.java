@@ -438,15 +438,14 @@ public class PlaybackFragment extends TomahawkFragment {
         final PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                 .getPlaybackService();
         if (playbackService != null) {
-            playbackService.setRepeating(!playbackService.isRepeating());
-
-            if (mToast != null) {
-                mToast.cancel();
+            int repeatMode = playbackService.getRepeatingMode();
+            if (repeatMode == PlaybackService.NOT_REPEATING) {
+                playbackService.setRepeatingMode(PlaybackService.REPEAT_ALL);
+            } else if (repeatMode == PlaybackService.REPEAT_ALL) {
+                playbackService.setRepeatingMode(PlaybackService.REPEAT_ONE);
+            } else if (repeatMode == PlaybackService.REPEAT_ONE) {
+                playbackService.setRepeatingMode(PlaybackService.NOT_REPEATING);
             }
-            mToast = Toast.makeText(getActivity(), getString(playbackService.isRepeating()
-                    ? R.string.repeat_on_label
-                    : R.string.repeat_off_label), Toast.LENGTH_SHORT);
-            mToast.show();
         }
     }
 
@@ -510,8 +509,17 @@ public class PlaybackFragment extends TomahawkFragment {
             if (imageButton != null) {
                 PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                         .getPlaybackService();
-                if (playbackService != null && playbackService.isRepeating()) {
-                    TomahawkUtils.setTint(imageButton.getDrawable(), R.color.tomahawk_red);
+                if (playbackService != null) {
+                    if (playbackService.getRepeatingMode() == PlaybackService.REPEAT_ALL) {
+                        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                                imageButton, R.drawable.repeat_all, R.color.tomahawk_red);
+                    } else if (playbackService.getRepeatingMode() == PlaybackService.REPEAT_ONE) {
+                        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                                imageButton, R.drawable.repeat_one, R.color.tomahawk_red);
+                    } else {
+                        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                                imageButton, R.drawable.repeat_all);
+                    }
                 } else {
                     TomahawkUtils.clearTint(imageButton.getDrawable());
                 }

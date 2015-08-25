@@ -133,6 +133,12 @@ public class PlaybackService extends Service implements MusicFocusable {
     // the volume instead of stopping playback.
     public static final float DUCK_VOLUME = 0.1f;
 
+    public static final int NOT_REPEATING = 0;
+
+    public static final int REPEAT_ALL = 1;
+
+    public static final int REPEAT_ONE = 2;
+
     private static final int PLAYBACKSERVICE_PLAYSTATE_PLAYING = 0;
 
     private static final int PLAYBACKSERVICE_PLAYSTATE_PAUSED = 1;
@@ -213,7 +219,7 @@ public class PlaybackService extends Service implements MusicFocusable {
 
     private boolean mShuffled;
 
-    private boolean mRepeating;
+    private int mRepeatingMode = NOT_REPEATING;
 
     // our RemoteControlClient object, which will use remote control APIs available in
     // SDK level >= 14, if they're available.
@@ -825,16 +831,16 @@ public class PlaybackService extends Service implements MusicFocusable {
         return shuffledEntries;
     }
 
-    public boolean isRepeating() {
-        return mRepeating;
+    public int getRepeatingMode() {
+        return mRepeatingMode;
     }
 
     /**
-     * Set whether or not to enable repeat mode on the current playlist.
+     * Set the repeat mode on the current playlist.
      */
-    public void setRepeating(boolean repeating) {
-        Log.d(TAG, "setRepeating to " + repeating);
-        mRepeating = repeating;
+    public void setRepeatingMode(int repeatingMode) {
+        Log.d(TAG, "setRepeatingMode to " + repeatingMode);
+        mRepeatingMode = repeatingMode;
         EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
     }
 
@@ -865,8 +871,11 @@ public class PlaybackService extends Service implements MusicFocusable {
     }
 
     public PlaylistEntry getNextEntry(PlaylistEntry entry) {
+        if (mRepeatingMode == REPEAT_ONE) {
+            return entry;
+        }
         entry = mMergedPlaylist.getNextEntry(entry);
-        if (entry == null && mRepeating) {
+        if (entry == null && mRepeatingMode == REPEAT_ALL) {
             entry = mMergedPlaylist.getFirstEntry();
         }
         return entry;
@@ -877,8 +886,11 @@ public class PlaybackService extends Service implements MusicFocusable {
     }
 
     public boolean hasNextEntry(PlaylistEntry entry) {
+        if (mRepeatingMode == REPEAT_ONE) {
+            return true;
+        }
         boolean result = mMergedPlaylist.hasNextEntry(entry);
-        if (!result && mRepeating) {
+        if (!result && mRepeatingMode == REPEAT_ALL) {
             result = mMergedPlaylist.size() > 0;
         }
         return result;
@@ -889,8 +901,11 @@ public class PlaybackService extends Service implements MusicFocusable {
     }
 
     public PlaylistEntry getPreviousEntry(PlaylistEntry entry) {
+        if (mRepeatingMode == REPEAT_ONE) {
+            return entry;
+        }
         entry = mMergedPlaylist.getPreviousEntry(entry);
-        if (entry == null && mRepeating) {
+        if (entry == null && mRepeatingMode == REPEAT_ALL) {
             entry = mMergedPlaylist.getLastEntry();
         }
         return entry;
@@ -901,8 +916,11 @@ public class PlaybackService extends Service implements MusicFocusable {
     }
 
     public boolean hasPreviousEntry(PlaylistEntry entry) {
+        if (mRepeatingMode == REPEAT_ONE) {
+            return true;
+        }
         boolean result = mMergedPlaylist.hasPreviousEntry(entry);
-        if (!result && mRepeating) {
+        if (!result && mRepeatingMode == REPEAT_ALL) {
             result = mMergedPlaylist.size() > 0;
         }
         return result;
@@ -1051,7 +1069,7 @@ public class PlaybackService extends Service implements MusicFocusable {
         Log.d(TAG, "setPlaylist");
         releaseAllPlayers();
         mShuffled = false;
-        mRepeating = false;
+        mRepeatingMode = NOT_REPEATING;
         mPlaylist = playlist;
         mQueueStartPos = -1;
         setCurrentEntry(currentEntry);
