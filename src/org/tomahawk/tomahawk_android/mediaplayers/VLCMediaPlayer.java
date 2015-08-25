@@ -165,9 +165,9 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
      * Prepare the given url
      */
     private TomahawkMediaPlayer prepare(Query query) {
+        release();
         mPreparedQuery = null;
         mPreparingQuery = query;
-        release();
         Result result = query.getPreferredTrackResult();
         String path;
         if (mTranslatedUrls.get(result) != null) {
@@ -204,7 +204,9 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     public void release() {
         Log.d(TAG, "release()");
         EventHandler.getInstance().removeHandler(mVlcHandler);
-        pause();
+        mPreparedQuery = null;
+        mPreparingQuery = null;
+        getLibVlcInstance().stop();
     }
 
     /**
