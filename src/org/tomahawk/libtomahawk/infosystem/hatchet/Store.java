@@ -364,10 +364,11 @@ public class Store {
                     String currentrevision = getAsString(o, "currentrevision");
                     String localId = DatabaseHelper.get().getPlaylistLocalId(id);
                     if (localId == null) {
-                        localId = TomahawkMainActivity.getLifetimeUniqueStringId();
+                        localId = id;
                     }
-                    Playlist playlist = Playlist.fromQueryList(localId, title, currentrevision,
-                            new ArrayList<Query>());
+                    Playlist playlist = Playlist.get(localId);
+                    playlist.setName(title);
+                    playlist.setCurrentRevision(currentrevision);
                     playlist.setHatchetId(id);
                     JsonElement popularArtists = get(o, "popularArtists");
                     if (popularArtists instanceof JsonArray) {
