@@ -185,12 +185,10 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
     }
 
     private Playlist getPlaylist() {
-        if (mUser != null) {
-            if (mShowMode == SHOW_MODE_PLAYBACKLOG) {
-                return mUser.getPlaybackLog();
-            } else if (mShowMode == SHOW_MODE_LOVEDITEMS) {
-                return mUser.getFavorites();
-            }
+        if (mUser != null && mShowMode == SHOW_MODE_PLAYBACKLOG) {
+            return mUser.getPlaybackLog();
+        } else if (mUser != null && mShowMode == SHOW_MODE_LOVEDITEMS) {
+            return mUser.getFavorites();
         } else if (mPlaylist != null) {
             return mPlaylist;
         }
