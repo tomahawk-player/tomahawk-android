@@ -19,9 +19,6 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 
 import com.google.gson.JsonObject;
 
-import com.squareup.okhttp.Cache;
-import com.squareup.okhttp.OkHttpClient;
-
 import org.apache.commons.io.Charsets;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
@@ -35,34 +32,21 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntries;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.ISO8601Utils;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.util.Log;
 
-import java.io.File;
 import java.io.IOException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
 
-import retrofit.RequestInterceptor;
-import retrofit.RestAdapter;
 import retrofit.RetrofitError;
-import retrofit.android.MainThreadExecutor;
-import retrofit.client.OkClient;
-import retrofit.converter.GsonConverter;
 import retrofit.mime.TypedByteArray;
-
-import static android.os.Process.THREAD_PRIORITY_LOWEST;
 
 /**
  * Implementation to enable the InfoSystem to retrieve data from the Hatchet API. Documentation of
@@ -71,10 +55,6 @@ import static android.os.Process.THREAD_PRIORITY_LOWEST;
 public class HatchetInfoPlugin implements InfoPlugin {
 
     private final static String TAG = HatchetInfoPlugin.class.getSimpleName();
-
-    public static final String HATCHET_BASE_URL = "https://api.hatchet.is";
-
-    public static final String HATCHET_API_VERSION = "/v2";
 
     public static final String HATCHET_SEARCHITEM_TYPE_ALBUM = "album";
 
@@ -112,69 +92,10 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
     private HatchetAuthenticatorUtils mHatchetAuthenticatorUtils;
 
-    private final OkHttpClient mOkHttpClient;
-
-    private final Hatchet mHatchet;
-
-    private final Hatchet mHatchetBackground;
-
     private final Store mStore;
 
     public HatchetInfoPlugin() {
-        RequestInterceptor requestInterceptor = new RequestInterceptor() {
-            @Override
-            public void intercept(RequestFacade request) {
-                if (!TomahawkUtils.isNetworkAvailable()) {
-                    int maxStale = 60 * 60 * 24 * 7; // tolerate 1-week stale
-                    request.addHeader("Cache-Control", "public, max-stale=" + maxStale);
-                }
-                request.addHeader("Content-type", "application/json; charset=utf-8");
-            }
-        };
-        mOkHttpClient = new OkHttpClient();
-        File cacheDir = new File(TomahawkApp.getContext().getCacheDir(), "responseCache");
-        try {
-            Cache cache = new Cache(cacheDir, 1024 * 1024 * 20);
-            mOkHttpClient.setCache(cache);
-        } catch (IOException e) {
-            Log.e(TAG, "<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
-        RestAdapter restAdapter = new RestAdapter.Builder()
-                .setLogLevel(RestAdapter.LogLevel.BASIC)
-                .setEndpoint(HATCHET_BASE_URL + HATCHET_API_VERSION)
-                .setConverter(new GsonConverter(GsonHelper.get()))
-                .setRequestInterceptor(requestInterceptor)
-                .setClient(new OkClient(mOkHttpClient))
-                .build();
-        mHatchet = restAdapter.create(Hatchet.class);
-
-        Executor httpExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
-            @Override
-            public Thread newThread(final Runnable r) {
-                return new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        android.os.Process.setThreadPriority(THREAD_PRIORITY_LOWEST);
-                        r.run();
-                    }
-                }, "Retrofit-Idle-Background");
-            }
-        });
-        restAdapter = new RestAdapter.Builder()
-                .setLogLevel(RestAdapter.LogLevel.BASIC)
-                .setEndpoint(HATCHET_BASE_URL + HATCHET_API_VERSION)
-                .setConverter(new GsonConverter(GsonHelper.get()))
-                .setRequestInterceptor(requestInterceptor)
-                .setClient(new OkClient(mOkHttpClient))
-                .setExecutors(httpExecutor, new MainThreadExecutor())
-                .build();
-        mHatchetBackground = restAdapter.create(Hatchet.class);
-
-        mStore = new Store(mOkHttpClient, mHatchet);
-    }
-
-    private Hatchet getImplementation(InfoRequestData infoRequestData) {
-        return infoRequestData.isBackgroundRequest() ? mHatchetBackground : mHatchet;
+        mStore = new Store();
     }
 
     /**
@@ -218,7 +139,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
         QueryParams params = infoRequestData.getQueryParams();
         HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager.get()
                 .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
-        Hatchet hatchet = getImplementation(infoRequestData);
+        Hatchet hatchet = mStore.getImplementation(infoRequestData.isBackgroundRequest());
 
         try {
             int type = infoRequestData.getType();
@@ -226,20 +147,23 @@ public class HatchetInfoPlugin implements InfoPlugin {
                     && type < InfoRequestData.INFOREQUESTDATA_TYPE_USERS + 100) {
                 JsonObject object =
                         hatchet.getUsers(params.ids, params.name, params.random, params.count);
-                List users = mStore.storeRecords(object, Store.TYPE_USERS, type);
+                List users = mStore.storeRecords(object, Store.TYPE_USERS, type,
+                        infoRequestData.isBackgroundRequest());
                 infoRequestData.setResultList(users);
                 return true;
 
             } else if (type >= InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS
                     && type < InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS + 100) {
                 JsonObject object = hatchet.getPlaylists(params.playlist_id);
-                List playlists = mStore.storeRecords(object, Store.TYPE_PLAYLISTS, type);
+                List playlists = mStore.storeRecords(object, Store.TYPE_PLAYLISTS, type,
+                        infoRequestData.isBackgroundRequest());
                 infoRequestData.setResultList(playlists);
                 return true;
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
                 JsonObject object = hatchet.getArtists(params.ids, params.name);
-                List artists = mStore.storeRecords(object, Store.TYPE_ARTISTS, type);
+                List artists = mStore.storeRecords(object, Store.TYPE_ARTISTS, type,
+                        infoRequestData.isBackgroundRequest());
                 for (Object artist : artists) {
                     hatchetCollection.addArtist((Artist) artist);
                 }
@@ -248,7 +172,8 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
                 JsonObject object = hatchet.getArtists(params.ids, params.name);
-                List albums = mStore.storeRecords(object, Store.TYPE_ALBUMS, type);
+                List albums = mStore.storeRecords(object, Store.TYPE_ALBUMS, type,
+                        infoRequestData.isBackgroundRequest());
                 if (albums.size() > 0) {
                     for (Object albumObject : albums) {
                         Album album = (Album) albumObject;
@@ -262,7 +187,8 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
                 JsonObject object = hatchet.getArtists(params.ids, params.name);
-                List topHits = mStore.storeRecords(object, Store.TYPE_TRACKS, type);
+                List topHits = mStore.storeRecords(object, Store.TYPE_TRACKS, type,
+                        infoRequestData.isBackgroundRequest());
                 if (topHits.size() > 0) {
                     Query firstTopHit = (Query) topHits.get(0);
                     hatchetCollection.addArtistTopHits(firstTopHit.getArtist(), topHits);
@@ -272,7 +198,8 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
                 JsonObject object = hatchet.getAlbums(params.ids, params.name, params.artistname);
-                List albums = mStore.storeRecords(object, Store.TYPE_ALBUMS, type);
+                List albums = mStore.storeRecords(object, Store.TYPE_ALBUMS, type,
+                        infoRequestData.isBackgroundRequest());
                 for (Object albumObject : albums) {
                     Album album = (Album) albumObject;
                     hatchetCollection.addAlbum(album);
@@ -282,7 +209,8 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS_TRACKS) {
                 JsonObject object = hatchet.getAlbums(params.ids, params.name, params.artistname);
-                List tracks = mStore.storeRecords(object, Store.TYPE_TRACKS, type);
+                List tracks = mStore.storeRecords(object, Store.TYPE_TRACKS, type,
+                        infoRequestData.isBackgroundRequest());
                 Artist artist = Artist.get(params.artistname);
                 Album album = Album.get(params.name, artist);
                 hatchetCollection.addAlbumTracks(album, tracks);
@@ -291,14 +219,16 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
                 JsonObject object = hatchet.getSearches(params.term);
-                List searches = mStore.storeRecords(object, Store.TYPE_SEARCHES, type);
+                List searches = mStore.storeRecords(object, Store.TYPE_SEARCHES, type,
+                        infoRequestData.isBackgroundRequest());
                 infoRequestData.setResultList(searches);
                 return true;
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
                 JsonObject object = hatchet.getSocialActions(null, params.userid, params.type,
                         ISO8601Utils.format(params.before_date), params.limit);
-                List socialActions = mStore.storeRecords(object, Store.TYPE_SOCIALACTIONS, type);
+                List socialActions = mStore.storeRecords(object, Store.TYPE_SOCIALACTIONS, type,
+                        infoRequestData.isBackgroundRequest());
                 infoRequestData.setResultList(socialActions);
                 return true;
             }
@@ -321,7 +251,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
             public void run() {
                 ArrayList<String> doneRequestsIds = new ArrayList<>();
                 doneRequestsIds.add(infoRequestData.getRequestId());
-                Hatchet hatchet = getImplementation(infoRequestData);
+                Hatchet hatchet = mStore.getImplementation(infoRequestData.isBackgroundRequest());
                 // Before we do anything, get the accesstoken
                 boolean success = false;
                 String accessToken = mHatchetAuthenticatorUtils.ensureAccessTokens();

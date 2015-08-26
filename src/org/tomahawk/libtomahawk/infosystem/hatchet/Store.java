@@ -4,6 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -22,18 +23,39 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.ISO8601Utils;
+import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
+import android.util.Log;
 import android.util.SparseArray;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
+
+import retrofit.RequestInterceptor;
+import retrofit.RestAdapter;
+import retrofit.android.MainThreadExecutor;
+import retrofit.client.OkClient;
+import retrofit.converter.GsonConverter;
+
+import static android.os.Process.THREAD_PRIORITY_LOWEST;
 
 public class Store {
+
+    private final static String TAG = Store.class.getSimpleName();
+
+    public static final String HATCHET_BASE_URL = "https://api.hatchet.is";
+
+    public static final String HATCHET_API_VERSION = "/v2";
 
     public static final int TYPE_IMAGES = 0;
 
@@ -57,13 +79,62 @@ public class Store {
 
     private final SparseArray<Map> mCache = new SparseArray<>();
 
-    private OkHttpClient mOkHttpClient;
+    private final OkHttpClient mOkHttpClient;
 
-    private Hatchet mHatchet;
+    private final Hatchet mHatchet;
 
-    public Store(OkHttpClient okHttpClient, Hatchet hatchet) {
-        mOkHttpClient = okHttpClient;
-        mHatchet = hatchet;
+    private final Hatchet mHatchetBackground;
+
+    public Store() {
+        RequestInterceptor requestInterceptor = new RequestInterceptor() {
+            @Override
+            public void intercept(RequestFacade request) {
+                if (!TomahawkUtils.isNetworkAvailable()) {
+                    int maxStale = 60 * 60 * 24 * 7; // tolerate 1-week stale
+                    request.addHeader("Cache-Control", "public, max-stale=" + maxStale);
+                }
+                request.addHeader("Content-type", "application/json; charset=utf-8");
+            }
+        };
+        mOkHttpClient = new OkHttpClient();
+        File cacheDir = new File(TomahawkApp.getContext().getCacheDir(), "responseCache");
+        try {
+            Cache cache = new Cache(cacheDir, 1024 * 1024 * 20);
+            mOkHttpClient.setCache(cache);
+        } catch (IOException e) {
+            Log.e(TAG, "<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+        RestAdapter restAdapter = new RestAdapter.Builder()
+                .setLogLevel(RestAdapter.LogLevel.BASIC)
+                .setEndpoint(HATCHET_BASE_URL + HATCHET_API_VERSION)
+                .setConverter(new GsonConverter(GsonHelper.get()))
+                .setRequestInterceptor(requestInterceptor)
+                .setClient(new OkClient(mOkHttpClient))
+                .build();
+        mHatchet = restAdapter.create(Hatchet.class);
+
+        Executor httpExecutor = Executors.newCachedThreadPool(new ThreadFactory() {
+            @Override
+            public Thread newThread(final Runnable r) {
+                return new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        android.os.Process.setThreadPriority(THREAD_PRIORITY_LOWEST);
+                        r.run();
+                    }
+                }, "Retrofit-Idle-Background");
+            }
+        });
+        restAdapter = new RestAdapter.Builder()
+                .setLogLevel(RestAdapter.LogLevel.BASIC)
+                .setEndpoint(HATCHET_BASE_URL + HATCHET_API_VERSION)
+                .setConverter(new GsonConverter(GsonHelper.get()))
+                .setRequestInterceptor(requestInterceptor)
+                .setClient(new OkClient(mOkHttpClient))
+                .setExecutors(httpExecutor, new MainThreadExecutor())
+                .build();
+        mHatchetBackground = restAdapter.create(Hatchet.class);
+
         mCache.put(TYPE_IMAGES, new ConcurrentHashMap<String, Image>());
         mCache.put(TYPE_ARTISTS, new ConcurrentHashMap<String, Artist>());
         mCache.put(TYPE_ALBUMS, new ConcurrentHashMap<String, Album>());
@@ -76,30 +147,37 @@ public class Store {
         mCache.put(TYPE_SEARCHRESULTS, new ConcurrentHashMap<String, SearchResult>());
     }
 
-    public Object findRecord(String id, int resultType) throws IOException {
+    public Hatchet getImplementation(boolean isBackgroundRequest) {
+        return isBackgroundRequest ? mHatchetBackground : mHatchet;
+    }
+
+    public Object findRecord(String id, int resultType, boolean isBackgroundRequest)
+            throws IOException {
         Map cache = mCache.get(resultType);
         if (cache == null) {
             throw new IOException("Couldn't find cache for given type.");
         }
         Object record = cache.get(id);
         if (record == null) {
+            Hatchet hatchet = getImplementation(isBackgroundRequest);
             List<String> ids = new ArrayList<>();
             ids.add(String.valueOf(id));
             if (resultType == TYPE_IMAGES) {
-                storeRecords(mHatchet.getImages(ids), resultType);
+                storeRecords(hatchet.getImages(ids), resultType, isBackgroundRequest);
             } else if (resultType == TYPE_ARTISTS) {
-                storeRecords(mHatchet.getArtists(ids, null), resultType);
+                storeRecords(hatchet.getArtists(ids, null), resultType, isBackgroundRequest);
             } else if (resultType == TYPE_ALBUMS) {
-                storeRecords(mHatchet.getAlbums(ids, null, null), resultType);
+                storeRecords(hatchet.getAlbums(ids, null, null), resultType, isBackgroundRequest);
             } else if (resultType == TYPE_TRACKS) {
-                storeRecords(mHatchet.getTracks(ids, null, null), resultType);
+                storeRecords(hatchet.getTracks(ids, null, null), resultType, isBackgroundRequest);
             } else if (resultType == TYPE_USERS) {
-                storeRecords(mHatchet.getUsers(ids, null, null, null), resultType);
+                storeRecords(hatchet.getUsers(ids, null, null, null), resultType,
+                        isBackgroundRequest);
             } else if (resultType == TYPE_PLAYLISTENTRIES) {
                 throw new IOException(
                         "Can't fetch playlist entry. There's no endpoint for that :(");
             } else if (resultType == TYPE_PLAYLISTS) {
-                storeRecords(mHatchet.getPlaylists(ids), resultType);
+                storeRecords(hatchet.getPlaylists(ids), resultType, isBackgroundRequest);
             } else if (resultType == TYPE_SOCIALACTIONS) {
                 throw new IOException("Can't fetch social action. There's no endpoint for that :(");
             }
@@ -112,11 +190,13 @@ public class Store {
         return record;
     }
 
-    public List storeRecords(JsonObject object, int resultType) throws IOException {
-        return storeRecords(object, resultType, -1);
+    public List storeRecords(JsonObject object, int resultType, boolean isBackgroundRequest)
+            throws IOException {
+        return storeRecords(object, resultType, -1, isBackgroundRequest);
     }
 
-    public List storeRecords(JsonObject object, int resultType, int requestType)
+    public List storeRecords(JsonObject object, int resultType, int requestType,
+            boolean isBackgroundRequest)
             throws IOException {
         List results = new ArrayList();
         JsonElement elements = object.get("images");
@@ -149,7 +229,7 @@ public class Store {
                     JsonElement images = get(o, "images");
                     if (images instanceof JsonArray && ((JsonArray) images).size() > 0) {
                         String imageId = ((JsonArray) images).get(0).getAsString();
-                        Image image = (Image) findRecord(imageId, TYPE_IMAGES);
+                        Image image = (Image) findRecord(imageId, TYPE_IMAGES, isBackgroundRequest);
                         artist.setImage(image);
                     }
 
@@ -157,13 +237,15 @@ public class Store {
                             == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
                         JsonElement rawAlbums = get(o, "albums");
                         if (rawAlbums instanceof JsonObject) {
-                            results.addAll(storeRecords((JsonObject) rawAlbums, TYPE_ALBUMS));
+                            results.addAll(storeRecords((JsonObject) rawAlbums, TYPE_ALBUMS,
+                                    isBackgroundRequest));
                         }
                     } else if (requestType
                             == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
                         JsonElement rawTopHits = get(o, "topHits");
                         if (rawTopHits instanceof JsonObject) {
-                            results.addAll(storeRecords((JsonObject) rawTopHits, TYPE_TRACKS));
+                            results.addAll(storeRecords((JsonObject) rawTopHits, TYPE_TRACKS,
+                                    isBackgroundRequest));
                         }
                     }
                     mCache.get(TYPE_ARTISTS).put(id, artist);
@@ -181,19 +263,21 @@ public class Store {
                     String id = getAsString(o, "id");
                     String name = getAsString(o, "name");
                     String artistId = getAsString(o, "artist");
-                    Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
+                    Artist artist =
+                            (Artist) findRecord(artistId, TYPE_ARTISTS, isBackgroundRequest);
                     Album album = Album.get(name, artist);
                     JsonElement images = get(o, "images");
                     if (images instanceof JsonArray && ((JsonArray) images).size() > 0) {
                         String imageId = ((JsonArray) images).get(0).getAsString();
-                        Image image = (Image) findRecord(imageId, TYPE_IMAGES);
+                        Image image = (Image) findRecord(imageId, TYPE_IMAGES, isBackgroundRequest);
                         album.setImage(image);
                     }
 
                     if (requestType == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS_TRACKS) {
                         JsonElement rawTracks = get(o, "tracks");
                         if (rawTracks instanceof JsonObject) {
-                            results.addAll(storeRecords((JsonObject) rawTracks, TYPE_TRACKS));
+                            results.addAll(storeRecords((JsonObject) rawTracks, TYPE_TRACKS,
+                                    isBackgroundRequest));
                         }
                     }
                     mCache.get(TYPE_ALBUMS).put(id, album);
@@ -211,7 +295,8 @@ public class Store {
                     String id = getAsString(o, "id");
                     String name = getAsString(o, "name");
                     String artistId = getAsString(o, "artist");
-                    Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
+                    Artist artist =
+                            (Artist) findRecord(artistId, TYPE_ARTISTS, isBackgroundRequest);
                     Query query = Query.get(name, null, artist.getName(), false, true);
                     mCache.get(TYPE_TRACKS).put(id, query);
                     if (resultType == TYPE_TRACKS) {
@@ -237,14 +322,15 @@ public class Store {
                     user.setFollowCount(followCount);
                     String nowplayingId = getAsString(o, "nowplaying");
                     if (nowplayingId != null) {
-                        Query nowplaying = (Query) findRecord(nowplayingId, TYPE_TRACKS);
+                        Query nowplaying =
+                                (Query) findRecord(nowplayingId, TYPE_TRACKS, isBackgroundRequest);
                         user.setNowPlaying(nowplaying);
                     }
                     String nowplayingtimestamp = getAsString(o, "nowplayingtimestamp");
                     user.setNowPlayingTimeStamp(ISO8601Utils.parse(nowplayingtimestamp));
                     String avatar = getAsString(o, "avatar");
                     if (avatar != null) {
-                        Image image = (Image) findRecord(avatar, TYPE_IMAGES);
+                        Image image = (Image) findRecord(avatar, TYPE_IMAGES, isBackgroundRequest);
                         user.setImage(image);
                     }
 
@@ -253,7 +339,8 @@ public class Store {
                         JsonElement rawPlaylists = get(o, "playlists");
                         if (rawPlaylists instanceof JsonObject) {
                             List playlists =
-                                    storeRecords((JsonObject) rawPlaylists, TYPE_PLAYLISTS);
+                                    storeRecords((JsonObject) rawPlaylists, TYPE_PLAYLISTS,
+                                            isBackgroundRequest);
                             user.setPlaylists(playlists);
                         }
                     } else if (requestType
@@ -261,7 +348,8 @@ public class Store {
                         JsonElement rawLovedItems = get(o, "lovedItems");
                         if (rawLovedItems instanceof JsonObject) {
                             List playlists =
-                                    storeRecords((JsonObject) rawLovedItems, TYPE_PLAYLISTS);
+                                    storeRecords((JsonObject) rawLovedItems, TYPE_PLAYLISTS,
+                                            isBackgroundRequest);
                             if (playlists != null && playlists.size() > 0) {
                                 user.setFavorites((Playlist) playlists.get(0));
                             }
@@ -271,7 +359,8 @@ public class Store {
                         JsonElement rawLovedAlbums = get(o, "lovedAlbums");
                         if (rawLovedAlbums instanceof JsonObject) {
                             List albums =
-                                    storeRecords((JsonObject) rawLovedAlbums, TYPE_ALBUMS);
+                                    storeRecords((JsonObject) rawLovedAlbums, TYPE_ALBUMS,
+                                            isBackgroundRequest);
                             user.setStarredAlbums(albums);
                         }
                     } else if (requestType
@@ -279,7 +368,8 @@ public class Store {
                         JsonElement rawLovedArtists = get(o, "lovedArtists");
                         if (rawLovedArtists instanceof JsonObject) {
                             List artists =
-                                    storeRecords((JsonObject) rawLovedArtists, TYPE_ARTISTS);
+                                    storeRecords((JsonObject) rawLovedArtists, TYPE_ARTISTS,
+                                            isBackgroundRequest);
                             user.setStarredArtists(artists);
                         }
                     } else if (requestType
@@ -287,7 +377,8 @@ public class Store {
                         JsonElement rawPlaybackLog = get(o, "playbacklog");
                         if (rawPlaybackLog instanceof JsonObject) {
                             List playlists =
-                                    storeRecords((JsonObject) rawPlaybackLog, TYPE_PLAYLISTS);
+                                    storeRecords((JsonObject) rawPlaybackLog, TYPE_PLAYLISTS,
+                                            isBackgroundRequest);
                             if (playlists != null && playlists.size() > 0) {
                                 user.setPlaybackLog((Playlist) playlists.get(0));
                             }
@@ -301,7 +392,7 @@ public class Store {
                         JsonElement rawFollows = get(o, isFollows ? "follows" : "followers");
                         if (rawFollows instanceof JsonObject) {
                             JsonObject follows = (JsonObject) rawFollows;
-                            storeRecords(follows, -1);
+                            storeRecords(follows, -1, isBackgroundRequest);
                             JsonElement relationships = get(follows, "relationships");
                             if (relationships instanceof JsonArray) {
                                 TreeMap<User, String> followsMap =
@@ -311,7 +402,8 @@ public class Store {
                                     String relationshipId = getAsString(relationshipObj, "id");
                                     String userId = getAsString(relationshipObj,
                                             isFollows ? "targetUser" : "user");
-                                    User followedUser = (User) findRecord(userId, TYPE_USERS);
+                                    User followedUser = (User) findRecord(userId, TYPE_USERS,
+                                            isBackgroundRequest);
                                     followsMap.put(followedUser, relationshipId);
                                 }
                                 if (isFollows) {
@@ -326,7 +418,8 @@ public class Store {
                         JsonElement rawPlaybackLog = get(o, "playbacklog");
                         if (rawPlaybackLog instanceof JsonObject) {
                             List playlists =
-                                    storeRecords((JsonObject) rawPlaybackLog, TYPE_PLAYLISTS);
+                                    storeRecords((JsonObject) rawPlaybackLog, TYPE_PLAYLISTS,
+                                            isBackgroundRequest);
                             if (playlists != null && playlists.size() > 0) {
                                 user.setPlaybackLog((Playlist) playlists.get(0));
                             }
@@ -346,7 +439,7 @@ public class Store {
                     JsonObject o = (JsonObject) element;
                     String id = getAsString(o, "id");
                     String trackId = getAsString(o, "track");
-                    Query query = (Query) findRecord(trackId, TYPE_TRACKS);
+                    Query query = (Query) findRecord(trackId, TYPE_TRACKS, isBackgroundRequest);
                     mCache.get(TYPE_PLAYLISTENTRIES).put(id, query);
                     if (resultType == TYPE_PLAYLISTENTRIES) {
                         results.add(query);
@@ -375,7 +468,8 @@ public class Store {
                         ArrayList<String> topArtistNames = new ArrayList<>();
                         for (JsonElement popularArtist : (JsonArray) popularArtists) {
                             String artistId = popularArtist.getAsString();
-                            Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
+                            Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS,
+                                    isBackgroundRequest);
                             if (artist != null) {
                                 topArtistNames.add(artist.getName());
                             }
@@ -388,7 +482,8 @@ public class Store {
                         JsonElement rawEntries = get(o, "playlistEntries");
                         if (rawEntries instanceof JsonObject) {
                             List entries =
-                                    storeRecords((JsonObject) rawEntries, TYPE_PLAYLISTENTRIES);
+                                    storeRecords((JsonObject) rawEntries, TYPE_PLAYLISTENTRIES,
+                                            isBackgroundRequest);
                             if (entries != null) {
                                 playlist.setEntries(new ArrayList<PlaylistEntry>());
                                 for (Object entry : entries) {
@@ -403,7 +498,8 @@ public class Store {
                             playlist.setEntries(new ArrayList<PlaylistEntry>());
                             for (JsonElement entryId : (JsonArray) entryIds) {
                                 Query query = (Query) findRecord(
-                                        entryId.getAsString(), TYPE_PLAYLISTENTRIES);
+                                        entryId.getAsString(), TYPE_PLAYLISTENTRIES,
+                                        isBackgroundRequest);
                                 playlist.addQuery(query);
                             }
                             playlist.setFilled(true);
@@ -423,7 +519,7 @@ public class Store {
                     JsonObject o = (JsonObject) element;
                     String id = getAsString(o, "id");
                     String trackId = getAsString(o, "track");
-                    Query query = (Query) findRecord(trackId, TYPE_TRACKS);
+                    Query query = (Query) findRecord(trackId, TYPE_TRACKS, isBackgroundRequest);
                     mCache.get(TYPE_PLAYLISTENTRIES).put(id, query);
                     if (resultType == TYPE_PLAYLISTENTRIES) {
                         results.add(query);
@@ -441,7 +537,7 @@ public class Store {
                     ArrayList<Query> queries = new ArrayList<>();
                     for (JsonElement entry : playbacklogEntries) {
                         String entryId = entry.getAsString();
-                        Query query = (Query) findRecord(entryId, TYPE_TRACKS);
+                        Query query = (Query) findRecord(entryId, TYPE_TRACKS, isBackgroundRequest);
                         queries.add(query);
                     }
                     Playlist playlist = Playlist.fromQueryList(
@@ -471,32 +567,34 @@ public class Store {
                     socialAction.setType(actionType);
                     String trackId = getAsString(o, "track");
                     if (trackId != null) {
-                        Query query = (Query) findRecord(trackId, TYPE_TRACKS);
+                        Query query = (Query) findRecord(trackId, TYPE_TRACKS, isBackgroundRequest);
                         socialAction.setQuery(query);
                     }
                     String artistId = getAsString(o, "artist");
                     if (artistId != null) {
-                        Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
+                        Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS,
+                                isBackgroundRequest);
                         socialAction.setArtist(artist);
                     }
                     String albumId = getAsString(o, "album");
                     if (albumId != null) {
-                        Album album = (Album) findRecord(albumId, TYPE_ALBUMS);
+                        Album album = (Album) findRecord(albumId, TYPE_ALBUMS, isBackgroundRequest);
                         socialAction.setAlbum(album);
                     }
                     String userId = getAsString(o, "user");
                     if (userId != null) {
-                        User user = (User) findRecord(userId, TYPE_USERS);
+                        User user = (User) findRecord(userId, TYPE_USERS, isBackgroundRequest);
                         socialAction.setUser(user);
                     }
                     String targetId = getAsString(o, "target");
                     if (targetId != null) {
-                        User target = (User) findRecord(targetId, TYPE_USERS);
+                        User target = (User) findRecord(targetId, TYPE_USERS, isBackgroundRequest);
                         socialAction.setTarget(target);
                     }
                     String playlistId = getAsString(o, "playlist");
                     if (playlistId != null) {
-                        Playlist playlist = (Playlist) findRecord(playlistId, TYPE_PLAYLISTS);
+                        Playlist playlist = (Playlist) findRecord(playlistId, TYPE_PLAYLISTS,
+                                isBackgroundRequest);
                         socialAction.setPlaylist(playlist);
                     }
                     mCache.get(TYPE_SOCIALACTIONS).put(id, socialAction);
@@ -516,27 +614,29 @@ public class Store {
                     SearchResult searchResult = null;
                     String trackId = getAsString(o, "track");
                     if (trackId != null) {
-                        Query query = (Query) findRecord(trackId, TYPE_TRACKS);
+                        Query query = (Query) findRecord(trackId, TYPE_TRACKS, isBackgroundRequest);
                         searchResult = new SearchResult(score, query);
                     }
                     String artistId = getAsString(o, "artist");
                     if (artistId != null) {
-                        Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
+                        Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS,
+                                isBackgroundRequest);
                         searchResult = new SearchResult(score, artist);
                     }
                     String albumId = getAsString(o, "album");
                     if (albumId != null) {
-                        Album album = (Album) findRecord(albumId, TYPE_ALBUMS);
+                        Album album = (Album) findRecord(albumId, TYPE_ALBUMS, isBackgroundRequest);
                         searchResult = new SearchResult(score, album);
                     }
                     String userId = getAsString(o, "user");
                     if (userId != null) {
-                        User user = (User) findRecord(userId, TYPE_USERS);
+                        User user = (User) findRecord(userId, TYPE_USERS, isBackgroundRequest);
                         searchResult = new SearchResult(score, user);
                     }
                     String playlistId = getAsString(o, "playlist");
                     if (playlistId != null) {
-                        Playlist playlist = (Playlist) findRecord(playlistId, TYPE_PLAYLISTS);
+                        Playlist playlist = (Playlist) findRecord(playlistId, TYPE_PLAYLISTS,
+                                isBackgroundRequest);
                         searchResult = new SearchResult(score, playlist);
                     }
                     if (searchResult == null) {
@@ -560,7 +660,8 @@ public class Store {
                     for (JsonElement rawSearchResult : rawSearchResults) {
                         String resultId = rawSearchResult.getAsString();
                         SearchResult searchResult =
-                                (SearchResult) findRecord(resultId, TYPE_SEARCHRESULTS);
+                                (SearchResult) findRecord(resultId, TYPE_SEARCHRESULTS,
+                                        isBackgroundRequest);
                         searchResults.add(searchResult);
                     }
                     Search search = new Search(searchResults);
@@ -580,20 +681,23 @@ public class Store {
                     String type = getAsString(o, "type");
                     if (type.equals(HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE)) {
                         String userId = getAsString(o, "user");
-                        User user = (User) findRecord(userId, TYPE_USERS);
+                        User user = (User) findRecord(userId, TYPE_USERS, isBackgroundRequest);
                         String trackId = getAsString(o, "targetTrack");
                         if (trackId != null) {
-                            Query query = (Query) findRecord(trackId, TYPE_TRACKS);
+                            Query query = (Query) findRecord(trackId, TYPE_TRACKS,
+                                    isBackgroundRequest);
                             user.putRelationShipId(query, id);
                         }
                         String albumId = getAsString(o, "targetAlbum");
                         if (albumId != null) {
-                            Album album = (Album) findRecord(albumId, TYPE_ALBUMS);
+                            Album album = (Album) findRecord(albumId, TYPE_ALBUMS,
+                                    isBackgroundRequest);
                             user.putRelationShipId(album, id);
                         }
                         String artistId = getAsString(o, "targetArtist");
                         if (artistId != null) {
-                            Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS);
+                            Artist artist = (Artist) findRecord(artistId, TYPE_ARTISTS,
+                                    isBackgroundRequest);
                             user.putRelationShipId(artist, id);
                         }
                     }
@@ -633,8 +737,7 @@ public class Store {
             JsonObject links = object.getAsJsonObject("links");
             if (links != null && links.has(memberName)) {
                 Request request = new Request.Builder()
-                        .url(HatchetInfoPlugin.HATCHET_BASE_URL
-                                + links.get(memberName).getAsString())
+                        .url(HATCHET_BASE_URL + links.get(memberName).getAsString())
                         .build();
                 Response response = mOkHttpClient.newCall(request).execute();
                 if (!response.isSuccessful()) {
