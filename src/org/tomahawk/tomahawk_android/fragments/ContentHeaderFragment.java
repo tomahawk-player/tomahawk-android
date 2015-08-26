@@ -25,6 +25,7 @@ import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -61,6 +62,14 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 public class ContentHeaderFragment extends Fragment {
 
     private static final String TAG = ContentHeaderFragment.class.getSimpleName();
+
+    public static final String COLLECTION_ID = "collection_id";
+
+    public static final String CONTENT_HEADER_MODE = "content_header_mode";
+
+    public static final String CONTAINER_FRAGMENT_ID = "container_fragment_id";
+
+    public static final String CONTAINER_FRAGMENT_PAGE = "container_fragment_page";
 
     public static final int MODE_HEADER_DYNAMIC = 0;
 
@@ -204,6 +213,14 @@ public class ContentHeaderFragment extends Fragment {
             ((TomahawkMainActivity) getActivity()).showFilledActionBar();
         } else if (mCurrentMode == MODE_HEADER_STATIC_SMALL) {
             ((TomahawkMainActivity) getActivity()).showGradientActionBar();
+        }
+
+        if (getArguments().containsKey(COLLECTION_ID)) {
+            mCollection = CollectionManager.get()
+                    .getCollection(getArguments().getString(COLLECTION_ID));
+        } else {
+            mCollection = CollectionManager.get()
+                    .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
         }
     }
 

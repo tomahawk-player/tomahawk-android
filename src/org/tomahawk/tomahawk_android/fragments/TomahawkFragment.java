@@ -110,14 +110,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     public static final String SHOW_MODE = "show_mode";
 
-    public static final String COLLECTION_ID = "collection_id";
-
-    public static final String CONTENT_HEADER_MODE = "content_header_mode";
-
-    public static final String CONTAINER_FRAGMENT_ID = "container_fragment_id";
-
-    public static final String CONTAINER_FRAGMENT_PAGE = "container_fragment_page";
-
     public static final String CONTAINER_FRAGMENT_CLASSNAME = "container_fragment_classname";
 
     public static final String LIST_SCROLL_POSITION = "list_scroll_position";
@@ -340,13 +332,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                         mCorrespondingRequestIds.add(requestId);
                     }
                 }
-            }
-            if (getArguments().containsKey(COLLECTION_ID)) {
-                mCollection = CollectionManager.get()
-                        .getCollection(getArguments().getString(COLLECTION_ID));
-            } else {
-                mCollection = CollectionManager.get()
-                        .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
             }
             if (getArguments().containsKey(QUERY)
                     && !TextUtils.isEmpty(getArguments().getString(QUERY))) {
