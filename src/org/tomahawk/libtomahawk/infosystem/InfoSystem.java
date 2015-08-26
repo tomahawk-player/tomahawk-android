@@ -542,9 +542,9 @@ public class InfoSystem {
         long timeStamp = System.currentTimeMillis();
         HatchetRelationshipStruct relationship = new HatchetRelationshipStruct();
         relationship.targetUser = user;
-        relationship.targetTrack = track;
-        relationship.targetArtist = artist;
-        relationship.targetAlbum = album;
+        relationship.targetTrackString = track;
+        relationship.targetArtistString = artist;
+        relationship.targetAlbumString = album;
         relationship.type = user != null ? HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_FOLLOW
                 : HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE;
         HatchetRelationshipPostStruct struct = new HatchetRelationshipPostStruct();

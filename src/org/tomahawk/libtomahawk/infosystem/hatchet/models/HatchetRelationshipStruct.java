@@ -19,11 +19,11 @@ package org.tomahawk.libtomahawk.infosystem.hatchet.models;
 
 public class HatchetRelationshipStruct extends Mappable {
 
-    public String targetAlbum;
+    public String targetAlbumString;
 
-    public String targetArtist;
+    public String targetArtistString;
 
-    public String targetTrack;
+    public String targetTrackString;
 
     public String targetUser;
 
