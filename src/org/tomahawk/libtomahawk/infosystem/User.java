@@ -244,11 +244,13 @@ public class User extends Cacheable implements AlphaComparable {
     }
 
     public void setSocialActions(List<SocialAction> socialActions, Date date) {
-        mSocialActions.put(date, socialActions);
-        SocialAction socialAction = socialActions.get(socialActions.size() - 1);
-        if (socialAction != null) {
-            if (socialAction.getDate().getTime() < date.getTime()) {
-                mSocialActionsNextDate = socialAction.getDate();
+        if (socialActions != null && socialActions.size() > 0) {
+            mSocialActions.put(date, socialActions);
+            SocialAction socialAction = socialActions.get(socialActions.size() - 1);
+            if (socialAction != null) {
+                if (socialAction.getDate().getTime() < date.getTime()) {
+                    mSocialActionsNextDate = socialAction.getDate();
+                }
             }
         }
     }
@@ -262,11 +264,13 @@ public class User extends Cacheable implements AlphaComparable {
     }
 
     public void setFriendsFeed(List<SocialAction> friendsFeed, Date date) {
-        mFriendsFeed.put(date, friendsFeed);
-        SocialAction socialAction = friendsFeed.get(friendsFeed.size() - 1);
-        if (socialAction != null) {
-            if (socialAction.getDate().getTime() < date.getTime()) {
-                mFriendsFeedNextDate = socialAction.getDate();
+        if (friendsFeed != null && friendsFeed.size() > 0) {
+            mFriendsFeed.put(date, friendsFeed);
+            SocialAction socialAction = friendsFeed.get(friendsFeed.size() - 1);
+            if (socialAction != null) {
+                if (socialAction.getDate().getTime() < date.getTime()) {
+                    mFriendsFeedNextDate = socialAction.getDate();
+                }
             }
         }
     }
