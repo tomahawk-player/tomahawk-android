@@ -156,7 +156,10 @@ public class CollectionManager {
             @Override
             public void onDone(User result) {
                 result.setPlaylists(DatabaseHelper.get().getPlaylists());
-                result.setFavorites(DatabaseHelper.get().getLovedItemsPlaylist());
+                Playlist favorites = DatabaseHelper.get().getLovedItemsPlaylist();
+                if (favorites != null) {
+                    result.setFavorites(favorites);
+                }
                 deferred.resolve(null);
             }
         });
