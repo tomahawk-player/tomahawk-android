@@ -228,7 +228,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 JsonObject object = hatchet.getSocialActions(null, params.userid, params.type,
                         ISO8601Utils.format(params.before_date), params.limit);
                 List socialActions = mStore.storeRecords(object, Store.TYPE_SOCIALACTIONS, type,
-                        infoRequestData.isBackgroundRequest());
+                        infoRequestData.isBackgroundRequest(), params);
                 infoRequestData.setResultList(socialActions);
                 return true;
             }
