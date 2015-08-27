@@ -93,6 +93,9 @@ public class SocialActionsFragment extends TomahawkFragment implements
     @Override
     public void onResume() {
         super.onResume();
+        if (mUser == null) {
+            return;
+        }
 
         if (mShowMode == SHOW_MODE_DASHBOARD) {
             if (mContainerFragmentClass == null) {
@@ -265,7 +268,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
             int totalItemCount) {
         super.onScroll(view, firstVisibleItem, visibleItemCount, totalItemCount);
 
-        if (firstVisibleItem + visibleItemCount + 5 > totalItemCount) {
+        if (mUser != null && firstVisibleItem + visibleItemCount + 5 > totalItemCount) {
             mShowMode = getArguments().getInt(SHOW_MODE);
             if (mShowMode == SHOW_MODE_DASHBOARD) {
                 if (!mResolvingPages.contains(mUser.getFriendsFeedNextDate())) {
