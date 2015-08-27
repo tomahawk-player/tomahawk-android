@@ -18,6 +18,7 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
+import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -197,6 +198,12 @@ public class Store {
 
     public List storeRecords(JsonObject object, int resultType, int requestType,
             boolean isBackgroundRequest)
+            throws IOException {
+        return storeRecords(object, resultType, requestType, isBackgroundRequest, null);
+    }
+
+    public List storeRecords(JsonObject object, int resultType, int requestType,
+            boolean isBackgroundRequest, QueryParams params)
             throws IOException {
         List results = new ArrayList();
         JsonElement elements = object.get("images");
@@ -600,6 +607,17 @@ public class Store {
                     mCache.get(TYPE_SOCIALACTIONS).put(id, socialAction);
                     if (resultType == TYPE_SOCIALACTIONS) {
                         results.add(socialAction);
+                    }
+                }
+            }
+            if (params != null) {
+                User user = (User) findRecord(params.userid, TYPE_USERS, false);
+                if (user != null) {
+                    if (HatchetInfoPlugin.HATCHET_SOCIALACTION_PARAMTYPE_FRIENDSFEED
+                            .equals(params.type)) {
+                        user.setFriendsFeed(results, params.before_date);
+                    } else {
+                        user.setSocialActions(results, params.before_date);
                     }
                 }
             }
