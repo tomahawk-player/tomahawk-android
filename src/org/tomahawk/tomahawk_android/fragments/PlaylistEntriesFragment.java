@@ -61,7 +61,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        CollectionManager.get().fetchPlaylists();
         User.getSelf().done(new DoneCallback<User>() {
             @Override
             public void onDone(User user) {
@@ -85,6 +84,8 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     }
                     if (mUser != user) {
                         mHideRemoveButton = true;
+                    } else {
+                        CollectionManager.get().fetchPlaylists();
                     }
                 }
                 if (mContainerFragmentClass == null) {
