@@ -185,12 +185,12 @@ public class HatchetCollection extends Collection {
     @Override
     public Promise<CollectionCursor<Album>, Throwable, Void> getArtistAlbums(final Artist artist) {
         final Deferred<CollectionCursor<Album>, Throwable, Void> deferred = new ADeferredObject<>();
-        List<Album> albums = new ArrayList<>();
+        CollectionCursor<Album> collectionCursor = null;
         if (mArtistAlbums.get(artist) != null) {
+            List<Album> albums = new ArrayList<>();
             albums.addAll(mArtistAlbums.get(artist));
+            collectionCursor = new CollectionCursor<>(albums, Album.class);
         }
-        CollectionCursor<Album> collectionCursor
-                = new CollectionCursor<>(albums, Album.class);
         return deferred.resolve(collectionCursor);
     }
 
@@ -201,12 +201,12 @@ public class HatchetCollection extends Collection {
     @Override
     public Promise<CollectionCursor<Query>, Throwable, Void> getAlbumTracks(final Album album) {
         final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        List<Query> queries = new ArrayList<>();
+        CollectionCursor<Query> collectionCursor = null;
         if (mAlbumTracks.get(album) != null) {
+            List<Query> queries = new ArrayList<>();
             queries.addAll(mAlbumTracks.get(album));
+            collectionCursor = new CollectionCursor<>(queries, Query.class);
         }
-        CollectionCursor<Query> collectionCursor
-                = new CollectionCursor<>(queries, Query.class);
         return deferred.resolve(collectionCursor);
     }
 
@@ -219,11 +219,12 @@ public class HatchetCollection extends Collection {
      */
     public Promise<CollectionCursor<Query>, Throwable, Void> getArtistTopHits(final Artist artist) {
         final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        List<Query> queries = new ArrayList<>();
+        CollectionCursor<Query> collectionCursor = null;
         if (mArtistTopHits.get(artist) != null) {
+            List<Query> queries = new ArrayList<>();
             queries.addAll(mArtistTopHits.get(artist));
+            collectionCursor = new CollectionCursor<>(queries, Query.class);
         }
-        CollectionCursor<Query> collectionCursor = new CollectionCursor<>(queries, Query.class);
         return deferred.resolve(collectionCursor);
     }
 }
