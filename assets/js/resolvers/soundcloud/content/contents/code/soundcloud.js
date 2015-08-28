@@ -139,8 +139,11 @@ var SoundcloudResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     continue;
                 }
 
+                var guessedMetaData = that._guessMetaData(response[i].title);
+                var title = guessedMetaData ? guessedMetaData.track : response[i].title;
+
                 var result = {
-                    track: response[i].title,
+                    track: title,
                     artist: artist,
                     bitrate: 128,
                     mimetype: "audio/mpeg",
