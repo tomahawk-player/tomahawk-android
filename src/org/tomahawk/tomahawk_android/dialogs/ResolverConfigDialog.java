@@ -21,7 +21,8 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverConfigUiField;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.VariousUtils;
+import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox;
@@ -100,7 +101,7 @@ public class ResolverConfigDialog extends ConfigDialog {
                     if (config.get(field.name) != null) {
                         editText.setText((String) config.get(field.name));
                     }
-                    if (TomahawkUtils.containsIgnoreCase(field.name, "password")) {
+                    if (VariousUtils.containsIgnoreCase(field.name, "password")) {
                         editText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
                         editText.setTransformationMethod(new PasswordTransformationMethod());
                     }
@@ -138,7 +139,7 @@ public class ResolverConfigDialog extends ConfigDialog {
             lastEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
         }
         if (showKeyboardEditText != null) {
-            TomahawkUtils.showSoftKeyboard(showKeyboardEditText);
+            ViewUtils.showSoftKeyboard(showKeyboardEditText);
         }
         setDialogTitle(mScriptResolver.getName());
         if (!mScriptResolver.isConfigTestable()) {

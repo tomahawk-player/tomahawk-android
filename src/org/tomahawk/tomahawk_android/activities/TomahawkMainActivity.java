@@ -44,7 +44,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.UserCollectionStubResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.libtomahawk.utils.parser.XspfParser;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -1336,7 +1336,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             if (!preferences.getBoolean(COACHMARK_SEEK_DISABLED, false)
                     && preferences.getLong(COACHMARK_SEEK_TIMESTAMP, 0) + 259200000
                     < System.currentTimeMillis()) {
-                final View coachMark = TomahawkUtils.ensureInflation(mPlaybackPanel,
+                final View coachMark = ViewUtils.ensureInflation(mPlaybackPanel,
                         R.id.playbackpanel_seek_coachmark_stub, R.id.playbackpanel_seek_coachmark);
                 coachMark.findViewById(R.id.close_button).setOnClickListener(
                         new View.OnClickListener() {

@@ -26,7 +26,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -410,7 +410,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 int currentTime = (int) (System.currentTimeMillis() / 1000);
                 long expirationTime = currentTime + authResponse.expires_in;
                 accessToken = authResponse.access_token;
-                if (TomahawkUtils.containsIgnoreCase(tokenType, RESPONSE_TOKEN_TYPE_BEARER)) {
+                if (VariousUtils.containsIgnoreCase(tokenType, RESPONSE_TOKEN_TYPE_BEARER)) {
                     am.setUserData(getAccount(), MANDELLA_ACCESS_TOKEN_HATCHET, accessToken);
                     am.setUserData(getAccount(), MANDELLA_ACCESS_TOKEN_EXPIRATIONTIME_HATCHET,
                             String.valueOf(expirationTime));
@@ -430,7 +430,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             HatchetAuthResponse authResponse = (HatchetAuthResponse)
                     e.getBodyAs(HatchetAuthResponse.class);
             if (authResponse != null && (authResponse.error != null
-                    || !TomahawkUtils.containsIgnoreCase(tokenType, authResponse.token_type))) {
+                    || !VariousUtils.containsIgnoreCase(tokenType, authResponse.token_type))) {
                 logout();
                 onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
                         "Please reenter your Hatchet credentials");

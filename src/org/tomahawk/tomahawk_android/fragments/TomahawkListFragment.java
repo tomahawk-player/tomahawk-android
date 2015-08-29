@@ -18,7 +18,7 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.StickyBaseAdapter;
@@ -252,7 +252,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
             Log.e(TAG, "Couldn't inflate listview! layoutInflater is null");
             return;
         }
-        View view = TomahawkUtils.ensureInflation(root, R.id.listview_stub, R.id.listview);
+        View view = ViewUtils.ensureInflation(root, R.id.listview_stub, R.id.listview);
         if (view instanceof StickyListHeadersListView) {
             mList = (StickyListHeadersListView) view;
         }

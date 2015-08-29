@@ -18,7 +18,7 @@
 package org.tomahawk.tomahawk_android.views;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
 
@@ -166,7 +166,7 @@ public class HatchetLoginRegisterView extends LinearLayout {
                             (FrameLayout.LayoutParams) loginContainer.getLayoutParams();
                     frameParams.gravity = Gravity.CENTER_VERTICAL;
                     container.addView(frameContainer);
-                    TomahawkUtils.showSoftKeyboard(mLoginUsernameEditText);
+                    ViewUtils.showSoftKeyboard(mLoginUsernameEditText);
                     return frameContainer;
                 case 1:
                     LinearLayout registerContainer = new LinearLayout(getContext());

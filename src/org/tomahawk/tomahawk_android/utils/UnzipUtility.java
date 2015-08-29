@@ -1,6 +1,6 @@
 package org.tomahawk.tomahawk_android.utils;
 
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.NetworkUtils;
 
 import android.net.Uri;
 import android.util.Log;
@@ -46,8 +46,8 @@ public class UnzipUtility {
             if (zipFilePath.getScheme().contains("file")) {
                 inputStream = new FileInputStream(zipFilePath.getPath());
             } else if (zipFilePath.getScheme().contains("http")) {
-                HttpURLConnection connection = TomahawkUtils.httpRequest(
-                        TomahawkUtils.HTTP_METHOD_GET, zipFilePath.toString(), null, null, null,
+                HttpURLConnection connection = NetworkUtils.httpRequest(
+                        NetworkUtils.HTTP_METHOD_GET, zipFilePath.toString(), null, null, null,
                         null, true);
                 inputStream = connection.getInputStream();
             } else {

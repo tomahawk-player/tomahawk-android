@@ -24,7 +24,7 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.ISO8601Utils;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
@@ -90,7 +90,7 @@ public class Store {
         RequestInterceptor requestInterceptor = new RequestInterceptor() {
             @Override
             public void intercept(RequestFacade request) {
-                if (!TomahawkUtils.isNetworkAvailable()) {
+                if (!NetworkUtils.isNetworkAvailable()) {
                     int maxStale = 60 * 60 * 24 * 7; // tolerate 1-week stale
                     request.addHeader("Cache-Control", "public, max-stale=" + maxStale);
                 }

@@ -21,7 +21,7 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.EqualizerFragment;
 import org.videolan.libvlc.EventHandler;
@@ -98,7 +98,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
         SharedPreferences pref =
                 PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
         if (pref.getBoolean(EqualizerFragment.EQUALIZER_ENABLED_PREFERENCE_KEY, false)) {
-            mLibVLC.setEqualizer(TomahawkUtils.getFloatArray(pref,
+            mLibVLC.setEqualizer(VariousUtils.getFloatArray(pref,
                     EqualizerFragment.EQUALIZER_VALUES_PREFERENCE_KEY));
         }
         try {

@@ -24,7 +24,7 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverCollectionMetaData;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -118,7 +118,7 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
             TextView userTextView = (TextView) contentHeaderView.findViewById(R.id.usertextview1);
             ImageView userImageView =
                     (ImageView) contentHeaderView.findViewById(R.id.userimageview1);
-            TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(), userImageView,
+            ImageUtils.loadUserImageIntoImageView(TomahawkApp.getContext(), userImageView,
                     holder.user, Image.getSmallImageSize(), userTextView);
             userImageView.setVisibility(View.VISIBLE);
             return contentHeaderView;
@@ -138,7 +138,7 @@ public class TomahawkMenuAdapter extends StickyBaseAdapter {
                 holder.collection.loadIcon(imageView, false);
             } else {
                 textView.setText(holder.title.toUpperCase());
-                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                         holder.iconResId);
             }
             CircularProgressView progressView =

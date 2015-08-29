@@ -27,7 +27,7 @@ import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -220,7 +220,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     List<Segment> segments = new ArrayList<>();
                     int extraPadding = TomahawkApp.getContext().getResources()
                             .getDimensionPixelSize(R.dimen.padding_medium)
-                            + TomahawkUtils.convertDpToPixel(32);
+                            + ViewUtils.convertDpToPixel(32);
                     if (mSuggestedUsers != null) {
                         List<Object> suggestions = new ArrayList<>();
                         suggestions.addAll(mSuggestedUsers);
@@ -337,7 +337,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
         }
         int extraPadding = TomahawkApp.getContext().getResources()
                 .getDimensionPixelSize(R.dimen.padding_medium)
-                + TomahawkUtils.convertDpToPixel(32);
+                + ViewUtils.convertDpToPixel(32);
         segment.setLeftExtraPadding(extraPadding);
         return segment;
     }

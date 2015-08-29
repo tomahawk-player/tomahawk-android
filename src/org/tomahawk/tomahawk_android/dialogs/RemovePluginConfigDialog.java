@@ -19,7 +19,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 
@@ -73,7 +73,7 @@ public class RemovePluginConfigDialog extends ConfigDialog {
         File destDir =
                 new File(mScriptResolver.getScriptAccount().getPath().replaceFirst("file:", ""));
         try {
-            TomahawkUtils.deleteRecursive(destDir);
+            VariousUtils.deleteRecursive(destDir);
             mScriptResolver.getScriptAccount().unregisterAllPlugins();
         } catch (FileNotFoundException e) {
             Log.d(TAG, "onPositiveAction: " + e.getClass() + ": " + e.getLocalizedMessage());

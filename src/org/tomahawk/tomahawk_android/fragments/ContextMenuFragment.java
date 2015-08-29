@@ -31,7 +31,8 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
+import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -99,7 +100,7 @@ public class ContextMenuFragment extends Fragment {
             } else {
                 album = mPlaylistEntry.getAlbum();
             }
-            TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
+            ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
                     album.getImage(), Image.getLargeImageSize(), true, false);
         }
     }
@@ -214,7 +215,7 @@ public class ContextMenuFragment extends Fragment {
 
     private void setupBlurredBackground(final View view) {
         final View rootView = getActivity().findViewById(R.id.sliding_layout);
-        TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(rootView) {
+        ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(rootView) {
             @Override
             public void run() {
                 Bitmap bm = Bitmap.createBitmap(rootView.getWidth(),
@@ -254,7 +255,7 @@ public class ContextMenuFragment extends Fragment {
 
         // set up "Add to playlist" context menu item
         if (mAlbum != null || mQuery != null || mPlaylistEntry != null || mPlaylist != null) {
-            View v = TomahawkUtils.ensureInflation(view, R.id.context_menu_addtoplaylist_stub,
+            View v = ViewUtils.ensureInflation(view, R.id.context_menu_addtoplaylist_stub,
                     R.id.context_menu_addtoplaylist);
             TextView textView = (TextView) v.findViewById(R.id.textview);
             ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
@@ -314,7 +315,7 @@ public class ContextMenuFragment extends Fragment {
                 drawableResId = R.drawable.ic_action_collection;
                 stringResId = R.string.context_menu_addtocollection;
             }
-            View v = TomahawkUtils.ensureInflation(view, R.id.context_menu_addtocollection_stub,
+            View v = ViewUtils.ensureInflation(view, R.id.context_menu_addtocollection_stub,
                     R.id.context_menu_addtocollection);
             TextView textView = (TextView) v.findViewById(R.id.textview);
             ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
@@ -345,7 +346,7 @@ public class ContextMenuFragment extends Fragment {
                 drawableResId = R.drawable.ic_action_favorites;
                 stringResId = R.string.context_menu_love;
             }
-            View v = TomahawkUtils.ensureInflation(view, R.id.context_menu_favorite_stub,
+            View v = ViewUtils.ensureInflation(view, R.id.context_menu_favorite_stub,
                     R.id.context_menu_favorite);
             TextView textView = (TextView) v.findViewById(R.id.textview);
             ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
@@ -361,8 +362,8 @@ public class ContextMenuFragment extends Fragment {
         }
 
         // set up "Share" context menu item
-        View v = TomahawkUtils
-                .ensureInflation(view, R.id.context_menu_share_stub, R.id.context_menu_share);
+        View v = ViewUtils.ensureInflation(
+                view, R.id.context_menu_share_stub, R.id.context_menu_share);
         TextView textView = (TextView) v.findViewById(R.id.textview);
         ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
         imageView.setImageResource(R.drawable.ic_action_share);
@@ -396,7 +397,7 @@ public class ContextMenuFragment extends Fragment {
                 } else {
                     stringResId = R.string.context_menu_delete;
                 }
-                v = TomahawkUtils.ensureInflation(view, R.id.context_menu_remove_stub,
+                v = ViewUtils.ensureInflation(view, R.id.context_menu_remove_stub,
                         R.id.context_menu_remove);
                 textView = (TextView) v.findViewById(R.id.textview);
                 imageView = (ImageView) v.findViewById(R.id.imageview);
@@ -421,7 +422,7 @@ public class ContextMenuFragment extends Fragment {
         if (mAlbum != null || mQuery != null || mPlaylistEntry != null || mPlaylist != null) {
             int drawableResId = R.drawable.ic_action_queue;
             int stringResId = R.string.context_menu_add_to_queue;
-            v = TomahawkUtils.ensureInflation(view, R.id.context_menu_addtoqueue_stub,
+            v = ViewUtils.ensureInflation(view, R.id.context_menu_addtoqueue_stub,
                     R.id.context_menu_addtoqueue);
             textView = (TextView) v.findViewById(R.id.textview);
             imageView = (ImageView) v.findViewById(R.id.imageview);
@@ -480,13 +481,13 @@ public class ContextMenuFragment extends Fragment {
 
     private void setupTextViews(View view) {
         if (mAlbum != null) {
-            View v = TomahawkUtils
-                    .ensureInflation(view, R.id.album_name_button_stub, R.id.album_name_button);
+            View v = ViewUtils.ensureInflation(
+                    view, R.id.album_name_button_stub, R.id.album_name_button);
             TextView textView = (TextView) v.findViewById(R.id.textview);
             textView.setText(mAlbum.getName());
             v.setOnClickListener(constructAlbumNameClickListener(mAlbum.getCacheKey()));
         } else if (mQuery != null || mPlaylistEntry != null || mPlaylist != null) {
-            View v = TomahawkUtils.ensureInflation(view, R.id.track_name_stub, R.id.track_name);
+            View v = ViewUtils.ensureInflation(view, R.id.track_name_stub, R.id.track_name);
             TextView textView = (TextView) v;
             if (mQuery != null) {
                 textView.setText(mQuery.getName());
@@ -497,8 +498,8 @@ public class ContextMenuFragment extends Fragment {
             }
         }
         if (mAlbum != null || mQuery != null || mPlaylistEntry != null || mArtist != null) {
-            View v = TomahawkUtils
-                    .ensureInflation(view, R.id.artist_name_button_stub, R.id.artist_name_button);
+            View v = ViewUtils.ensureInflation(
+                    view, R.id.artist_name_button_stub, R.id.artist_name_button);
             TextView textView = (TextView) v.findViewById(R.id.textview);
             String cacheKey;
             if (mQuery != null) {
@@ -524,8 +525,8 @@ public class ContextMenuFragment extends Fragment {
                 && !TextUtils.isEmpty(mQuery.getAlbum().getName()))
                 || (mPlaylistEntry != null
                 && !TextUtils.isEmpty(mPlaylistEntry.getQuery().getAlbum().getName()))) {
-            View v = TomahawkUtils
-                    .ensureInflation(view, R.id.view_album_button_stub, R.id.view_album_button);
+            View v = ViewUtils.ensureInflation(
+                    view, R.id.view_album_button_stub, R.id.view_album_button);
             TextView viewAlbumButtonText = (TextView) v.findViewById(R.id.textview);
             viewAlbumButtonText.setText(
                     TomahawkApp.getContext().getString(R.string.view_album).toUpperCase());
@@ -561,7 +562,7 @@ public class ContextMenuFragment extends Fragment {
                 && !TextUtils.isEmpty(mQuery.getAlbum().getName()))
                 || (mPlaylistEntry != null
                 && !TextUtils.isEmpty(mPlaylistEntry.getQuery().getAlbum().getName()))) {
-            View v = TomahawkUtils.ensureInflation(view, R.id.context_menu_albumart_stub,
+            View v = ViewUtils.ensureInflation(view, R.id.context_menu_albumart_stub,
                     R.id.context_menu_albumart);
 
             // load albumart image
@@ -579,7 +580,7 @@ public class ContextMenuFragment extends Fragment {
                 cacheKey = mPlaylistEntry.getAlbum().getCacheKey();
             }
             if (album.getImage() != null) {
-                TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
+                ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
                         album.getImage(), Image.getLargeImageSize(), true, false);
             } else {
                 String requestId = InfoSystem.get().resolve(album);

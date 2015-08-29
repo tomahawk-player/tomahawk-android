@@ -27,7 +27,8 @@ import org.tomahawk.libtomahawk.resolver.models.ScriptResolverConfigUi;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverSettings;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverStreamUrlResult;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
+import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
@@ -157,21 +158,21 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
 
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
-        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                 mScriptAccount.getPath() + "/content/" + mScriptAccount.getMetaData().manifest.icon,
                 grayOut ? R.color.disabled_resolver : 0);
     }
 
     @Override
     public void loadIconWhite(ImageView imageView) {
-        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                 mScriptAccount.getPath() + "/content/" + mScriptAccount
                         .getMetaData().manifest.iconWhite);
     }
 
     @Override
     public void loadIconBackground(ImageView imageView, boolean grayOut) {
-        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                 mScriptAccount.getPath() + "/content/" + mScriptAccount
                         .getMetaData().manifest.iconBackground,
                 grayOut ? R.color.disabled_resolver : 0);
@@ -315,7 +316,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                                 if (results.headers != null) {
                                     // If headers are given we first have to resolve the url that the call
                                     // is being redirected to
-                                    event.mUrl = TomahawkUtils.getRedirectedUrl(results.url,
+                                    event.mUrl = NetworkUtils.getRedirectedUrl(results.url,
                                             results.headers);
                                 } else {
                                     event.mUrl = results.url;

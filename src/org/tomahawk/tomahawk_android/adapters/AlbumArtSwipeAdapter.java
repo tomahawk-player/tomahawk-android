@@ -21,7 +21,7 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -114,7 +114,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
                     ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
                     boolean landscapeMode = mActivity.getResources().getConfiguration().orientation
                             == Configuration.ORIENTATION_LANDSCAPE;
-                    TomahawkUtils.loadImageIntoImageView(mActivity, imageView, query.getImage(),
+                    ImageUtils.loadImageIntoImageView(mActivity, imageView, query.getImage(),
                             Image.getLargeImageSize(), landscapeMode, query.hasArtistImage());
                 }
                 mActivity.showPanel();
