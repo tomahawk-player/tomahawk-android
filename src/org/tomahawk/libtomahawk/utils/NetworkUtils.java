@@ -1,34 +1,29 @@
 package org.tomahawk.libtomahawk.utils;
 
+import com.squareup.okhttp.Credentials;
+import com.squareup.okhttp.MediaType;
+import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.RequestBody;
+import com.squareup.okhttp.Response;
+
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.text.TextUtils;
 
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.net.Authenticator;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.PasswordAuthentication;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
+import java.net.Proxy;
 import java.util.Map;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
+import java.util.concurrent.TimeUnit;
 
 public class NetworkUtils {
 
     public static final String TAG = NetworkUtils.class.getSimpleName();
 
-    public static final String HTTP_METHOD_POST = "POST";
-
-    public static final String HTTP_METHOD_GET = "GET";
+    private static final MediaType MEDIA_TYPE_FORM =
+            MediaType.parse("application/x-www-form-urlencoded");
 
     /**
      * Does a HTTP or HTTPS request
@@ -44,85 +39,66 @@ public class NetworkUtils {
      *                        returned)
      * @return a HttpURLConnection
      */
-    public static HttpURLConnection httpRequest(String method, String urlString,
+    public static Response httpRequest(String method, String urlString,
             Map<String, String> extraHeaders, final String username, final String password,
-            String data, boolean followRedirects)
-            throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        HttpURLConnection connection;
+            String data, boolean followRedirects) throws IOException {
+        OkHttpClient client = new OkHttpClient();
 
-        // Establish correct HTTP/HTTPS connection
-        URL url = new URL(urlString);
-        URLConnection urlConnection = url.openConnection();
-        if (urlConnection instanceof HttpsURLConnection) {
-            connection = setSSLSocketFactory((HttpsURLConnection) urlConnection);
-        } else if (urlConnection instanceof HttpURLConnection) {
-            connection = (HttpURLConnection) urlConnection;
-        } else {
-            throw new MalformedURLException(
-                    "Connection could not be cast to HttpUrlConnection");
-        }
+        //Set time-outs
+        client.setConnectTimeout(15000, TimeUnit.MILLISECONDS);
+        client.setReadTimeout(15000, TimeUnit.MILLISECONDS);
+
+        client.setFollowRedirects(followRedirects);
 
         // Configure HTTP Basic Auth if available
         if (username != null && password != null) {
-            Authenticator.setDefault(new Authenticator() {
+            client.setAuthenticator(new com.squareup.okhttp.Authenticator() {
                 @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(username, password.toCharArray());
+                public Request authenticate(Proxy proxy, Response response) throws IOException {
+                    String credential = Credentials.basic(username, password);
+                    return response.request().newBuilder().header("Authorization", credential)
+                            .build();
+                }
+
+                @Override
+                public Request authenticateProxy(Proxy proxy, Response response)
+                        throws IOException {
+                    return null;
                 }
             });
         }
 
+        // Create request for remote resource.
+        Request.Builder builder = new Request.Builder().url(urlString);
+
         // Add headers if available
         if (extraHeaders != null) {
             for (String key : extraHeaders.keySet()) {
-                connection.setRequestProperty(key, extraHeaders.get(key));
+                builder.addHeader(key, extraHeaders.get(key));
             }
         }
 
-        // Set timeout to 15 sec
-        connection.setConnectTimeout(15000);
-        connection.setReadTimeout(15000);
-
-        // Set the given request method if available - default to "GET"
-        if (!TextUtils.isEmpty(method) && !method.equals(HTTP_METHOD_GET)) {
-            if (method.equals(HTTP_METHOD_POST)) {
-                connection.setRequestMethod(HTTP_METHOD_POST);
-                connection.setDoOutput(true);
-            } else {
-                connection.setRequestMethod(method);
-            }
+        // Properly set up the request method. Default to GET
+        if (method == null || method.equals("GET")) {
+            builder.get();
         } else {
-            connection.setRequestMethod(HTTP_METHOD_GET);
-            connection.setDoOutput(false);
-        }
-
-        // Send data string if available
-        if (!TextUtils.isEmpty(data)) {
-            connection.setFixedLengthStreamingMode(data.getBytes().length);
-            OutputStreamWriter out = null;
-            try {
-                out = new OutputStreamWriter(connection.getOutputStream());
-                out.write(data);
-            } finally {
-                if (out != null) {
-                    out.close();
+            MediaType mediaType = MEDIA_TYPE_FORM;
+            if (extraHeaders != null) {
+                String contentType = extraHeaders.get("Content-Type");
+                if (contentType != null) {
+                    mediaType = MediaType.parse(contentType);
                 }
             }
+            RequestBody requestBody = null;
+            if (data != null) {
+                requestBody = RequestBody.create(mediaType, data);
+            }
+            builder.method(method, requestBody);
         }
 
-        // configure whether or not to follow redirects
-        connection.setInstanceFollowRedirects(followRedirects);
-
-        return connection;
-    }
-
-    private static HttpsURLConnection setSSLSocketFactory(HttpsURLConnection connection)
-            throws KeyManagementException, NoSuchAlgorithmException {
-        SSLContext sc;
-        sc = SSLContext.getInstance("TLS");
-        sc.init(null, null, new java.security.SecureRandom());
-        connection.setSSLSocketFactory(sc.getSocketFactory());
-        return connection;
+        // Build and execute the request and retrieve the response.
+        Request request = builder.build();
+        return client.newCall(request).execute();
     }
 
     public static boolean isNetworkAvailable() {

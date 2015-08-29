@@ -1,5 +1,7 @@
 package org.tomahawk.tomahawk_android.utils;
 
+import com.squareup.okhttp.Response;
+
 import org.tomahawk.libtomahawk.utils.NetworkUtils;
 
 import android.net.Uri;
@@ -11,9 +13,6 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -46,10 +45,9 @@ public class UnzipUtility {
             if (zipFilePath.getScheme().contains("file")) {
                 inputStream = new FileInputStream(zipFilePath.getPath());
             } else if (zipFilePath.getScheme().contains("http")) {
-                HttpURLConnection connection = NetworkUtils.httpRequest(
-                        NetworkUtils.HTTP_METHOD_GET, zipFilePath.toString(), null, null, null,
-                        null, true);
-                inputStream = connection.getInputStream();
+                Response connection = NetworkUtils.httpRequest("GET", zipFilePath.toString(), null,
+                        null, null, null, true);
+                inputStream = connection.body().byteStream();
             } else {
                 Log.e(TAG, "unzip - Can't handle URI scheme");
                 return false;
@@ -70,7 +68,7 @@ public class UnzipUtility {
                 zipIn.closeEntry();
                 entry = zipIn.getNextEntry();
             }
-        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+        } catch (IOException e) {
             Log.e(TAG, "unzip: " + e.getClass() + ": " + e.getLocalizedMessage());
         } finally {
             try {
