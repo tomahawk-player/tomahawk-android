@@ -40,6 +40,7 @@ import android.widget.ImageView;
 
 import java.io.IOException;
 import java.math.BigInteger;
+import java.net.HttpURLConnection;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -314,10 +315,19 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                                 PipeLine.StreamUrlEvent event = new PipeLine.StreamUrlEvent();
                                 event.mResult = result;
                                 if (results.headers != null) {
-                                    // If headers are given we first have to resolve the url that the call
-                                    // is being redirected to
-                                    event.mUrl = NetworkUtils.getRedirectedUrl(results.url,
-                                            results.headers);
+                                    // If headers are given we first have to resolve the url that
+                                    // the call is being redirected to
+                                    HttpURLConnection connection = null;
+                                    try {
+                                        connection = NetworkUtils.httpRequest(
+                                                NetworkUtils.HTTP_METHOD_GET, results.url,
+                                                results.headers, null, null, null, false);
+                                        event.mUrl = connection.getHeaderField("Location");
+                                    } finally {
+                                        if (connection != null) {
+                                            connection.disconnect();
+                                        }
+                                    }
                                 } else {
                                     event.mUrl = results.url;
                                 }
