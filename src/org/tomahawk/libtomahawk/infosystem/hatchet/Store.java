@@ -99,12 +99,8 @@ public class Store {
         };
         mOkHttpClient = new OkHttpClient();
         File cacheDir = new File(TomahawkApp.getContext().getCacheDir(), "responseCache");
-        try {
-            Cache cache = new Cache(cacheDir, 1024 * 1024 * 20);
-            mOkHttpClient.setCache(cache);
-        } catch (IOException e) {
-            Log.e(TAG, "<init>: " + e.getClass() + ": " + e.getLocalizedMessage());
-        }
+        Cache cache = new Cache(cacheDir, 1024 * 1024 * 20);
+        mOkHttpClient.setCache(cache);
         RestAdapter restAdapter = new RestAdapter.Builder()
                 .setLogLevel(RestAdapter.LogLevel.BASIC)
                 .setEndpoint(HATCHET_BASE_URL + HATCHET_API_VERSION)
