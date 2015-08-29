@@ -3,9 +3,9 @@
     "pluginName": "tidal",
     "author": "Anton Romanov and Will Stott",
     "email": "",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "website": "http://gettomahawk.com",
-    "description": "Streams music from tidalhifi.com (requires subscription)",
+    "description": "Streams music from tidal.com (requires subscription)",
     "type": "resolver/javascript",
     "manifest": {
         "main": "contents/code/tidal.js",
@@ -18,5 +18,6 @@
         ]
     },
     "staticCapabilities": [
+        "configTestable"
     ]
 }
