@@ -564,7 +564,8 @@ public class Store {
                     ArrayList<Query> queries = new ArrayList<>();
                     for (JsonElement entry : playbacklogEntries) {
                         String entryId = entry.getAsString();
-                        Query query = (Query) findRecord(entryId, TYPE_TRACKS, isBackgroundRequest);
+                        Query query = (Query) findRecord(entryId, TYPE_PLAYLISTENTRIES,
+                                isBackgroundRequest);
                         queries.add(query);
                     }
                     Playlist playlist = Playlist.fromQueryList(
