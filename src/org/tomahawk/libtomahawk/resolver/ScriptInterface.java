@@ -3,9 +3,10 @@ package org.tomahawk.libtomahawk.resolver;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import com.squareup.okhttp.Response;
+
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverData;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
@@ -19,10 +20,6 @@ import android.webkit.JavascriptInterface;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -146,33 +143,20 @@ public class ScriptInterface {
                         password = options.password;
                         data = options.data;
                     }
-                    HttpURLConnection connection = NetworkUtils.httpRequest(
+                    Response response = NetworkUtils.httpRequest(
                             method, url, extraHeaders, username, password, data, true);
-                    try {
-                        String responseText = null;
-                        try {
-                            responseText =
-                                    IOUtils.toString(connection.getInputStream(), Charsets.UTF_8);
-                        } catch (IOException e) {
-                            InputStream stream = connection.getErrorStream();
-                            if (stream != null) {
-                                responseText = IOUtils.toString(stream, Charsets.UTF_8);
-                            }
-                        }
-                        Map<String, List<String>> responseHeaders = connection.getHeaderFields();
-                        int status = connection.getResponseCode();
-                        String statusText = connection.getResponseMessage();
-
-                        if (callback != null) {
-                            callback.call(responseText, responseHeaders, status, statusText);
-                        }
-                    } finally {
-                        // Always disconnect connection to avoid leaks
-                        if (connection != null) {
-                            connection.disconnect();
-                        }
+                    String responseText = response.body().string();
+                    Map<String, List<String>> responseHeaders = new HashMap<>();
+                    for (String headerName : response.headers().names()) {
+                        responseHeaders.put(headerName, response.headers(headerName));
                     }
-                } catch (NoSuchAlgorithmException | IOException | KeyManagementException e) {
+                    int status = response.code();
+                    String statusText = response.message();
+
+                    if (callback != null) {
+                        callback.call(responseText, responseHeaders, status, statusText);
+                    }
+                } catch (IOException e) {
                     Log.e(TAG, "nativeAsyncRequestString: " + e.getClass() + ": "
                             + e.getLocalizedMessage());
                 }

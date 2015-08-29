@@ -17,9 +17,9 @@
  */
 package org.tomahawk.libtomahawk.utils.parser;
 
-import org.apache.commons.io.Charsets;
+import com.squareup.okhttp.Response;
+
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonXmlHelper;
@@ -31,10 +31,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 
 public class XspfParser {
@@ -61,16 +58,11 @@ public class XspfParser {
 
     public static Playlist parse(String url) {
         String xspfString = null;
-        HttpURLConnection connection = null;
         try {
-            connection = NetworkUtils.httpRequest(null, url, null, null, null, null, true);
-            xspfString = IOUtils.toString(connection.getInputStream(), Charsets.UTF_8);
-        } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+            Response response = NetworkUtils.httpRequest(null, url, null, null, null, null, true);
+            xspfString = response.body().string();
+        } catch (IOException e) {
             Log.e(TAG, "parse: " + e.getClass() + ": " + e.getLocalizedMessage());
-        } finally {
-            if (connection != null) {
-                connection.disconnect();
-            }
         }
         return parseXspf(xspfString);
     }

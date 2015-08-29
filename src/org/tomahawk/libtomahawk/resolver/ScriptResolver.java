@@ -20,6 +20,8 @@ package org.tomahawk.libtomahawk.resolver;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
 
+import com.squareup.okhttp.Response;
+
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
@@ -40,9 +42,6 @@ import android.widget.ImageView;
 
 import java.io.IOException;
 import java.math.BigInteger;
-import java.net.HttpURLConnection;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -317,22 +316,14 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                                 if (results.headers != null) {
                                     // If headers are given we first have to resolve the url that
                                     // the call is being redirected to
-                                    HttpURLConnection connection = null;
-                                    try {
-                                        connection = NetworkUtils.httpRequest(
-                                                NetworkUtils.HTTP_METHOD_GET, results.url,
-                                                results.headers, null, null, null, false);
-                                        event.mUrl = connection.getHeaderField("Location");
-                                    } finally {
-                                        if (connection != null) {
-                                            connection.disconnect();
-                                        }
-                                    }
+                                    Response connection = NetworkUtils.httpRequest("GET",
+                                            results.url, results.headers, null, null, null, false);
+                                    event.mUrl = connection.header("Location");
                                 } else {
                                     event.mUrl = results.url;
                                 }
                                 EventBus.getDefault().post(event);
-                            } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
+                            } catch (IOException e) {
                                 Log.e(TAG, "reportStreamUrl: " + e.getClass() + ": " + e
                                         .getLocalizedMessage());
                             }
