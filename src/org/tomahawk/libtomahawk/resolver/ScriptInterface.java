@@ -148,7 +148,7 @@ public class ScriptInterface {
                     String responseText = response.body().string();
                     Map<String, List<String>> responseHeaders = new HashMap<>();
                     for (String headerName : response.headers().names()) {
-                        responseHeaders.put(headerName, response.headers(headerName));
+                        responseHeaders.put(headerName.toLowerCase(), response.headers(headerName));
                     }
                     int status = response.code();
                     String statusText = response.message();
