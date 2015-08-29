@@ -1,8 +1,5 @@
 package org.tomahawk.libtomahawk.utils;
 
-import org.apache.commons.io.Charsets;
-import org.apache.commons.io.IOUtils;
-import org.tomahawk.libtomahawk.resolver.ScriptInterface;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Context;
@@ -11,7 +8,6 @@ import android.net.NetworkInfo;
 import android.text.TextUtils;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.net.Authenticator;
 import java.net.HttpURLConnection;
@@ -21,8 +17,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -35,82 +29,6 @@ public class NetworkUtils {
     public static final String HTTP_METHOD_POST = "POST";
 
     public static final String HTTP_METHOD_GET = "GET";
-
-    public static class HttpResponse {
-
-        public HttpResponse() {
-            mResponseHeaders = new HashMap<>();
-        }
-
-        public String mResponseText;
-
-        public Map<String, List<String>> mResponseHeaders;
-
-        public int mStatus;
-
-        public String mStatusText;
-    }
-
-    /**
-     * Gets the URL that this request has been redirected to.
-     *
-     * @param urlString    the complete url string to do the request with
-     * @param extraHeaders extra headers that should be added to the request (optional)
-     * @return a String containing the url that this request has been redirected to, otherwise null
-     */
-    public static String getRedirectedUrl(String urlString, Map<String, String> extraHeaders)
-            throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        HttpResponse response =
-                httpRequest(HTTP_METHOD_GET, urlString, extraHeaders, null, null, null, null,
-                        false);
-        List<String> responseHeaders = response.mResponseHeaders.get("Location");
-        if (responseHeaders != null && !responseHeaders.isEmpty()) {
-            return response.mResponseHeaders.get("Location").get(0);
-        }
-        return null;
-    }
-
-    /**
-     * Does a HTTP or HTTPS request (convenience method)
-     *
-     * @param method       the method that should be used ("GET" or "POST"), defaults to "GET"
-     *                     (optional)
-     * @param urlString    the complete url string to do the request with
-     * @param extraHeaders extra headers that should be added to the request (optional)
-     * @param username     the username for HTTP Basic Auth (optional)
-     * @param password     the password for HTTP Basic Auth (optional)
-     * @param data         the body data included in POST requests (optional)
-     * @return a HttpResponse containing the response (similar to a XMLHttpRequest in javascript)
-     */
-    public static HttpResponse httpRequest(String method, String urlString,
-            Map<String, String> extraHeaders, final String username, final String password,
-            String data)
-            throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        return httpRequest(method, urlString, extraHeaders, username, password, data, null,
-                true);
-    }
-
-    /**
-     * Does a HTTP or HTTPS request (convenience method)
-     *
-     * @param method       the method that should be used ("GET" or "POST"), defaults to "GET"
-     *                     (optional)
-     * @param urlString    the complete url string to do the request with
-     * @param extraHeaders extra headers that should be added to the request (optional)
-     * @param username     the username for HTTP Basic Auth (optional)
-     * @param password     the password for HTTP Basic Auth (optional)
-     * @param data         the body data included in POST requests (optional)
-     * @param callback     a ScriptInterface.JsCallback that should be called if this request has
-     *                     been successful (optional)
-     * @return a HttpResponse containing the response (similar to a XMLHttpRequest in javascript)
-     */
-    public static HttpResponse httpRequest(String method, String urlString,
-            Map<String, String> extraHeaders, final String username, final String password,
-            String data, ScriptInterface.JsCallback callback)
-            throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        return httpRequest(method, urlString, extraHeaders, username, password, data, callback,
-                true);
-    }
 
     /**
      * Does a HTTP or HTTPS request
@@ -196,56 +114,6 @@ public class NetworkUtils {
         connection.setInstanceFollowRedirects(followRedirects);
 
         return connection;
-    }
-
-    /**
-     * Does a HTTP or HTTPS request
-     *
-     * @param method          the method that should be used ("GET" or "POST"), defaults to "GET"
-     *                        (optional)
-     * @param urlString       the complete url string to do the request with
-     * @param extraHeaders    extra headers that should be added to the request (optional)
-     * @param username        the username for HTTP Basic Auth (optional)
-     * @param password        the password for HTTP Basic Auth (optional)
-     * @param data            the body data included in POST requests (optional)
-     * @param callback        a ScriptInterface.JsCallback that should be called if this request has
-     *                        been successful (optional)
-     * @param followRedirects whether or not to follow redirects (also defines what is being
-     *                        returned)
-     * @return a HttpResponse containing the response (similar to a XMLHttpRequest in javascript)
-     */
-    private static HttpResponse httpRequest(String method, String urlString,
-            Map<String, String> extraHeaders, final String username, final String password,
-            String data, ScriptInterface.JsCallback callback, boolean followRedirects)
-            throws NoSuchAlgorithmException, KeyManagementException, IOException {
-        HttpResponse response = new HttpResponse();
-        HttpURLConnection connection = httpRequest(method, urlString, extraHeaders, username,
-                password, data, followRedirects);
-        try {
-            try {
-                response.mResponseText =
-                        IOUtils.toString(connection.getInputStream(), Charsets.UTF_8);
-            } catch (IOException e) {
-                InputStream stream = connection.getErrorStream();
-                if (stream != null) {
-                    response.mResponseText = IOUtils.toString(stream, Charsets.UTF_8);
-                }
-            }
-            response.mResponseHeaders = connection.getHeaderFields();
-            response.mStatus = connection.getResponseCode();
-            response.mStatusText = connection.getResponseMessage();
-
-            if (callback != null) {
-                callback.call(response);
-            }
-        } finally {
-            // Always disconnect connection to avoid leaks
-            if (connection != null) {
-                connection.disconnect();
-            }
-        }
-
-        return response;
     }
 
     private static HttpsURLConnection setSSLSocketFactory(HttpsURLConnection connection)

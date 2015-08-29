@@ -5,6 +5,7 @@ import com.google.gson.JsonObject;
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverData;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
@@ -18,9 +19,12 @@ import android.webkit.JavascriptInterface;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.greenrobot.event.EventBus;
@@ -48,9 +52,10 @@ public class ScriptInterface {
             mReqId = reqId;
         }
 
-        public void call(NetworkUtils.HttpResponse response) {
-            mScriptAccount.nativeAsyncRequestDone(mReqId, response.mResponseText,
-                    response.mResponseHeaders, response.mStatus, response.mStatusText);
+        public void call(String responseText, Map<String, List<String>> responseHeaders, int status,
+                String statusText) {
+            mScriptAccount.nativeAsyncRequestDone(
+                    mReqId, responseText, responseHeaders, status, statusText);
         }
     }
 
@@ -141,8 +146,32 @@ public class ScriptInterface {
                         password = options.password;
                         data = options.data;
                     }
-                    NetworkUtils.httpRequest(method, url, extraHeaders, username, password, data,
-                            callback);
+                    HttpURLConnection connection = NetworkUtils.httpRequest(
+                            method, url, extraHeaders, username, password, data, true);
+                    try {
+                        String responseText = null;
+                        try {
+                            responseText =
+                                    IOUtils.toString(connection.getInputStream(), Charsets.UTF_8);
+                        } catch (IOException e) {
+                            InputStream stream = connection.getErrorStream();
+                            if (stream != null) {
+                                responseText = IOUtils.toString(stream, Charsets.UTF_8);
+                            }
+                        }
+                        Map<String, List<String>> responseHeaders = connection.getHeaderFields();
+                        int status = connection.getResponseCode();
+                        String statusText = connection.getResponseMessage();
+
+                        if (callback != null) {
+                            callback.call(responseText, responseHeaders, status, statusText);
+                        }
+                    } finally {
+                        // Always disconnect connection to avoid leaks
+                        if (connection != null) {
+                            connection.disconnect();
+                        }
+                    }
                 } catch (NoSuchAlgorithmException | IOException | KeyManagementException e) {
                     Log.e(TAG, "nativeAsyncRequestString: " + e.getClass() + ": "
                             + e.getLocalizedMessage());
