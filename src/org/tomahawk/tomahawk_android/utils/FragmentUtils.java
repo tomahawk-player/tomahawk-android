@@ -125,7 +125,7 @@ public class FragmentUtils {
         FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
         ft.add(frameResId, Fragment.instantiate(activity, clss.getName(), bundle), FRAGMENT_TAG);
         ft.addToBackStack(FRAGMENT_TAG);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commit();
     }
 
