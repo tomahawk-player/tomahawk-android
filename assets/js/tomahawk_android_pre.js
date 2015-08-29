@@ -72,7 +72,7 @@ Tomahawk._nativeAsyncRequestDone = function (requestId, responseText, responseHe
             return this.responseHeaders;
         },
         getResponseHeader: function (header) {
-            return this.responseHeaders[header];
+            return this.responseHeaders[header.toLowerCase()];
         }
     };
     Tomahawk.nativeAsyncRequestDone(requestId, fakeXhr);
