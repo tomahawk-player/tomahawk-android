@@ -36,7 +36,7 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -392,7 +392,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                                 if (!preferences.getBoolean(
                                         TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
                                         false)) {
-                                    final View coachMark = TomahawkUtils.ensureInflation(
+                                    final View coachMark = ViewUtils.ensureInflation(
                                             swipeLayout, R.id.swipelayout_enqueue_coachmark_stub,
                                             R.id.swipelayout_enqueue_coachmark);
                                     coachMark.setVisibility(View.VISIBLE);
@@ -793,7 +793,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private void updateFooterSpacerHeight(final StickyListHeadersListView listView) {
         if (mHeaderSpacerHeight > 0) {
-            TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(listView) {
+            ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(listView) {
                 @Override
                 public void run() {
                     mFooterSpacerHeight = calculateFooterSpacerHeight(listView);

@@ -8,7 +8,7 @@ import org.apache.commons.io.FileUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverData;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
@@ -48,7 +48,7 @@ public class ScriptInterface {
             mReqId = reqId;
         }
 
-        public void call(TomahawkUtils.HttpResponse response) {
+        public void call(NetworkUtils.HttpResponse response) {
             mScriptAccount.nativeAsyncRequestDone(mReqId, response.mResponseText,
                     response.mResponseHeaders, response.mStatus, response.mStatusText);
         }
@@ -141,9 +141,8 @@ public class ScriptInterface {
                         password = options.password;
                         data = options.data;
                     }
-                    TomahawkUtils
-                            .httpRequest(method, url, extraHeaders, username, password, data,
-                                    callback);
+                    NetworkUtils.httpRequest(method, url, extraHeaders, username, password, data,
+                            callback);
                 } catch (NoSuchAlgorithmException | IOException | KeyManagementException e) {
                     Log.e(TAG, "nativeAsyncRequestString: " + e.getClass() + ": "
                             + e.getLocalizedMessage());

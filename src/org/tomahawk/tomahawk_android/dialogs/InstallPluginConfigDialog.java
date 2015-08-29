@@ -23,7 +23,7 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptAccount;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.UnzipUtility;
@@ -85,7 +85,7 @@ public class InstallPluginConfigDialog extends ConfigDialog {
                         + File.separator + "manualresolvers" + File.separator + ".temp";
                 File destDir = new File(destDirPath);
                 try {
-                    TomahawkUtils.deleteRecursive(destDir);
+                    VariousUtils.deleteRecursive(destDir);
                 } catch (FileNotFoundException e) {
                     Log.d(TAG,
                             "onPositiveAction: " + e.getClass() + ": " + e.getLocalizedMessage());

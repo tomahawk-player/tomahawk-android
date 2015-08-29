@@ -17,7 +17,7 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ColorTintTransformation;
@@ -61,13 +61,13 @@ public class UserCollectionStubResolver implements Resolver {
 
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
-        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                 R.drawable.ic_action_sd_storage, grayOut ? R.color.disabled_resolver : 0);
     }
 
     @Override
     public void loadIconWhite(ImageView imageView) {
-        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                 R.drawable.ic_action_sd_storage_light);
     }
 

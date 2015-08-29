@@ -24,7 +24,7 @@ import org.tomahawk.libtomahawk.collection.ArtistAlphaComparable;
 import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.LevensteinDistance;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 
 import android.text.TextUtils;
@@ -355,11 +355,9 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
             resultTrackName = cleanUpString(r.getTrack().getName(), false);
         }
 
-        int distanceArtist = TomahawkUtils
-                .getLevenshteinDistance(artistName, resultArtistName);
-        int distanceAlbum = TomahawkUtils
-                .getLevenshteinDistance(albumName, resultAlbumName);
-        int distanceTrack = TomahawkUtils.getLevenshteinDistance(trackName, resultTrackName);
+        int distanceArtist = LevensteinDistance.getDistance(artistName, resultArtistName);
+        int distanceAlbum = LevensteinDistance.getDistance(albumName, resultAlbumName);
+        int distanceTrack = LevensteinDistance.getDistance(trackName, resultTrackName);
 
         int maxLengthArtist = Math
                 .max(artistName.length(), resultArtistName.length());
@@ -385,8 +383,8 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
 
             float maxResult = 0F;
             for (String resultSearchString : resultSearchStrings) {
-                int distanceArtistTrack = TomahawkUtils
-                        .getLevenshteinDistance(searchString, resultSearchString);
+                int distanceArtistTrack =
+                        LevensteinDistance.getDistance(searchString, resultSearchString);
                 int maxLengthArtistTrack = Math
                         .max(searchString.length(), resultSearchString.length());
                 float distanceScoreArtistTrack =

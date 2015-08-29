@@ -19,7 +19,7 @@ package org.tomahawk.libtomahawk.resolver;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ColorTintTransformation;
@@ -54,13 +54,13 @@ public class HatchetStubResolver implements Resolver {
 
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
-        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                 R.drawable.ic_hatchet, grayOut ? R.color.disabled_resolver : 0);
     }
 
     @Override
     public void loadIconWhite(ImageView imageView) {
-        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                 R.drawable.ic_hatchet_white);
     }
 

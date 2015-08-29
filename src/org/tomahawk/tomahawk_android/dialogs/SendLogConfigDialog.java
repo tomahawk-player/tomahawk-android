@@ -18,7 +18,7 @@
 package org.tomahawk.tomahawk_android.dialogs;
 
 import org.acra.ACRA;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
@@ -77,7 +77,7 @@ public class SendLogConfigDialog extends ConfigDialog {
                 (ConfigEdittext) addScrollingViewToFrame(R.layout.config_edittext_multiplelines);
         mUserMessageEditText.setHint(R.string.preferences_app_sendlog_issue);
 
-        TomahawkUtils.showSoftKeyboard(mEmailEditText);
+        ViewUtils.showSoftKeyboard(mEmailEditText);
 
         setDialogTitle(getString(R.string.preferences_app_sendlog));
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

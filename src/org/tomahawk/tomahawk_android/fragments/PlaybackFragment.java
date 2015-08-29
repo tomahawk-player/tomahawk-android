@@ -26,7 +26,8 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
+import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -90,10 +91,10 @@ public class PlaybackFragment extends TomahawkFragment {
             final ImageView imageView =
                     (ImageView) getView().findViewById(R.id.imageview_favorite_doubletap);
             if (DatabaseHelper.get().isItemLoved(query)) {
-                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                         R.drawable.ic_action_unfavorite_large);
             } else {
-                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                         R.drawable.ic_action_favorite_large);
             }
             AnimationUtils.fade(imageView, AnimationUtils.DURATION_CONTEXTMENU, true);
@@ -140,7 +141,7 @@ public class PlaybackFragment extends TomahawkFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(view) {
+        ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(view) {
             @Override
             public void run() {
                 if (getListView() != null) {
@@ -197,7 +198,7 @@ public class PlaybackFragment extends TomahawkFragment {
                 PreferenceManager.getDefaultSharedPreferences(getActivity());
         if (!preferences.getBoolean(
                 TomahawkMainActivity.COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED, false)) {
-            final View coachMark = TomahawkUtils.ensureInflation(view,
+            final View coachMark = ViewUtils.ensureInflation(view,
                     R.id.playbackfragment_navigation_coachmark_stub,
                     R.id.playbackfragment_navigation_coachmark);
             coachMark.findViewById(R.id.close_button).setOnClickListener(
@@ -389,7 +390,7 @@ public class PlaybackFragment extends TomahawkFragment {
 
     private void setupAlbumArtAnimation() {
         if (mAlbumArtViewPager != null) {
-            TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(mAlbumArtViewPager) {
+            ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(mAlbumArtViewPager) {
                 @Override
                 public void run() {
                     if (mOriginalViewPagerHeight <= 0) {
@@ -489,7 +490,7 @@ public class PlaybackFragment extends TomahawkFragment {
 
                 ImageView bgImageView =
                         (ImageView) getView().findViewById(R.id.background);
-                TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(), bgImageView,
+                ImageUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(), bgImageView,
                         playbackService.getCurrentQuery().getImage(),
                         Image.getSmallImageSize(), R.color.playerview_default_bg);
             } else {
@@ -511,17 +512,17 @@ public class PlaybackFragment extends TomahawkFragment {
                         .getPlaybackService();
                 if (playbackService != null) {
                     if (playbackService.getRepeatingMode() == PlaybackService.REPEAT_ALL) {
-                        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
                                 imageButton, R.drawable.repeat_all, R.color.tomahawk_red);
                     } else if (playbackService.getRepeatingMode() == PlaybackService.REPEAT_ONE) {
-                        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
                                 imageButton, R.drawable.repeat_one, R.color.tomahawk_red);
                     } else {
-                        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
                                 imageButton, R.drawable.repeat_all);
                     }
                 } else {
-                    TomahawkUtils.clearTint(imageButton.getDrawable());
+                    ImageUtils.clearTint(imageButton.getDrawable());
                 }
             }
         }
@@ -538,9 +539,9 @@ public class PlaybackFragment extends TomahawkFragment {
                 PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
                         .getPlaybackService();
                 if (playbackService != null && playbackService.isShuffled()) {
-                    TomahawkUtils.setTint(imageButton.getDrawable(), R.color.tomahawk_red);
+                    ImageUtils.setTint(imageButton.getDrawable(), R.color.tomahawk_red);
                 } else {
-                    TomahawkUtils.clearTint(imageButton.getDrawable());
+                    ImageUtils.clearTint(imageButton.getDrawable());
                 }
             }
         }

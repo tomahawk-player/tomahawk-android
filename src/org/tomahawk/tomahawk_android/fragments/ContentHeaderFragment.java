@@ -30,7 +30,8 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
+import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -291,7 +292,7 @@ public class ContentHeaderFragment extends Fragment {
                         : R.id.content_header_static;
             }
         }
-        final View contentHeader = TomahawkUtils.ensureInflation(getView(), stubResId, inflatedId);
+        final View contentHeader = ViewUtils.ensureInflation(getView(), stubResId, inflatedId);
         contentHeader.getLayoutParams().height =
                 mHeaderNonscrollableHeight + mHeaderScrollableHeight;
 
@@ -302,19 +303,19 @@ public class ContentHeaderFragment extends Fragment {
         final int gridOneResId = isPagerFragment ? R.id.imageview_grid_one_pager
                 : R.id.imageview_grid_one;
         if (item instanceof Integer) {
-            View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+            View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
             v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
             ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
-            TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+            ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                     (Integer) item);
         } else if (item instanceof String) {
-            View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+            View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
             v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
             ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
-            TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+            ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                     (String) item);
         } else if (item instanceof ColorDrawable) {
-            View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+            View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
             v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
             ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
             imageView.setImageDrawable((ColorDrawable) item);
@@ -327,18 +328,18 @@ public class ContentHeaderFragment extends Fragment {
                 }
             };
             if (item instanceof Album) {
-                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+                View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
                 v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
                 ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
-                TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
+                ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
                         ((Album) item).getImage(), Image.getLargeImageSize(), false);
                 View moreButton = getView().findViewById(R.id.more_button);
                 moreButton.setOnClickListener(moreButtonListener);
             } else if (item instanceof Artist) {
-                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+                View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
                 v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
                 ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
-                TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
+                ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
                         ((Artist) item).getImage(), Image.getLargeImageSize(), true);
                 View moreButton = getView().findViewById(R.id.more_button);
                 moreButton.setOnClickListener(moreButtonListener);
@@ -348,10 +349,10 @@ public class ContentHeaderFragment extends Fragment {
                 View moreButton = getView().findViewById(R.id.more_button);
                 moreButton.setOnClickListener(moreButtonListener);
             } else if (item instanceof Query) {
-                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+                View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
                 v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
                 ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
-                TomahawkUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
+                ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
                         ((Query) item).getImage(), Image.getLargeImageSize(),
                         ((Query) item).hasArtistImage());
                 View moreButton = getView().findViewById(R.id.more_button);
@@ -359,15 +360,15 @@ public class ContentHeaderFragment extends Fragment {
             }
         } else {
             if (item == null) {
-                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+                View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
                 v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
                 ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
                 imageView.setImageDrawable(new ColorDrawable(
                         getResources().getColor(R.color.userpage_default_background)));
             } else if (item instanceof Image) {
-                View v = TomahawkUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
+                View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
                 v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
-                TomahawkUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(),
+                ImageUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(),
                         (ImageView) v.findViewById(R.id.imageview1), (Image) item,
                         Image.getSmallImageSize(), R.color.userpage_default_background);
             } else if (item instanceof User) {
@@ -388,16 +389,16 @@ public class ContentHeaderFragment extends Fragment {
                                     showNotFollowing = item != user && (user.getFollowings() == null
                                             || !user.getFollowings().containsKey(item));
                                 }
-                                View v = TomahawkUtils
-                                        .ensureInflation(getView(), gridOneStubId, gridOneResId);
+                                View v = ViewUtils.ensureInflation(
+                                        getView(), gridOneStubId, gridOneResId);
                                 v.getLayoutParams().height = mHeaderNonscrollableHeight
                                         + mHeaderScrollableHeight;
-                                TomahawkUtils.loadBlurredImageIntoImageView(
+                                ImageUtils.loadBlurredImageIntoImageView(
                                         TomahawkApp.getContext(),
                                         (ImageView) v.findViewById(R.id.imageview1),
                                         ((User) item).getImage(), Image.getSmallImageSize(),
                                         R.color.userpage_default_background);
-                                TomahawkUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
+                                ImageUtils.loadUserImageIntoImageView(TomahawkApp.getContext(),
                                         (ImageView) contentHeader.findViewById(R.id.userimageview1),
                                         (User) item, Image.getSmallImageSize(),
                                         (TextView) contentHeader.findViewById(R.id.usertextview1));
@@ -546,7 +547,7 @@ public class ContentHeaderFragment extends Fragment {
         if (view != null) {
             View moreButton = view.findViewById(R.id.more_button);
             if (moreButton != null) {
-                TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(moreButton) {
+                ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(moreButton) {
                     @Override
                     public void run() {
                         // get resources first
@@ -586,7 +587,7 @@ public class ContentHeaderFragment extends Fragment {
 
     private void setupImageViewAnimation(final View view) {
         if (view != null) {
-            TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(view) {
+            ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(view) {
                 @Override
                 public void run() {
                     // now calculate the animation goal and instantiate the animation

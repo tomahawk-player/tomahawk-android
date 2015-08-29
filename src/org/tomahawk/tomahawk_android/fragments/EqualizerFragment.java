@@ -19,7 +19,7 @@
  *****************************************************************************/
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
@@ -171,7 +171,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
         SharedPreferences.Editor editor = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext()).edit();
         editor.putBoolean(EQUALIZER_ENABLED_PREFERENCE_KEY, mEnableButton.isChecked());
-        TomahawkUtils.putFloatArray(editor, EQUALIZER_VALUES_PREFERENCE_KEY, mEqualizerValues);
+        VariousUtils.putFloatArray(editor, EQUALIZER_VALUES_PREFERENCE_KEY, mEqualizerValues);
         editor.putInt(EQUALIZER_PRESET_PREFERENCE_KEY, mEqualizerPresets.getSelectedItemPosition());
         editor.apply();
     }
@@ -183,7 +183,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
         float[] bands = mLibVLC.getBands();
         String[] presets = mLibVLC.getPresets();
         if (mEqualizerValues == null) {
-            mEqualizerValues = TomahawkUtils
+            mEqualizerValues = VariousUtils
                     .getFloatArray(preferences, EQUALIZER_VALUES_PREFERENCE_KEY);
         }
         if (mEqualizerValues == null) {

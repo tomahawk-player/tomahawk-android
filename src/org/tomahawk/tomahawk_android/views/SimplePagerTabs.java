@@ -20,7 +20,7 @@ package org.tomahawk.tomahawk_android.views;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.ValueAnimator;
 
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 
 import android.content.Context;
@@ -90,7 +90,7 @@ public class SimplePagerTabs extends FrameLayout {
             item.setText(viewPager.getAdapter().getPageTitle(i));
             itemContainer.addView(item);
             if (i == 0) {
-                TomahawkUtils.afterViewGlobalLayout(new TomahawkUtils.ViewRunnable(item) {
+                ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(item) {
                     @Override
                     public void run() {
                         View tabIndicator = LayoutInflater.from(getContext())

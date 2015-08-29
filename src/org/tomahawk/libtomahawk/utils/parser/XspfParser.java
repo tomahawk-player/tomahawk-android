@@ -21,7 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonXmlHelper;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
 import android.net.Uri;
@@ -58,9 +58,9 @@ public class XspfParser {
 
     public static Playlist parse(String url) {
         String xspfString = null;
-        TomahawkUtils.HttpResponse response = null;
+        NetworkUtils.HttpResponse response = null;
         try {
-            response = TomahawkUtils.httpRequest(null, url, null, null, null, null);
+            response = NetworkUtils.httpRequest(null, url, null, null, null, null);
         } catch (IOException | NoSuchAlgorithmException | KeyManagementException e) {
             Log.e(TAG, "parse: " + e.getClass() + ": " + e.getLocalizedMessage());
         }

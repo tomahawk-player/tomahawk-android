@@ -21,7 +21,7 @@ import org.jdeferred.Deferred;
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -66,7 +66,7 @@ public class HatchetCollection extends Collection {
 
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
-        TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                 R.drawable.ic_hatchet, grayOut ? R.color.disabled_resolver : 0);
     }
 

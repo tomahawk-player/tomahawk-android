@@ -27,7 +27,7 @@ import org.tomahawk.libtomahawk.resolver.ScriptObject;
 import org.tomahawk.libtomahawk.resolver.ScriptPlugin;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverCollectionMetaData;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.widget.ImageView;
@@ -135,7 +135,7 @@ public class ScriptResolverCollection extends DbCollection implements ScriptPlug
             @Override
             public void onDone(ScriptResolverCollectionMetaData result) {
                 String completeIconPath = mScriptAccount.getPath() + "/content/" + result.iconfile;
-                TomahawkUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                         completeIconPath);
             }
         });

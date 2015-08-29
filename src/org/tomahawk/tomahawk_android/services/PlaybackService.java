@@ -33,7 +33,7 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.TomahawkUtils;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -1287,13 +1287,13 @@ public class PlaybackService extends Service implements MusicFocusable {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        TomahawkUtils.loadImageIntoNotification(TomahawkApp.getContext(),
+                        ImageUtils.loadImageIntoNotification(TomahawkApp.getContext(),
                                 getCurrentQuery().getImage(), mSmallNotificationView,
                                 R.id.notification_small_imageview_albumart,
                                 PLAYBACKSERVICE_NOTIFICATION_ID,
                                 mNotification, Image.getSmallImageSize(),
                                 getCurrentQuery().hasArtistImage());
-                        TomahawkUtils.loadImageIntoNotification(TomahawkApp.getContext(),
+                        ImageUtils.loadImageIntoNotification(TomahawkApp.getContext(),
                                 getCurrentQuery().getImage(), mLargeNotificationView,
                                 R.id.notification_large_imageview_albumart,
                                 PLAYBACKSERVICE_NOTIFICATION_ID,
@@ -1371,7 +1371,7 @@ public class PlaybackService extends Service implements MusicFocusable {
             }
 
             Picasso.with(TomahawkApp.getContext()).cancelRequest(mLockscreenTarget);
-            TomahawkUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
+            ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
                     getCurrentQuery().getImage(), mLockscreenTarget,
                     Image.getLargeImageSize(), getCurrentQuery().hasArtistImage());
         }
