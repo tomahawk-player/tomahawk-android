@@ -12,11 +12,11 @@
  * http://creativecommons.org/publicdomain/zero/1.0/
  */
 
-var TidalResolver = Tomahawk.extend(Tomahawk.Resolver.Promise, {
+var TidalResolver = Tomahawk.extend(Tomahawk.Resolver, {
     apiVersion: 0.9,
 
     /* This can also be used with WiMP service if you change next 2 lines */
-    api_location: 'https://listen.tidalhifi.com/v1/',
+    api_location: 'https://listen.tidal.com/v1/',
     api_token: 'P5Xbeo5LFvESeDy6',
 
     logged_in: null, // null, = not yet tried, 0 = pending, 1 = success, 2 = failed
@@ -190,12 +190,12 @@ var TidalResolver = Tomahawk.extend(Tomahawk.Resolver.Promise, {
     /**
      * Splits the given url into 3 parts. see http://www.regexr.com/3ahue
      * Returns array containing:
-     * [1]: 'tidalhifi' or 'wimpmusic'
+     * [1]: 'tidal' or 'wimpmusic'
      * [2]: 'artist' or 'album' or 'track' or 'playlist' (removes the s)
      * [3]: ID of resource (seems to be the same for both services!)
      */
     _parseUrlPrefix: function (url) {
-        return url.match(/(?:https?:\/\/)?(?:listen|play|www)\.(tidalhifi|wimpmusic)\.com\/(?:v1\/)?([a-z]{3,}?)s?\/([\w\-]+)[\/?]?/);
+        return url.match(/(?:https?:\/\/)?(?:listen|play|www)\.(tidal|wimpmusic)\.com\/(?:v1\/)?([a-z]{3,}?)s?\/([\w\-]+)[\/?]?/);
     },
 
     canParseUrl: function (params) {
@@ -356,7 +356,9 @@ var TidalResolver = Tomahawk.extend(Tomahawk.Resolver.Promise, {
 
         return Tomahawk.get(this.api_location + "tracks/" + parsedUrn.id + "/streamUrl", settings)
             .then(function (response) {
-                return response.url;
+                return {
+                    url: response.url
+                };
             });
     },
 
@@ -379,7 +381,7 @@ var TidalResolver = Tomahawk.extend(Tomahawk.Resolver.Promise, {
                 "username": config.email.trim(),
                 "password": config.password.trim()
             },
-            headers: {'Origin': 'http://listen.tidalhifi.com'}
+            headers: {'Origin': 'http://listen.tidal.com'}
         };
         return Tomahawk.post(this.api_location + "login/username?token=" + this.api_token,
             settings);
