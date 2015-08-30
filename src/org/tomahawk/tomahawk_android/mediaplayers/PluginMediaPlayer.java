@@ -44,6 +44,8 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
 
     private String mPackageName;
 
+    private int mMinVersionCode;
+
     private IPluginService mService;
 
     private List<ServiceCall> mWaitingServiceCalls = new ArrayList<>();
@@ -89,13 +91,18 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
 
     private int mFakePositionOffset;
 
-    public PluginMediaPlayer(String pluginName, String packageName) {
+    public PluginMediaPlayer(String pluginName, String packageName, int minVersionCode) {
         mPluginName = pluginName;
         mPackageName = packageName;
+        mMinVersionCode = minVersionCode;
     }
 
     public String getPackageName() {
         return mPackageName;
+    }
+
+    public int getMinVersionCode() {
+        return mMinVersionCode;
     }
 
     public ScriptResolver getScriptResolver() {
