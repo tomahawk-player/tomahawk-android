@@ -76,7 +76,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                             break;
                         case TomahawkApp.PLUGINNAME_RDIO:
                             url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-rdio-x86-release.apk";
+                                    + "tomahawk-android-rdio-x86-release-20.apk";
                             break;
                     }
                 } else {
@@ -91,7 +91,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                             break;
                         case TomahawkApp.PLUGINNAME_RDIO:
                             url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-rdio-armv7a-release.apk";
+                                    + "tomahawk-android-rdio-armv7a-release-20.apk";
                             break;
                     }
                 }
@@ -202,20 +202,30 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         List<PackageInfo> packageInfos = getActivity().getPackageManager().getInstalledPackages(
                 PackageManager.GET_SERVICES);
         String pluginPackageName = "";
+        int pluginMinVersionCode = 0;
         switch (mScriptResolver.getId()) {
             case TomahawkApp.PLUGINNAME_SPOTIFY:
                 pluginPackageName = SpotifyMediaPlayer.get().getPackageName();
+                pluginMinVersionCode = SpotifyMediaPlayer.get().getMinVersionCode();
                 break;
             case TomahawkApp.PLUGINNAME_DEEZER:
                 pluginPackageName = DeezerMediaPlayer.get().getPackageName();
+                pluginMinVersionCode = DeezerMediaPlayer.get().getMinVersionCode();
                 break;
             case TomahawkApp.PLUGINNAME_RDIO:
                 pluginPackageName = RdioMediaPlayer.get().getPackageName();
+                pluginMinVersionCode = RdioMediaPlayer.get().getMinVersionCode();
                 break;
         }
         for (PackageInfo info : packageInfos) {
             if (pluginPackageName.equals(info.packageName)) {
-                return true;
+                // Remove the first digit that identifies the architecture type
+                String versionCodeString = String.valueOf(info.versionCode);
+                versionCodeString = versionCodeString.substring(1, versionCodeString.length());
+                int versionCode = Integer.valueOf(versionCodeString);
+                if (versionCode >= pluginMinVersionCode) {
+                    return true;
+                }
             }
         }
         return false;
