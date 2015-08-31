@@ -57,6 +57,8 @@
     <dimen name="playback_clear_space_bottom">128dp</dimen>
     <dimen name="playback_panel_resolver_icon_size">12dp</dimen>
     <dimen name="playback_panel_thumb_height">48dp</dimen>
+    <dimen name="playback_panel_seekbar_threshold_start">48dp</dimen>
+    <dimen name="playback_panel_seekbar_threshold_end">24dp</dimen>
 
     <dimen name="directory_chooser_arrow_size">16dp</dimen>
 
