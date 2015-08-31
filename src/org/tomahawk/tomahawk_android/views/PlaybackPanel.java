@@ -206,10 +206,17 @@ public class PlaybackPanel extends FrameLayout {
                             float progressBarX = mProgressBar.getX();
                             float finalX;
                             if (eventX > mProgressBar.getWidth() + progressBarX) {
-                                mAbortSeeking = true;
+                                // Only fade out thumb if eventX is above the threshold
+                                int threshold = getResources().getDimensionPixelSize(
+                                        R.dimen.playback_panel_seekbar_threshold_end);
+                                mAbortSeeking = eventX > mProgressBar.getWidth() + progressBarX
+                                        + threshold;
                                 finalX = mProgressBar.getWidth() + progressBarX;
                             } else if (eventX < progressBarX) {
-                                mAbortSeeking = true;
+                                // Only fade out thumb if eventX is below the threshold
+                                int threshold = getResources().getDimensionPixelSize(
+                                        R.dimen.playback_panel_seekbar_threshold_start);
+                                mAbortSeeking = eventX < progressBarX - threshold;
                                 finalX = progressBarX;
                             } else {
                                 mAbortSeeking = false;
