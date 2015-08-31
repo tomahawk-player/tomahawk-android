@@ -95,9 +95,9 @@ public class CollectionCursor<T> {
                 Log.d(TAG, "rawGet - Cursor has been closed.");
                 return null;
             }
-            mCursor.moveToPosition(location);
             T cachedItem = mCursorCache.get(location);
             if (cachedItem == null) {
+                mCursor.moveToPosition(location);
                 if (mClass == Query.class) {
                     Artist artist = Artist.get(mCursor.getString(0));
                     Album album = Album.get(mCursor.getString(2), artist);
