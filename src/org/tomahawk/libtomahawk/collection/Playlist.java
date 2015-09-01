@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -35,7 +36,25 @@ public class Playlist extends Cacheable implements AlphaComparable {
 
     private String mName = "";
 
-    private List<PlaylistEntry> mEntries = new ArrayList<>();
+    private CollectionCursor<PlaylistEntry> mCursor = null;
+
+    private List<PlaylistEntry> mAddedEntries = new ArrayList<>();
+
+    private Map<PlaylistEntry, Index> mCachedEntries = new HashMap<>();
+
+    private List<Index> mIndex = new ArrayList<>();
+
+    private static class Index {
+
+        protected Index(int index, boolean fromMergedItems) {
+            mIndex = index;
+            mFromMergedItems = fromMergedItems;
+        }
+
+        int mIndex;
+
+        boolean mFromMergedItems;
+    }
 
     private String mId;
 
@@ -76,11 +95,9 @@ public class Playlist extends Cacheable implements AlphaComparable {
      */
     public static Playlist fromEntriesList(String id, String name, String currentRevision,
             List<PlaylistEntry> entries) {
-        Playlist pl = Playlist.get(id);
-        pl.setEntries(entries);
-        pl.setName(name);
-        pl.setCurrentRevision(currentRevision);
-        return pl;
+        CollectionCursor<PlaylistEntry> cursor =
+                new CollectionCursor<>(entries, PlaylistEntry.class);
+        return fromCursor(id, name, currentRevision, cursor);
     }
 
     /**
@@ -89,7 +106,9 @@ public class Playlist extends Cacheable implements AlphaComparable {
      * @return a reference to the constructed {@link Playlist}
      */
     public static Playlist fromEmptyList(String id, String name) {
-        return fromEntriesList(id, name, null, new ArrayList<PlaylistEntry>());
+        CollectionCursor<PlaylistEntry> cursor =
+                new CollectionCursor<>(new ArrayList<PlaylistEntry>(), PlaylistEntry.class);
+        return fromCursor(id, name, null, cursor);
     }
 
     /**
@@ -104,7 +123,34 @@ public class Playlist extends Cacheable implements AlphaComparable {
             entries.add(PlaylistEntry.get(id, query,
                     TomahawkMainActivity.getLifetimeUniqueStringId()));
         }
-        return fromEntriesList(id, name, currentRevision, entries);
+        CollectionCursor<PlaylistEntry> cursor =
+                new CollectionCursor<>(entries, PlaylistEntry.class);
+        return fromCursor(id, name, currentRevision, cursor);
+    }
+
+    /**
+     * Create a {@link Playlist} from a {@link CollectionCursor} containing {@link PlaylistEntry}s.
+     *
+     * @return a reference to the constructed {@link Playlist}
+     */
+    public static Playlist fromCursor(String id, String name, String currentRevision,
+            CollectionCursor<PlaylistEntry> cursor) {
+        Playlist pl = Playlist.get(id);
+        pl.setName(name);
+        pl.setCurrentRevision(currentRevision);
+        pl.setCursor(cursor);
+        return pl;
+    }
+
+    protected void setCursor(CollectionCursor<PlaylistEntry> cursor) {
+        mCursor = cursor;
+        initIndex();
+    }
+
+    private void initIndex() {
+        for (int i = 0; i < mCursor.size(); i++) {
+            mIndex.add(new Index(i, false));
+        }
     }
 
     /**
@@ -145,7 +191,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
 
     public void updateTopArtistNames() {
         final HashMap<String, Integer> countMap = new HashMap<>();
-        for (PlaylistEntry entry : mEntries) {
+        for (PlaylistEntry entry : getEntries()) {
             String artistName = entry.getArtist().getName();
             if (countMap.containsKey(artistName)) {
                 countMap.put(artistName, countMap.get(artistName) + 1);
@@ -189,27 +235,48 @@ public class Playlist extends Cacheable implements AlphaComparable {
      * Set this {@link Playlist}'s {@link Query}s
      */
     public void setEntries(List<PlaylistEntry> entries) {
-        mEntries = entries;
+        mCursor = new CollectionCursor<>(entries, PlaylistEntry.class);
+    }
+
+    public PlaylistEntry getEntry(Index index) {
+        PlaylistEntry entry;
+        if (index.mFromMergedItems) {
+            entry = mAddedEntries.get(index.mIndex);
+        } else {
+            entry = mCursor.get(index.mIndex);
+        }
+        mCachedEntries.put(entry, index);
+        return entry;
     }
 
     /**
-     * @return the next {@link Query}
+     * @return the next {@link PlaylistEntry}
      */
     public PlaylistEntry getNextEntry(PlaylistEntry entry) {
-        int index = mEntries.indexOf(entry);
-        if (index + 1 < mEntries.size()) {
-            return mEntries.get(index + 1);
+        Index index = mCachedEntries.get(entry);
+        if (index == null) {
+            throw new RuntimeException("Couldn't find cached PlaylistEntry.");
+        }
+        int position = mIndex.indexOf(index);
+        if (position + 1 < mIndex.size()) {
+            Index nextIndex = mIndex.get(position + 1);
+            return getEntry(nextIndex);
         }
         return null;
     }
 
     /**
-     * @return the previous {@link Query}
+     * @return the previous {@link PlaylistEntry}
      */
     public PlaylistEntry getPreviousEntry(PlaylistEntry entry) {
-        int index = mEntries.indexOf(entry);
-        if (index - 1 >= 0) {
-            return mEntries.get(index - 1);
+        Index index = mCachedEntries.get(entry);
+        if (index == null) {
+            throw new RuntimeException("Couldn't find cached PlaylistEntry.");
+        }
+        int position = mIndex.indexOf(index);
+        if (position - 1 >= 0) {
+            Index nextIndex = mIndex.get(position - 1);
+            return getEntry(nextIndex);
         }
         return null;
     }
@@ -218,20 +285,14 @@ public class Playlist extends Cacheable implements AlphaComparable {
      * @return the first {@link PlaylistEntry} of this playlist
      */
     public PlaylistEntry getFirstEntry() {
-        if (mEntries.isEmpty()) {
-            return null;
-        }
-        return mEntries.get(0);
+        return getEntry(mIndex.get(0));
     }
 
     /**
      * @return the last {@link PlaylistEntry} of this playlist
      */
     public PlaylistEntry getLastEntry() {
-        if (mEntries.isEmpty()) {
-            return null;
-        }
-        return mEntries.get(mEntries.size() - 1);
+        return getEntry(mIndex.get(mIndex.size() - 1));
     }
 
     /**
@@ -246,88 +307,83 @@ public class Playlist extends Cacheable implements AlphaComparable {
      * @return true, if the {@link Playlist} has a next {@link PlaylistEntry}, otherwise false
      */
     public boolean hasNextEntry(PlaylistEntry entry) {
-        return getNextEntry(entry) != null;
+        Index index = mCachedEntries.get(entry);
+        if (index == null) {
+            throw new RuntimeException("Couldn't find cached PlaylistEntry.");
+        }
+        int position = mIndex.indexOf(index);
+        return position + 1 < mIndex.size();
     }
 
     /**
      * @return true, if the {@link Playlist} has a previous {@link PlaylistEntry}, otherwise false
      */
     public boolean hasPreviousEntry(PlaylistEntry entry) {
-        return getPreviousEntry(entry) != null;
+        Index index = mCachedEntries.get(entry);
+        if (index == null) {
+            throw new RuntimeException("Couldn't find cached PlaylistEntry.");
+        }
+        int position = mIndex.indexOf(index);
+        return position - 1 >= 0;
     }
 
     /**
-     * Return the current count of querys in the {@link Playlist}
+     * Return the current count of entries in the {@link Playlist}
      */
     public int size() {
-        return mEntries.size();
+        return mIndex.size();
     }
 
     /**
-     * Return all PlaylistEntries in the {@link Playlist}
+     * Return all PlaylistEntries in the {@link Playlist}. This is a very costly operation and
+     * should only be done if absolutely necessary. Consider using {@link #getEntryAtPos(int)}.
      */
     public List<PlaylistEntry> getEntries() {
-        return mEntries;
+        List<PlaylistEntry> entries = new ArrayList<>();
+        for (Index index : mIndex) {
+            entries.add(getEntry(index));
+        }
+        return entries;
     }
 
     /**
-     * Add an {@link ArrayList} of {@link PlaylistEntry}s at the given position
-     */
-    public void addEntries(int position, ArrayList<PlaylistEntry> entries) {
-        mEntries.addAll(position, entries);
-    }
-
-    /**
-     * Add an {@link ArrayList} of {@link PlaylistEntry}s at the given position
-     */
-    public void addEntries(ArrayList<PlaylistEntry> entries) {
-        mEntries.addAll(entries);
-    }
-
-    /**
-     * Append {@link Query} at the end of this playlist
+     * Add the given {@link Query} to this {@link Playlist}
      *
+     * @param position the position at which to insert the given {@link Query}
+     * @param query    the {@link Query} to add
      * @return the {@link PlaylistEntry} that got created and added to this {@link Playlist}
      */
-    public PlaylistEntry addQuery(Query query) {
+    public PlaylistEntry addQuery(int position, Query query) {
         PlaylistEntry entry = PlaylistEntry.get(mId, query,
                 TomahawkMainActivity.getLifetimeUniqueStringId());
-        mEntries.add(entry);
+        mAddedEntries.add(entry);
+        Index index = new Index(mAddedEntries.size() - 1, true);
+        mIndex.add(position, index);
+        mCachedEntries.put(entry, index);
         return entry;
     }
 
     /**
-     * Append an {@link ArrayList} of {@link Query}s at the end of this playlist
+     * Add the given List of {@link Query}s to this {@link Playlist}
+     *
+     * @param position the position at which to insert the given List of {@link Query}s
+     * @param queries  the List of {@link Query}s to add
      */
-    public void addQueries(List<Query> queries) {
-        List<PlaylistEntry> playlistEntries = new ArrayList<>();
+    public void addQueries(int position, List<Query> queries) {
         for (Query query : queries) {
-            playlistEntries.add(PlaylistEntry.get(mId, query,
-                    TomahawkMainActivity.getLifetimeUniqueStringId()));
+            addQuery(position, query);
         }
-        mEntries.addAll(playlistEntries);
-    }
-
-    /**
-     * Remove the {@link PlaylistEntry} at the given position from this playlist
-     */
-    public void deleteEntryAtPos(int position) {
-        mEntries.remove(position);
     }
 
     /**
      * Remove the given {@link Query} from this playlist
      */
     public boolean deleteEntry(PlaylistEntry entry) {
-        return mEntries.remove(entry);
-    }
-
-    public List<Query> getQueries() {
-        List<Query> queries = new ArrayList<>();
-        for (PlaylistEntry entry : mEntries) {
-            queries.add(entry.getQuery());
+        Index index = mCachedEntries.get(entry);
+        if (index == null) {
+            throw new RuntimeException("Couldn't find cached PlaylistEntry.");
         }
-        return queries;
+        return mIndex.remove(index);
     }
 
     public long getCount() {
@@ -346,24 +402,14 @@ public class Playlist extends Cacheable implements AlphaComparable {
         mIsFilled = isFilled;
     }
 
-    public PlaylistEntry getEntryWithQuery(Query query) {
-        for (PlaylistEntry entry : mEntries) {
-            if (entry.getQuery().equals(query)) {
-                return entry;
-            }
-        }
-        return null;
-    }
-
     public PlaylistEntry getEntryAtPos(int position) {
-        if (position < mEntries.size()) {
-            return mEntries.get(position);
-        }
-        return null;
+        Index index = mIndex.get(position);
+        return getEntry(index);
     }
 
     public int getIndexOfEntry(PlaylistEntry entry) {
-        return mEntries.indexOf(entry);
+        Index index = mCachedEntries.get(entry);
+        return mIndex.indexOf(index);
     }
 
     public String getUserId() {

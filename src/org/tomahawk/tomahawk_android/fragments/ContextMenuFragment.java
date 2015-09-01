@@ -297,7 +297,12 @@ public class ContextMenuFragment extends Fragment {
                         queries.add(mPlaylistEntry.getQuery());
                         showAddToPlaylist(activity, queries);
                     } else if (mPlaylist != null) {
-                        showAddToPlaylist(activity, mPlaylist.getQueries());
+                        List<PlaylistEntry> entries = mPlaylist.getEntries();
+                        List<Query> queries = new ArrayList<>();
+                        for (PlaylistEntry entry : entries) {
+                            queries.add(entry.getQuery());
+                        }
+                        showAddToPlaylist(activity, queries);
                     }
                 }
             });
@@ -453,8 +458,13 @@ public class ContextMenuFragment extends Fragment {
                         ((TomahawkMainActivity) getActivity()).getPlaybackService()
                                 .addQueryToQueue(mPlaylistEntry.getQuery());
                     } else if (mPlaylist != null) {
+                        List<PlaylistEntry> entries = mPlaylist.getEntries();
+                        List<Query> queries = new ArrayList<>();
+                        for (PlaylistEntry entry : entries) {
+                            queries.add(entry.getQuery());
+                        }
                         ((TomahawkMainActivity) getActivity()).getPlaybackService()
-                                .addQueriesToQueue(mPlaylist.getQueries());
+                                .addQueriesToQueue(queries);
                     }
                 }
             });
