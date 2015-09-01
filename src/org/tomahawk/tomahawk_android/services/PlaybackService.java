@@ -1010,7 +1010,9 @@ public class PlaybackService extends Service implements MusicFocusable {
     public void setCurrentEntry(PlaylistEntry entry) {
         Log.d(TAG, "setCurrentEntry to " + entry.getId());
         releaseAllPlayers();
-        deleteQueryInQueue(mCurrentEntry);
+        if (mCurrentEntry != null) {
+            deleteQueryInQueue(mCurrentEntry);
+        }
         mCurrentEntry = entry;
         mMergedPlaylist.setEntries(getMergedPlaylistEntries());
         handlePlayState();
@@ -1097,7 +1099,7 @@ public class PlaybackService extends Service implements MusicFocusable {
      */
     public void addQueryToQueue(Query query) {
         Log.d(TAG, "addQueryToQueue " + query.getName());
-        mQueue.addQuery(query);
+        mQueue.addQuery(0, query);
         mMergedPlaylist.setEntries(getMergedPlaylistEntries());
         EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
         onTrackChanged();
@@ -1108,7 +1110,7 @@ public class PlaybackService extends Service implements MusicFocusable {
      */
     public void addQueriesToQueue(List<Query> queries) {
         Log.d(TAG, "addQueriesToQueue count: " + queries.size());
-        mQueue.addQueries(queries);
+        mQueue.addQueries(0, queries);
         mMergedPlaylist.setEntries(getMergedPlaylistEntries());
         EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
         onTrackChanged();

@@ -507,7 +507,7 @@ public class Store {
                             if (entries != null) {
                                 playlist.setEntries(new ArrayList<PlaylistEntry>());
                                 for (Object entry : entries) {
-                                    playlist.addQuery((Query) entry);
+                                    playlist.addQuery(0, (Query) entry);
                                 }
                                 playlist.setFilled(true);
                             }
@@ -520,7 +520,7 @@ public class Store {
                                 Query query = (Query) findRecord(
                                         entryId.getAsString(), TYPE_PLAYLISTENTRIES,
                                         isBackgroundRequest);
-                                playlist.addQuery(query);
+                                playlist.addQuery(0, query);
                             }
                             playlist.setFilled(true);
                         }

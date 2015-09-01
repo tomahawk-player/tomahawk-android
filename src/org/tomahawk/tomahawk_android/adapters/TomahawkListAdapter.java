@@ -201,7 +201,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             q = ((PlaylistEntry) item).getQuery();
         }
         if (q != null) {
-            PlaylistEntry entry = playlist.addQuery(q);
+            PlaylistEntry entry = playlist.addQuery(0, q);
             mPlaylistEntryMap.put(item, entry);
         }
     }
