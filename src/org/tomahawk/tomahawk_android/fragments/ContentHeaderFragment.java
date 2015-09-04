@@ -216,12 +216,14 @@ public class ContentHeaderFragment extends Fragment {
             ((TomahawkMainActivity) getActivity()).showGradientActionBar();
         }
 
-        if (getArguments().containsKey(COLLECTION_ID)) {
-            mCollection = CollectionManager.get()
-                    .getCollection(getArguments().getString(COLLECTION_ID));
-        } else {
-            mCollection = CollectionManager.get()
-                    .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+        if (getArguments() != null) {
+            if (getArguments().containsKey(COLLECTION_ID)) {
+                mCollection = CollectionManager.get()
+                        .getCollection(getArguments().getString(COLLECTION_ID));
+            } else {
+                mCollection = CollectionManager.get()
+                        .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+            }
         }
     }
 
