@@ -193,6 +193,7 @@
   <string name="music">الموسيقى</string>
   <string name="biography">السّيرة الذّاتيّة</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
+  <string name="similar">المشابهة</string>
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">الأغاني</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
@@ -219,6 +220,7 @@
   <string name="view_album">اعرض الألبوم</string>
   <string name="connect">الاتّصال</string>
   <string name="connect_headertext">اختر الخدمات الّتي تريد استخدامها. يعمل توماهوك أفضل عندما تكون خدمات أكثر مفعّلة.</string>
+  <string name="connect_header_manualresolvers">مثبّت يدويًّا</string>
   <string name="advanced">متقدّم</string>
   <string name="info">معلومات</string>
   <string name="playbackpanel_seek_coachmark">يمكنك السّعي في مقطوعة بالضّغط الطّويل على زرّ التّشغيل.</string>
@@ -242,4 +244,12 @@
     <item quantity="many">اختر قائمة تشغيل لإضافة %1$d مقطوعةً إليها:</item>
     <item quantity="other">اختر قائمة تشغيل لإضافة %1$d مقطوعة إليها:</item>
   </plurals>
+  <string name="seeking_not_supported">آسفون، لا يدعم هذا الحلّال السّعي.</string>
+  <string name="install_plugin_title">تثبيت الملحقات</string>
+  <string name="install_plugin_warning">ستثبّت ملحقة توماهوك من مصدر مجهول. يمكن أن ستسبّب هذا بخطر أمنيّ.</string>
+  <string name="install_plugin_warning2">أتريد حقًّا تثبيت هذه الملحقة؟</string>
+  <string name="uninstall_plugin_title">إزالة تثبيت الملحقات</string>
+  <string name="uninstall_plugin_warning">أتريد حقًّا إزالة تثبيت هذه الملحقة؟</string>
+  <string name="gmusic_info_text">اختر حسابًا:</string>
+  <string name="invalid_file">تعذّر فتح الملفّ.</string>
 </resources>
