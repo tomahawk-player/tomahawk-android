@@ -315,12 +315,13 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     public Promise<String, Throwable, Void> getUserId() {
-        if (mGetUserIdPromise == null) {
-            mGetUserIdPromise = new ADeferredObject<>();
+        ADeferredObject<String, Throwable, Void> getUserIdPromise = mGetUserIdPromise;
+        if (getUserIdPromise == null) {
+            getUserIdPromise = new ADeferredObject<>();
             AccountManager am = AccountManager.get(TomahawkApp.getContext());
             if (am != null && getAccount() != null) {
                 if (am.getUserData(getAccount(), USER_ID_HATCHET) != null) {
-                    mGetUserIdPromise.resolve(am.getUserData(getAccount(), USER_ID_HATCHET));
+                    getUserIdPromise.resolve(am.getUserData(getAccount(), USER_ID_HATCHET));
                 } else {
                     String requestId = InfoSystem.get().resolveUserId(getUserName());
                     if (requestId != null) {
@@ -328,11 +329,11 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                     }
                 }
             } else {
-                mGetUserIdPromise.reject(new Throwable("No account present."));
+                getUserIdPromise.reject(new Throwable("No account present."));
                 mGetUserIdPromise = null;
             }
         }
-        return mGetUserIdPromise;
+        return getUserIdPromise;
     }
 
     /**
