@@ -173,7 +173,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolve(User user) {
-        if (user != null) {
+        if (user != null && !user.isOffline()) {
             QueryParams params = new QueryParams();
             params.ids = new ArrayList<>();
             params.ids.add(user.getId());
@@ -228,7 +228,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolveSocialActions(User user, Date beforeDate) {
-        if (user != null) {
+        if (user != null && !user.isOffline()) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
             params.before_date = beforeDate;
@@ -246,7 +246,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolveFriendsFeed(User user, Date beforeDate) {
-        if (user != null) {
+        if (user != null && !user.isOffline()) {
             QueryParams params = new QueryParams();
             params.userid = user.getId();
             params.type = HatchetInfoPlugin.HATCHET_SOCIALACTION_PARAMTYPE_FRIENDSFEED;
@@ -264,7 +264,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolvePlaybackLog(User user) {
-        if (user != null) {
+        if (user != null && !user.isOffline()) {
             QueryParams params = new QueryParams();
             params.ids = new ArrayList<>();
             params.ids.add(user.getId());
@@ -280,7 +280,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolveLovedItems(User user) {
-        if (user != null) {
+        if (user != null && !user.isOffline()) {
             QueryParams params = new QueryParams();
             params.ids = new ArrayList<>();
             params.ids.add(user.getId());
@@ -296,7 +296,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolveFollowings(User user) {
-        if (user != null) {
+        if (user != null && !user.isOffline()) {
             QueryParams params = new QueryParams();
             params.ids = new ArrayList<>();
             params.ids.add(user.getId());
@@ -312,7 +312,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolveFollowers(User user) {
-        if (user != null) {
+        if (user != null && !user.isOffline()) {
             QueryParams params = new QueryParams();
             params.ids = new ArrayList<>();
             params.ids.add(user.getId());
@@ -327,7 +327,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolveLovedAlbums(User user) {
-        if (user != null) {
+        if (user != null && !user.isOffline()) {
             QueryParams params = new QueryParams();
             params.ids = new ArrayList<>();
             params.ids.add(user.getId());
@@ -342,7 +342,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolveLovedArtists(User user) {
-        if (user != null) {
+        if (user != null && !user.isOffline()) {
             QueryParams params = new QueryParams();
             params.ids = new ArrayList<>();
             params.ids.add(user.getId());
@@ -352,7 +352,7 @@ public class InfoSystem {
     }
 
     public String resolvePlaylists(User user, boolean isBackgroundRequest) {
-        if (user != null) {
+        if (user != null && !user.isOffline()) {
             QueryParams params = new QueryParams();
             params.ids = new ArrayList<>();
             params.ids.add(user.getId());
