@@ -147,6 +147,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
                     && type < InfoRequestData.INFOREQUESTDATA_TYPE_USERS + 100) {
                 JsonObject object =
                         hatchet.getUsers(params.ids, params.name, params.random, params.count);
+                if (object == null) {
+                    return false;
+                }
                 List users = mStore.storeRecords(object, Store.TYPE_USERS, type,
                         infoRequestData.isBackgroundRequest());
                 infoRequestData.setResultList(users);
@@ -155,6 +158,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
             } else if (type >= InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS
                     && type < InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS + 100) {
                 JsonObject object = hatchet.getPlaylists(params.playlist_id);
+                if (object == null) {
+                    return false;
+                }
                 List playlists = mStore.storeRecords(object, Store.TYPE_PLAYLISTS, type,
                         infoRequestData.isBackgroundRequest());
                 infoRequestData.setResultList(playlists);
@@ -162,6 +168,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
                 JsonObject object = hatchet.getArtists(params.ids, params.name);
+                if (object == null) {
+                    return false;
+                }
                 List artists = mStore.storeRecords(object, Store.TYPE_ARTISTS, type,
                         infoRequestData.isBackgroundRequest());
                 for (Object artist : artists) {
@@ -172,6 +181,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
                 JsonObject object = hatchet.getArtists(params.ids, params.name);
+                if (object == null) {
+                    return false;
+                }
                 List albums = mStore.storeRecords(object, Store.TYPE_ALBUMS, type,
                         infoRequestData.isBackgroundRequest());
                 if (albums.size() > 0) {
@@ -187,6 +199,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
                 JsonObject object = hatchet.getArtists(params.ids, params.name);
+                if (object == null) {
+                    return false;
+                }
                 List topHits = mStore.storeRecords(object, Store.TYPE_TRACKS, type,
                         infoRequestData.isBackgroundRequest());
                 if (topHits.size() > 0) {
@@ -198,6 +213,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
                 JsonObject object = hatchet.getAlbums(params.ids, params.name, params.artistname);
+                if (object == null) {
+                    return false;
+                }
                 List albums = mStore.storeRecords(object, Store.TYPE_ALBUMS, type,
                         infoRequestData.isBackgroundRequest());
                 for (Object albumObject : albums) {
@@ -209,6 +227,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS_TRACKS) {
                 JsonObject object = hatchet.getAlbums(params.ids, params.name, params.artistname);
+                if (object == null) {
+                    return false;
+                }
                 List tracks = mStore.storeRecords(object, Store.TYPE_TRACKS, type,
                         infoRequestData.isBackgroundRequest());
                 Artist artist = Artist.get(params.artistname);
@@ -219,6 +240,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {
                 JsonObject object = hatchet.getSearches(params.term);
+                if (object == null) {
+                    return false;
+                }
                 List searches = mStore.storeRecords(object, Store.TYPE_SEARCHES, type,
                         infoRequestData.isBackgroundRequest());
                 infoRequestData.setResultList(searches);
@@ -227,6 +251,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
                 JsonObject object = hatchet.getSocialActions(null, params.userid, params.type,
                         ISO8601Utils.format(params.before_date), params.limit);
+                if (object == null) {
+                    return false;
+                }
                 List socialActions = mStore.storeRecords(object, Store.TYPE_SOCIALACTIONS, type,
                         infoRequestData.isBackgroundRequest(), params);
                 infoRequestData.setResultList(socialActions);
