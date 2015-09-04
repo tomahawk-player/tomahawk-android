@@ -55,7 +55,7 @@ public class FragmentUtils {
      */
     public static void addRootFragment(TomahawkMainActivity activity, User loggedInUser) {
         FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
-        if (loggedInUser != null) {
+        if (!loggedInUser.isOffline()) {
             Bundle bundle = new Bundle();
             bundle.putString(TomahawkFragment.USER, loggedInUser.getId());
             bundle.putInt(TomahawkFragment.SHOW_MODE, SocialActionsFragment.SHOW_MODE_DASHBOARD);

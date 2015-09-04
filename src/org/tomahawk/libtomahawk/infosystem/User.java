@@ -132,6 +132,7 @@ public class User extends Cacheable implements AlphaComparable {
             public void onDone(String result) {
                 mSelf.setName(authUtils.getUserName());
                 mSelf.setId(result);
+                mSelf.setIsOffline(false);
                 deferred.resolve(mSelf);
             }
         }).fail(new FailCallback<Throwable>() {
