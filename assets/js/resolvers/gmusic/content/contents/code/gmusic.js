@@ -88,15 +88,15 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
     init: function () {
         var name = this.settings.name;
         var config = this.getUserConfig();
-        this._email = config.email;
-        this._password = config.password;
-        this._token = config.token;
-
-        if (!this._email || (!this._token && !this._password)) {
+        if (!config.email || (!config.token && !config.password)) {
             Tomahawk.reportCapabilities(TomahawkResolverCapability.NullCapability);
             Tomahawk.log(name + " resolver not configured.");
             return;
         }
+
+        this._email = config.email;
+        this._password = config.password;
+        this._token = config.token;
 
         // load signing key
         var s1 = CryptoJS.enc.Base64.parse(
@@ -112,13 +112,23 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
 
         var that = this;
 
-        var promise = config.token ? that._loadWebToken(config.token) :
-            that._login(config.email, config.password).then(function () {
-                return that._loadWebToken(config.token);
+        var promise;
+        if (config.token) {
+            // The token has already been provided in the config. We don't need to login first.
+            promise = that._loadWebToken(config.token).then(function (webToken) {
+                return that._loadSettings(webToken, config.token);
             });
-        promise.then(function (webToken) {
-            return that._loadSettings(webToken, config.token);
-        }).then(function () {
+        } else {
+            // No token provided in the config. We need to login with the given creds and fetch it
+            // first.
+            promise = that._login(config.email, config.password).then(function (token) {
+                that._token = token;
+                return that._loadWebToken(token).then(function (webToken) {
+                    return that._loadSettings(webToken, token);
+                });
+            });
+        }
+        promise.then(function () {
             return that._ensureCollection();
         }).then(function () {
             that._ready = true;
@@ -376,7 +386,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
     _loadSettings: function (webToken, token) {
         var that = this;
 
-        var url = that._webURL + 'services/loadsettings';
+        var url = that._webURL + 'services/fetchsettings';
         var settings = {
             data: {
                 u: 0,
@@ -393,23 +403,24 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 throw new Error("Wasn't able to get resolver settings");
             }
 
-            that._allAccess = response.settings.isSubscription;
+            that._allAccess = response.settings.entitlementInfo.isSubscription;
             Tomahawk.log("Google Play Music All Access is "
                 + (that._allAccess ? "enabled" : "disabled" )
             );
 
             var device = null;
-            var devices = response.settings.devices;
+            var devices = response.settings.uploadDevice;
             for (var i = 0; i < devices.length; i++) {
                 var entry = devices[i];
-                if ('PHONE' == entry.type || 'IOS' == entry.type) {
+                //TODO: is 'IOS' now different?
+                if (2 == entry.deviceType) {
                     device = entry;
                     break;
                 }
             }
 
             if (device) {
-                if ('PHONE' == device.type) {
+                if ('2' == device.deviceType) {
                     // We have an Android device id
                     that._deviceId = device.id.slice(2);
                     Tomahawk.log(that.settings.name + " using Android device ID '"
@@ -462,8 +473,6 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
      * to run when it is complete.
      */
     _login: function (email, password) {
-        this._token = null;
-
         var that = this;
 
         var url = this._authUrl;
@@ -517,9 +526,8 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     if (!parsedRes['Auth']) {
                         throw new Error("There's no 'Auth' in the response");
                     }
-                    that._token = parsedRes['Auth'];
-
                     Tomahawk.log("Google Play Music logged in successfully");
+                    return parsedRes['Auth'];
                 });
             }).finally(function () {
                 that._loginPromise = undefined;
@@ -531,13 +539,22 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
     testConfig: function (config) {
         var that = this;
 
-        var promise = config.token ? that._loadWebToken(config.token) :
-            that._login(config.email, config.password).then(function () {
-                return that._loadWebToken(config.token);
+        var promise;
+        if (config.token) {
+            // The token has already been provided in the config. We don't need to login first.
+            promise = that._loadWebToken(config.token).then(function (webToken) {
+                return that._loadSettings(webToken, config.token);
             });
-        return promise.then(function (webToken) {
-            return that._loadSettings(webToken, config.token);
-        }).then(function () {
+        } else {
+            // No token provided in the config. We need to login with the given creds and fetch it
+            // first.
+            promise = that._login(config.email, config.password).then(function (token) {
+                return that._loadWebToken(token).then(function (webToken) {
+                    return that._loadSettings(webToken, token);
+                });
+            });
+        }
+        return promise.then(function () {
             return Tomahawk.ConfigTestResultType.Success;
         }, function (error) {
             if (error instanceof Error) {
