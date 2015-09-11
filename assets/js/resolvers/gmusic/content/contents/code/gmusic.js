@@ -303,8 +303,8 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
             return;
         }
 
-        if (that._allAccess) {
-            return that._execSearchAllAccess(query, 20);
+        if (this._allAccess) {
+            return this._execSearchAllAccess(query, 20);
         } else {
             return [];
         }
