@@ -408,39 +408,30 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 + (that._allAccess ? "enabled" : "disabled" )
             );
 
-            var device = null;
-            var devices = response.settings.uploadDevice;
-            for (var i = 0; i < devices.length; i++) {
-                var entry = devices[i];
-                //TODO: is 'IOS' now different?
-                if (2 == entry.deviceType) {
-                    device = entry;
-                    break;
-                }
-            }
-
-            if (device) {
-                if ('2' == device.deviceType) {
+            for (var i = 0; i < response.settings.uploadDevice.length; i++) {
+                var device = response.settings.uploadDevice[i];
+                if (2 == device.deviceType) {
                     // We have an Android device id
-                    that._deviceId = device.id.slice(2);
+                    that._deviceId = device.id.slice(2); //remove prepended "0x"
                     Tomahawk.log(that.settings.name + " using Android device ID '"
                         + that._deviceId + "' from " + device.carrier + " "
                         + device.manufacturer + " " + device.model);
-                } else {
+                    return;
+                } else if (3 == device.deviceType) {
                     // We have an iOS device id
                     that._deviceId = device.id;
                     Tomahawk.log(that.settings.name + " using iOS device ID '"
                         + that._deviceId + "' from " + device.name);
+                    return;
                 }
-            } else {
-                Tomahawk.log("There aren't any Android/iOS devices associated with your Google "
-                    + "account. This resolver needs an Android/iOS device ID to function. Please "
-                    + "open the Google Music application on an Android/iOS device and log in to "
-                    + "your account."
-                );
-                throw new Error("No Android/iOS devices associated with Google account."
-                    + " Please open the 'Play Music' App, log in and play a song");
             }
+
+            Tomahawk.log("There aren't any Android/iOS devices associated with your Google "
+                + "account. This resolver needs an Android/iOS device ID to function. Please "
+                + "open the Google Music application on an Android/iOS device and log in to "
+                + "your account.");
+            throw new Error("No Android/iOS devices associated with Google account."
+                + " Please open the 'Play Music' App, log in and play a song");
         });
     },
 
