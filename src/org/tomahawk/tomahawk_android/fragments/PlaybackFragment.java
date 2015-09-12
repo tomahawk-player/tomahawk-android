@@ -355,7 +355,7 @@ public class PlaybackFragment extends TomahawkFragment {
             List<Segment> segments = new ArrayList<>();
             List entries = new ArrayList();
             entries.add(playbackService.getCurrentEntry());
-            Segment segment = new Segment(entries);
+            Segment segment = new Segment.Builder(entries).build();
             segment.setShowNumeration(true, 0);
             segments.add(segment);
 
@@ -363,7 +363,7 @@ public class PlaybackFragment extends TomahawkFragment {
             entries.addAll(playbackService.getQueue().getEntries());
             entries.remove(playbackService
                     .getCurrentEntry()); // don't show queue entry if currently playing
-            segment = new Segment(entries);
+            segment = new Segment.Builder(entries).build();
             segment.setShowAsQueued(true);
             segments.add(segment);
 
@@ -376,7 +376,9 @@ public class PlaybackFragment extends TomahawkFragment {
                     currentIndex = playbackService.getPlaylist()
                             .getIndexOfEntry(playbackService.getCurrentEntry());
                 }
-                segment = new Segment(playbackService.getPlaylist(), Math.max(1, currentIndex + 1));
+                segment = new Segment.Builder(playbackService.getPlaylist())
+                        .offset(Math.max(1, currentIndex + 1))
+                        .build();
                 segment.setShowNumeration(true, 1);
                 segments.add(segment);
             }

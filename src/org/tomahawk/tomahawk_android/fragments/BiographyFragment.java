@@ -63,7 +63,7 @@ public class BiographyFragment extends TomahawkFragment {
                 InfoSystem.get().resolve(mArtist, false);
             }
             bioText.add(mArtist.getBio());
-            fillAdapter(new Segment(bioText));
+            fillAdapter(new Segment.Builder(bioText).build());
         }
     }
 }

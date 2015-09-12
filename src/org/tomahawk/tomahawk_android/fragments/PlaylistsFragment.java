@@ -153,7 +153,7 @@ public class PlaylistsFragment extends TomahawkFragment {
             textItems.add(new ListItemString(
                     getResources().getQuantityString(R.plurals.add_to_playlist_headertext,
                             mQueryArray.size(), mQueryArray.size()), true));
-            segments.add(new Segment(textItems));
+            segments.add(new Segment.Builder(textItems).build());
         }
 
         User.getSelf().done(new DoneCallback<User>() {
@@ -176,8 +176,10 @@ public class PlaylistsFragment extends TomahawkFragment {
                 } else {
                     playlists.addAll(mUser.getPlaylists());
                 }
-                segments.add(new Segment(playlists, R.integer.grid_column_count,
-                        R.dimen.padding_superlarge, R.dimen.padding_superlarge));
+                segments.add(new Segment.Builder(playlists)
+                        .showAsGrid(R.integer.grid_column_count, R.dimen.padding_superlarge,
+                                R.dimen.padding_superlarge)
+                        .build());
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {

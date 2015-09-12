@@ -100,6 +100,6 @@ public class UsersFragment extends TomahawkFragment {
         } else if (mUser.getFollowings() != null) {
             users.addAll(mUser.getFollowings().keySet());
         }
-        fillAdapter(new Segment(users));
+        fillAdapter(new Segment.Builder(users).build());
     }
 }

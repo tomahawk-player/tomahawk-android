@@ -225,8 +225,10 @@ public class SocialActionsFragment extends TomahawkFragment implements
                     if (mSuggestedUsers != null) {
                         List<Object> suggestions = new ArrayList<>();
                         suggestions.addAll(mSuggestedUsers);
-                        Segment segment = new Segment(getString(R.string.suggest_users) + ":",
-                                suggestions, R.layout.list_header_socialaction_fake);
+                        Segment segment = new Segment.Builder(suggestions)
+                                .headerLayout(R.layout.list_header_socialaction_fake)
+                                .headerString(getString(R.string.suggest_users) + ":")
+                                .build();
                         segment.setLeftExtraPadding(extraPadding);
                         segments.add(segment);
                     }
@@ -328,13 +330,15 @@ public class SocialActionsFragment extends TomahawkFragment implements
                 || first.getTargetObject() instanceof User
                 || first.getTargetObject() instanceof Artist
                 || first.getTargetObject() instanceof Playlist) {
-            segment = new Segment(actions,
-                    R.integer.grid_column_count_feed,
-                    R.dimen.padding_superlarge, R.dimen.padding_small,
-                    R.layout.list_header_socialaction);
+            segment = new Segment.Builder(actions)
+                    .headerLayout(R.layout.list_header_socialaction)
+                    .showAsGrid(R.integer.grid_column_count_feed,
+                            R.dimen.padding_superlarge, R.dimen.padding_small)
+                    .build();
         } else {
-            segment = new Segment(actions,
-                    R.layout.list_header_socialaction);
+            segment = new Segment.Builder(actions)
+                    .headerLayout(R.layout.list_header_socialaction)
+                    .build();
         }
         int extraPadding = TomahawkApp.getContext().getResources()
                 .getDimensionPixelSize(R.dimen.padding_medium)
