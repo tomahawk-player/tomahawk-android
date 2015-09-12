@@ -479,7 +479,34 @@ public class Store {
                     if (localId == null) {
                         localId = id;
                     }
-                    Playlist playlist = Playlist.get(localId);
+                    Playlist playlist = null;
+                    if (requestType
+                            == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
+                        JsonElement rawEntries = get(o, "playlistEntries");
+                        if (rawEntries instanceof JsonObject) {
+                            List<PlaylistEntry> entries = storeRecords((JsonObject) rawEntries,
+                                    TYPE_PLAYLISTENTRIES, isBackgroundRequest);
+                            if (entries != null) {
+                                playlist = Playlist.fromEntriesList(localId, null, null, entries);
+                                playlist.setFilled(true);
+                            }
+                        }
+                    } else {
+                        JsonElement entryIds = o.get("playlistEntries");
+                        if (entryIds instanceof JsonArray) {
+                            List<Query> queries = new ArrayList<>();
+                            for (JsonElement entryId : (JsonArray) entryIds) {
+                                Query query = (Query) findRecord(entryId.getAsString(),
+                                        TYPE_PLAYLISTENTRIES, isBackgroundRequest);
+                                queries.add(query);
+                            }
+                            playlist = Playlist.fromQueryList(localId, null, null, queries);
+                            playlist.setFilled(true);
+                        }
+                    }
+                    if (playlist == null) {
+                        playlist = Playlist.get(localId);
+                    }
                     playlist.setName(title);
                     playlist.setCurrentRevision(currentrevision);
                     playlist.setHatchetId(id);
@@ -496,34 +523,6 @@ public class Store {
                         }
                         playlist.setTopArtistNames(
                                 topArtistNames.toArray(new String[topArtistNames.size()]));
-                    }
-                    if (requestType
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
-                        JsonElement rawEntries = get(o, "playlistEntries");
-                        if (rawEntries instanceof JsonObject) {
-                            List entries =
-                                    storeRecords((JsonObject) rawEntries, TYPE_PLAYLISTENTRIES,
-                                            isBackgroundRequest);
-                            if (entries != null) {
-                                playlist.setEntries(new ArrayList<PlaylistEntry>());
-                                for (Object entry : entries) {
-                                    playlist.addQuery(0, (Query) entry);
-                                }
-                                playlist.setFilled(true);
-                            }
-                        }
-                    } else {
-                        JsonElement entryIds = o.get("playlistEntries");
-                        if (entryIds instanceof JsonArray) {
-                            playlist.setEntries(new ArrayList<PlaylistEntry>());
-                            for (JsonElement entryId : (JsonArray) entryIds) {
-                                Query query = (Query) findRecord(
-                                        entryId.getAsString(), TYPE_PLAYLISTENTRIES,
-                                        isBackgroundRequest);
-                                playlist.addQuery(0, query);
-                            }
-                            playlist.setFilled(true);
-                        }
                     }
                     mCache.get(TYPE_PLAYLISTS).put(id, playlist);
                     if (resultType == TYPE_PLAYLISTS) {

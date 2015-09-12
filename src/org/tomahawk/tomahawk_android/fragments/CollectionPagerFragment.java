@@ -84,7 +84,7 @@ public class CollectionPagerFragment extends PagerFragment {
 
         fragmentInfoList = new FragmentInfoList();
         fragmentInfo = new FragmentInfo();
-        fragmentInfo.mClass = TracksFragment.class;
+        fragmentInfo.mClass = PlaylistEntriesFragment.class;
         fragmentInfo.mTitle = getString(R.string.tracks);
         fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfoList.addFragmentInfo(fragmentInfo);

@@ -508,7 +508,7 @@ public class CollectionManager {
                         Log.d(TAG, "Hatchet sync - received entry list for playlist \""
                                 + filledList.getName() + "\", hatchetId: "
                                 + filledList.getHatchetId() + ", count: "
-                                + filledList.getEntries().size());
+                                + filledList.size());
                         mResolvingHatchetIds.remove(filledList.getHatchetId());
                         DatabaseHelper.get().storePlaylist(filledList, false);
                     }
@@ -539,7 +539,7 @@ public class CollectionManager {
                 fetchedList.setName(TomahawkApp.getContext()
                         .getString(R.string.users_favorites_suffix, userName));
                 Log.d(TAG, "Hatchet sync - received list of loved tracks, count: "
-                        + fetchedList.getEntries().size());
+                        + fetchedList.size());
                 DatabaseHelper.get().storeLovedItemsPlaylist(fetchedList, true);
             }
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDALBUMS) {
@@ -587,7 +587,7 @@ public class CollectionManager {
 
     public void createPlaylist(Playlist playlist) {
         Log.d(TAG, "Hatchet sync - creating playlist \"" + playlist.getName() + "\", id: "
-                + playlist.getId() + " with " + playlist.getEntries().size() + " entries");
+                + playlist.getId() + " with " + playlist.size() + " entries");
         DatabaseHelper.get().storePlaylist(playlist, false);
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
@@ -637,23 +637,11 @@ public class CollectionManager {
     }
 
     public Promise<List<Collection>, Throwable, Void> getAvailableCollections(Artist artist) {
-        return getAvailableCollections((Object) artist);
-    }
-
-    public Promise<List<Collection>, Throwable, Void> getAvailableCollections(Album album) {
-        return getAvailableCollections((Object) album);
-    }
-
-    private Promise<List<Collection>, Throwable, Void> getAvailableCollections(Object object) {
         final List<Collection> collections = new ArrayList<>();
         List<Promise> promises = new ArrayList<>();
         for (final Collection collection : mCollections.values()) {
             if (!collection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET)) {
-                if (object instanceof Album) {
-                    promises.add(collection.getAlbumTracks((Album) object));
-                } else {
-                    promises.add(collection.getArtistAlbums((Artist) object));
-                }
+                promises.add(collection.getArtistAlbums(artist));
                 collections.add(collection);
             }
         }
@@ -672,6 +660,37 @@ public class CollectionManager {
                                     availableCollections.add(collections.get(i));
                                 }
                                 cursor.close();
+                            }
+                        }
+                        availableCollections.add(mCollections.get(TomahawkApp.PLUGINNAME_HATCHET));
+                        deferred.resolve(availableCollections);
+                    }
+                });
+        return deferred;
+    }
+
+    public Promise<List<Collection>, Throwable, Void> getAvailableCollections(Album album) {
+        final List<Collection> collections = new ArrayList<>();
+        List<Promise> promises = new ArrayList<>();
+        for (final Collection collection : mCollections.values()) {
+            if (!collection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET)) {
+                promises.add(collection.getAlbumTracks(album));
+                collections.add(collection);
+            }
+        }
+        final Deferred<List<Collection>, Throwable, Void> deferred = new ADeferredObject<>();
+        mDeferredManager.when(promises.toArray(new Promise[promises.size()])).always(
+                new AlwaysCallback<MultipleResults, OneReject>() {
+                    @Override
+                    public void onAlways(Promise.State state, MultipleResults resolved,
+                            OneReject rejected) {
+                        List<Collection> availableCollections = new ArrayList<>();
+                        for (int i = 0; i < resolved.size(); i++) {
+                            Playlist playlist = (Playlist) resolved.get(i).getResult();
+                            if (playlist != null) {
+                                if (playlist.size() > 0) {
+                                    availableCollections.add(collections.get(i));
+                                }
                             }
                         }
                         availableCollections.add(mCollections.get(TomahawkApp.PLUGINNAME_HATCHET));

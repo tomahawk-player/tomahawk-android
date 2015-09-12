@@ -21,7 +21,6 @@ import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -212,15 +211,13 @@ public class ViewHolder {
                 album.getImage(), Image.getSmallImageSize(), false);
         final TextView textView3 = (TextView) findViewById(R.id.textview3);
         textView3.setVisibility(View.INVISIBLE);
-        collection.getAlbumTracks(album).done(new DoneCallback<CollectionCursor<Query>>() {
+        collection.getAlbumTrackCount(album).done(new DoneCallback<Integer>() {
             @Override
-            public void onDone(CollectionCursor<Query> cursor) {
-                if (cursor != null) {
-                    int size = cursor.size();
-                    cursor.close();
+            public void onDone(Integer trackCount) {
+                if (trackCount != null) {
                     textView3.setVisibility(View.VISIBLE);
                     textView3.setText(TomahawkApp.getContext().getResources().getQuantityString(
-                            R.plurals.songs_with_count, size, size));
+                            R.plurals.songs_with_count, trackCount, trackCount));
                 }
             }
         });

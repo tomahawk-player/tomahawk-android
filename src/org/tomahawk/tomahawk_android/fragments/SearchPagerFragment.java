@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -57,9 +58,9 @@ public class SearchPagerFragment extends PagerFragment {
 
     private final ArrayList<String> mArtistIds = new ArrayList<>();
 
-    private final ArrayList<String> mSongIds = new ArrayList<>();
-
     private final ArrayList<String> mUserIds = new ArrayList<>();
+
+    private Playlist mTrackResultPlaylist;
 
     private SearchFragmentReceiver mSearchFragmentReceiver;
 
@@ -86,12 +87,7 @@ public class SearchPagerFragment extends PagerFragment {
     @SuppressWarnings("unused")
     public void onEventMainThread(PipeLine.ResultsEvent event) {
         if (mCorrespondingQueries.contains(event.mQuery)) {
-            mSongIds.clear();
-            if (event.mQuery != null) {
-                for (Query q : event.mQuery.getTrackQueries()) {
-                    mSongIds.add(q.getCacheKey());
-                }
-            }
+            mTrackResultPlaylist = event.mQuery.getResultPlaylist();
             updatePager();
         }
     }
@@ -221,12 +217,12 @@ public class SearchPagerFragment extends PagerFragment {
 
         fragmentInfoList = new FragmentInfoList();
         fragmentInfo = new FragmentInfo();
-        fragmentInfo.mClass = TracksFragment.class;
+        fragmentInfo.mClass = PlaylistEntriesFragment.class;
         fragmentInfo.mTitle = getString(R.string.songs);
         fragmentInfo.mBundle = getChildFragmentBundle();
-        if (mSongIds != null) {
+        if (mTrackResultPlaylist != null) {
             fragmentInfo.mBundle
-                    .putStringArrayList(TomahawkFragment.QUERYARRAY, mSongIds);
+                    .putString(TomahawkFragment.PLAYLIST, mTrackResultPlaylist.getId());
         }
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
@@ -251,7 +247,7 @@ public class SearchPagerFragment extends PagerFragment {
      */
     public void resolveFullTextQuery(String fullTextQuery) {
         ((TomahawkMainActivity) getActivity()).closeDrawer();
-        mSongIds.clear();
+        mTrackResultPlaylist = null;
         mAlbumIds.clear();
         mArtistIds.clear();
         mUserIds.clear();

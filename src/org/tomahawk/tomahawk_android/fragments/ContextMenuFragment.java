@@ -21,7 +21,6 @@ import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -48,7 +47,6 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -266,28 +264,17 @@ public class ContextMenuFragment extends Fragment {
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     if (mAlbum != null) {
-                        mCollection.getAlbumTracks(mAlbum)
-                                .done(new DoneCallback<CollectionCursor<Query>>() {
-                                    @Override
-                                    public void onDone(CollectionCursor<Query> cursor) {
-                                        List<Query> queries = new ArrayList<>();
-                                        if (cursor != null) {
-                                            for (int i = 0; i < cursor.size(); i++) {
-                                                Query query = cursor.get(i);
-                                                if (query == null) {
-                                                    Log.e(TAG, "setupContextMenuItems - Can't call "
-                                                            + "showAddToPlaylist. Cursor has been "
-                                                            + "closed.");
-                                                    cursor.close();
-                                                    return;
-                                                }
-                                                queries.add(cursor.get(i));
-                                            }
-                                            cursor.close();
-                                        }
-                                        showAddToPlaylist(activity, queries);
-                                    }
-                                });
+                        mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<Playlist>() {
+                            @Override
+                            public void onDone(Playlist playlist) {
+                                List<PlaylistEntry> entries = playlist.getEntries();
+                                List<Query> queries = new ArrayList<>();
+                                for (PlaylistEntry entry : entries) {
+                                    queries.add(entry.getQuery());
+                                }
+                                showAddToPlaylist(activity, queries);
+                            }
+                        });
                     } else if (mQuery != null) {
                         ArrayList<Query> queries = new ArrayList<>();
                         queries.add(mQuery);
@@ -438,19 +425,17 @@ public class ContextMenuFragment extends Fragment {
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
                     if (mAlbum != null) {
-                        mCollection.getAlbumTracks(mAlbum).done(
-                                new DoneCallback<CollectionCursor<Query>>() {
-                                    @Override
-                                    public void onDone(CollectionCursor<Query> collectionCursor) {
-                                        List<Query> albumTracks = new ArrayList<>();
-                                        for (int i = 0; i < collectionCursor.size(); i++) {
-                                            albumTracks.add(collectionCursor.get(i));
-                                        }
-                                        ((TomahawkMainActivity) getActivity())
-                                                .getPlaybackService()
-                                                .addQueriesToQueue(albumTracks);
-                                    }
-                                });
+                        mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<Playlist>() {
+                            @Override
+                            public void onDone(Playlist playlist) {
+                                List<Query> queries = new ArrayList<>();
+                                for (PlaylistEntry entry : playlist.getEntries()) {
+                                    queries.add(entry.getQuery());
+                                }
+                                ((TomahawkMainActivity) getActivity()).getPlaybackService()
+                                        .addQueriesToQueue(queries);
+                            }
+                        });
                     } else if (mQuery != null) {
                         ((TomahawkMainActivity) getActivity()).getPlaybackService()
                                 .addQueryToQueue(mQuery);
@@ -458,9 +443,8 @@ public class ContextMenuFragment extends Fragment {
                         ((TomahawkMainActivity) getActivity()).getPlaybackService()
                                 .addQueryToQueue(mPlaylistEntry.getQuery());
                     } else if (mPlaylist != null) {
-                        List<PlaylistEntry> entries = mPlaylist.getEntries();
                         List<Query> queries = new ArrayList<>();
-                        for (PlaylistEntry entry : entries) {
+                        for (PlaylistEntry entry : mPlaylist.getEntries()) {
                             queries.add(entry.getQuery());
                         }
                         ((TomahawkMainActivity) getActivity()).getPlaybackService()
@@ -642,7 +626,7 @@ public class ContextMenuFragment extends Fragment {
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                 FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                        TracksFragment.class, bundle);
+                        PlaylistEntriesFragment.class, bundle);
             }
         };
     }

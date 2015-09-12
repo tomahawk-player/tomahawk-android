@@ -41,6 +41,8 @@ public class ScriptResolverTrack {
 
     public int albumPos;
 
+    public long lastModified;
+
     public ScriptResolverTrack() {
     }
 }

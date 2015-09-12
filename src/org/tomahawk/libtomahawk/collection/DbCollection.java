@@ -138,8 +138,8 @@ public abstract class DbCollection extends Collection {
                                 whereInfo.where.put(CollectionDb.ID, ids);
                                 Cursor cursor = CollectionDbManager.get()
                                         .getCollectionDb(collectionId).tracks(whereInfo, null);
-                                CollectionCursor<Result> collectionCursor =
-                                        new CollectionCursor<>(cursor, Result.class, mResolver);
+                                CollectionCursor<Result> collectionCursor = new CollectionCursor<>(
+                                        cursor, Result.class, mResolver, null);
                                 ArrayList<Result> results = new ArrayList<>();
                                 for (int i = 0; i < collectionCursor.size(); i++) {
                                     results.add(collectionCursor.get(i));
@@ -157,8 +157,8 @@ public abstract class DbCollection extends Collection {
     }
 
     @Override
-    public Promise<CollectionCursor<Query>, Throwable, Void> getQueries(final int sortMode) {
-        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<Playlist, Throwable, Void> getQueries(final int sortMode) {
+        final Deferred<Playlist, Throwable, Void> deferred = new ADeferredObject<>();
         getCollectionId().done(new DoneCallback<String>() {
             @Override
             public void onDone(final String collectionId) {
@@ -174,18 +174,31 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
                                 break;
                             case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.TRACKS_TRACK};    //TODO
+                                orderBy = new String[]{CollectionDb.TRACKS_LASTMODIFIED};
                                 break;
                             default:
                                 Log.e(TAG,
                                         collectionId + " - getQueries - sortMode not supported!");
                                 return;
                         }
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(collectionId)
-                                .tracks(null, orderBy);
-                        CollectionCursor<Query> collectionCursor =
-                                new CollectionCursor<>(cursor, Query.class, mResolver);
-                        deferred.resolve(collectionCursor);
+                        CollectionDb db = CollectionDbManager.get().getCollectionDb(collectionId);
+                        String currentRevision = String.valueOf(db.tracksCurrentRevision());
+                        Playlist playlist =
+                                Playlist.get(collectionId + "_tracks_" + currentRevision);
+                        if (playlist.getCurrentRevision().isEmpty()) {
+                            Cursor cursor = db.tracks(null, orderBy);
+                            if (cursor == null) {
+                                deferred.resolve(null);
+                                return;
+                            }
+                            CollectionCursor<PlaylistEntry> collectionCursor
+                                    = new CollectionCursor<>(
+                                    cursor, PlaylistEntry.class, mResolver, playlist);
+                            playlist.setCursor(collectionCursor);
+                            playlist.setFilled(true);
+                            playlist.setCurrentRevision(currentRevision);
+                        }
+                        deferred.resolve(playlist);
                     }
                 }).start();
             }
@@ -209,7 +222,7 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
                                 break;
                             case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};   //TODO
+                                orderBy = new String[]{CollectionDb.ARTISTS_LASTMODIFIED};
                                 break;
                             default:
                                 Log.e(TAG,
@@ -219,7 +232,7 @@ public abstract class DbCollection extends Collection {
                         Cursor cursor = CollectionDbManager.get().getCollectionDb(collectionId)
                                 .artists(orderBy);
                         CollectionCursor<Artist> collectionCursor =
-                                new CollectionCursor<>(cursor, Artist.class, mResolver);
+                                new CollectionCursor<>(cursor, Artist.class, null, null);
                         deferred.resolve(collectionCursor);
                     }
                 }).start();
@@ -244,7 +257,7 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
                                 break;
                             case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};    //TODO
+                                orderBy = new String[]{CollectionDb.ARTISTS_LASTMODIFIED};
                                 break;
                             default:
                                 Log.e(TAG, collectionId
@@ -254,7 +267,7 @@ public abstract class DbCollection extends Collection {
                         Cursor cursor = CollectionDbManager.get().getCollectionDb(collectionId)
                                 .albumArtists(orderBy);
                         CollectionCursor<Artist> collectionCursor =
-                                new CollectionCursor<>(cursor, Artist.class, mResolver);
+                                new CollectionCursor<>(cursor, Artist.class, null, null);
                         deferred.resolve(collectionCursor);
                     }
                 }).start();
@@ -281,7 +294,7 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
                                 break;
                             case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};    //TODO
+                                orderBy = new String[]{CollectionDb.ALBUMS_LASTMODIFIED};
                                 break;
                             default:
                                 Log.e(TAG, collectionId + " - getAlbums - sortMode not supported!");
@@ -290,7 +303,7 @@ public abstract class DbCollection extends Collection {
                         Cursor cursor = CollectionDbManager.get().getCollectionDb(collectionId)
                                 .albums(orderBy);
                         CollectionCursor<Album> collectionCursor =
-                                new CollectionCursor<>(cursor, Album.class, mResolver);
+                                new CollectionCursor<>(cursor, Album.class, null, null);
                         deferred.resolve(collectionCursor);
                     }
                 }).start();
@@ -315,7 +328,7 @@ public abstract class DbCollection extends Collection {
                             return;
                         }
                         CollectionCursor<Album> collectionCursor =
-                                new CollectionCursor<>(cursor, Album.class, mResolver);
+                                new CollectionCursor<>(cursor, Album.class, null, null);
                         deferred.resolve(collectionCursor);
                     }
                 }).start();
@@ -325,23 +338,58 @@ public abstract class DbCollection extends Collection {
     }
 
     @Override
-    public Promise<CollectionCursor<Query>, Throwable, Void> getAlbumTracks(final Album album) {
-        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+    public Promise<Playlist, Throwable, Void> getAlbumTracks(final Album album) {
+        final Deferred<Playlist, Throwable, Void> deferred = new ADeferredObject<>();
         getCollectionId().done(new DoneCallback<String>() {
             @Override
-            public void onDone(final String result) {
+            public void onDone(final String collectionId) {
                 new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        Cursor cursor = CollectionDbManager.get().getCollectionDb(result)
+                        CollectionDb db = CollectionDbManager.get().getCollectionDb(collectionId);
+                        String currentRevision = String.valueOf(db.albumCurrentRevision(
+                                album.getName(), album.getArtist().getName(), ""));
+                        Playlist playlist = Playlist.get(
+                                collectionId + "_" + album.getCacheKey() + "_" + currentRevision);
+                        if (playlist.getCurrentRevision().isEmpty()) {
+                            Cursor cursor = db.albumTracks(
+                                    album.getName(), album.getArtist().getName(), "");
+                            if (cursor == null) {
+                                deferred.resolve(null);
+                                return;
+                            }
+                            CollectionCursor<PlaylistEntry> collectionCursor
+                                    = new CollectionCursor<>(
+                                    cursor, PlaylistEntry.class, mResolver, playlist);
+                            playlist.setCursor(collectionCursor);
+                            playlist.setFilled(true);
+                            playlist.setCurrentRevision(currentRevision);
+                        }
+                        deferred.resolve(playlist);
+                    }
+                }).start();
+            }
+        });
+        return deferred;
+    }
+
+    @Override
+    public Promise<Integer, Throwable, Void> getAlbumTrackCount(final Album album) {
+        final Deferred<Integer, Throwable, Void> deferred = new ADeferredObject<>();
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(final String collectionId) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Cursor cursor = CollectionDbManager.get().getCollectionDb(collectionId)
                                 .albumTracks(album.getName(), album.getArtist().getName(), "");
                         if (cursor == null) {
                             deferred.resolve(null);
                             return;
                         }
-                        CollectionCursor<Query> collectionCursor =
-                                new CollectionCursor<>(cursor, Query.class, mResolver);
-                        deferred.resolve(collectionCursor);
+                        deferred.resolve(cursor.getCount());
+                        cursor.close();
                     }
                 }).start();
             }

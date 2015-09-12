@@ -131,46 +131,47 @@ public class SocialActionsFragment extends TomahawkFragment implements
      * Called every time an item inside a ListView or GridView is clicked
      *
      * @param view the clicked view
-     * @param item the Object which corresponds to the click
+     * @param o    the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, Object item) {
+    public void onItemClick(View view, Object o) {
         final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
 
+        Object item = o;
+        if (o instanceof SocialAction) {
+            item = ((SocialAction) o).getTargetObject();
+        }
         Bundle bundle = new Bundle();
         if (item instanceof User) {
             bundle.putString(TomahawkFragment.USER, ((User) item).getId());
             bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_STATIC_USER);
             FragmentUtils.replace(activity, UserPagerFragment.class, bundle);
-        } else if (item instanceof Query) {
-            getListAdapter().getPlaylistEntry(item).done(new DoneCallback<PlaylistEntry>() {
-                @Override
-                public void onDone(final PlaylistEntry entry) {
-                    if (entry.getQuery().isPlayable()) {
-                        final PlaybackService playbackService = activity.getPlaybackService();
-                        if (playbackService != null) {
-                            if (playbackService.getCurrentEntry() == entry) {
-                                playbackService.playPause();
-                            } else {
-                                getListAdapter().getPlaylist().done(new DoneCallback<Playlist>() {
-                                    @Override
-                                    public void onDone(Playlist playlist) {
-                                        playbackService.setPlaylist(playlist, entry);
-                                        playbackService.start();
-                                    }
-                                });
-                            }
+        } else if (item instanceof Query && o instanceof SocialAction) {
+            PlaylistEntry entry = mUser.getPlaylistEntry((SocialAction) o);
+            if (entry.getQuery().isPlayable()) {
+                final PlaybackService playbackService = activity.getPlaybackService();
+                if (playbackService != null) {
+                    if (playbackService.getCurrentEntry() == entry) {
+                        playbackService.playPause();
+                    } else {
+                        Playlist playlist;
+                        if (mShowMode == SHOW_MODE_SOCIALACTIONS) {
+                            playlist = mUser.getSocialActionsPlaylist();
+                        } else {
+                            playlist = mUser.getFriendsFeedPlaylist();
                         }
+                        playbackService.setPlaylist(playlist, entry);
+                        playbackService.start();
                     }
                 }
-            });
+            }
         } else if (item instanceof Album) {
             bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
             bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
             bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-            FragmentUtils.replace(activity, TracksFragment.class, bundle);
+            FragmentUtils.replace(activity, PlaylistEntriesFragment.class, bundle);
         } else if (item instanceof Artist) {
             bundle.putString(TomahawkFragment.ARTIST, ((Artist) item).getCacheKey());
             bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());

@@ -64,7 +64,6 @@ import org.tomahawk.tomahawk_android.fragments.PreferencePagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.fragments.TracksFragment;
 import org.tomahawk.tomahawk_android.fragments.UserPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.WelcomeFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -410,9 +409,18 @@ public class TomahawkMainActivity extends ActionBarActivity
         }
     }
 
+    /**
+     * If the {@link PipeLine} was able to parse a given url (like a link to a spotify track for
+     * example), then this method receives the result object.
+     *
+     * @param event the result object which contains the parsed data
+     */
     @SuppressWarnings("unused")
     public void onEventAsync(PipeLine.UrlResultsEvent event) {
         final Bundle bundle = new Bundle();
+        List<Query> queries;
+        Query query;
+        Playlist playlist;
         switch (event.mResult.type) {
             case PipeLine.URL_TYPE_ARTIST:
                 bundle.putString(TomahawkFragment.ARTIST,
@@ -433,34 +441,38 @@ public class TomahawkMainActivity extends ActionBarActivity
                 Artist artist = Artist.get(event.mResult.artist);
                 bundle.putString(TomahawkFragment.ALBUM,
                         Album.get(event.mResult.name, artist).getCacheKey());
+                bundle.putString(
+                        TomahawkFragment.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class,
-                                bundle);
+                        FragmentUtils.replace(
+                                TomahawkMainActivity.this, PlaylistEntriesFragment.class, bundle);
                     }
                 });
                 break;
             case PipeLine.URL_TYPE_TRACK:
-                bundle.putString(TomahawkFragment.QUERY,
-                        Query.get(event.mResult.title, "", event.mResult.artist, false)
-                                .getCacheKey());
+                queries = new ArrayList<>();
+                query = Query.get(event.mResult.title, "", event.mResult.artist, false);
+                queries.add(query);
+                playlist = Playlist.fromQueryList(getSessionUniqueStringId(), "", "", queries);
+                bundle.putString(TomahawkFragment.PLAYLIST, playlist.getId());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class,
-                                bundle);
+                        FragmentUtils.replace(
+                                TomahawkMainActivity.this, PlaylistEntriesFragment.class, bundle);
                     }
                 });
                 break;
             case PipeLine.URL_TYPE_PLAYLIST:
-                ArrayList<Query> queries = new ArrayList<>();
+                queries = new ArrayList<>();
                 for (ScriptResolverUrlResult track : event.mResult.tracks) {
-                    Query query = Query.get(track.title, "", track.artist, false);
+                    query = Query.get(track.title, "", track.artist, false);
                     if (event.mResolver != null && event.mResolver.isEnabled()
                             && track.hint != null) {
                         Result result = Result.get(track.hint, query.getBasicTrack(),
@@ -470,9 +482,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                     }
                     queries.add(query);
                 }
-                Playlist playlist = Playlist
-                        .fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(),
-                                event.mResult.title, null, queries);
+                playlist = Playlist.fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(),
+                        event.mResult.title, null, queries);
                 playlist.setFilled(true);
                 bundle.putString(TomahawkFragment.PLAYLIST, playlist.getId());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
@@ -760,10 +771,15 @@ public class TomahawkMainActivity extends ActionBarActivity
                 float trackScore = query.howSimilar(result);
                 query.addTrackResult(result, trackScore);
                 Bundle bundle = new Bundle();
-                bundle.putString(TomahawkFragment.QUERY, query.getCacheKey());
+                List<Query> queries = new ArrayList<>();
+                queries.add(query);
+                Playlist playlist = Playlist.fromQueryList(
+                        TomahawkMainActivity.getSessionUniqueStringId(), "", "", queries);
+                bundle.putString(TomahawkFragment.PLAYLIST, playlist.getId());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-                FragmentUtils.replace(TomahawkMainActivity.this, TracksFragment.class, bundle);
+                FragmentUtils.replace(
+                        TomahawkMainActivity.this, PlaylistEntriesFragment.class, bundle);
             }
         }
     }

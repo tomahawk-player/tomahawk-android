@@ -19,6 +19,7 @@ package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -31,11 +32,13 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
+import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
-import android.util.Log;
 import android.view.View;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -48,12 +51,27 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
 
     public static final int SHOW_MODE_PLAYBACKLOG = 1;
 
+    public static final String COLLECTION_TRACKS_SPINNER_POSITION
+            = "org.tomahawk.tomahawk_android.collection_tracks_spinner_position";
+
     private Set<String> mResolvingTopArtistNames = new HashSet<>();
+
+    private Playlist mCurrentPlaylist;
 
     @SuppressWarnings("unused")
     public void onEvent(DatabaseHelper.PlaylistsUpdatedEvent event) {
         if (mPlaylist != null && mPlaylist.getId().equals(event.mPlaylistId)) {
             refreshUserPlaylists();
+        }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(CollectionManager.UpdatedEvent event) {
+        super.onEventMainThread(event);
+
+        if (event.mUpdatedItemIds != null && event.mUpdatedItemIds.contains(mAlbum.getCacheKey())
+                && mContainerFragmentClass == null) {
+            showAlbumFancyDropDown();
         }
     }
 
@@ -105,28 +123,19 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, Object item) {
         if (item instanceof PlaylistEntry) {
-            getListAdapter().getPlaylistEntry(item).done(new DoneCallback<PlaylistEntry>() {
-                @Override
-                public void onDone(final PlaylistEntry entry) {
-                    if (entry.getQuery().isPlayable()) {
-                        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-                        final PlaybackService playbackService = activity.getPlaybackService();
-                        if (playbackService != null) {
-                            if (playbackService.getCurrentEntry() == entry) {
-                                playbackService.playPause();
-                            } else {
-                                getListAdapter().getPlaylist().done(new DoneCallback<Playlist>() {
-                                    @Override
-                                    public void onDone(Playlist playlist) {
-                                        playbackService.setPlaylist(playlist, entry);
-                                        playbackService.start();
-                                    }
-                                });
-                            }
-                        }
+            PlaylistEntry entry = (PlaylistEntry) item;
+            if (entry.getQuery().isPlayable()) {
+                TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+                final PlaybackService playbackService = activity.getPlaybackService();
+                if (playbackService != null) {
+                    if (playbackService.getCurrentEntry() == entry) {
+                        playbackService.playPause();
+                    } else {
+                        playbackService.setPlaylist(mCurrentPlaylist, entry);
+                        playbackService.start();
                     }
                 }
-            });
+            }
         }
     }
 
@@ -140,13 +149,41 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
             return;
         }
 
-        if (getPlaylist() != null) {
-            if (!getPlaylist().isFilled()) {
+        if (mAlbum != null) {
+            showContentHeader(mAlbum);
+            if (mContainerFragmentClass == null) {
+                showAlbumFancyDropDown();
+            }
+            mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<Playlist>() {
+                @Override
+                public void onDone(Playlist playlist) {
+                    mCurrentPlaylist = playlist;
+                    Segment segment = new Segment(mAlbum.getArtist().getPrettyName(), playlist);
+                    if (playlist.allFromOneArtist()) {
+                        segment.setHideArtistName(true);
+                        segment.setShowDuration(true);
+                    }
+                    segment.setShowNumeration(true, 1);
+                    fillAdapter(segment);
+                }
+            });
+        } else if (mUser != null || mPlaylist != null) {
+            if (mUser != null) {
+                if (mShowMode == SHOW_MODE_PLAYBACKLOG) {
+                    mCurrentPlaylist = mUser.getPlaybackLog();
+                } else if (mShowMode == SHOW_MODE_LOVEDITEMS) {
+                    mCurrentPlaylist = mUser.getFavorites();
+                }
+            }
+            if (mPlaylist != null) {
+                mCurrentPlaylist = mPlaylist;
+            }
+            if (!mCurrentPlaylist.isFilled()) {
                 User.getSelf().done(new DoneCallback<User>() {
                     @Override
                     public void onDone(User user) {
                         if (mUser != user && mShowMode < 0) {
-                            String requestId = InfoSystem.get().resolve(mPlaylist);
+                            String requestId = InfoSystem.get().resolve(mCurrentPlaylist);
                             if (requestId != null) {
                                 mCorrespondingRequestIds.add(requestId);
                             }
@@ -154,24 +191,22 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     }
                 });
             } else {
-                Segment segment = new Segment(R.string.playlist_details,
-                        getPlaylist().getEntries());
+                Segment segment = new Segment(R.string.playlist_details, mCurrentPlaylist);
                 segment.setShowNumeration(true, 1);
                 fillAdapter(segment);
-                showContentHeader(getPlaylist());
-                showFancyDropDown(0, getPlaylist().getName(), null, null);
+                showContentHeader(mCurrentPlaylist);
+                showFancyDropDown(0, mCurrentPlaylist.getName(), null, null);
                 ThreadManager.get()
                         .execute(new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_LOW) {
                             @Override
                             public void run() {
-                                if (getPlaylist().getTopArtistNames() == null
-                                        || getPlaylist().getTopArtistNames().length == 0) {
-                                    getPlaylist().updateTopArtistNames();
+                                if (mCurrentPlaylist.getTopArtistNames() == null
+                                        || mCurrentPlaylist.getTopArtistNames().length == 0) {
+                                    mCurrentPlaylist.updateTopArtistNames();
                                 } else {
-                                    for (int i = 0;
-                                            i < getPlaylist().getTopArtistNames().length && i < 5;
-                                            i++) {
-                                        String artistName = getPlaylist().getTopArtistNames()[i];
+                                    for (int i = 0; i < mCurrentPlaylist.getTopArtistNames().length
+                                            && i < 5; i++) {
+                                        String artistName = mCurrentPlaylist.getTopArtistNames()[i];
                                         if (mResolvingTopArtistNames.contains(artistName)) {
                                             mCorrespondingRequestIds.addAll(InfoSystem.get()
                                                     .resolve(Artist.get(artistName), false));
@@ -182,19 +217,24 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                             }
                         });
             }
+        } else {
+            mCollection.getQueries(getSortMode()).done(new DoneCallback<Playlist>() {
+                @Override
+                public void onDone(final Playlist playlist) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mCurrentPlaylist = playlist;
+                            fillAdapter(new Segment(
+                                    getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION),
+                                    constructDropdownItems(),
+                                    constructDropdownListener(COLLECTION_TRACKS_SPINNER_POSITION),
+                                    playlist));
+                        }
+                    }).start();
+                }
+            });
         }
-    }
-
-    private Playlist getPlaylist() {
-        if (mUser != null && mShowMode == SHOW_MODE_PLAYBACKLOG) {
-            return mUser.getPlaybackLog();
-        } else if (mUser != null && mShowMode == SHOW_MODE_LOVEDITEMS) {
-            return mUser.getFavorites();
-        } else if (mPlaylist != null) {
-            return mPlaylist;
-        }
-        Log.e(TAG, "mUser and mShowMode null or mPlaylist null.");
-        return null;
     }
 
     private void refreshUserPlaylists() {
@@ -207,5 +247,57 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 }
             }
         });
+    }
+
+    private List<Integer> constructDropdownItems() {
+        List<Integer> dropDownItems = new ArrayList<>();
+        dropDownItems.add(R.string.collection_dropdown_recently_added);
+        dropDownItems.add(R.string.collection_dropdown_alpha);
+        dropDownItems.add(R.string.collection_dropdown_alpha_artists);
+        return dropDownItems;
+    }
+
+    private int getSortMode() {
+        switch (getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION)) {
+            case 0:
+                return Collection.SORT_LAST_MODIFIED;
+            case 1:
+                return Collection.SORT_ALPHA;
+            case 2:
+                return Collection.SORT_ARTIST_ALPHA;
+            default:
+                return Collection.SORT_NOT;
+        }
+    }
+
+    private void showAlbumFancyDropDown() {
+        if (mAlbum != null) {
+            CollectionManager.get().getAvailableCollections(mAlbum).done(
+                    new DoneCallback<List<Collection>>() {
+                        @Override
+                        public void onDone(final List<Collection> result) {
+                            int initialSelection = 0;
+                            for (int i = 0; i < result.size(); i++) {
+                                if (result.get(i) == mCollection) {
+                                    initialSelection = i;
+                                    break;
+                                }
+                            }
+                            showFancyDropDown(initialSelection, mAlbum.getName(),
+                                    FancyDropDown.convertToDropDownItemInfo(result),
+                                    new FancyDropDown.DropDownListener() {
+                                        @Override
+                                        public void onDropDownItemSelected(int position) {
+                                            mCollection = result.get(position);
+                                            updateAdapter();
+                                        }
+
+                                        @Override
+                                        public void onCancel() {
+                                        }
+                                    });
+                        }
+                    });
+        }
     }
 }

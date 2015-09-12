@@ -18,7 +18,6 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.jdeferred.Promise;
-import org.tomahawk.libtomahawk.resolver.Query;
 
 import android.widget.ImageView;
 
@@ -54,11 +53,11 @@ public abstract class Collection {
         return mName;
     }
 
-    public Promise<CollectionCursor<Query>, Throwable, Void> getQueries() {
+    public Promise<Playlist, Throwable, Void> getQueries() {
         return getQueries(SORT_NOT);
     }
 
-    public abstract Promise<CollectionCursor<Query>, Throwable, Void> getQueries(int sortMode);
+    public abstract Promise<Playlist, Throwable, Void> getQueries(int sortMode);
 
     public Promise<CollectionCursor<Artist>, Throwable, Void> getArtists() {
         return getArtists(SORT_NOT);
@@ -82,6 +81,8 @@ public abstract class Collection {
     public abstract Promise<CollectionCursor<Album>, Throwable, Void> getArtistAlbums(
             Artist artist);
 
-    public abstract Promise<CollectionCursor<Query>, Throwable, Void> getAlbumTracks(Album album);
+    public abstract Promise<Playlist, Throwable, Void> getAlbumTracks(Album album);
+
+    public abstract Promise<Integer, Throwable, Void> getAlbumTrackCount(Album album);
 
 }

@@ -30,7 +30,6 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
-import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -74,48 +73,42 @@ public class AlbumsFragment extends TomahawkFragment {
     @Override
     public void onItemClick(View view, final Object item) {
         final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        if (item instanceof Query) {
-            getListAdapter().getPlaylistEntry(item).done(new DoneCallback<PlaylistEntry>() {
-                @Override
-                public void onDone(final PlaylistEntry entry) {
-                    if (entry.getQuery().isPlayable()) {
-                        final PlaybackService playbackService = activity.getPlaybackService();
-                        if (playbackService != null) {
-                            if (playbackService.getCurrentEntry() == entry) {
-                                playbackService.playPause();
-                            } else {
-                                getListAdapter().getPlaylist().done(new DoneCallback<Playlist>() {
-                                    @Override
-                                    public void onDone(Playlist playlist) {
-                                        playbackService.setPlaylist(playlist, entry);
-                                        playbackService.start();
-                                    }
-                                });
+        if (item instanceof PlaylistEntry) {
+            final PlaylistEntry entry = (PlaylistEntry) item;
+            if (entry.getQuery().isPlayable()) {
+                final PlaybackService playbackService = activity.getPlaybackService();
+                if (playbackService != null) {
+                    if (playbackService.getCurrentEntry() == entry) {
+                        playbackService.playPause();
+                    } else {
+                        HatchetCollection collection = (HatchetCollection) mCollection;
+                        collection.getArtistTopHits(mArtist).done(new DoneCallback<Playlist>() {
+                            @Override
+                            public void onDone(Playlist topHits) {
+                                playbackService.setPlaylist(topHits, entry);
+                                playbackService.start();
                             }
-                        }
+                        });
                     }
                 }
-            });
+            }
         } else if (item instanceof Album) {
             Album album = (Album) item;
-            mCollection.getAlbumTracks(album).done(new DoneCallback<CollectionCursor<Query>>() {
+            mCollection.getAlbumTracks(album).done(new DoneCallback<Playlist>() {
                 @Override
-                public void onDone(CollectionCursor<Query> cursor) {
+                public void onDone(Playlist playlist) {
                     Bundle bundle = new Bundle();
                     bundle.putString(TomahawkFragment.ALBUM, ((Album) item).getCacheKey());
-                    if (cursor != null && cursor.size() > 0) {
+                    if (playlist != null) {
                         bundle.putString(TomahawkFragment.COLLECTION_ID, mCollection.getId());
                     } else {
-                        bundle.putString(TomahawkFragment.COLLECTION_ID,
-                                TomahawkApp.PLUGINNAME_HATCHET);
-                    }
-                    if (cursor != null) {
-                        cursor.close();
+                        bundle.putString(
+                                TomahawkFragment.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
                     }
                     bundle.putInt(CONTENT_HEADER_MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                     FragmentUtils.replace((TomahawkMainActivity) getActivity(),
-                            TracksFragment.class, bundle);
+                            PlaylistEntriesFragment.class, bundle);
                 }
             });
         }
@@ -157,20 +150,17 @@ public class AlbumsFragment extends TomahawkFragment {
                                 fillAdapter(segments);
                             }
                         });
-                collection.getArtistTopHits(mArtist)
-                        .done(new DoneCallback<CollectionCursor<Query>>() {
-                            @Override
-                            public void onDone(CollectionCursor<Query> cursor) {
-                                String topHits =
-                                        TomahawkApp.getContext().getString(R.string.top_hits);
-                                Segment segment = new Segment(topHits, cursor);
-                                segment.setShowNumeration(true, 1);
-                                segment.setHideArtistName(true);
-                                segment.setShowDuration(true);
-                                segments.add(0, segment);
-                                fillAdapter(segments);
-                            }
-                        });
+                collection.getArtistTopHits(mArtist).done(new DoneCallback<Playlist>() {
+                    @Override
+                    public void onDone(Playlist artistTophits) {
+                        Segment segment = new Segment(R.string.top_hits, artistTophits);
+                        segment.setShowNumeration(true, 1);
+                        segment.setHideArtistName(true);
+                        segment.setShowDuration(true);
+                        segments.add(0, segment);
+                        fillAdapter(segments);
+                    }
+                });
             }
         } else if (mAlbumArray != null) {
             fillAdapter(new Segment(mAlbumArray));

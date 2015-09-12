@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.CollectionCursor;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -48,6 +49,10 @@ public class Segment {
     private List mListItems = new ArrayList<>();
 
     private CollectionCursor mCollectionCursor;
+
+    private Playlist mPlaylist;
+
+    private int mOffset;
 
     private boolean mShowAsQueued;
 
@@ -90,6 +95,25 @@ public class Segment {
         mHeaderLayoutId = R.layout.single_line_list_header;
     }
 
+    public Segment(Playlist playlist) {
+        mPlaylist = playlist;
+    }
+
+    public Segment(Playlist playlist, int offset) {
+        this(playlist);
+        mOffset = offset;
+    }
+
+    public Segment(int headerStringResId, Playlist playlist) {
+        this(TomahawkApp.getContext().getString(headerStringResId), playlist);
+    }
+
+    public Segment(String headerString, Playlist playlist) {
+        this(playlist);
+        mHeaderStrings.add(headerString);
+        mHeaderLayoutId = R.layout.single_line_list_header;
+    }
+
     public Segment(String headerString, List listItems, int headerLayoutId) {
         this(listItems);
         mHeaderStrings.add(headerString);
@@ -112,6 +136,17 @@ public class Segment {
             AdapterView.OnItemSelectedListener spinnerClickListener,
             CollectionCursor cursor) {
         this(cursor);
+        mInitialPos = initialPos;
+        for (Integer resId : headerStringResIds) {
+            mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
+        }
+        mHeaderLayoutId = R.layout.dropdown_header;
+        mSpinnerClickListener = spinnerClickListener;
+    }
+
+    public Segment(int initialPos, List<Integer> headerStringResIds,
+            AdapterView.OnItemSelectedListener spinnerClickListener, Playlist playlist) {
+        mPlaylist = playlist;
         mInitialPos = initialPos;
         for (Integer resId : headerStringResIds) {
             mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
@@ -224,7 +259,13 @@ public class Segment {
     }
 
     public int getCount() {
-        return mCollectionCursor != null ? mCollectionCursor.size() : mListItems.size();
+        if (mCollectionCursor != null) {
+            return mCollectionCursor.size() - mOffset;
+        } else if (mPlaylist != null) {
+            return mPlaylist.size() - mOffset;
+        } else {
+            return mListItems.size() - mOffset;
+        }
     }
 
     public int getRowCount() {
@@ -232,12 +273,15 @@ public class Segment {
     }
 
     public Object get(int location) {
+        location = location + mOffset;
         if (mColumnCount > 1) {
             List<Object> list = new ArrayList<>();
             for (int i = location * mColumnCount; i < location * mColumnCount + mColumnCount; i++) {
                 Object item = null;
                 if (mCollectionCursor != null && i < mCollectionCursor.size()) {
                     item = mCollectionCursor.get(i);
+                } else if (mPlaylist != null) {
+                    item = mPlaylist.getEntryAtPos(i);
                 } else if (i < mListItems.size()) {
                     item = mListItems.get(i);
                 }
@@ -248,6 +292,8 @@ public class Segment {
             Object item;
             if (mCollectionCursor != null) {
                 item = mCollectionCursor.get(location);
+            } else if (mPlaylist != null) {
+                item = mPlaylist.getEntryAtPos(location);
             } else {
                 item = mListItems.get(location);
             }

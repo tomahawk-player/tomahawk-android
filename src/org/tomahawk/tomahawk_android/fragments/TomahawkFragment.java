@@ -22,7 +22,6 @@ import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
-import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -66,8 +65,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
- * The base class for {@link AlbumsFragment}, {@link TracksFragment}, {@link ArtistsFragment},
- * {@link PlaylistsFragment} and {@link SearchPagerFragment}.
+ * The base class for every {@link android.support.v4.app.Fragment} that displays a collection
+ * object
  */
 public abstract class TomahawkFragment extends TomahawkListFragment
         implements MultiColumnClickListener, AbsListView.OnScrollListener {
@@ -602,18 +601,18 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     private void resolveItem(final Object object) {
-        mTomahawkListAdapter.getPlaylistEntry(object).done(new DoneCallback<PlaylistEntry>() {
-            @Override
-            public void onDone(PlaylistEntry entry) {
-                if (entry != null) {
-                    Query q = entry.getQuery();
-                    if (!mCorrespondingQueries.contains(q)) {
-                        mCorrespondingQueries.add(PipeLine.get().resolve(q));
-                    }
-                }
+        if (object instanceof PlaylistEntry || object instanceof Query) {
+            Query query;
+            if (object instanceof PlaylistEntry) {
+                PlaylistEntry entry = (PlaylistEntry) object;
+                query = entry.getQuery();
+            } else {
+                query = (Query) object;
             }
-        });
-        if (object instanceof Playlist) {
+            if (!mCorrespondingQueries.contains(query)) {
+                mCorrespondingQueries.add(PipeLine.get().resolve(query));
+            }
+        } else if (object instanceof Playlist) {
             resolveItem((Playlist) object);
         } else if (object instanceof SocialAction) {
             resolveItem((SocialAction) object);
@@ -637,10 +636,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                         public void run() {
                             if (mResolvingItems.add(playlist)) {
                                 Playlist pl = playlist;
-                                if (pl.getEntries().size() == 0) {
+                                if (pl.size() == 0) {
                                     pl = DatabaseHelper.get().getPlaylist(pl.getId());
                                 }
-                                if (pl != null && pl.getEntries().size() > 0) {
+                                if (pl != null && pl.size() > 0) {
                                     pl.updateTopArtistNames();
                                     DatabaseHelper.get().updatePlaylist(pl);
                                     if (pl.getTopArtistNames() != null) {
@@ -677,20 +676,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 if (requestId != null) {
                     mCorrespondingRequestIds.add(requestId);
                 }
-            }
-            if (mCollection != null) {
-                mCollection.getAlbumTracks(album).done(new DoneCallback<CollectionCursor<Query>>() {
-                    @Override
-                    public void onDone(CollectionCursor<Query> cursor) {
-                        if (cursor != null) {
-                            cursor.close();
-                        }
-                        if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-                            mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
-                                    ADAPTER_UPDATE_DELAY);
-                        }
-                    }
-                });
             }
         }
     }

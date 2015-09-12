@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.collection;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
 import android.database.Cursor;
 import android.text.TextUtils;
@@ -57,11 +58,28 @@ public class CollectionCursor<T> {
 
     private Resolver mResolver;
 
-    public CollectionCursor(Cursor cursor, Class<T> clss, Resolver resolver) {
+    private Playlist mPlaylist;
+
+    public CollectionCursor(Cursor cursor, Class<T> clss, Resolver resolver, Playlist playlist) {
         mCursor = cursor;
         mCursorCount = cursor.getCount();
         mClass = clss;
-        mResolver = resolver;
+        if (clss == PlaylistEntry.class || clss == Result.class) {
+            if (resolver != null) {
+                mResolver = resolver;
+            } else {
+                throw new RuntimeException("Resolver is required for "
+                        + "CollectionCursor<PlaylistEntry> or CollectionCursor<Result>!");
+            }
+        }
+        if (clss == PlaylistEntry.class) {
+            if (playlist != null) {
+                mPlaylist = playlist;
+            } else {
+                throw new RuntimeException("Playlist is required for "
+                        + "CollectionCursor<PlaylistEntry>!");
+            }
+        }
     }
 
     public CollectionCursor(List<T> items, Class<T> clss) {
@@ -98,7 +116,7 @@ public class CollectionCursor<T> {
             T cachedItem = mCursorCache.get(location);
             if (cachedItem == null) {
                 mCursor.moveToPosition(location);
-                if (mClass == Query.class) {
+                if (mClass == PlaylistEntry.class) {
                     Artist artist = Artist.get(mCursor.getString(0));
                     Album album = Album.get(mCursor.getString(2), artist);
                     Track track = Track.get(mCursor.getString(3), album, artist);
@@ -107,7 +125,9 @@ public class CollectionCursor<T> {
                     Result result = Result.get(mCursor.getString(5), track, mResolver);
                     Query query = Query.get(result, false);
                     query.addTrackResult(result, 1.0f);
-                    cachedItem = (T) query;
+                    PlaylistEntry entry = PlaylistEntry.get(mPlaylist.getId(), query,
+                            TomahawkMainActivity.getLifetimeUniqueStringId());
+                    cachedItem = (T) entry;
                 } else if (mClass == Result.class) {
                     Artist artist = Artist.get(mCursor.getString(0));
                     Album album = Album.get(mCursor.getString(2), artist);
@@ -199,19 +219,43 @@ public class CollectionCursor<T> {
                 mIndex.put(i++, index);
             }
         }
+    }
 
+    public String getArtistName(int location) {
+        if (mCursor != null) {
+            mCursor.moveToPosition(location);
+            if (mClass == PlaylistEntry.class || mClass == Result.class || mClass == Artist.class) {
+                return mCursor.getString(0);
+            } else if (mClass == Album.class) {
+                return mCursor.getString(1);
+            }
+        } else {
+            Object o = mItems.get(location);
+            if (o instanceof PlaylistEntry) {
+                return ((PlaylistEntry) o).getArtist().getName();
+            } else if (o instanceof Result) {
+                return ((Result) o).getArtist().getName();
+            } else if (o instanceof Album) {
+                return ((Album) o).getArtist().getName();
+            } else if (o instanceof Artist) {
+                return ((Artist) o).getName();
+            }
+            return ((ArtistAlphaComparable) mItems.get(location)).getArtist().getName();
+        }
+        Log.e(TAG, "getArtistName(int location) - Couldn't return a string");
+        return null;
     }
 
     private String getSortString(int location) {
         if (mCursor != null) {
             mCursor.moveToPosition(location);
-            if (mClass == Query.class || mClass == Result.class) {
+            if (mClass == PlaylistEntry.class || mClass == Result.class) {
                 if (mSortMode == Collection.SORT_ALPHA) {
                     return mCursor.getString(3);
                 } else if (mSortMode == Collection.SORT_ARTIST_ALPHA) {
                     return mCursor.getString(0);
                 } else if (mSortMode == Collection.SORT_LAST_MODIFIED) {
-                    return mCursor.getString(3); //TODO
+                    return mCursor.getString(8);
                 }
             } else if (mClass == Album.class) {
                 if (mSortMode == Collection.SORT_ALPHA) {
@@ -219,13 +263,13 @@ public class CollectionCursor<T> {
                 } else if (mSortMode == Collection.SORT_ARTIST_ALPHA) {
                     return mCursor.getString(1);
                 } else if (mSortMode == Collection.SORT_LAST_MODIFIED) {
-                    return mCursor.getString(0); //TODO
+                    return mCursor.getString(4);
                 }
             } else if (mClass == Artist.class) {
                 if (mSortMode == Collection.SORT_ALPHA) {
                     return mCursor.getString(0);
                 } else if (mSortMode == Collection.SORT_LAST_MODIFIED) {
-                    return mCursor.getString(0); //TODO
+                    return mCursor.getString(2);
                 }
             }
         } else {
