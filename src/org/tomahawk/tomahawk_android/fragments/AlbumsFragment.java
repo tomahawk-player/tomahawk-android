@@ -129,10 +129,14 @@ public class AlbumsFragment extends TomahawkFragment {
                         .done(new DoneCallback<CollectionCursor<Album>>() {
                             @Override
                             public void onDone(CollectionCursor<Album> cursor) {
-                                Segment segment = new Segment(
-                                        mCollection.getName() + " " + getString(R.string.albums),
-                                        cursor, R.integer.grid_column_count,
-                                        R.dimen.padding_superlarge, R.dimen.padding_superlarge);
+                                Segment segment = new Segment.Builder(cursor)
+                                        .headerLayout(R.layout.single_line_list_header)
+                                        .headerString(mCollection.getName() + " "
+                                                + getString(R.string.albums))
+                                        .showAsGrid(R.integer.grid_column_count,
+                                                R.dimen.padding_superlarge,
+                                                R.dimen.padding_superlarge)
+                                        .build();
                                 fillAdapter(segment, mCollection);
                             }
                         });
@@ -143,9 +147,13 @@ public class AlbumsFragment extends TomahawkFragment {
                         .done(new DoneCallback<CollectionCursor<Album>>() {
                             @Override
                             public void onDone(CollectionCursor<Album> cursor) {
-                                Segment segment = new Segment(R.string.top_albums, cursor,
-                                        R.integer.grid_column_count, R.dimen.padding_superlarge,
-                                        R.dimen.padding_superlarge);
+                                Segment segment = new Segment.Builder(cursor)
+                                        .headerLayout(R.layout.single_line_list_header)
+                                        .headerString(R.string.top_albums)
+                                        .showAsGrid(R.integer.grid_column_count,
+                                                R.dimen.padding_superlarge,
+                                                R.dimen.padding_superlarge)
+                                        .build();
                                 segments.add(segment);
                                 fillAdapter(segments);
                             }
@@ -153,7 +161,10 @@ public class AlbumsFragment extends TomahawkFragment {
                 collection.getArtistTopHits(mArtist).done(new DoneCallback<Playlist>() {
                     @Override
                     public void onDone(Playlist artistTophits) {
-                        Segment segment = new Segment(R.string.top_hits, artistTophits);
+                        Segment segment = new Segment.Builder(artistTophits)
+                                .headerLayout(R.layout.single_line_list_header)
+                                .headerString(R.string.top_hits)
+                                .build();
                         segment.setShowNumeration(true, 1);
                         segment.setHideArtistName(true);
                         segment.setShowDuration(true);
@@ -163,13 +174,18 @@ public class AlbumsFragment extends TomahawkFragment {
                 });
             }
         } else if (mAlbumArray != null) {
-            fillAdapter(new Segment(mAlbumArray));
+            fillAdapter(new Segment.Builder(mAlbumArray).build());
         } else if (mUser != null) {
-            fillAdapter(new Segment(getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION),
-                    constructDropdownItems(),
-                    constructDropdownListener(COLLECTION_ALBUMS_SPINNER_POSITION),
-                    sortAlbums(mUser.getStarredAlbums()), R.integer.grid_column_count,
-                    R.dimen.padding_superlarge, R.dimen.padding_superlarge));
+            Segment segment = new Segment.Builder(sortAlbums(mUser.getStarredAlbums()))
+                    .headerLayout(R.layout.single_line_list_header)
+                    .headerStrings(constructDropdownItems())
+                    .spinner(constructDropdownListener(COLLECTION_ALBUMS_SPINNER_POSITION),
+                            getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION))
+                    .showAsGrid(R.integer.grid_column_count,
+                            R.dimen.padding_superlarge,
+                            R.dimen.padding_superlarge)
+                    .build();
+            fillAdapter(segment);
         } else {
             final List<Album> starredAlbums;
             if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
@@ -186,13 +202,17 @@ public class AlbumsFragment extends TomahawkFragment {
                             if (starredAlbums != null) {
                                 cursor.mergeItems(getSortMode(), starredAlbums);
                             }
-                            fillAdapter(new Segment(
-                                            getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION),
-                                            constructDropdownItems(), constructDropdownListener(
-                                            COLLECTION_ALBUMS_SPINNER_POSITION), cursor,
-                                            R.integer.grid_column_count,
-                                            R.dimen.padding_superlarge, R.dimen.padding_superlarge),
-                                    mCollection);
+                            Segment segment = new Segment.Builder(cursor)
+                                    .headerLayout(R.layout.single_line_list_header)
+                                    .headerStrings(constructDropdownItems())
+                                    .spinner(constructDropdownListener(
+                                                    COLLECTION_ALBUMS_SPINNER_POSITION),
+                                            getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION))
+                                    .showAsGrid(R.integer.grid_column_count,
+                                            R.dimen.padding_superlarge,
+                                            R.dimen.padding_superlarge)
+                                    .build();
+                            fillAdapter(segment, mCollection);
                         }
                     }).start();
                 }

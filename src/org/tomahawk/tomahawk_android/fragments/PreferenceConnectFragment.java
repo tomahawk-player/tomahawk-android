@@ -94,7 +94,7 @@ public class PreferenceConnectFragment extends TomahawkListFragment
         // Add the header text item
         List<ListItemString> textItems = new ArrayList<>();
         textItems.add(new ListItemString(getString(R.string.connect_headertext)));
-        Segment segment = new Segment(textItems);
+        Segment segment = new Segment.Builder(textItems).build();
         segments.add(segment);
 
         // Add all resolver grid items
@@ -114,8 +114,10 @@ public class PreferenceConnectFragment extends TomahawkListFragment
                 resolvers.add(scriptResolver);
             }
         }
-        segment = new Segment(resolvers, R.integer.grid_column_count,
-                R.dimen.padding_superlarge, R.dimen.padding_superlarge);
+        segment = new Segment.Builder(resolvers)
+                .showAsGrid(R.integer.grid_column_count, R.dimen.padding_superlarge,
+                        R.dimen.padding_superlarge)
+                .build();
         segments.add(segment);
 
         resolvers = new ArrayList<>();
@@ -125,9 +127,12 @@ public class PreferenceConnectFragment extends TomahawkListFragment
                 resolvers.add(scriptResolver);
             }
         }
-        segment = new Segment(R.string.connect_header_manualresolvers, resolvers,
-                R.integer.grid_column_count, R.dimen.padding_superlarge,
-                R.dimen.padding_superlarge);
+        segment = new Segment.Builder(resolvers)
+                .headerLayout(R.layout.single_line_list_header)
+                .headerString(R.string.connect_header_manualresolvers)
+                .showAsGrid(R.integer.grid_column_count, R.dimen.padding_superlarge,
+                        R.dimen.padding_superlarge)
+                .build();
         segments.add(segment);
 
         if (getListView() != null) {

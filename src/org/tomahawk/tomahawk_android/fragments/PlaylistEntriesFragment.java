@@ -158,7 +158,10 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 @Override
                 public void onDone(Playlist playlist) {
                     mCurrentPlaylist = playlist;
-                    Segment segment = new Segment(mAlbum.getArtist().getPrettyName(), playlist);
+                    Segment segment = new Segment.Builder(playlist)
+                            .headerLayout(R.layout.single_line_list_header)
+                            .headerString(mAlbum.getArtist().getPrettyName())
+                            .build();
                     if (playlist.allFromOneArtist()) {
                         segment.setHideArtistName(true);
                         segment.setShowDuration(true);
@@ -191,7 +194,10 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     }
                 });
             } else {
-                Segment segment = new Segment(R.string.playlist_details, mCurrentPlaylist);
+                Segment segment = new Segment.Builder(mCurrentPlaylist)
+                        .headerLayout(R.layout.single_line_list_header)
+                        .headerString(R.string.playlist_details)
+                        .build();
                 segment.setShowNumeration(true, 1);
                 fillAdapter(segment);
                 showContentHeader(mCurrentPlaylist);
@@ -225,11 +231,14 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                         @Override
                         public void run() {
                             mCurrentPlaylist = playlist;
-                            fillAdapter(new Segment(
-                                    getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION),
-                                    constructDropdownItems(),
-                                    constructDropdownListener(COLLECTION_TRACKS_SPINNER_POSITION),
-                                    playlist));
+                            Segment segment = new Segment.Builder(playlist)
+                                    .headerLayout(R.layout.single_line_list_header)
+                                    .headerStrings(constructDropdownItems())
+                                    .spinner(constructDropdownListener(
+                                                    COLLECTION_TRACKS_SPINNER_POSITION),
+                                            getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION))
+                                    .build();
+                            fillAdapter(segment);
                         }
                     }).start();
                 }

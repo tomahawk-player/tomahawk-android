@@ -97,7 +97,7 @@ public class ArtistsFragment extends TomahawkFragment {
         }
 
         if (mArtistArray != null) {
-            fillAdapter(new Segment(mArtistArray));
+            fillAdapter(new Segment.Builder(mArtistArray).build());
         } else {
             final List<Artist> starredArtists;
             if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
@@ -115,14 +115,18 @@ public class ArtistsFragment extends TomahawkFragment {
                                     if (starredArtists != null) {
                                         cursor.mergeItems(getSortMode(), starredArtists);
                                     }
-                                    fillAdapter(new Segment(
-                                            getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION),
-                                            constructDropdownItems(),
-                                            constructDropdownListener(
-                                                    COLLECTION_ARTISTS_SPINNER_POSITION),
-                                            cursor, R.integer.grid_column_count,
-                                            R.dimen.padding_superlarge,
-                                            R.dimen.padding_superlarge));
+                                    Segment segment = new Segment.Builder(cursor)
+                                            .headerLayout(R.layout.single_line_list_header)
+                                            .headerStrings(constructDropdownItems())
+                                            .spinner(constructDropdownListener(
+                                                            COLLECTION_ARTISTS_SPINNER_POSITION),
+                                                    getDropdownPos(
+                                                            COLLECTION_ARTISTS_SPINNER_POSITION))
+                                            .showAsGrid(R.integer.grid_column_count,
+                                                    R.dimen.padding_superlarge,
+                                                    R.dimen.padding_superlarge)
+                                            .build();
+                                    fillAdapter(segment);
                                 }
                             }).start();
                         }

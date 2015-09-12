@@ -19,7 +19,6 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.res.Resources;
@@ -29,8 +28,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Segment {
-
-    private static final String TAG = Segment.class.getSimpleName();
 
     private int mColumnCount = 1;
 
@@ -66,173 +63,75 @@ public class Segment {
 
     private int mLeftExtraPadding;
 
-    public Segment(CollectionCursor cursor) {
-        mCollectionCursor = cursor;
-    }
+    public static class Builder {
 
-    public Segment(List listItems, int headerLayoutId) {
-        this(listItems);
-        mHeaderLayoutId = headerLayoutId;
-    }
+        private Segment mSegment;
 
-    public Segment(List listItems) {
-        mListItems = listItems;
-    }
-
-    public Segment(int headerStringResId, List listItems) {
-        this(TomahawkApp.getContext().getString(headerStringResId), listItems);
-    }
-
-    public Segment(String headerString, List listItems) {
-        this(listItems);
-        mHeaderStrings.add(headerString);
-        mHeaderLayoutId = R.layout.single_line_list_header;
-    }
-
-    public Segment(String headerString, CollectionCursor cursor) {
-        this(cursor);
-        mHeaderStrings.add(headerString);
-        mHeaderLayoutId = R.layout.single_line_list_header;
-    }
-
-    public Segment(Playlist playlist) {
-        mPlaylist = playlist;
-    }
-
-    public Segment(Playlist playlist, int offset) {
-        this(playlist);
-        mOffset = offset;
-    }
-
-    public Segment(int headerStringResId, Playlist playlist) {
-        this(TomahawkApp.getContext().getString(headerStringResId), playlist);
-    }
-
-    public Segment(String headerString, Playlist playlist) {
-        this(playlist);
-        mHeaderStrings.add(headerString);
-        mHeaderLayoutId = R.layout.single_line_list_header;
-    }
-
-    public Segment(String headerString, List listItems, int headerLayoutId) {
-        this(listItems);
-        mHeaderStrings.add(headerString);
-        mHeaderLayoutId = headerLayoutId;
-    }
-
-    public Segment(int initialPos, List<Integer> headerStringResIds,
-            AdapterView.OnItemSelectedListener spinnerClickListener,
-            List listItems) {
-        this(listItems);
-        mInitialPos = initialPos;
-        for (Integer resId : headerStringResIds) {
-            mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
+        public Builder(CollectionCursor collectionCursor) {
+            mSegment = new Segment();
+            mSegment.mCollectionCursor = collectionCursor;
         }
-        mHeaderLayoutId = R.layout.dropdown_header;
-        mSpinnerClickListener = spinnerClickListener;
-    }
 
-    public Segment(int initialPos, List<Integer> headerStringResIds,
-            AdapterView.OnItemSelectedListener spinnerClickListener,
-            CollectionCursor cursor) {
-        this(cursor);
-        mInitialPos = initialPos;
-        for (Integer resId : headerStringResIds) {
-            mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
+        public Builder(List listItems) {
+            mSegment = new Segment();
+            mSegment.mListItems = listItems;
         }
-        mHeaderLayoutId = R.layout.dropdown_header;
-        mSpinnerClickListener = spinnerClickListener;
-    }
 
-    public Segment(int initialPos, List<Integer> headerStringResIds,
-            AdapterView.OnItemSelectedListener spinnerClickListener, Playlist playlist) {
-        mPlaylist = playlist;
-        mInitialPos = initialPos;
-        for (Integer resId : headerStringResIds) {
-            mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
+        public Builder(Playlist playlist) {
+            mSegment = new Segment();
+            mSegment.mPlaylist = playlist;
         }
-        mHeaderLayoutId = R.layout.dropdown_header;
-        mSpinnerClickListener = spinnerClickListener;
-    }
 
-    public Segment(List listItems, int columnCountResId,
-            int horizontalPaddingResId, int verticalPaddingResId, int headerLayoutId) {
-        this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
-        mHeaderLayoutId = headerLayoutId;
-    }
-
-    public Segment(List listItems, int columnCountResId,
-            int horizontalPaddingResId, int verticalPaddingResId) {
-        this(listItems);
-        Resources resources = TomahawkApp.getContext().getResources();
-        mHorizontalPadding = resources.getDimensionPixelSize(horizontalPaddingResId);
-        mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
-        mColumnCount = resources.getInteger(columnCountResId);
-    }
-
-    public Segment(int headerStringResId, List listItems, int columnCountResId,
-            int horizontalPaddingResId, int verticalPaddingResId) {
-        this(TomahawkApp.getContext().getString(headerStringResId), listItems, columnCountResId,
-                horizontalPaddingResId, verticalPaddingResId);
-    }
-
-    public Segment(String headerString, List listItems, int columnCountResId,
-            int horizontalPaddingResId, int verticalPaddingResId) {
-        this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
-        mHeaderStrings.add(headerString);
-        mHeaderLayoutId = R.layout.single_line_list_header;
-    }
-
-    public Segment(int headerStringResId, CollectionCursor cursor, int columnCountResId,
-            int horizontalPaddingResId, int verticalPaddingResId) {
-        this(cursor);
-        Resources resources = TomahawkApp.getContext().getResources();
-        mHorizontalPadding = resources.getDimensionPixelSize(horizontalPaddingResId);
-        mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
-        mColumnCount = resources.getInteger(columnCountResId);
-        mHeaderStrings.add(resources.getString(headerStringResId));
-        mHeaderLayoutId = R.layout.single_line_list_header;
-    }
-
-    public Segment(String headerString, CollectionCursor cursor, int columnCountResId,
-            int horizontalPaddingResId, int verticalPaddingResId) {
-        this(cursor);
-        Resources resources = TomahawkApp.getContext().getResources();
-        mHorizontalPadding = resources.getDimensionPixelSize(horizontalPaddingResId);
-        mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
-        mColumnCount = resources.getInteger(columnCountResId);
-        mHeaderStrings.add(headerString);
-        mHeaderLayoutId = R.layout.single_line_list_header;
-    }
-
-    public Segment(int initialPos, List<Integer> headerStringResIds,
-            AdapterView.OnItemSelectedListener spinnerClickListener,
-            List listItems, int columnCountResId, int horizontalPaddingResId,
-            int verticalPaddingResId) {
-        this(listItems, columnCountResId, horizontalPaddingResId, verticalPaddingResId);
-        mInitialPos = initialPos;
-        for (Integer resId : headerStringResIds) {
-            mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
+        public Builder headerLayout(int headerLayoutId) {
+            mSegment.mHeaderLayoutId = headerLayoutId;
+            return this;
         }
-        mHeaderLayoutId = R.layout.dropdown_header;
-        mSpinnerClickListener = spinnerClickListener;
+
+        public Builder headerString(int headerStringResId) {
+            mSegment.mHeaderStrings.add(TomahawkApp.getContext().getString(headerStringResId));
+            return this;
+        }
+
+        public Builder headerString(String headerString) {
+            mSegment.mHeaderStrings.add(headerString);
+            return this;
+        }
+
+        public Builder headerStrings(List<Integer> headerStringResIds) {
+            for (Integer resId : headerStringResIds) {
+                mSegment.mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
+            }
+            return this;
+        }
+
+        public Builder spinner(AdapterView.OnItemSelectedListener spinnerClickListener,
+                int initialPos) {
+            mSegment.mSpinnerClickListener = spinnerClickListener;
+            mSegment.mInitialPos = initialPos;
+            return this;
+        }
+
+        public Builder showAsGrid(int columnCountResId, int horizontalPaddingResId,
+                int verticalPaddingResId) {
+            Resources resources = TomahawkApp.getContext().getResources();
+            mSegment.mColumnCount = resources.getInteger(columnCountResId);
+            mSegment.mHorizontalPadding = resources.getDimensionPixelSize(horizontalPaddingResId);
+            mSegment.mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
+            return this;
+        }
+
+        public Builder offset(int offset) {
+            mSegment.mOffset = offset;
+            return this;
+        }
+
+        public Segment build() {
+            return mSegment;
+        }
+
     }
 
-    public Segment(int initialPos, List<Integer> headerStringResIds,
-            AdapterView.OnItemSelectedListener spinnerClickListener,
-            CollectionCursor cursor, int columnCountResId,
-            int horizontalPaddingResId, int verticalPaddingResId) {
-        this(cursor);
-        Resources resources = TomahawkApp.getContext().getResources();
-        mHorizontalPadding = resources.getDimensionPixelSize(horizontalPaddingResId);
-        mVerticalPadding = resources.getDimensionPixelSize(verticalPaddingResId);
-        mColumnCount = resources.getInteger(columnCountResId);
-        mInitialPos = initialPos;
-        for (Integer resId : headerStringResIds) {
-            mHeaderStrings.add(TomahawkApp.getContext().getString(resId));
-        }
-        mHeaderLayoutId = R.layout.dropdown_header;
-        mSpinnerClickListener = spinnerClickListener;
+    private Segment() {
     }
 
     public int getInitialPos() {
