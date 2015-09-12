@@ -23,7 +23,6 @@ import com.squareup.picasso.Target;
 
 import org.tomahawk.aidl.IPluginService;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
-import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -197,15 +196,15 @@ public class PlaybackService extends Service implements MusicFocusable {
 
     private Playlist mPlaylist;
 
-    private Playlist mShuffledPlaylist;
-
     private Playlist mQueue;
 
-    private Playlist mMergedPlaylist;
+    private List<Integer> mShuffledIndex = new ArrayList<>();
 
     private int mQueueStartPos = -1;
 
     private PlaylistEntry mCurrentEntry;
+
+    private int mCurrentIndex;
 
     private TomahawkMediaPlayer mCurrentMediaPlayer;
 
@@ -567,8 +566,6 @@ public class PlaybackService extends Service implements MusicFocusable {
 
         mPlaylist = Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), "");
         mQueue = Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), "");
-        mShuffledPlaylist = Playlist.fromEmptyList(SHUFFLED_PLAYLIST_ID, "");
-        mMergedPlaylist = Playlist.fromEmptyList(MERGED_PLAYLIST_ID, "");
         Log.d(TAG, "PlaybackService has been created");
     }
 
@@ -756,7 +753,7 @@ public class PlaybackService extends Service implements MusicFocusable {
         Log.d(TAG, "next");
         int counter = 0;
         PlaylistEntry entry = getNextEntry();
-        while (entry != null && counter++ < mMergedPlaylist.size()) {
+        while (entry != null && counter++ < getPlaybackListSize()) {
             setCurrentEntry(entry);
             if (entry.getQuery().isPlayable()) {
                 break;
@@ -772,7 +769,7 @@ public class PlaybackService extends Service implements MusicFocusable {
         Log.d(TAG, "previous");
         int counter = 0;
         PlaylistEntry entry = getPreviousEntry();
-        while (entry != null && counter++ < mMergedPlaylist.size()) {
+        while (entry != null && counter++ < getPlaybackListSize()) {
             if (entry.getQuery().isPlayable()) {
                 setCurrentEntry(entry);
                 break;
@@ -793,42 +790,64 @@ public class PlaybackService extends Service implements MusicFocusable {
         if (mShuffled != shuffled) {
             mShuffled = shuffled;
             if (shuffled) {
-                mShuffledPlaylist.setEntries(getShuffledPlaylistEntries());
+                fillShuffledIndex();
             }
-            mMergedPlaylist.setEntries(getMergedPlaylistEntries());
             if (getCurrentEntry() != null) {
-                int index = mMergedPlaylist.getIndexOfEntry(mCurrentEntry);
-                resolveQueriesFromTo(mMergedPlaylist.getEntries(), index, index + 10);
-                resolveQueriesFromTo(mQueue.getEntries(), index, index + 10);
+                resolveQueriesFromTo(mCurrentIndex, mCurrentIndex + 10);
             }
 
             EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
         }
     }
 
-    private ArrayList<PlaylistEntry> getShuffledPlaylistEntries() {
-        List<PlaylistEntry> entries = mPlaylist.getEntries();
-        Map<Artist, List<PlaylistEntry>> artistMap = new HashMap<>();
-        for (PlaylistEntry entry : entries) {
-            if (entry != mCurrentEntry) {
-                if (artistMap.get(entry.getArtist()) == null) {
-                    artistMap.put(entry.getArtist(), new ArrayList<PlaylistEntry>());
+    /**
+     * Shuffles the list of tracks in the current playlist and fills the shuffled index accordingly.
+     * The shuffle method ensures that the shuffled list does only contain a minimum amount of
+     * tracks by the same artist in sequence.
+     */
+    private void fillShuffledIndex() {
+        mShuffledIndex.clear();
+        Map<String, List<Integer>> artistMap = new HashMap<>();
+        List<String> artistNames = new ArrayList<>();
+        int shuffledTracksCount = 0;
+        boolean isPlayingFromQueue = mQueue.getIndexOfEntry(mCurrentEntry) >= 0;
+        int currentIndex = -1;
+        if (isPlayingFromQueue) {
+            currentIndex = mPlaylist.getIndexOfEntry(mCurrentEntry);
+        }
+        for (int i = 0; i < mPlaylist.size(); i++) {
+            if (isPlayingFromQueue || i != currentIndex) {
+                String artistName = mPlaylist.getArtistName(i);
+                if (artistMap.get(artistName) == null) {
+                    artistMap.put(artistName, new ArrayList<Integer>());
+                    artistNames.add(artistName);
                 }
-                artistMap.get(entry.getArtist()).add(entry);
+                artistMap.get(artistName).add(i);
+                shuffledTracksCount++;
             }
         }
-        ArrayList<PlaylistEntry> shuffledEntries = new ArrayList<>();
-        shuffledEntries.add(mCurrentEntry);
-        for (int i = entries.size(); i >= 0; i--) {
-            int pos = (int) (Math.random() * i);
-            for (Artist key : artistMap.keySet()) {
-                List<PlaylistEntry> artistEntries = artistMap.get(key);
-                if (artistEntries.size() > pos) {
-                    shuffledEntries.add(artistEntries.remove(pos));
-                }
-            }
+        if (!isPlayingFromQueue) {
+            mShuffledIndex.add(mCurrentIndex);
         }
-        return shuffledEntries;
+        String lastArtistName = null;
+        while (shuffledTracksCount >= 0) {
+            // Get a random artistName out of all available ones
+            String artistName = null;
+            int tryCount = 0;
+            while (tryCount++ < 3 && (artistName == null || artistName.equals(lastArtistName))) {
+                // We try 3 times to get an artistName that is different from the one we picked
+                // previously
+                int randomPos = (int) (Math.random() * artistNames.size());
+                artistName = artistNames.get(randomPos);
+            }
+            // Now we can get the list of track indexes
+            List<Integer> indexes = artistMap.get(artistName);
+            int randomPos = (int) (Math.random() * indexes.size());
+            // Add the randomly picked track index to our shuffled index
+            mShuffledIndex.add(indexes.get(randomPos));
+            shuffledTracksCount--;
+            lastArtistName = artistName;
+        }
     }
 
     public int getRepeatingMode() {
@@ -874,11 +893,12 @@ public class PlaybackService extends Service implements MusicFocusable {
         if (mRepeatingMode == REPEAT_ONE) {
             return entry;
         }
-        entry = mMergedPlaylist.getNextEntry(entry);
-        if (entry == null && mRepeatingMode == REPEAT_ALL) {
-            entry = mMergedPlaylist.getFirstEntry();
+        int index = getPlaybackListIndex(entry);
+        PlaylistEntry nextEntry = getPlaybackListEntry(index + 1);
+        if (nextEntry == null && mRepeatingMode == REPEAT_ALL) {
+            nextEntry = getPlaybackListEntry(0);
         }
-        return entry;
+        return nextEntry;
     }
 
     public boolean hasNextEntry() {
@@ -886,14 +906,7 @@ public class PlaybackService extends Service implements MusicFocusable {
     }
 
     public boolean hasNextEntry(PlaylistEntry entry) {
-        if (mRepeatingMode == REPEAT_ONE) {
-            return true;
-        }
-        boolean result = mMergedPlaylist.hasNextEntry(entry);
-        if (!result && mRepeatingMode == REPEAT_ALL) {
-            result = mMergedPlaylist.size() > 0;
-        }
-        return result;
+        return mRepeatingMode == REPEAT_ONE || getNextEntry(entry) != null;
     }
 
     public PlaylistEntry getPreviousEntry() {
@@ -904,11 +917,12 @@ public class PlaybackService extends Service implements MusicFocusable {
         if (mRepeatingMode == REPEAT_ONE) {
             return entry;
         }
-        entry = mMergedPlaylist.getPreviousEntry(entry);
-        if (entry == null && mRepeatingMode == REPEAT_ALL) {
-            entry = mMergedPlaylist.getLastEntry();
+        int index = getPlaybackListIndex(entry);
+        PlaylistEntry previousEntry = getPlaybackListEntry(index - 1);
+        if (previousEntry == null && mRepeatingMode == REPEAT_ALL) {
+            previousEntry = getPlaybackListEntry(getPlaybackListSize() - 1);
         }
-        return entry;
+        return previousEntry;
     }
 
     public boolean hasPreviousEntry() {
@@ -916,14 +930,7 @@ public class PlaybackService extends Service implements MusicFocusable {
     }
 
     public boolean hasPreviousEntry(PlaylistEntry entry) {
-        if (mRepeatingMode == REPEAT_ONE) {
-            return true;
-        }
-        boolean result = mMergedPlaylist.hasPreviousEntry(entry);
-        if (!result && mRepeatingMode == REPEAT_ALL) {
-            result = mMergedPlaylist.size() > 0;
-        }
-        return result;
+        return mRepeatingMode == REPEAT_ONE || getPreviousEntry(entry) != null;
     }
 
     /**
@@ -1014,7 +1021,7 @@ public class PlaybackService extends Service implements MusicFocusable {
             deleteQueryInQueue(mCurrentEntry);
         }
         mCurrentEntry = entry;
-        mMergedPlaylist.setEntries(getMergedPlaylistEntries());
+        mCurrentIndex = getPlaybackListIndex(mCurrentEntry);
         handlePlayState();
         EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
         onTrackChanged();
@@ -1024,9 +1031,7 @@ public class PlaybackService extends Service implements MusicFocusable {
         Log.d(TAG, "onTrackChanged");
         EventBus.getDefault().post(new PlayingTrackChangedEvent());
         if (getCurrentEntry() != null) {
-            int index = mMergedPlaylist.getIndexOfEntry(mCurrentEntry);
-            resolveQueriesFromTo(mMergedPlaylist.getEntries(), index - 2, index + 10);
-            resolveQueriesFromTo(mQueue.getEntries(), index, index - 2 + 10);
+            resolveQueriesFromTo(mCurrentIndex, mCurrentIndex - 2 + 10);
             updateNotification();
             updateLockscreenControls();
         }
@@ -1047,13 +1052,6 @@ public class PlaybackService extends Service implements MusicFocusable {
      */
     public Playlist getPlaylist() {
         return mPlaylist;
-    }
-
-    /**
-     * Get the current merged Playlist (playlist + queue)
-     */
-    public Playlist getMergedPlaylist() {
-        return mMergedPlaylist;
     }
 
     /**
@@ -1081,17 +1079,66 @@ public class PlaybackService extends Service implements MusicFocusable {
         return mQueueStartPos;
     }
 
-    private ArrayList<PlaylistEntry> getMergedPlaylistEntries() {
-        ArrayList<PlaylistEntry> entries = new ArrayList<>();
-        entries.addAll(mShuffled ? mShuffledPlaylist.getEntries() : mPlaylist.getEntries());
-        int insertPos = entries.indexOf(mCurrentEntry);
-        if (insertPos >= 0) {
-            entries.addAll(insertPos + 1, mQueue.getEntries());
-            mQueueStartPos = insertPos;
-        } else if (mQueueStartPos >= 0) {
-            entries.addAll(mQueueStartPos + 1, mQueue.getEntries());
+    /**
+     * @param position int containing the position in the current playback list
+     * @return the {@link PlaylistEntry} which has been found at the given position
+     */
+    public PlaylistEntry getPlaybackListEntry(int position) {
+        if (position < mQueueStartPos) {
+            // The requested entry is positioned before the queue
+            return getPlaylistEntry(position);
+        } else {
+            if (position < mQueueStartPos + mQueue.size()) {
+                // Getting the entry from the queue
+                return mQueue.getEntryAtPos(position - mQueueStartPos);
+            } else {
+                // The requested entry is positioned after the queue
+                return getPlaylistEntry(position - mQueue.size());
+            }
         }
-        return entries;
+    }
+
+    /**
+     * Private helper method that makes sure that the shuffled playlist is being used if needed.
+     */
+    private PlaylistEntry getPlaylistEntry(int position) {
+        if (mShuffled) {
+            int newPos = mShuffledIndex.get(position);
+            return mPlaylist.getEntryAtPos(newPos);
+        } else {
+            return mPlaylist.getEntryAtPos(position);
+        }
+    }
+
+    /**
+     * @param entry The {@link PlaylistEntry} to get the index for
+     * @return an int containing the index of the given {@link PlaylistEntry} inside the current
+     * playback list
+     */
+    public int getPlaybackListIndex(PlaylistEntry entry) {
+        int index = mQueue.getIndexOfEntry(entry);
+        if (index >= 0) {
+            // Found entry in queue
+            return index + mQueueStartPos;
+        } else {
+            index = mPlaylist.getIndexOfEntry(entry);
+            if (index < 0) {
+                Log.e(TAG,
+                        "getPlaybackListIndex - Couldn't find given entry in mQueue or mPlaylist.");
+                return -1;
+            }
+            if (index < mQueueStartPos) {
+                // Found entry and its positioned before the queue
+                return index;
+            } else {
+                // Found entry and its positioned after the queue
+                return index + mQueue.size();
+            }
+        }
+    }
+
+    public int getPlaybackListSize() {
+        return mQueue.size() + mPlaylist.size();
     }
 
     /**
@@ -1099,8 +1146,10 @@ public class PlaybackService extends Service implements MusicFocusable {
      */
     public void addQueryToQueue(Query query) {
         Log.d(TAG, "addQueryToQueue " + query.getName());
+        if (mQueue.size() == 0) {
+            mQueueStartPos = mCurrentIndex + 1;
+        }
         mQueue.addQuery(0, query);
-        mMergedPlaylist.setEntries(getMergedPlaylistEntries());
         EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
         onTrackChanged();
     }
@@ -1110,16 +1159,14 @@ public class PlaybackService extends Service implements MusicFocusable {
      */
     public void addQueriesToQueue(List<Query> queries) {
         Log.d(TAG, "addQueriesToQueue count: " + queries.size());
-        mQueue.addQueries(0, queries);
-        mMergedPlaylist.setEntries(getMergedPlaylistEntries());
-        EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
-        onTrackChanged();
+        for (Query query : queries) {
+            addQueryToQueue(query);
+        }
     }
 
     public void deleteQueryInQueue(PlaylistEntry entry) {
         Log.d(TAG, "deleteQueryInQueue");
         if (mQueue.deleteEntry(entry)) {
-            mMergedPlaylist.setEntries(getMergedPlaylistEntries());
             EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
             onTrackChanged();
         }
@@ -1421,11 +1468,11 @@ public class PlaybackService extends Service implements MusicFocusable {
         }
     }
 
-    private void resolveQueriesFromTo(List<PlaylistEntry> entries, int start, int end) {
+    private void resolveQueriesFromTo(int start, int end) {
         Set<Query> qs = new HashSet<>();
         for (int i = start; i < end; i++) {
-            if (i >= 0 && i < entries.size()) {
-                Query q = entries.get(i).getQuery();
+            if (i >= 0 && i < getPlaybackListSize()) {
+                Query q = getPlaybackListEntry(i).getQuery();
                 if (!mCorrespondingQueries.contains(q)) {
                     qs.add(q);
                 }
@@ -1434,15 +1481,6 @@ public class PlaybackService extends Service implements MusicFocusable {
         if (!qs.isEmpty()) {
             HashSet<Query> queries = PipeLine.get().resolve(qs);
             mCorrespondingQueries.addAll(queries);
-        }
-    }
-
-    private void onInfoSystemResultsReported(String requestId) {
-        if (getCurrentEntry() != null && getCurrentQuery().getCacheKey()
-                .equals(mCorrespondingRequestIds.get(requestId))) {
-            updateNotification();
-            updateLockscreenControls();
-            EventBus.getDefault().post(new PlayingTrackChangedEvent());
         }
     }
 

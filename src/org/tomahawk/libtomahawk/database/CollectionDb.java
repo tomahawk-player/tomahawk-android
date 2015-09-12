@@ -49,11 +49,15 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     public static final String ARTISTS_ARTISTDISAMBIGUATION = "artistDisambiguation";
 
+    public static final String ARTISTS_LASTMODIFIED = "artistLastModified";
+
     public static final String TABLE_ALBUMARTISTS = "albumArtists";
 
     public static final String ALBUMARTISTS_ALBUMARTIST = "albumArtist";
 
     public static final String ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION = "albumArtistDisambiguation";
+
+    public static final String ALBUMARTISTS_LASTMODIFIED = "albumArtistLastModified";
 
     public static final String TABLE_ALBUMS = "albums";
 
@@ -62,6 +66,8 @@ public class CollectionDb extends SQLiteOpenHelper {
     public static final String ALBUMS_IMAGEPATH = "imagePath";
 
     public static final String ALBUMS_ALBUMARTISTID = "albumArtistId";
+
+    public static final String ALBUMS_LASTMODIFIED = "albumLastModified";
 
     public static final String TABLE_ARTISTALBUMS = "artistAlbums";
 
@@ -85,11 +91,14 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     public static final String TRACKS_LINKURL = "linkUrl";
 
+    public static final String TRACKS_LASTMODIFIED = "trackLastModified";
+
     private static final String CREATE_TABLE_ARTISTS = "CREATE TABLE IF NOT EXISTS "
             + TABLE_ARTISTS + " ("
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + ARTISTS_ARTIST + " TEXT,"
             + ARTISTS_ARTISTDISAMBIGUATION + " TEXT,"
+            + ARTISTS_LASTMODIFIED + " INTEGER,"
             + "UNIQUE (" + ARTISTS_ARTIST + ", " + ARTISTS_ARTISTDISAMBIGUATION
             + ") ON CONFLICT IGNORE);";
 
@@ -98,6 +107,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + ALBUMARTISTS_ALBUMARTIST + " TEXT,"
             + ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION + " TEXT,"
+            + ALBUMARTISTS_LASTMODIFIED + " INTEGER,"
             + "UNIQUE (" + ALBUMARTISTS_ALBUMARTIST + ", " + ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION
             + ") ON CONFLICT IGNORE);";
 
@@ -107,6 +117,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             + ALBUMS_ALBUM + " TEXT,"
             + ALBUMS_ALBUMARTISTID + " INTEGER,"
             + ALBUMS_IMAGEPATH + " TEXT,"
+            + ALBUMS_LASTMODIFIED + " INTEGER,"
             + "UNIQUE (" + ALBUMS_ALBUM + ", " + ALBUMS_ALBUMARTISTID + ") ON CONFLICT IGNORE,"
             + "FOREIGN KEY(" + ALBUMS_ALBUMARTISTID + ") REFERENCES "
             + TABLE_ALBUMARTISTS + "(" + ID + "));";
@@ -133,6 +144,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             + TRACKS_DURATION + " INTEGER,"
             + TRACKS_ALBUMPOS + " INTEGER,"
             + TRACKS_LINKURL + " TEXT,"
+            + TRACKS_LASTMODIFIED + " INTEGER,"
             + "UNIQUE (" + TRACKS_TRACK + ", " + TRACKS_ARTISTID + ", " + TRACKS_ALBUMID
             + ") ON CONFLICT IGNORE,"
             + "FOREIGN KEY(" + TRACKS_ARTISTID + ") REFERENCES "
@@ -140,7 +152,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             + "FOREIGN KEY(" + TRACKS_ALBUMID + ") REFERENCES "
             + TABLE_ALBUMS + "(" + ID + "));";
 
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 3;
 
     private static final String DB_FILE_SUFFIX = "_collection.db";
 
@@ -198,6 +210,18 @@ public class CollectionDb extends SQLiteOpenHelper {
             db.execSQL("ALTER TABLE `" + TABLE_ALBUMS + "` ADD COLUMN `"
                     + ALBUMS_IMAGEPATH + "` TEXT");
         }
+        if (oldVersion < 3) {
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ARTISTS + "`;");
+            db.execSQL(CREATE_TABLE_ARTISTS);
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMARTISTS + "`;");
+            db.execSQL(CREATE_TABLE_ALBUMARTISTS);
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
+            db.execSQL(CREATE_TABLE_ALBUMS);
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ARTISTALBUMS + "`;");
+            db.execSQL(CREATE_TABLE_ARTISTALBUMS);
+            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
+            db.execSQL(CREATE_TABLE_TRACKS);
+        }
     }
 
     public boolean isInitialized() {
@@ -207,12 +231,9 @@ public class CollectionDb extends SQLiteOpenHelper {
     public synchronized void addTracks(ScriptResolverTrack[] tracks) {
         long time = System.currentTimeMillis();
         mDb.beginTransaction();
-        ContentValues values = new ContentValues();
-        values.put(ARTISTS_ARTIST, Artist.COMPILATION_ARTIST.getName());
-        values.put(ARTISTS_ARTISTDISAMBIGUATION, "");
-        mDb.insert(TABLE_ARTISTS, null, values);
 
-        // First we insert all artists and albumArtists
+        // Check if we want to store the album as a compilation album (with artist "Various Artists")
+        Map<String, Set<String>> albumArtists = new HashMap<>();
         for (ScriptResolverTrack track : tracks) {
             if (track.artist == null) {
                 track.artist = "";
@@ -232,13 +253,47 @@ public class CollectionDb extends SQLiteOpenHelper {
             if (track.track == null) {
                 track.track = "";
             }
-            values = new ContentValues();
+            Set<String> artists = albumArtists.get(track.album);
+            if (artists == null) {
+                artists = new HashSet<>();
+                albumArtists.put(track.album, artists);
+            }
+            if (artists.size() < 2) {
+                artists.add(track.artist);
+            }
+        }
+
+        Map<String, Long> mArtistLastModifiedMap = new HashMap<>();
+        // First we insert all artists and albumArtists
+        for (ScriptResolverTrack track : tracks) {
+            if (albumArtists.get(track.album).size() > 1) {
+                ContentValues values = new ContentValues();
+                values.put(ARTISTS_ARTIST, Artist.COMPILATION_ARTIST.getName());
+                values.put(ARTISTS_ARTISTDISAMBIGUATION, "");
+                String artistKey = Artist.COMPILATION_ARTIST.getName() + "♠" + "";
+                Long lastModified = mArtistLastModifiedMap.get(artistKey);
+                if (lastModified == null || lastModified < track.lastModified) {
+                    mArtistLastModifiedMap.put(artistKey, track.lastModified);
+                    lastModified = track.lastModified;
+                }
+                values.put(ARTISTS_LASTMODIFIED, lastModified);
+                mDb.insert(TABLE_ARTISTS, null, values);
+            }
+            ContentValues values = new ContentValues();
             values.put(ARTISTS_ARTIST, track.artist);
             values.put(ARTISTS_ARTISTDISAMBIGUATION, track.artistDisambiguation);
+            String artistKey = track.artist + "♠" + track.artistDisambiguation;
+            Long lastModified = mArtistLastModifiedMap.get(artistKey);
+            if (lastModified == null || lastModified < track.lastModified) {
+                mArtistLastModifiedMap.put(artistKey, track.lastModified);
+                lastModified = track.lastModified;
+            }
+            values.put(ARTISTS_LASTMODIFIED, lastModified);
             mDb.insert(TABLE_ARTISTS, null, values);
             values = new ContentValues();
             values.put(ALBUMARTISTS_ALBUMARTIST, track.albumArtist);
             values.put(ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION, track.albumArtistDisambiguation);
+            values.put(ALBUMARTISTS_LASTMODIFIED, lastModified);
             mDb.insert(TABLE_ALBUMARTISTS, null, values);
         }
 
@@ -262,20 +317,9 @@ public class CollectionDb extends SQLiteOpenHelper {
             }
         }
 
-        // Check if we want to store the album as a compilation album (with artist "Various Artists")
-        Map<String, Set<String>> albumArtists = new HashMap<>();
+        Map<String, Long> mAlbumLastModifiedMap = new HashMap<>();
         for (ScriptResolverTrack track : tracks) {
-            Set<String> artists = albumArtists.get(track.album);
-            if (artists == null) {
-                artists = new HashSet<>();
-                albumArtists.put(track.album, artists);
-            }
-            if (artists.size() < 2) {
-                artists.add(track.artist);
-            }
-        }
-        for (ScriptResolverTrack track : tracks) {
-            values = new ContentValues();
+            ContentValues values = new ContentValues();
             values.put(ALBUMS_ALBUM, track.album);
             int albumArtistId;
             if (albumArtists.get(track.album).size() == 1) {
@@ -287,6 +331,13 @@ public class CollectionDb extends SQLiteOpenHelper {
             }
             values.put(ALBUMS_ALBUMARTISTID, albumArtistId);
             values.put(ALBUMS_IMAGEPATH, track.imagePath);
+            String artistKey = track.album + "♠" + albumArtistId;
+            Long lastModified = mAlbumLastModifiedMap.get(artistKey);
+            if (lastModified == null || lastModified < track.lastModified) {
+                mAlbumLastModifiedMap.put(artistKey, track.lastModified);
+                lastModified = track.lastModified;
+            }
+            values.put(ALBUMS_LASTMODIFIED, lastModified);
             mDb.insert(TABLE_ALBUMS, null, values);
         }
 
@@ -311,7 +362,7 @@ public class CollectionDb extends SQLiteOpenHelper {
         }
 
         for (ScriptResolverTrack track : tracks) {
-            values = new ContentValues();
+            ContentValues values = new ContentValues();
             int albumArtistId;
             if (albumArtists.get(track.album).size() == 1) {
                 albumArtistId = cachedArtists.get(
@@ -333,6 +384,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             values.put(TRACKS_DURATION, (int) track.duration);
             values.put(TRACKS_LINKURL, track.linkUrl);
             values.put(TRACKS_ALBUMPOS, track.albumPos);
+            values.put(TRACKS_LASTMODIFIED, track.lastModified);
             mDb.insert(TABLE_TRACKS, null, values);
         }
 
@@ -364,7 +416,8 @@ public class CollectionDb extends SQLiteOpenHelper {
      */
     public synchronized Cursor tracks(WhereInfo where, String[] orderBy) {
         String[] fields = new String[]{ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION, ALBUMS_ALBUM,
-                TRACKS_TRACK, TRACKS_DURATION, TRACKS_URL, TRACKS_LINKURL, TRACKS_ALBUMPOS};
+                TRACKS_TRACK, TRACKS_DURATION, TRACKS_URL, TRACKS_LINKURL, TRACKS_ALBUMPOS,
+                TRACKS_LASTMODIFIED};
         return tracks(where, orderBy, fields);
     }
 
@@ -381,9 +434,30 @@ public class CollectionDb extends SQLiteOpenHelper {
         return sqlSelect(TABLE_TRACKS, fields, where, joinInfos, orderBy);
     }
 
+    public synchronized long tracksCurrentRevision() {
+        String[] fields = new String[]{TRACKS_LASTMODIFIED};
+        long currentRevision = -1;
+        Cursor cursor = null;
+        try {
+            cursor = sqlSelect(TABLE_TRACKS, fields, null, null,
+                    new String[]{TRACKS_LASTMODIFIED + " DESC"});
+            if (cursor.moveToFirst()) {
+                currentRevision = cursor.getLong(0);
+            } else {
+                Log.e(TAG, "tracksCurrentRevision - no tracks in table!");
+                return -1;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return currentRevision;
+    }
+
     public synchronized Cursor albums(String[] orderBy) {
         String[] fields = new String[]{ALBUMS_ALBUM, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION,
-                ALBUMS_IMAGEPATH};
+                ALBUMS_IMAGEPATH, ALBUMS_LASTMODIFIED};
         List<JoinInfo> joinInfos = new ArrayList<>();
         JoinInfo joinInfo = new JoinInfo();
         joinInfo.table = TABLE_ARTISTS;
@@ -394,14 +468,39 @@ public class CollectionDb extends SQLiteOpenHelper {
     }
 
     public synchronized Cursor artists(String[] orderBy) {
-        String[] fields = new String[]{ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION};
+        String[] fields = new String[]{ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION,
+                ARTISTS_LASTMODIFIED};
         return sqlSelect(TABLE_ARTISTS, fields, null, null, orderBy);
     }
 
     public synchronized Cursor albumArtists(String[] orderBy) {
         String[] fields = new String[]{ALBUMARTISTS_ALBUMARTIST,
-                ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION};
+                ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION, ALBUMARTISTS_LASTMODIFIED};
         return sqlSelect(TABLE_ALBUMARTISTS, fields, null, null, orderBy);
+    }
+
+    public synchronized long artistCurrentRevision(String artist, String artistDisambiguation) {
+        String[] fields = new String[]{ARTISTS_LASTMODIFIED};
+        WhereInfo whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(ARTISTS_ARTIST, new String[]{artist});
+        whereInfo.where.put(ARTISTS_ARTISTDISAMBIGUATION, new String[]{artistDisambiguation});
+        long currentRevision = -1;
+        Cursor cursor = null;
+        try {
+            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null);
+            if (cursor.moveToFirst()) {
+                currentRevision = cursor.getLong(0);
+            } else {
+                Log.e(TAG, "artistCurrentRevision - Couldn't find artist with given name!");
+                return -1;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return currentRevision;
     }
 
     public synchronized Cursor artistAlbums(String artist, String artistDisambiguation) {
@@ -426,7 +525,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             }
         }
         fields = new String[]{ALBUMS_ALBUM, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION,
-                ALBUMS_IMAGEPATH};
+                ALBUMS_IMAGEPATH, ALBUMS_LASTMODIFIED};
         whereInfo = new WhereInfo();
         whereInfo.connection = "AND";
         whereInfo.where.put(ARTISTALBUMS_ARTISTID, new String[]{String.valueOf(artistId)});
@@ -443,6 +542,51 @@ public class CollectionDb extends SQLiteOpenHelper {
         joinInfos.add(joinInfo);
         return sqlSelect(TABLE_ARTISTALBUMS, fields, whereInfo, joinInfos,
                 new String[]{ALBUMS_ALBUM});
+    }
+
+    public synchronized long albumCurrentRevision(String album, String albumArtist,
+            String albumArtistDisambiguation) {
+        String[] fields = new String[]{ID};
+        WhereInfo whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(ARTISTS_ARTIST, new String[]{albumArtist});
+        whereInfo.where.put(ARTISTS_ARTISTDISAMBIGUATION, new String[]{albumArtistDisambiguation});
+        int artistId;
+        Cursor cursor = null;
+        try {
+            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null);
+            if (cursor.moveToFirst()) {
+                artistId = cursor.getInt(0);
+            } else {
+                Log.e(TAG, "albumCurrentRevision - Couldn't find artist with given name!");
+                return -1;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        fields = new String[]{ALBUMS_LASTMODIFIED};
+        whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(ALBUMS_ALBUM, new String[]{album});
+        whereInfo.where.put(ALBUMS_ALBUMARTISTID, new String[]{String.valueOf(artistId)});
+        long currentRevision = -1;
+        cursor = null;
+        try {
+            cursor = sqlSelect(TABLE_ALBUMS, fields, whereInfo, null, null);
+            if (cursor.moveToFirst()) {
+                currentRevision = cursor.getLong(0);
+            } else {
+                Log.e(TAG, "albumCurrentRevision - Couldn't find album with given name!");
+                return -1;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return currentRevision;
     }
 
     public synchronized Cursor albumTracks(String album, String albumArtist,

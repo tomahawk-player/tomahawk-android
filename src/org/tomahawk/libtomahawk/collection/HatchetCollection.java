@@ -19,7 +19,6 @@ package org.tomahawk.libtomahawk.collection;
 
 import org.jdeferred.Deferred;
 import org.jdeferred.Promise;
-import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -48,16 +47,13 @@ public class HatchetCollection extends Collection {
     private final Set<Artist> mAlbumArtists
             = Collections.newSetFromMap(new ConcurrentHashMap<Artist, Boolean>());
 
-    private final Set<Query> mQueries
-            = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
-
-    private final ConcurrentHashMap<Album, List<Query>> mAlbumTracks
+    private final ConcurrentHashMap<Album, Playlist> mAlbumTracks
             = new ConcurrentHashMap<>();
 
     private final ConcurrentHashMap<Artist, List<Album>> mArtistAlbums
             = new ConcurrentHashMap<>();
 
-    private final ConcurrentHashMap<Artist, List<Query>> mArtistTopHits
+    private final ConcurrentHashMap<Artist, Playlist> mArtistTopHits
             = new ConcurrentHashMap<>();
 
     public HatchetCollection() {
@@ -71,7 +67,6 @@ public class HatchetCollection extends Collection {
     }
 
     public void wipe() {
-        mQueries.clear();
         mArtists.clear();
         mAlbums.clear();
         mAlbumTracks.clear();
@@ -79,26 +74,8 @@ public class HatchetCollection extends Collection {
     }
 
     @Override
-    public Promise<CollectionCursor<Query>, Throwable, Void> getQueries(int sortMode) {
-        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        Comparator comparator = null;
-        switch (sortMode) {
-            case SORT_ALPHA:
-                comparator = new AlphaComparator();
-                break;
-            case SORT_ARTIST_ALPHA:
-                comparator = new ArtistAlphaComparator();
-                break;
-            case SORT_LAST_MODIFIED:
-                comparator = new AlphaComparator();  //TODO
-                break;
-        }
-        List<Query> queries = new ArrayList<>(mQueries);
-        if (comparator != null) {
-            Collections.sort(queries, comparator);
-        }
-        CollectionCursor<Query> collectionCursor = new CollectionCursor<>(queries, Query.class);
-        return deferred.resolve(collectionCursor);
+    public Promise<Playlist, Throwable, Void> getQueries(int sortMode) {
+        return null;
     }
 
     public void addArtist(Artist artist) {
@@ -194,37 +171,35 @@ public class HatchetCollection extends Collection {
         return deferred.resolve(collectionCursor);
     }
 
-    public void addAlbumTracks(Album album, List<Query> queries) {
-        mAlbumTracks.put(album, queries);
+    public void addAlbumTracks(Album album, Playlist playlist) {
+        mAlbumTracks.put(album, playlist);
     }
 
     @Override
-    public Promise<CollectionCursor<Query>, Throwable, Void> getAlbumTracks(final Album album) {
-        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        CollectionCursor<Query> collectionCursor = null;
-        if (mAlbumTracks.get(album) != null) {
-            List<Query> queries = new ArrayList<>();
-            queries.addAll(mAlbumTracks.get(album));
-            collectionCursor = new CollectionCursor<>(queries, Query.class);
-        }
-        return deferred.resolve(collectionCursor);
+    public Promise<Playlist, Throwable, Void> getAlbumTracks(final Album album) {
+        Deferred<Playlist, Throwable, Void> deferred = new ADeferredObject<>();
+        return deferred.resolve(mAlbumTracks.get(album));
     }
 
-    public void addArtistTopHits(Artist artist, List<Query> topHits) {
-        mArtistTopHits.put(artist, topHits);
+    @Override
+    public Promise<Integer, Throwable, Void> getAlbumTrackCount(final Album album) {
+        Deferred<Integer, Throwable, Void> deferred = new ADeferredObject<>();
+        if (mAlbumTracks.get(album) != null) {
+            return deferred.resolve(mAlbumTracks.get(album).size());
+        }
+        return deferred
+                .reject(new Throwable("Couldn't find album " + album.getName() + " in collection"));
+    }
+
+    public void addArtistTopHits(Artist artist, Playlist playlist) {
+        mArtistTopHits.put(artist, playlist);
     }
 
     /**
      * @return A {@link java.util.List} of all top hits {@link Track}s from the given Artist.
      */
-    public Promise<CollectionCursor<Query>, Throwable, Void> getArtistTopHits(final Artist artist) {
-        final Deferred<CollectionCursor<Query>, Throwable, Void> deferred = new ADeferredObject<>();
-        CollectionCursor<Query> collectionCursor = null;
-        if (mArtistTopHits.get(artist) != null) {
-            List<Query> queries = new ArrayList<>();
-            queries.addAll(mArtistTopHits.get(artist));
-            collectionCursor = new CollectionCursor<>(queries, Query.class);
-        }
-        return deferred.resolve(collectionCursor);
+    public Promise<Playlist, Throwable, Void> getArtistTopHits(final Artist artist) {
+        Deferred<Playlist, Throwable, Void> deferred = new ADeferredObject<>();
+        return deferred.resolve(mArtistTopHits.get(artist));
     }
 }

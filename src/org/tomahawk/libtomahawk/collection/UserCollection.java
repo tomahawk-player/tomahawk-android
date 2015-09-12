@@ -330,6 +330,7 @@ public class UserCollection extends DbCollection {
                     track.albumPos = mw.getTrackNumber();
                     track.url = mw.getLocation();
                     track.imagePath = mw.getArtworkURL();
+                    track.lastModified = mw.getLastModified();
                     tracks.add(track);
                 }
             }

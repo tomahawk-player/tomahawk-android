@@ -23,8 +23,10 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.ArtistAlphaComparable;
 import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Image;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.LevensteinDistance;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 
 import android.text.TextUtils;
@@ -239,7 +241,7 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
      * @return An ArrayList<Query> which contains all tracks in the resultList, sorted by score.
      * Given as queries.
      */
-    public ArrayList<Query> getTrackQueries() {
+    public Playlist getResultPlaylist() {
         ArrayList<Query> queries = new ArrayList<>();
         for (Result result : mTrackResults) {
             if (!isOnlyLocal() || result.isLocal()) {
@@ -248,7 +250,8 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
                 queries.add(query);
             }
         }
-        return queries;
+        return Playlist.fromQueryList(TomahawkMainActivity.getSessionUniqueStringId(),
+                mFullTextQuery, "", queries);
     }
 
     public Result getPreferredTrackResult() {

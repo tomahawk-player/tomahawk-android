@@ -23,8 +23,6 @@ import com.daimajia.swipe.interfaces.SwipeAdapterInterface;
 import com.daimajia.swipe.interfaces.SwipeItemMangerInterface;
 import com.daimajia.swipe.util.Attributes;
 
-import org.jdeferred.DonePipe;
-import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
@@ -35,7 +33,6 @@ import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
-import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -45,7 +42,6 @@ import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.views.BiDirectionalFrame;
 
 import android.content.SharedPreferences;
-import android.database.StaleDataException;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -57,9 +53,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
@@ -73,13 +67,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private static final String TAG = TomahawkListAdapter.class.getSimpleName();
 
-    public static final String TEMP_PLAYLIST_NAME = "Temporary playlist";
-
     private final TomahawkMainActivity mActivity;
 
     private List<Segment> mSegments;
-
-    private boolean mSegmentsClosed;
 
     private int mRowCount;
 
@@ -106,10 +96,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     private ProgressBar mProgressBar;
 
     private final SwipeItemAdapterMangerImpl mItemManager = new SwipeItemAdapterMangerImpl(this);
-
-    private ADeferredObject<Playlist, Throwable, Void> mGetPlaylistPromise;
-
-    private final Map<Object, PlaylistEntry> mPlaylistEntryMap = new HashMap<>();
 
     /**
      * Constructs a new {@link TomahawkListAdapter}.
@@ -169,97 +155,18 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     private void setSegments(List<Segment> segments) {
         closeSegments();
         mSegments = segments;
-        mSegmentsClosed = false;
         mRowCount = 0;
         for (Segment segment : mSegments) {
             mRowCount += segment.getRowCount();
-        }
-
-        synchronized (this) {
-            mGetPlaylistPromise = null;
         }
     }
 
     public void closeSegments() {
         if (mSegments != null) {
-            mSegmentsClosed = true;
             for (Segment segment : mSegments) {
                 segment.close();
             }
         }
-    }
-
-    private void extractPlaylistEntry(Playlist playlist, Object item) {
-        Query q = null;
-        if (item instanceof SocialAction
-                && ((SocialAction) item).getTargetObject() instanceof Query) {
-            item = ((SocialAction) item).getTargetObject();
-            q = (Query) item;
-        } else if (item instanceof Query) {
-            q = (Query) item;
-        } else if (item instanceof PlaylistEntry) {
-            q = ((PlaylistEntry) item).getQuery();
-        }
-        if (q != null) {
-            PlaylistEntry entry = playlist.addQuery(0, q);
-            mPlaylistEntryMap.put(item, entry);
-        }
-    }
-
-    public synchronized Promise<Playlist, Throwable, Void> getPlaylist() {
-        if (mGetPlaylistPromise == null) {
-            final ADeferredObject<Playlist, Throwable, Void> promise = new ADeferredObject<>();
-            mGetPlaylistPromise = promise;
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Playlist playlist = Playlist.fromEntriesList(
-                            TomahawkMainActivity.getLifetimeUniqueStringId(), TEMP_PLAYLIST_NAME,
-                            null, new ArrayList<PlaylistEntry>());
-                    mPlaylistEntryMap.clear();
-                    for (int i = 0; i < getCount(); i++) {
-                        synchronized (TomahawkListAdapter.this) {
-                            if (mGetPlaylistPromise != promise || mSegmentsClosed) {
-                                promise.reject(null);
-                                return;
-                            }
-                        }
-                        try {
-                            Object object = getItem(i);
-                            if (object instanceof List) {
-                                for (Object item : (List) object) {
-                                    extractPlaylistEntry(playlist, item);
-                                }
-                            } else {
-                                extractPlaylistEntry(playlist, object);
-                            }
-                        } catch (StaleDataException | IllegalStateException e) {
-                            Log.d(TAG, "getPlaylist - Cursor closed. Aborting ...");
-                            promise.reject(null);
-                            return;
-                        }
-                    }
-                    synchronized (TomahawkListAdapter.this) {
-                        if (mGetPlaylistPromise != promise) {
-                            promise.reject(null);
-                        } else {
-                            promise.resolve(playlist);
-                        }
-                    }
-                }
-            }).start();
-        }
-        return mGetPlaylistPromise;
-    }
-
-    public Promise<PlaylistEntry, Throwable, Void> getPlaylistEntry(final Object item) {
-        return getPlaylist().then(new DonePipe<Playlist, PlaylistEntry, Throwable, Void>() {
-            @Override
-            public Promise<PlaylistEntry, Throwable, Void> pipeDone(Playlist result) {
-                ADeferredObject<PlaylistEntry, Throwable, Void> deferred = new ADeferredObject<>();
-                return deferred.resolve(mPlaylistEntryMap.get(item));
-            }
-        });
     }
 
     public void setShowContentHeaderSpacer(int headerSpacerHeight,
@@ -838,10 +745,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         Object o = getItem(position);
         if (!(o instanceof List)) {
-            // Don't display the socialAction item directly, but rather the item that is its target
-            if (o instanceof SocialAction && ((SocialAction) o).getTargetObject() != null) {
-                o = ((SocialAction) o).getTargetObject();
-            }
             mClickListener.onItemClick(view, o);
         }
     }
@@ -850,10 +753,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         Object o = getItem(position);
         if (!(o instanceof List)) {
-            // Don't display the socialAction item directly, but rather the item that is its target
-            if (o instanceof SocialAction && ((SocialAction) o).getTargetObject() != null) {
-                o = ((SocialAction) o).getTargetObject();
-            }
             return mClickListener.onItemLongClick(view, o);
         }
         return false;

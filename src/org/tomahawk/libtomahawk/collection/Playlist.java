@@ -20,6 +20,8 @@ package org.tomahawk.libtomahawk.collection;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -33,6 +35,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * and stored in the database
  */
 public class Playlist extends Cacheable implements AlphaComparable {
+
+    private static final String TAG = Playlist.class.getSimpleName();
 
     private String mName = "";
 
@@ -142,12 +146,22 @@ public class Playlist extends Cacheable implements AlphaComparable {
         return pl;
     }
 
-    protected void setCursor(CollectionCursor<PlaylistEntry> cursor) {
+    public void clear() {
+        mAddedEntries.clear();
+        mCachedEntries.clear();
+        mIndex.clear();
+        mCursor = null;
+    }
+
+    public void setCursor(CollectionCursor<PlaylistEntry> cursor) {
         mCursor = cursor;
         initIndex();
     }
 
     private void initIndex() {
+        mAddedEntries.clear();
+        mCachedEntries.clear();
+        mIndex.clear();
         for (int i = 0; i < mCursor.size(); i++) {
             mIndex.add(new Index(i, false));
         }
@@ -191,8 +205,8 @@ public class Playlist extends Cacheable implements AlphaComparable {
 
     public void updateTopArtistNames() {
         final HashMap<String, Integer> countMap = new HashMap<>();
-        for (PlaylistEntry entry : getEntries()) {
-            String artistName = entry.getArtist().getName();
+        for (int i = 0; i < size(); i++) {
+            String artistName = getArtistName(i);
             if (countMap.containsKey(artistName)) {
                 countMap.put(artistName, countMap.get(artistName) + 1);
             } else {
@@ -341,7 +355,9 @@ public class Playlist extends Cacheable implements AlphaComparable {
     public List<PlaylistEntry> getEntries() {
         List<PlaylistEntry> entries = new ArrayList<>();
         for (Index index : mIndex) {
-            entries.add(getEntry(index));
+            PlaylistEntry entry = getEntry(index);
+            entries.add(entry);
+            mCachedEntries.put(entry, index);
         }
         return entries;
     }
@@ -364,24 +380,12 @@ public class Playlist extends Cacheable implements AlphaComparable {
     }
 
     /**
-     * Add the given List of {@link Query}s to this {@link Playlist}
-     *
-     * @param position the position at which to insert the given List of {@link Query}s
-     * @param queries  the List of {@link Query}s to add
-     */
-    public void addQueries(int position, List<Query> queries) {
-        for (Query query : queries) {
-            addQuery(position, query);
-        }
-    }
-
-    /**
      * Remove the given {@link Query} from this playlist
      */
     public boolean deleteEntry(PlaylistEntry entry) {
         Index index = mCachedEntries.get(entry);
         if (index == null) {
-            throw new RuntimeException("Couldn't find cached PlaylistEntry.");
+            Log.d(TAG, "deleteEntry - couldn't find cached PlaylistEntry.");
         }
         return mIndex.remove(index);
     }
@@ -403,6 +407,9 @@ public class Playlist extends Cacheable implements AlphaComparable {
     }
 
     public PlaylistEntry getEntryAtPos(int position) {
+        if (position < 0 || position >= mIndex.size()) {
+            return null;
+        }
         Index index = mIndex.get(position);
         return getEntry(index);
     }
@@ -418,5 +425,29 @@ public class Playlist extends Cacheable implements AlphaComparable {
             return s[0];
         }
         return null;
+    }
+
+    public boolean allFromOneArtist() {
+        if (size() < 2) {
+            return true;
+        }
+        String artistname = getArtistName(0);
+        for (int i = 1; i < size(); i++) {
+            String artistNameToCompare = getArtistName(i);
+            if (artistNameToCompare.equals(artistname)) {
+                return false;
+            }
+            artistname = artistNameToCompare;
+        }
+        return true;
+    }
+
+    public String getArtistName(int position) {
+        Index index = mIndex.get(position);
+        if (index.mFromMergedItems) {
+            return mAddedEntries.get(index.mIndex).getArtist().getName();
+        } else {
+            return mCursor.getArtistName(index.mIndex);
+        }
     }
 }

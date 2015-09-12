@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.R;
@@ -35,6 +36,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -52,6 +54,10 @@ public class User extends Cacheable implements AlphaComparable {
     private static final String PLAYLIST_PLAYBACKLOG_ID = "_playbackLog";
 
     private static final String PLAYLIST_FAVORITES_ID = "_favorites";
+
+    private static final String PLAYLIST_SOCIALACTIONS_ID = "_socialActions";
+
+    private static final String PLAYLIST_FRIENDSFEED_ID = "_friendsfeed";
 
     private String mId;
 
@@ -78,6 +84,12 @@ public class User extends Cacheable implements AlphaComparable {
     private Date mSocialActionsNextDate = new Date();
 
     private Date mFriendsFeedNextDate = new Date();
+
+    private Playlist mSocialActionsPlaylist;
+
+    private Playlist mFriendsFeedPlaylist;
+
+    private final Map<SocialAction, PlaylistEntry> mPlaylistEntryMap = new HashMap<>();
 
     private Playlist mPlaybackLog;
 
@@ -106,6 +118,8 @@ public class User extends Cacheable implements AlphaComparable {
         mId = id;
         mPlaybackLog = Playlist.fromEmptyList(id + User.PLAYLIST_PLAYBACKLOG_ID, "");
         mFavorites = Playlist.fromEmptyList(id + User.PLAYLIST_FAVORITES_ID, "");
+        mSocialActionsPlaylist = Playlist.fromEmptyList(id + User.PLAYLIST_SOCIALACTIONS_ID, "");
+        mFriendsFeedPlaylist = Playlist.fromEmptyList(id + User.PLAYLIST_FRIENDSFEED_ID, "");
     }
 
     /**
@@ -253,6 +267,7 @@ public class User extends Cacheable implements AlphaComparable {
                     mSocialActionsNextDate = socialAction.getDate();
                 }
             }
+            fillPlaylist(mSocialActionsPlaylist, mSocialActions);
         }
     }
 
@@ -273,11 +288,37 @@ public class User extends Cacheable implements AlphaComparable {
                     mFriendsFeedNextDate = socialAction.getDate();
                 }
             }
+            fillPlaylist(mFriendsFeedPlaylist, mFriendsFeed);
         }
     }
 
     public Date getFriendsFeedNextDate() {
         return mFriendsFeedNextDate;
+    }
+
+    public Playlist getSocialActionsPlaylist() {
+        return mSocialActionsPlaylist;
+    }
+
+    public Playlist getFriendsFeedPlaylist() {
+        return mFriendsFeedPlaylist;
+    }
+
+    private void fillPlaylist(Playlist playlist, TreeMap<Date, List<SocialAction>> actions) {
+        playlist.clear();
+        for (Date date : actions.keySet()) {
+            for (SocialAction action : actions.get(date)) {
+                if (action.getTargetObject() instanceof Query) {
+                    Query query = (Query) action.getTargetObject();
+                    PlaylistEntry entry = playlist.addQuery(playlist.size(), query);
+                    mPlaylistEntryMap.put(action, entry);
+                }
+            }
+        }
+    }
+
+    public PlaylistEntry getPlaylistEntry(SocialAction item) {
+        return mPlaylistEntryMap.get(item);
     }
 
     public Playlist getPlaybackLog() {

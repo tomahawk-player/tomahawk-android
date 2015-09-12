@@ -26,12 +26,12 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.HatchetCollection;
+import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntries;
-import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ISO8601Utils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -204,10 +204,10 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 }
                 List topHits = mStore.storeRecords(object, Store.TYPE_TRACKS, type,
                         infoRequestData.isBackgroundRequest());
-                if (topHits.size() > 0) {
-                    Query firstTopHit = (Query) topHits.get(0);
-                    hatchetCollection.addArtistTopHits(firstTopHit.getArtist(), topHits);
-                }
+                Artist artist = Artist.get(params.name);
+                Playlist playlist = Playlist.fromQueryList(TomahawkApp.PLUGINNAME_HATCHET + "_"
+                        + artist.getCacheKey(), null, null, topHits);
+                hatchetCollection.addArtistTopHits(artist, playlist);
                 infoRequestData.setResultList(topHits);
                 return true;
 
@@ -234,7 +234,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
                         infoRequestData.isBackgroundRequest());
                 Artist artist = Artist.get(params.artistname);
                 Album album = Album.get(params.name, artist);
-                hatchetCollection.addAlbumTracks(album, tracks);
+                Playlist playlist = Playlist.fromQueryList(TomahawkApp.PLUGINNAME_HATCHET + "_"
+                        + album.getCacheKey(), null, null, tracks);
+                hatchetCollection.addAlbumTracks(album, playlist);
                 infoRequestData.setResultList(tracks);
                 return true;
 
