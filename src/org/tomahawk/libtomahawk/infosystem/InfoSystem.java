@@ -412,7 +412,13 @@ public class InfoSystem {
             HatchetPlaybackLogEntry playbackLogEntry = new HatchetPlaybackLogEntry();
             playbackLogEntry.albumString = mLastPlaybackLogEntry.getAlbum().getName();
             playbackLogEntry.artistString = mLastPlaybackLogEntry.getArtist().getName();
+            if (playbackLogEntry.artistString.isEmpty()) {
+                playbackLogEntry.artistString = "Unknown Artist";
+            }
             playbackLogEntry.trackString = mLastPlaybackLogEntry.getName();
+            if (playbackLogEntry.trackString.isEmpty()) {
+                playbackLogEntry.trackString = "Unknown Title";
+            }
             playbackLogEntry.timestamp = new Date(timeStamp);
             HatchetPlaybackLogPostStruct playbackLogPostStruct = new HatchetPlaybackLogPostStruct();
             playbackLogPostStruct.playbackLogEntry = playbackLogEntry;
@@ -436,7 +442,13 @@ public class InfoSystem {
             HatchetPlaybackLogEntry playbackLogEntry = new HatchetPlaybackLogEntry();
             playbackLogEntry.albumString = query.getAlbum().getName();
             playbackLogEntry.artistString = query.getArtist().getName();
+            if (playbackLogEntry.artistString.isEmpty()) {
+                playbackLogEntry.artistString = "Unknown Artist";
+            }
             playbackLogEntry.trackString = query.getName();
+            if (playbackLogEntry.trackString.isEmpty()) {
+                playbackLogEntry.trackString = "Unknown Title";
+            }
             playbackLogEntry.type = "nowplaying";
             playbackLogEntry.timestamp = new Date(timeStamp);
             HatchetPlaybackLogPostStruct playbackLogPostStruct = new HatchetPlaybackLogPostStruct();
@@ -633,7 +645,7 @@ public class InfoSystem {
         return requestIds;
     }
 
-    public synchronized void onLoggedOpsSent(ArrayList<String> doneRequestsIds, boolean success) {
+    public synchronized void onLoggedOpsSent(ArrayList<String> doneRequestsIds, boolean discard) {
         List<InfoRequestData> loggedOps = new ArrayList<>();
         HashSet<Integer> requestTypes = new HashSet<>();
         HashSet<String> playlistIds = new HashSet<>();
@@ -661,7 +673,7 @@ public class InfoSystem {
                 mLoggedOpsMap.remove(loggedOp.getLoggedOpId());
             }
         }
-        if (success) {
+        if (discard) {
             for (InfoRequestData loggedOp : loggedOps) {
                 mPlaylistsLoggedOpsMap.remove(loggedOp.getLoggedOpId());
             }

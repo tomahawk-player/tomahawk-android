@@ -283,6 +283,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 Hatchet hatchet = mStore.getImplementation(infoRequestData.isBackgroundRequest());
                 // Before we do anything, get the accesstoken
                 boolean success = false;
+                boolean discard = false;
                 String accessToken = mHatchetAuthenticatorUtils.ensureAccessTokens();
                 if (accessToken != null) {
                     String data = infoRequestData.getJsonStringToSend();
@@ -345,12 +346,18 @@ public class HatchetInfoPlugin implements InfoPlugin {
                             }
                         }
                         success = true;
+                        discard = true;
                     } catch (RetrofitError e) {
                         Log.e(TAG, "send: Request to " + e.getUrl() + " failed: " + e.getClass()
                                 + ": " + e.getLocalizedMessage());
+                        if (e.getResponse().getStatus() == 500) {
+                            Log.e(TAG, "send: discarding oplog that has failed to be sent to " + e
+                                    .getUrl());
+                            discard = true;
+                        }
                     }
                 }
-                InfoSystem.get().onLoggedOpsSent(doneRequestsIds, success);
+                InfoSystem.get().onLoggedOpsSent(doneRequestsIds, discard);
                 InfoSystem.get().reportResults(infoRequestData, success);
             }
         };
