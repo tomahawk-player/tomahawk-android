@@ -192,6 +192,7 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
     @Override
     public void onWebViewClientReady() {
         registerPlugin(ScriptObject.TYPE_RESOLVER);
+        PipeLine.get().onPluginLoaded(this);
     }
 
     public ScriptResolver getScriptResolver() {

@@ -73,7 +73,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
 
     private boolean mEnabled;
 
-    private boolean mReady;
+    private boolean mInitialized;
 
     private boolean mStopped;
 
@@ -123,7 +123,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                 }
             }
         }
-        mReady = false;
+        mInitialized = false;
         mStopped = true;
         mId = mScriptAccount.getMetaData().pluginName;
         if (getConfig().get(ScriptAccount.ENABLED_KEY) != null) {
@@ -144,8 +144,8 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
      * @return whether or not this {@link Resolver} is ready
      */
     @Override
-    public boolean isReady() {
-        return mReady;
+    public boolean isInitialized() {
+        return mInitialized;
     }
 
     /**
@@ -153,7 +153,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
      */
     @Override
     public boolean isResolving() {
-        return mReady && !mStopped;
+        return mInitialized && !mStopped;
     }
 
     @Override
@@ -202,7 +202,20 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
      * This method calls the js function resolver.init().
      */
     private void init() {
-        ScriptJob.start(mScriptObject, "init");
+        ScriptJob.start(mScriptObject, "init", new ScriptJob.ResultsEmptyCallback() {
+            @Override
+            public void onReportResults() {
+                mInitialized = true;
+                Log.d(TAG, "ScriptResolver " + mId + " initialized successfully.");
+                PipeLine.get().onResolverInitialized(ScriptResolver.this);
+            }
+        }, new ScriptJob.FailureCallback() {
+            @Override
+            public void onReportFailure(String errormessage) {
+                Log.d(TAG, "ScriptResolver " + mId + " failed to initialize.");
+                PipeLine.get().onResolverInitialized(ScriptResolver.this);
+            }
+        });
     }
 
     /**
@@ -216,8 +229,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                     public void onReportResults(ScriptResolverSettings results) {
                         mWeight = results.weight;
                         mTimeout = results.timeout * 1000;
-                        mReady = true;
-                        PipeLine.get().onResolverReady(ScriptResolver.this);
                         resolverGetConfigUi();
                     }
                 });
@@ -270,7 +281,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
      */
     @Override
     public boolean resolve(final Query query) {
-        if (mReady) {
+        if (mInitialized) {
             mStopped = false;
             mTimeOutHandler.removeCallbacksAndMessages(null);
             mTimeOutHandler.sendEmptyMessageDelayed(TIMEOUT_HANDLER_MSG, mTimeout);
@@ -298,7 +309,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                 ScriptJob.start(mScriptObject, "resolve", args, callback);
             }
         }
-        return mReady;
+        return mInitialized;
     }
 
     public void getStreamUrl(final Result result) {
