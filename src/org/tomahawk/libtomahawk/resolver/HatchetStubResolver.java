@@ -43,7 +43,7 @@ public class HatchetStubResolver implements Resolver {
     }
 
     @Override
-    public boolean isReady() {
+    public boolean isInitialized() {
         return false;
     }
 

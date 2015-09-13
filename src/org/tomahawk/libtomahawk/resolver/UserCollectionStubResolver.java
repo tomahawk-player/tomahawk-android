@@ -47,7 +47,7 @@ public class UserCollectionStubResolver implements Resolver {
      * @return whether or not this {@link Resolver} is ready
      */
     @Override
-    public boolean isReady() {
+    public boolean isInitialized() {
         return false;
     }
 

@@ -27,7 +27,7 @@ public interface Resolver {
     /**
      * @return Whether or not this {@link Resolver} is ready
      */
-    boolean isReady();
+    boolean isInitialized();
 
     /**
      * @return Whether or not this {@link Resolver} is enabled
