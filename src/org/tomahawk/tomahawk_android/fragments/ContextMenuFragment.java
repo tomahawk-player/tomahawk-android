@@ -379,35 +379,33 @@ public class ContextMenuFragment extends Fragment {
         });
 
         // set up "Remove" context menu item
-        if (mPlaylist != null || mPlaylistEntry != null) {
-            final String playlistId = mPlaylist != null ? mPlaylist.getId()
-                    : mPlaylistEntry.getPlaylistId();
-            if (!mHideRemoveButton) {
-                int stringResId;
-                if (mPlaylistEntry != null) {
-                    stringResId = R.string.context_menu_removefromplaylist;
-                } else {
-                    stringResId = R.string.context_menu_delete;
-                }
-                v = ViewUtils.ensureInflation(view, R.id.context_menu_remove_stub,
-                        R.id.context_menu_remove);
-                textView = (TextView) v.findViewById(R.id.textview);
-                imageView = (ImageView) v.findViewById(R.id.imageview);
-                imageView.setImageResource(R.drawable.ic_player_exit_light);
-                textView.setText(stringResId);
-                v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        getActivity().getSupportFragmentManager().popBackStack();
-                        if (mPlaylistEntry != null) {
-                            CollectionManager.get().deletePlaylistEntry(playlistId,
-                                    mPlaylistEntry.getId());
-                        } else {
-                            CollectionManager.get().deletePlaylist(playlistId);
-                        }
-                    }
-                });
+        if (!mHideRemoveButton && (mPlaylist != null || mPlaylistEntry != null)) {
+            int stringResId;
+            if (mPlaylistEntry != null) {
+                stringResId = R.string.context_menu_removefromplaylist;
+            } else {
+                stringResId = R.string.context_menu_delete;
             }
+            v = ViewUtils.ensureInflation(view, R.id.context_menu_remove_stub,
+                    R.id.context_menu_remove);
+            textView = (TextView) v.findViewById(R.id.textview);
+            imageView = (ImageView) v.findViewById(R.id.imageview);
+            imageView.setImageResource(R.drawable.ic_player_exit_light);
+            textView.setText(stringResId);
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                    String playlistId = mPlaylist != null ? mPlaylist.getId()
+                            : mPlaylistEntry.getPlaylistId();
+                    if (mPlaylistEntry != null) {
+                        CollectionManager.get().deletePlaylistEntry(playlistId,
+                                mPlaylistEntry.getId());
+                    } else {
+                        CollectionManager.get().deletePlaylist(playlistId);
+                    }
+                }
+            });
         }
 
         // set up "Add to queue" context menu item

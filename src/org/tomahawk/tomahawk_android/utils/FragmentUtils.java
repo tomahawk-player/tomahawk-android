@@ -153,8 +153,8 @@ public class FragmentUtils {
         }
         if (isFromPlaybackFragment) {
             args.putBoolean(TomahawkFragment.FROM_PLAYBACKFRAGMENT, true);
-        }
-        if (hideRemoveButton) {
+            args.putBoolean(TomahawkFragment.HIDE_REMOVE_BUTTON, true);
+        } else if (hideRemoveButton) {
             args.putBoolean(TomahawkFragment.HIDE_REMOVE_BUTTON, true);
         }
         if (item instanceof Query) {
