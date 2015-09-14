@@ -264,81 +264,11 @@ public class Playlist extends Cacheable implements AlphaComparable {
     }
 
     /**
-     * @return the next {@link PlaylistEntry}
-     */
-    public PlaylistEntry getNextEntry(PlaylistEntry entry) {
-        Index index = mCachedEntries.get(entry);
-        if (index == null) {
-            throw new RuntimeException("Couldn't find cached PlaylistEntry.");
-        }
-        int position = mIndex.indexOf(index);
-        if (position + 1 < mIndex.size()) {
-            Index nextIndex = mIndex.get(position + 1);
-            return getEntry(nextIndex);
-        }
-        return null;
-    }
-
-    /**
-     * @return the previous {@link PlaylistEntry}
-     */
-    public PlaylistEntry getPreviousEntry(PlaylistEntry entry) {
-        Index index = mCachedEntries.get(entry);
-        if (index == null) {
-            throw new RuntimeException("Couldn't find cached PlaylistEntry.");
-        }
-        int position = mIndex.indexOf(index);
-        if (position - 1 >= 0) {
-            Index nextIndex = mIndex.get(position - 1);
-            return getEntry(nextIndex);
-        }
-        return null;
-    }
-
-    /**
-     * @return the first {@link PlaylistEntry} of this playlist
-     */
-    public PlaylistEntry getFirstEntry() {
-        return getEntry(mIndex.get(0));
-    }
-
-    /**
-     * @return the last {@link PlaylistEntry} of this playlist
-     */
-    public PlaylistEntry getLastEntry() {
-        return getEntry(mIndex.get(mIndex.size() - 1));
-    }
-
-    /**
      * @return this {@link Playlist}'s name
      */
     @Override
     public String toString() {
         return mName;
-    }
-
-    /**
-     * @return true, if the {@link Playlist} has a next {@link PlaylistEntry}, otherwise false
-     */
-    public boolean hasNextEntry(PlaylistEntry entry) {
-        Index index = mCachedEntries.get(entry);
-        if (index == null) {
-            throw new RuntimeException("Couldn't find cached PlaylistEntry.");
-        }
-        int position = mIndex.indexOf(index);
-        return position + 1 < mIndex.size();
-    }
-
-    /**
-     * @return true, if the {@link Playlist} has a previous {@link PlaylistEntry}, otherwise false
-     */
-    public boolean hasPreviousEntry(PlaylistEntry entry) {
-        Index index = mCachedEntries.get(entry);
-        if (index == null) {
-            throw new RuntimeException("Couldn't find cached PlaylistEntry.");
-        }
-        int position = mIndex.indexOf(index);
-        return position - 1 >= 0;
     }
 
     /**
