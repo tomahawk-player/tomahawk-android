@@ -34,21 +34,15 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.MediaWrapper;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteFullException;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.util.Log;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -62,8 +56,6 @@ import de.greenrobot.event.EventBus;
 public class DatabaseHelper {
 
     private static final String TAG = DatabaseHelper.class.getSimpleName();
-
-    private static final String LOVEDITEMS_PLAYLIST_NAME = "My loved tracks";
 
     private static final String LOVEDITEMS_PLAYLIST_ID = "loveditems_playlist_id";
 
@@ -575,8 +567,7 @@ public class DatabaseHelper {
         mDatabase.beginTransaction();
         // Store every single Track in the database and store the relationship
         // by storing the playlists's id with it
-        for (int i = 0; i < queries.size(); i++) {
-            Query query = queries.get(i);
+        for (Query query : queries) {
             ContentValues values = new ContentValues();
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID,
                     playlistId);
@@ -624,8 +615,7 @@ public class DatabaseHelper {
         mDatabase.beginTransaction();
         // Store every single Track in the database and store the relationship
         // by storing the playlists's id with it
-        for (int i = 0; i < entries.size(); i++) {
-            PlaylistEntry entry = entries.get(i);
+        for (PlaylistEntry entry : entries) {
             ContentValues values = new ContentValues();
             values.put(TomahawkSQLiteHelper.TRACKS_COLUMN_PLAYLISTID,
                     playlistId);
@@ -1037,54 +1027,6 @@ public class DatabaseHelper {
 
     }
 
-    /**
-     * Check if the item is already in the database
-     *
-     * @param location of the item (primary key)
-     * @return True if the item exists, false if it does not
-     */
-    public synchronized boolean mediaItemExists(String location) {
-        try {
-            Cursor cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIA,
-                    new String[]{TomahawkSQLiteHelper.MEDIA_LOCATION},
-                    TomahawkSQLiteHelper.MEDIA_LOCATION + "=?",
-                    new String[]{location},
-                    null, null, null);
-            boolean exists = cursor.moveToFirst();
-            cursor.close();
-            return exists;
-        } catch (Exception e) {
-            Log.e(TAG, "Query failed");
-            return false;
-        }
-    }
-
-    /**
-     * Get all paths from the items in the database
-     *
-     * @return list of File
-     */
-    @SuppressWarnings("unused")
-    private synchronized HashSet<File> getMediaFiles() {
-        HashSet<File> files = new HashSet<>();
-        Cursor cursor;
-
-        cursor = mDatabase.query(
-                TomahawkSQLiteHelper.TABLE_MEDIA,
-                new String[]{TomahawkSQLiteHelper.MEDIA_LOCATION},
-                null, null, null, null, null);
-        cursor.moveToFirst();
-        if (!cursor.isAfterLast()) {
-            do {
-                File file = new File(cursor.getString(0));
-                files.add(file);
-            } while (cursor.moveToNext());
-        }
-        cursor.close();
-
-        return files;
-    }
-
     public synchronized HashMap<String, MediaWrapper> getMedias() {
         Cursor cursor;
         HashMap<String, MediaWrapper> medias = new HashMap<>();
@@ -1155,98 +1097,6 @@ public class DatabaseHelper {
         return medias;
     }
 
-    public synchronized MediaWrapper getMedia(String location) {
-
-        Cursor cursor;
-        MediaWrapper media = null;
-
-        try {
-            cursor = mDatabase.query(
-                    TomahawkSQLiteHelper.TABLE_MEDIA,
-                    new String[]{
-                            TomahawkSQLiteHelper.MEDIA_TIME, //0 long
-                            TomahawkSQLiteHelper.MEDIA_LENGTH, //1 long
-                            TomahawkSQLiteHelper.MEDIA_TYPE, //2 int
-                            TomahawkSQLiteHelper.MEDIA_TITLE, //3 string
-                            TomahawkSQLiteHelper.MEDIA_ARTIST, //4 string
-                            TomahawkSQLiteHelper.MEDIA_GENRE, //5 string
-                            TomahawkSQLiteHelper.MEDIA_ALBUM, //6 string
-                            TomahawkSQLiteHelper.MEDIA_ALBUMARTIST, //7 string
-                            TomahawkSQLiteHelper.MEDIA_WIDTH, //8 int
-                            TomahawkSQLiteHelper.MEDIA_HEIGHT, //9 int
-                            TomahawkSQLiteHelper.MEDIA_ARTWORKURL, //10 string
-                            TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, //11 int
-                            TomahawkSQLiteHelper.MEDIA_SPUTRACK, //12 int
-                            TomahawkSQLiteHelper.MEDIA_TRACKNUMBER, //13 int
-                            TomahawkSQLiteHelper.MEDIA_DISCNUMBER, //14 int
-                            TomahawkSQLiteHelper.MEDIA_LASTMODIFIED, //15 long
-                    },
-                    TomahawkSQLiteHelper.MEDIA_LOCATION + "=?",
-                    new String[]{location},
-                    null, null, null);
-        } catch (IllegalArgumentException e) {
-            // java.lang.IllegalArgumentException: the bind value at index 1 is null
-            return null;
-        }
-        if (cursor.moveToFirst()) {
-            media = new MediaWrapper(location,
-                    cursor.getLong(0),
-                    cursor.getLong(1),
-                    cursor.getInt(2),
-                    null, // lazy loading, see getPicture()
-                    cursor.getString(3),
-                    cursor.getString(4),
-                    cursor.getString(5),
-                    cursor.getString(6),
-                    cursor.getString(7),
-                    cursor.getInt(8),
-                    cursor.getInt(9),
-                    cursor.getString(10),
-                    cursor.getInt(11),
-                    cursor.getInt(12),
-                    cursor.getInt(13),
-                    cursor.getInt(14),
-                    cursor.getLong(15));
-        }
-        cursor.close();
-        return media;
-    }
-
-    public synchronized Bitmap getPicture(Context context, String location) {
-        /* Used for the lazy loading */
-        Cursor cursor;
-        Bitmap picture = null;
-        byte[] blob;
-
-        cursor = mDatabase.query(
-                TomahawkSQLiteHelper.TABLE_MEDIA,
-                new String[]{TomahawkSQLiteHelper.MEDIA_PICTURE},
-                TomahawkSQLiteHelper.MEDIA_LOCATION + "=?",
-                new String[]{location},
-                null, null, null);
-        if (cursor.moveToFirst()) {
-            blob = cursor.getBlob(0);
-            if (blob != null && blob.length > 1 && blob.length < 500000) {
-                try {
-                    picture = BitmapFactory.decodeByteArray(blob, 0, blob.length);
-                } catch (OutOfMemoryError e) {
-                    picture = null;
-                }
-            }
-        }
-        cursor.close();
-        return picture;
-    }
-
-    public synchronized void removeMedia(String location) {
-        mDatabase.beginTransaction();
-        mDatabase.delete(TomahawkSQLiteHelper.TABLE_MEDIA,
-                TomahawkSQLiteHelper.MEDIA_LOCATION + "=?",
-                new String[]{location});
-        mDatabase.setTransactionSuccessful();
-        mDatabase.endTransaction();
-    }
-
     public synchronized void removeMedias(Set<String> locations) {
         mDatabase.beginTransaction();
         try {
@@ -1258,68 +1108,6 @@ public class DatabaseHelper {
         } finally {
             mDatabase.endTransaction();
         }
-    }
-
-    public synchronized void updateMedia(String location, TomahawkSQLiteHelper.mediaColumn col,
-            Object object) {
-
-        if (location == null) {
-            return;
-        }
-
-        ContentValues values = new ContentValues();
-        switch (col) {
-            case MEDIA_PICTURE:
-                if (object != null) {
-                    Bitmap picture = (Bitmap) object;
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    picture.compress(Bitmap.CompressFormat.JPEG, 90, out);
-                    values.put(TomahawkSQLiteHelper.MEDIA_PICTURE, out.toByteArray());
-                } else {
-                    values.put(TomahawkSQLiteHelper.MEDIA_PICTURE, new byte[1]);
-                }
-                break;
-            case MEDIA_TIME:
-                if (object != null) {
-                    values.put(TomahawkSQLiteHelper.MEDIA_TIME, (Long) object);
-                }
-                break;
-            case MEDIA_AUDIOTRACK:
-                if (object != null) {
-                    values.put(TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, (Integer) object);
-                }
-                break;
-            case MEDIA_SPUTRACK:
-                if (object != null) {
-                    values.put(TomahawkSQLiteHelper.MEDIA_SPUTRACK, (Integer) object);
-                }
-                break;
-            case MEDIA_LENGTH:
-                if (object != null) {
-                    values.put(TomahawkSQLiteHelper.MEDIA_LENGTH, (Long) object);
-                }
-                break;
-            default:
-                return;
-        }
-        mDatabase.beginTransaction();
-        mDatabase.update(TomahawkSQLiteHelper.TABLE_MEDIA, values,
-                TomahawkSQLiteHelper.MEDIA_LOCATION + "=?", new String[]{location});
-        mDatabase.setTransactionSuccessful();
-        mDatabase.endTransaction();
-    }
-
-    public static void setPicture(MediaWrapper m, Bitmap p) {
-        Log.d(TAG, "Setting new picture for " + m.getTitle());
-        try {
-            get().updateMedia(
-                    m.getLocation(),
-                    TomahawkSQLiteHelper.mediaColumn.MEDIA_PICTURE,
-                    p);
-        } catch (SQLiteFullException e) {
-            Log.d(TAG, "SQLiteFullException while setting picture");
-        }
-        m.setPictureParsed(true);
     }
 
     public synchronized boolean isMediaDirComplete(String path) {
@@ -1354,7 +1142,7 @@ public class DatabaseHelper {
                     cursor.moveToNext();
                 }
                 cursor.close();
-                int wlDrillDownLevel = getMaxBackslashCount(paths);
+                int wlDrillDownLevel = getMaxSlashCount(paths);
                 cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_MEDIADIRS,
                         new String[]{TomahawkSQLiteHelper.MEDIADIRS_PATH},
                         "? LIKE " + TomahawkSQLiteHelper.MEDIADIRS_PATH + " || '%' AND "
@@ -1369,7 +1157,7 @@ public class DatabaseHelper {
                         cursor.moveToNext();
                     }
                     cursor.close();
-                    int blDrillDownLevel = getMaxBackslashCount(paths);
+                    int blDrillDownLevel = getMaxSlashCount(paths);
                     isWhitelisted = wlDrillDownLevel > blDrillDownLevel;
                 }
             }
@@ -1378,7 +1166,7 @@ public class DatabaseHelper {
         return isWhitelisted;
     }
 
-    private static int getBackslashCount(String string) {
+    private static int getSlashCount(String string) {
         int count = 0;
         char[] pathChars = string.toCharArray();
         for (char pathChar : pathChars) {
@@ -1389,10 +1177,10 @@ public class DatabaseHelper {
         return count;
     }
 
-    private static int getMaxBackslashCount(List<String> strings) {
+    private static int getMaxSlashCount(List<String> strings) {
         int maxCount = 0;
         for (String string : strings) {
-            maxCount = Math.max(maxCount, getBackslashCount(string));
+            maxCount = Math.max(maxCount, getSlashCount(string));
         }
         return maxCount;
     }
@@ -1438,7 +1226,7 @@ public class DatabaseHelper {
                 new String[]{String.valueOf(blacklisted ? TRUE : FALSE)},
                 null, null, null);
         cursor.moveToFirst();
-        List<File> paths = new ArrayList<File>();
+        List<File> paths = new ArrayList<>();
         if (!cursor.isAfterLast()) {
             do {
                 File dir = new File(cursor.getString(0));
