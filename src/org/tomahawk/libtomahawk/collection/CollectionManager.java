@@ -468,9 +468,6 @@ public class CollectionManager {
                         }
                         Log.d(TAG, "Hatchet sync - playlist \"" + fetchedList.getName()
                                 + "\" didn't exist in database ... storing and fetching entries");
-                        // Delete the current revision since we don't want to store it until we have
-                        // fetched and added the playlist's entries
-                        fetchedList.setCurrentRevision("");
                         DatabaseHelper.get().storePlaylist(fetchedList, false);
                         fetchHatchetPlaylistEntries(fetchedList.getId());
                     }
