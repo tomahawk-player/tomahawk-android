@@ -125,8 +125,10 @@ public class DatabaseHelper {
 
         ContentValues values = new ContentValues();
         values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, playlist.getName());
-        values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                playlist.getCurrentRevision());
+        if (playlist.isFilled()) {
+            values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
+                    playlist.getCurrentRevision());
+        }
         values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlistId);
         values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
                 playlist.getHatchetId());
@@ -196,8 +198,10 @@ public class DatabaseHelper {
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, newName);
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlist.getId());
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, playlist.getName());
-            values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                    playlist.getCurrentRevision());
+            if (playlist.isFilled()) {
+                values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
+                        playlist.getCurrentRevision());
+            }
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
                     playlist.getHatchetId());
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TOPARTISTS,
@@ -231,8 +235,10 @@ public class DatabaseHelper {
             ContentValues values = new ContentValues();
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlist.getId());
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, playlist.getName());
-            values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                    playlist.getCurrentRevision());
+            if (playlist.isFilled()) {
+                values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
+                        playlist.getCurrentRevision());
+            }
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID,
                     playlist.getHatchetId());
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TOPARTISTS,
@@ -271,8 +277,10 @@ public class DatabaseHelper {
             ContentValues values = new ContentValues();
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID, playlist.getId());
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_NAME, playlist.getName());
-            values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
-                    playlist.getCurrentRevision());
+            if (playlist.isFilled()) {
+                values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_CURRENTREVISION,
+                        playlist.getCurrentRevision());
+            }
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID, hatchetId);
             values.put(TomahawkSQLiteHelper.PLAYLISTS_COLUMN_TOPARTISTS,
                     topArtistsString);
