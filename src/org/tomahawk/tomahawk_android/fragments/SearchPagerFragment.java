@@ -222,7 +222,7 @@ public class SearchPagerFragment extends PagerFragment {
         fragmentInfo.mBundle = getChildFragmentBundle();
         if (mTrackResultPlaylist != null) {
             fragmentInfo.mBundle
-                    .putString(TomahawkFragment.PLAYLIST, mTrackResultPlaylist.getId());
+                    .putString(TomahawkFragment.PLAYLIST, mTrackResultPlaylist.getCacheKey());
         }
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);

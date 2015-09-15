@@ -78,7 +78,7 @@ public class XspfParser {
                 }
                 String title = xspfPlaylist.title == null ? "XSPF Playlist" : xspfPlaylist.title;
                 Playlist pl = Playlist.fromQueryList(
-                        TomahawkMainActivity.getLifetimeUniqueStringId(), title, null, qs);
+                        TomahawkMainActivity.getLifetimeUniqueStringId(), false, title, null, qs);
                 pl.setFilled(true);
                 return pl;
             }

@@ -206,7 +206,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                         infoRequestData.isBackgroundRequest());
                 Artist artist = Artist.get(params.name);
                 Playlist playlist = Playlist.fromQueryList(TomahawkApp.PLUGINNAME_HATCHET + "_"
-                        + artist.getCacheKey(), null, null, topHits);
+                        + artist.getCacheKey(), false, null, null, topHits);
                 hatchetCollection.addArtistTopHits(artist, playlist);
                 infoRequestData.setResultList(topHits);
                 return true;
@@ -235,7 +235,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 Artist artist = Artist.get(params.artistname);
                 Album album = Album.get(params.name, artist);
                 Playlist playlist = Playlist.fromQueryList(TomahawkApp.PLUGINNAME_HATCHET + "_"
-                        + album.getCacheKey(), null, null, tracks);
+                        + album.getCacheKey(), false, null, null, tracks);
                 hatchetCollection.addAlbumTracks(album, playlist);
                 infoRequestData.setResultList(tracks);
                 return true;

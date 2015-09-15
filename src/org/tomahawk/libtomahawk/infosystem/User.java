@@ -116,10 +116,11 @@ public class User extends Cacheable implements AlphaComparable {
         super(User.class, id);
 
         mId = id;
-        mPlaybackLog = Playlist.fromEmptyList(id + User.PLAYLIST_PLAYBACKLOG_ID, "");
-        mFavorites = Playlist.fromEmptyList(id + User.PLAYLIST_FAVORITES_ID, "");
-        mSocialActionsPlaylist = Playlist.fromEmptyList(id + User.PLAYLIST_SOCIALACTIONS_ID, "");
-        mFriendsFeedPlaylist = Playlist.fromEmptyList(id + User.PLAYLIST_FRIENDSFEED_ID, "");
+        mPlaybackLog = Playlist.fromEmptyList(id + User.PLAYLIST_PLAYBACKLOG_ID, false, "");
+        mFavorites = Playlist.fromEmptyList(id + User.PLAYLIST_FAVORITES_ID, false, "");
+        mSocialActionsPlaylist =
+                Playlist.fromEmptyList(id + User.PLAYLIST_SOCIALACTIONS_ID, false, "");
+        mFriendsFeedPlaylist = Playlist.fromEmptyList(id + User.PLAYLIST_FRIENDSFEED_ID, false, "");
     }
 
     /**

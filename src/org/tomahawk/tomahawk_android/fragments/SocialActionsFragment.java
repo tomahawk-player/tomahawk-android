@@ -183,7 +183,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
         } else if (item instanceof Playlist) {
             bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-            bundle.putString(TomahawkFragment.PLAYLIST, ((Playlist) item).getId());
+            bundle.putString(TomahawkFragment.PLAYLIST, ((Playlist) item).getCacheKey());
             FragmentUtils.replace(activity, PlaylistEntriesFragment.class, bundle);
         }
     }

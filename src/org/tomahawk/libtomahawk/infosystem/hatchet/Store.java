@@ -487,7 +487,8 @@ public class Store {
                             List<PlaylistEntry> entries = storeRecords((JsonObject) rawEntries,
                                     TYPE_PLAYLISTENTRIES, isBackgroundRequest);
                             if (entries != null) {
-                                playlist = Playlist.fromEntriesList(localId, null, null, entries);
+                                playlist = Playlist.fromEntriesList(
+                                        localId, false, null, null, entries);
                                 playlist.setFilled(true);
                             }
                         }
@@ -500,12 +501,12 @@ public class Store {
                                         TYPE_PLAYLISTENTRIES, isBackgroundRequest);
                                 queries.add(query);
                             }
-                            playlist = Playlist.fromQueryList(localId, null, null, queries);
+                            playlist = Playlist.fromQueryList(localId, false, null, null, queries);
                             playlist.setFilled(true);
                         }
                     }
                     if (playlist == null) {
-                        playlist = Playlist.get(localId);
+                        playlist = Playlist.get(localId, false);
                     }
                     playlist.setName(title);
                     playlist.setCurrentRevision(currentrevision);
@@ -564,8 +565,8 @@ public class Store {
                         queries.add(query);
                     }
                     Playlist playlist = Playlist.fromQueryList(
-                            TomahawkMainActivity.getLifetimeUniqueStringId(), "Playbacklog", null,
-                            queries);
+                            TomahawkMainActivity.getLifetimeUniqueStringId(), false, "Playbacklog",
+                            null, queries);
                     playlist.setHatchetId(id);
                     playlist.setFilled(true);
                     mCache.get(TYPE_PLAYLISTS).put(id, playlist);
