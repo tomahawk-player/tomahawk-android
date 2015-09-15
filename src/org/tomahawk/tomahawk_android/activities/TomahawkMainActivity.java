@@ -457,8 +457,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                 queries = new ArrayList<>();
                 query = Query.get(event.mResult.title, "", event.mResult.artist, false);
                 queries.add(query);
-                playlist = Playlist.fromQueryList(getSessionUniqueStringId(), "", "", queries);
-                bundle.putString(TomahawkFragment.PLAYLIST, playlist.getId());
+                playlist =
+                        Playlist.fromQueryList(getSessionUniqueStringId(), false, "", "", queries);
+                bundle.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -483,9 +484,9 @@ public class TomahawkMainActivity extends ActionBarActivity
                     queries.add(query);
                 }
                 playlist = Playlist.fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(),
-                        event.mResult.title, null, queries);
+                        false, event.mResult.title, null, queries);
                 playlist.setFilled(true);
-                bundle.putString(TomahawkFragment.PLAYLIST, playlist.getId());
+                bundle.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -499,7 +500,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             case PipeLine.URL_TYPE_XSPFURL:
                 Playlist pl = XspfParser.parse(event.mResult.url);
                 if (pl != null) {
-                    bundle.putString(TomahawkFragment.PLAYLIST, pl.getId());
+                    bundle.putString(TomahawkFragment.PLAYLIST, pl.getCacheKey());
                     bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -715,7 +716,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                         Playlist pl = XspfParser.parse(data);
                         if (pl != null) {
                             final Bundle bundle = new Bundle();
-                            bundle.putString(TomahawkFragment.PLAYLIST, pl.getId());
+                            bundle.putString(TomahawkFragment.PLAYLIST, pl.getCacheKey());
                             bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                             new Handler(Looper.getMainLooper()).post(new Runnable() {
@@ -774,8 +775,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 List<Query> queries = new ArrayList<>();
                 queries.add(query);
                 Playlist playlist = Playlist.fromQueryList(
-                        TomahawkMainActivity.getSessionUniqueStringId(), "", "", queries);
-                bundle.putString(TomahawkFragment.PLAYLIST, playlist.getId());
+                        TomahawkMainActivity.getSessionUniqueStringId(), false, "", "", queries);
+                bundle.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
                 FragmentUtils.replace(

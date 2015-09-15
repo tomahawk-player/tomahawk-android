@@ -184,7 +184,7 @@ public abstract class DbCollection extends Collection {
                         CollectionDb db = CollectionDbManager.get().getCollectionDb(collectionId);
                         String currentRevision = String.valueOf(db.tracksCurrentRevision());
                         Playlist playlist =
-                                Playlist.get(collectionId + "_tracks_" + currentRevision);
+                                Playlist.get(collectionId + "_tracks_" + currentRevision, false);
                         if (playlist.getCurrentRevision().isEmpty()) {
                             Cursor cursor = db.tracks(null, orderBy);
                             if (cursor == null) {
@@ -350,7 +350,8 @@ public abstract class DbCollection extends Collection {
                         String currentRevision = String.valueOf(db.albumCurrentRevision(
                                 album.getName(), album.getArtist().getName(), ""));
                         Playlist playlist = Playlist.get(
-                                collectionId + "_" + album.getCacheKey() + "_" + currentRevision);
+                                collectionId + "_" + album.getCacheKey() + "_" + currentRevision,
+                                false);
                         if (playlist.getCurrentRevision().isEmpty()) {
                             Cursor cursor = db.albumTracks(
                                     album.getName(), album.getArtist().getName(), "");

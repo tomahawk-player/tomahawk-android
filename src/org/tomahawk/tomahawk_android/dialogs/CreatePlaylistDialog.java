@@ -92,7 +92,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
             mPlaylist.setName(playlistName);
             CollectionManager.get().createPlaylist(mPlaylist);
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.PLAYLIST, mPlaylist.getId());
+            bundle.putString(TomahawkFragment.PLAYLIST, mPlaylist.getCacheKey());
             bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),

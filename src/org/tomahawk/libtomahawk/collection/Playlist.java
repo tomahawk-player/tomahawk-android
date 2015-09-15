@@ -62,23 +62,26 @@ public class Playlist extends Cacheable implements AlphaComparable {
 
     private String mId;
 
+    private boolean mIsLocal;
+
     private String mHatchetId;
 
     private String mCurrentRevision = "";
 
     private String[] mTopArtistNames;
 
-    private long mCount;
+    private long mCount = -1;
 
     private boolean mIsFilled;
 
     /**
      * Construct a new empty {@link Playlist}.
      */
-    private Playlist(String id) {
-        super(Playlist.class, id);
+    private Playlist(String id, boolean isLocal) {
+        super(Playlist.class, getCacheKey(isLocal, id));
 
         mId = id;
+        mIsLocal = isLocal;
     }
 
     /**
@@ -87,9 +90,9 @@ public class Playlist extends Cacheable implements AlphaComparable {
      *
      * @return {@link Playlist} with the given parameters
      */
-    public static Playlist get(String id) {
-        Cacheable cacheable = get(Playlist.class, id);
-        return cacheable != null ? (Playlist) cacheable : new Playlist(id);
+    public static Playlist get(String id, boolean isLocal) {
+        Cacheable cacheable = get(Playlist.class, getCacheKey(isLocal, id));
+        return cacheable != null ? (Playlist) cacheable : new Playlist(id, isLocal);
     }
 
     /**
@@ -97,11 +100,11 @@ public class Playlist extends Cacheable implements AlphaComparable {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromEntriesList(String id, String name, String currentRevision,
-            List<PlaylistEntry> entries) {
+    public static Playlist fromEntriesList(String id, boolean isLocal, String name,
+            String currentRevision, List<PlaylistEntry> entries) {
         CollectionCursor<PlaylistEntry> cursor =
                 new CollectionCursor<>(entries, PlaylistEntry.class);
-        return fromCursor(id, name, currentRevision, cursor);
+        return fromCursor(id, isLocal, name, currentRevision, cursor);
     }
 
     /**
@@ -109,10 +112,10 @@ public class Playlist extends Cacheable implements AlphaComparable {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromEmptyList(String id, String name) {
+    public static Playlist fromEmptyList(String id, boolean isLocal, String name) {
         CollectionCursor<PlaylistEntry> cursor =
                 new CollectionCursor<>(new ArrayList<PlaylistEntry>(), PlaylistEntry.class);
-        return fromCursor(id, name, null, cursor);
+        return fromCursor(id, isLocal, name, null, cursor);
     }
 
     /**
@@ -120,8 +123,8 @@ public class Playlist extends Cacheable implements AlphaComparable {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromQueryList(String id, String name, String currentRevision,
-            List<Query> queries) {
+    public static Playlist fromQueryList(String id, boolean isLocal, String name,
+            String currentRevision, List<Query> queries) {
         List<PlaylistEntry> entries = new ArrayList<>();
         for (Query query : queries) {
             entries.add(PlaylistEntry.get(id, query,
@@ -129,7 +132,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
         }
         CollectionCursor<PlaylistEntry> cursor =
                 new CollectionCursor<>(entries, PlaylistEntry.class);
-        return fromCursor(id, name, currentRevision, cursor);
+        return fromCursor(id, isLocal, name, currentRevision, cursor);
     }
 
     /**
@@ -137,9 +140,9 @@ public class Playlist extends Cacheable implements AlphaComparable {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromCursor(String id, String name, String currentRevision,
-            CollectionCursor<PlaylistEntry> cursor) {
-        Playlist pl = Playlist.get(id);
+    public static Playlist fromCursor(String id, boolean isLocal, String name,
+            String currentRevision, CollectionCursor<PlaylistEntry> cursor) {
+        Playlist pl = Playlist.get(id, isLocal);
         pl.setName(name);
         pl.setCurrentRevision(currentRevision);
         pl.setCursor(cursor);

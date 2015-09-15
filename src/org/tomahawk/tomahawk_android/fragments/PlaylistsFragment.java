@@ -102,7 +102,7 @@ public class PlaylistsFragment extends TomahawkFragment {
                 CollectionManager.get().addPlaylistEntries(playlistId, entries);
             }
             Bundle bundle = new Bundle();
-            bundle.putString(TomahawkFragment.PLAYLIST, playlistId);
+            bundle.putString(TomahawkFragment.PLAYLIST, ((Playlist) item).getCacheKey());
             if (mUser != null) {
                 bundle.putString(TomahawkFragment.USER, mUser.getId());
             }
@@ -113,10 +113,10 @@ public class PlaylistsFragment extends TomahawkFragment {
         } else {
             ArrayList<Query> queries = mQueryArray != null ? mQueryArray : new ArrayList<Query>();
             Playlist playlist = Playlist.fromQueryList(
-                    TomahawkMainActivity.getLifetimeUniqueStringId(), "", null, queries);
+                    TomahawkMainActivity.getLifetimeUniqueStringId(), false, "", null, queries);
             CreatePlaylistDialog dialog = new CreatePlaylistDialog();
             Bundle args = new Bundle();
-            args.putString(TomahawkFragment.PLAYLIST, playlist.getId());
+            args.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
         }

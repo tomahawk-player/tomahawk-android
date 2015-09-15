@@ -564,8 +564,10 @@ public class PlaybackService extends Service implements MusicFocusable {
         Message msg = mKillTimerHandler.obtainMessage();
         mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
-        mPlaylist = Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), "");
-        mQueue = Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), "");
+        mPlaylist =
+                Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), false, "");
+        mQueue =
+                Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), false, "");
         Log.d(TAG, "PlaybackService has been created");
     }
 
