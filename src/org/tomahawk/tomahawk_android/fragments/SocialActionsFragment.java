@@ -283,31 +283,38 @@ public class SocialActionsFragment extends TomahawkFragment implements
         }
     }
 
-    private List<List<SocialAction>> mergeSocialActions(TreeMap<Date, List<SocialAction>> actions) {
+    public static List<List<SocialAction>> mergeSocialActions(
+            TreeMap<Date, List<SocialAction>> actions) {
+        List<List<SocialAction>> mergedActionsList = new ArrayList<>();
+        for (List<SocialAction> socialActions : actions.descendingMap().values()) {
+            mergedActionsList.addAll(mergeSocialActions(socialActions));
+        }
+        return mergedActionsList;
+    }
+
+    public static List<List<SocialAction>> mergeSocialActions(List<SocialAction> actions) {
         List<List<SocialAction>> mergedActionsList = new ArrayList<>();
         Set<SocialAction> checkedActions = new HashSet<>();
-        for (List<SocialAction> socialActions : actions.descendingMap().values()) {
-            for (SocialAction socialAction : socialActions) {
-                if (!checkedActions.contains(socialAction)
-                        && shouldDisplayAction(socialAction)) {
-                    List<SocialAction> mergedActions = new ArrayList<>();
-                    mergedActions.add(socialAction);
-                    checkedActions.add(socialAction);
-                    for (SocialAction actionToCompare : socialActions) {
-                        if (!checkedActions.contains(actionToCompare)
-                                && shouldMergeAction(actionToCompare, socialAction)) {
-                            mergedActions.add(actionToCompare);
-                            checkedActions.add(actionToCompare);
-                        }
+        for (SocialAction socialAction : actions) {
+            if (!checkedActions.contains(socialAction)
+                    && shouldDisplayAction(socialAction)) {
+                List<SocialAction> mergedActions = new ArrayList<>();
+                mergedActions.add(socialAction);
+                checkedActions.add(socialAction);
+                for (SocialAction actionToCompare : actions) {
+                    if (!checkedActions.contains(actionToCompare)
+                            && shouldMergeAction(actionToCompare, socialAction)) {
+                        mergedActions.add(actionToCompare);
+                        checkedActions.add(actionToCompare);
                     }
-                    mergedActionsList.add(mergedActions);
                 }
+                mergedActionsList.add(mergedActions);
             }
         }
         return mergedActionsList;
     }
 
-    private boolean shouldDisplayAction(SocialAction socialAction) {
+    private static boolean shouldDisplayAction(SocialAction socialAction) {
         boolean action = Boolean.valueOf(socialAction.getAction());
         String type = socialAction.getType();
         return HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_CREATEPLAYLIST.equals(type)
@@ -316,7 +323,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
                 || (action && HatchetInfoPlugin.HATCHET_SOCIALACTION_TYPE_LOVE.equals(type));
     }
 
-    private boolean shouldMergeAction(SocialAction actionToCompare, SocialAction socialAction) {
+    private static boolean shouldMergeAction(SocialAction actionToCompare,
+            SocialAction socialAction) {
         return actionToCompare.getUser() == socialAction.getUser()
                 && actionToCompare.getType().equals(socialAction.getType())
                 && actionToCompare.getTargetObject().getClass()
