@@ -31,7 +31,10 @@ import org.tomahawk.libtomahawk.infosystem.InfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
+import org.tomahawk.libtomahawk.infosystem.SocialAction;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntries;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ISO8601Utils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -150,7 +153,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 if (object == null) {
                     return false;
                 }
-                List users = mStore.storeRecords(object, Store.TYPE_USERS, type,
+                List<User> users = mStore.storeRecords(object, User.class, type,
                         infoRequestData.isBackgroundRequest());
                 infoRequestData.setResultList(users);
                 return true;
@@ -161,7 +164,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 if (object == null) {
                     return false;
                 }
-                List playlists = mStore.storeRecords(object, Store.TYPE_PLAYLISTS, type,
+                List<Playlist> playlists = mStore.storeRecords(object, Playlist.class, type,
                         infoRequestData.isBackgroundRequest());
                 infoRequestData.setResultList(playlists);
                 return true;
@@ -171,10 +174,10 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 if (object == null) {
                     return false;
                 }
-                List artists = mStore.storeRecords(object, Store.TYPE_ARTISTS, type,
+                List<Artist> artists = mStore.storeRecords(object, Artist.class, type,
                         infoRequestData.isBackgroundRequest());
-                for (Object artist : artists) {
-                    hatchetCollection.addArtist((Artist) artist);
+                for (Artist artist : artists) {
+                    hatchetCollection.addArtist(artist);
                 }
                 infoRequestData.setResultList(artists);
                 return true;
@@ -184,14 +187,13 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 if (object == null) {
                     return false;
                 }
-                List albums = mStore.storeRecords(object, Store.TYPE_ALBUMS, type,
+                List<Album> albums = mStore.storeRecords(object, Album.class, type,
                         infoRequestData.isBackgroundRequest());
                 if (albums.size() > 0) {
-                    for (Object albumObject : albums) {
-                        Album album = (Album) albumObject;
+                    for (Album album : albums) {
                         hatchetCollection.addAlbum(album);
                     }
-                    Album firstAlbum = (Album) albums.get(0);
+                    Album firstAlbum = albums.get(0);
                     hatchetCollection.addArtistAlbums(firstAlbum.getArtist(), albums);
                 }
                 infoRequestData.setResultList(albums);
@@ -202,7 +204,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 if (object == null) {
                     return false;
                 }
-                List topHits = mStore.storeRecords(object, Store.TYPE_TRACKS, type,
+                List<Query> topHits = mStore.storeRecords(object, Query.class, type,
                         infoRequestData.isBackgroundRequest());
                 Artist artist = Artist.get(params.name);
                 Playlist playlist = Playlist.fromQueryList(TomahawkApp.PLUGINNAME_HATCHET + "_"
@@ -216,10 +218,9 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 if (object == null) {
                     return false;
                 }
-                List albums = mStore.storeRecords(object, Store.TYPE_ALBUMS, type,
+                List<Album> albums = mStore.storeRecords(object, Album.class, type,
                         infoRequestData.isBackgroundRequest());
-                for (Object albumObject : albums) {
-                    Album album = (Album) albumObject;
+                for (Album album : albums) {
                     hatchetCollection.addAlbum(album);
                 }
                 infoRequestData.setResultList(albums);
@@ -230,7 +231,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 if (object == null) {
                     return false;
                 }
-                List tracks = mStore.storeRecords(object, Store.TYPE_TRACKS, type,
+                List<Query> tracks = mStore.storeRecords(object, Query.class, type,
                         infoRequestData.isBackgroundRequest());
                 Artist artist = Artist.get(params.artistname);
                 Album album = Album.get(params.name, artist);
@@ -245,7 +246,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 if (object == null) {
                     return false;
                 }
-                List searches = mStore.storeRecords(object, Store.TYPE_SEARCHES, type,
+                List<Search> searches = mStore.storeRecords(object, Search.class, type,
                         infoRequestData.isBackgroundRequest());
                 infoRequestData.setResultList(searches);
                 return true;
@@ -256,8 +257,8 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 if (object == null) {
                     return false;
                 }
-                List socialActions = mStore.storeRecords(object, Store.TYPE_SOCIALACTIONS, type,
-                        infoRequestData.isBackgroundRequest(), params);
+                List<SocialAction> socialActions = mStore.storeRecords(object, SocialAction.class,
+                        type, infoRequestData.isBackgroundRequest(), params);
                 infoRequestData.setResultList(socialActions);
                 return true;
             }
