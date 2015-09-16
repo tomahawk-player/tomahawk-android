@@ -33,12 +33,15 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -88,6 +91,10 @@ public class User extends Cacheable implements AlphaComparable {
     private Playlist mSocialActionsPlaylist;
 
     private Playlist mFriendsFeedPlaylist;
+
+    private Set<Date> mSocialActionsDoneConversions = new HashSet<>();
+
+    private Set<Date> mFriendsFeedDoneConversions = new HashSet<>();
 
     private final Map<SocialAction, PlaylistEntry> mPlaylistEntryMap = new HashMap<>();
 
@@ -268,7 +275,7 @@ public class User extends Cacheable implements AlphaComparable {
                     mSocialActionsNextDate = socialAction.getDate();
                 }
             }
-            fillPlaylist(mSocialActionsPlaylist, mSocialActions);
+            fillPlaylist(mSocialActionsPlaylist, mSocialActions, mSocialActionsDoneConversions);
         }
     }
 
@@ -289,7 +296,7 @@ public class User extends Cacheable implements AlphaComparable {
                     mFriendsFeedNextDate = socialAction.getDate();
                 }
             }
-            fillPlaylist(mFriendsFeedPlaylist, mFriendsFeed);
+            fillPlaylist(mFriendsFeedPlaylist, mFriendsFeed, mFriendsFeedDoneConversions);
         }
     }
 
@@ -305,14 +312,21 @@ public class User extends Cacheable implements AlphaComparable {
         return mFriendsFeedPlaylist;
     }
 
-    private void fillPlaylist(Playlist playlist, TreeMap<Date, List<SocialAction>> actions) {
-        playlist.clear();
+    private void fillPlaylist(Playlist playlist, TreeMap<Date, List<SocialAction>> actions,
+            Set<Date> doneConversions) {
         for (Date date : actions.keySet()) {
-            for (SocialAction action : actions.get(date)) {
-                if (action.getTargetObject() instanceof Query) {
-                    Query query = (Query) action.getTargetObject();
-                    PlaylistEntry entry = playlist.addQuery(playlist.size(), query);
-                    mPlaylistEntryMap.put(action, entry);
+            if (!doneConversions.contains(date)) {
+                doneConversions.add(date);
+                List<List<SocialAction>> mergedActions =
+                        SocialActionsFragment.mergeSocialActions(actions.get(date));
+                for (List<SocialAction> actionsList : mergedActions) {
+                    for (SocialAction action : actionsList) {
+                        if (action.getTargetObject() instanceof Query) {
+                            Query query = (Query) action.getTargetObject();
+                            PlaylistEntry entry = playlist.addQuery(playlist.size(), query);
+                            mPlaylistEntryMap.put(action, entry);
+                        }
+                    }
                 }
             }
         }
