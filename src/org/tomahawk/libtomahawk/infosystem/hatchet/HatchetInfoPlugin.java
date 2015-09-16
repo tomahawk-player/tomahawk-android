@@ -351,7 +351,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                     } catch (RetrofitError e) {
                         Log.e(TAG, "send: Request to " + e.getUrl() + " failed: " + e.getClass()
                                 + ": " + e.getLocalizedMessage());
-                        if (e.getResponse().getStatus() == 500) {
+                        if (e.getResponse() != null && e.getResponse().getStatus() == 500) {
                             Log.e(TAG, "send: discarding oplog that has failed to be sent to " + e
                                     .getUrl());
                             discard = true;
