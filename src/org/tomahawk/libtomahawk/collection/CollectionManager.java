@@ -506,8 +506,8 @@ public class CollectionManager {
                                 + filledList.getName() + "\", hatchetId: "
                                 + filledList.getHatchetId() + ", count: "
                                 + filledList.size());
-                        mResolvingHatchetIds.remove(filledList.getHatchetId());
                         DatabaseHelper.get().storePlaylist(filledList, false);
+                        mResolvingHatchetIds.remove(filledList.getHatchetId());
                     }
                 }
             } else if (data.getHttpType() == InfoRequestData.HTTPTYPE_POST) {
