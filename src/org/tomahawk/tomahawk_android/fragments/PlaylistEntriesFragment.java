@@ -185,10 +185,15 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 User.getSelf().done(new DoneCallback<User>() {
                     @Override
                     public void onDone(User user) {
-                        if (mUser != user && mShowMode < 0) {
-                            String requestId = InfoSystem.get().resolve(mCurrentPlaylist);
-                            if (requestId != null) {
-                                mCorrespondingRequestIds.add(requestId);
+                        if (mShowMode < 0) {
+                            if (mUser != user) {
+                                String requestId = InfoSystem.get().resolve(mCurrentPlaylist);
+                                if (requestId != null) {
+                                    mCorrespondingRequestIds.add(requestId);
+                                }
+                            } else {
+                                mPlaylist = DatabaseHelper.get().getPlaylist(mPlaylist.getId());
+                                updateAdapter();
                             }
                         }
                     }
