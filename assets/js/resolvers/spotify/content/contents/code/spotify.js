@@ -188,9 +188,9 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var album = params.album;
         var track = params.track;
 
-        var q = "artist:" + artist + "+track:" + track;
+        var q = "artist:\"" + artist + "\" track:\"" + track + "\"";
         if (album) {
-            q += "+album:" + album;
+            q += " album:\"" + album + "\"";
         }
 
         return this._search(q);
