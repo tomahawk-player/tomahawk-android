@@ -287,7 +287,7 @@ public class ViewHolder {
             textView2.setVisibility(View.VISIBLE);
         }
         TextView textView3 = (TextView) findViewById(R.id.textview3);
-        if (textView3 != null && playlist.isFilled()) {
+        if (textView3 != null && playlist.getCount() >= 0) {
             textView3.setVisibility(View.VISIBLE);
             textView3.setText(TomahawkApp.getContext().getResources().getQuantityString(
                     R.plurals.songs_with_count, (int) playlist.getCount(), playlist.getCount()));
