@@ -37,6 +37,8 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.util.Log;
 
@@ -154,13 +156,20 @@ public class CollectionManager {
         final ADeferredObject<Void, Throwable, Void> deferred = new ADeferredObject<>();
         User.getSelf().done(new DoneCallback<User>() {
             @Override
-            public void onDone(User result) {
-                result.setPlaylists(DatabaseHelper.get().getPlaylists());
-                Playlist favorites = DatabaseHelper.get().getLovedItemsPlaylist();
-                if (favorites != null) {
-                    result.setFavorites(favorites);
-                }
-                deferred.resolve(null);
+            public void onDone(final User user) {
+                TomahawkRunnable r = new TomahawkRunnable(
+                        TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
+                    @Override
+                    public void run() {
+                        user.setPlaylists(DatabaseHelper.get().getPlaylists());
+                        Playlist favorites = DatabaseHelper.get().getLovedItemsPlaylist();
+                        if (favorites != null) {
+                            user.setFavorites(favorites);
+                        }
+                        deferred.resolve(null);
+                    }
+                };
+                ThreadManager.get().execute(r);
             }
         });
         return deferred;
