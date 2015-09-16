@@ -250,8 +250,10 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
                 queries.add(query);
             }
         }
-        return Playlist.fromQueryList(TomahawkMainActivity.getSessionUniqueStringId(), false,
-                mFullTextQuery, "", queries);
+        Playlist playlist = Playlist.fromQueryList(TomahawkMainActivity.getSessionUniqueStringId(),
+                false, mFullTextQuery, "", queries);
+        playlist.setFilled(true);
+        return playlist;
     }
 
     public Result getPreferredTrackResult() {
