@@ -12,6 +12,8 @@
   <string name="albums">الألبومات</string>
   <string name="artists">الفنّانون</string>
   <string name="users">المستخدمون</string>
+  <string name="top_hits">أعلى النّقرات</string>
+  <string name="top_albums">أعلى الألبومات</string>
   <string name="playlist_details">تفاصيل قائمة التّشغيل</string>
   <string name="album_details">تفاصيل الألبوم</string>
   <string name="search">ابحث عن</string>
@@ -50,6 +52,8 @@
   <string name="preferences_playback">التّشغيل</string>
   <string name="preferences_equalizer">المعادل</string>
   <string name="preferences_equalizer_text">خصّص خرج الصّوت.</string>
+  <string name="preferences_playback_data">انقل كلّ شيء</string>
+  <string name="preferences_playback_data_text">انقل كلّ مقطوعة من كلّ مشغّل موسيقى في الهاتف إلى %1$s.</string>
   <string name="preferences_plug_and_play">أوصل للتّشغيل</string>
   <string name="preferences_plug_and_play_text">يبدأ تشغيل الموسيقى بمجرّد اتّصال سمّاعة الرأس بلاقط صوت.</string>
   <string name="preferences_audio_quality">جودة الصّوت المحبّذة</string>
@@ -64,7 +68,7 @@
   <string name="preferences_app_sendlog_email">عنوان بريدك الإلكترونيّ</string>
   <string name="preferences_app_sendlog_issue">المشكلة</string>
   <string name="crash_dialog_title">انهار توماهوك</string>
-  <string name="crash_dialog_text">حدث خطأ غير متوقّع أجبر التّطبيق ليتوقّف. فضلًا ساعدنا لإصلاح هذا بإرسال بينات الخطأ. كلّ ما عليك فعله هو نقر حسنًا.</string>
+  <string name="crash_dialog_text">حدث خطأ غير متوقّع أجبر التّطبيق على التوقّف. فضلًا ساعدنا لإصلاح هذا بإرسال بيانات الخطأ. كلّ ما عليك فعله هو نقر حسنًا.</string>
   <string name="crash_dialog_comment_prompt">يمكنك إضافة تعليقات حول المشكلة أدناه:</string>
   <string name="crash_dialog_ok_toast">شكرًا لك!</string>
   <string name="context_menu_play">شغّل</string>
@@ -88,14 +92,16 @@
   <string name="drawer_title_settings">إعدادات</string>
   <string name="drawer_header_cloudcollections">تجميعات السّحاب</string>
   <string name="collection_dropdown_recently_added">المضافة حديثًا</string>
-  <string name="collection_dropdown_alpha_artists">الفنّان ء-ي</string>
+  <string name="collection_dropdown_alpha_artists">الفنّان أ-ي</string>
   <string name="collection_dropdown_play_count">عدد مرّات التّشغيل</string>
-  <string name="collection_dropdown_alpha_albums">الألبوم ء-ي</string>
-  <string name="collection_dropdown_alpha">ء-ي</string>
+  <string name="collection_dropdown_alpha_albums">الألبوم أ-ي</string>
+  <string name="collection_dropdown_alpha">أ-ي</string>
   <string name="history">التّأريخ</string>
   <string name="preferences_bitrate_low">عاديّة</string>
   <string name="preferences_bitrate_medium">جيّدة</string>
   <string name="preferences_bitrate_high">ممتازة</string>
+  <string name="drawer_open">افتح درج التّنقّل</string>
+  <string name="drawer_close">أغلق درج التّنقّل</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">متابَع</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
@@ -162,7 +168,7 @@
   </plurals>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s لِـ %2$s</string>
-  <string name="time_afewseconds">قبل بضعة ثوان</string>
+  <string name="time_afewseconds">قبل بضع ثوان</string>
   <plurals name="time_minute">
     <item quantity="zero">قبل بضعة ثوان</item>
     <item quantity="one">قبل دقيقة واحدة</item>
@@ -214,6 +220,7 @@
   <string name="followers_count">المتابِعين: %1$d، المتابَعين: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">لِج إلى</string>
   <string name="resolver_config_redirect_button_text_log_out_of">اخرج من</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">نزّل ملحقة لِـ</string>
   <string name="ask_access_activity_header">أتريد حفظ بيانات كلّ المقطوعات التي تشغّلها في Hatchet آليًّا؟</string>
   <string name="ask_access_activity_text1">سنفعل ذلك لك! فضلًا مكّن خدمتنا في إعدادات النّظام.</string>
   <string name="button_close">أغلق</string>
@@ -226,12 +233,15 @@
   <string name="playbackpanel_seek_coachmark">يمكنك السّعي في مقطوعة بالضّغط الطّويل على زرّ التّشغيل.</string>
   <string name="slidinglayout_enqueue_coachmark">المس لإضافة مقطوعة إلى الاصطفاف.</string>
   <string name="playbackfragment_navigation_coachmark_down">اسحب لأعلى لرؤية قائمة التّشغيل الحاليّة.</string>
+  <string name="playbackfragment_navigation_coachmark_up">اسحب لأسفل لإغلاق درج التّشغيل.</string>
+  <string name="playbackfragment_navigation_coachmark_center">مرّر لليسار/لليمين كي تنتقل إلى المقطوعة التّالية/السّابقة. انقر مطوّلًا لفتح قائمة السّياق. انقر مزدوجًا للإضافة إلى المفضّلة</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">التّالي</string>
   <string name="welcome_fragment_explanation_title">البدء</string>
   <string name="welcome_fragment_explanation_heading">الموسيقى في كلّ مكان.\nليس عليك أن تكون كذلك الآن.</string>
-  <string name="welcome_fragment_explanation_text">توقّف عن ملاحقة الموسيقى في الوِبّ وفي الخدمات الّتي لا تستخدمها، أو المصادر الّتي لا تملك نفاذًا إليها. أعطي اسم أو وصلة إلى أغنية، أو ألبوم أو قائمة تشغيل، وسيعثر توماهوك على أفضل مصدر متوفّر ويشغّله.</string>
-  <string name="welcome_fragment_hatchet_text">يمكنك بِـ Hatchet أخيرًا امتلاك تجميعة موسيقى في مكان واحد، أو مشاركة قوائم التّشغيل أو المقطوعات المفضّلة، أو ببساطة مزامنة التّطبيق بتاماهوك على سطح المكتب. </string>
+  <string name="welcome_fragment_explanation_text">توقّف عن ملاحقة الموسيقى في الوِبّ وفي الخدمات الّتي لا تستخدمها، أو المصادر الّتي لا تملك نفاذًا إليها. قدّم اسم الأغنية أو وصلة إليها، أو ألبوم أو قائمة تشغيل، وسيعثر توماهوك على أفضل مصدر متوفّر ويشغّله.</string>
+  <string name="welcome_fragment_hatchet_title">أتريد أن تكون اجتماعيًّا؟</string>
+  <string name="welcome_fragment_hatchet_text">أخيرًا، يمكنك عبر Hatchet امتلاك تجميعة موسيقى في مكان واحد، أو مشاركة قوائم التّشغيل أو المقطوعات المفضّلة، أو ببساطة مزامنة التّطبيق بتاماهوك على سطح المكتب. </string>
   <string name="welcome_fragment_setup_title">اتّصل</string>
   <string name="welcome_fragment_done_title">تمّ!</string>
   <string name="welcome_fragment_done_heading">تمّ كلّ شيء!</string>
@@ -244,7 +254,7 @@
     <item quantity="many">اختر قائمة تشغيل لإضافة %1$d مقطوعةً إليها:</item>
     <item quantity="other">اختر قائمة تشغيل لإضافة %1$d مقطوعة إليها:</item>
   </plurals>
-  <string name="seeking_not_supported">آسفون، لا يدعم هذا الحلّال السّعي.</string>
+  <string name="seeking_not_supported">آسفون، لا يدعم هذا الحلّالُ السّعيَ.</string>
   <string name="install_plugin_title">تثبيت الملحقات</string>
   <string name="install_plugin_warning">ستثبّت ملحقة توماهوك من مصدر مجهول. يمكن أن ستسبّب هذا بخطر أمنيّ.</string>
   <string name="install_plugin_warning2">أتريد حقًّا تثبيت هذه الملحقة؟</string>
