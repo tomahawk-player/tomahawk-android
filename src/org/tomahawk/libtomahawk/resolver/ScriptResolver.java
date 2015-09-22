@@ -41,7 +41,6 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -76,14 +75,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     private boolean mInitialized;
 
     private boolean mStopped;
-
-    private boolean mBrowsable;
-
-    private boolean mPlaylistSync;
-
-    private boolean mAccountFactory;
-
-    private boolean mUrlLookup;
 
     private boolean mConfigTestable;
 
@@ -414,41 +405,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
         config.put(ScriptAccount.ENABLED_KEY, enabled);
         setConfig(config);
         EventBus.getDefault().post(new EnabledStateChangedEvent());
-    }
-
-    public void reportCapabilities(int in) {
-        BigInteger bigInt = BigInteger.valueOf(in);
-        if (bigInt.testBit(0)) {
-            mBrowsable = true;
-        }
-        if (bigInt.testBit(1)) {
-            mPlaylistSync = true;
-        }
-        if (bigInt.testBit(2)) {
-            mAccountFactory = true;
-        }
-        if (bigInt.testBit(3)) {
-            mUrlLookup = true;
-        }
-        if (bigInt.testBit(4)) {
-            mConfigTestable = true;
-        }
-    }
-
-    public boolean isBrowsable() {
-        return mBrowsable;
-    }
-
-    public boolean isPlaylistSync() {
-        return mPlaylistSync;
-    }
-
-    public boolean isAccountFactory() {
-        return mAccountFactory;
-    }
-
-    public boolean hasUrlLookup() {
-        return mUrlLookup;
     }
 
     public boolean isConfigTestable() {
