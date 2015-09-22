@@ -47,15 +47,15 @@ public class PipeLine {
 
     private final static String TAG = PipeLine.class.getSimpleName();
 
-    public static final String URL_TYPE_TRACK = "track";
+    public static final int URL_TYPE_PLAYLIST = 1;
 
-    public static final String URL_TYPE_ALBUM = "album";
+    public static final int URL_TYPE_TRACK = 2;
 
-    public static final String URL_TYPE_ARTIST = "artist";
+    public static final int URL_TYPE_ALBUM = 3;
 
-    public static final String URL_TYPE_PLAYLIST = "playlist";
+    public static final int URL_TYPE_ARTIST = 4;
 
-    public static final String URL_TYPE_XSPFURL = "xspf-url";
+    public static final int URL_TYPE_XSPFURL = 5;
 
     private static final float MINSCORE = 0.5F;
 
@@ -356,9 +356,7 @@ public class PipeLine {
             for (Resolver resolver : mResolvers) {
                 if (resolver instanceof ScriptResolver) {
                     ScriptResolver scriptResolver = (ScriptResolver) resolver;
-                    if (scriptResolver.hasUrlLookup()) {
-                        scriptResolver.lookupUrl(url);
-                    }
+                    scriptResolver.lookupUrl(url);
                 }
             }
         }

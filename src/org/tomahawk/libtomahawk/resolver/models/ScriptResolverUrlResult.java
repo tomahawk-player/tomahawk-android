@@ -19,21 +19,27 @@ package org.tomahawk.libtomahawk.resolver.models;
 
 public class ScriptResolverUrlResult {
 
-    public String type;
+    public int type;
 
-    public String url;
-
-    public String title;
-
-    public String name;
+    public String track;
 
     public String artist;
+
+    public String album;
+
+    public String title;
 
     public String guid;
 
     public String info;
 
     public String creator;
+
+    public String linkUrl;
+
+    public String name;
+
+    public String url;
 
     public String hint;
 

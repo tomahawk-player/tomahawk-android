@@ -424,7 +424,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         switch (event.mResult.type) {
             case PipeLine.URL_TYPE_ARTIST:
                 bundle.putString(TomahawkFragment.ARTIST,
-                        Artist.get(event.mResult.name).getCacheKey());
+                        Artist.get(event.mResult.artist).getCacheKey());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
                 bundle.putLong(TomahawkFragment.CONTAINER_FRAGMENT_ID,
@@ -440,7 +440,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             case PipeLine.URL_TYPE_ALBUM:
                 Artist artist = Artist.get(event.mResult.artist);
                 bundle.putString(TomahawkFragment.ALBUM,
-                        Album.get(event.mResult.name, artist).getCacheKey());
+                        Album.get(event.mResult.album, artist).getCacheKey());
                 bundle.putString(
                         TomahawkFragment.COLLECTION_ID, TomahawkApp.PLUGINNAME_HATCHET);
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
@@ -455,7 +455,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 break;
             case PipeLine.URL_TYPE_TRACK:
                 queries = new ArrayList<>();
-                query = Query.get(event.mResult.title, "", event.mResult.artist, false);
+                query = Query.get(event.mResult.track, "", event.mResult.artist, false);
                 queries.add(query);
                 playlist =
                         Playlist.fromQueryList(getSessionUniqueStringId(), false, "", "", queries);
@@ -473,7 +473,7 @@ public class TomahawkMainActivity extends ActionBarActivity
             case PipeLine.URL_TYPE_PLAYLIST:
                 queries = new ArrayList<>();
                 for (ScriptResolverUrlResult track : event.mResult.tracks) {
-                    query = Query.get(track.title, "", track.artist, false);
+                    query = Query.get(track.track, "", track.artist, false);
                     if (event.mResolver != null && event.mResolver.isEnabled()
                             && track.hint != null) {
                         Result result = Result.get(track.hint, query.getBasicTrack(),

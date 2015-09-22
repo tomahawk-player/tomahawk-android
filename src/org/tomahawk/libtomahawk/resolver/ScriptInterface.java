@@ -92,12 +92,7 @@ public class ScriptInterface {
      */
     @JavascriptInterface
     public void nativeReportCapabilities(int in) {
-        if (mScriptAccount.getScriptResolver() != null) {
-            mScriptAccount.getScriptResolver().reportCapabilities(in);
-        } else {
-            Log.e(TAG, "nativeReportCapabilities - ScriptResolver not set in ScriptAccount: "
-                    + mScriptAccount.getName());
-        }
+        // NOOP until Tomahawk Desktop drops compat for pre 0.9 resolvers
     }
 
     @JavascriptInterface
