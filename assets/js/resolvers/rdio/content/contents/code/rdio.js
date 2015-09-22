@@ -36,19 +36,26 @@ var RdioResolver = Tomahawk.extend(Tomahawk.Resolver, {
      * Get the access token. Refresh when it is expired.
      */
     getAccessToken: function () {
+        return this._getAccessToken(true);
+    },
+
+    /**
+     * Get the access token. Refresh when it is expired.
+     */
+    _getAccessToken: function (userAuthRequired) {
         var that = this;
         if (!this.getAccessTokenPromise || new Date().getTime() + 60000 > that.accessTokenExpires) {
             Tomahawk.log("Access token is not valid. We need to get a new one.");
             this.getAccessTokenPromise = new RSVP.Promise(function (resolve, reject) {
                 var refreshToken = Tomahawk.localStorage.getItem(that.storageKeyRefreshToken);
-                if (!refreshToken) {
+                if (!refreshToken && userAuthRequired) {
                     Tomahawk.log("Can't fetch new access token, because there's no stored refresh "
                         + "token. Are you logged in?");
                     reject("Can't fetch new access token, because there's no stored refresh"
                         + " token. Are you logged in?");
                 }
                 resolve(refreshToken);
-            }).then(function (result) {
+            }).then(function (refreshToken) {
                     Tomahawk.log("Fetching new access token ...");
                     var settings = {
                         headers: {
@@ -59,9 +66,19 @@ var RdioResolver = Tomahawk.extend(Tomahawk.Resolver, {
                         },
                         data: {
                             "grant_type": "refresh_token",
-                            "refresh_token": result
+                            "refresh_token": refreshToken
                         }
                     };
+                    if (refreshToken) {
+                        settings.data = {
+                            "grant_type": "refresh_token",
+                            "refresh_token": refreshToken
+                        };
+                    } else {
+                        settings.data = {
+                            "grant_type": "client_credentials"
+                        };
+                    }
                     return Tomahawk.post("https://services.rdio.com/oauth2/token", settings)
                         .then(function (res) {
                             that.accessToken = res.access_token;
@@ -251,7 +268,7 @@ var RdioResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var url = params.url;
         Tomahawk.log("lookupUrl: " + url);
 
-        this.getAccessToken().then(function (response) {
+        return this._getAccessToken(false).then(function (response) {
             var settings = {
                 data: {
                     method: "getObjectFromUrl",
