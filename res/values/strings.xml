@@ -14,6 +14,8 @@
   <string name="users">Users</string>
   <string name="top_hits">Top Hits</string>
   <string name="top_albums">Top Albums</string>
+  <string name="albums_and_eps">Albums and EPs</string>
+  <string name="other_releases">Other releases</string>
   <string name="playlist_details">Playlist Details</string>
   <string name="album_details">Album Details</string>
   <string name="search">Search</string>
