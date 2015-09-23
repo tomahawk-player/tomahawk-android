@@ -70,7 +70,7 @@ var HatchetMetadataResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 type: Tomahawk.UrlType.Artist,
                 artist: urlParts[urlParts.length - 1]
             };
-        } else if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/_\/[^\/\n]+$/.test(url)) {
+        } else if (/^https?:\/\/(www\.)?hatchet\.is\/music\/[^\/\n]+\/[^\/\n]+\/[^\/\n]+$/.test(url)) {
             Tomahawk.log("Found a track");
             // We have to deal with a Track
             return {
@@ -82,40 +82,47 @@ var HatchetMetadataResolver = Tomahawk.extend(Tomahawk.Resolver, {
             Tomahawk.log("Found a playlist");
             // We have to deal with a Playlist
             var match = url.match(/^https?:\/\/(?:www\.)?hatchet\.is\/people\/[^\/\n]+\/playlists\/([^\/\n]+)$/);
-            var query = 'https://api.hatchet.is/v1/playlists/' + match[1];
-            Tomahawk.log("Found playlist, calling url: '" + query + "'");
-            return Tomahawk.get(query).then(function (res) {
-                var playlistEntries = {};
-                res.playlistEntries.forEach(function (item) {
-                    playlistEntries[item.id] = item;
-                });
-                var artists = {};
-                res.artists.forEach(function (item) {
-                    artists[item.id] = item;
-                });
-                var tracksMap = {};
-                res.tracks.forEach(function (item) {
-                    tracksMap[item.id] = item;
-                });
-                var tracks = res.playlists[0].playlistEntries.map(function (item) {
-                    var track = tracksMap[playlistEntries[item].track];
+            var query = "https://api.hatchet.is/v2/playlists";
+            var settings = {
+                data: {
+                    "ids[]": match[1]
+                }
+            };
+            return Tomahawk.get(query, settings).then(function (res) {
+                var query = "https://api.hatchet.is" + res.playlists[0].links.playlistEntries;
+                return Tomahawk.get(query).then(function (res) {
+                    var entriesMap = {};
+                    res.playlistEntries.forEach(function (item) {
+                        entriesMap[item.id] = item;
+                    });
+                    var artistsMap = {};
+                    res.artists.forEach(function (item) {
+                        artistsMap[item.id] = item;
+                    });
+                    var tracksMap = {};
+                    res.tracks.forEach(function (item) {
+                        tracksMap[item.id] = item;
+                    });
+                    var tracks = res.playlists[0].playlistEntries.map(function (item) {
+                        var track = tracksMap[entriesMap[item].track];
+                        return {
+                            type: Tomahawk.UrlType.Track,
+                            track: track.name,
+                            artist: artistsMap[track.artist].name
+                        };
+                    });
+                    Tomahawk.log("Reported found playlist '" + res.playlists[0].title
+                        + "' containing " + tracks.length + " tracks");
                     return {
-                        type: "track",
-                        track: track.name,
-                        artist: artists[track.artist].name
+                        type: Tomahawk.UrlType.Playlist,
+                        title: res.playlists[0].title,
+                        guid: res.playlists[0].id,
+                        info: "A playlist on Hatchet.",
+                        creator: res.playlists[0].user,
+                        linkUrl: url,
+                        tracks: tracks
                     };
                 });
-                Tomahawk.log("Reported found playlist '" + result.title + "' containing "
-                    + tracks.length + " tracks");
-                return {
-                    type: Tomahawk.UrlType.Playlist,
-                    title: res.playlists[0].title,
-                    guid: res.playlists[0].id,
-                    info: "A playlist on Hatchet.",
-                    creator: res.playlists[0].user,
-                    linkUrl: url,
-                    tracks: tracks
-                };
             });
         }
     }
