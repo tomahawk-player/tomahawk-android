@@ -143,21 +143,6 @@ public class AlbumsFragment extends TomahawkFragment {
             } else {
                 HatchetCollection collection = (HatchetCollection) mCollection;
                 final List<Segment> segments = new ArrayList<>();
-                collection.getArtistAlbums(mArtist)
-                        .done(new DoneCallback<CollectionCursor<Album>>() {
-                            @Override
-                            public void onDone(CollectionCursor<Album> cursor) {
-                                Segment segment = new Segment.Builder(cursor)
-                                        .headerLayout(R.layout.single_line_list_header)
-                                        .headerString(R.string.top_albums)
-                                        .showAsGrid(R.integer.grid_column_count,
-                                                R.dimen.padding_superlarge,
-                                                R.dimen.padding_superlarge)
-                                        .build();
-                                segments.add(segment);
-                                fillAdapter(segments);
-                            }
-                        });
                 collection.getArtistTopHits(mArtist).done(new DoneCallback<Playlist>() {
                     @Override
                     public void onDone(Playlist artistTophits) {
@@ -172,6 +157,45 @@ public class AlbumsFragment extends TomahawkFragment {
                         fillAdapter(segments);
                     }
                 });
+                collection.getArtistAlbums(mArtist)
+                        .done(new DoneCallback<CollectionCursor<Album>>() {
+                            @Override
+                            public void onDone(CollectionCursor<Album> cursor) {
+                                List<Album> albumsAndEps = new ArrayList<>();
+                                List<Album> others = new ArrayList<>();
+                                if (cursor != null) {
+                                    for (int i = 0; i < cursor.size(); i++) {
+                                        Album album = cursor.get(i);
+                                        if (album.getReleaseType() != null
+                                                && (Album.RELEASETYPE_ALBUM.equals(
+                                                album.getReleaseType())
+                                                || Album.RELEASETYPE_EPS.equals(
+                                                album.getReleaseType()))) {
+                                            albumsAndEps.add(album);
+                                        } else {
+                                            others.add(album);
+                                        }
+                                    }
+                                }
+                                Segment segment = new Segment.Builder(albumsAndEps)
+                                        .headerLayout(R.layout.single_line_list_header)
+                                        .headerString(R.string.albums_and_eps)
+                                        .showAsGrid(R.integer.grid_column_count,
+                                                R.dimen.padding_superlarge,
+                                                R.dimen.padding_superlarge)
+                                        .build();
+                                segments.add(segment);
+                                segment = new Segment.Builder(others)
+                                        .headerLayout(R.layout.single_line_list_header)
+                                        .headerString(R.string.other_releases)
+                                        .showAsGrid(R.integer.grid_column_count,
+                                                R.dimen.padding_superlarge,
+                                                R.dimen.padding_superlarge)
+                                        .build();
+                                segments.add(segment);
+                                fillAdapter(segments);
+                            }
+                        });
             }
         } else if (mAlbumArray != null) {
             fillAdapter(new Segment.Builder(mAlbumArray).build());

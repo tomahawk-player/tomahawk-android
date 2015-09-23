@@ -299,6 +299,8 @@ public class Store {
                             Image image = findRecord(imageId, Image.class, isBackgroundRequest);
                             album.setImage(image);
                         }
+                        String releaseType = getAsString(o, "releaseType");
+                        album.setReleaseType(releaseType);
                         mCache.put(Album.class, id, album);
                     }
 

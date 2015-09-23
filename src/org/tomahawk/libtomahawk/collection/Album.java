@@ -24,11 +24,19 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class Album extends Cacheable implements AlphaComparable, ArtistAlphaComparable {
 
+    public final static String RELEASETYPE_UNKNOWN = "unknown";
+
+    public final static String RELEASETYPE_ALBUM = "album";
+
+    public final static String RELEASETYPE_EPS = "ep";
+
     private final String mName;
 
     private final Artist mArtist;
 
     private Image mImage;
+
+    private String mReleaseType;
 
     /**
      * Construct a new {@link Album}
@@ -88,6 +96,14 @@ public class Album extends Cacheable implements AlphaComparable, ArtistAlphaComp
      */
     public Artist getArtist() {
         return mArtist;
+    }
+
+    public String getReleaseType() {
+        return mReleaseType;
+    }
+
+    public void setReleaseType(String releaseType) {
+        mReleaseType = releaseType;
     }
 
 }
