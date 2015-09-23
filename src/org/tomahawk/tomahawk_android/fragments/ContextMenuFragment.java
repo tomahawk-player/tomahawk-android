@@ -267,10 +267,11 @@ public class ContextMenuFragment extends Fragment {
                         mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<Playlist>() {
                             @Override
                             public void onDone(Playlist playlist) {
-                                List<PlaylistEntry> entries = playlist.getEntries();
                                 List<Query> queries = new ArrayList<>();
-                                for (PlaylistEntry entry : entries) {
-                                    queries.add(entry.getQuery());
+                                if (playlist != null) {
+                                    for (PlaylistEntry entry : playlist.getEntries()) {
+                                        queries.add(entry.getQuery());
+                                    }
                                 }
                                 showAddToPlaylist(activity, queries);
                             }
@@ -427,8 +428,10 @@ public class ContextMenuFragment extends Fragment {
                             @Override
                             public void onDone(Playlist playlist) {
                                 List<Query> queries = new ArrayList<>();
-                                for (PlaylistEntry entry : playlist.getEntries()) {
-                                    queries.add(entry.getQuery());
+                                if (playlist != null) {
+                                    for (PlaylistEntry entry : playlist.getEntries()) {
+                                        queries.add(entry.getQuery());
+                                    }
                                 }
                                 ((TomahawkMainActivity) getActivity()).getPlaybackService()
                                         .addQueriesToQueue(queries);
