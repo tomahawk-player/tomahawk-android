@@ -162,7 +162,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                             .headerLayout(R.layout.single_line_list_header)
                             .headerString(mAlbum.getArtist().getPrettyName())
                             .build();
-                    if (playlist.allFromOneArtist()) {
+                    if (playlist != null && playlist.allFromOneArtist()) {
                         segment.setHideArtistName(true);
                         segment.setShowDuration(true);
                     }
