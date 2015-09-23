@@ -304,7 +304,7 @@ public class Store {
 
                     if (requestType == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS_TRACKS) {
                         JsonElement rawTracks = get(o, "tracks");
-                        if (rawTracks instanceof JsonObject && resultType == PlaylistEntry.class) {
+                        if (rawTracks instanceof JsonObject && resultType == Query.class) {
                             results.addAll(storeRecords((JsonObject) rawTracks, resultType,
                                     isBackgroundRequest));
                         }
