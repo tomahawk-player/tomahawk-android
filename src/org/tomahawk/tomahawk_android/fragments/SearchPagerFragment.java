@@ -263,38 +263,40 @@ public class SearchPagerFragment extends PagerFragment {
 
     @Override
     protected void onInfoSystemResultsReported(InfoRequestData infoRequestData) {
-        List<Search> results = infoRequestData.getResultList(Search.class);
-        if (results != null && results.size() > 0) {
-            Search search = results.get(0);
-            float maxScore = 0f;
-            Image contentHeaderImage = null;
-            for (SearchResult result : search.getSearchResults()) {
-                Object resultObject = result.getResult();
-                if (resultObject instanceof Artist) {
-                    Artist artist = (Artist) resultObject;
-                    mArtistIds.add(artist.getCacheKey());
-                    if (artist.getImage() != null && result.getScore() > maxScore) {
-                        maxScore = result.getScore();
-                        contentHeaderImage = artist.getImage();
-                    }
-                } else if (resultObject instanceof Album) {
-                    Album album = (Album) resultObject;
-                    mAlbumIds.add(album.getCacheKey());
-                    if (album.getImage() != null && result.getScore() > maxScore) {
-                        maxScore = result.getScore();
-                        contentHeaderImage = album.getImage();
-                    }
-                } else if (resultObject instanceof User) {
-                    User user = (User) resultObject;
-                    mUserIds.add(user.getCacheKey());
-                    if (user.getImage() != null && result.getScore() > maxScore) {
-                        maxScore = result.getScore();
-                        contentHeaderImage = user.getImage();
+        if (mCorrespondingRequestIds.contains(infoRequestData.getRequestId())) {
+            List<Search> results = infoRequestData.getResultList(Search.class);
+            if (results != null && results.size() > 0) {
+                Search search = results.get(0);
+                float maxScore = 0f;
+                Image contentHeaderImage = null;
+                for (SearchResult result : search.getSearchResults()) {
+                    Object resultObject = result.getResult();
+                    if (resultObject instanceof Artist) {
+                        Artist artist = (Artist) resultObject;
+                        mArtistIds.add(artist.getCacheKey());
+                        if (artist.getImage() != null && result.getScore() > maxScore) {
+                            maxScore = result.getScore();
+                            contentHeaderImage = artist.getImage();
+                        }
+                    } else if (resultObject instanceof Album) {
+                        Album album = (Album) resultObject;
+                        mAlbumIds.add(album.getCacheKey());
+                        if (album.getImage() != null && result.getScore() > maxScore) {
+                            maxScore = result.getScore();
+                            contentHeaderImage = album.getImage();
+                        }
+                    } else if (resultObject instanceof User) {
+                        User user = (User) resultObject;
+                        mUserIds.add(user.getCacheKey());
+                        if (user.getImage() != null && result.getScore() > maxScore) {
+                            maxScore = result.getScore();
+                            contentHeaderImage = user.getImage();
+                        }
                     }
                 }
+                showContentHeader(contentHeaderImage);
             }
-            showContentHeader(contentHeaderImage);
+            updatePager();
         }
-        updatePager();
     }
 }

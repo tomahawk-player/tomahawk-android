@@ -458,7 +458,7 @@ public class InfoSystem {
         }
     }
 
-    public List<String> sendPlaylistPostStruct(AuthenticatorUtils authenticatorUtils,
+    public void sendPlaylistPostStruct(AuthenticatorUtils authenticatorUtils,
             String localId, String title) {
         long timeStamp = System.currentTimeMillis();
         HatchetPlaylistRequest request = new HatchetPlaylistRequest();
@@ -475,7 +475,7 @@ public class InfoSystem {
                 InfoRequestData.HTTPTYPE_POST, jsonString);
         DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
-        return sendLoggedOps(authenticatorUtils);
+        sendLoggedOps(authenticatorUtils);
     }
 
     public void sendPlaylistEntriesPostStruct(AuthenticatorUtils authenticatorUtils,
@@ -526,25 +526,25 @@ public class InfoSystem {
         sendLoggedOps(authenticatorUtils);
     }
 
-    public String sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils, User user) {
-        return sendRelationshipPostStruct(authenticatorUtils, user.getId(), null, null, null);
+    public void sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils, User user) {
+        sendRelationshipPostStruct(authenticatorUtils, user.getId(), null, null, null);
     }
 
-    public String sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils, Query query) {
-        return sendRelationshipPostStruct(authenticatorUtils, null, query.getName(),
+    public void sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils, Query query) {
+        sendRelationshipPostStruct(authenticatorUtils, null, query.getName(),
                 query.getArtist().getName(), null);
     }
 
-    public String sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils, Artist artist) {
-        return sendRelationshipPostStruct(authenticatorUtils, null, null, artist.getName(), null);
+    public void sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils, Artist artist) {
+        sendRelationshipPostStruct(authenticatorUtils, null, null, artist.getName(), null);
     }
 
-    public String sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils, Album album) {
-        return sendRelationshipPostStruct(authenticatorUtils, null, null,
-                album.getArtist().getName(), album.getName());
+    public void sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils, Album album) {
+        sendRelationshipPostStruct(authenticatorUtils, null, null, album.getArtist().getName(),
+                album.getName());
     }
 
-    public String sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils,
+    public void sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils,
             String user, String track, String artist, String album) {
         long timeStamp = System.currentTimeMillis();
         HatchetRelationshipStruct relationship = new HatchetRelationshipStruct();
@@ -566,10 +566,9 @@ public class InfoSystem {
         DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
-        return infoRequestData.getRequestId();
     }
 
-    public String deleteRelationship(AuthenticatorUtils authenticatorUtils, String relationshipId) {
+    public void deleteRelationship(AuthenticatorUtils authenticatorUtils, String relationshipId) {
         long timeStamp = System.currentTimeMillis();
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
         QueryParams params = new QueryParams();
@@ -580,7 +579,6 @@ public class InfoSystem {
         DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
-        return infoRequestData.getRequestId();
     }
 
     /**
@@ -616,7 +614,7 @@ public class InfoSystem {
     }
 
 
-    public synchronized List<String> sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
+    public synchronized void sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
         List<String> requestIds = new ArrayList<>();
         List<InfoRequestData> loggedOps = DatabaseHelper.get().getLoggedOps();
         for (InfoRequestData loggedOp : loggedOps) {
@@ -637,7 +635,6 @@ public class InfoSystem {
             }
         }
         trySendingQueuedOps();
-        return requestIds;
     }
 
     public synchronized void onLoggedOpsSent(ArrayList<String> doneRequestsIds, boolean discard) {

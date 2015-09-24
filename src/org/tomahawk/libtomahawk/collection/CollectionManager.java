@@ -597,11 +597,8 @@ public class CollectionManager {
         DatabaseHelper.get().storePlaylist(playlist, false);
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        List<String> requestIds = InfoSystem.get()
-                .sendPlaylistPostStruct(hatchetAuthUtils, playlist.getId(), playlist.getName());
-        if (requestIds != null) {
-            mCorrespondingRequestIds.addAll(requestIds);
-        }
+        InfoSystem.get().sendPlaylistPostStruct(
+                hatchetAuthUtils, playlist.getId(), playlist.getName());
         for (PlaylistEntry entry : playlist.getEntries()) {
             InfoSystem.get().sendPlaylistEntriesPostStruct(hatchetAuthUtils,
                     playlist.getId(), entry.getName(), entry.getArtist().getName(),
