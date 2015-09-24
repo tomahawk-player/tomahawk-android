@@ -73,8 +73,8 @@ var TomaHKMetadataResolver = Tomahawk.extend(Tomahawk.Resolver, {
             // We search for a track
             return {
                 type: Tomahawk.UrlType.Track,
-                artist: decodeURIComponent(url.match(/(\&artist=)([^&]*)/)[2]),
-                track: decodeURIComponent(url.match(/(\?title=)([^&]*)/)[2])
+                artist: decodeURIComponent(url.match(/(?:\?|&)artist=([^&]*)/)[1]),
+                track: decodeURIComponent(url.match(/(?:\?|&)title=([^&]*)/)[1])
             };
         } else {
             // We most likely have a track
