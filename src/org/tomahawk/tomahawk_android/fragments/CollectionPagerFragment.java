@@ -21,7 +21,6 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.DbCollection;
 import org.tomahawk.libtomahawk.collection.UserCollection;
-import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
@@ -91,9 +90,5 @@ public class CollectionPagerFragment extends PagerFragment {
         fragmentInfoLists.add(fragmentInfoList);
 
         setupPager(fragmentInfoLists, initialPage, null, 2);
-    }
-
-    @Override
-    protected void onInfoSystemResultsReported(InfoRequestData infoRequestData) {
     }
 }

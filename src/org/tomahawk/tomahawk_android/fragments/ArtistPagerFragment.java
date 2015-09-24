@@ -159,6 +159,8 @@ public class ArtistPagerFragment extends PagerFragment {
 
     @Override
     protected void onInfoSystemResultsReported(InfoRequestData infoRequestData) {
-        showContentHeader(mArtist);
+        if (mCorrespondingRequestIds.contains(infoRequestData.getRequestId())) {
+            showContentHeader(mArtist);
+        }
     }
 }

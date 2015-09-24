@@ -96,16 +96,11 @@ public class UserPagerFragment extends PagerFragment {
                         if (user.getFollowings() != null
                                 && user.getFollowings().containsKey(mUser)) {
                             String relationshipId = user.getFollowings().get(mUser);
-                            mCorrespondingRequestIds.add(InfoSystem.get()
-                                    .deleteRelationship(authUtils, relationshipId));
+                            InfoSystem.get().deleteRelationship(authUtils, relationshipId);
                             mShowFakeNotFollowing = true;
                             mShowFakeFollowing = false;
                         } else {
-                            String requestId = InfoSystem.get()
-                                    .sendRelationshipPostStruct(authUtils, mUser);
-                            if (requestId != null) {
-                                mCorrespondingRequestIds.add(requestId);
-                            }
+                            InfoSystem.get().sendRelationshipPostStruct(authUtils, mUser);
                             mShowFakeNotFollowing = false;
                             mShowFakeFollowing = true;
                         }
@@ -194,8 +189,6 @@ public class UserPagerFragment extends PagerFragment {
 
     @Override
     protected void onInfoSystemResultsReported(InfoRequestData infoRequestData) {
-        showContentHeader(mUser);
-
         InfoRequestData sentLoggedOp = InfoSystem.get()
                 .getSentLoggedOpById(infoRequestData.getRequestId());
         if (sentLoggedOp != null
@@ -212,9 +205,12 @@ public class UserPagerFragment extends PagerFragment {
                 }
             });
         }
-        if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FOLLOWS) {
-            mShowFakeFollowing = false;
-            mShowFakeNotFollowing = false;
+        if (mCorrespondingRequestIds.contains(infoRequestData.getRequestId())) {
+            if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_FOLLOWS) {
+                mShowFakeFollowing = false;
+                mShowFakeNotFollowing = false;
+            }
         }
+        showContentHeader(mUser);
     }
 }

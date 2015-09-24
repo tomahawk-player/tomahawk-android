@@ -93,9 +93,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
     @SuppressWarnings("unused")
     public void onEventMainThread(InfoSystem.ResultsEvent event) {
-        if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
             onInfoSystemResultsReported(event.mInfoRequestData);
-        }
     }
 
     @SuppressWarnings("unused")
@@ -244,7 +242,8 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         }
     }
 
-    protected abstract void onInfoSystemResultsReported(InfoRequestData infoRequestData);
+    protected void onInfoSystemResultsReported(InfoRequestData infoRequestData) {
+    }
 
     protected void showContentHeader(Object item) {
         super.showContentHeader(item);
