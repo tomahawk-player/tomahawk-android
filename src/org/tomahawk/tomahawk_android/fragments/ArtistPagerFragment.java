@@ -83,8 +83,8 @@ public class ArtistPagerFragment extends PagerFragment {
                             if (result == null) {
                                 full = true;
                             }
-                            ArrayList<String> requestIds = InfoSystem.get().resolve(mArtist, full);
-                            for (String requestId : requestIds) {
+                            String requestId = InfoSystem.get().resolve(mArtist, full);
+                            if (requestId != null) {
                                 mCorrespondingRequestIds.add(requestId);
                             }
                         }

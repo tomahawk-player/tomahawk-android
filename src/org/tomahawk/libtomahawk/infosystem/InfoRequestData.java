@@ -34,9 +34,7 @@ public class InfoRequestData {
 
     public static final int INFOREQUESTDATA_TYPE_ARTISTS = 600;
 
-    public static final int INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS = 601;
-
-    public static final int INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS = 602;
+    public static final int INFOREQUESTDATA_TYPE_ARTISTS_TOPHITSANDALBUMS = 601;
 
     public static final int INFOREQUESTDATA_TYPE_ALBUMS = 700;
 

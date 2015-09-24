@@ -221,8 +221,11 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                                             && i < 5; i++) {
                                         String artistName = mCurrentPlaylist.getTopArtistNames()[i];
                                         if (mResolvingTopArtistNames.contains(artistName)) {
-                                            mCorrespondingRequestIds.addAll(InfoSystem.get()
-                                                    .resolve(Artist.get(artistName), false));
+                                            String requestId = InfoSystem.get()
+                                                    .resolve(Artist.get(artistName), false);
+                                            if (requestId != null) {
+                                                mCorrespondingRequestIds.add(requestId);
+                                            }
                                             mResolvingTopArtistNames.add(artistName);
                                         }
                                     }

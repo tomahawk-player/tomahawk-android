@@ -106,7 +106,8 @@ public class HatchetInfoPlugin implements InfoPlugin {
      */
     public void resolve(final InfoRequestData infoRequestData) {
         int priority;
-        if (infoRequestData.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
+        if (infoRequestData.getType()
+                == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITSANDALBUMS) {
             priority = TomahawkRunnable.PRIORITY_IS_INFOSYSTEM_HIGH;
         } else if (infoRequestData.getType()
                 == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS
@@ -169,10 +170,29 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 infoRequestData.setResultList(playlists);
                 return true;
 
-            } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS) {
+            } else if (type >= InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS
+                    && type < InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS + 100) {
                 JsonObject object = hatchet.getArtists(params.ids, params.name);
                 if (object == null) {
                     return false;
+                }
+                if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITSANDALBUMS) {
+                    List<Query> topHits = mStore.storeRecords(object, Query.class, type,
+                            infoRequestData.isBackgroundRequest());
+                    Artist artist = Artist.get(params.name);
+                    Playlist playlist = Playlist.fromQueryList(TomahawkApp.PLUGINNAME_HATCHET + "_"
+                            + artist.getCacheKey(), false, null, null, topHits);
+                    hatchetCollection.addArtistTopHits(artist, playlist);
+
+                    List<Album> albums = mStore.storeRecords(object, Album.class, type,
+                            infoRequestData.isBackgroundRequest());
+                    if (albums.size() > 0) {
+                        for (Album album : albums) {
+                            hatchetCollection.addAlbum(album);
+                        }
+                        Album firstAlbum = albums.get(0);
+                        hatchetCollection.addArtistAlbums(firstAlbum.getArtist(), albums);
+                    }
                 }
                 List<Artist> artists = mStore.storeRecords(object, Artist.class, type,
                         infoRequestData.isBackgroundRequest());
@@ -182,41 +202,20 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 infoRequestData.setResultList(artists);
                 return true;
 
-            } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
-                JsonObject object = hatchet.getArtists(params.ids, params.name);
-                if (object == null) {
-                    return false;
-                }
-                List<Album> albums = mStore.storeRecords(object, Album.class, type,
-                        infoRequestData.isBackgroundRequest());
-                if (albums.size() > 0) {
-                    for (Album album : albums) {
-                        hatchetCollection.addAlbum(album);
-                    }
-                    Album firstAlbum = albums.get(0);
-                    hatchetCollection.addArtistAlbums(firstAlbum.getArtist(), albums);
-                }
-                infoRequestData.setResultList(albums);
-                return true;
-
-            } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
-                JsonObject object = hatchet.getArtists(params.ids, params.name);
-                if (object == null) {
-                    return false;
-                }
-                List<Query> topHits = mStore.storeRecords(object, Query.class, type,
-                        infoRequestData.isBackgroundRequest());
-                Artist artist = Artist.get(params.name);
-                Playlist playlist = Playlist.fromQueryList(TomahawkApp.PLUGINNAME_HATCHET + "_"
-                        + artist.getCacheKey(), false, null, null, topHits);
-                hatchetCollection.addArtistTopHits(artist, playlist);
-                infoRequestData.setResultList(topHits);
-                return true;
-
-            } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS) {
+            } else if (type >= InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS
+                    && type < InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS + 100) {
                 JsonObject object = hatchet.getAlbums(params.ids, params.name, params.artistname);
                 if (object == null) {
                     return false;
+                }
+                if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS_TRACKS) {
+                    List<Query> tracks = mStore.storeRecords(object, Query.class, type,
+                            infoRequestData.isBackgroundRequest());
+                    Artist artist = Artist.get(params.artistname);
+                    Album album = Album.get(params.name, artist);
+                    Playlist playlist = Playlist.fromQueryList(TomahawkApp.PLUGINNAME_HATCHET + "_"
+                            + album.getCacheKey(), false, null, null, tracks);
+                    hatchetCollection.addAlbumTracks(album, playlist);
                 }
                 List<Album> albums = mStore.storeRecords(object, Album.class, type,
                         infoRequestData.isBackgroundRequest());
@@ -224,21 +223,6 @@ public class HatchetInfoPlugin implements InfoPlugin {
                     hatchetCollection.addAlbum(album);
                 }
                 infoRequestData.setResultList(albums);
-                return true;
-
-            } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_ALBUMS_TRACKS) {
-                JsonObject object = hatchet.getAlbums(params.ids, params.name, params.artistname);
-                if (object == null) {
-                    return false;
-                }
-                List<Query> tracks = mStore.storeRecords(object, Query.class, type,
-                        infoRequestData.isBackgroundRequest());
-                Artist artist = Artist.get(params.artistname);
-                Album album = Album.get(params.name, artist);
-                Playlist playlist = Playlist.fromQueryList(TomahawkApp.PLUGINNAME_HATCHET + "_"
-                        + album.getCacheKey(), false, null, null, tracks);
-                hatchetCollection.addAlbumTracks(album, playlist);
-                infoRequestData.setResultList(tracks);
                 return true;
 
             } else if (type == InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES) {

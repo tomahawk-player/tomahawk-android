@@ -967,13 +967,12 @@ public class PlaybackService extends Service implements MusicFocusable {
                 mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
 
                 if (getCurrentQuery().getImage() == null) {
-                    ArrayList<String> requestIds = InfoSystem.get().resolve(
+                    String requestId = InfoSystem.get().resolve(
                             getCurrentQuery().getArtist(), false);
-                    for (String requestId : requestIds) {
+                    if (requestId != null) {
                         mCorrespondingRequestIds.put(requestId, getCurrentQuery().getCacheKey());
                     }
-                    String requestId =
-                            InfoSystem.get().resolve(getCurrentQuery().getAlbum());
+                    requestId = InfoSystem.get().resolve(getCurrentQuery().getAlbum());
                     if (requestId != null) {
                         mCorrespondingRequestIds.put(requestId, getCurrentQuery().getCacheKey());
                     }

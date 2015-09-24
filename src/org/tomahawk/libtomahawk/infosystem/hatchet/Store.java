@@ -254,14 +254,13 @@ public class Store {
                     }
 
                     if (requestType
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS) {
+                            == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITSANDALBUMS) {
                         JsonElement rawAlbums = get(o, "albums");
                         if (rawAlbums instanceof JsonObject && resultType == Album.class) {
                             results.addAll(storeRecords(
                                     (JsonObject) rawAlbums, resultType, isBackgroundRequest));
                         }
-                    } else if (requestType
-                            == InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS) {
+
                         JsonElement rawTopHits = get(o, "topHits");
                         if (rawTopHits instanceof JsonObject && resultType == Query.class) {
                             List<Chart> chartItems = storeRecords((JsonObject) rawTopHits,

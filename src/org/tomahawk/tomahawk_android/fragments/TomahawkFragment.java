@@ -313,8 +313,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else {
-                    ArrayList<String> requestIds = InfoSystem.get().resolve(mArtist, false);
-                    for (String requestId : requestIds) {
+                    String requestId = InfoSystem.get().resolve(mArtist, false);
+                    if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
                     }
                 }
@@ -339,9 +339,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else {
-                    ArrayList<String> requestIds =
-                            InfoSystem.get().resolve(mQuery.getArtist(), false);
-                    for (String requestId : requestIds) {
+                    String requestId = InfoSystem.get().resolve(mQuery.getArtist(), false);
+                    if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
                     }
                 }
@@ -683,7 +682,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     private void resolveItem(Artist artist) {
         if (mResolvingItems.add(artist)) {
             if (artist.getImage() == null) {
-                mCorrespondingRequestIds.addAll(InfoSystem.get().resolve(artist, false));
+                String requestId = InfoSystem.get().resolve(artist, false);
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
+                }
             }
         }
     }
