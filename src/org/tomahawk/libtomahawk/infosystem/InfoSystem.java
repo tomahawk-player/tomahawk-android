@@ -129,25 +129,20 @@ public class InfoSystem {
      *
      * @param artist the Artist to enrich with data from the InfoPlugins
      * @param full   true, if top-hits and albums should also be resolved
-     * @return an ArrayList of Strings containing all created requestIds
+     * @return the created InfoRequestData's requestId
      */
-    public ArrayList<String> resolve(Artist artist, boolean full) {
-        ArrayList<String> requestIds = new ArrayList<>();
+    public String resolve(Artist artist, boolean full) {
         if (artist != null) {
             QueryParams params = new QueryParams();
             params.name = artist.getName();
             if (full) {
-                String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITS,
-                        params);
-                requestIds.add(requestId);
-                requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_ALBUMS, params);
-                requestIds.add(requestId);
+                return resolve(
+                        InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS_TOPHITSANDALBUMS, params);
             } else {
-                String requestId = resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
-                requestIds.add(requestId);
+                return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_ARTISTS, params);
             }
         }
-        return requestIds;
+        return null;
     }
 
     /**
