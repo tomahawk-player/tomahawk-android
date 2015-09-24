@@ -19,7 +19,9 @@ package org.tomahawk.libtomahawk.infosystem.hatchet;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -829,8 +831,12 @@ public class Store {
                     throw new IOException("API request with URL '" + request.urlString()
                             + "' not successful. Code was " + response.code());
                 }
-                element =
-                        GsonHelper.get().fromJson(response.body().charStream(), JsonElement.class);
+                try {
+                    element = GsonHelper.get().fromJson(
+                            response.body().charStream(), JsonElement.class);
+                } catch (JsonIOException | JsonSyntaxException e) {
+                    throw new IOException(e);
+                }
             }
         }
         return element;
