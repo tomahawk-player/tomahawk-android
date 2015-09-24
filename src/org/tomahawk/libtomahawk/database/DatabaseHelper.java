@@ -332,8 +332,10 @@ public class DatabaseHelper {
      * @return the playlist's hatchet id, null if playlist not found
      */
     public String getPlaylistHatchetId(String playlistId) {
+        if (playlistId == null) {
+            return null;
+        }
         String[] columns = new String[]{TomahawkSQLiteHelper.PLAYLISTS_COLUMN_HATCHETID};
-
         Cursor playlistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_PLAYLISTS,
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
