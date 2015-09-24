@@ -187,6 +187,7 @@
   <string name="view_album">Voir l\'album</string>
   <string name="connect">Connexion</string>
   <string name="connect_headertext">Sélectionnez les services que vous souhaitez utiliser. Tomahawk fonctionne d\'autant mieux que plusieurs services sont activés.</string>
+  <string name="connect_header_manualresolvers">Installé manuellement</string>
   <string name="advanced">Avancé</string>
   <string name="info">Info</string>
   <string name="playbackpanel_seek_coachmark">Vous pouvez naviguer dans un morceau en restant pressé sur le bouton de lecture.</string>
@@ -210,4 +211,11 @@
     <item quantity="other">Choisissez la playlist à laquelle ajouter %1$d morceaux :</item>
   </plurals>
   <string name="seeking_not_supported">Désolé, cette source ne gère pas le déplacement dans les morceaux.</string>
+  <string name="install_plugin_title">Installation de l\'extension</string>
+  <string name="install_plugin_warning">Vous êtes sur le point d\'installer une extension Tomahawk depuis une source inconnue. C\'est un risque de sécurité.</string>
+  <string name="install_plugin_warning2">Souhaitez-vous vraiment installer cette extension ?</string>
+  <string name="uninstall_plugin_title">Désinstallation de l\'extension</string>
+  <string name="uninstall_plugin_warning">Souhaitez-vous vraiment désinstaller cette extension ?</string>
+  <string name="gmusic_info_text">Choisissez un compte :</string>
+  <string name="invalid_file">Fichier impossible à ouvrir.</string>
 </resources>
