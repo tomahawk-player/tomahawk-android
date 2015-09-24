@@ -14,6 +14,8 @@
   <string name="users">ユーザー</string>
   <string name="top_hits">トップ・ヒット</string>
   <string name="top_albums">トップ・アルバム</string>
+  <string name="albums_and_eps">アルバムとEP</string>
+  <string name="other_releases">他のリリース</string>
   <string name="playlist_details">プレイリスト詳細</string>
   <string name="album_details">アルバム詳細</string>
   <string name="search">検索</string>
