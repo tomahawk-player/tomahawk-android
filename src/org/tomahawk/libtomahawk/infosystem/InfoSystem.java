@@ -513,11 +513,13 @@ public class InfoSystem {
         sendLoggedOps(authenticatorUtils);
     }
 
-    public void deletePlaylistEntry(AuthenticatorUtils authenticatorUtils, String entryId) {
+    public void deletePlaylistEntry(AuthenticatorUtils authenticatorUtils, String localPlaylistId,
+            String entryId) {
         long timeStamp = System.currentTimeMillis();
         String requestId = TomahawkMainActivity.getLifetimeUniqueStringId();
         QueryParams params = new QueryParams();
         params.entry_id = entryId;
+        params.playlist_local_id = localPlaylistId;
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES, params,
                 InfoRequestData.HTTPTYPE_DELETE, null);
@@ -692,13 +694,18 @@ public class InfoSystem {
                 if (hatchetId != null) {
                     if (queuedLoggedOp.getType()
                             == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES) {
-                        // Now that we know the hatchetId, we can add it to the playlistEntry object
-                        // we POST to Hatchet
-                        HatchetPlaylistEntryPostStruct struct = GsonHelper.get()
-                                .fromJson(queuedLoggedOp.getJsonStringToSend(),
-                                        HatchetPlaylistEntryPostStruct.class);
-                        struct.playlistEntry.playlist = Integer.valueOf(hatchetId);
-                        queuedLoggedOp.setJsonStringToSend(GsonHelper.get().toJson(struct));
+                        if (queuedLoggedOp.getHttpType() == InfoRequestData.HTTPTYPE_POST) {
+                            // Now that we know the hatchetId, we can add it to the playlistEntry
+                            // object we POST to Hatchet
+                            HatchetPlaylistEntryPostStruct struct = GsonHelper.get()
+                                    .fromJson(queuedLoggedOp.getJsonStringToSend(),
+                                            HatchetPlaylistEntryPostStruct.class);
+                            struct.playlistEntry.playlist = Integer.valueOf(hatchetId);
+                            queuedLoggedOp.setJsonStringToSend(GsonHelper.get().toJson(struct));
+                        } else if (queuedLoggedOp.getHttpType()
+                                == InfoRequestData.HTTPTYPE_DELETE) {
+                            params.playlist_id = hatchetId;
+                        }
                     } else {
                         params.playlist_id = hatchetId;
                     }

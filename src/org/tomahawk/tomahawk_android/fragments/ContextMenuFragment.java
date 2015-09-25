@@ -397,13 +397,13 @@ public class ContextMenuFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
-                    String playlistId = mPlaylist != null ? mPlaylist.getId()
+                    String localPlaylistId = mPlaylist != null ? mPlaylist.getId()
                             : mPlaylistEntry.getPlaylistId();
                     if (mPlaylistEntry != null) {
-                        CollectionManager.get().deletePlaylistEntry(playlistId,
+                        CollectionManager.get().deletePlaylistEntry(localPlaylistId,
                                 mPlaylistEntry.getId());
                     } else {
-                        CollectionManager.get().deletePlaylist(playlistId);
+                        CollectionManager.get().deletePlaylist(localPlaylistId);
                     }
                 }
             });

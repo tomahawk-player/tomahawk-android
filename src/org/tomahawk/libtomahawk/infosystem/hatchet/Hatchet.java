@@ -145,7 +145,8 @@ public interface Hatchet {
     @DELETE("/playlistEntries/{entry-id}")
     Response deletePlaylistsPlaylistEntries(
             @Header("Authorization") String accesstoken,
-            @Path("entry-id") String entry_id
+            @Path("entry-id") String entry_id,
+            @Query("playlist_id") String playlist_id
     );
 
     @DELETE("/relationships/{relationship-id}")
