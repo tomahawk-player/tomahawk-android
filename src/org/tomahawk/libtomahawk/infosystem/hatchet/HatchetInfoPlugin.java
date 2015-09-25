@@ -315,7 +315,8 @@ public class HatchetInfoPlugin implements InfoPlugin {
                             } else if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_DELETE) {
                                 hatchet.deletePlaylistsPlaylistEntries(accessToken,
-                                        infoRequestData.getQueryParams().entry_id);
+                                        infoRequestData.getQueryParams().entry_id,
+                                        infoRequestData.getQueryParams().playlist_id);
                             }
                         } else if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS) {

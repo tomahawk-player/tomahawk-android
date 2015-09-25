@@ -624,18 +624,18 @@ public class CollectionManager {
         }
     }
 
-    public void deletePlaylistEntry(String playlistId, String entryId) {
-        String playlistName = DatabaseHelper.get().getPlaylistName(playlistId);
+    public void deletePlaylistEntry(String localPlaylistId, String entryId) {
+        String playlistName = DatabaseHelper.get().getPlaylistName(localPlaylistId);
         if (playlistName != null) {
             Log.d(TAG, "Hatchet sync - deleting playlist entry in \"" + playlistName
-                    + "\", playlistId: " + playlistId + ", entryId: " + entryId);
-            DatabaseHelper.get().deleteEntryInPlaylist(playlistId, entryId);
+                    + "\", localPlaylistId: " + localPlaylistId + ", entryId: " + entryId);
+            DatabaseHelper.get().deleteEntryInPlaylist(localPlaylistId, entryId);
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            InfoSystem.get().deletePlaylistEntry(hatchetAuthUtils, entryId);
+            InfoSystem.get().deletePlaylistEntry(hatchetAuthUtils, localPlaylistId, entryId);
         } else {
-            Log.e(TAG, "Hatchet sync - couldn't delete entry in playlist, playlistId: "
-                    + playlistId + ", entryId: " + entryId);
+            Log.e(TAG, "Hatchet sync - couldn't delete entry in playlist, localPlaylistId: "
+                    + localPlaylistId + ", entryId: " + entryId);
         }
     }
 
