@@ -19,9 +19,9 @@ package org.tomahawk.libtomahawk.database;
 
 import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistComparator;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -317,7 +317,7 @@ public class DatabaseHelper {
             playlistsCursor.moveToNext();
         }
         playlistsCursor.close();
-        Collections.sort(playListList, new AlphaComparator());
+        Collections.sort(playListList, new PlaylistComparator());
         User.getSelf().done(new DoneCallback<User>() {
             @Override
             public void onDone(User user) {
