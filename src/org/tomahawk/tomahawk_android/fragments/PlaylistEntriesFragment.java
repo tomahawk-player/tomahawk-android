@@ -61,7 +61,11 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
     @SuppressWarnings("unused")
     public void onEvent(DatabaseHelper.PlaylistsUpdatedEvent event) {
         if (mPlaylist != null && mPlaylist.getId().equals(event.mPlaylistId)) {
-            refreshUserPlaylists();
+            if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+                mPlaylist = DatabaseHelper.get().getPlaylist(mPlaylist.getId());
+                mAdapterUpdateHandler.sendEmptyMessageDelayed(
+                        ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
+            }
         }
     }
 
@@ -92,7 +96,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                         mHideRemoveButton = true;
                         if (mUser == user) {
                             CollectionManager.get().fetchLovedItemsPlaylist();
-                            refreshUserPlaylists();
                         } else {
                             String requestId = InfoSystem.get().resolveLovedItems(mUser);
                             if (requestId != null) {
@@ -254,18 +257,6 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 }
             });
         }
-    }
-
-    private void refreshUserPlaylists() {
-        CollectionManager.get().refreshUserPlaylists().done(new DoneCallback<Void>() {
-            @Override
-            public void onDone(Void result) {
-                if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-                    mAdapterUpdateHandler.sendEmptyMessageDelayed(
-                            ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
-                }
-            }
-        });
     }
 
     private List<Integer> constructDropdownItems() {

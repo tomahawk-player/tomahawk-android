@@ -20,7 +20,6 @@ package org.tomahawk.libtomahawk.authentication;
 
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.authentication.models.HatchetAuthResponse;
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -151,7 +150,6 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                 ensureAccessTokens();
             }
         }
-        CollectionManager.get().fetchAll();
         AuthenticatorManager.ConfigTestResultEvent event
                 = new AuthenticatorManager.ConfigTestResultEvent();
         event.mComponent = this;
