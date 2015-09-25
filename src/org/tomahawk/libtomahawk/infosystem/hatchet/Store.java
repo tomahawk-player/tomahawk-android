@@ -33,6 +33,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistComparator;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
@@ -49,6 +50,7 @@ import android.util.Log;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -373,6 +375,7 @@ public class Store {
                         if (rawPlaylists instanceof JsonObject) {
                             List<Playlist> playlists = storeRecords(
                                     (JsonObject) rawPlaylists, Playlist.class, isBackgroundRequest);
+                            Collections.sort(playlists, new PlaylistComparator());
                             user.setPlaylists(playlists);
                         }
                     } else if (requestType
