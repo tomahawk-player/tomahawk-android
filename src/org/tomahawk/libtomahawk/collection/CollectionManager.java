@@ -104,8 +104,16 @@ public class CollectionManager {
         addCollection(new UserCollection());
         addCollection(new HatchetCollection());
 
-        fetchAll();
-        refreshUserPlaylists();
+        fillUserWithStoredPlaylists();
+
+        fetchPlaylists();
+        fetchLovedItemsPlaylist();
+        fetchStarredAlbums();
+        fetchStarredArtists();
+    }
+
+    public static CollectionManager get() {
+        return Holder.instance;
     }
 
     @SuppressWarnings("unused")
@@ -116,14 +124,6 @@ public class CollectionManager {
                 fetchStarredArtists();
                 fetchStarredAlbums();
                 fetchLovedItemsPlaylist();
-            } else if (requestType
-                    == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES) {
-                User.getSelf().done(new DoneCallback<User>() {
-                    @Override
-                    public void onDone(User user) {
-                        InfoSystem.get().resolvePlaybackLog(user);
-                    }
-                });
             } else if (requestType
                     == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS
                     || requestType
@@ -143,16 +143,16 @@ public class CollectionManager {
 
     @SuppressWarnings("unused")
     public void onEventAsync(HatchetAuthenticatorUtils.UserLoginEvent event) {
-        User.getSelf().done(new DoneCallback<User>() {
-            @Override
-            public void onDone(User user) {
-                InfoSystem.get().resolvePlaybackLog(user);
-            }
-        });
-        fetchAll();
+        fetchPlaylists();
+        fetchLovedItemsPlaylist();
+        fetchStarredAlbums();
+        fetchStarredArtists();
     }
 
-    public Promise<Void, Throwable, Void> refreshUserPlaylists() {
+    /**
+     * Fill the logged-in User object with the playlists we have stored in the database.
+     */
+    public Promise<Void, Throwable, Void> fillUserWithStoredPlaylists() {
         final ADeferredObject<Void, Throwable, Void> deferred = new ADeferredObject<>();
         User.getSelf().done(new DoneCallback<User>() {
             @Override
@@ -173,17 +173,6 @@ public class CollectionManager {
             }
         });
         return deferred;
-    }
-
-    public void fetchAll() {
-        fetchPlaylists();
-        fetchLovedItemsPlaylist();
-        fetchStarredAlbums();
-        fetchStarredArtists();
-    }
-
-    public static CollectionManager get() {
-        return Holder.instance;
     }
 
     public void addCollection(Collection collection) {

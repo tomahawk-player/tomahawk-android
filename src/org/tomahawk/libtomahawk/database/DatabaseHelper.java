@@ -17,7 +17,6 @@
  */
 package org.tomahawk.libtomahawk.database;
 
-import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
@@ -26,7 +25,6 @@ import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
-import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -318,12 +316,6 @@ public class DatabaseHelper {
         }
         playlistsCursor.close();
         Collections.sort(playListList, new PlaylistComparator());
-        User.getSelf().done(new DoneCallback<User>() {
-            @Override
-            public void onDone(User user) {
-                user.setPlaylists(playListList);
-            }
-        });
         return playListList;
     }
 
