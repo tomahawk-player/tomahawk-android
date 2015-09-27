@@ -515,6 +515,8 @@ public class Store {
                     playlist.setHatchetId(id);
                     int entryCount = getAsInt(o, "entryCount");
                     playlist.setCount(entryCount);
+                    String userId = getAsString(o, "user");
+                    playlist.setUserId(userId);
                     JsonElement popularArtists = get(o, "popularArtists");
                     if (popularArtists instanceof JsonArray) {
                         ArrayList<String> topArtistNames = new ArrayList<>();

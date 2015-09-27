@@ -74,6 +74,8 @@ public class Playlist extends Cacheable implements AlphaComparable {
 
     private boolean mIsFilled;
 
+    private String mUserId;
+
     /**
      * Construct a new empty {@link Playlist}.
      */
@@ -353,11 +355,11 @@ public class Playlist extends Cacheable implements AlphaComparable {
     }
 
     public String getUserId() {
-        if (mHatchetId != null) {
-            String[] s = mHatchetId.split("_");
-            return s[0];
-        }
-        return null;
+        return mUserId;
+    }
+
+    public void setUserId(String userId) {
+        mUserId = userId;
     }
 
     public boolean allFromOneArtist() {

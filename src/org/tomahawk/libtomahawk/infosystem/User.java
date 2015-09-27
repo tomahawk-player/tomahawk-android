@@ -349,6 +349,9 @@ public class User extends Cacheable implements AlphaComparable {
     }
 
     public void setFavorites(Playlist favorites) {
+        if (favorites != null) {
+            favorites.setUserId(mId);
+        }
         mFavorites = favorites;
     }
 
@@ -390,6 +393,11 @@ public class User extends Cacheable implements AlphaComparable {
     }
 
     public void setPlaylists(List<Playlist> playlists) {
+        if (playlists != null) {
+            for (Playlist playlist : playlists) {
+                playlist.setUserId(mId);
+            }
+        }
         mPlaylists = playlists;
     }
 }
