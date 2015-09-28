@@ -53,16 +53,6 @@ dependencies {
     compile 'com.github.rahatarmanahmed:circularprogressview:2.3.2'
 }
 
-/*
- * Gets the version name from the latest Git tag
- */
-def getNewVersionName = { ->
-    boolean isChanged = 'git diff --cached'.execute([], projectDir).text.length() > 0 ||
-            'git diff'.execute([], projectDir).text.length() > 0
-    return 'git describe --tags'.execute([], projectDir).text.replace('\n', '') +
-            (isChanged ? "_modified" : "")
-}
-
 android {
     compileSdkVersion 22
     buildToolsVersion "22.0.1"
@@ -115,6 +105,22 @@ android {
         // by a similar customization.
         debug.setRoot('build-types/debug')
         release.setRoot('build-types/release')
+    }
+
+    /*
+     * Tries to get the version name from the latest Git tag
+     */
+    def getNewVersionName = { ->
+        try {
+            boolean isChanged = 'git diff --cached'.execute([], projectDir).text.length() > 0 ||
+                    'git diff'.execute([], projectDir).text.length() > 0
+            return 'git describe --tags'.execute([], projectDir).text.replace('\n', '') +
+                    (isChanged ? "_modified" : "")
+        }
+        catch (IOException e) {
+            logger.error("Wasn't able to get version tag: " + e.getMessage());
+            return defaultConfig.versionName + "_nogit"
+        }
     }
 
     applicationVariants.all { variant ->
