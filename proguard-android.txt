@@ -49,13 +49,7 @@
 ######################
 #LibVLC specifics#
 ######################
--keep class org.videolan.libvlc.LibVLC {
-    public <methods>;
-    private <methods>;
-}
--keep class org.videolan.libvlc.TrackInfo {
-    *;
-}
+-keep class org.videolan.libvlc.** { *; }
 
 ################################
 #Javascript Interface specifics#
