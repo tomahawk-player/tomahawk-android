@@ -245,7 +245,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                         public void run() {
                             mCurrentPlaylist = playlist;
                             Segment segment = new Segment.Builder(playlist)
-                                    .headerLayout(R.layout.single_line_list_header)
+                                    .headerLayout(R.layout.dropdown_header)
                                     .headerStrings(constructDropdownItems())
                                     .spinner(constructDropdownListener(
                                                     COLLECTION_TRACKS_SPINNER_POSITION),

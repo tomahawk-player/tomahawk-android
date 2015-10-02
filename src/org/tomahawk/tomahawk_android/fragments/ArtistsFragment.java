@@ -116,7 +116,7 @@ public class ArtistsFragment extends TomahawkFragment {
                                         cursor.mergeItems(getSortMode(), starredArtists);
                                     }
                                     Segment segment = new Segment.Builder(cursor)
-                                            .headerLayout(R.layout.single_line_list_header)
+                                            .headerLayout(R.layout.dropdown_header)
                                             .headerStrings(constructDropdownItems())
                                             .spinner(constructDropdownListener(
                                                             COLLECTION_ARTISTS_SPINNER_POSITION),

@@ -201,7 +201,7 @@ public class AlbumsFragment extends TomahawkFragment {
             fillAdapter(new Segment.Builder(mAlbumArray).build());
         } else if (mUser != null) {
             Segment segment = new Segment.Builder(sortAlbums(mUser.getStarredAlbums()))
-                    .headerLayout(R.layout.single_line_list_header)
+                    .headerLayout(R.layout.dropdown_header)
                     .headerStrings(constructDropdownItems())
                     .spinner(constructDropdownListener(COLLECTION_ALBUMS_SPINNER_POSITION),
                             getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION))
@@ -227,7 +227,7 @@ public class AlbumsFragment extends TomahawkFragment {
                                 cursor.mergeItems(getSortMode(), starredAlbums);
                             }
                             Segment segment = new Segment.Builder(cursor)
-                                    .headerLayout(R.layout.single_line_list_header)
+                                    .headerLayout(R.layout.dropdown_header)
                                     .headerStrings(constructDropdownItems())
                                     .spinner(constructDropdownListener(
                                                     COLLECTION_ALBUMS_SPINNER_POSITION),
