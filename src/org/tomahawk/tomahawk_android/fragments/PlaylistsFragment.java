@@ -96,6 +96,8 @@ public class PlaylistsFragment extends TomahawkFragment {
                             TomahawkMainActivity.getLifetimeUniqueStringId()));
                 }
                 CollectionManager.get().addPlaylistEntries(playlistId, entries);
+                // invalidate the current list of entries
+                ((Playlist) item).setFilled(false);
             }
             Bundle bundle = new Bundle();
             bundle.putString(TomahawkFragment.PLAYLIST, ((Playlist) item).getCacheKey());
@@ -113,6 +115,7 @@ public class PlaylistsFragment extends TomahawkFragment {
             CreatePlaylistDialog dialog = new CreatePlaylistDialog();
             Bundle args = new Bundle();
             args.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
+            args.putString(TomahawkFragment.USER, mUser.getCacheKey());
             dialog.setArguments(args);
             dialog.show(getFragmentManager(), null);
         }

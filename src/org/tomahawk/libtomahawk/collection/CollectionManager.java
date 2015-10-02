@@ -149,6 +149,11 @@ public class CollectionManager {
         fetchStarredArtists();
     }
 
+    @SuppressWarnings("unused")
+    public void onEventAsync(final DatabaseHelper.PlaylistsUpdatedEvent event) {
+        fillUserWithStoredPlaylists();
+    }
+
     /**
      * Fill the logged-in User object with the playlists we have stored in the database.
      */

@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -43,6 +44,8 @@ import android.widget.EditText;
  */
 public class CreatePlaylistDialog extends ConfigDialog {
 
+    private User mUser;
+
     private Playlist mPlaylist;
 
     private EditText mNameEditText;
@@ -51,13 +54,20 @@ public class CreatePlaylistDialog extends ConfigDialog {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         // Check if there is a playlist key in the provided arguments
-        if (getArguments() != null && getArguments()
-                .containsKey(TomahawkFragment.PLAYLIST)) {
-            String playlistId = getArguments().getString(TomahawkFragment.PLAYLIST);
-            mPlaylist = DatabaseHelper.get().getPlaylist(playlistId);
-            if (mPlaylist == null) {
-                mPlaylist = Playlist.getByKey(playlistId);
+        if (getArguments() != null) {
+            if (getArguments().containsKey(TomahawkFragment.PLAYLIST)) {
+                String playlistId = getArguments().getString(TomahawkFragment.PLAYLIST);
+                mPlaylist = DatabaseHelper.get().getPlaylist(playlistId);
                 if (mPlaylist == null) {
+                    mPlaylist = Playlist.getByKey(playlistId);
+                    if (mPlaylist == null) {
+                        dismiss();
+                    }
+                }
+            }
+            if (getArguments().containsKey(TomahawkFragment.USER)) {
+                mUser = User.getUserById(getArguments().getString(TomahawkFragment.USER));
+                if (mUser == null) {
                     dismiss();
                 }
             }
@@ -92,6 +102,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
             mPlaylist.setName(playlistName);
             CollectionManager.get().createPlaylist(mPlaylist);
             Bundle bundle = new Bundle();
+            bundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
             bundle.putString(TomahawkFragment.PLAYLIST, mPlaylist.getCacheKey());
             bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
