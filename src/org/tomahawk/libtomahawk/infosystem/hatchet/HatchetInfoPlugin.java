@@ -279,12 +279,6 @@ public class HatchetInfoPlugin implements InfoPlugin {
                                     new TypedByteArray("application/json; charset=utf-8",
                                             data.getBytes(Charsets.UTF_8)));
                         } else if (infoRequestData.getType()
-                                == InfoRequestData.INFOREQUESTDATA_TYPE_SOCIALACTIONS) {
-                            //legacy for users with v1 loggedOps in their queue
-                            hatchet.postRelationship(accessToken,
-                                    new TypedByteArray("application/json; charset=utf-8",
-                                            data.getBytes(Charsets.UTF_8)));
-                        } else if (infoRequestData.getType()
                                 == InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS) {
                             if (infoRequestData.getHttpType()
                                     == InfoRequestData.HTTPTYPE_POST) {
