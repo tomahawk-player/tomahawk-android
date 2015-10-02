@@ -29,7 +29,8 @@
 
     <FrameLayout android:layout_width="wrap_content"
                  android:layout_height="@dimen/list_item_track_height"
-                 android:background="@color/sliding_layout_background">
+                 android:background="@color/sliding_layout_background"
+                 android:clickable="true">
 
         <ViewStub android:id="@+id/swipe_menu_button_enqueue_stub"
                   android:inflatedId="@+id/swipe_menu_button_enqueue"
