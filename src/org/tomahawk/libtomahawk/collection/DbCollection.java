@@ -174,7 +174,7 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
                                 break;
                             case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.TRACKS_LASTMODIFIED};
+                                orderBy = new String[]{CollectionDb.TRACKS_LASTMODIFIED + " DESC"};
                                 break;
                             default:
                                 Log.e(TAG,
@@ -223,7 +223,7 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
                                 break;
                             case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.ARTISTS_LASTMODIFIED};
+                                orderBy = new String[]{CollectionDb.ARTISTS_LASTMODIFIED + " DESC"};
                                 break;
                             default:
                                 Log.e(TAG,
@@ -258,7 +258,7 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
                                 break;
                             case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.ARTISTS_LASTMODIFIED};
+                                orderBy = new String[]{CollectionDb.ARTISTS_LASTMODIFIED + " DESC"};
                                 break;
                             default:
                                 Log.e(TAG, collectionId
@@ -295,7 +295,7 @@ public abstract class DbCollection extends Collection {
                                 orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
                                 break;
                             case SORT_LAST_MODIFIED:
-                                orderBy = new String[]{CollectionDb.ALBUMS_LASTMODIFIED};
+                                orderBy = new String[]{CollectionDb.ALBUMS_LASTMODIFIED + " DESC"};
                                 break;
                             default:
                                 Log.e(TAG, collectionId + " - getAlbums - sortMode not supported!");
