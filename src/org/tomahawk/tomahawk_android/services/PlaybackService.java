@@ -1072,8 +1072,12 @@ public class PlaybackService extends Service implements MusicFocusable {
         mShuffled = false;
         mRepeatingMode = NOT_REPEATING;
         mPlaylist = playlist;
-        mQueueStartPos = -1;
         setCurrentEntry(currentEntry);
+        if (mQueue.size() > 0) {
+            mQueueStartPos = mCurrentIndex + 1;
+        } else {
+            mQueueStartPos = -1;
+        }
     }
 
     public int getQueueStartPos() {
