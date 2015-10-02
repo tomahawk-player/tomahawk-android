@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.infosystem;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
@@ -458,9 +461,7 @@ public class InfoSystem {
         }
     }
 
-    public void sendPlaylistPostStruct(AuthenticatorUtils authenticatorUtils,
-            String localId, String title) {
-        long timeStamp = System.currentTimeMillis();
+    public InfoRequestData buildPlaylistPostStruct(String localId, String title) {
         HatchetPlaylistRequest request = new HatchetPlaylistRequest();
         request.title = title;
         HatchetPlaylistPostStruct struct = new HatchetPlaylistPostStruct();
@@ -473,14 +474,20 @@ public class InfoSystem {
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params,
                 InfoRequestData.HTTPTYPE_POST, jsonString);
+        return infoRequestData;
+    }
+
+    public void sendPlaylistPostStruct(AuthenticatorUtils authenticatorUtils,
+            String localId, String title) {
+        long timeStamp = System.currentTimeMillis();
+        InfoRequestData infoRequestData = buildPlaylistPostStruct(localId, title);
         DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
     }
 
-    public void sendPlaylistEntriesPostStruct(AuthenticatorUtils authenticatorUtils,
-            String localPlaylistId, String trackName, String artistName, String albumName) {
-        long timeStamp = System.currentTimeMillis();
+    public InfoRequestData buildPlaylistEntriesPostStruct(String localPlaylistId, String trackName,
+            String artistName, String albumName) {
         HatchetPlaylistEntryRequest request = new HatchetPlaylistEntryRequest();
         request.trackString = trackName;
         request.artistString = artistName;
@@ -495,6 +502,14 @@ public class InfoSystem {
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES, params,
                 InfoRequestData.HTTPTYPE_POST, jsonString);
+        return infoRequestData;
+    }
+
+    public void sendPlaylistEntriesPostStruct(AuthenticatorUtils authenticatorUtils,
+            String localPlaylistId, String trackName, String artistName, String albumName) {
+        long timeStamp = System.currentTimeMillis();
+        InfoRequestData infoRequestData =
+                buildPlaylistEntriesPostStruct(localPlaylistId, trackName, artistName, albumName);
         DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
@@ -546,9 +561,8 @@ public class InfoSystem {
                 album.getName());
     }
 
-    public void sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils,
-            String user, String track, String artist, String album) {
-        long timeStamp = System.currentTimeMillis();
+    public InfoRequestData buildRelationshipPostStruct(String user, String track, String artist,
+            String album) {
         HatchetRelationshipStruct relationship = new HatchetRelationshipStruct();
         relationship.targetUser = user;
         relationship.targetTrackString = track;
@@ -565,6 +579,13 @@ public class InfoSystem {
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS, null,
                 InfoRequestData.HTTPTYPE_POST, jsonString);
+        return infoRequestData;
+    }
+
+    public void sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils,
+            String user, String track, String artist, String album) {
+        long timeStamp = System.currentTimeMillis();
+        InfoRequestData infoRequestData = buildRelationshipPostStruct(user, track, artist, album);
         DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
@@ -617,8 +638,11 @@ public class InfoSystem {
 
 
     public synchronized void sendLoggedOps(AuthenticatorUtils authenticatorUtils) {
-        List<String> requestIds = new ArrayList<>();
         List<InfoRequestData> loggedOps = DatabaseHelper.get().getLoggedOps();
+        for (InfoRequestData loggedOp : loggedOps) {
+            verifyLoggedOp(loggedOp);
+        }
+        loggedOps = DatabaseHelper.get().getLoggedOps();
         for (InfoRequestData loggedOp : loggedOps) {
             if (!mLoggedOpsMap.containsKey(loggedOp.getLoggedOpId())) {
                 mLoggedOpsMap.put(loggedOp.getLoggedOpId(), loggedOp);
@@ -633,7 +657,6 @@ public class InfoSystem {
                     }
                     send(loggedOp, authenticatorUtils);
                 }
-                requestIds.add(loggedOp.getRequestId());
             }
         }
         trySendingQueuedOps();
@@ -725,5 +748,71 @@ public class InfoSystem {
         ArrayList<String> doneRequestsIds = new ArrayList<>();
         doneRequestsIds.add(loggedOp.getRequestId());
         InfoSystem.get().onLoggedOpsSent(doneRequestsIds, true);
+    }
+
+    /**
+     * Verify if the given loggedOp needs to be converted to a newer version. This is needed because
+     * the Hatchet API changes.
+     */
+    private void verifyLoggedOp(InfoRequestData loggedOp) {
+        InfoRequestData convertedLogOp = null;
+        if (loggedOp.getType() == 1300) { // old v1 way of posting a socialAction
+            JsonElement element =
+                    GsonHelper.get().fromJson(loggedOp.getJsonStringToSend(), JsonElement.class);
+            if (element instanceof JsonObject) {
+                JsonObject socialAction = ((JsonObject) element).getAsJsonObject("socialAction");
+                String action = getAsString(socialAction, "action");
+                if (action != null && action.equals("true")) {
+                    String trackString = getAsString(socialAction, "trackString");
+                    String artistString = getAsString(socialAction, "artistString");
+                    String albumString = getAsString(socialAction, "albumString");
+                    convertedLogOp = buildRelationshipPostStruct(
+                            null, trackString, artistString, albumString);
+                } else {
+                    // We have to discard the loggedOp since we don't have any way of getting the
+                    // associated relationShipId. Therefore we are unable to delete this particular
+                    // relationship.
+                    DatabaseHelper.get().removeOpFromInfoSystemOpLog(loggedOp);
+                }
+            }
+        } else if (loggedOp.getType() == 1001) {
+            JsonElement element =
+                    GsonHelper.get().fromJson(loggedOp.getJsonStringToSend(), JsonElement.class);
+            if (element instanceof JsonObject) {
+                JsonObject playlist = ((JsonObject) element).getAsJsonObject("playlist");
+                if (playlist != null) {
+                    String title = getAsString(playlist, "title");
+                    convertedLogOp = buildPlaylistPostStruct(
+                            loggedOp.getQueryParams().playlist_local_id, title);
+                }
+            }
+        } else if (loggedOp.getType() == 1002) {
+            JsonElement element =
+                    GsonHelper.get().fromJson(loggedOp.getJsonStringToSend(), JsonElement.class);
+            if (element instanceof JsonObject) {
+                JsonObject playlistEntry = ((JsonObject) element).getAsJsonObject("playlistEntry");
+                if (playlistEntry != null) {
+                    String trackString = getAsString(playlistEntry, "trackString");
+                    String artistString = getAsString(playlistEntry, "artistString");
+                    String albumString = getAsString(playlistEntry, "albumString");
+                    convertedLogOp = buildPlaylistEntriesPostStruct(
+                            loggedOp.getQueryParams().playlist_local_id, trackString, artistString,
+                            albumString);
+                }
+            }
+        }
+        if (convertedLogOp != null) {
+            DatabaseHelper.get().removeOpFromInfoSystemOpLog(loggedOp);
+            DatabaseHelper.get().addOpToInfoSystemOpLog(convertedLogOp,
+                    (int) System.currentTimeMillis() / 1000);
+        }
+    }
+
+    private String getAsString(JsonObject object, String memberName) {
+        JsonElement element = object.get(memberName);
+        if (element != null && element.isJsonPrimitive()) {
+            return element.getAsString();
+        }
+        return null;
     }
 }

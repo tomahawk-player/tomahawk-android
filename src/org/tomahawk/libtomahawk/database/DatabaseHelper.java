@@ -910,10 +910,28 @@ public class DatabaseHelper {
     /**
      * Remove the operation with the given id from the InfoSystem-OpLog table
      *
+     * @param loggedOp the opLog that should be removed from the InfoSystem-OpLog table
+     */
+    public void removeOpFromInfoSystemOpLog(InfoRequestData loggedOp) {
+        mDatabase.beginTransaction();
+        int deletedLogs = mDatabase.delete(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOG,
+                TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_ID + " = ?",
+                new String[]{String.valueOf(loggedOp.getLoggedOpId())});
+        long logCount = getLoggedOpsCount();
+        ContentValues values = new ContentValues();
+        values.put(TomahawkSQLiteHelper.INFOSYSTEMOPLOGINFO_COLUMN_LOGCOUNT,
+                logCount - deletedLogs);
+        mDatabase.update(TomahawkSQLiteHelper.TABLE_INFOSYSTEMOPLOGINFO, values, null, null);
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+    }
+
+    /**
+     * Remove the operation with the given id from the InfoSystem-OpLog table
+     *
      * @param loggedOps a list of all the operations to remove from the InfoSystem-OpLog table
      */
     public void removeOpsFromInfoSystemOpLog(List<InfoRequestData> loggedOps) {
-
         mDatabase.beginTransaction();
         int deletedLogs = 0;
         for (InfoRequestData loggedOp : loggedOps) {
