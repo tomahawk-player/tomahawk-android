@@ -215,6 +215,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                     Album album = Album.get(params.name, artist);
                     Playlist playlist = Playlist.fromQueryList(TomahawkApp.PLUGINNAME_HATCHET + "_"
                             + album.getCacheKey(), false, null, null, tracks);
+                    playlist.setFilled(true);
                     hatchetCollection.addAlbumTracks(album, playlist);
                 }
                 List<Album> albums = mStore.storeRecords(object, Album.class, type,
