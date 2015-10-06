@@ -87,19 +87,9 @@ public class ContextMenuFragment extends Fragment {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(InfoSystem.ResultsEvent event) {
-        if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())
-                && getView() != null) {
-            ImageView albumImageView = (ImageView) getView().findViewById(R.id.album_imageview);
-            Album album;
-            if (mAlbum != null) {
-                album = mAlbum;
-            } else if (mQuery != null) {
-                album = mQuery.getAlbum();
-            } else {
-                album = mPlaylistEntry.getAlbum();
-            }
-            ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
-                    album.getImage(), Image.getLargeImageSize(), true, false);
+        if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
+            setupAlbumArt(getView());
+            setupContextMenuItems(getView());
         }
     }
 
@@ -107,6 +97,7 @@ public class ContextMenuFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState) {
         unpackArgs();
+        resolveItems();
         int layoutResId = mFromPlaybackFragment ? R.layout.context_menu_fragment_playback
                 : R.layout.context_menu_fragment;
         return inflater.inflate(layoutResId, container, false);
@@ -211,6 +202,27 @@ public class ContextMenuFragment extends Fragment {
         }
     }
 
+    private void resolveItems() {
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User result) {
+                if (mCollection != null && mAlbum != null) {
+                    String requestId = InfoSystem.get().resolve(mAlbum);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
+                }
+                if (mPlaylist != null && !mPlaylist.getUserId().equals(result.getId())) {
+                    String requestId = InfoSystem.get().resolve(mPlaylist);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
+                }
+
+            }
+        });
+    }
+
     private void setupBlurredBackground(final View view) {
         final View rootView = getActivity().findViewById(R.id.sliding_layout);
         ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(rootView) {
@@ -248,52 +260,45 @@ public class ContextMenuFragment extends Fragment {
         closeButtonText.setText(getString(R.string.button_close).toUpperCase());
     }
 
-    private void setupContextMenuItems(View view) {
+    private void setupContextMenuItems(final View view) {
+        if (view == null) {
+            return;
+        }
+
         final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
 
         // set up "Add to playlist" context menu item
-        if (mAlbum != null || mQuery != null || mPlaylistEntry != null || mPlaylist != null) {
-            View v = ViewUtils.ensureInflation(view, R.id.context_menu_addtoplaylist_stub,
-                    R.id.context_menu_addtoplaylist);
-            TextView textView = (TextView) v.findViewById(R.id.textview);
-            ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
-            imageView.setImageResource(R.drawable.ic_action_playlist_light);
-            textView.setText(R.string.context_menu_add_to_playlist);
-            v.setOnClickListener(new View.OnClickListener() {
+        if (mAlbum != null) {
+            mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<Playlist>() {
                 @Override
-                public void onClick(View v) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                    if (mAlbum != null) {
-                        mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<Playlist>() {
-                            @Override
-                            public void onDone(Playlist playlist) {
-                                List<Query> queries = new ArrayList<>();
-                                if (playlist != null) {
-                                    for (PlaylistEntry entry : playlist.getEntries()) {
-                                        queries.add(entry.getQuery());
-                                    }
-                                }
-                                showAddToPlaylist(activity, queries);
-                            }
-                        });
-                    } else if (mQuery != null) {
-                        ArrayList<Query> queries = new ArrayList<>();
-                        queries.add(mQuery);
-                        showAddToPlaylist(activity, queries);
-                    } else if (mPlaylistEntry != null) {
-                        ArrayList<Query> queries = new ArrayList<>();
-                        queries.add(mPlaylistEntry.getQuery());
-                        showAddToPlaylist(activity, queries);
-                    } else if (mPlaylist != null) {
-                        List<PlaylistEntry> entries = mPlaylist.getEntries();
-                        List<Query> queries = new ArrayList<>();
-                        for (PlaylistEntry entry : entries) {
+                public void onDone(Playlist result) {
+                    List<Query> queries = null;
+                    if (result != null && result.isFilled()) {
+                        queries = new ArrayList<>();
+                        for (PlaylistEntry entry : result.getEntries()) {
                             queries.add(entry.getQuery());
                         }
-                        showAddToPlaylist(activity, queries);
                     }
+                    setupAddToPlaylistButton(view, queries);
                 }
             });
+        } else if (mPlaylist != null) {
+            List<Query> queries = null;
+            if (mPlaylist.isFilled()) {
+                queries = new ArrayList<>();
+                for (PlaylistEntry entry : mPlaylist.getEntries()) {
+                    queries.add(entry.getQuery());
+                }
+            }
+            setupAddToPlaylistButton(view, queries);
+        } else if (mQuery != null || mPlaylistEntry != null) {
+            Query q = mQuery;
+            if (mPlaylistEntry != null) {
+                q = mPlaylistEntry.getQuery();
+            }
+            ArrayList<Query> queries = new ArrayList<>();
+            queries.add(q);
+            setupAddToPlaylistButton(view, queries);
         }
 
         // set up "Add to collection" context menu item
@@ -456,6 +461,42 @@ public class ContextMenuFragment extends Fragment {
         }
     }
 
+    /**
+     * Initializes the "Add to playlist"-context-menu-button.
+     *
+     * @param view    this Fragment's root View
+     * @param queries the List of {@link Query}s that should be added to one of the user's playlists
+     *                once he taps the "add to playlist-context-menu-button. If this List is null
+     *                the button will show up as disabled and greyed out. If this List is empty the
+     *                button won't be displayed at all.
+     */
+    private void setupAddToPlaylistButton(View view, final List<Query> queries) {
+        View v = ViewUtils.ensureInflation(view, R.id.context_menu_addtoplaylist_stub,
+                R.id.context_menu_addtoplaylist);
+        if (queries != null && queries.size() == 0) {
+            v.setVisibility(View.GONE);
+        } else {
+            TextView textView = (TextView) v.findViewById(R.id.textview);
+            ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
+            imageView.setImageResource(R.drawable.ic_action_playlist_light);
+            textView.setText(R.string.context_menu_add_to_playlist);
+            if (queries != null) {
+                v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getActivity().getSupportFragmentManager().popBackStack();
+                        showAddToPlaylist((TomahawkMainActivity) getActivity(), queries);
+                    }
+                });
+                textView.setTextColor(getResources().getColor(R.color.primary_textcolor_inverted));
+                ImageUtils.setTint(imageView.getDrawable(), R.color.primary_textcolor_inverted);
+            } else {
+                textView.setTextColor(getResources().getColor(R.color.disabled));
+                ImageUtils.setTint(imageView.getDrawable(), R.color.disabled);
+            }
+        }
+    }
+
     private void showAddToPlaylist(final TomahawkMainActivity activity, final List<Query> queries) {
         User.getSelf().done(new DoneCallback<User>() {
             @Override
@@ -552,9 +593,8 @@ public class ContextMenuFragment extends Fragment {
     }
 
     private void setupAlbumArt(View view) {
-        if (mAlbum != null
-                || (mQuery != null
-                && !TextUtils.isEmpty(mQuery.getAlbum().getName()))
+        if (view != null && mAlbum != null
+                || (mQuery != null && !TextUtils.isEmpty(mQuery.getAlbum().getName()))
                 || (mPlaylistEntry != null
                 && !TextUtils.isEmpty(mPlaylistEntry.getQuery().getAlbum().getName()))) {
             View v = ViewUtils.ensureInflation(view, R.id.context_menu_albumart_stub,
@@ -577,11 +617,6 @@ public class ContextMenuFragment extends Fragment {
             if (album.getImage() != null) {
                 ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), albumImageView,
                         album.getImage(), Image.getLargeImageSize(), true, false);
-            } else {
-                String requestId = InfoSystem.get().resolve(album);
-                if (requestId != null) {
-                    mCorrespondingRequestIds.add(requestId);
-                }
             }
 
             // set text on "view album"-button and set up click listener
