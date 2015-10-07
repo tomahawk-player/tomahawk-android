@@ -221,4 +221,6 @@
   <string name="uninstall_plugin_warning">Do you really want to uninstall this Plugin?</string>
   <string name="gmusic_info_text">Choose an account:</string>
   <string name="invalid_file">Can\'t open file.</string>
+  <string name="unknown_album">Unknown album</string>
+  <string name="unknown_artist">Unknown artist</string>
 </resources>
