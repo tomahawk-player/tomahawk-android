@@ -40,6 +40,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -441,7 +442,13 @@ public class CollectionManager {
                 if (storedListsMap.containsKey(storedList.getHatchetId())) {
                     Log.e(TAG, "Hatchet sync - playlist \"" + storedList.getName()
                             + "\" is duplicated ... deleting");
-                    DatabaseHelper.get().deletePlaylist(storedList.getId());
+                    if (TextUtils.isEmpty(storedList.getCurrentRevision())) {
+                        DatabaseHelper.get().deletePlaylist(storedList.getId());
+                    } else {
+                        Playlist otherStoredList = storedListsMap.get(storedList.getHatchetId());
+                        DatabaseHelper.get().deletePlaylist(otherStoredList.getId());
+                        storedListsMap.put(storedList.getHatchetId(), storedList);
+                    }
                 } else {
                     storedListsMap.put(storedList.getHatchetId(), storedList);
                 }
