@@ -293,7 +293,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                                     break;
                                 }
                             }
-                            showFancyDropDown(initialSelection, mAlbum.getName(),
+                            showFancyDropDown(initialSelection, mAlbum.getPrettyName(),
                                     FancyDropDown.convertToDropDownItemInfo(result),
                                     new FancyDropDown.DropDownListener() {
                                         @Override
