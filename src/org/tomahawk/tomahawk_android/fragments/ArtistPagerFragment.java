@@ -31,7 +31,6 @@ import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -67,8 +66,7 @@ public class ArtistPagerFragment extends PagerFragment {
                 mInitialPage = getArguments()
                         .getInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
-            if (getArguments().containsKey(TomahawkFragment.ARTIST)
-                    && !TextUtils.isEmpty(getArguments().getString(TomahawkFragment.ARTIST))) {
+            if (getArguments().containsKey(TomahawkFragment.ARTIST)) {
                 mArtist = Artist.getByKey(getArguments().getString(TomahawkFragment.ARTIST));
                 if (mArtist == null) {
                     getActivity().getSupportFragmentManager().popBackStack();
