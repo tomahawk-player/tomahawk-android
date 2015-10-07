@@ -26,6 +26,8 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.utils.LevensteinDistance;
+import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 
@@ -438,7 +440,9 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
      * @return the name that should be displayed
      */
     public String getPrettyName() {
-        return getName().length() > 0 ? getName() : "<unknown>";
+        return getName().isEmpty() ?
+                TomahawkApp.getContext().getResources().getString(R.string.unknown)
+                : getName();
     }
 
     public Artist getArtist() {

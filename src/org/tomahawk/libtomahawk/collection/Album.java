@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -72,7 +75,9 @@ public class Album extends Cacheable implements AlphaComparable, ArtistAlphaComp
      * @return the name that should be displayed
      */
     public String getPrettyName() {
-        return getName().length() > 0 ? getName() : "<unknown>";
+        return getName().isEmpty() ?
+                TomahawkApp.getContext().getResources().getString(R.string.unknown_album)
+                : getName();
     }
 
     /**
