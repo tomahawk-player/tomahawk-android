@@ -17,6 +17,9 @@
  */
 package org.tomahawk.libtomahawk.collection;
 
+import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
+
 /**
  * This class represents an {@link Artist}.
  */
@@ -63,7 +66,9 @@ public class Artist extends Cacheable implements AlphaComparable {
      * @return the name that should be displayed
      */
     public String getPrettyName() {
-        return getName().length() > 0 ? getName() : "<unknown>";
+        return getName().isEmpty() ?
+                TomahawkApp.getContext().getResources().getString(R.string.unknown_artist)
+                : getName();
     }
 
     public Image getImage() {
