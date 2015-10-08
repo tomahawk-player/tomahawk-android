@@ -220,4 +220,6 @@
   <string name="uninstall_plugin_warning">Haluatko varmasti poistaa tämän liitännäisen?</string>
   <string name="gmusic_info_text">Valitse tili:</string>
   <string name="invalid_file">Tiedostoa ei voida avata.</string>
+  <string name="unknown_album">Tuntematon albumi</string>
+  <string name="unknown_artist">Tuntematon artisti</string>
 </resources>
