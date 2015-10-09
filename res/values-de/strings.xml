@@ -211,6 +211,9 @@
     <item quantity="one">Wähle eine Playlist aus, um %1$d Lied hinzuzufügen:</item>
     <item quantity="other">Wähle eine Playlist aus, um %1$d Lieder hinzuzufügen:</item>
   </plurals>
+  <string name="seeking_not_supported">Entschuldigung, dieser Auflöser unterstützt keine Suche.</string>
   <string name="gmusic_info_text">Wählen Sie ein Konto aus:</string>
   <string name="invalid_file">Kann Datei nicht öffnen.</string>
+  <string name="unknown_album">Unbekanntes Album</string>
+  <string name="unknown_artist">Unbekannter Interpret</string>
 </resources>

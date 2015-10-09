@@ -209,4 +209,6 @@
   <string name="uninstall_plugin_warning">このプラグインをアンインストールしてもよろしいですか?</string>
   <string name="gmusic_info_text">アカウントの選択:</string>
   <string name="invalid_file">ファイルを開くことができません。</string>
+  <string name="unknown_album">不明なアルバム</string>
+  <string name="unknown_artist">不明なアーティスト</string>
 </resources>
