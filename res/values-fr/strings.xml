@@ -14,6 +14,8 @@
   <string name="users">Utilisateurs</string>
   <string name="top_hits">Top Hits</string>
   <string name="top_albums">Top Albums</string>
+  <string name="albums_and_eps">Albums et EP</string>
+  <string name="other_releases">Autres formats</string>
   <string name="playlist_details">Détails de la playlist</string>
   <string name="album_details">Détails de l\'album</string>
   <string name="search">Rechercher</string>
@@ -218,4 +220,6 @@
   <string name="uninstall_plugin_warning">Souhaitez-vous vraiment désinstaller cette extension ?</string>
   <string name="gmusic_info_text">Choisissez un compte :</string>
   <string name="invalid_file">Fichier impossible à ouvrir.</string>
+  <string name="unknown_album">Album inconnu</string>
+  <string name="unknown_artist">Artiste inconnu</string>
 </resources>
