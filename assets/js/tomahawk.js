@@ -39,6 +39,9 @@ if ((typeof Tomahawk === "undefined") || (Tomahawk === null)) {
 
 Tomahawk.apiVersion = "0.2.2";
 
+//Statuses considered a success for HTTP request
+var httpSuccessStatuses = [200, 201];
+
 // install RSVP error handler for uncaught(!) errors
 RSVP.on('error', function (reason) {
     var resolverName = "";
@@ -109,6 +112,25 @@ Tomahawk.resolver = {
 Tomahawk.timestamp = function () {
     return Math.round(new Date() / 1000);
 };
+
+Tomahawk.htmlDecode = (function() {
+    // this prevents any overhead from creating the object each time
+    var element = document.createElement('textarea');
+
+    function decodeHTMLEntities (str) {
+        if(str && typeof str === 'string') {
+            str = str.replace(/</g,"&lt;");
+            str = str.replace(/>/g,"&gt;");
+            element.innerHTML = str;
+            str = element.textContent;
+            element.textContent = '';
+        }
+
+        return str;
+    }
+
+    return decodeHTMLEntities;
+})();
 
 Tomahawk.dumpResult = function (result) {
     var results = result.results,
@@ -243,28 +265,80 @@ Tomahawk.Resolver = {
     },
     getStreamUrl: function (params) {
         return params;
-    }
-};
-Tomahawk.Resolver.Promise = Tomahawk.extend(TomahawkResolver, {
+    },
+
+    _convertUrls: function(results) {
+        var that = this;
+        return results.map(function(r){
+            if(r && r.url) {
+                r.url = that._urlProtocol + '://' + r.url;
+            }
+            return r;
+        });
+    },
+
     _adapter_resolve: function (qid, artist, album, title) {
-        Promise.resolve(this.resolve(artist, album, title)).then(function(results){
-            Tomahawk.addTrackResults({
-                'qid': qid,
-                'results': results
+        var that = this;
+        var collectionPromises = [];
+        Tomahawk.collections.forEach(function(col) {
+            if(col.resolve)
+                collectionPromises.push(col.resolve({artist: artist, album: album, track:title}));
+        });
+        Promise.all(collectionPromises).then(function(collectionResults){
+            var merged = [];
+            return merged.concat.apply(merged,collectionResults);
+        }).then(function(collectionResults) {
+            Promise.resolve(that.resolve({artist: artist, album: album, track:title})).then(function(results){
+                Tomahawk.addTrackResults({
+                    'qid': qid,
+                    'results': that._convertUrls(results.concat(collectionResults))
+                });
             });
+        });
+    },
+
+    _adapter_init: function ()
+    {
+        this._urlProtocol = this.settings.name.replace(/[^a-zA-Z]/g, '').toLowerCase();
+        Tomahawk.addCustomUrlHandler( this._urlProtocol, 'getStreamUrl', true );
+        Tomahawk.log('Registered custom url handler for protocol "' + this._urlProtocol + '"');
+        this.init();
+    },
+
+    _adapter_getStreamUrl: function (params) {
+        params.url = params.url.slice(this._urlProtocol.length + 3);
+        Promise.resolve(this.getStreamUrl(params)).then(function(result){
+            Tomahawk.reportStreamUrl(params.qid, result.url, result.headers);
         });
     },
 
     _adapter_search: function (qid, query)
     {
-        Promise.resolve(this.search(query)).then(function(results){
-            Tomahawk.addTrackResults({
-                'qid': qid,
-                'results': results
+        var that = this;
+        var collectionPromises = [];
+        Tomahawk.collections.forEach(function(col) {
+            if(col.search)
+                collectionPromises.push(col.search({query: query}));
+        });
+        Promise.all(collectionPromises).then(function(collectionResults){
+            var merged = [];
+            return merged.concat.apply(merged,collectionResults);
+        }).then(function(collectionResults) {
+            Promise.resolve(that.search({query:query})).then(function(results){
+                Tomahawk.addTrackResults({
+                    'qid': qid,
+                    'results': that._convertUrls(results.concat(collectionResults))
+                });
             });
         });
+    },
+
+    _adapter_testConfig: function (config) {
+        return Promise.resolve(this.testConfig(config)).then(function() {
+            return { result: Tomahawk.ConfigTestResultType.Success };
+        });
     }
-});
+};
 
 /**** begin example implementation of a resolver ****/
 
@@ -284,21 +358,21 @@ Tomahawk.Resolver.Promise = Tomahawk.extend(TomahawkResolver, {
  },
  resolve: function( qid, artist, album, track )
  {
-     return {
-         qid: qid,
-         results: [
-         {
-             artist: "Mokele",
-             album: "You Yourself are Me Myself and I am in Love",
-             track: "Hiding In Your Insides (php)",
-             source: "Mokele.co.uk",
-             url: "http://play.mokele.co.uk/music/Hiding%20In%20Your%20Insides.mp3",
-             bitrate: 160,
-             duration: 248,
-             size: 4971780,
-             score: 1.0,
-             extension: "mp3",
-             mimetype: "audio/mpeg"
+ return {
+ qid: qid,
+ results: [
+ {
+ artist: "Mokele",
+ album: "You Yourself are Me Myself and I am in Love",
+ track: "Hiding In Your Insides (php)",
+ source: "Mokele.co.uk",
+ url: "http://play.mokele.co.uk/music/Hiding%20In%20Your%20Insides.mp3",
+ bitrate: 160,
+ duration: 248,
+ size: 4971780,
+ score: 1.0,
+ extension: "mp3",
+ mimetype: "audio/mpeg"
  }
  ]
  };
@@ -344,7 +418,7 @@ Tomahawk.syncRequest = function (url, extraHeaders, options) {
         }
     }
     xmlHttpRequest.send(null);
-    if (xmlHttpRequest.status == 200) {
+    if (httpSuccessStatuses.indexOf(xmlHttpRequest.status) != -1) {
         return xmlHttpRequest.responseText;
     } else {
         Tomahawk.log("Failed to do GET request: to: " + url);
@@ -433,7 +507,7 @@ Tomahawk.nativeAsyncRequestDone = function (reqId, xhr) {
     }
 
     // Call the real callback
-    if (xhr.readyState == 4 && xhr.status == 200) {
+    if (xhr.readyState == 4 && httpSuccessStatuses.indexOf(xhr.status) != -1) {
         // Call the real callback
         if (Tomahawk.asyncRequestCallbacks[reqId].callback) {
             Tomahawk.asyncRequestCallbacks[reqId].callback(xhr);
@@ -484,7 +558,7 @@ Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
             }
         }
         xmlHttpRequest.onreadystatechange = function () {
-            if (xmlHttpRequest.readyState == 4 && xmlHttpRequest.status == 200) {
+            if (xmlHttpRequest.readyState == 4 && httpSuccessStatuses.indexOf(xmlHttpRequest.status) != -1) {
                 callback.call(window, xmlHttpRequest);
             } else if (xmlHttpRequest.readyState === 4) {
                 Tomahawk.log("Failed to do " + method + " request: to: " + url);
@@ -507,7 +581,8 @@ Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
  */
 var shouldDoNativeRequest = function (url, callback, extraHeaders, options) {
     return (extraHeaders && (extraHeaders.hasOwnProperty("Referer")
-        || extraHeaders.hasOwnProperty("referer")));
+    || extraHeaders.hasOwnProperty("referer")
+    || extraHeaders.hasOwnProperty("User-Agent")));
 };
 
 Tomahawk.ajax = function(url, settings) {
@@ -566,35 +641,38 @@ Tomahawk.ajax = function(url, settings) {
         }
     }
 
-    return new RSVP.Promise(function (resolve, reject) {
+    return new Promise(function (resolve, reject) {
         settings.errorHandler = reject;
         Tomahawk.asyncRequest(settings.url, resolve, settings.headers, settings);
     }).then(function(xhr) {
-        if (settings.rawResponse) {
-            return xhr;
-        }
+            if (settings.rawResponse) {
+                return xhr;
+            }
+            var responseText = xhr.responseText;
+            var contentType;
+            if (settings.dataType === 'json') {
+                contentType = 'application/json';
+            } else if (contentType === 'xml') {
+                contentType = 'text/xml';
+            } else if (typeof xhr.getResponseHeader !== 'undefined') {
+                contentType = xhr.getResponseHeader('Content-Type');
+            } else if (xhr.hasOwnProperty('contentType')) {
+                contentType = xhr['contentType'];
+            } else {
+                contentType = 'text/html';
+            }
 
-        var responseText = xhr.responseText;
-        var contentType;
-        if (settings.dataType === 'json') {
-            contentType = 'application/json';
-        } else if (settings.dataType === 'xml') {
-            contentType = 'text/xml';
-        } else {
-            contentType = xhr.getResponseHeader('Content-Type');
-        }
+            if (~contentType.indexOf('application/json')) {
+                return JSON.parse(responseText);
+            }
 
-        if (~contentType.indexOf('application/json')) {
-            return JSON.parse(responseText);
-        }
+            if (~contentType.indexOf('text/xml')) {
+                var domParser = new DOMParser();
+                return domParser.parseFromString(responseText, "text/xml");
+            }
 
-        if (~contentType.indexOf('text/xml')) {
-            var domParser = new DOMParser();
-            return domParser.parseFromString(responseText, "text/xml");
-        }
-
-        return xhr.responseText;
-    });
+            return xhr.responseText;
+        });
 };
 
 Tomahawk.post = function(url, settings) {
@@ -619,11 +697,11 @@ Tomahawk.assert = function (assertion, message) {
 };
 
 Tomahawk.sha256 = Tomahawk.sha256 || function(message) {
-  return CryptoJS.SHA256(message).toString(CryptoJS.enc.Hex);
-};
+        return CryptoJS.SHA256(message).toString(CryptoJS.enc.Hex);
+    };
 Tomahawk.md5 = Tomahawk.md5 || function(message) {
-  return CryptoJS.MD5(message).toString(CryptoJS.enc.Hex);
-};
+        return CryptoJS.MD5(message).toString(CryptoJS.enc.Hex);
+    };
 // Return a HMAC (md5) signature of the input text with the desired key
 Tomahawk.hmac = function (key, message) {
     return CryptoJS.HmacMD5(message, key).toString(CryptoJS.enc.Hex);
@@ -751,10 +829,16 @@ Tomahawk.removeDiacritics = function (str) {
 };
 
 Tomahawk.localStorage = Tomahawk.localStorage || {
-    setItem: function() {},
-    getItem: function() {},
-    removeItem: function() {}
-};
+        setItem: function(key, value) {
+            window.localStorage[key] = value;
+        },
+        getItem: function(key) {
+            return window.localStorage[key];
+        },
+        removeItem: function(key) {
+            delete window.localStorage[key];
+        }
+    };
 
 // some aliases
 Tomahawk.setTimeout = Tomahawk.setTimeout || window.setTimeout;
@@ -774,17 +858,20 @@ Tomahawk.PluginManager = {
     },
     registerPlugin: function (type, object) {
         this.objects[this.identifyObject(object)] = object;
+        if (type === 'collection')
+        {
+            Tomahawk.collections.push(object);
+        }
 
         Tomahawk.log("registerPlugin: " + type + " id: " + object.id);
         Tomahawk.registerScriptPlugin(type, object.id);
     },
 
-    unregisterPlugin: function (type, object) {
-        var objectId = typeof object === 'object' ? this.identifyObject(object) : object;
-        delete this.objects[objectId];
+    unregisterPlugin: function(type, object) {
+        this.objects[this.identifyObject(object)] = object;
 
-        Tomahawk.log("unregisterPlugin: " + type + " id: " + objectId);
-        Tomahawk.unregisterScriptPlugin(type, objectId);
+        Tomahawk.log("unregisterPlugin: " + type + " id: " + object.id);
+        Tomahawk.unregisterScriptPlugin(type, object.id);
     },
 
     resolve: [],
@@ -809,17 +896,17 @@ Tomahawk.PluginManager = {
         if (typeof this.objects[objectId][methodName] === 'function') {
             if (!Tomahawk.resolver.instance.apiVersion || Tomahawk.resolver.instance.apiVersion < 0.9) {
                 if (methodName == 'artists') {
-                    return new RSVP.Promise(function (resolve, reject) {
+                    return new Promise(function (resolve, reject) {
                         pluginManager.resolve[requestId] = resolve;
                         Tomahawk.resolver.instance.artists(requestId);
                     });
                 } else if (methodName == 'albums') {
-                    return new RSVP.Promise(function (resolve, reject) {
+                    return new Promise(function (resolve, reject) {
                         pluginManager.resolve[requestId] = resolve;
                         Tomahawk.resolver.instance.albums(requestId, params.artist);
                     });
                 } else if (methodName == 'tracks') {
-                    return new RSVP.Promise(function (resolve, reject) {
+                    return new Promise(function (resolve, reject) {
                         pluginManager.resolve[requestId] = resolve;
                         Tomahawk.resolver.instance.tracks(requestId, params.artist, params.album);
                     });
@@ -894,7 +981,6 @@ Tomahawk.UrlType = {
     Artist: 4,
     XspfPlaylist: 5
 };
-
 
 Tomahawk.ConfigTestResultType = {
     Other: 0,
@@ -1157,7 +1243,14 @@ Tomahawk.Country = {
     LatinAmericaAndTheCaribbean: 246
 };
 
+Tomahawk.collections = [];
+
 Tomahawk.Collection = {
+    BrowseCapability: {
+        Artists: 1,
+        Albums: 2,
+        Tracks: 4
+    },
 
     cachedDbs: {},
 
@@ -1172,9 +1265,8 @@ Tomahawk.Collection = {
                     var estimatedSize = 5 * 1024 * 1024; // 5MB
                     collection.cachedDbs[id] =
                         openDatabase(id + "_collection", "", "Collection", estimatedSize);
-                    var m = new that.migrator(collection.cachedDbs[id]);
 
-                    m.migration(1, function (tx) {
+                    collection.cachedDbs[id].transaction(function (tx) {
                         Tomahawk.log("Creating initial db tables");
                         tx.executeSql("CREATE TABLE IF NOT EXISTS artists(" +
                             "_id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -1209,6 +1301,8 @@ Tomahawk.Collection = {
                             "duration INTEGER," +
                             "albumPos INTEGER," +
                             "linkUrl TEXT," +
+                            'releaseyear INTEGER,' +
+                            'bitrate INTEGER,' +
                             "UNIQUE (track, artistId, albumId) ON CONFLICT IGNORE," +
                             "FOREIGN KEY(artistId) REFERENCES artists(_id)," +
                             "FOREIGN KEY(albumId) REFERENCES albums(_id))", []);
@@ -1223,64 +1317,73 @@ Tomahawk.Collection = {
             });
         };
 
-        // created by Max Aller <nanodeath@gmail.com>
-        this.migrator = function (db) {
-            var migrations = [];
-            this.migration = function (number, func) {
-                migrations[number] = func;
-            };
-            var migrate = function (number) {
-                if (migrations[number]) {
-                    db.changeVersion(db.version, String(number), function (t) {
-                        migrations[number](t);
-                    }, function (err) {
-                        if (console.error) {
-                            console.error("Error!: %o", err);
-                        }
-                    }, function () {
-                        migrate(number + 1);
-                    });
-                }
-            };
-            this.execute = function () {
-                var initialVersion = parseInt(db.version) || 0;
-                try {
-                    migrate(initialVersion + 1);
-                } catch (e) {
-                    if (console.error) {
-                        console.error(e);
-                    }
-                }
-            }
-        };
-
         this.beginTransaction = function () {
             var that = this;
             return this.ensureDb().then(function (db) {
                 return new RSVP.Promise(function (resolve, reject) {
-                    db.transaction(function (tx) {
-                        that.tx = tx;
-                        resolve();
-                    });
+                    that.db = db;
+                    that.statements = [];
+                    resolve();
                 })
             });
         };
 
-        this.sql = function (sqlStatement, sqlArgs) {
+        this.execDefferedStatements = function (resolve, reject) {
             var that = this;
-            return new RSVP.Promise(function (resolve, reject) {
-                that.tx.executeSql(sqlStatement, sqlArgs,
-                    function (tx, results) {
-                        resolve(results);
-                    }, function (tx, error) {
-                        Tomahawk.log("Error in tx.executeSql: " + error.code + " - "
-                            + error.message);
-                        reject(error);
+            that.stmtsToResolve = that.statements.length;
+            that.results = that.statements.slice();
+            Tomahawk.log('Executing ' + that.stmtsToResolve + ' deffered SQL statements in transaction');
+            return new Promise(function (resolve, reject) {
+                if (that.statements.length == 0)
+                    resolve([]);
+                else{
+                    that.db.transaction(function (tx) {
+                        for (var i = 0; i < that.statements.length; ++i)
+                        {
+                            var stmt = that.statements[i];
+                            tx.executeSql(stmt.statement, stmt.args,
+                                (function () {
+                                    //A function returning a function to
+                                    //capture value of i
+                                    var originalI = i;
+                                    return function (tx, results) {
+                                        if (typeof that.statements[originalI].map !== 'undefined')
+                                        {
+                                            var map = that.statements[originalI].map;
+                                            that.results[originalI] = [];
+                                            for (var ii = 0; ii < results.rows.length; ii++) {
+                                                that.results[originalI].push(map(
+                                                    results.rows.item(ii)
+                                                ));
+                                            }
+                                        }
+                                        else
+                                            that.results[originalI] = results;
+                                        that.stmtsToResolve--;
+                                        if(that.stmtsToResolve == 0)
+                                        {
+                                            that.statements = [];
+                                            resolve(that.results);
+                                        }
+                                    };
+                                })(), function (tx, error) {
+                                    Tomahawk.log("Error in tx.executeSql: " + error.code + " - "
+                                        + error.message);
+                                    that.statements = [];
+                                    reject(error);
+                                }
+                            );
+                        }
                     });
-            })
-        };
+                }
+            });
+        },
 
-        this.sqlSelect = function (table, fields, where, join) {
+            this.sql = function (sqlStatement, sqlArgs, mapFunction) {
+                this.statements.push({statement: sqlStatement, args: sqlArgs, map: mapFunction});
+            };
+
+        this.sqlSelect = function (table, mapResults, fields, where, join) {
             var whereKeys = [];
             var whereValues = [];
             for (var whereKey in where) {
@@ -1306,7 +1409,7 @@ Tomahawk.Collection = {
 
             var fieldsString = fields && fields.length > 0 ? fields.join(", ") : "*";
             var statement = "SELECT " + fieldsString + " FROM " + table + joinString + whereString;
-            return this.sql(statement, whereValues);
+            return this.sql(statement, whereValues, mapResults);
         };
 
         this.sqlInsert = function (table, fields) {
@@ -1332,8 +1435,8 @@ Tomahawk.Collection = {
         };
 
     },
-
     addTracks: function (params) {
+        var that = this;
         var id = params.id;
         var tracks = params.tracks;
 
@@ -1346,12 +1449,10 @@ Tomahawk.Collection = {
         var t = new Tomahawk.Collection.Transaction(this, id);
         return t.beginTransaction().then(function () {
             // First we insert all artists and albumArtists
-            var promises = [
-                t.sqlInsert("artists", {
-                    artist: "Various Artists",
-                    artistDisambiguation: ""
-                })
-            ];
+            t.sqlInsert("artists", {
+                artist: "Various Artists",
+                artistDisambiguation: ""
+            });
             for (var i = 0; i < tracks.length; i++) {
                 tracks[i].track = tracks[i].track || "";
                 tracks[i].album = tracks[i].album || "";
@@ -1360,34 +1461,43 @@ Tomahawk.Collection = {
                 tracks[i].albumArtist = tracks[i].albumArtist || "";
                 tracks[i].albumArtistDisambiguation = tracks[i].albumArtistDisambiguation || "";
                 (function (track) {
-                    promises.push(
-                        t.sqlInsert("artists", {
-                            artist: track.artist,
-                            artistDisambiguation: track.artistDisambiguation
-                        }),
-                        t.sqlInsert("albumArtists", {
-                            albumArtist: track.albumArtist,
-                            albumArtistDisambiguation: track.albumArtistDisambiguation
-                        })
-                    );
+                    t.sqlInsert("artists", {
+                        artist: track.artist,
+                        artistDisambiguation: track.artistDisambiguation
+                    });
+                    t.sqlInsert("albumArtists", {
+                        albumArtist: track.albumArtist,
+                        albumArtistDisambiguation: track.albumArtistDisambiguation
+                    });
                 })(tracks[i]);
             }
-            return Promise.all(promises);
+            return t.execDefferedStatements();
         }).then(function () {
             // Get all artists' and albumArtists' db ids
-            return Promise.all([
-                t.sqlSelect("albumArtists"),
-                t.sqlSelect("artists")
-            ]);
+            t.sqlSelect("albumArtists", function(r) {
+                return {
+                    albumArtist: r.albumArtist,
+                    albumArtistDisambiguation: r.albumArtistDisambiguation,
+                    _id: r._id
+                };
+            });
+            t.sqlSelect("artists", function(r) {
+                return {
+                    artist: r.artist,
+                    artistDisambiguation: r.artistDisambiguation,
+                    _id: r._id
+                };
+            });
+            return t.execDefferedStatements();
         }).then(function (resultsArray) {
             // Store the db ids in a map
             var i, row, albumArtists = {};
-            for (i = 0; i < resultsArray[0].rows.length; i++) {
-                row = resultsArray[0].rows[i];
+            for (i = 0; i < resultsArray[0].length; i++) {
+                row = resultsArray[0][i];
                 albumArtists[row.albumArtist + "♣" + row.albumArtistDisambiguation] = row._id;
             }
-            for (i = 0; i < resultsArray[1].rows.length; i++) {
-                row = resultsArray[1].rows[i];
+            for (i = 0; i < resultsArray[1].length; i++) {
+                row = resultsArray[1][i];
                 cachedArtists[row.artist + "♣" + row.artistDisambiguation] = row._id;
                 cachedArtistIds[row._id] = {
                     artist: row.artist,
@@ -1418,22 +1528,28 @@ Tomahawk.Collection = {
             for (var i = 0; i < tracks.length; i++) {
                 (function (track) {
                     var albumArtistId = cachedAlbumArtists[track.album].albumArtistId;
-                    promises.push(
-                        t.sqlInsert("albums", {
-                            album: track.album,
-                            albumArtistId: albumArtistId
-                        })
-                    );
+                    t.sqlInsert("albums", {
+                        album: track.album,
+                        albumArtistId: albumArtistId
+                    });
                 })(tracks[i]);
             }
-            return Promise.all(promises);
+            return t.execDefferedStatements();
         }).then(function () {
             // Get the albums' db ids
-            return t.sqlSelect("albums");
+            t.sqlSelect("albums", function(r) {
+                return {
+                    album: r.album,
+                    albumArtistId: r.albumArtistId,
+                    _id: r._id
+                };
+            });
+            return t.execDefferedStatements();
         }).then(function (results) {
             // Store the db ids in a map
-            for (var i = 0; i < results.rows.length; i++) {
-                var row = results.rows[i];
+            results = results[0];
+            for (var i = 0; i < results.length; i++) {
+                var row = results[i];
                 cachedAlbums[row.album + "♣" + row.albumArtistId] = row._id;
                 cachedAlbumIds[row._id] = {
                     album: row.album,
@@ -1449,37 +1565,45 @@ Tomahawk.Collection = {
                     var artistId = cachedArtists[track.artist + "♣" + track.artistDisambiguation];
                     var albumArtistId = cachedAlbumArtists[track.album].albumArtistId;
                     var albumId = cachedAlbums[track.album + "♣" + albumArtistId];
-                    promises.push(
-                        Promise.all([
-                            // Insert the artist <=> album relations
-                            t.sqlInsert("artistAlbums", {
-                                albumId: albumId,
-                                artistId: artistId
-                            }),
-                            // Insert the tracks
-                            t.sqlInsert("tracks", {
-                                track: track.track,
-                                artistId: artistId,
-                                albumId: albumId,
-                                url: track.url,
-                                duration: track.duration,
-                                linkUrl: track.linkUrl,
-                                albumPos: track.albumPos
-                            })
-                        ])
-                    );
+                    // Insert the artist <=> album relations
+                    t.sqlInsert("artistAlbums", {
+                        albumId: albumId,
+                        artistId: artistId
+                    });
+                    // Insert the tracks
+                    t.sqlInsert("tracks", {
+                        track: track.track,
+                        artistId: artistId,
+                        albumId: albumId,
+                        url: track.url,
+                        duration: track.duration,
+                        linkUrl: track.linkUrl,
+                        releaseyear: track.releaseyear,
+                        bitrate: track.bitrate,
+                        albumPos: track.albumpos
+                    });
                 })(tracks[i]);
             }
-            return Promise.all(promises);
+            return t.execDefferedStatements();
         }).then(function () {
+            var resultMap = function (r) {
+                return {
+                    _id : r._id,
+                    artistId: r.artistId,
+                    albumId: r.albumId,
+                    track: r.track
+                };
+            };
             // Get the tracks' db ids
-            return t.sqlSelect("tracks", ["_id", "artistId", "albumId", "track"]);
+            t.sqlSelect("tracks", resultMap, ["_id", "artistId", "albumId", "track"]);
+            return t.execDefferedStatements();
         }).then(function (results) {
-            Tomahawk.log("Added " + results.rows.length + " tracks to collection '" + id + "'");
+            that._trackCount = results[0].length;
+            Tomahawk.log("Added " + results[0].length + " tracks to collection '" + id + "'");
             // Add the db ids together with the basic metadata to the fuzzy index list
             var fuzzyIndexList = [];
-            for (var i = 0; i < results.rows.length; i++) {
-                var row = results.rows[i];
+            for (var i = 0; i < results[0].length; i++) {
+                var row = results[0][i];
                 fuzzyIndexList.push({
                     id: row._id,
                     artist: cachedArtistIds[row.artistId].artist,
@@ -1487,7 +1611,7 @@ Tomahawk.Collection = {
                     track: row.track
                 });
             }
-            Tomahawk.createFuzzyIndex(id, fuzzyIndexList);
+            Tomahawk.createFuzzyIndex(fuzzyIndexList);
         });
     },
 
@@ -1498,15 +1622,14 @@ Tomahawk.Collection = {
 
         var t = new Tomahawk.Collection.Transaction(this, id);
         return t.beginTransaction().then(function () {
-            return Promise.all([
-                t.sqlDrop("artists"),
-                t.sqlDrop("albumArtists"),
-                t.sqlDrop("albums"),
-                t.sqlDrop("artistAlbums"),
-                t.sqlDrop("tracks")
-            ]);
+            t.sqlDrop("artists");
+            t.sqlDrop("albumArtists");
+            t.sqlDrop("albums");
+            t.sqlDrop("artistAlbums");
+            t.sqlDrop("tracks");
+            return t.execDefferedStatements();
         }).then(function () {
-            return new RSVP.Promise(function (resolve, reject) {
+            return new Promise(function (resolve, reject) {
                 that.cachedDbs[id].changeVersion(that.cachedDbs[id].version, "", null,
                     function (err) {
                         if (console.error) {
@@ -1523,13 +1646,97 @@ Tomahawk.Collection = {
         });
     },
 
-    tracks: function (params, where) {
+    _fuzzyIndexIdsToTracks: function(resultIds, id) {
+        var that = this;
+        if(typeof id === 'undefined')
+            id = this.settings.id;
+        var t = new Tomahawk.Collection.Transaction(this, id);
+        return t.beginTransaction().then(function () {
+            var mapFn = function(row) {
+                return {
+                    artist: row.artist,
+                    artistDisambiguation: row.artistDisambiguation,
+                    album: row.album,
+                    track: row.track,
+                    duration: row.duration,
+                    url: row.url,
+                    linkUrl: row.linkUrl,
+                    releaseyear: row.releaseyear,
+                    bitrate: row.bitrate,
+                    albumpos: row.albumPos
+                };
+            };
+            for (var idx = 0; resultIds && idx < resultIds.length; idx++) {
+                var trackid = resultIds[idx][0];
+                var where = { _id : trackid };
+                t.sqlSelect("tracks",mapFn,
+                    [],
+                    where, [
+                        {
+                            table: "artists",
+                            conditions: {
+                                artistId: "_id"
+                            }
+                        }, {
+                            table: "albums",
+                            conditions: {
+                                albumId: "_id"
+                            }
+                        }
+                    ]
+                );
+            }
+            return t.execDefferedStatements();
+        }).then(function (results) {
+            var merged = [];
+            return merged.concat.apply(merged,
+                results.map(function(e){
+                    //every result has one track
+                    return e[0];
+                }));
+        });
+    },
+
+    resolve: function(params) {
         var id = params.id;
+        if(typeof id === 'undefined')
+            id = this.settings.id;
+        var resultIds = Tomahawk.resolveFromFuzzyIndex(params.artist, params.album, params.track);
+        return this._fuzzyIndexIdsToTracks(resultIds);
+    },
+
+    search: function(params) {
+        var id = params.id;
+        if(typeof id === 'undefined')
+            id = this.settings.id;
+        var resultIds = Tomahawk.searchFuzzyIndex(params.query);
+        return this._fuzzyIndexIdsToTracks(resultIds);
+    },
+
+    tracks: function (params, where) {
+        //TODO filter/where support
+        var id = params.id;
+        if(typeof id === 'undefined')
+            id = this.settings.id;
 
         var t = new Tomahawk.Collection.Transaction(this, id);
         return t.beginTransaction().then(function () {
-            return t.sqlSelect("tracks",
-                ["artist", "artistDisambiguation", "album", "track", "duration", "url", "linkUrl"],
+            var mapFn = function(row) {
+                return {
+                    artist: row.artist,
+                    artistDisambiguation: row.artistDisambiguation,
+                    album: row.album,
+                    track: row.track,
+                    duration: row.duration,
+                    url: row.url,
+                    linkUrl: row.linkUrl,
+                    releaseyear: row.releaseyear,
+                    bitrate: row.bitrate,
+                    albumpos: row.albumPos
+                };
+            };
+            t.sqlSelect("tracks",mapFn,
+                [],
                 where, [
                     {
                         table: "artists",
@@ -1544,31 +1751,28 @@ Tomahawk.Collection = {
                     }
                 ]
             );
+            return t.execDefferedStatements();
         }).then(function (results) {
-            var tracks = [];
-            for (var i = 0; i < results.rows.length; i++) {
-                var row = results.rows[i];
-                tracks.push({
-                    artist: row.artist,
-                    artistDisambiguation: row.artistDisambiguation,
-                    album: row.album,
-                    track: row.track,
-                    duration: row.duration,
-                    url: row.url,
-                    linkUrl: row.linkUrl,
-                    albumPos: row.albumPos
-                });
-            }
-            return tracks;
+            return {results: Tomahawk.resolver.instance._convertUrls(results[0])};
         });
     },
 
     albums: function (params, where) {
+        //TODO filter/where support
         var id = params.id;
+        if(typeof id === 'undefined')
+            id = this.settings.id;
 
         var t = new Tomahawk.Collection.Transaction(this, id);
         return t.beginTransaction().then(function () {
-            return t.sqlSelect("albums",
+            var mapFn = function(row) {
+                return {
+                    albumArtist: row.artist,
+                    albumArtistDisambiguation: row.artistDisambiguation,
+                    album: row.album
+                };
+            };
+            t.sqlSelect("albums",mapFn,
                 ["album", "artist", "artistDisambiguation"],
                 where, [
                     {
@@ -1579,123 +1783,136 @@ Tomahawk.Collection = {
                     }
                 ]
             );
+            return t.execDefferedStatements();
         }).then(function (results) {
-            var albums = [];
-            for (var i = 0; i < results.rows.length; i++) {
-                var row = results.rows[i];
-                albums.push({
-                    albumArtist: row.artist,
-                    albumArtistDisambiguation: row.artistDisambiguation,
-                    album: row.album
-                });
-            }
-            return albums;
+            results = results[0].filter(function(e){
+                return (e.albumArtist != '' && e.album != '');
+            });
+            return  {
+                artists: results.map(function(i){ return i.albumArtist;}),
+                albums: results.map(function(i){ return i.album;})
+            };
         });
     },
 
     artists: function (params) {
+        //TODO filter/where support
         var id = params.id;
+        if(typeof id === 'undefined')
+            id = this.settings.id;
 
         var t = new Tomahawk.Collection.Transaction(this, id);
         return t.beginTransaction().then(function () {
-            return t.sqlSelect("artists", ["artist", "artistDisambiguation"]);
-        }).then(function (results) {
-            var artists = [];
-            for (var i = 0; i < results.rows.length; i++) {
-                var row = results.rows[i];
-                var result = {
-                    artist: row.artist,
-                    artistDisambiguation: row.artistDisambiguation
-                };
-                artists.push(result);
-            }
-            return artists;
+            var mapFn = function(r)
+            {
+                return r.artist;
+            };
+            t.sqlSelect("artists", mapFn, ["artist", "artistDisambiguation"]);
+            return t.execDefferedStatements();
+        }).then(function (artists) {
+            return {artists: artists[0]};
         });
     },
 
-    albumArtists: function (params) {
-        var id = params.id;
+    //TODO: not exactly sure how is this one supposed to work
+    //albumArtists: function (params) {
+    //var id = params.id;
 
-        var t = new Tomahawk.Collection.Transaction(this, id);
-        return t.beginTransaction().then(function () {
-            return t.sqlSelect("albumArtists", ["albumArtist", "albumArtistDisambiguation"]);
-        }).then(function (results) {
-            var artists = [];
-            for (var i = 0; i < results.rows.length; i++) {
-                var row = results.rows[i];
-                var result = {
-                    albumArtist: row.albumArtist,
-                    albumArtistDisambiguation: row.albumArtistDisambiguation
-                };
-                artists.push(result);
-            }
-            return artists;
-        });
-    },
+    //var t = new Tomahawk.Collection.Transaction(this, id);
+    //return t.beginTransaction().then(function () {
+    //var mapFn = function(row) {
+    //return {
+    //albumArtist: row.albumArtist,
+    //albumArtistDisambiguation: row.albumArtistDisambiguation
+    //};
+    //};
+    //t.sqlSelect("albumArtists", ["albumArtist", "albumArtistDisambiguation"]);
+    //return t.execDefferedStatements();
+    //}).then(function (results) {
+    //return results[0];
+    //});
+    //},
 
     artistAlbums: function (params) {
+        //TODO filter/where support
         var id = params.id;
+        if(typeof id === 'undefined')
+            id = this.settings.id;
         var artist = params.artist;
-        var artistDisambiguation = params.artistDisambiguation;
+        //var artistDisambiguation = params.artistDisambiguation;
 
         var that = this;
 
         var t = new Tomahawk.Collection.Transaction(this, id);
         return t.beginTransaction().then(function () {
-            return t.sqlSelect("artists", ["_id"], {
-                artist: artist,
-                artistDisambiguation: artistDisambiguation
+
+            t.sqlSelect("artists",function(r){return r._id;}, ["_id"], {
+                artist: artist
+                //artistDisambiguation: artistDisambiguation
             });
+            return t.execDefferedStatements();
         }).then(function (results) {
-            var artistId = results.rows[0]._id;
-            return t.sqlSelect("artistAlbums", ["albumId"], {
+            var artistId = results[0][0];
+            t.sqlSelect("artistAlbums",function(r){return r.album;}, ["albumId", 'album'], {
                 artistId: artistId
-            });
+            },[
+                {
+                    table: "albums",
+                    conditions: {
+                        albumId: "_id"
+                    }
+                }
+            ]);
+            return t.execDefferedStatements();
         }).then(function (results) {
-            var promises = [];
-            for (var i = 0; i < results.rows.length; i++) {
-                (function (dbAlbumId) {
-                    promises.push(
-                        that.albums(params, {
-                            "_id": dbAlbumId.albumId
-                        }).then(function (resultsArray) {
-                            return resultsArray[0];
-                        })
-                    );
-                })(results.rows[i]);
-            }
-            return Promise.all(promises);
+            return {
+                artist: artist,
+                albums: results[0]
+            };
         });
     },
 
     albumTracks: function (params) {
+        //TODO filter/where support
         var id = params.id;
-        var albumArtist = params.albumArtist;
-        var albumArtistDisambiguation = params.albumArtistDisambiguation;
+        if(typeof id === 'undefined')
+            id = this.settings.id;
+        var albumArtist = params.artist;
+        //var albumArtistDisambiguation = params.albumArtistDisambiguation;
         var album = params.album;
 
         var that = this;
 
         var t = new Tomahawk.Collection.Transaction(this, id);
         return t.beginTransaction().then(function () {
-            return t.sqlSelect("artists", ["_id"], {
+            t.sqlSelect("artists", function(r){return r._id;},["_id"], {
                 artist: albumArtist,
-                artistDisambiguation: albumArtistDisambiguation
+                //artistDisambiguation: albumArtistDisambiguation
             });
+            return t.execDefferedStatements();
         }).then(function (results) {
-            var albumArtistId = results.rows[0]._id;
-            return t.sqlSelect("albums", ["_id"], {
+            var albumArtistId = results[0][0];
+            t.sqlSelect("albums",function(r){return r._id;}, ["_id"], {
                 album: album,
                 albumArtistId: albumArtistId
             });
+            return t.execDefferedStatements();
         }).then(function (results) {
-            var albumId = results.rows[0]._id;
+            var albumId = results[0][0];
             return that.tracks(params, {
                 albumId: albumId
             });
         });
-    }
+    },
 
+    collection: function () {
+        this.settings.trackcount = this._trackCount;
+        if(! this.settings.description)
+            this.settings.description = this.settings.prettyname;
+        this.settings.capabilities = [Tomahawk.Collection.BrowseCapability.Artists,
+            Tomahawk.Collection.BrowseCapability.Albums, Tomahawk.Collection.BrowseCapability.Tracks];
+        return this.settings;
+    }
 };
 
 
