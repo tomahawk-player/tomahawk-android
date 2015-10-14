@@ -207,13 +207,13 @@ var TidalResolver = Tomahawk.extend(Tomahawk.Resolver, {
             throw new Error("Couldn't parse URL. Invalid format?");
         }
         switch (type) {
-            case TomahawkUrlType.Album:
+            case Tomahawk.UrlType.Album:
                 return url[2] == 'album';
-            case TomahawkUrlType.Artist:
+            case Tomahawk.UrlType.Artist:
                 return url[2] == 'artist';
-            case TomahawkUrlType.Track:
+            case Tomahawk.UrlType.Track:
                 return url[2] == 'track';
-            case TomahawkUrlType.Playlist:
+            case Tomahawk.UrlType.Playlist:
                 return url[2] == 'playlist';
         }
     },
