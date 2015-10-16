@@ -103,22 +103,17 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         View view = mLayoutInflater.inflate(
                 org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
-        if (mPlaybackService != null) {
-            if (mPlaybackService.getPlaybackListSize() > 0) {
-                if (mPlaybackService.getRepeatingMode() != PlaybackService.NOT_REPEATING) {
-                    position = position % mPlaybackService.getPlaybackListSize();
-                }
-                Query query = mPlaybackService.getPlaybackListEntry(position).getQuery();
-                if (query != null) {
-                    ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
-                    boolean landscapeMode = mActivity.getResources().getConfiguration().orientation
-                            == Configuration.ORIENTATION_LANDSCAPE;
-                    ImageUtils.loadImageIntoImageView(mActivity, imageView, query.getImage(),
-                            Image.getLargeImageSize(), landscapeMode, query.hasArtistImage());
-                }
-                mActivity.showPanel();
-            } else {
-                mActivity.hidePanel();
+        if (mPlaybackService != null && mPlaybackService.getPlaybackListSize() > 0) {
+            if (mPlaybackService.getRepeatingMode() != PlaybackService.NOT_REPEATING) {
+                position = position % mPlaybackService.getPlaybackListSize();
+            }
+            Query query = mPlaybackService.getPlaybackListEntry(position).getQuery();
+            if (query != null) {
+                ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
+                boolean landscapeMode = mActivity.getResources().getConfiguration().orientation
+                        == Configuration.ORIENTATION_LANDSCAPE;
+                ImageUtils.loadImageIntoImageView(mActivity, imageView, query.getImage(),
+                        Image.getLargeImageSize(), landscapeMode, query.hasArtistImage());
             }
         }
         if (view != null) {

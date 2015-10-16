@@ -1284,7 +1284,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     @Override
     public void onPanelCollapsed(View view) {
-        showActionBar(true);
         sendSlidingLayoutChangedEvent();
     }
 
@@ -1309,7 +1308,9 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     public void collapsePanel() {
-        mSlidingUpPanelLayout.collapsePanel();
+        if (mSlidingUpPanelLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
+            mSlidingUpPanelLayout.collapsePanel();
+        }
     }
 
     public void showPanel() {
