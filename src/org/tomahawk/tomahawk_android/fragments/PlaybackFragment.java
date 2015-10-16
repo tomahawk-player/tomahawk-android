@@ -325,6 +325,13 @@ public class PlaybackFragment extends TomahawkFragment {
         if (mAlbumArtSwipeAdapter != null) {
             mAlbumArtSwipeAdapter.updatePlaylist();
         }
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        PlaybackService playbackService = activity.getPlaybackService();
+        if (playbackService == null || playbackService.getPlaybackListSize() == 0) {
+            activity.hidePanel();
+        } else {
+            activity.showPanel();
+        }
     }
 
     /**
