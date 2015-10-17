@@ -5,7 +5,7 @@
   <string name="login">Acceder</string>
   <string name="logout">Salir</string>
   <string name="register">Registrarse</string>
-  <string name="register_and_login">Registrarse e iniciar sesión</string>
+  <string name="register_and_login">Registrarse y acceder</string>
   <string name="rescan">Reanalizar ahora</string>
   <string name="internal_storage">Almacenaje interno</string>
   <string name="tracks">Canciones</string>
@@ -14,6 +14,8 @@
   <string name="users">Usuarios</string>
   <string name="top_hits">Grandes éxitos</string>
   <string name="top_albums">Mejores álbumes</string>
+  <string name="albums_and_eps">Álbumes y EP</string>
+  <string name="other_releases">Otras publicaciones</string>
   <string name="playlist_details">Detalles de la lista</string>
   <string name="album_details">Detalles del álbum</string>
   <string name="search">Buscar</string>
@@ -52,8 +54,8 @@
   <string name="preferences_playback">Reproducción</string>
   <string name="preferences_equalizer">Ecualizador</string>
   <string name="preferences_equalizer_text">Personalice la salida de audio.</string>
-  <string name="preferences_playback_data">Registrar canciones escuchadas en Last.fm</string>
-  <string name="preferences_playback_data_text">Hacer scrobbles de cada pista en cada reproductor en el teléfono a %1$s.</string>
+  <string name="preferences_playback_data">Registrar todo en Last.fm</string>
+  <string name="preferences_playback_data_text">Hacer «scrobbling» de cada pista en todos los reproductores del teléfono en %1$s.</string>
   <string name="preferences_plug_and_play">Conectar para reproducir</string>
   <string name="preferences_plug_and_play_text">Comienza a reproducir la música en cuanto se conectan los auriculares.</string>
   <string name="preferences_audio_quality">Calidad de sonido preferida</string>
@@ -64,7 +66,7 @@
   <string name="preferences_app_uservoice_text">Comparta ideas o pida ayuda</string>
   <string name="preferences_app_sendlog">Enviar registros</string>
   <string name="preferences_app_sendlog_text">Envíe su archivo de registro para ayudar a corregir errores.</string>
-  <string name="preferences_app_sendlog_dialog_text">Describa brevemente el problema que está teniendo y proporcione una dirección de correo electrónico para que podamos contactar con usted si es necesario. Gracias!</string>
+  <string name="preferences_app_sendlog_dialog_text">Describa brevemente el problema que ha experimentado y proporcione una dirección de correo electrónico para que podamos contactar con usted si es necesario. ¡Gracias!</string>
   <string name="preferences_app_sendlog_email">Dirección de correo electrónico</string>
   <string name="preferences_app_sendlog_issue">Problema</string>
   <string name="crash_dialog_title">Tomahawk se cerró inesperadamente</string>
@@ -168,8 +170,8 @@
   <string name="songs">Canciones</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
   <plurals name="songs_with_count">
-    <item quantity="one">%1$d Canción</item>
-    <item quantity="other">%1$d Canciones</item>
+    <item quantity="one">%1$d canción</item>
+    <item quantity="other">%1$d canciones</item>
   </plurals>
   <string name="activity">Actividad</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
@@ -180,7 +182,7 @@
   <string name="followers_count">Seguidores: %1$d, Siguiendo: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Acceder a</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Salir de</string>
-  <string name="resolver_config_redirect_button_text_download_plugin">Descargar Plugin para</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Descargar complemento para</string>
   <string name="ask_access_activity_header">¿Quiere guardar automáticamente información de pistas reproducidas en Hatchet?</string>
   <string name="ask_access_activity_text1">Lo haremos por usted. Active nuestro servicio en la configuración del sistema.</string>
   <string name="button_close">Cerrar</string>
@@ -192,9 +194,9 @@
   <string name="info">Información</string>
   <string name="playbackpanel_seek_coachmark">Para avanzar en una pista, mantenga pulsado el botón Reproducir.</string>
   <string name="slidinglayout_enqueue_coachmark">Pulse para añadir la pista a la cola.</string>
-  <string name="playbackfragment_navigation_coachmark_down">Desliza hacia arriba para ver la lista de reproducción actual.</string>
-  <string name="playbackfragment_navigation_coachmark_up">Desliza hacia abajo para esconder la cola de reproducción</string>
-  <string name="playbackfragment_navigation_coachmark_center">Desliza a la izquierda/derecha para saltar a  canción siguiente/anterior</string>
+  <string name="playbackfragment_navigation_coachmark_down">Deslice hacia arriba para ver la lista actual.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Deslice hacia abajo para cerrar la cola de reproducción.</string>
+  <string name="playbackfragment_navigation_coachmark_center">Deslice a la izquierda o a la derecha para cambiar a la canción anterior o la siguiente. Pulse prolongadamente para abrir el menú contextual. Toque dos veces para añadir a los favoritos.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">Siguiente</string>
   <string name="welcome_fragment_explanation_title">Primeros pasos</string>
@@ -210,11 +212,13 @@
     <item quantity="one">Escoge una lista de reproducción para agregarle %1$d cancion:</item>
     <item quantity="other">Escoge una lista de reproducción para agregarle %1$d canciones:</item>
   </plurals>
-  <string name="seeking_not_supported">Lo sentimos, la resolución no es compatible con la búsqueda.</string>
-  <string name="install_plugin_title">Instalación Plugin</string>
-  <string name="install_plugin_warning">Usted está a punto de instalar un plugin Tomahawk de una fuente desconocida. Esto puede ser un riesgo de seguridad.</string>
-  <string name="install_plugin_warning2">¿Realmente desea instalar este plugin?</string>
-  <string name="uninstall_plugin_warning">¿De verdad quieres desinstalar este plugin?</string>
+  <string name="seeking_not_supported">Este servicio no permite cambiar de posición en la duración de la pista.</string>
+  <string name="install_plugin_title">Instalación de complemento</string>
+  <string name="install_plugin_warning">Está a punto de instalar un complemento de Tomahawk que proviene de un origen desconocido. Esto puede representar un riesgo a la seguridad.</string>
+  <string name="install_plugin_warning2">¿Confirma que quiere instalar este complemento?</string>
+  <string name="uninstall_plugin_warning">¿Confirma que quiere desinstalar este complemento?</string>
   <string name="gmusic_info_text">Elija una cuenta:</string>
   <string name="invalid_file">No se puede abrir el archivo.</string>
+  <string name="unknown_album">Álbum desconocido</string>
+  <string name="unknown_artist">Artista desconocido</string>
 </resources>
