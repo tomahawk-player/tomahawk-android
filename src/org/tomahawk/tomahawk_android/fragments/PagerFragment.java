@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
@@ -93,7 +95,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
 
     @SuppressWarnings("unused")
     public void onEventMainThread(InfoSystem.ResultsEvent event) {
-            onInfoSystemResultsReported(event.mInfoRequestData);
+        onInfoSystemResultsReported(event.mInfoRequestData);
     }
 
     @SuppressWarnings("unused")
@@ -209,7 +211,8 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         mPageIndicator.setup(mViewPager, fragmentInfoLists,
                 getActivity().findViewById(R.id.sliding_layout),
                 (Selector) getView().findViewById(R.id.selector), selectorPosStorageKey);
-        if (((TomahawkMainActivity) getActivity()).getSlidingUpPanelLayout().isPanelHidden()) {
+        if (((TomahawkMainActivity) getActivity()).getSlidingUpPanelLayout().getPanelState()
+                == SlidingUpPanelLayout.PanelState.HIDDEN) {
             onSlidingLayoutHidden();
         } else {
             onSlidingLayoutShown();

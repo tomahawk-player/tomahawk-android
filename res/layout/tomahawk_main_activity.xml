@@ -37,8 +37,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:gravity="bottom"
-                    sothree:panelHeight="@dimen/playback_panel_height"
-                    sothree:shadowHeight="4dp">
+                    sothree:umanoPanelHeight="@dimen/playback_panel_height"
+                    sothree:umanoShadowHeight="4dp">
 
                 <FrameLayout android:id="@+id/content_viewer_frame"
                              android:layout_width="match_parent"

@@ -684,7 +684,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(intent.getAction())) {
             // if this Activity is being shown after the user clicked the notification
             if (mSlidingUpPanelLayout != null) {
-                mSlidingUpPanelLayout.expandPanel();
+                mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
             }
         }
         if (intent.hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
@@ -800,13 +800,14 @@ public class TomahawkMainActivity extends ActionBarActivity
         ACTIONBAR_HEIGHT = TomahawkApp.getContext().getResources()
                 .getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
 
-        if (mSlidingUpPanelLayout.isPanelHidden()) {
+        if (mSlidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
             mPlaybackPanel.setVisibility(View.GONE);
         } else {
-            mPlaybackPanel.setup(mSlidingUpPanelLayout.isPanelExpanded());
+            mPlaybackPanel.setup(mSlidingUpPanelLayout.getPanelState()
+                    == SlidingUpPanelLayout.PanelState.EXPANDED);
             mPlaybackPanel.update(mPlaybackService);
             mPlaybackPanel.setVisibility(View.VISIBLE);
-            if (mSlidingUpPanelLayout.isPanelExpanded()) {
+            if (mSlidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
                 onPanelSlide(mSlidingUpPanelLayout, 1f);
             } else {
                 onPanelSlide(mSlidingUpPanelLayout, 0f);
@@ -1189,11 +1190,13 @@ public class TomahawkMainActivity extends ActionBarActivity
     @Override
     public void onBackPressed() {
         if (findViewById(R.id.context_menu_fragment) == null && mSlidingUpPanelLayout.isEnabled()
-                && (mSlidingUpPanelLayout.isPanelExpanded()
-                || mSlidingUpPanelLayout.isPanelAnchored())) {
-            mSlidingUpPanelLayout.collapsePanel();
+                && (mSlidingUpPanelLayout.getPanelState()
+                == SlidingUpPanelLayout.PanelState.EXPANDED
+                || mSlidingUpPanelLayout.getPanelState()
+                == SlidingUpPanelLayout.PanelState.ANCHORED)) {
+            mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         } else {
-            if (!mSlidingUpPanelLayout.isPanelHidden()) {
+            if (mSlidingUpPanelLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
                 AnimationUtils.fade(mPlaybackPanel, AnimationUtils.DURATION_CONTEXTMENU, true);
             }
             super.onBackPressed();
@@ -1309,22 +1312,23 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public void collapsePanel() {
         if (mSlidingUpPanelLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
-            mSlidingUpPanelLayout.collapsePanel();
+            mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
         }
     }
 
     public void showPanel() {
-        if (mSlidingUpPanelLayout.isPanelHidden()) {
-            mSlidingUpPanelLayout.showPanel();
-            mPlaybackPanel.setup(mSlidingUpPanelLayout.isPanelExpanded());
+        if (mSlidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
+            mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            mPlaybackPanel.setup(mSlidingUpPanelLayout.getPanelState()
+                    == SlidingUpPanelLayout.PanelState.EXPANDED);
             mPlaybackPanel.update(mPlaybackService);
             showPlaybackPanel(true);
         }
     }
 
     public void hidePanel() {
-        if (!mSlidingUpPanelLayout.isPanelHidden()) {
-            mSlidingUpPanelLayout.hidePanel();
+        if (mSlidingUpPanelLayout.getPanelState() != SlidingUpPanelLayout.PanelState.HIDDEN) {
+            mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.HIDDEN);
             hidePlaybackPanel();
         }
     }
@@ -1349,7 +1353,8 @@ public class TomahawkMainActivity extends ActionBarActivity
     }
 
     public void showPlaybackPanel(boolean forced) {
-        if (forced || !mSlidingUpPanelLayout.isPanelHidden()) {
+        if (forced || mSlidingUpPanelLayout.getPanelState()
+                != SlidingUpPanelLayout.PanelState.HIDDEN) {
             AnimationUtils.fade(mPlaybackPanel, AnimationUtils.DURATION_CONTEXTMENU, true);
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             if (!preferences.getBoolean(COACHMARK_SEEK_DISABLED, false)
