@@ -188,7 +188,7 @@ public class PlaybackFragment extends TomahawkFragment {
             public void onClick(View v) {
                 SlidingUpPanelLayout slidingLayout =
                         ((TomahawkMainActivity) getActivity()).getSlidingUpPanelLayout();
-                slidingLayout.collapsePanel();
+                slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             }
         });
         TextView closeButtonText = (TextView) closeButton.findViewById(R.id.close_button_text);

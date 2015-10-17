@@ -91,7 +91,8 @@ public class PlaybackFragmentFrame extends FrameLayout {
             mVerticallyScrolled = mGestureDetector.onTouchEvent(event);
         }
 
-        if ((mPanelLayout != null && !mPanelLayout.isPanelExpanded())
+        if ((mPanelLayout != null
+                && mPanelLayout.getPanelState() != SlidingUpPanelLayout.PanelState.EXPANDED)
                 || (mVerticallyScrolled && isListViewScrolledUp())) {
             getParent().requestDisallowInterceptTouchEvent(false);
             if (mDownMotionEvent != null) {

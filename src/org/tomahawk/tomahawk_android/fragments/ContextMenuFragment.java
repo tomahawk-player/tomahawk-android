@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
 import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
@@ -250,7 +252,8 @@ public class ContextMenuFragment extends Fragment {
             public void onClick(View v) {
                 getActivity().getSupportFragmentManager().popBackStack();
                 TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-                if (!activity.getSlidingUpPanelLayout().isPanelHidden()) {
+                if (activity.getSlidingUpPanelLayout().getPanelState()
+                        != SlidingUpPanelLayout.PanelState.HIDDEN) {
                     AnimationUtils.fade(activity.getPlaybackPanel(),
                             AnimationUtils.DURATION_CONTEXTMENU, true);
                 }
