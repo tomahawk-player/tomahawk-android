@@ -18,11 +18,15 @@
 package org.tomahawk.tomahawk_android.services;
 
 import android.annotation.TargetApi;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.media.AudioManager;
+import android.media.MediaMetadata;
 import android.media.MediaMetadataRetriever;
 import android.media.RemoteController;
+import android.media.session.MediaController;
+import android.media.session.MediaSessionManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
@@ -33,6 +37,8 @@ import android.view.KeyEvent;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Service to fetch all metadata from other media player apps. Does nothing if not run on Kitkat.
@@ -49,16 +55,20 @@ public class RemoteControllerService extends NotificationListenerService
 
     private static final int BITMAP_WIDTH = 1024;
 
+    private Context mContext;
+
     private RemoteController mRemoteController;
 
-    private Context mContext;
+    private List<MediaController> mActiveSessions;
+
+    private MediaController.Callback mSessionCallback;
+
+    private MediaSessionManager.OnActiveSessionsChangedListener mSessionsChangedListener;
 
     @Override
     public IBinder onBind(Intent intent) {
         if ("android.service.notification.NotificationListenerService".equals(intent.getAction())) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                setRemoteControllerEnabled();
-            }
+            setRemoteControllerEnabled();
         }
         return super.onBind(intent);
     }
@@ -69,20 +79,73 @@ public class RemoteControllerService extends NotificationListenerService
     public void setRemoteControllerEnabled() {
         Log.d(TAG, "setRemoteControllerEnabled");
         mContext = getApplicationContext();
-        mRemoteController = new RemoteController(mContext, this);
-        if (((AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE))
-                .registerRemoteController(mRemoteController)) {
-            mRemoteController.setArtworkConfiguration(BITMAP_WIDTH, BITMAP_HEIGHT);
-            setSynchronizationMode(mRemoteController,
-                    RemoteController.POSITION_SYNCHRONIZATION_CHECK);
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
+            mRemoteController = new RemoteController(mContext, this);
+            if (((AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE))
+                    .registerRemoteController(mRemoteController)) {
+                mRemoteController.setArtworkConfiguration(BITMAP_WIDTH, BITMAP_HEIGHT);
+                setSynchronizationMode(mRemoteController,
+                        RemoteController.POSITION_SYNCHRONIZATION_CHECK);
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            MediaSessionManager manager =
+                    (MediaSessionManager) mContext.getSystemService(Context.MEDIA_SESSION_SERVICE);
+            ComponentName componentName = new ComponentName(this, RemoteControllerService.class);
+            mSessionsChangedListener = new MediaSessionManager.OnActiveSessionsChangedListener() {
+                @Override
+                public void onActiveSessionsChanged(List<MediaController> controllers) {
+                    synchronized (this) {
+                        mActiveSessions = controllers;
+                        registerSessionCallbacks();
+                    }
+                }
+            };
+            manager.addOnActiveSessionsChangedListener(mSessionsChangedListener, componentName);
+            synchronized (this) {
+                mActiveSessions = manager.getActiveSessions(componentName);
+                registerSessionCallbacks();
+            }
         }
     }
 
     @Override
     public void onDestroy() {
         Log.d(TAG, "onDestroy");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            setRemoteControllerDisabled();
+        setRemoteControllerDisabled();
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void registerSessionCallbacks() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            for (MediaController controller : mActiveSessions) {
+                if (mSessionCallback == null) {
+                    mSessionCallback = new MediaController.Callback() {
+                        @Override
+                        public void onMetadataChanged(MediaMetadata metadata) {
+                            String trackName =
+                                    metadata.getString(MediaMetadata.METADATA_KEY_TITLE);
+                            String artistName =
+                                    metadata.getString(MediaMetadata.METADATA_KEY_ARTIST);
+                            String albumArtistName =
+                                    metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST);
+                            String albumName =
+                                    metadata.getString(MediaMetadata.METADATA_KEY_ALBUM);
+                            MicroService.scrobbleTrack(trackName, artistName, albumName,
+                                    albumArtistName);
+                        }
+                    };
+                }
+                controller.registerCallback(mSessionCallback);
+            }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void unregisterSessionCallbacks() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && mSessionCallback != null) {
+            for (MediaController controller : mActiveSessions) {
+                controller.unregisterCallback(mSessionCallback);
+            }
         }
     }
 
@@ -91,10 +154,22 @@ public class RemoteControllerService extends NotificationListenerService
      */
     public void setRemoteControllerDisabled() {
         Log.d(TAG, "setRemoteControllerDisabled");
-        if (mContext != null
-                && mContext.getSystemService(Context.AUDIO_SERVICE) instanceof AudioManager) {
-            ((AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE))
-                    .unregisterRemoteController(mRemoteController);
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
+            if (mContext != null
+                    && mContext.getSystemService(Context.AUDIO_SERVICE) instanceof AudioManager) {
+                ((AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE))
+                        .unregisterRemoteController(mRemoteController);
+            }
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            MediaSessionManager manager =
+                    (MediaSessionManager) mContext.getSystemService(Context.MEDIA_SESSION_SERVICE);
+            if (mSessionsChangedListener != null) {
+                manager.removeOnActiveSessionsChangedListener(mSessionsChangedListener);
+            }
+            synchronized (this) {
+                unregisterSessionCallbacks();
+                mActiveSessions = new ArrayList<>();
+            }
         }
     }
 
