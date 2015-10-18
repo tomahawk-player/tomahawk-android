@@ -227,21 +227,27 @@ public class MicroService extends Service {
                 PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, false)
                 || Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         if (scrobbleEverything && !TextUtils.isEmpty(trackName) && (!TextUtils.isEmpty(artistName)
-                || !TextUtils.isEmpty(albumArtistName))) {
+                || !TextUtils.isEmpty(albumArtistName) || !TextUtils.isEmpty(albumName))) {
             Artist artist;
+            Album album;
             if (!TextUtils.isEmpty(artistName)) {
                 artist = Artist.get(artistName);
-            } else {
+                album = Album.get(albumName, artist);
+            } else if (!TextUtils.isEmpty(albumArtistName)) {
                 artist = Artist.get(albumArtistName);
+                album = Album.get(albumName, artist);
+            } else {
+                // Since the artistName is empty and the albumName isn't, we just assume that
+                // something got switched up. So we use the albumName as the artistName instead.
+                artist = Artist.get(albumName);
+                album = Album.get(null, artist);
             }
-            Album album = Album.get(albumName, artist);
             Track track = Track.get(trackName, album, artist);
             if (sCurrentTrack != track) {
                 sCurrentTrack = track;
                 AuthenticatorUtils utils = AuthenticatorManager.get()
                         .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                InfoSystem.get()
-                        .sendNowPlayingPostStruct(utils, Query.get(track, false));
+                InfoSystem.get().sendNowPlayingPostStruct(utils, Query.get(track, false));
                 Log.d(TAG, "Scrobbling track: '" + track.getName() + "' - '"
                         + track.getArtist().getName() + "' - '" + track.getAlbum().getName());
             }
