@@ -56,6 +56,7 @@ import org.tomahawk.tomahawk_android.dialogs.InstallPluginConfigDialog;
 import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
+import org.tomahawk.tomahawk_android.fragments.ContextMenuFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
@@ -98,6 +99,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -834,6 +836,21 @@ public class TomahawkMainActivity extends ActionBarActivity
         // Register intents that the BroadcastReceiver should listen to
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+
+        getSupportFragmentManager().addOnBackStackChangedListener(
+                new FragmentManager.OnBackStackChangedListener() {
+                    @Override
+                    public void onBackStackChanged() {
+                        Fragment lastFragment = getSupportFragmentManager().findFragmentByTag(
+                                FragmentUtils.FRAGMENT_TAG);
+                        if (lastFragment instanceof WelcomeFragment
+                                || lastFragment instanceof ContextMenuFragment) {
+                            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                        } else {
+                            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                        }
+                    }
+                });
     }
 
     @Override
@@ -904,8 +921,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                                 if (!preferences.getBoolean(
                                         TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED,
                                         false)) {
-                                    FragmentUtils.replace(TomahawkMainActivity.this,
-                                            WelcomeFragment.class, null, R.id.content_viewer_frame);
+                                    FragmentUtils.replace(
+                                            TomahawkMainActivity.this, WelcomeFragment.class, null);
                                 }
                             }
                         });
