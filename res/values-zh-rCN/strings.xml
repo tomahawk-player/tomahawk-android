@@ -14,6 +14,8 @@
   <string name="users">用户</string>
   <string name="top_hits">热单</string>
   <string name="top_albums">热门专辑</string>
+  <string name="albums_and_eps">专辑和EP</string>
+  <string name="other_releases">其他发行版</string>
   <string name="playlist_details">播放列表详情</string>
   <string name="album_details">专辑详情</string>
   <string name="search">搜索</string>
@@ -207,4 +209,6 @@
   <string name="uninstall_plugin_warning">您是否想卸载此插件？</string>
   <string name="gmusic_info_text">请选择一个账号：</string>
   <string name="invalid_file">无法打开文件</string>
+  <string name="unknown_album">未知专辑</string>
+  <string name="unknown_artist">未知艺术家</string>
 </resources>

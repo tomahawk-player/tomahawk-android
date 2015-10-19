@@ -182,6 +182,7 @@
   <string name="followers_count">Followers: %1$d, Folgen: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Anmelden bei</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Abmelden von</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Lade Plugin herunter für</string>
   <string name="ask_access_activity_header">Möchtest du automatisch alle Lieder, die du gehört hast, auf Hatchet speichern?</string>
   <string name="ask_access_activity_text1">Wir machen das für dich! Bitte aktiviere unseren Dienst in deinen System Einstellungen.</string>
   <string name="button_close">Schließen</string>
@@ -212,6 +213,11 @@
     <item quantity="other">Wähle eine Playlist aus, um %1$d Lieder hinzuzufügen:</item>
   </plurals>
   <string name="seeking_not_supported">Entschuldigung, dieser Auflöser unterstützt keine Suche.</string>
+  <string name="install_plugin_title">Plugin Installation</string>
+  <string name="install_plugin_warning">Du bist dabei ein Tomahawk-Plugin aus einer unbekannten Quelle zu installieren. Dies kann ein Sicherheitsrisiko sein.</string>
+  <string name="install_plugin_warning2">Möchtest du dieses Plugin wirklich hinzufügen?</string>
+  <string name="uninstall_plugin_title">Plugin entfernen</string>
+  <string name="uninstall_plugin_warning">Möchtest du dieses Plugin wirklich entfernen?</string>
   <string name="gmusic_info_text">Wählen Sie ein Konto aus:</string>
   <string name="invalid_file">Kann Datei nicht öffnen.</string>
   <string name="unknown_album">Unbekanntes Album</string>

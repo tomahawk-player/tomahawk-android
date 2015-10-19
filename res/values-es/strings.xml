@@ -216,6 +216,7 @@
   <string name="install_plugin_title">Instalación de complemento</string>
   <string name="install_plugin_warning">Está a punto de instalar un complemento de Tomahawk que proviene de un origen desconocido. Esto puede representar un riesgo a la seguridad.</string>
   <string name="install_plugin_warning2">¿Confirma que quiere instalar este complemento?</string>
+  <string name="uninstall_plugin_title">Desinstalando extensión</string>
   <string name="uninstall_plugin_warning">¿Confirma que quiere desinstalar este complemento?</string>
   <string name="gmusic_info_text">Elija una cuenta:</string>
   <string name="invalid_file">No se puede abrir el archivo.</string>
