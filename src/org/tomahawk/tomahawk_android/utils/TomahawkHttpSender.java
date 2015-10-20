@@ -23,6 +23,8 @@ import org.acra.sender.HttpSender;
 import org.acra.sender.ReportSenderException;
 import org.tomahawk.tomahawk_android.dialogs.SendLogConfigDialog;
 
+import android.content.Context;
+
 import java.util.Map;
 
 public class TomahawkHttpSender extends HttpSender {
@@ -33,7 +35,7 @@ public class TomahawkHttpSender extends HttpSender {
     }
 
     @Override
-    public void send(CrashReportData data) throws ReportSenderException {
+    public void send(Context context, CrashReportData data) throws ReportSenderException {
         if (!"org.tomahawk.tomahawk_android".equals(data.getProperty(ReportField.PACKAGE_NAME))) {
             return;
         }
@@ -44,6 +46,6 @@ public class TomahawkHttpSender extends HttpSender {
             data.put(ReportField.USER_EMAIL, SendLogConfigDialog.mLastEmail);
             data.put(ReportField.USER_COMMENT, SendLogConfigDialog.mLastUsermessage);
         }
-        super.send(data);
+        super.send(context, data);
     }
 }

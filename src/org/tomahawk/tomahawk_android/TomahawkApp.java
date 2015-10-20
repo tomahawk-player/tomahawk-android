@@ -34,13 +34,12 @@ import android.util.Log;
  * This class represents the Application core.
  */
 @ReportsCrashes(
-        formKey = "",
         httpMethod = HttpSender.Method.PUT,
         reportType = HttpSender.Type.JSON,
         formUri = "http://crash-stats.tomahawk-player.org:5984/acra-tomahawkandroid/_design/acra-storage/_update/report",
         formUriBasicAuthLogin = "reporter",
         formUriBasicAuthPassword = "unknackbar",
-        excludeMatchingSharedPreferencesKeys={".*_config$"},
+        excludeMatchingSharedPreferencesKeys = {".*_config$"},
         mode = ReportingInteractionMode.DIALOG,
         logcatArguments = {"-t", "2000", "-v", "time"},
         resDialogText = R.string.crash_dialog_text,
