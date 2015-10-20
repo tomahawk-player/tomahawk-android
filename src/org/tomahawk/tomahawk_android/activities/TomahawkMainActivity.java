@@ -837,6 +837,8 @@ public class TomahawkMainActivity extends ActionBarActivity
         registerReceiver(mTomahawkMainReceiver,
                 new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
+        // Install listener that disables the navigation drawer and hides the actionbar whenever
+        // a WelcomeFragment or ContextMenuFragment is the currently shown Fragment.
         getSupportFragmentManager().addOnBackStackChangedListener(
                 new FragmentManager.OnBackStackChangedListener() {
                     @Override
@@ -846,8 +848,10 @@ public class TomahawkMainActivity extends ActionBarActivity
                         if (lastFragment instanceof WelcomeFragment
                                 || lastFragment instanceof ContextMenuFragment) {
                             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                            hideActionbar();
                         } else {
                             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                            showActionBar(false);
                         }
                     }
                 });
