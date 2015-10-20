@@ -188,17 +188,11 @@ public class WelcomeFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        activity.hideActionbar();
-
         EventBus.getDefault().register(this);
     }
 
     @Override
     public void onStop() {
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        activity.showActionBar(false);
-
         EventBus.getDefault().unregister(this);
 
         super.onStop();

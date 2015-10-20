@@ -109,9 +109,6 @@ public class ContextMenuFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        activity.hideActionbar();
-
         EventBus.getDefault().register(this);
     }
 
@@ -119,13 +116,11 @@ public class ContextMenuFragment extends Fragment {
     public void onViewCreated(final View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        activity.hideActionbar();
-
         setupCloseButton(view);
         setupContextMenuItems(view);
         setupBlurredBackground(view);
 
+        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (mFromPlaybackFragment) {
             setupPlaybackTextViews(view, activity.getPlaybackPanel());
             activity.getPlaybackPanel().showButtons();
@@ -139,8 +134,6 @@ public class ContextMenuFragment extends Fragment {
     @Override
     public void onStop() {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        activity.showActionBar(false);
-
         if (mFromPlaybackFragment) {
             activity.getPlaybackPanel().hideButtons();
         } else {
