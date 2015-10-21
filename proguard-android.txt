@@ -164,6 +164,8 @@
 ################
 #ACRA specifics#
 ################
+-dontwarn org.apache.http.**
+-dontwarn org.acra.ErrorReporter
 # Restore some Source file names and restore approximate line numbers in the stack traces,
 # otherwise the stack traces are pretty useless
 -keepattributes SourceFile,LineNumberTable
@@ -198,3 +200,8 @@
 ##################
 -keep class com.deezer.** { *; }
 
+#####################
+#UserVoice specifics#
+#####################
+-dontwarn android.net.http.**
+-dontwarn com.google.android.gms.**
