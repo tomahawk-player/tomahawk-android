@@ -122,16 +122,18 @@ public class RemoteControllerService extends NotificationListenerService
                     mSessionCallback = new MediaController.Callback() {
                         @Override
                         public void onMetadataChanged(MediaMetadata metadata) {
-                            String trackName =
-                                    metadata.getString(MediaMetadata.METADATA_KEY_TITLE);
-                            String artistName =
-                                    metadata.getString(MediaMetadata.METADATA_KEY_ARTIST);
-                            String albumArtistName =
-                                    metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST);
-                            String albumName =
-                                    metadata.getString(MediaMetadata.METADATA_KEY_ALBUM);
-                            MicroService.scrobbleTrack(trackName, artistName, albumName,
-                                    albumArtistName);
+                            if (metadata != null) {
+                                String trackName =
+                                        metadata.getString(MediaMetadata.METADATA_KEY_TITLE);
+                                String artistName =
+                                        metadata.getString(MediaMetadata.METADATA_KEY_ARTIST);
+                                String albumArtistName =
+                                        metadata.getString(MediaMetadata.METADATA_KEY_ALBUM_ARTIST);
+                                String albumName =
+                                        metadata.getString(MediaMetadata.METADATA_KEY_ALBUM);
+                                MicroService.scrobbleTrack(trackName, artistName, albumName,
+                                        albumArtistName);
+                            }
                         }
                     };
                 }
