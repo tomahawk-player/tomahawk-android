@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.services;
 
+import org.tomahawk.tomahawk_android.TomahawkApp;
+
 import android.annotation.TargetApi;
 import android.content.ComponentName;
 import android.content.Context;
@@ -55,8 +57,6 @@ public class RemoteControllerService extends NotificationListenerService
 
     private static final int BITMAP_WIDTH = 1024;
 
-    private Context mContext;
-
     private RemoteController mRemoteController;
 
     private List<MediaController> mActiveSessions;
@@ -78,32 +78,37 @@ public class RemoteControllerService extends NotificationListenerService
      */
     public void setRemoteControllerEnabled() {
         Log.d(TAG, "setRemoteControllerEnabled");
-        mContext = getApplicationContext();
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
-            mRemoteController = new RemoteController(mContext, this);
-            if (((AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE))
-                    .registerRemoteController(mRemoteController)) {
+            mRemoteController = new RemoteController(TomahawkApp.getContext(), this);
+            Object service = TomahawkApp.getContext().getSystemService(Context.AUDIO_SERVICE);
+            if (service instanceof AudioManager
+                    && ((AudioManager) service).registerRemoteController(mRemoteController)) {
                 mRemoteController.setArtworkConfiguration(BITMAP_WIDTH, BITMAP_HEIGHT);
                 setSynchronizationMode(mRemoteController,
                         RemoteController.POSITION_SYNCHRONIZATION_CHECK);
             }
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            MediaSessionManager manager =
-                    (MediaSessionManager) mContext.getSystemService(Context.MEDIA_SESSION_SERVICE);
-            ComponentName componentName = new ComponentName(this, RemoteControllerService.class);
-            mSessionsChangedListener = new MediaSessionManager.OnActiveSessionsChangedListener() {
-                @Override
-                public void onActiveSessionsChanged(List<MediaController> controllers) {
-                    synchronized (this) {
-                        mActiveSessions = controllers;
-                        registerSessionCallbacks();
+            Object service =
+                    TomahawkApp.getContext().getSystemService(Context.MEDIA_SESSION_SERVICE);
+            if (service instanceof MediaSessionManager) {
+                MediaSessionManager manager = (MediaSessionManager) service;
+                ComponentName componentName =
+                        new ComponentName(this, RemoteControllerService.class);
+                mSessionsChangedListener
+                        = new MediaSessionManager.OnActiveSessionsChangedListener() {
+                    @Override
+                    public void onActiveSessionsChanged(List<MediaController> controllers) {
+                        synchronized (this) {
+                            mActiveSessions = controllers;
+                            registerSessionCallbacks();
+                        }
                     }
+                };
+                manager.addOnActiveSessionsChangedListener(mSessionsChangedListener, componentName);
+                synchronized (this) {
+                    mActiveSessions = manager.getActiveSessions(componentName);
+                    registerSessionCallbacks();
                 }
-            };
-            manager.addOnActiveSessionsChangedListener(mSessionsChangedListener, componentName);
-            synchronized (this) {
-                mActiveSessions = manager.getActiveSessions(componentName);
-                registerSessionCallbacks();
             }
         }
     }
@@ -157,20 +162,23 @@ public class RemoteControllerService extends NotificationListenerService
     public void setRemoteControllerDisabled() {
         Log.d(TAG, "setRemoteControllerDisabled");
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT) {
-            if (mContext != null
-                    && mContext.getSystemService(Context.AUDIO_SERVICE) instanceof AudioManager) {
-                ((AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE))
-                        .unregisterRemoteController(mRemoteController);
+            Object service = TomahawkApp.getContext().getSystemService(Context.AUDIO_SERVICE);
+            if (service instanceof AudioManager
+                    && ((AudioManager) service).registerRemoteController(mRemoteController)) {
+                ((AudioManager) service).unregisterRemoteController(mRemoteController);
             }
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            MediaSessionManager manager =
-                    (MediaSessionManager) mContext.getSystemService(Context.MEDIA_SESSION_SERVICE);
-            if (mSessionsChangedListener != null) {
-                manager.removeOnActiveSessionsChangedListener(mSessionsChangedListener);
-            }
-            synchronized (this) {
-                unregisterSessionCallbacks();
-                mActiveSessions = new ArrayList<>();
+            Object service =
+                    TomahawkApp.getContext().getSystemService(Context.MEDIA_SESSION_SERVICE);
+            if (service instanceof MediaSessionManager) {
+                MediaSessionManager manager = (MediaSessionManager) service;
+                if (mSessionsChangedListener != null) {
+                    manager.removeOnActiveSessionsChangedListener(mSessionsChangedListener);
+                }
+                synchronized (this) {
+                    unregisterSessionCallbacks();
+                    mActiveSessions = new ArrayList<>();
+                }
             }
         }
     }
@@ -254,7 +262,8 @@ public class RemoteControllerService extends NotificationListenerService
             throw new RuntimeException("Field mRcd can't be accessed - invalid argument");
         }
 
-        AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+        AudioManager am =
+                (AudioManager) TomahawkApp.getContext().getSystemService(Context.AUDIO_SERVICE);
         try {
             remoteControlDisplayWantsPlaybackPositionSyncMethod
                     .invoke(am, iRemoteControlDisplayClass.cast(rcDisplay), true);
