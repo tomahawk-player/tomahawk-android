@@ -113,6 +113,7 @@ public class ScriptInterface {
         new Thread(new Runnable() {
             @Override
             public void run() {
+                Response response = null;
                 try {
                     Map<String, String> extraHeaders = new HashMap<>();
                     if (!TextUtils.isEmpty(stringifiedExtraHeaders)) {
@@ -138,7 +139,7 @@ public class ScriptInterface {
                         password = options.password;
                         data = options.data;
                     }
-                    Response response = NetworkUtils.httpRequest(
+                    response = NetworkUtils.httpRequest(
                             method, url, extraHeaders, username, password, data, true);
                     String responseText = response.body().string();
                     Map<String, List<String>> responseHeaders = new HashMap<>();
@@ -154,6 +155,15 @@ public class ScriptInterface {
                 } catch (IOException e) {
                     Log.e(TAG, "nativeAsyncRequestString: " + e.getClass() + ": "
                             + e.getLocalizedMessage());
+                } finally {
+                    if (response != null) {
+                        try {
+                            response.body().close();
+                        } catch (IOException e) {
+                            Log.e(TAG, "nativeAsyncRequestString: " + e.getClass() + ": "
+                                    + e.getLocalizedMessage());
+                        }
+                    }
                 }
             }
         }).start();

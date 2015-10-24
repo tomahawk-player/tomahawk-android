@@ -58,11 +58,20 @@ public class XspfParser {
 
     public static Playlist parse(String url) {
         String xspfString = null;
+        Response response = null;
         try {
-            Response response = NetworkUtils.httpRequest(null, url, null, null, null, null, true);
+            response = NetworkUtils.httpRequest(null, url, null, null, null, null, true);
             xspfString = response.body().string();
         } catch (IOException e) {
             Log.e(TAG, "parse: " + e.getClass() + ": " + e.getLocalizedMessage());
+        } finally {
+            if (response != null) {
+                try {
+                    response.body().close();
+                } catch (IOException e) {
+                    Log.e(TAG, "parse: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+            }
         }
         return parseXspf(xspfString);
     }
