@@ -45,9 +45,20 @@ public class UnzipUtility {
             if (zipFilePath.getScheme().contains("file")) {
                 inputStream = new FileInputStream(zipFilePath.getPath());
             } else if (zipFilePath.getScheme().contains("http")) {
-                Response connection = NetworkUtils.httpRequest("GET", zipFilePath.toString(), null,
-                        null, null, null, true);
-                inputStream = connection.body().byteStream();
+                Response response = null;
+                try {
+                    response = NetworkUtils.httpRequest("GET", zipFilePath.toString(), null,
+                            null, null, null, true);
+                    inputStream = response.body().byteStream();
+                } finally {
+                    if (response != null) {
+                        try {
+                            response.body().close();
+                        } catch (IOException e) {
+                            Log.e(TAG, "parse: " + e.getClass() + ": " + e.getLocalizedMessage());
+                        }
+                    }
+                }
             } else {
                 Log.e(TAG, "unzip - Can't handle URI scheme");
                 return false;

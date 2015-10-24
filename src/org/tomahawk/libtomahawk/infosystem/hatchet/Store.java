@@ -841,6 +841,8 @@ public class Store {
                             response.body().charStream(), JsonElement.class);
                 } catch (JsonIOException | JsonSyntaxException e) {
                     throw new IOException(e);
+                } finally {
+                    response.body().close();
                 }
             }
         }

@@ -312,15 +312,16 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                             ScriptResolverStreamUrlResult.class) {
                         @Override
                         public void onReportResults(ScriptResolverStreamUrlResult results) {
+                            Response response = null;
                             try {
                                 PipeLine.StreamUrlEvent event = new PipeLine.StreamUrlEvent();
                                 event.mResult = result;
                                 if (results.headers != null) {
                                     // If headers are given we first have to resolve the url that
                                     // the call is being redirected to
-                                    Response connection = NetworkUtils.httpRequest("GET",
+                                    response = NetworkUtils.httpRequest("GET",
                                             results.url, results.headers, null, null, null, false);
-                                    event.mUrl = connection.header("Location");
+                                    event.mUrl = response.header("Location");
                                 } else {
                                     event.mUrl = results.url;
                                 }
@@ -328,6 +329,15 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                             } catch (IOException e) {
                                 Log.e(TAG, "reportStreamUrl: " + e.getClass() + ": " + e
                                         .getLocalizedMessage());
+                            } finally {
+                                if (response != null) {
+                                    try {
+                                        response.body().close();
+                                    } catch (IOException e) {
+                                        Log.e(TAG, "getStreamUrl: " + e.getClass() + ": "
+                                                + e.getLocalizedMessage());
+                                    }
+                                }
                             }
                         }
                     });
