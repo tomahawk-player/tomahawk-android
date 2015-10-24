@@ -21,12 +21,9 @@ import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.HatchetCollection;
-import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
@@ -72,21 +69,10 @@ public class ArtistPagerFragment extends PagerFragment {
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else {
-                    HatchetCollection hatchetCollection = (HatchetCollection)
-                            CollectionManager.get().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
-                    hatchetCollection.getArtistTopHits(mArtist).done(new DoneCallback<Playlist>() {
-                        @Override
-                        public void onDone(Playlist result) {
-                            boolean full = false;
-                            if (result == null) {
-                                full = true;
-                            }
-                            String requestId = InfoSystem.get().resolve(mArtist, full);
-                            if (requestId != null) {
-                                mCorrespondingRequestIds.add(requestId);
-                            }
-                        }
-                    });
+                    String requestId = InfoSystem.get().resolve(mArtist, false);
+                    if (requestId != null) {
+                        mCorrespondingRequestIds.add(requestId);
+                    }
                 }
             }
         }

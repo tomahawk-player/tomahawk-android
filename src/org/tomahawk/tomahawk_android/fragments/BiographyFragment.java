@@ -17,7 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 
 import android.view.View;
@@ -57,14 +56,8 @@ public class BiographyFragment extends TomahawkFragment {
             return;
         }
 
-        List bioText = new ArrayList<>();
         if (mArtist != null) {
-            if (mArtist.getBio() == null) {
-                String requestId = InfoSystem.get().resolve(mArtist, false);
-                if (requestId != null) {
-                    mCorrespondingRequestIds.add(requestId);
-                }
-            }
+            List bioText = new ArrayList<>();
             bioText.add(mArtist.getBio());
             fillAdapter(new Segment.Builder(bioText).build());
         }
