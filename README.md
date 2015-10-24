@@ -9,11 +9,9 @@ Join this Google+ community to take part in our current beta test on Google Play
 https://plus.google.com/u/0/communities/107064391247577662665
 
 Nightly builds are available here:
-http://download.tomahawk-player.org/nightly/android/
+http://download.tomahawk-player.org/nightly/android/?C=M;O=D
 
 ## Development Setup
-
-#### Prerequisites:
 
 First of all you have to properly setup your Android SDK/NDK:
 
@@ -27,7 +25,7 @@ Build it on the commandline with gradle:
 
 - Simply run "./gradlew assembleDebug" for the debug build or "./gradlew assembleRelease" for
   the release build in your tomahawk-android checkout directory. The built apk will be put into
-  "tomahawk-android/build/apk"
+  "tomahawk-android/build/outputs/apk"
 
 Setup using Android Studio and gradle (highly recommended):
 
@@ -46,9 +44,13 @@ Setup using other IDEs without gradle:
 
 If you have any further problems, feel free to join the #tomahawk.mobile irc channel on irc.freenode.org
 
+## Found a bug?
+
+Please report it here https://bugs.tomahawk-player.org/browse/THA
+
 ## Ready to contribute?
 
-Here's a link to the bug/to-do tracker :) https://bugs.tomahawk-player.org/secure/RapidBoard.jspa?rapidView=2
+Here's a link to the bug/to-do tracker https://bugs.tomahawk-player.org/secure/RapidBoard.jspa?rapidView=2
 
 ## Code Style Guidelines for Contributors
 
@@ -58,12 +60,6 @@ In order to keep everything clean and cozy, please use the official Android code
 
 For a larger overview you should read the official Android "Code Style Guidelines for Contributors":
 - http://source.android.com/source/code-style.html
-
-## Recommended reading
-
-- http://developer.android.com/training/basics/activity-lifecycle/index.html
-- http://developer.android.com/training/basics/supporting-devices/index.html
-- http://developer.android.com/training/basics/fragments/index.html
 
 ## Recommended IDE
 
