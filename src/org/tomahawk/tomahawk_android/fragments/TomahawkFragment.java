@@ -313,7 +313,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     getActivity().getSupportFragmentManager().popBackStack();
                     return;
                 } else {
-                    String requestId = InfoSystem.get().resolve(mArtist, false);
+                    String requestId = InfoSystem.get().resolve(mArtist, true);
                     if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
                     }
