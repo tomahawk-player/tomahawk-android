@@ -68,7 +68,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                     switch (mScriptResolver.getId()) {
                         case TomahawkApp.PLUGINNAME_SPOTIFY:
                             url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-spotify-x86-release.apk";
+                                    + "tomahawk-android-spotify-x86-release-20.apk";
                             break;
                         case TomahawkApp.PLUGINNAME_DEEZER:
                             url = "http://download.tomahawk-player.org/android-plugins/"
@@ -83,7 +83,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                     switch (mScriptResolver.getId()) {
                         case TomahawkApp.PLUGINNAME_SPOTIFY:
                             url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-spotify-armv7a-release.apk";
+                                    + "tomahawk-android-spotify-armv7a-release-20.apk";
                             break;
                         case TomahawkApp.PLUGINNAME_DEEZER:
                             url = "http://download.tomahawk-player.org/android-plugins/"
