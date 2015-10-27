@@ -1167,7 +1167,7 @@ public class TomahawkMainActivity extends ActionBarActivity
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = HUB_ID_PLAYLISTS;
                 holder.title = getString(R.string.drawer_title_playlists);
-                holder.iconResId = R.drawable.ic_action_playlist_light;
+                holder.iconResId = R.drawable.ic_action_playlist;
                 holders.add(holder);
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = HUB_ID_SETTINGS;

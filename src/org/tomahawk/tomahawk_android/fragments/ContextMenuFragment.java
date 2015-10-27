@@ -474,7 +474,7 @@ public class ContextMenuFragment extends Fragment {
         } else {
             TextView textView = (TextView) v.findViewById(R.id.textview);
             ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
-            imageView.setImageResource(R.drawable.ic_action_playlist_light);
+            imageView.setImageResource(R.drawable.ic_action_playlist);
             textView.setText(R.string.context_menu_add_to_playlist);
             if (queries != null) {
                 v.setOnClickListener(new View.OnClickListener() {
