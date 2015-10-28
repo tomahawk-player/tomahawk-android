@@ -847,10 +847,15 @@ public class TomahawkMainActivity extends ActionBarActivity
                                 FragmentUtils.FRAGMENT_TAG);
                         if (lastFragment instanceof WelcomeFragment
                                 || lastFragment instanceof ContextMenuFragment) {
-                            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                            if (mDrawerLayout != null) {
+                                mDrawerLayout.setDrawerLockMode(
+                                        DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                            }
                             hideActionbar();
                         } else {
-                            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                            if (mDrawerLayout != null) {
+                                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                            }
                             showActionBar(false);
                         }
                     }
