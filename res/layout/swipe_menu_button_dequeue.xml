@@ -23,4 +23,4 @@
            android:layout_height="match_parent"
            android:padding="@dimen/padding_small"
            android:background="@drawable/selectable_background_button_ring_red"
-           android:src="@drawable/ic_player_exit_light"/>
+           android:src="@drawable/ic_navigation_close"/>

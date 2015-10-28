@@ -128,7 +128,7 @@ public class Selector extends FrameLayout {
             final TextView textView = (TextView) item.findViewById(R.id.textview);
             textView.setText(getResources().getString(R.string.cancel).toUpperCase());
             ImageView imageView = (ImageView) item.findViewById(R.id.imageview);
-            imageView.setImageResource(R.drawable.ic_player_exit_light);
+            imageView.setImageResource(R.drawable.ic_navigation_close);
             item.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

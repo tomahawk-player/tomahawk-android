@@ -37,7 +37,7 @@
                    android:layout_height="12dp"
                    android:layout_marginBottom="@dimen/padding_verysmall"
                    android:layout_gravity="center"
-                   android:background="@drawable/ic_action_navigation_collapse"/>
+                   android:background="@drawable/ic_navigation_expand_less"/>
 
         <LinearLayout android:layout_width="wrap_content"
                       android:layout_height="wrap_content">
@@ -61,7 +61,7 @@
                    android:layout_height="12dp"
                    android:layout_marginTop="@dimen/padding_verysmall"
                    android:layout_gravity="center"
-                   android:background="@drawable/ic_action_navigation_expand"/>
+                   android:background="@drawable/ic_navigation_expand_more"/>
 
     </LinearLayout>
 

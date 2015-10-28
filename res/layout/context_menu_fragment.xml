@@ -68,7 +68,7 @@
                                android:layout_height="12dp"
                                android:layout_marginLeft="@dimen/padding_small"
                                android:layout_gravity="center_vertical"
-                               android:src="@drawable/ic_player_exit_light"/>
+                               android:src="@drawable/ic_navigation_close"/>
 
                 </LinearLayout>
 

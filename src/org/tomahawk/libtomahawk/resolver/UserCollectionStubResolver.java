@@ -62,14 +62,14 @@ public class UserCollectionStubResolver implements Resolver {
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
         ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                R.drawable.ic_action_hardware_smartphone,
+                R.drawable.ic_hardware_smartphone,
                 grayOut ? R.color.disabled_resolver : android.R.color.black);
     }
 
     @Override
     public void loadIconWhite(ImageView imageView) {
         ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                R.drawable.ic_action_hardware_smartphone);
+                R.drawable.ic_hardware_smartphone);
     }
 
     @Override
