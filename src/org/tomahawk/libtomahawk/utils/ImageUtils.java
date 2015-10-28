@@ -165,7 +165,7 @@ public class ImageUtils {
         if (colorResId > 0) {
             creator.transform(new ColorTintTransformation(colorResId));
         }
-        creator.error(R.drawable.ic_action_error).into(imageView);
+        creator.error(R.drawable.ic_alert_error).into(imageView);
     }
 
     /**
@@ -196,7 +196,7 @@ public class ImageUtils {
         if (colorResId > 0) {
             creator.transform(new ColorTintTransformation(colorResId));
         }
-        creator.error(R.drawable.ic_action_error).into(imageView);
+        creator.error(R.drawable.ic_alert_error).into(imageView);
     }
 
     /**

@@ -147,7 +147,7 @@ public class ViewHolder {
             swipeMenuButton = (ImageView) ensureInflation(R.id.swipe_menu_button_dequeue_stub,
                     R.id.swipe_menu_button_dequeue);
             swipeMenuButton.setVisibility(View.VISIBLE);
-            swipeMenuButton.setImageResource(R.drawable.ic_player_exit_light);
+            swipeMenuButton.setImageResource(R.drawable.ic_navigation_close);
             ImageUtils.setTint(swipeMenuButton.getDrawable(), R.color.tomahawk_red);
             ImageView swipeMenuButtonEnqueue =
                     (ImageView) findViewById(R.id.swipe_menu_button_enqueue);

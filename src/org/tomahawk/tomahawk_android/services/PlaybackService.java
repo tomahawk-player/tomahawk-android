@@ -1261,11 +1261,11 @@ public class PlaybackService extends Service implements MusicFocusable {
             if (isPlaying()) {
                 mSmallNotificationView
                         .setImageViewResource(R.id.notification_small_imageview_playpause,
-                                R.drawable.ic_player_pause_light);
+                                R.drawable.ic_av_pause);
             } else {
                 mSmallNotificationView
                         .setImageViewResource(R.id.notification_small_imageview_playpause,
-                                R.drawable.ic_player_play_light);
+                                R.drawable.ic_av_play_arrow);
             }
             mSmallNotificationView
                     .setOnClickPendingIntent(R.id.notification_small_imageview_playpause,
@@ -1306,11 +1306,11 @@ public class PlaybackService extends Service implements MusicFocusable {
                 if (isPlaying()) {
                     mLargeNotificationView
                             .setImageViewResource(R.id.notification_large_imageview_playpause,
-                                    R.drawable.ic_player_pause_light);
+                                    R.drawable.ic_av_pause);
                 } else {
                     mLargeNotificationView
                             .setImageViewResource(R.id.notification_large_imageview_playpause,
-                                    R.drawable.ic_player_play_light);
+                                    R.drawable.ic_av_play_arrow);
                 }
                 if (DatabaseHelper.get().isItemLoved(getCurrentQuery())) {
                     mLargeNotificationView

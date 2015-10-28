@@ -31,7 +31,7 @@
                android:clickable="true"
                android:padding="8dp"
                android:layout_alignParentRight="true"
-               android:src="@drawable/ic_player_exit_light"
+               android:src="@drawable/ic_navigation_close"
                android:background="@drawable/selectable_background_tomahawk"/>
 
     <View android:id="@+id/arrow_up"

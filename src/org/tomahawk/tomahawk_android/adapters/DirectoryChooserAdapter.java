@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
+import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.views.DirectoryChooser;
@@ -29,6 +30,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.io.File;
@@ -159,6 +161,11 @@ public class DirectoryChooserAdapter extends StickyBaseAdapter {
             for (File file : dir.file.listFiles()) {
                 if (file.isDirectory()) {
                     textView.setTypeface(null, Typeface.BOLD);
+                    ImageView browsableIndicator =
+                            (ImageView) view.findViewById(R.id.browsable_indicator);
+                    ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                            browsableIndicator, R.drawable.ic_navigation_chevron_right,
+                            android.R.color.black);
                     view.findViewById(R.id.browsable_indicator).setVisibility(View.VISIBLE);
                     view.setOnClickListener(new View.OnClickListener() {
                         @Override

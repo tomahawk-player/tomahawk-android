@@ -45,7 +45,7 @@
                android:layout_height="match_parent"
                android:layout_marginLeft="@dimen/padding_verysmall"
                android:layout_gravity="center"
-               android:src="@drawable/ic_action_navigation_expand"
+               android:src="@drawable/ic_navigation_expand_more"
                android:visibility="gone"/>
 
 </LinearLayout>

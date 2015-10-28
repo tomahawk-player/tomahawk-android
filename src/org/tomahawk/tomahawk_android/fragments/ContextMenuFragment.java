@@ -392,7 +392,7 @@ public class ContextMenuFragment extends Fragment {
                     R.id.context_menu_remove);
             textView = (TextView) v.findViewById(R.id.textview);
             imageView = (ImageView) v.findViewById(R.id.imageview);
-            imageView.setImageResource(R.drawable.ic_player_exit_light);
+            imageView.setImageResource(R.drawable.ic_navigation_close);
             textView.setText(stringResId);
             v.setOnClickListener(new View.OnClickListener() {
                 @Override

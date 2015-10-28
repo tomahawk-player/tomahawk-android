@@ -31,8 +31,7 @@
                android:layout_height="@dimen/directory_chooser_arrow_size"
                android:layout_gravity="center"
                android:layout_marginRight="@dimen/padding_medium"
-               android:layout_marginLeft="@dimen/padding_small"
-               android:src="@drawable/ic_player_next"/>
+               android:layout_marginLeft="@dimen/padding_small"/>
 
     <TextView android:id="@+id/textview1"
               android:layout_width="0dp"

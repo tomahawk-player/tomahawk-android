@@ -113,16 +113,15 @@
                        android:layout_height="18dp"
                        android:layout_gravity="center"
                        android:scaleType="fitCenter"
-                       android:src="@drawable/ic_player_pause_light"
+                       android:src="@drawable/ic_av_pause"
                        android:visibility="gone"/>
 
             <ImageView android:id="@+id/play_button"
                        android:layout_width="18dp"
                        android:layout_height="18dp"
                        android:layout_gravity="center"
-                       android:layout_marginLeft="2dp"
                        android:scaleType="fitCenter"
-                       android:src="@drawable/ic_player_play_light"/>
+                       android:src="@drawable/ic_av_play_arrow"/>
 
         </FrameLayout>
 
