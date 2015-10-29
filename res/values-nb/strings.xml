@@ -1,13 +1,62 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ok">OK</string>
+  <string name="cancel">Avbryt</string>
+  <string name="login">Logg på</string>
+  <string name="logout">Logg av</string>
+  <string name="register">Registrer</string>
+  <string name="register_and_login">Registrer &amp; Logg på</string>
+  <string name="internal_storage">Intern lagring</string>
+  <string name="tracks">Spor</string>
+  <string name="albums">Albumer</string>
+  <string name="artists">Artister</string>
+  <string name="users">Brukere</string>
+  <string name="other_releases">Andre utgivelser</string>
+  <string name="search">Søk</string>
+  <string name="playlist">Spilleliste</string>
+  <string name="unknown">ukjent</string>
+  <string name="no_track">ingen spor</string>
+  <string name="save_playlist">Lagre nåværende spilleliste</string>
+  <string name="create_playlist">Opprett spilleliste</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Tittel</string>
+  <string name="login_name_label">E-post/Brukernavn</string>
+  <string name="login_username">Brukernavn</string>
+  <string name="login_password">Passord</string>
+  <string name="account_email_label">E-post (valgfritt)</string>
+  <string name="error_field_required">Dette feltet er påkrevet</string>
+  <string name="error_passwords_dont_match">Passordene er ikke like</string>
+  <string name="error_invalid_credentials">Brukernavn eller passord er feil.</string>
+  <string name="error_invalid_account">Konto avvist av tjener.</string>
+  <string name="error_account_expired">Kontoen din har utløpt.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Koblet til %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Koblet fra %1$s</string>
+  <string name="local_collection_pretty_name">Lokal samling</string>
+  <string name="local">Lokal</string>
+  <string name="context_menu_play">Spill</string>
+  <string name="context_menu_add_to_playlist">Legg til i spilleliste</string>
+  <string name="context_menu_delete">Slett</string>
+  <string name="context_menu_removefromplaylist">Fjern fra spilleliste</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">Fjern fra samling</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">Legg til i samling</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_share">Del</string>
+  <string name="drawer_title_collection">Samling</string>
+  <string name="drawer_title_playlists">Spillelister</string>
+  <string name="drawer_title_lovedtracks">Favoritter</string>
+  <string name="drawer_title_settings">Innstillinger</string>
+  <string name="drawer_header_cloudcollections">Skysamlinger</string>
+  <string name="collection_dropdown_recently_added">Nylig lagt til</string>
+  <string name="collection_dropdown_alpha_artists">Artist A-Å</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Å</string>
+  <string name="collection_dropdown_alpha">A-Å</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">Følger</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
@@ -19,11 +68,40 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="time_afewseconds">noen få sekunder siden</string>
+  <plurals name="time_minute">
+    <item quantity="one">ett minutt siden</item>
+    <item quantity="other">%1$d minutter siden</item>
+  </plurals>
+  <plurals name="time_hour">
+    <item quantity="one">en time siden</item>
+    <item quantity="other">%1$d timer siden</item>
+  </plurals>
+  <plurals name="time_day">
+    <item quantity="one">en dag siden</item>
+    <item quantity="other">%1$d dager siden</item>
+  </plurals>
+  <string name="music">Musikk</string>
+  <string name="biography">Biografi</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
+  <string name="similar">Lignende</string>
   <!--Shown as a title for a list of songs in the search results view.-->
+  <string name="songs">Sanger</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <plurals name="songs_with_count">
+    <item quantity="one">%1$d sang</item>
+    <item quantity="other">%1$d sanger</item>
+  </plurals>
+  <string name="activity">Aktivitet</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
+  <string name="followers">Følgere</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
+  <string name="following">Følger</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">Følgere: %1$d, Følger: %2$d</string>
+  <string name="resolver_config_redirect_button_text_log_into">Koble til</string>
+  <string name="resolver_config_redirect_button_text_log_out_of">Koble fra</string>
+  <string name="button_close">Lukk</string>
+  <string name="view_album">Vis album</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
 </resources>
