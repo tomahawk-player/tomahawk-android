@@ -28,7 +28,7 @@
 
     <FrameLayout android:id="@+id/textview_container"
                  android:layout_width="match_parent"
-                 android:layout_height="wrap_content"
+                 android:layout_height="@dimen/playback_panel_height"
                  android:layout_marginLeft="76dp"
                  android:layout_marginRight="76dp">
 
@@ -36,45 +36,40 @@
                       android:layout_width="wrap_content"
                       android:layout_height="match_parent"
                       android:layout_gravity="center"
+                      android:orientation="vertical"
+                      android:paddingBottom="6dp"
+                      android:paddingTop="10dp"
                       android:paddingLeft="@dimen/padding_medium"
                       android:paddingRight="@dimen/padding_medium"
                       android:background="@color/tertiary_transparent_playbackpanel">
 
             <TextView android:id="@+id/track_textview"
                       android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
+                      android:layout_height="0dp"
                       android:layout_weight="1"
-                      android:layout_gravity="center_vertical"
-                      android:singleLine="true"
-                      android:textSize="@dimen/text_size_micro"
-                      android:textColor="@color/primary_textcolor_inverted"/>
-
-            <TextView android:id="@+id/hyphen_textview"
-                      android:layout_width="wrap_content"
-                      android:layout_height="wrap_content"
-                      android:layout_gravity="center_vertical"
-                      android:text=" - "
+                      android:layout_gravity="center"
+                      android:gravity="center_vertical"
                       android:singleLine="true"
                       android:textSize="@dimen/text_size_micro"
                       android:textColor="@color/primary_textcolor_inverted"
-                      tools:ignore="HardcodedText"/>
+                      android:text="Tequila"/>
 
             <FrameLayout android:id="@+id/artist_name_button"
                          android:layout_width="wrap_content"
-                         android:layout_height="wrap_content"
-                         android:layout_weight="0.1"
+                         android:layout_height="0dp"
+                         android:layout_weight="1.5"
                          android:layout_gravity="center"
-                         android:padding="@dimen/padding_small"
                          android:background="@drawable/selectable_background_button_white_transition"
                          android:clickable="false">
 
                 <TextView android:id="@+id/artist_textview"
-                          android:layout_width="wrap_content"
-                          android:layout_height="wrap_content"
-                          android:layout_gravity="center_vertical"
+                          android:layout_width="match_parent"
+                          android:layout_height="match_parent"
+                          android:gravity="center"
                           android:singleLine="true"
                           android:textSize="@dimen/text_size_micro"
-                          android:textColor="@color/primary_textcolor_inverted"/>
+                          android:textColor="@color/primary_textcolor_inverted"
+                          android:text="The Fleetwoodsg"/>
 
             </FrameLayout>
 

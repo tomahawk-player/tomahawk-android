@@ -334,7 +334,7 @@ public class PlaybackPanel extends FrameLayout {
                 int panelHeight = resources.getDimensionPixelSize(
                         R.dimen.playback_panel_height);
                 int padding = resources.getDimensionPixelSize(
-                        R.dimen.padding_medium);
+                        R.dimen.padding_small);
                 int panelBottom = resources.getDimensionPixelSize(
                         R.dimen.playback_clear_space_bottom);
                 int headerClearSpace = resources.getDimensionPixelSize(
@@ -345,7 +345,9 @@ public class PlaybackPanel extends FrameLayout {
                 Keyframe kfY0 = Keyframe.ofFloat(0f,
                         getHeight() - mTextViewContainer.getHeight() / 2 - panelHeight / 2);
                 Keyframe kfY1 = Keyframe.ofFloat(0.5f,
-                        getHeight() + padding - panelBottom);
+                        isLandscape ?
+                                getHeight() - mTextViewContainer.getHeight() / 2 - panelHeight / 2
+                                : getHeight() + padding - panelBottom);
                 Keyframe kfY2 = Keyframe.ofFloat(1f,
                         headerClearSpace / 2 - mTextViewContainer.getHeight() / 2);
                 PropertyValuesHolder pvhY =
