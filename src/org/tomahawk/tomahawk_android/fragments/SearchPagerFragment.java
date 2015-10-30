@@ -255,7 +255,10 @@ public class SearchPagerFragment extends PagerFragment {
         mUserIds.clear();
         mCurrentQueryString = fullTextQuery;
         mCorrespondingRequestIds.clear();
-        mCorrespondingRequestIds.add(InfoSystem.get().resolve(fullTextQuery));
+        String requestId = InfoSystem.get().resolve(fullTextQuery);
+        if (requestId != null) {
+            mCorrespondingRequestIds.add(requestId);
+        }
         Query query = PipeLine.get().resolve(fullTextQuery, false);
         if (query != null) {
             mCorrespondingQueries.clear();
