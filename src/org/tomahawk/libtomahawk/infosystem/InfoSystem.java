@@ -122,9 +122,12 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolve(String keyword) {
-        QueryParams params = new QueryParams();
-        params.term = keyword;
-        return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES, params);
+        if (keyword != null) {
+            QueryParams params = new QueryParams();
+            params.term = keyword;
+            return resolve(InfoRequestData.INFOREQUESTDATA_TYPE_SEARCHES, params);
+        }
+        return null;
     }
 
     /**
@@ -135,7 +138,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolve(Artist artist, boolean full) {
-        if (artist != null) {
+        if (artist != null && TextUtils.isEmpty(artist.getName())) {
             QueryParams params = new QueryParams();
             params.name = artist.getName();
             if (full) {
@@ -171,7 +174,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolve(User user) {
-        if (user != null && !user.isOffline()) {
+        if (user != null && !user.isOffline() && TextUtils.isEmpty(user.getId())) {
             QueryParams params = new QueryParams();
             params.ids = new ArrayList<>();
             params.ids.add(user.getId());
