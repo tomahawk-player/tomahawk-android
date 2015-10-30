@@ -78,6 +78,7 @@ public class RemovePluginConfigDialog extends ConfigDialog {
         } catch (FileNotFoundException e) {
             Log.d(TAG, "onPositiveAction: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
+        PipeLine.get().removeResolver(mScriptResolver);
         dismiss();
     }
 

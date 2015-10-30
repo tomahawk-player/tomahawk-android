@@ -125,7 +125,7 @@ public class PipeLine {
                         String pluginPath = manualResolverDirPath + File.separator + plugin;
                         File pluginFile = new File(pluginPath);
                         if (pluginFile.isDirectory()) {
-                            ScriptAccount account = new ScriptAccount(pluginPath, false);
+                            ScriptAccount account = new ScriptAccount(pluginPath, true);
                             mScriptAccounts.add(account);
                             mLoadingPlugins.add(account);
                         }

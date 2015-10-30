@@ -95,8 +95,8 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         mManuallyInstalled = manuallyInstalled;
         String[] parts = mPath.split("/");
         mName = parts[parts.length - 1];
+        InputStream inputStream = null;
         try {
-            InputStream inputStream;
             if (mManuallyInstalled) {
                 File metadataFile = new File(
                         path + File.separator + "content" + File.separator + "metadata.json");
@@ -115,6 +115,14 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
             Log.e(TAG, "ScriptAccount: " + e.getClass() + ": " + e.getLocalizedMessage());
             Log.e(TAG, "Couldn't read metadata.json. Cannot instantiate ScriptAccount.");
             return;
+        } finally {
+            if (inputStream != null) {
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    Log.e(TAG, "ScriptAccount: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+            }
         }
 
         mWebView = new WebView(TomahawkApp.getContext());
