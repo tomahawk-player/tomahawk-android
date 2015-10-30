@@ -60,7 +60,7 @@ public class VariousUtils {
             for (float f : array) {
                 json.put(f);
             }
-            editor.putString("equalizer_values", json.toString());
+            editor.putString(key, json.toString());
         } catch (JSONException e) {
             Log.e(TAG, "putFloatArray: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
