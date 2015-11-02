@@ -308,7 +308,7 @@ Tomahawk.Resolver = {
 
     _adapter_init: function () {
         this._urlProtocol = this.settings.name.replace(/[^a-zA-Z]/g, '').toLowerCase();
-        Tomahawk.addCustomUrlHandler(this._urlProtocol, 'getStreamUrl', true);
+        Tomahawk.addCustomUrlHandler(this._urlProtocol, '_adapter_getStreamUrl', true);
         Tomahawk.log('Registered custom url handler for protocol "' + this._urlProtocol + '"');
         this.init();
     },
@@ -1404,10 +1404,10 @@ Tomahawk.Collection = {
         var tracks = params.tracks;
 
         var cachedAlbumArtists = {},
-            cachedArtists = {},
-            cachedAlbums = {},
-            cachedArtistIds = {},
-            cachedAlbumIds = {};
+        cachedArtists = {},
+        cachedAlbums = {},
+        cachedArtistIds = {},
+        cachedAlbumIds = {};
 
         var t = new Tomahawk.Collection.Transaction(this, id);
         return t.beginTransaction().then(function () {
