@@ -44,16 +44,12 @@ import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayerCallback;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
-import org.tomahawk.tomahawk_android.utils.MediaButtonHelper;
 import org.tomahawk.tomahawk_android.utils.MediaButtonReceiver;
 import org.tomahawk.tomahawk_android.utils.MusicFocusable;
-import org.tomahawk.tomahawk_android.utils.RemoteControlClientCompat;
-import org.tomahawk.tomahawk_android.utils.RemoteControlHelper;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -66,8 +62,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.media.MediaMetadataRetriever;
-import android.media.RemoteControlClient;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
@@ -79,10 +73,15 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.RemoteViews;
 
 import java.util.ArrayList;
@@ -220,15 +219,91 @@ public class PlaybackService extends Service implements MusicFocusable {
 
     private int mRepeatingMode = NOT_REPEATING;
 
-    // our RemoteControlClient object, which will use remote control APIs available in
-    // SDK level >= 14, if they're available.
-    RemoteControlClientCompat mRemoteControlClientCompat;
+    private MediaControllerCompat.TransportControls mTransportControls;
+
+    private MediaSessionCompat mMediaSessionCompat;
+
+    private MediaSessionCompat.Callback mMediaSessionCallback = new MediaSessionCompat.Callback() {
+        @Override
+        public boolean onMediaButtonEvent(Intent intent) {
+            if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
+                // AudioManager tells us that the sound will be played through the speaker
+                Log.d(TAG, "Action audio becoming noisy, pausing ...");
+                // So we stop playback, if needed
+                pause();
+            } else if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
+                KeyEvent keyEvent = (KeyEvent) intent.getExtras().get(Intent.EXTRA_KEY_EVENT);
+                if (keyEvent == null) {
+                    return false;
+                }
+                Log.d(TAG, "Mediabutton pressed ... keyCode: " + keyEvent.getKeyCode());
+                if (keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
+                    return false;
+                }
+
+                switch (keyEvent.getKeyCode()) {
+                    case KeyEvent.KEYCODE_HEADSETHOOK:
+                    case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
+                        if (isPlaying()) {
+                            mTransportControls.pause();
+                        } else {
+                            mTransportControls.play();
+                        }
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_PLAY:
+                        mTransportControls.play();
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_PAUSE:
+                        mTransportControls.pause();
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_STOP:
+                        mTransportControls.stop();
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_NEXT:
+                        mTransportControls.skipToNext();
+                        break;
+                    case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
+                        mTransportControls.skipToPrevious();
+                        break;
+                }
+            }
+            return super.onMediaButtonEvent(intent);
+        }
+
+        @Override
+        public void onPlay() {
+            super.onPlay();
+            start();
+        }
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            pause();
+        }
+
+        @Override
+        public void onSkipToNext() {
+            super.onSkipToNext();
+        }
+
+        @Override
+        public void onSkipToPrevious() {
+            super.onSkipToPrevious();
+        }
+
+        @Override
+        public void onSeekTo(long pos) {
+            super.onSeekTo(pos);
+        }
+
+        @Override
+        public void onStop() {
+            super.onStop();
+        }
+    };
 
     AudioManager mAudioManager;
-
-    // The component name of PlaybackServiceBroadcastReceiver, for use with media button and
-    // remote control APIs
-    ComponentName mMediaButtonReceiverComponent;
 
     // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
     // If not available, this will be null. Always check for null before using!
@@ -267,15 +342,22 @@ public class PlaybackService extends Service implements MusicFocusable {
             new Runnable() {
                 @Override
                 public void run() {
-                    synchronized (PlaybackService.this) {
-                        RemoteControlClientCompat.MetadataEditorCompat editor =
-                                mRemoteControlClientCompat.editMetadata(false);
-                        editor.putBitmap(
-                                RemoteControlClientCompat.MetadataEditorCompat.METADATA_KEY_ARTWORK,
-                                bitmap.copy(bitmap.getConfig(), false));
-                        editor.apply();
-                        Log.d(TAG, "Setting lockscreen bitmap");
+                    MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
+                            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST,
+                                    getCurrentQuery().getArtist().getPrettyName())
+                            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,
+                                    getCurrentQuery().getArtist().getPrettyName())
+                            .putString(MediaMetadataCompat.METADATA_KEY_TITLE,
+                                    getCurrentQuery().getPrettyName())
+                            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
+                                    getCurrentQuery().getPreferredTrack().getDuration())
+                            .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
+                    if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getPrettyName())) {
+                        builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM,
+                                getCurrentQuery().getAlbum().getPrettyName());
                     }
+                    mMediaSessionCompat.setMetadata(builder.build());
+                    Log.d(TAG, "Setting lockscreen bitmap");
                 }
             }.run();
         }
@@ -556,7 +638,6 @@ public class PlaybackService extends Service implements MusicFocusable {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
-        mMediaButtonReceiverComponent = new ComponentName(this, MediaButtonReceiver.class);
         mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
 
         // Initialize killtime handler (watchdog style)
@@ -1285,8 +1366,8 @@ public class PlaybackService extends Service implements MusicFocusable {
 
             Intent notificationIntent = new Intent(PlaybackService.this,
                     TomahawkMainActivity.class);
-            intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            notificationIntent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
+            notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent resultPendingIntent = PendingIntent
                     .getActivity(PlaybackService.this, 0, notificationIntent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
@@ -1363,89 +1444,77 @@ public class PlaybackService extends Service implements MusicFocusable {
     /**
      * Update the playback controls/views which are being shown on the lockscreen
      */
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     private void updateLockscreenControls() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            Log.d(TAG, "updateLockscreenControls()");
-            // Use the media button APIs (if available) to register ourselves for media button
-            // events
-            MediaButtonHelper.registerMediaButtonEventReceiverCompat(
-                    mAudioManager, mMediaButtonReceiverComponent);
+        Log.d(TAG, "updateLockscreenControls()");
 
-            if (mRemoteControlClientCompat == null) {
-                Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-                intent.setComponent(mMediaButtonReceiverComponent);
-                mRemoteControlClientCompat = new RemoteControlClientCompat(
-                        PendingIntent.getBroadcast(PlaybackService.this /*context*/,
-                                0 /*requestCode, ignored*/, intent /*intent*/, 0 /*flags*/)
-                );
-                RemoteControlHelper.registerRemoteControlClient(mAudioManager,
-                        mRemoteControlClientCompat);
-            }
-
-            // Use the remote control APIs (if available) to set the playback state
-            if (isPlaying()) {
-                mRemoteControlClientCompat
-                        .setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
-            } else {
-                mRemoteControlClientCompat
-                        .setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
-            }
-
-            int flags = RemoteControlClient.FLAG_KEY_MEDIA_PLAY |
-                    RemoteControlClient.FLAG_KEY_MEDIA_PAUSE;
-            if (hasNextEntry()) {
-                flags |= RemoteControlClient.FLAG_KEY_MEDIA_NEXT;
-            }
-            if (hasPreviousEntry()) {
-                flags |= RemoteControlClient.FLAG_KEY_MEDIA_PREVIOUS;
-            }
-            mRemoteControlClientCompat.setTransportControlFlags(flags);
-
-            // Update the remote controls
-            synchronized (this) {
-                RemoteControlClientCompat.MetadataEditorCompat editor =
-                        mRemoteControlClientCompat.editMetadata(true);
-                editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST,
-                        getCurrentQuery().getArtist().getPrettyName())
-                        .putString(MediaMetadataRetriever.METADATA_KEY_ARTIST,
-                                getCurrentQuery().getArtist().getPrettyName())
-                        .putString(MediaMetadataRetriever.METADATA_KEY_TITLE,
-                                getCurrentQuery().getPrettyName())
-                        .putLong(MediaMetadataRetriever.METADATA_KEY_DURATION,
-                                getCurrentQuery().getPreferredTrack().getDuration());
-                if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getPrettyName())) {
-                    editor.putString(MediaMetadataRetriever.METADATA_KEY_ALBUM,
-                            getCurrentQuery().getAlbum().getPrettyName());
-                }
-                editor.apply();
-                Log.d(TAG, "Setting lockscreen metadata to: "
-                        + getCurrentQuery().getArtist().getPrettyName() + ", "
-                        + getCurrentQuery().getPrettyName());
-            }
-
-            Picasso.with(TomahawkApp.getContext()).cancelRequest(mLockscreenTarget);
-            ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
-                    getCurrentQuery().getImage(), mLockscreenTarget,
-                    Image.getLargeImageSize(), getCurrentQuery().hasArtistImage());
+        if (mMediaSessionCompat == null) {
+            ComponentName componentName = new ComponentName(this, MediaButtonReceiver.class);
+            Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
+            intent.setComponent(componentName);
+            mMediaSessionCompat = new MediaSessionCompat(
+                    getApplicationContext(), "Tomahawk", componentName, null);
+            mMediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                    MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+            intent = new Intent(PlaybackService.this, TomahawkMainActivity.class);
+            intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            PendingIntent pendingIntent = PendingIntent.getActivity(PlaybackService.this, 0,
+                    intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            mMediaSessionCompat.setSessionActivity(pendingIntent);
+            mMediaSessionCompat.setCallback(mMediaSessionCallback);
+            mTransportControls = mMediaSessionCompat.getController().getTransportControls();
         }
+
+        updateLockscreenPlayState();
+        mMediaSessionCompat.setActive(true);
+
+        // Update the remote controls
+        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST,
+                        getCurrentQuery().getArtist().getPrettyName())
+                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,
+                        getCurrentQuery().getArtist().getPrettyName())
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE,
+                        getCurrentQuery().getPrettyName())
+                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
+                        getCurrentQuery().getPreferredTrack().getDuration());
+        if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getPrettyName())) {
+            builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM,
+                    getCurrentQuery().getAlbum().getPrettyName());
+        }
+        mMediaSessionCompat.setMetadata(builder.build());
+        Log.d(TAG, "Setting lockscreen metadata to: "
+                + getCurrentQuery().getArtist().getPrettyName() + ", "
+                + getCurrentQuery().getPrettyName());
+
+        Picasso.with(TomahawkApp.getContext()).cancelRequest(mLockscreenTarget);
+        ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
+                getCurrentQuery().getImage(), mLockscreenTarget,
+                Image.getLargeImageSize(), getCurrentQuery().hasArtistImage());
     }
 
     /**
      * Create or update an ongoing notification
      */
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
     public void updateLockscreenPlayState() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH
-                && getCurrentQuery() != null) {
+        if (getCurrentQuery() != null) {
             Log.d(TAG, "updateLockscreenPlayState()");
-            if (isPlaying()) {
-                mRemoteControlClientCompat
-                        .setPlaybackState(RemoteControlClient.PLAYSTATE_PLAYING);
-            } else {
-                mRemoteControlClientCompat
-                        .setPlaybackState(RemoteControlClient.PLAYSTATE_STOPPED);
+            long actions = PlaybackStateCompat.ACTION_PLAY |
+                    PlaybackStateCompat.ACTION_PAUSE |
+                    PlaybackStateCompat.ACTION_STOP |
+                    PlaybackStateCompat.ACTION_SEEK_TO;
+            if (hasNextEntry()) {
+                actions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
             }
+            if (hasPreviousEntry()) {
+                actions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+            }
+            PlaybackStateCompat playbackStateCompat = new PlaybackStateCompat.Builder()
+                    .setActions(actions)
+                    .setState(isPlaying() ? PlaybackStateCompat.STATE_PLAYING
+                            : PlaybackStateCompat.STATE_PAUSED, getPosition(), 1f)
+                    .build();
+            mMediaSessionCompat.setPlaybackState(playbackStateCompat);
         }
     }
 
