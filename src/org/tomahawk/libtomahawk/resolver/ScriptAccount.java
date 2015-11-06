@@ -390,11 +390,19 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
             }
         }
         String headersString = GsonHelper.get().toJson(headers);
+        // We have to encode the %-chars because the Android WebView automatically decodes
+        // percentage-escaped chars ... for whatever reason. Seems likely that this is a bug.
+        String escapedResponseText =
+                StringEscapeUtils.escapeJavaScript(responseText).replace("%", "%25");
+        String escapedHeadersString =
+                StringEscapeUtils.escapeJavaScript(headersString).replace("%", "%25");
+        String escapedStatusText =
+                StringEscapeUtils.escapeJavaScript(statusText).replace("%", "%25");
         evaluateJavaScript("Tomahawk._nativeAsyncRequestDone(" + requestId + ","
-                + "'" + StringEscapeUtils.escapeJavaScript(responseText) + "',"
-                + "'" + StringEscapeUtils.escapeJavaScript(headersString) + "',"
+                + "'" + escapedResponseText + "',"
+                + "'" + escapedHeadersString + "',"
                 + status + ","
-                + "'" + StringEscapeUtils.escapeJavaScript(statusText) + "');");
+                + "'" + escapedStatusText + "');");
     }
 
     public class CollectionAddTracksResult {
