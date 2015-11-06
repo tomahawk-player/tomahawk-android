@@ -79,6 +79,9 @@ public class NetworkUtils {
         }
 
         // Properly set up the request method. Default to GET
+        if (method != null) {
+            method = method.toUpperCase();
+        }
         if (method == null || method.equals("GET")) {
             builder.get();
         } else {
