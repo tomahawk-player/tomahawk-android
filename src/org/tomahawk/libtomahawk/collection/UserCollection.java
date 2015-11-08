@@ -164,6 +164,8 @@ public class UserCollection extends DbCollection {
 
         @Override
         public void run() {
+            Log.d(TAG, "Scanning for local tracks...");
+            long time = System.currentTimeMillis();
             SharedPreferences preferences =
                     PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
             Set<String> setDefaultDirs = preferences.getStringSet(HAS_SET_DEFAULTDIRS, null);
@@ -172,6 +174,7 @@ public class UserCollection extends DbCollection {
             }
             for (String defaultDir : getStorageDirectories()) {
                 if (!setDefaultDirs.contains(defaultDir)) {
+                    Log.d(TAG, "Default directory added: " + defaultDir);
                     DatabaseHelper.get().addMediaDir(defaultDir);
                     setDefaultDirs.add(defaultDir);
                 }
@@ -181,6 +184,9 @@ public class UserCollection extends DbCollection {
             List<File> mediaDirs = DatabaseHelper.get().getMediaDirs(false);
             Stack<File> directories = new Stack<>();
             directories.addAll(mediaDirs);
+            for (File dir : directories) {
+                Log.d(TAG, "Scanning directory: " + dir);
+            }
 
             // get all existing media items
             HashMap<String, MediaWrapper> existingMedias = DatabaseHelper.get().getMedias();
@@ -249,9 +255,11 @@ public class UserCollection extends DbCollection {
                 for (File file : mediaToScan) {
                     String fileURI = LibVLC.PathToURI(file.getPath());
                     if (existingMedias.containsKey(fileURI)) {
+                        //Log.d(TAG, "File has already been scanned: " + fileURI);
                         // only add file if it is not already in the list. eg. if a user selects a
                         // subfolder as well
                         if (!addedLocations.contains(fileURI)) {
+                            //Log.d(TAG, "File added to processing queue: " + fileURI);
                             // get existing media item from database
                             mediaWrappers.add(existingMedias.get(fileURI));
                             addedLocations.add(fileURI);
@@ -266,8 +274,10 @@ public class UserCollection extends DbCollection {
                         if ((media.getDuration() == 0 || (media.getTrackCount() != 0
                                 && TextUtils.isEmpty(media.getTrack(0).codec)))
                                 && fileURI.endsWith(".mod")) {
+                            Log.d(TAG, "File skipped: " + fileURI);
                             continue;
                         }
+                        //Log.d(TAG, "File added to database and processing queue: " + fileURI);
                         MediaWrapper mw = new MediaWrapper(media);
                         mw.setLastModified(file.lastModified());
                         mediaWrappers.add(mw);
@@ -287,6 +297,8 @@ public class UserCollection extends DbCollection {
                     for (String fileURI : addedLocations) {
                         existingMedias.remove(fileURI);
                     }
+                    Log.d(TAG, "Removed " + existingMedias.keySet().size()
+                            + " media items from database");
                     DatabaseHelper.get().removeMedias(existingMedias.keySet());
                 }
 
@@ -296,10 +308,13 @@ public class UserCollection extends DbCollection {
                     mRestartHandler.sendEmptyMessageDelayed(1, 200);
                 }
                 EventBus.getDefault().post(new CollectionManager.UpdatedEvent());
+                Log.d(TAG, "Scanning process finished in " + (System.currentTimeMillis() - time)
+                        + "ms");
             }
         }
 
         private void processMediaWrappers(List<MediaWrapper> mws) {
+            Log.d(TAG, "Processing " + mws.size() + " media items...");
             Map<String, Set<String>> albumArtistsMap = new HashMap<>();
             Map<String, Album> albumMap = new HashMap<>();
             for (MediaWrapper mw : mws) {
@@ -337,6 +352,8 @@ public class UserCollection extends DbCollection {
             CollectionDb db = CollectionDbManager.get().getCollectionDb(getId());
             db.wipe();
             db.addTracks(tracks.toArray(new ScriptResolverTrack[tracks.size()]));
+            Log.d(TAG, "Processed " + mws.size() + " media items. " + tracks.size()
+                    + " tracks have been added to the UserCollection.");
         }
     }
 
