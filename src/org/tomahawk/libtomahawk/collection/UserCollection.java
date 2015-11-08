@@ -402,9 +402,7 @@ public class UserCollection extends DbCollection {
                     int dotIndex = fileName.lastIndexOf(".");
                     if (dotIndex != -1) {
                         String fileExt = fileName.substring(dotIndex);
-                        accepted = Extensions.AUDIO.contains(fileExt) ||
-                                Extensions.VIDEO.contains(fileExt) ||
-                                Extensions.PLAYLIST.contains(fileExt);
+                        accepted = Extensions.AUDIO.contains(fileExt);
                     }
                 }
             }
