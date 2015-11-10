@@ -593,7 +593,7 @@ public class TomahawkMainActivity extends ActionBarActivity
 
         UserCollection userCollection = (UserCollection) CollectionManager.get()
                 .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        userCollection.loadMediaItems(true);
+        userCollection.loadMediaItems(false);
 
         mSavedInstanceState = savedInstanceState;
 
