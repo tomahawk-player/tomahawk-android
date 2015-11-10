@@ -31,11 +31,12 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.MediaWrapper;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
-import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
+import org.videolan.libvlc.util.AndroidUtil;
 import org.videolan.libvlc.util.Extensions;
 
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.Message;
@@ -253,7 +254,7 @@ public class UserCollection extends DbCollection {
                 ArrayList<MediaWrapper> mediaWrappers = new ArrayList<>();
                 // Process the stacked items
                 for (File file : mediaToScan) {
-                    String fileURI = LibVLC.PathToURI(file.getPath());
+                    String fileURI = AndroidUtil.FileToUri(file).toString();
                     if (existingMedias.containsKey(fileURI)) {
                         //Log.d(TAG, "File has already been scanned: " + fileURI);
                         // only add file if it is not already in the list. eg. if a user selects a
@@ -266,10 +267,9 @@ public class UserCollection extends DbCollection {
                         }
                     } else {
                         // create new media item
-                        final Media media = new Media(
-                                VLCMediaPlayer.get().getLibVlcInstance(), fileURI);
+                        final Media media = new Media(VLCMediaPlayer.get().getLibVlcInstance(),
+                                Uri.parse(fileURI));
                         media.parse();
-                        media.release();
                         // skip files with .mod extension and no duration
                         if ((media.getDuration() == 0 || (media.getTrackCount() != 0
                                 && TextUtils.isEmpty(media.getTrack(0).codec)))
@@ -279,6 +279,7 @@ public class UserCollection extends DbCollection {
                         }
                         //Log.d(TAG, "File added to database and processing queue: " + fileURI);
                         MediaWrapper mw = new MediaWrapper(media);
+                        media.release();
                         mw.setLastModified(file.lastModified());
                         mediaWrappers.add(mw);
                         // Add this item to database

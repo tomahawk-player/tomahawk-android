@@ -30,11 +30,13 @@ import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.MediaWrapper;
+import org.videolan.libvlc.util.AndroidUtil;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.util.Log;
 
 import java.io.File;
@@ -1081,8 +1083,8 @@ public class DatabaseHelper {
             if (cursor.moveToFirst()) {
                 try {
                     do {
-                        String location = cursor.getString(0);
-                        MediaWrapper media = new MediaWrapper(location,
+                        final Uri uri = AndroidUtil.LocationToUri(cursor.getString(0));
+                        MediaWrapper media = new MediaWrapper(uri,
                                 cursor.getLong(1),      // MEDIA_TIME
                                 cursor.getLong(2),      // MEDIA_LENGTH
                                 cursor.getInt(3),       // MEDIA_TYPE
@@ -1100,7 +1102,7 @@ public class DatabaseHelper {
                                 cursor.getInt(14),      // MEDIA_TRACKNUMBER
                                 cursor.getInt(15),     // MEDIA_DISCNUMBER
                                 cursor.getLong(16));     // MEDIA_LAST_MODIFIED
-                        medias.put(media.getLocation(), media);
+                        medias.put(media.getUri().toString(), media);
 
                         count++;
                     } while (cursor.moveToNext());
@@ -1124,6 +1126,16 @@ public class DatabaseHelper {
                 mDatabase.delete(TomahawkSQLiteHelper.TABLE_MEDIA,
                         TomahawkSQLiteHelper.MEDIA_LOCATION + "=?", new String[]{location});
             }
+            mDatabase.setTransactionSuccessful();
+        } finally {
+            mDatabase.endTransaction();
+        }
+    }
+
+    public synchronized void removeAllMedias() {
+        mDatabase.beginTransaction();
+        try {
+            mDatabase.delete(TomahawkSQLiteHelper.TABLE_MEDIA, "1", null);
             mDatabase.setTransactionSuccessful();
         } finally {
             mDatabase.endTransaction();
