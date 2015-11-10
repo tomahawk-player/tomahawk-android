@@ -1017,33 +1017,34 @@ public class DatabaseHelper {
     }
 
     /**
-     * Add a new media to the database. The picture can only added by update.
+     * Add the given {@link MediaWrapper}s to the database.
      *
-     * @param media which you like to add to the database
+     * @param mws which you like to add to the database
      */
-    public synchronized void addMedia(MediaWrapper media) {
+    public synchronized void addMedias(List<MediaWrapper> mws) {
         ContentValues values = new ContentValues();
 
-        values.put(TomahawkSQLiteHelper.MEDIA_LOCATION, media.getLocation());
-        values.put(TomahawkSQLiteHelper.MEDIA_TIME, media.getTime());
-        values.put(TomahawkSQLiteHelper.MEDIA_LENGTH, media.getLength());
-        values.put(TomahawkSQLiteHelper.MEDIA_TYPE, media.getType());
-        values.put(TomahawkSQLiteHelper.MEDIA_TITLE, media.getTitle());
-        safePut(values, TomahawkSQLiteHelper.MEDIA_ARTIST, media.getArtist());
-        safePut(values, TomahawkSQLiteHelper.MEDIA_GENRE, media.getGenre());
-        safePut(values, TomahawkSQLiteHelper.MEDIA_ALBUM, media.getAlbum());
-        safePut(values, TomahawkSQLiteHelper.MEDIA_ALBUMARTIST, media.getAlbumArtist());
-        values.put(TomahawkSQLiteHelper.MEDIA_WIDTH, media.getWidth());
-        values.put(TomahawkSQLiteHelper.MEDIA_HEIGHT, media.getHeight());
-        values.put(TomahawkSQLiteHelper.MEDIA_ARTWORKURL, media.getArtworkURL());
-        values.put(TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, media.getAudioTrack());
-        values.put(TomahawkSQLiteHelper.MEDIA_SPUTRACK, media.getSpuTrack());
-        values.put(TomahawkSQLiteHelper.MEDIA_TRACKNUMBER, media.getTrackNumber());
-        values.put(TomahawkSQLiteHelper.MEDIA_DISCNUMBER, media.getDiscNumber());
-        values.put(TomahawkSQLiteHelper.MEDIA_LASTMODIFIED, media.getLastModified());
-
         mDatabase.beginTransaction();
-        mDatabase.replace(TomahawkSQLiteHelper.TABLE_MEDIA, "NULL", values);
+        for (MediaWrapper mw : mws) {
+            values.put(TomahawkSQLiteHelper.MEDIA_LOCATION, mw.getLocation());
+            values.put(TomahawkSQLiteHelper.MEDIA_TIME, mw.getTime());
+            values.put(TomahawkSQLiteHelper.MEDIA_LENGTH, mw.getLength());
+            values.put(TomahawkSQLiteHelper.MEDIA_TYPE, mw.getType());
+            values.put(TomahawkSQLiteHelper.MEDIA_TITLE, mw.getTitle());
+            safePut(values, TomahawkSQLiteHelper.MEDIA_ARTIST, mw.getArtist());
+            safePut(values, TomahawkSQLiteHelper.MEDIA_GENRE, mw.getGenre());
+            safePut(values, TomahawkSQLiteHelper.MEDIA_ALBUM, mw.getAlbum());
+            safePut(values, TomahawkSQLiteHelper.MEDIA_ALBUMARTIST, mw.getAlbumArtist());
+            values.put(TomahawkSQLiteHelper.MEDIA_WIDTH, mw.getWidth());
+            values.put(TomahawkSQLiteHelper.MEDIA_HEIGHT, mw.getHeight());
+            values.put(TomahawkSQLiteHelper.MEDIA_ARTWORKURL, mw.getArtworkURL());
+            values.put(TomahawkSQLiteHelper.MEDIA_AUDIOTRACK, mw.getAudioTrack());
+            values.put(TomahawkSQLiteHelper.MEDIA_SPUTRACK, mw.getSpuTrack());
+            values.put(TomahawkSQLiteHelper.MEDIA_TRACKNUMBER, mw.getTrackNumber());
+            values.put(TomahawkSQLiteHelper.MEDIA_DISCNUMBER, mw.getDiscNumber());
+            values.put(TomahawkSQLiteHelper.MEDIA_LASTMODIFIED, mw.getLastModified());
+            mDatabase.replace(TomahawkSQLiteHelper.TABLE_MEDIA, "NULL", values);
+        }
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
 

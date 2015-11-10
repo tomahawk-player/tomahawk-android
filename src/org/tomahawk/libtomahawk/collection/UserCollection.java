@@ -288,14 +288,15 @@ public class UserCollection extends DbCollection {
                         media.release();
                         mw.setLastModified(file.lastModified());
                         mediaWrappers.add(mw);
-                        // Add this item to database
-                        DatabaseHelper.get().addMedia(mw);
                     }
                     if (mIsStopping) {
                         Log.d(TAG, "Stopping scan");
                         return;
                     }
                 }
+                // Add all items to the database
+                DatabaseHelper.get().addMedias(mediaWrappers);
+
                 processMediaWrappers(mediaWrappers);
             } finally {
                 // remove old files & folders from database if storage is mounted
