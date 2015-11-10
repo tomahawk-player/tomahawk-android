@@ -132,17 +132,23 @@ public class UserCollection extends DbCollection {
     public void loadIcon(ImageView imageView, boolean grayOut) {
     }
 
-    public void loadMediaItems(boolean restart) {
-        if (restart && isWorking()) {
-            // do a clean restart if a scan is ongoing
-            mRestart = true;
-            mIsStopping = true;
+    public void loadMediaItems(boolean fullScan) {
+        if (fullScan) {
+            Log.d(TAG, "Executing full scan. Wiping cache...");
+            DatabaseHelper.get().removeAllMedias();
+        }
+        if (isWorking()) {
+            if (fullScan) {
+                // do a clean restart if a scan is ongoing
+                mRestart = true;
+                mIsStopping = true;
+            }
         } else {
             loadMediaItems();
         }
     }
 
-    public void loadMediaItems() {
+    private void loadMediaItems() {
         if (mLoadingThread == null || mLoadingThread.getState() == Thread.State.TERMINATED) {
             mIsStopping = false;
             mLoadingThread = new Thread(new GetMediaItemsRunnable());
