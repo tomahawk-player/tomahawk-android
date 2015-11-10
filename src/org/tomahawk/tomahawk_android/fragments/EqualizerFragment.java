@@ -1,34 +1,32 @@
 /*****************************************************************************
- * EqualizerFragment.java
- *****************************************************************************
+ * EqualizerFragment.java ****************************************************************************
  * Copyright © 2013 VLC authors and VideoLAN
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * This program is free software; you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
+ * You should have received a copy of the GNU General Public License along with this program; if
+ * not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston MA
+ * 02110-1301, USA.
  *****************************************************************************/
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.views.EqualizerBar;
-import org.videolan.libvlc.LibVLC;
+import org.videolan.libvlc.MediaPlayer;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.MainThread;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -62,26 +60,15 @@ public class EqualizerFragment extends ContentHeaderFragment {
 
     private LinearLayout mBandsContainers;
 
-    LibVLC mLibVLC = null;
-
-    float[] mEqualizerValues = null;
+    private MediaPlayer.Equalizer mEqualizer = null;
 
     private final OnItemSelectedListener mPresetListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-            if (mLibVLC == null) {
-                return;
-            }
-            float[] preset = mLibVLC.getPreset(pos);
-            if (preset == null) {
-                return;
-            }
-
-            mEqualizerValues = preset;
-            mPreAmpSeekBar.setProgress((int) mEqualizerValues[0] + 20);
-            for (int i = 0; i < mEqualizerValues.length - 1; ++i) {
+            mPreAmpSeekBar.setProgress((int) mEqualizer.getPreAmp() + 20);
+            for (int i = 0; i < MediaPlayer.Equalizer.getBandCount(); ++i) {
                 EqualizerBar bar = (EqualizerBar) mBandsContainers.getChildAt(i);
-                bar.setValue(mEqualizerValues[i + 1]);
+                bar.setValue(mEqualizer.getAmp(i));
             }
         }
 
@@ -105,9 +92,9 @@ public class EqualizerFragment extends ContentHeaderFragment {
                 return;
             }
 
-            mEqualizerValues[0] = progress - 20;
-            if (mLibVLC != null && mEnableButton.isChecked()) {
-                mLibVLC.setEqualizer(mEqualizerValues);
+            mEqualizer.setPreAmp(progress - 20);
+            if (mEnableButton.isChecked()) {
+                VLCMediaPlayer.get().getMediaPlayerInstance().setEqualizer(mEqualizer);
             }
         }
     };
@@ -122,9 +109,10 @@ public class EqualizerFragment extends ContentHeaderFragment {
 
         @Override
         public void onProgressChanged(float value) {
-            mEqualizerValues[index] = value;
-            if (mLibVLC != null && mEnableButton.isChecked()) {
-                mLibVLC.setEqualizer(mEqualizerValues);
+            mEqualizer.setAmp(index, value);
+            if (mEnableButton.isChecked()
+                    && VLCMediaPlayer.get().getMediaPlayerInstance() != null) {
+                VLCMediaPlayer.get().getMediaPlayerInstance().setEqualizer(mEqualizer);
             }
         }
     }
@@ -168,46 +156,47 @@ public class EqualizerFragment extends ContentHeaderFragment {
         mPreAmpSeekBar.setOnSeekBarChangeListener(null);
         mBandsContainers.removeAllViews();
 
-        SharedPreferences.Editor editor = PreferenceManager
-                .getDefaultSharedPreferences(TomahawkApp.getContext()).edit();
-        editor.putBoolean(EQUALIZER_ENABLED_PREFERENCE_KEY, mEnableButton.isChecked());
-        VariousUtils.putFloatArray(editor, EQUALIZER_VALUES_PREFERENCE_KEY, mEqualizerValues);
-        editor.putInt(EQUALIZER_PRESET_PREFERENCE_KEY, mEqualizerPresets.getSelectedItemPosition());
-        editor.apply();
+        if (mEnableButton.isChecked()) {
+            storeEqualizerSettings(getActivity(), mEqualizer,
+                    mEqualizerPresets.getSelectedItemPosition());
+        } else {
+            storeEqualizerSettings(getActivity(), null, 0);
+        }
     }
 
     private void fillViews() {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        mLibVLC = VLCMediaPlayer.get().getLibVlcInstance();
-        float[] bands = mLibVLC.getBands();
-        String[] presets = mLibVLC.getPresets();
-        if (mEqualizerValues == null) {
-            mEqualizerValues = VariousUtils
-                    .getFloatArray(preferences, EQUALIZER_VALUES_PREFERENCE_KEY);
+        final Context context = getActivity();
+
+        if (context == null) {
+            return;
         }
-        if (mEqualizerValues == null) {
-            mEqualizerValues = new float[bands.length + 1];
+
+        final String[] presets = getEqualizerPresets();
+
+        mEqualizer = readEqualizerSettings(context);
+        final boolean isEnabled = mEqualizer != null;
+        if (mEqualizer == null) {
+            mEqualizer = MediaPlayer.Equalizer.create();
         }
 
         // on/off
-        mEnableButton.setChecked(mLibVLC.getEqualizer() != null);
+        mEnableButton.setChecked(isEnabled);
         mEnableButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (mLibVLC == null) {
-                    return;
+                if (VLCMediaPlayer.get().getMediaPlayerInstance() != null) {
+                    VLCMediaPlayer.get().getMediaPlayerInstance().setEqualizer(
+                            isChecked ? mEqualizer : null);
                 }
-                mLibVLC.setEqualizer(isChecked ? mEqualizerValues : null);
             }
         });
 
         // presets
-        mEqualizerPresets.setAdapter(new ArrayAdapter<>(getActivity(),
+        mEqualizerPresets.setAdapter(new ArrayAdapter<String>(getActivity(),
                 android.R.layout.simple_spinner_dropdown_item, presets));
 
         // Set the default selection asynchronously to prevent a layout initialization bug.
-        final int equalizer_preset_pref = preferences.getInt(EQUALIZER_PRESET_PREFERENCE_KEY, 0);
+        final int equalizer_preset_pref = getEqualizerPreset(context);
         mEqualizerPresets.post(new Runnable() {
             @Override
             public void run() {
@@ -216,18 +205,18 @@ public class EqualizerFragment extends ContentHeaderFragment {
             }
         });
 
-        // mPreAmpSeekBar
+        // preamp
         mPreAmpSeekBar.setMax(40);
-        mPreAmpSeekBar.setProgress((int) mEqualizerValues[0] + 20);
+        mPreAmpSeekBar.setProgress((int) mEqualizer.getPreAmp() + 20);
         mPreAmpSeekBar.setOnSeekBarChangeListener(mPreampListener);
 
         // bands
-        for (int i = 0; i < bands.length; i++) {
-            float band = bands[i];
+        for (int i = 0; i < MediaPlayer.Equalizer.getBandCount(); i++) {
+            float band = MediaPlayer.Equalizer.getBandFrequency(i);
 
             EqualizerBar bar = new EqualizerBar(getActivity(), band);
-            bar.setValue(mEqualizerValues[i + 1]);
-            bar.setListener(new BandListener(i + 1));
+            bar.setValue(mEqualizer.getAmp(i));
+            bar.setListener(new BandListener(i));
 
             mBandsContainers.addView(bar);
             LinearLayout.LayoutParams params =
@@ -235,5 +224,62 @@ public class EqualizerFragment extends ContentHeaderFragment {
                             LayoutParams.MATCH_PARENT, 1);
             bar.setLayoutParams(params);
         }
+    }
+
+    public static int getEqualizerPreset(Context context) {
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        return pref.getInt(EQUALIZER_PRESET_PREFERENCE_KEY, 0);
+    }
+
+    private static String[] getEqualizerPresets() {
+        final int count = MediaPlayer.Equalizer.getPresetCount();
+        if (count <= 0) {
+            return null;
+        }
+        final String[] presets = new String[count];
+        for (int i = 0; i < count; ++i) {
+            presets[i] = MediaPlayer.Equalizer.getPresetName(i);
+        }
+        return presets;
+    }
+
+    @MainThread
+    public static MediaPlayer.Equalizer readEqualizerSettings(Context context) {
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        if (pref.getBoolean(EQUALIZER_ENABLED_PREFERENCE_KEY, false)) {
+            final float[] bands = VariousUtils.getFloatArray(pref, EQUALIZER_VALUES_PREFERENCE_KEY);
+            final int bandCount = MediaPlayer.Equalizer.getBandCount();
+            if (bands.length != bandCount + 1) {
+                return null;
+            }
+
+            final MediaPlayer.Equalizer eq = MediaPlayer.Equalizer.create();
+            eq.setPreAmp(bands[0]);
+            for (int i = 0; i < bandCount; ++i) {
+                eq.setAmp(i, bands[i + 1]);
+            }
+            return eq;
+        } else {
+            return null;
+        }
+    }
+
+    public static void storeEqualizerSettings(Context context, MediaPlayer.Equalizer eq, int preset) {
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = pref.edit();
+        if (eq != null) {
+            editor.putBoolean(EQUALIZER_ENABLED_PREFERENCE_KEY, true);
+            final int bandCount = MediaPlayer.Equalizer.getBandCount();
+            final float[] bands = new float[bandCount + 1];
+            bands[0] = eq.getPreAmp();
+            for (int i = 0; i < bandCount; ++i) {
+                bands[i + 1] = eq.getAmp(i);
+            }
+            VariousUtils.putFloatArray(editor, EQUALIZER_VALUES_PREFERENCE_KEY, bands);
+            editor.putInt(EQUALIZER_PRESET_PREFERENCE_KEY, preset);
+        } else {
+            editor.putBoolean(EQUALIZER_ENABLED_PREFERENCE_KEY, false);
+        }
+        editor.apply();
     }
 }

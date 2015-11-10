@@ -24,20 +24,17 @@ import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.EqualizerFragment;
-import org.videolan.libvlc.EventHandler;
 import org.videolan.libvlc.LibVLC;
-import org.videolan.libvlc.LibVlcException;
-import org.videolan.libvlc.LibVlcUtil;
+import org.videolan.libvlc.Media;
+import org.videolan.libvlc.MediaPlayer;
+import org.videolan.libvlc.util.AndroidUtil;
 
 import android.app.Application;
 import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
@@ -57,6 +54,8 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
 
     private LibVLC mLibVLC;
 
+    private MediaPlayer mMediaPlayer;
+
     private TomahawkMediaPlayerCallback mMediaPlayerCallback;
 
     private Query mPreparedQuery;
@@ -66,52 +65,52 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     private final ConcurrentHashMap<Result, String> mTranslatedUrls
             = new ConcurrentHashMap<>();
 
-    private final Handler mVlcHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+    private final MediaPlayer.EventListener mMediaPlayerListener = new MediaPlayer.EventListener() {
         @Override
-        public boolean handleMessage(Message msg) {
-            Bundle data = msg.getData();
-            if (data != null) {
-                switch (data.getInt("event")) {
-                    case EventHandler.MediaPlayerEncounteredError:
+        public void onEvent(MediaPlayer.Event event) {
+                switch (event.type) {
+                    case MediaPlayer.Event.EncounteredError:
                         Log.d(TAG, "onError()");
                         mPreparedQuery = null;
                         mPreparingQuery = null;
                         mMediaPlayerCallback.onError("MediaPlayerEncounteredError");
                         break;
-                    case EventHandler.MediaPlayerEndReached:
+                    case MediaPlayer.Event.EndReached:
                         Log.d(TAG, "onCompletion()");
                         mMediaPlayerCallback.onCompletion(mPreparedQuery);
                         break;
-                    default:
-                        return false;
                 }
-                return true;
-            }
-            return false;
         }
-    });
+    };
 
     private VLCMediaPlayer() {
-        mLibVLC = new LibVLC();
-        mLibVLC.setHttpReconnect(true);
-        mLibVLC.setNetworkCaching(2000);
+        ArrayList<String> options = new ArrayList<>();
+        options.add("--http-reconnect");
+        options.add("--network-caching=2000");
+        mLibVLC = new LibVLC(options);
+        mMediaPlayer = new MediaPlayer(mLibVLC);
         SharedPreferences pref =
                 PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
         if (pref.getBoolean(EqualizerFragment.EQUALIZER_ENABLED_PREFERENCE_KEY, false)) {
-            mLibVLC.setEqualizer(VariousUtils.getFloatArray(pref,
-                    EqualizerFragment.EQUALIZER_VALUES_PREFERENCE_KEY));
+            MediaPlayer.Equalizer equalizer = MediaPlayer.Equalizer.create();
+            float[] bands = VariousUtils.getFloatArray(pref,
+                    EqualizerFragment.EQUALIZER_VALUES_PREFERENCE_KEY);
+            equalizer.setPreAmp(bands[0]);
+            for (int i = 0; i < MediaPlayer.Equalizer.getBandCount(); i++) {
+                equalizer.setAmp(i, bands[i + 1]);
+            }
+            mMediaPlayer.setEqualizer(equalizer);
         }
-        try {
-            mLibVLC.init(TomahawkApp.getContext());
-        } catch (LibVlcException e) {
-            throw new IllegalStateException("LibVLC initialisation failed: "
-                    + LibVlcUtil.getErrorMsg());
-        }
+        mMediaPlayer.setEventListener(mMediaPlayerListener);
         EventBus.getDefault().register(this);
     }
 
     public LibVLC getLibVlcInstance() {
         return mLibVLC;
+    }
+
+    public MediaPlayer getMediaPlayerInstance() {
+        return mMediaPlayer;
     }
 
     public static VLCMediaPlayer get() {
@@ -133,8 +132,8 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     @Override
     public void start() throws IllegalStateException {
         Log.d(TAG, "start()");
-        if (!getLibVlcInstance().isPlaying()) {
-            getLibVlcInstance().play();
+        if (!getMediaPlayerInstance().isPlaying()) {
+            getMediaPlayerInstance().play();
         }
     }
 
@@ -144,8 +143,8 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     @Override
     public void pause() throws IllegalStateException {
         Log.d(TAG, "pause()");
-        if (getLibVlcInstance().isPlaying()) {
-            getLibVlcInstance().pause();
+        if (getMediaPlayerInstance().isPlaying()) {
+            getMediaPlayerInstance().pause();
         }
     }
 
@@ -157,7 +156,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
         Log.d(TAG, "seekTo()");
         if (mPreparedQuery != null && !TomahawkApp.PLUGINNAME_BEATSMUSIC.equals(
                 mPreparedQuery.getPreferredTrackResult().getResolvedBy().getId())) {
-            getLibVlcInstance().setTime(msec);
+            getMediaPlayerInstance().setTime(msec);
         }
     }
 
@@ -180,12 +179,12 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
                 path = result.getPath();
             }
         }
-        getLibVlcInstance().playMRL(LibVLC.PathToURI(path));
+        Media media = new Media(mLibVLC, AndroidUtil.LocationToUri(path));
+        getMediaPlayerInstance().setMedia(media);
         Log.d(TAG, "onPrepared()");
         mPreparedQuery = mPreparingQuery;
         mPreparingQuery = null;
         mMediaPlayerCallback.onPrepared(mPreparedQuery);
-        EventHandler.getInstance().addHandler(mVlcHandler);
         return this;
     }
 
@@ -203,10 +202,9 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     @Override
     public void release() {
         Log.d(TAG, "release()");
-        EventHandler.getInstance().removeHandler(mVlcHandler);
         mPreparedQuery = null;
         mPreparingQuery = null;
-        getLibVlcInstance().stop();
+        getMediaPlayerInstance().stop();
     }
 
     /**
@@ -215,7 +213,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     @Override
     public int getPosition() {
         if (mPreparedQuery != null) {
-            return (int) getLibVlcInstance().getTime();
+            return (int) getMediaPlayerInstance().getTime();
         } else {
             return 0;
         }
@@ -223,7 +221,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
 
     @Override
     public boolean isPlaying(Query query) {
-        return isPrepared(query) && getLibVlcInstance().isPlaying();
+        return isPrepared(query) && getMediaPlayerInstance().isPlaying();
     }
 
     @Override
