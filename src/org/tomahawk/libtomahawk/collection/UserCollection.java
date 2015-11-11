@@ -203,6 +203,7 @@ public class UserCollection extends DbCollection {
 
             ArrayList<File> mediaToScan = new ArrayList<>();
             try {
+                long listFilesTimeBefore = System.currentTimeMillis();
                 final HashSet<String> directoriesScanned = new HashSet<>();
                 // Count total files, and stack them
                 while (!directories.isEmpty()) {
@@ -257,6 +258,9 @@ public class UserCollection extends DbCollection {
                         return;
                     }
                 }
+                long listFilesTime = System.currentTimeMillis() - listFilesTimeBefore;
+                int parseCounter = 0;
+                long parsingTimeBefore = System.currentTimeMillis();
                 ArrayList<MediaWrapper> mediaWrappers = new ArrayList<>();
                 // Process the stacked items
                 for (File file : mediaToScan) {
@@ -276,6 +280,7 @@ public class UserCollection extends DbCollection {
                         final Media media = new Media(VLCMediaPlayer.get().getLibVlcInstance(),
                                 Uri.parse(fileURI));
                         media.parse();
+                        parseCounter++;
                         // skip files with .mod extension and no duration
                         if ((media.getDuration() == 0 || (media.getTrackCount() != 0
                                 && TextUtils.isEmpty(media.getTrack(0).codec)))
@@ -294,6 +299,11 @@ public class UserCollection extends DbCollection {
                         return;
                     }
                 }
+                Log.d(TAG, "Listing files took " + listFilesTime + "ms.");
+                Log.d(TAG, "Scanned " + mediaToScan.size() + " files.");
+                Log.d(TAG, "Actually parsed " + parseCounter + " files.");
+                Log.d(TAG,
+                        "Parsing took " + (System.currentTimeMillis() - parsingTimeBefore) + "ms.");
                 // Add all items to the database
                 DatabaseHelper.get().addMedias(mediaWrappers);
 
