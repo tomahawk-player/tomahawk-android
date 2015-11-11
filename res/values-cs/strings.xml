@@ -14,6 +14,8 @@
   <string name="users">Uživatelé</string>
   <string name="top_hits">Nejlepší písně</string>
   <string name="top_albums">Nejlepší alba</string>
+  <string name="albums_and_eps">Alba a EP</string>
+  <string name="other_releases">Jiná vydání</string>
   <string name="playlist_details">Podrobnosti seznamu skladeb</string>
   <string name="album_details">Podrobnosti alba</string>
   <string name="search">Hledat</string>
@@ -205,7 +207,7 @@
   <string name="slidinglayout_enqueue_coachmark">Dotkněte se pro přidání skladby do řady.</string>
   <string name="playbackfragment_navigation_coachmark_down">Stáhněte dolů, abyste viděli nynější seznam skladeb.</string>
   <string name="playbackfragment_navigation_coachmark_up">Stáhněte dolů, abyste zavřeli tažec přehrávání.</string>
-  <string name="playbackfragment_navigation_coachmark_center">Přejetím prstem do leva/prava přeskočíte na další/předchozí skladbu. Podržte prst pro otevření kontextové nabídky. Klepněte dvakrát pro přidání do oblíbených.</string>
+  <string name="playbackfragment_navigation_coachmark_center">Přejetím prstem doleva/doprava přeskočíte na další/předchozí skladbu. Podržte prst pro otevření kontextové nabídky. Klepněte dvakrát pro přidání do oblíbených.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">Další</string>
   <string name="welcome_fragment_explanation_title">Úvod</string>
@@ -213,7 +215,7 @@
 Vy teď nemusíte.</string>
   <string name="welcome_fragment_explanation_text">Přestaňte naháňet hudbu po celém internetu - po službách, které nepoužíváte, ve zdrojích, ke kterým nemáte přístup. Vložte jméno nebo odkaz na píseň, album nebo seznam skladeb a Tomahawk pro vás najde ty nejlepší zdroje a prostě je přehraje.</string>
   <string name="welcome_fragment_hatchet_title">Chcete se stýkat?</string>
-  <string name="welcome_fragment_hatchet_text">S Hatchet můžete mít konečně celou vaši hudební kolekci na jednom místě. Sdílejte vaše playlisty a oblíbené skladby. Nebo prostě synchronizujte aplikaci s vaším Tomahawkem na počítači.</string>
+  <string name="welcome_fragment_hatchet_text">S Hatchet můžete mít konečně celou vaši hudební sbírku na jednom místě. Sdílejte vaše seznamy skladeb a oblíbené skladby. Nebo prostě aplikaci synchronizujte s vaším Tomahawkem na počítači.</string>
   <string name="welcome_fragment_setup_title">Připojit</string>
   <string name="welcome_fragment_done_title">Hotovo!</string>
   <string name="welcome_fragment_done_heading">Vše hotovo!</string>
@@ -231,4 +233,6 @@ Vy teď nemusíte.</string>
   <string name="uninstall_plugin_warning">Opravdu chcete odinstalovat tento přídavný modul?</string>
   <string name="gmusic_info_text">Vyberte účet:</string>
   <string name="invalid_file">Nelze otevřít soubor.</string>
+  <string name="unknown_album">Neznámé album</string>
+  <string name="unknown_artist">Neznámý umělec</string>
 </resources>
