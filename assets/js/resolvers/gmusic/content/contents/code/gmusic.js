@@ -181,8 +181,8 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var time = Date.now();
         if (!this._requestPromise) {
             Tomahawk.log("Checking if collection needs to be updated");
+            Tomahawk.PluginManager.registerPlugin("collection", gmusicCollection);
             this._requestPromise = that._paginatedRequest(url).then(function (results) {
-                Tomahawk.PluginManager.registerPlugin("collection", gmusicCollection);
                 if (results && results.length > 0) {
                     Tomahawk.log("Collection needs to be updated");
 
@@ -206,6 +206,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
             }, function (xhr) {
                 Tomahawk.log("paginatedRequest failed: " + xhr.status + " - "
                     + xhr.statusText + " - " + xhr.responseText);
+                Tomahawk.PluginManager.unregisterPlugin("collection", gmusicCollection);
             }).finally(function () {
                 that._requestPromise = undefined;
             });
