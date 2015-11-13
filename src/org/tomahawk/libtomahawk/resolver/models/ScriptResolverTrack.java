@@ -39,7 +39,7 @@ public class ScriptResolverTrack {
 
     public String linkUrl;
 
-    public int albumPos;
+    public int albumpos;
 
     public long lastModified;
 

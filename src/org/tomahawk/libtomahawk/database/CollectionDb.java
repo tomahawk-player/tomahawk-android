@@ -383,7 +383,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             values.put(TRACKS_URL, track.url);
             values.put(TRACKS_DURATION, (int) track.duration);
             values.put(TRACKS_LINKURL, track.linkUrl);
-            values.put(TRACKS_ALBUMPOS, track.albumPos);
+            values.put(TRACKS_ALBUMPOS, track.albumpos);
             values.put(TRACKS_LASTMODIFIED, track.lastModified);
             mDb.insert(TABLE_TRACKS, null, values);
         }

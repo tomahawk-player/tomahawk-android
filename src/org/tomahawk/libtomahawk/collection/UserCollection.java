@@ -360,7 +360,7 @@ public class UserCollection extends DbCollection {
                     track.track = mw.getTitle();
                     track.artist = mw.getArtist();
                     track.duration = mw.getLength() / 1000;
-                    track.albumPos = mw.getTrackNumber();
+                    track.albumpos = mw.getTrackNumber();
                     track.url = mw.getLocation();
                     track.imagePath = mw.getArtworkURL();
                     track.lastModified = mw.getLastModified();
