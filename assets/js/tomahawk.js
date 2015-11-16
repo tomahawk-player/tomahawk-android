@@ -267,6 +267,8 @@ Tomahawk.Resolver = {
     },
     newConfigSaved: function () {
     },
+    testConfig: function () {
+    },
     getStreamUrl: function (params) {
         return params;
     },
@@ -341,7 +343,7 @@ Tomahawk.Resolver = {
         });
     },
 
-    _adapter_testConfig: function (config) {
+    _testConfig: function (config) {
         return RSVP.Promise.resolve(this.testConfig(config)).then(function () {
             return {result: Tomahawk.ConfigTestResultType.Success};
         });
@@ -1404,10 +1406,10 @@ Tomahawk.Collection = {
         var tracks = params.tracks;
 
         var cachedAlbumArtists = {},
-        cachedArtists = {},
-        cachedAlbums = {},
-        cachedArtistIds = {},
-        cachedAlbumIds = {};
+            cachedArtists = {},
+            cachedAlbums = {},
+            cachedArtistIds = {},
+            cachedAlbumIds = {};
 
         var t = new Tomahawk.Collection.Transaction(this, id);
         return t.beginTransaction().then(function () {
