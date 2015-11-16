@@ -51,8 +51,7 @@
                       android:gravity="center_vertical"
                       android:singleLine="true"
                       android:textSize="@dimen/text_size_micro"
-                      android:textColor="@color/primary_textcolor_inverted"
-                      android:text="Tequila"/>
+                      android:textColor="@color/primary_textcolor_inverted"/>
 
             <FrameLayout android:id="@+id/artist_name_button"
                          android:layout_width="wrap_content"
@@ -63,13 +62,12 @@
                          android:clickable="false">
 
                 <TextView android:id="@+id/artist_textview"
-                          android:layout_width="match_parent"
-                          android:layout_height="match_parent"
-                          android:gravity="center"
+                          android:layout_width="wrap_content"
+                          android:layout_height="wrap_content"
+                          android:layout_gravity="center"
                           android:singleLine="true"
                           android:textSize="@dimen/text_size_micro"
-                          android:textColor="@color/primary_textcolor_inverted"
-                          android:text="The Fleetwoodsg"/>
+                          android:textColor="@color/primary_textcolor_inverted"/>
 
             </FrameLayout>
 
