@@ -369,7 +369,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
         String artistname = getArtistName(0);
         for (int i = 1; i < size(); i++) {
             String artistNameToCompare = getArtistName(i);
-            if (artistNameToCompare.equals(artistname)) {
+            if (!artistNameToCompare.equals(artistname)) {
                 return false;
             }
             artistname = artistNameToCompare;
