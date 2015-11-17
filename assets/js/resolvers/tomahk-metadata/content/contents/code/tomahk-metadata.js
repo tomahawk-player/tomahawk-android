@@ -68,13 +68,15 @@ var TomaHKMetadataResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 type: Tomahawk.UrlType.XspfPlaylist,
                 url: url.replace('toma.hk/p/', 'toma.hk/xspf/')
             };
-        } else if (/https?:\/\/(www\.)?toma.hk\/\?(title=)[^&]*(&artist=)/.test(url)
-            || /https?:\/\/(www\.)?toma.hk\/\?(artist=)[^&]*(&title=)/.test(url)) {
+        } else if (/https?:\/\/(www\.)?toma\.hk.*(\?title=)[^&]*(&artist=)/.test(url)
+            || /https?:\/\/(www\.)?toma\.hk.*(\?artist=)[^&]*(&title=)/.test(url)) {
             // We search for a track
+            var artist = url.match(/(?:\?|&)artist=([^&]*)/)[1];
+            var title = url.match(/(?:\?|&)title=([^&]*)/)[1];
             return {
                 type: Tomahawk.UrlType.Track,
-                artist: decodeURIComponent(url.match(/(?:\?|&)artist=([^&]*)/)[1]),
-                track: decodeURIComponent(url.match(/(?:\?|&)title=([^&]*)/)[1])
+                artist: decodeURIComponent(artist.replace(/\+/g, '%20')),
+                track: decodeURIComponent(title.replace(/\+/g, '%20'))
             };
         } else {
             // We most likely have a track
