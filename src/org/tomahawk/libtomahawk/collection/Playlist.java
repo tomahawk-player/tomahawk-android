@@ -23,6 +23,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -48,17 +49,23 @@ public class Playlist extends Cacheable implements AlphaComparable {
 
     private List<Index> mIndex = new ArrayList<>();
 
+    private List<Index> mShuffledIndex = new ArrayList<>();
+
+    private Map<Index, Integer> mReversedShuffledIndex = new HashMap<>();
+
     private static class Index {
 
-        protected Index(int index, boolean fromMergedItems) {
-            mIndex = index;
-            mFromMergedItems = fromMergedItems;
+        protected Index(int internalIndex, boolean fromMergedItems) {
+            this.internalIndex = internalIndex;
+            this.fromMergedItems = fromMergedItems;
         }
 
-        int mIndex;
+        int internalIndex;
 
-        boolean mFromMergedItems;
+        boolean fromMergedItems;
     }
+
+    private boolean mShuffled;
 
     private String mId;
 
@@ -155,6 +162,9 @@ public class Playlist extends Cacheable implements AlphaComparable {
         mAddedEntries.clear();
         mCachedEntries.clear();
         mIndex.clear();
+        mShuffledIndex.clear();
+        mReversedShuffledIndex.clear();
+        mShuffled = false;
         mCursor = null;
     }
 
@@ -257,12 +267,12 @@ public class Playlist extends Cacheable implements AlphaComparable {
         mCursor = new CollectionCursor<>(entries, PlaylistEntry.class);
     }
 
-    public PlaylistEntry getEntry(Index index) {
+    private PlaylistEntry getEntry(Index index) {
         PlaylistEntry entry;
-        if (index.mFromMergedItems) {
-            entry = mAddedEntries.get(index.mIndex);
+        if (index.fromMergedItems) {
+            entry = mAddedEntries.get(index.internalIndex);
         } else {
-            entry = mCursor.get(index.mIndex);
+            entry = mCursor.get(index.internalIndex);
         }
         mCachedEntries.put(entry, index);
         return entry;
@@ -289,7 +299,8 @@ public class Playlist extends Cacheable implements AlphaComparable {
      */
     public List<PlaylistEntry> getEntries() {
         List<PlaylistEntry> entries = new ArrayList<>();
-        for (Index index : mIndex) {
+        List<Index> indexList = mShuffled ? mShuffledIndex : mIndex;
+        for (Index index : indexList) {
             PlaylistEntry entry = getEntry(index);
             entries.add(entry);
             mCachedEntries.put(entry, index);
@@ -342,16 +353,18 @@ public class Playlist extends Cacheable implements AlphaComparable {
     }
 
     public PlaylistEntry getEntryAtPos(int position) {
-        if (position < 0 || position >= mIndex.size()) {
+        List<Index> indexList = mShuffled ? mShuffledIndex : mIndex;
+        if (position < 0 || position >= indexList.size()) {
             return null;
         }
-        Index index = mIndex.get(position);
+        Index index = indexList.get(position);
         return getEntry(index);
     }
 
     public int getIndexOfEntry(PlaylistEntry entry) {
         Index index = mCachedEntries.get(entry);
-        return mIndex.indexOf(index);
+        List<Index> indexList = mShuffled ? mShuffledIndex : mIndex;
+        return indexList.indexOf(index);
     }
 
     public String getUserId() {
@@ -379,10 +392,75 @@ public class Playlist extends Cacheable implements AlphaComparable {
 
     public String getArtistName(int position) {
         Index index = mIndex.get(position);
-        if (index.mFromMergedItems) {
-            return mAddedEntries.get(index.mIndex).getArtist().getName();
+        if (index.fromMergedItems) {
+            return mAddedEntries.get(index.internalIndex).getArtist().getName();
         } else {
-            return mCursor.getArtistName(index.mIndex);
+            return mCursor.getArtistName(index.internalIndex);
         }
+    }
+
+    /**
+     * Shuffle this {@link Playlist}'s tracks. This method ensures that there's always a minimum
+     * amount of tracks in sequence that have the same artist.
+     *
+     * @param shuffled     boolean that indicates whether or not this {@link Playlist} should be
+     *                     shuffled
+     * @param currentIndex when >=0 the track at this position will be put at the top of the
+     *                     resulting shuffled list of tracks.
+     * @return the new current index after disabling/enabling shuffle
+     */
+    public int setShuffled(boolean shuffled, int currentIndex) {
+        int newCurrentIndex = -1;
+        if (shuffled == mShuffled) {
+            // nothing to do
+            return newCurrentIndex;
+        }
+        if (shuffled) {
+            mShuffledIndex.clear();
+            mReversedShuffledIndex.clear();
+            if (currentIndex >= 0) {
+                // Add the current entry to the top of shuffled index
+                mShuffledIndex.add(mIndex.get(currentIndex));
+                mReversedShuffledIndex.put(mIndex.get(currentIndex), currentIndex);
+                newCurrentIndex = 0;
+            }
+            List<String> artistNames = new ArrayList<>();
+            Map<String, List<Integer>> artistsTrackIndexes = new HashMap<>();
+            for (int i = 0; i < size(); i++) {
+                if (i != currentIndex) { // Don't add the currently playing track
+                    String artistName = getArtistName(i);
+                    if (artistsTrackIndexes.get(artistName) == null) {
+                        artistsTrackIndexes.put(artistName, new ArrayList<Integer>());
+                        artistNames.add(artistName);
+                    }
+                    artistsTrackIndexes.get(artistName).add(i);
+                }
+            }
+            Collections.shuffle(artistNames);
+            while (artistNames.size() > 0) {
+                for (int i = 0; i < artistNames.size(); i++) {
+                    String artistName = artistNames.get(i);
+                    // Now we can get the list of track indexes
+                    List<Integer> indexes = artistsTrackIndexes.get(artistName);
+                    int randomPos = (int) (Math.random() * indexes.size());
+                    // Add the randomly picked track index to our shuffled index
+                    int shuffledIndex = indexes.remove(randomPos);
+                    mShuffledIndex.add(mIndex.get(shuffledIndex));
+                    mReversedShuffledIndex
+                            .put(mIndex.get(shuffledIndex), mShuffledIndex.size() - 1);
+                    if (indexes.size() == 0) {
+                        artistNames.remove(i);
+                    }
+                }
+            }
+        } else if (currentIndex >= 0) {
+            newCurrentIndex = mReversedShuffledIndex.get(mShuffledIndex.get(currentIndex));
+        }
+        mShuffled = shuffled;
+        return newCurrentIndex;
+    }
+
+    public boolean isShuffled() {
+        return mShuffled;
     }
 }
