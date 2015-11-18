@@ -86,10 +86,8 @@ import android.widget.RemoteViews;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -197,8 +195,6 @@ public class PlaybackService extends Service implements MusicFocusable {
 
     private Playlist mQueue;
 
-    private List<Integer> mShuffledIndex = new ArrayList<>();
-
     private int mQueueStartPos = -1;
 
     private PlaylistEntry mCurrentEntry;
@@ -214,8 +210,6 @@ public class PlaybackService extends Service implements MusicFocusable {
     private RemoteViews mSmallNotificationView;
 
     private PowerManager.WakeLock mWakeLock;
-
-    private boolean mShuffled;
 
     private int mRepeatingMode = NOT_REPEATING;
 
@@ -862,74 +856,37 @@ public class PlaybackService extends Service implements MusicFocusable {
     }
 
     public boolean isShuffled() {
-        return mShuffled;
+        return mPlaylist.isShuffled();
     }
 
     /**
      * Set whether or not to enable shuffle mode on the current playlist.
      */
     public void setShuffled(boolean shuffled) {
-        Log.d(TAG, "setShuffled from " + mShuffled + " to " + shuffled);
-        if (mShuffled != shuffled) {
-            mShuffled = shuffled;
+        Log.d(TAG, "setShuffled from " + mPlaylist.isShuffled() + " to " + shuffled);
+        if (mPlaylist.isShuffled() != shuffled) {
+            boolean isPlayingFromQueue = mQueue.getIndexOfEntry(mCurrentEntry) >= 0;
+            int currentIndex = -1;
+            if (!isPlayingFromQueue) {
+                currentIndex = mPlaylist.getIndexOfEntry(mCurrentEntry);
+            }
+            int newCurrentIndex;
             if (shuffled) {
-                fillShuffledIndex();
+                newCurrentIndex = mPlaylist.setShuffled(true, currentIndex);
+            } else {
+                newCurrentIndex = mPlaylist.setShuffled(false, currentIndex);
+            }
+            mCurrentIndex = newCurrentIndex;
+            if (mQueue.size() > 0) {
+                mQueueStartPos = mCurrentIndex + 1;
+            } else {
+                mQueueStartPos = -1;
             }
             if (getCurrentEntry() != null) {
                 resolveQueriesFromTo(mCurrentIndex, mCurrentIndex + 10);
             }
 
             EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
-        }
-    }
-
-    /**
-     * Shuffles the list of tracks in the current playlist and fills the shuffled index accordingly.
-     * The shuffle method ensures that the shuffled list does only contain a minimum amount of
-     * tracks by the same artist in sequence.
-     */
-    private void fillShuffledIndex() {
-        mShuffledIndex.clear();
-        Map<String, List<Integer>> artistMap = new HashMap<>();
-        List<String> artistNames = new ArrayList<>();
-        int shuffledTracksCount = 0;
-        boolean isPlayingFromQueue = mQueue.getIndexOfEntry(mCurrentEntry) >= 0;
-        int currentIndex = -1;
-        if (isPlayingFromQueue) {
-            currentIndex = mPlaylist.getIndexOfEntry(mCurrentEntry);
-        }
-        for (int i = 0; i < mPlaylist.size(); i++) {
-            if (isPlayingFromQueue || i != currentIndex) {
-                String artistName = mPlaylist.getArtistName(i);
-                if (artistMap.get(artistName) == null) {
-                    artistMap.put(artistName, new ArrayList<Integer>());
-                    artistNames.add(artistName);
-                }
-                artistMap.get(artistName).add(i);
-                shuffledTracksCount++;
-            }
-        }
-        if (!isPlayingFromQueue) {
-            mShuffledIndex.add(mCurrentIndex);
-        }
-        String lastArtistName = null;
-        while (shuffledTracksCount >= 0) {
-            // Get a random artistName out of all available ones
-            String artistName = null;
-            int tryCount = 0;
-            while (tryCount++ < 3 && (artistName == null || artistName.equals(lastArtistName))) {
-                // We try 3 times to get an artistName that is different from the one we picked
-                // previously
-                int randomPos = (int) (Math.random() * artistNames.size());
-                artistName = artistNames.get(randomPos);
-            }
-            // Now we can get the list of track indexes
-            List<Integer> indexes = artistMap.get(artistName);
-            int randomPos = (int) (Math.random() * indexes.size());
-            // Add the randomly picked track index to our shuffled index
-            mShuffledIndex.add(indexes.get(randomPos));
-            shuffledTracksCount--;
-            lastArtistName = artistName;
         }
     }
 
@@ -1150,7 +1107,6 @@ public class PlaybackService extends Service implements MusicFocusable {
     public void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
         Log.d(TAG, "setPlaylist");
         releaseAllPlayers();
-        mShuffled = false;
         mRepeatingMode = NOT_REPEATING;
         mPlaylist = playlist;
         setCurrentEntry(currentEntry);
@@ -1172,27 +1128,15 @@ public class PlaybackService extends Service implements MusicFocusable {
     public PlaylistEntry getPlaybackListEntry(int position) {
         if (position < mQueueStartPos) {
             // The requested entry is positioned before the queue
-            return getPlaylistEntry(position);
+            return mPlaylist.getEntryAtPos(position);
         } else {
             if (position < mQueueStartPos + mQueue.size()) {
                 // Getting the entry from the queue
                 return mQueue.getEntryAtPos(position - mQueueStartPos);
             } else {
                 // The requested entry is positioned after the queue
-                return getPlaylistEntry(position - mQueue.size());
+                return mPlaylist.getEntryAtPos(position - mQueue.size());
             }
-        }
-    }
-
-    /**
-     * Private helper method that makes sure that the shuffled playlist is being used if needed.
-     */
-    private PlaylistEntry getPlaylistEntry(int position) {
-        if (mShuffled) {
-            int newPos = mShuffledIndex.get(position);
-            return mPlaylist.getEntryAtPos(newPos);
-        } else {
-            return mPlaylist.getEntryAtPos(position);
         }
     }
 
