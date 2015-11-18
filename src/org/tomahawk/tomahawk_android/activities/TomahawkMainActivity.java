@@ -459,8 +459,8 @@ public class TomahawkMainActivity extends ActionBarActivity
                 queries = new ArrayList<>();
                 query = Query.get(event.mResult.track, "", event.mResult.artist, false);
                 queries.add(query);
-                playlist =
-                        Playlist.fromQueryList(getSessionUniqueStringId(), false, "", "", queries);
+                playlist = Playlist.fromQueryList(getSessionUniqueStringId(), false,
+                        event.mResult.track + " - " + event.mResult.artist, "", queries);
                 playlist.setFilled(true);
                 bundle.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
