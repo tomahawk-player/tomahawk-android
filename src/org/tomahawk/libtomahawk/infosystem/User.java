@@ -125,6 +125,7 @@ public class User extends Cacheable implements AlphaComparable {
         mId = id;
         mPlaybackLog = Playlist.fromEmptyList(id + User.PLAYLIST_PLAYBACKLOG_ID, false, "");
         mFavorites = Playlist.fromEmptyList(id + User.PLAYLIST_FAVORITES_ID, false, "");
+        mFavorites.setFilled(true);
         mSocialActionsPlaylist =
                 Playlist.fromEmptyList(id + User.PLAYLIST_SOCIALACTIONS_ID, false, "");
         mFriendsFeedPlaylist = Playlist.fromEmptyList(id + User.PLAYLIST_FRIENDSFEED_ID, false, "");
@@ -152,9 +153,11 @@ public class User extends Cacheable implements AlphaComparable {
         authUtils.getUserId().done(new DoneCallback<String>() {
             @Override
             public void onDone(String result) {
-                mSelf.setName(authUtils.getUserName());
-                mSelf.setId(result);
-                mSelf.setIsOffline(false);
+                if (result != null && !mSelf.getId().equals(result)) {
+                    mSelf.setName(authUtils.getUserName());
+                    mSelf.setId(result);
+                    mSelf.setIsOffline(false);
+                }
                 deferred.resolve(mSelf);
             }
         }).fail(new FailCallback<Throwable>() {
@@ -194,12 +197,26 @@ public class User extends Cacheable implements AlphaComparable {
         return mName;
     }
 
-    public void setName(String name) {
+    public void setName(final String name) {
         mName = name;
-        mPlaybackLog.setName(
-                TomahawkApp.getContext().getString(R.string.users_playbacklog_suffix, name));
-        mFavorites.setName(
-                TomahawkApp.getContext().getString(R.string.users_favorites_suffix, name));
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(User result) {
+                String playbackLogName;
+                String favoritesName;
+                if (User.this == result) {
+                    playbackLogName = TomahawkApp.getContext().getString(R.string.my_playbacklog);
+                    favoritesName = TomahawkApp.getContext().getString(R.string.my_favorites);
+                } else {
+                    playbackLogName = TomahawkApp.getContext().getString(
+                            R.string.users_playbacklog_suffix, name);
+                    favoritesName = TomahawkApp.getContext().getString(
+                            R.string.users_favorites_suffix, name);
+                }
+                mPlaybackLog.setName(playbackLogName);
+                mFavorites.setName(favoritesName);
+            }
+        });
     }
 
     public Image getImage() {
@@ -351,6 +368,7 @@ public class User extends Cacheable implements AlphaComparable {
     public void setFavorites(Playlist favorites) {
         if (favorites != null) {
             favorites.setUserId(mId);
+            favorites.setFilled(true);
         }
         mFavorites = favorites;
     }
