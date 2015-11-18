@@ -46,6 +46,8 @@ import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
@@ -54,6 +56,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -365,6 +368,16 @@ public class ContextMenuFragment extends Fragment {
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (mPlaylist.getHatchetId() == null) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(TomahawkApp.getContext(),
+                                    R.string.contest_menu_share_error, Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    return;
+                }
                 getActivity().getSupportFragmentManager().popBackStack();
                 if (mAlbum != null) {
                     ShareUtils.sendShareIntent(activity, mAlbum);

@@ -87,6 +87,7 @@
   <!-- Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks) -->
   <string name="context_menu_unlove">Unlove</string>
   <string name="context_menu_share">Share</string>
+  <string name="contest_menu_share_error">You have to log into Hatchet to be able to share this playlist.</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Collection</string>
   <string name="drawer_title_playlists">Playlists</string>
