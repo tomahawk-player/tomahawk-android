@@ -14,6 +14,7 @@
   <string name="users">المستخدمون</string>
   <string name="top_hits">أعلى النّقرات</string>
   <string name="top_albums">أعلى الألبومات</string>
+  <string name="other_releases">إصدارات أخرى</string>
   <string name="playlist_details">تفاصيل قائمة التّشغيل</string>
   <string name="album_details">تفاصيل الألبوم</string>
   <string name="search">ابحث عن</string>
@@ -262,4 +263,6 @@
   <string name="uninstall_plugin_warning">أتريد حقًّا إزالة تثبيت هذه الملحقة؟</string>
   <string name="gmusic_info_text">اختر حسابًا:</string>
   <string name="invalid_file">تعذّر فتح الملفّ.</string>
+  <string name="unknown_album">ألبوم مجهول</string>
+  <string name="unknown_artist">فنّان مجهول</string>
 </resources>
