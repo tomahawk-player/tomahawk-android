@@ -87,6 +87,7 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Ya no me gusta</string>
   <string name="context_menu_share">Compartir</string>
+  <string name="contest_menu_share_error">Debes ingresar a Hatchet para poder compartir esta lista de reproducción.</string>
   <string name="drawer_title_feed">Noticias</string>
   <string name="drawer_title_collection">Colección</string>
   <string name="drawer_title_playlists">Listas de reproducción</string>
@@ -162,6 +163,9 @@
   <string name="users_playbacklog_suffix">%1$s escuchó recientemente</string>
   <string name="users_favorites_suffix">Favoritas de %1$s</string>
   <string name="users_playlist_suffix">Lista de %1$s</string>
+  <string name="my_playbacklog">Mis reproducciones recientes</string>
+  <string name="my_favorites">Mis Favoritos</string>
+  <string name="my_playlist">Mis Lista de Reproducción</string>
   <string name="music">Música</string>
   <string name="biography">Biografía</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->

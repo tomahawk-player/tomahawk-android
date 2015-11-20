@@ -15,6 +15,8 @@
 </string>
   <string name="top_hits">Top hits</string>
   <string name="top_albums">Mejores álbumes</string>
+  <string name="albums_and_eps">Álbumes y EPs</string>
+  <string name="other_releases">Otros lanzamientos</string>
   <string name="playlist_details">Detalles de la playlist</string>
   <string name="album_details">Detalles del álbum</string>
   <string name="search">Busqueda</string>
@@ -86,6 +88,7 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Ya no me gusta</string>
   <string name="context_menu_share">Compartir</string>
+  <string name="contest_menu_share_error">Debes ingresar a Hatchet para poder compartir esta lista de reproducción.</string>
   <string name="drawer_title_feed">Actividad Reciente</string>
   <string name="drawer_title_collection">Colección</string>
   <string name="drawer_title_playlists">Playlists</string>
@@ -161,6 +164,9 @@
   <string name="users_playbacklog_suffix">%1$s escuchó recientemente</string>
   <string name="users_favorites_suffix">Favoritas de %1$s</string>
   <string name="users_playlist_suffix">Listas de %1$s</string>
+  <string name="my_playbacklog">Mis reproducciones recientes</string>
+  <string name="my_favorites">Mis favoritas</string>
+  <string name="my_playlist">Mi lista de reproducción</string>
   <string name="music">Música</string>
   <string name="biography">Biografía </string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -181,12 +187,14 @@
   <string name="followers_count">Seguidores: %1$d, Siguiendo: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Iniciar sesión en </string>
   <string name="resolver_config_redirect_button_text_log_out_of">Cerrar sesión en</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Descargar Plugin para</string>
   <string name="ask_access_activity_header">¿Quieres guardar automáticamente la información de las pistas que reproduces en Hatchet?</string>
   <string name="ask_access_activity_text1">¡Nosotros lo haremos por ti! Por favor habilita nuestro servicio  en la configuración de tu dispositivo</string>
   <string name="button_close">Cerrar</string>
   <string name="view_album">Ver Álbum</string>
   <string name="connect">Conectar</string>
   <string name="connect_headertext">Selecciona los serivicios que quieres usar, Tomahawk funciona mejor cuando más servicios estan activos.</string>
+  <string name="connect_header_manualresolvers">Instalada manualmente</string>
   <string name="advanced">Avanzado</string>
   <string name="info">Información</string>
   <string name="playbackpanel_seek_coachmark">Puedes buscar dentro de una canción manteniendo presionado el boton Reproducir.</string>
@@ -209,4 +217,13 @@
     <item quantity="one">Escoge una lista de reproducción para agregarle %1$d canciones:</item>
     <item quantity="other">Escoge una lista de reproducción para agregarle %1$d canciones:</item>
   </plurals>
+  <string name="install_plugin_title">Instalación de plugin</string>
+  <string name="install_plugin_warning">Vas a instalar un plugin de Tomahawk desde una fuente desconocida. Esto puede ser un riesgo de seguridad.</string>
+  <string name="install_plugin_warning2">¿Está seguro que desea instalar este Plugin?</string>
+  <string name="uninstall_plugin_title">Desinstalando plugin</string>
+  <string name="uninstall_plugin_warning">¿Está seguro que desea desinstalar este Plugin?</string>
+  <string name="gmusic_info_text">Escoja una cuenta:</string>
+  <string name="invalid_file">No se puede abrir el archivo.</string>
+  <string name="unknown_album">Álbum desconocido</string>
+  <string name="unknown_artist">Artista desconocido</string>
 </resources>

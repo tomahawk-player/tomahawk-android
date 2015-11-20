@@ -87,6 +87,7 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Lakkaa tykkäämästä</string>
   <string name="context_menu_share">Jaa</string>
+  <string name="contest_menu_share_error">Sinun täytyy kirjautua Hatchetiin, jotta voit jakaa tämän soittolistan.</string>
   <string name="drawer_title_feed">Syöte</string>
   <string name="drawer_title_collection">Kokoelma</string>
   <string name="drawer_title_playlists">Soittolistat</string>
@@ -162,6 +163,9 @@
   <string name="users_playbacklog_suffix">Käyttäjän %1$s viimeksi kuuntelemat</string>
   <string name="users_favorites_suffix">Käyttäjän %1$s suosikit</string>
   <string name="users_playlist_suffix">Käyttäjän %1$s soittolista</string>
+  <string name="my_playbacklog">Viimeksi kuuntelemani</string>
+  <string name="my_favorites">Suosikkini</string>
+  <string name="my_playlist">Soittolistani</string>
   <string name="music">Musiikki</string>
   <string name="biography">Biografia</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
