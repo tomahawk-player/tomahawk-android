@@ -87,6 +87,7 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Loveを取り消す</string>
   <string name="context_menu_share">共有</string>
+  <string name="contest_menu_share_error">このプレイリストを共有するには Hatchet にログインする必要があります。</string>
   <string name="drawer_title_feed">フィード</string>
   <string name="drawer_title_collection">コレックション</string>
   <string name="drawer_title_playlists">プレイリスト</string>
@@ -153,6 +154,9 @@
   <string name="users_playbacklog_suffix">%1$s の最近再生した</string>
   <string name="users_favorites_suffix">%1$s のお気に入り</string>
   <string name="users_playlist_suffix">%1$s のプレイリスト</string>
+  <string name="my_playbacklog">私が最近再生した</string>
+  <string name="my_favorites">私のお気に入り</string>
+  <string name="my_playlist">私のプレイリスト</string>
   <string name="music">音楽</string>
   <string name="biography">経歴</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
