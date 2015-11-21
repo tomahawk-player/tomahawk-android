@@ -711,6 +711,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     }
 
     private int calculateFooterSpacerHeight(StickyListHeadersListView listView) {
+        if (getCount() > 10) {
+            return 0;
+        }
         int footerSpacerHeight = listView.getWrappedList().getHeight();
         long headerId = getHeaderId(0);
         for (int i = 1; i < getCount(); i++) {
