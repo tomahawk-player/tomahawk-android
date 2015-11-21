@@ -14,6 +14,8 @@
   <string name="users">Gebruikers</string>
   <string name="top_hits">Topnummers</string>
   <string name="top_albums">Topalbums</string>
+  <string name="albums_and_eps">Albums en EP\'s</string>
+  <string name="other_releases">Overige uitgaven</string>
   <string name="playlist_details">Afspeellijstdetails</string>
   <string name="album_details">Albumdetails</string>
   <string name="search">Zoeken</string>
@@ -85,6 +87,7 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Uit favorieten verwijderen</string>
   <string name="context_menu_share">Delen</string>
+  <string name="contest_menu_share_error">U dient in te loggen bij Hatchet om deze afspeellijst te kunnen delen.</string>
   <string name="drawer_title_feed">Feed</string>
   <string name="drawer_title_collection">Collectie</string>
   <string name="drawer_title_playlists">Afspeellijsten</string>
@@ -124,6 +127,9 @@
   <string name="users_playbacklog_suffix">%1$s heeft recent afgespeeld</string>
   <string name="users_favorites_suffix">%1$s\'s favorieten</string>
   <string name="users_playlist_suffix">%1$s\'s afspeellijst</string>
+  <string name="my_playbacklog">Mijn recentelijk afgespeelde muziek</string>
+  <string name="my_favorites">Mijn favorieten</string>
+  <string name="my_playlist">Mijn afspeellijst</string>
   <string name="music">Muziek</string>
   <string name="biography">Biografie</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -147,6 +153,7 @@
   <string name="view_album">Album weergeven</string>
   <string name="connect">Verbinden</string>
   <string name="connect_headertext">Selecteer de diensten die u wilt gebruiken. Tomahawk werkt beter wanneer u meer diensten activeert.</string>
+  <string name="connect_header_manualresolvers">Handmatig geïnstalleerd</string>
   <string name="advanced">Geavanceerd</string>
   <string name="info">Informatie</string>
   <string name="playbackpanel_seek_coachmark">U kunt spoelen in een nummer door de afspeelknop ingedrukt te houden.</string>
@@ -158,10 +165,21 @@
   <string name="next_page">Volgende</string>
   <string name="welcome_fragment_explanation_title">Opstartgids</string>
   <string name="welcome_fragment_explanation_heading">Muziek is overal.\nNu hoeft u dat niet te zijn.</string>
+  <string name="welcome_fragment_explanation_text">Stop met het zoeken van muziek over heel het internet, bij diensten die u niet gebruikt of niet mag gebruiken. Geef de naam op van of link op naar een nummer, album of afspeellijst en Tomahawk zal de best beschikbare bron voor u vinden en afspelen.</string>
   <string name="welcome_fragment_hatchet_title">Wilt u sociaal zijn?</string>
+  <string name="welcome_fragment_hatchet_text">Met Hatchet kunt u uw muziekcollectie op één plek al uw muziek vinden. Deel uw afspeellijsten en favoriete nummers. Of synchroniseer de app met Tomahawk op uw computer.</string>
   <string name="welcome_fragment_setup_title">Verbinden</string>
   <string name="welcome_fragment_done_title">Afgerond!</string>
   <string name="welcome_fragment_done_heading">Alles is afgerond!</string>
   <string name="welcome_fragment_done_text">Veel plezier met het ontdekken van de app en vergeet niet om uw mening te laten horen aan ons!</string>
   <string name="seeking_not_supported">Onze excuses, deze resolver ondersteunt spoelen niet.</string>
+  <string name="install_plugin_title">Plug-in-installatie</string>
+  <string name="install_plugin_warning">U staat op het punt om een Tomahawk-plug-in te installeren uit een onbekende bron. Dit kan een beveiligingsrisico met zich mee brengen.</string>
+  <string name="install_plugin_warning2">Weet u zeker dat u deze plug-in wilt installeren?</string>
+  <string name="uninstall_plugin_title">Bezig met deïnstalleren van de plug-in</string>
+  <string name="uninstall_plugin_warning">Weet u zeker dat u deze plug-in wilt deïnstalleren?</string>
+  <string name="gmusic_info_text">Kies een account:</string>
+  <string name="invalid_file">Het bestand kan niet worden geopend.</string>
+  <string name="unknown_album">Onbekend album</string>
+  <string name="unknown_artist">Onbekende artiest</string>
 </resources>
