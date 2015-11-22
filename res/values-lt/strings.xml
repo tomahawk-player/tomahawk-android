@@ -119,4 +119,7 @@
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="welcome_fragment_done_title">Atlikta!</string>
   <string name="welcome_fragment_done_heading">Viskas atlikta!</string>
+  <string name="invalid_file">Nepavyksta atverti failo.</string>
+  <string name="unknown_album">Nežinomas albumas</string>
+  <string name="unknown_artist">Nežinomas atlikėjas</string>
 </resources>
