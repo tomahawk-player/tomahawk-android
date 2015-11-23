@@ -45,7 +45,7 @@ dependencies {
     compile 'com.sothree.slidinguppanel:library:3.2.0'
     compile('com.uservoice:uservoice-android-sdk:1.2.4')
     compile 'de.greenrobot:eventbus:2.4.0'
-    compile 'com.daimajia.swipelayout:library:1.1.8@aar'
+    compile 'com.daimajia.swipelayout:library:1.2.0@aar'
     compile 'org.jdeferred:jdeferred-android-aar:1.2.4'
     compile 'org.slf4j:slf4j-android:1.7.12'
     compile 'com.github.rahatarmanahmed:circularprogressview:2.3.2'
