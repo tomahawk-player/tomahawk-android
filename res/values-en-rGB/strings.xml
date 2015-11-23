@@ -1,6 +1,39 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ok">OK</string>
+  <string name="cancel">Cancel</string>
+  <string name="login">Login</string>
+  <string name="logout">Logout</string>
+  <string name="register">Register</string>
+  <string name="register_and_login">Register &amp; Login</string>
+  <string name="rescan">Rescan now</string>
+  <string name="internal_storage">Internal Storage</string>
+  <string name="tracks">Tracks</string>
+  <string name="albums">Albums</string>
+  <string name="artists">Artists</string>
+  <string name="users">Users</string>
+  <string name="top_hits">Top Hits</string>
+  <string name="top_albums">Top Albums</string>
+  <string name="albums_and_eps">Albums and EPs</string>
+  <string name="other_releases">Other releases</string>
+  <string name="playlist_details">Playlist Details</string>
+  <string name="album_details">Album Details</string>
+  <string name="search">Search</string>
+  <string name="playlist">Playlist</string>
+  <string name="shuffle_on_label">Shuffle is on</string>
+  <string name="shuffle_off_label">Shuffle is off</string>
+  <string name="repeat_on_label">Repeat is on</string>
+  <string name="repeat_off_label">Repeat is off</string>
+  <string name="unknown">unknown</string>
+  <string name="no_track">no track</string>
+  <string name="save_playlist">Save the current playlist</string>
+  <string name="create_playlist">Create playlist</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Title</string>
+  <string name="login_name_label">E-Mail/Username</string>
+  <string name="login_username">Username</string>
+  <string name="login_password_confirmation">Password confirmation</string>
+  <string name="account_email_label">E-Mail (optional)</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
