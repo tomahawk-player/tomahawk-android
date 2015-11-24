@@ -41,4 +41,12 @@ public class ClickListener implements View.OnClickListener, View.OnLongClickList
     public boolean onLongClick(View view) {
         return mListener.onItemLongClick(view, mItem);
     }
+
+    public Object getItem() {
+        return mItem;
+    }
+
+    public MultiColumnClickListener getListener() {
+        return mListener;
+    }
 }
