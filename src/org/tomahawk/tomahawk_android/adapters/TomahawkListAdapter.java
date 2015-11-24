@@ -47,7 +47,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -61,9 +60,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  * This class is used to populate a {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
 public class TomahawkListAdapter extends StickyBaseAdapter implements
-        AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener,
-        SwipeItemMangerInterface,
-        SwipeAdapterInterface {
+        SwipeItemMangerInterface, SwipeAdapterInterface {
 
     private static final String TAG = TomahawkListAdapter.class.getSimpleName();
 
@@ -369,7 +366,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         // components with the correct data
         for (int i = 0; i < viewHolders.size(); i++) {
             ViewHolder viewHolder = viewHolders.get(i);
-            Object item = o instanceof List ? ((List) o).get(i) : o;
+            Object item = getItem(position);
+            if (item instanceof List) {
+                item = ((List) item).get(i);
+            }
             if (item == null) {
                 if (viewHolder.mLayoutId == R.layout.content_footer_spacer) {
                     view.setLayoutParams(
@@ -385,33 +385,34 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     }
                 }
             } else {
+                Object targetItem = item;
                 // Don't display the socialAction item directly, but rather the item that is its target
                 if (item instanceof SocialAction
                         && ((SocialAction) item).getTargetObject() != null) {
-                    item = ((SocialAction) item).getTargetObject();
+                    targetItem = ((SocialAction) item).getTargetObject();
                 }
                 if (viewHolder.mLayoutId == R.layout.grid_item_artist
                         || viewHolder.mLayoutId == R.layout.list_item_artist) {
-                    viewHolder.fillView((Artist) item);
+                    viewHolder.fillView((Artist) targetItem);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_album
                         || viewHolder.mLayoutId == R.layout.list_item_album) {
-                    viewHolder.fillView((Album) item, mCollection);
+                    viewHolder.fillView((Album) targetItem, mCollection);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
-                    viewHolder.fillView((Resolver) item);
+                    viewHolder.fillView((Resolver) targetItem);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_playlist) {
-                    if (item instanceof Playlist) {
-                        viewHolder.fillView((Playlist) item);
-                    } else if (item instanceof Integer) {
-                        viewHolder.fillView((int) item);
+                    if (targetItem instanceof Playlist) {
+                        viewHolder.fillView((Playlist) targetItem);
+                    } else if (targetItem instanceof Integer) {
+                        viewHolder.fillView((int) targetItem);
                     }
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_user
                         || viewHolder.mLayoutId == R.layout.list_item_user) {
-                    viewHolder.fillView((User) item);
+                    viewHolder.fillView((User) targetItem);
                 } else if (viewHolder.mLayoutId == R.layout.single_line_list_item) {
-                    viewHolder.fillView(((Playlist) item).getName());
+                    viewHolder.fillView(((Playlist) targetItem).getName());
                 } else if (viewHolder.mLayoutId == R.layout.list_item_text
                         || viewHolder.mLayoutId == R.layout.list_item_text_highlighted) {
-                    viewHolder.fillView(((ListItemString) item).getText());
+                    viewHolder.fillView(((ListItemString) targetItem).getText());
                 } else if (viewHolder.mLayoutId == R.layout.list_item_track_artist
                         || viewType == R.layout.list_item_numeration_track_artist
                         || viewType == R.layout.list_item_numeration_track_duration) {
@@ -427,11 +428,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     }
                     final Query query;
                     final PlaylistEntry entry;
-                    if (item instanceof PlaylistEntry) {
-                        query = ((PlaylistEntry) item).getQuery();
-                        entry = (PlaylistEntry) item;
+                    if (targetItem instanceof PlaylistEntry) {
+                        query = ((PlaylistEntry) targetItem).getQuery();
+                        entry = (PlaylistEntry) targetItem;
                     } else {
-                        query = (Query) item;
+                        query = (Query) targetItem;
                         entry = null;
                     }
                     View.OnClickListener swipeButtonListener;
@@ -480,9 +481,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 }
 
                 //Set up the click listeners
-                if (viewHolder.findViewById(R.id.mainclickarea) != null) {
-                    viewHolder.setMainClickListener(new ClickListener(item, mClickListener));
-                }
+                viewHolder.setMainClickListener(item, mClickListener);
             }
         }
         return view;
@@ -742,23 +741,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             }
         }
         return footerSpacerHeight;
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        Object o = getItem(position);
-        if (!(o instanceof List)) {
-            mClickListener.onItemClick(view, o);
-        }
-    }
-
-    @Override
-    public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-        Object o = getItem(position);
-        if (!(o instanceof List)) {
-            return mClickListener.onItemLongClick(view, o);
-        }
-        return false;
     }
 
     @Override

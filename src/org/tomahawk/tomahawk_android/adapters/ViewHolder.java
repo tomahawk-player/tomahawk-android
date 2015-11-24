@@ -35,6 +35,7 @@ import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
+import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.content.res.Resources;
@@ -60,6 +61,8 @@ public class ViewHolder {
 
     private final Map<Integer, View> mCachedViews = new HashMap<>();
 
+    private ClickListener mMainClickListener;
+
     public ViewHolder(View rootView, int layoutId) {
         mLayoutId = layoutId;
         mRootView = rootView;
@@ -81,10 +84,18 @@ public class ViewHolder {
         }
     }
 
-    public void setMainClickListener(ClickListener listener) {
-        View mainClickArea = findViewById(R.id.mainclickarea);
-        mainClickArea.setOnClickListener(listener);
-        mainClickArea.setOnLongClickListener(listener);
+    public void setMainClickListener(Object item, MultiColumnClickListener listener) {
+        if (mMainClickListener == null || item != mMainClickListener.getItem()
+                || listener != mMainClickListener.getListener()) {
+            View view = findViewById(R.id.mainclickarea);
+            if (view == null) {
+                view = mRootView;
+            }
+            ClickListener clickListener = new ClickListener(item, listener);
+            view.setOnClickListener(clickListener);
+            view.setOnLongClickListener(clickListener);
+            mMainClickListener = clickListener;
+        }
     }
 
     public void fillView(Query query, String numerationString, boolean showAsPlaying,

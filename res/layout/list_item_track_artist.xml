@@ -52,7 +52,8 @@
 
     </FrameLayout>
 
-    <FrameLayout android:layout_width="match_parent"
+    <FrameLayout android:id="@+id/mainclickarea"
+                 android:layout_width="match_parent"
                  android:layout_height="@dimen/list_item_track_height"
                  android:paddingLeft="@dimen/padding_superlarge">
 
