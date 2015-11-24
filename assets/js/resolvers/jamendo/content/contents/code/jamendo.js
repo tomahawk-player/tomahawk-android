@@ -48,14 +48,14 @@ var JamendoResolver = Tomahawk.extend(Tomahawk.Resolver, {
         return tracks;
     },
 
-    _searchRequest: function (query) {
+    _searchRequest: function (query, limit) {
         var that = this;
 
         var settings = {
             data: {
                 client_id: this._clientId,
                 format: "json",
-                limit: 20,
+                limit: limit,
                 search: query
             }
         };
@@ -69,13 +69,13 @@ var JamendoResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var album = params.album;
         var track = params.track;
 
-        return this._searchRequest(artist + " " + track);
+        return this._searchRequest(artist + " " + track, 5);
     },
 
     search: function (params) {
         var query = params.query;
 
-        return this._searchRequest(query);
+        return this._searchRequest(query, 20);
     }
 });
 
