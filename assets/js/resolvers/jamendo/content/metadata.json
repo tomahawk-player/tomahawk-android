@@ -3,7 +3,7 @@
     "pluginName": "jamendo",
     "author": "lasconic and Enno",
     "email": "lasconic@gmail.com",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "website": "http://gettomahawk.com",
     "description": "Searches Jamendo's free music database.",
     "type": "resolver/javascript",
