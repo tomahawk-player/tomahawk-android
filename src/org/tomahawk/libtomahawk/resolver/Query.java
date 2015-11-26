@@ -25,7 +25,6 @@ import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
-import org.tomahawk.libtomahawk.utils.LevensteinDistance;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -337,96 +336,48 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
      * This method determines how similar the given result is to the search string.
      */
     public float howSimilar(Result r) {
-        String resultArtistName = "";
-        String resultAlbumName = "";
-        String resultTrackName = "";
-        String artistName;
-        String albumName;
-        String trackName;
+        String resultArtistName = ResultScoring.cleanUpString(r.getArtist().getName(), false);
+        String resultAlbumName = ResultScoring.cleanUpString(r.getAlbum().getName(), false);
+        String resultTrackName = ResultScoring.cleanUpString(r.getTrack().getName(), false);
         if (isFullTextQuery()) {
-            artistName = cleanUpString(mFullTextQuery, true);
-            albumName = cleanUpString(mFullTextQuery, false);
-            trackName = albumName;
-        } else {
-            artistName = cleanUpString(mBasicTrack.getArtist().getName(), false);
-            albumName = cleanUpString(mBasicTrack.getAlbum().getName(), false);
-            trackName = cleanUpString(mBasicTrack.getName(), false);
-        }
-        if (r.getArtist().getName() != null) {
-            resultArtistName = cleanUpString(r.getArtist().getName(), false);
-        }
-        if (r.getAlbum().getName() != null) {
-            resultAlbumName = cleanUpString(r.getAlbum().getName(), false);
-        }
-        if (r.getTrack().getName() != null) {
-            resultTrackName = cleanUpString(r.getTrack().getName(), false);
-        }
-
-        int distanceArtist = LevensteinDistance.getDistance(artistName, resultArtistName);
-        int distanceAlbum = LevensteinDistance.getDistance(albumName, resultAlbumName);
-        int distanceTrack = LevensteinDistance.getDistance(trackName, resultTrackName);
-
-        int maxLengthArtist = Math
-                .max(artistName.length(), resultArtistName.length());
-        int maxLengthAlbum = Math
-                .max(albumName.length(), resultAlbumName.length());
-        int maxLengthTrack = Math.max(trackName.length(), resultTrackName.length());
-
-        float distanceScoreArtist = (float) (maxLengthArtist - distanceArtist) / maxLengthArtist;
-        float distanceScoreAlbum;
-        if (maxLengthAlbum > 0) {
-            distanceScoreAlbum = (float) (maxLengthAlbum - distanceAlbum) / maxLengthAlbum;
-        } else {
-            distanceScoreAlbum = 0F;
-        }
-        float distanceScoreTrack = (float) (maxLengthTrack - distanceTrack) / maxLengthTrack;
-
-        if (isFullTextQuery()) {
-            final String searchString = cleanUpString(getFullTextQuery(), false);
-            ArrayList<String> resultSearchStrings = new ArrayList<>();
-            resultSearchStrings
-                    .add(cleanUpString(resultArtistName + " " + resultTrackName, false));
-            resultSearchStrings.add(cleanUpString(resultTrackName, false));
-
-            float maxResult = 0F;
-            for (String resultSearchString : resultSearchStrings) {
-                int distanceArtistTrack =
-                        LevensteinDistance.getDistance(searchString, resultSearchString);
-                int maxLengthArtistTrack = Math
-                        .max(searchString.length(), resultSearchString.length());
-                float distanceScoreArtistTrack =
-                        (float) (maxLengthArtistTrack - distanceArtistTrack) / maxLengthArtistTrack;
-
-                float result = Math.max(distanceScoreArtist, distanceScoreAlbum);
-                result = Math.max(result, distanceScoreArtistTrack);
-                result = Math.max(result, distanceScoreTrack);
-                if (resultSearchString.contains(searchString)) {
-                    result = Math.max(result, 0.9F);
-                }
-                maxResult = Math.max(result, maxResult);
-            }
+            String fullTextQuery = ResultScoring.cleanUpString(mFullTextQuery, true);
+            float maxResult = 0f;
+            maxResult = Math.max(maxResult, ResultScoring.calculateScore(
+                    resultTrackName + " " + resultAlbumName + " " + resultArtistName,
+                    fullTextQuery));
+            maxResult = Math.max(maxResult, ResultScoring.calculateScore(
+                    resultTrackName + " " + resultArtistName + " " + resultAlbumName,
+                    fullTextQuery));
+            maxResult = Math.max(maxResult, ResultScoring.calculateScore(
+                    resultArtistName + " " + resultTrackName + " " + resultAlbumName,
+                    fullTextQuery));
+            maxResult = Math.max(maxResult, ResultScoring.calculateScore(
+                    resultArtistName + " " + resultAlbumName + " " + resultTrackName,
+                    fullTextQuery));
+            maxResult = Math.max(maxResult, ResultScoring.calculateScore(
+                    resultAlbumName + " " + resultArtistName + " " + resultTrackName,
+                    fullTextQuery));
+            maxResult = Math.max(maxResult, ResultScoring.calculateScore(
+                    resultAlbumName + " " + resultTrackName + " " + resultArtistName,
+                    fullTextQuery));
             return maxResult;
         } else {
-            if (TextUtils.isEmpty(mBasicTrack.getAlbum().getName())) {
-                distanceScoreAlbum = 1F;
+            String queryArtistName =
+                    ResultScoring.cleanUpString(mBasicTrack.getArtist().getName(), false);
+            float artistScore = ResultScoring.calculateScore(resultArtistName, queryArtistName);
+            String queryTrackName =
+                    ResultScoring.cleanUpString(mBasicTrack.getName(), false);
+            float trackScore = ResultScoring.calculateScore(resultTrackName, queryTrackName);
+            String queryAlbumName =
+                    ResultScoring.cleanUpString(mBasicTrack.getAlbum().getName(), false);
+            float albumScore;
+            if (queryAlbumName.isEmpty()) {
+                return (artistScore + trackScore) / 2;
+            } else {
+                albumScore = ResultScoring.calculateScore(resultAlbumName, queryAlbumName);
+                return (artistScore * 3 + albumScore + trackScore * 4) / 8;
             }
-
-            return (distanceScoreArtist * 4 + distanceScoreAlbum + distanceScoreTrack * 5) / 10;
         }
-    }
-
-    /**
-     * Clean up the given String.
-     *
-     * @param replaceArticle wether or not the prefix "the " should be removed
-     * @return the clean String
-     */
-    public String cleanUpString(String in, boolean replaceArticle) {
-        String out = in.toLowerCase().trim().replaceAll("[\\s]{2,}", " ");
-        if (replaceArticle && out.startsWith("the ")) {
-            out = out.substring(4);
-        }
-        return out;
     }
 
     public String getName() {
