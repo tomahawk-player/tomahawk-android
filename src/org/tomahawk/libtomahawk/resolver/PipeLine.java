@@ -57,7 +57,9 @@ public class PipeLine {
 
     public static final int URL_TYPE_XSPFURL = 5;
 
-    private static final float MINSCORE = 0.5F;
+    private static final float MINSCORE = 0.5f;
+
+    private static final float FULLTEXT_MINSCORE = 0f;
 
     private static class Holder {
 
@@ -334,7 +336,8 @@ public class PipeLine {
                             for (Result r : results) {
                                 if (r != null) {
                                     float trackScore = query.howSimilar(r);
-                                    if (trackScore >= MINSCORE) {
+                                    if (trackScore > (query.isFullTextQuery() ? FULLTEXT_MINSCORE
+                                            : MINSCORE)) {
                                         query.addTrackResult(r, trackScore);
                                     }
                                 }
