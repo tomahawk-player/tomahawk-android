@@ -29,7 +29,7 @@ import org.tomahawk.libtomahawk.resolver.plugins.ScriptCollectionPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptInfoPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptResolverPluginFactory;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
-import org.tomahawk.libtomahawk.utils.StringEscapeUtils;
+import org.tomahawk.libtomahawk.utils.StringUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
@@ -278,7 +278,7 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
             @Override
             public void run() {
                 String serializedArgs = GsonHelper.get().toJson(job.getArguments());
-                serializedArgs = "JSON.parse('" + StringEscapeUtils
+                serializedArgs = "JSON.parse('" + StringUtils
                         .escapeJavaScript(serializedArgs) + "')";
                 evaluateJavaScript("Tomahawk.PluginManager.invoke("
                         + "'" + requestId + "',"
@@ -393,11 +393,11 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         // We have to encode the %-chars because the Android WebView automatically decodes
         // percentage-escaped chars ... for whatever reason. Seems likely that this is a bug.
         String escapedResponseText =
-                StringEscapeUtils.escapeJavaScript(responseText).replace("%", "%25");
+                StringUtils.escapeJavaScript(responseText).replace("%", "%25");
         String escapedHeadersString =
-                StringEscapeUtils.escapeJavaScript(headersString).replace("%", "%25");
+                StringUtils.escapeJavaScript(headersString).replace("%", "%25");
         String escapedStatusText =
-                StringEscapeUtils.escapeJavaScript(statusText).replace("%", "%25");
+                StringUtils.escapeJavaScript(statusText).replace("%", "%25");
         evaluateJavaScript("Tomahawk._nativeAsyncRequestDone(" + requestId + ","
                 + "'" + escapedResponseText + "',"
                 + "'" + escapedHeadersString + "',"
