@@ -21,7 +21,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Locale;
 
-public class StringEscapeUtils {
+public class StringUtils {
 
     /**
      * <p>Escapes the characters in a <code>String</code> using JavaScript String rules.</p>
@@ -183,5 +183,21 @@ public class StringEscapeUtils {
      */
     private static String hex(char ch) {
         return Integer.toHexString(ch).toUpperCase(Locale.ENGLISH);
+    }
+
+    public static String join(String delimiter, String... stringParts) {
+        if (stringParts == null) {
+            return null;
+        }
+        String result = "";
+        boolean notFirst = false;
+        for (String field : stringParts) {
+            if (notFirst) {
+                result += delimiter;
+            }
+            notFirst = true;
+            result += field;
+        }
+        return result;
     }
 }

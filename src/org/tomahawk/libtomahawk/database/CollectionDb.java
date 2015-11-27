@@ -19,6 +19,7 @@ package org.tomahawk.libtomahawk.database;
 
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
+import org.tomahawk.libtomahawk.utils.StringUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.ContentValues;
@@ -211,16 +212,7 @@ public class CollectionDb extends SQLiteOpenHelper {
                     + ALBUMS_IMAGEPATH + "` TEXT");
         }
         if (oldVersion < 3) {
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ARTISTS + "`;");
-            db.execSQL(CREATE_TABLE_ARTISTS);
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMARTISTS + "`;");
-            db.execSQL(CREATE_TABLE_ALBUMARTISTS);
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
-            db.execSQL(CREATE_TABLE_ALBUMS);
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ARTISTALBUMS + "`;");
-            db.execSQL(CREATE_TABLE_ARTISTALBUMS);
-            db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
-            db.execSQL(CREATE_TABLE_TRACKS);
+            wipe(db);
         }
     }
 
@@ -399,16 +391,20 @@ public class CollectionDb extends SQLiteOpenHelper {
     }
 
     public synchronized void wipe() {
-        mDb.execSQL("DROP TABLE IF EXISTS `" + TABLE_ARTISTS + "`;");
-        mDb.execSQL(CREATE_TABLE_ARTISTS);
-        mDb.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMARTISTS + "`;");
-        mDb.execSQL(CREATE_TABLE_ALBUMARTISTS);
-        mDb.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
-        mDb.execSQL(CREATE_TABLE_ALBUMS);
-        mDb.execSQL("DROP TABLE IF EXISTS `" + TABLE_ARTISTALBUMS + "`;");
-        mDb.execSQL(CREATE_TABLE_ARTISTALBUMS);
-        mDb.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
-        mDb.execSQL(CREATE_TABLE_TRACKS);
+        wipe(mDb);
+    }
+
+    private void wipe(SQLiteDatabase db) {
+        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ARTISTS + "`;");
+        db.execSQL(CREATE_TABLE_ARTISTS);
+        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMARTISTS + "`;");
+        db.execSQL(CREATE_TABLE_ALBUMARTISTS);
+        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ALBUMS + "`;");
+        db.execSQL(CREATE_TABLE_ALBUMS);
+        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_ARTISTALBUMS + "`;");
+        db.execSQL(CREATE_TABLE_ARTISTALBUMS);
+        db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
+        db.execSQL(CREATE_TABLE_TRACKS);
     }
 
     /**
@@ -673,33 +669,19 @@ public class CollectionDb extends SQLiteOpenHelper {
             }
         }
 
-        String orderString = "";
+        String orderString = StringUtils.join(" , ", orderBy);
         if (orderBy != null) {
-            orderString = " ORDER BY ";
-            boolean notFirst = false;
-            for (String orderingTerm : orderBy) {
-                if (notFirst) {
-                    joinString += " , ";
-                }
-                notFirst = true;
-                orderString += orderingTerm;
-            }
+            orderString = " ORDER BY " + orderString;
+        } else {
+            orderString = "";
         }
 
-        String fieldsString = "*";
-        if (fields != null) {
-            fieldsString = "";
-            boolean notFirst = false;
-            for (String field : fields) {
-                if (notFirst) {
-                    fieldsString += ", ";
-                }
-                notFirst = true;
-                fieldsString += field;
-            }
+        String fieldsString = StringUtils.join(", ", fields);
+        if (fields == null) {
+            fieldsString = "*";
         }
         String statement = "SELECT " + fieldsString + " FROM " + table + joinString + whereString
-                + orderString;
+                + " ORDER BY " + orderString;
         String[] allWhereValuesArray = null;
         if (allWhereValues.size() > 0) {
             allWhereValuesArray = allWhereValues.toArray(new String[allWhereValues.size()]);
