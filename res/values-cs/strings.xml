@@ -88,6 +88,7 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Zrušit oblibu skladby</string>
   <string name="context_menu_share">Sdílet</string>
+  <string name="contest_menu_share_error">Musíte se přihlásit k Hatchet, abyste mohl sdílet tento seznam skladeb.</string>
   <string name="drawer_title_feed">Kanál</string>
   <string name="drawer_title_collection">Sbírka</string>
   <string name="drawer_title_playlists">Seznamy skladeb</string>
@@ -172,6 +173,9 @@
   <string name="users_playbacklog_suffix">%1$s nedávno hráno</string>
   <string name="users_favorites_suffix">%1$s oblíbení</string>
   <string name="users_playlist_suffix">%1$s seznam skladeb</string>
+  <string name="my_playbacklog">Moje nedávno hrané</string>
+  <string name="my_favorites">Moje oblíbené</string>
+  <string name="my_playlist">Můj seznam skladeb</string>
   <string name="music">Hudba</string>
   <string name="biography">Životopis</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
