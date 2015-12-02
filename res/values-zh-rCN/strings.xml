@@ -87,6 +87,7 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">不喜欢</string>
   <string name="context_menu_share">分享</string>
+  <string name="contest_menu_share_error">你必须登陆到 Hatchet 才能分享此播放列表。</string>
   <string name="drawer_title_feed">订阅</string>
   <string name="drawer_title_collection">收藏</string>
   <string name="drawer_title_playlists">播放列表</string>
@@ -153,6 +154,9 @@
   <string name="users_playbacklog_suffix">%1$s 最近播放的</string>
   <string name="users_favorites_suffix">%1$s 喜欢的</string>
   <string name="users_playlist_suffix">%1$s 的播放列表</string>
+  <string name="my_playbacklog">最近播放的</string>
+  <string name="my_favorites">我喜欢的</string>
+  <string name="my_playlist">我的播放列表</string>
   <string name="music">音乐</string>
   <string name="biography">简介</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
