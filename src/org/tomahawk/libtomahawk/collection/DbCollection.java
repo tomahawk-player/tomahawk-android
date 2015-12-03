@@ -220,7 +220,8 @@ public abstract class DbCollection extends Collection {
                         String[] orderBy;
                         switch (sortMode) {
                             case SORT_ALPHA:
-                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                                orderBy = new String[]{
+                                        CollectionDb.ARTISTS_ARTIST + " COLLATE NOCASE "};
                                 break;
                             case SORT_LAST_MODIFIED:
                                 orderBy = new String[]{CollectionDb.ARTISTS_LASTMODIFIED + " DESC"};
@@ -255,7 +256,8 @@ public abstract class DbCollection extends Collection {
                         String[] orderBy;
                         switch (sortMode) {
                             case SORT_ALPHA:
-                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                                orderBy = new String[]{
+                                        CollectionDb.ARTISTS_ARTIST + " COLLATE NOCASE "};
                                 break;
                             case SORT_LAST_MODIFIED:
                                 orderBy = new String[]{CollectionDb.ARTISTS_LASTMODIFIED + " DESC"};
@@ -289,10 +291,12 @@ public abstract class DbCollection extends Collection {
                         String[] orderBy;
                         switch (sortMode) {
                             case SORT_ALPHA:
-                                orderBy = new String[]{CollectionDb.ALBUMS_ALBUM};
+                                orderBy = new String[]{
+                                        CollectionDb.ALBUMS_ALBUM + " COLLATE NOCASE "};
                                 break;
                             case SORT_ARTIST_ALPHA:
-                                orderBy = new String[]{CollectionDb.ARTISTS_ARTIST};
+                                orderBy = new String[]{
+                                        CollectionDb.ARTISTS_ARTIST + " COLLATE NOCASE "};
                                 break;
                             case SORT_LAST_MODIFIED:
                                 orderBy = new String[]{CollectionDb.ALBUMS_LASTMODIFIED + " DESC"};
