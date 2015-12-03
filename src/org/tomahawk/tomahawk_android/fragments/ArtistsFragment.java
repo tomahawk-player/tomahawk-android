@@ -21,7 +21,6 @@ import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionCursor;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -99,12 +98,6 @@ public class ArtistsFragment extends TomahawkFragment {
         if (mArtistArray != null) {
             fillAdapter(new Segment.Builder(mArtistArray).build());
         } else {
-            final List<Artist> starredArtists;
-            if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
-                starredArtists = DatabaseHelper.get().getStarredArtists();
-            } else {
-                starredArtists = null;
-            }
             mCollection.getArtists(getSortMode())
                     .done(new DoneCallback<CollectionCursor<Artist>>() {
                         @Override
@@ -112,9 +105,6 @@ public class ArtistsFragment extends TomahawkFragment {
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
-                                    if (starredArtists != null) {
-                                        cursor.mergeItems(getSortMode(), starredArtists);
-                                    }
                                     Segment segment = new Segment.Builder(cursor)
                                             .headerLayout(R.layout.dropdown_header)
                                             .headerStrings(constructDropdownItems())

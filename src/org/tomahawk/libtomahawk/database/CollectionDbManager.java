@@ -44,7 +44,11 @@ public class CollectionDbManager {
     public CollectionDb getCollectionDb(String collectionId) {
         CollectionDb db = mCollectionDbs.get(collectionId);
         if (db == null) {
-            db = new CollectionDb(TomahawkApp.getContext(), collectionId);
+            if (collectionId.equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
+                db = new UserCollectionDb(TomahawkApp.getContext(), collectionId);
+            } else {
+                db = new CollectionDb(TomahawkApp.getContext(), collectionId);
+            }
             mCollectionDbs.put(collectionId, db);
         }
         return db;

@@ -27,6 +27,7 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
@@ -304,8 +305,10 @@ public class ContextMenuFragment extends Fragment {
         if (mAlbum != null || mArtist != null) {
             int drawableResId;
             int stringResId;
-            if ((mAlbum != null && DatabaseHelper.get().isItemLoved(mAlbum))
-                    || (mArtist != null && DatabaseHelper.get().isItemLoved(mArtist))) {
+            UserCollection userCollection = (UserCollection) CollectionManager.get()
+                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+            if ((mAlbum != null && userCollection.isLoved(mAlbum))
+                    || (mArtist != null && userCollection.isLoved(mArtist))) {
                 drawableResId = R.drawable.ic_action_collection_underlined;
                 stringResId = R.string.context_menu_removefromcollection;
             } else {

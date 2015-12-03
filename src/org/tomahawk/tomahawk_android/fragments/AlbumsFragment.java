@@ -29,7 +29,6 @@ import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.UserCollection;
-import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -211,21 +210,12 @@ public class AlbumsFragment extends TomahawkFragment {
                     .build();
             fillAdapter(segment);
         } else {
-            final List<Album> starredAlbums;
-            if (mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
-                starredAlbums = DatabaseHelper.get().getStarredAlbums();
-            } else {
-                starredAlbums = null;
-            }
             mCollection.getAlbums(getSortMode()).done(new DoneCallback<CollectionCursor<Album>>() {
                 @Override
                 public void onDone(final CollectionCursor<Album> cursor) {
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            if (starredAlbums != null) {
-                                cursor.mergeItems(getSortMode(), starredAlbums);
-                            }
                             Segment segment = new Segment.Builder(cursor)
                                     .headerLayout(R.layout.dropdown_header)
                                     .headerStrings(constructDropdownItems())

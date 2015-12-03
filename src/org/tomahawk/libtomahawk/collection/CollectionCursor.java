@@ -33,19 +33,6 @@ public class CollectionCursor<T> {
 
     private final static String TAG = CollectionCursor.class.getSimpleName();
 
-    private int mSortMode;
-
-    private List<T> mMergedItems;
-
-    private SparseArray<Index> mIndex;
-
-    private static class Index {
-
-        int index;
-
-        boolean fromMergedItems;
-    }
-
     private SparseArray<T> mCursorCache = new SparseArray<>();
 
     private Cursor mCursor;
@@ -94,20 +81,6 @@ public class CollectionCursor<T> {
     }
 
     public T get(int location) {
-        boolean fromMergedItems = false;
-        if (mIndex != null) {
-            Index index = mIndex.get(location);
-            location = index.index;
-            fromMergedItems = index.fromMergedItems;
-        }
-        if (fromMergedItems) {
-            return mMergedItems.get(location);
-        } else {
-            return rawGet(location);
-        }
-    }
-
-    private T rawGet(int location) {
         if (mCursor != null) {
             if (mCursor.isClosed()) {
                 Log.d(TAG, "rawGet - Cursor has been closed.");
@@ -157,67 +130,10 @@ public class CollectionCursor<T> {
     }
 
     public int size() {
-        if (mIndex != null) {
-            return mIndex.size();
-        } else if (mCursor != null) {
+        if (mCursor != null) {
             return mCursorCount;
         } else {
             return mItems.size();
-        }
-    }
-
-    public void mergeItems(int sortMode, List<T> items) {
-        mMergedItems = items;
-        mSortMode = sortMode;
-
-        updateIndex();
-    }
-
-    private void updateIndex() {
-        mIndex = new SparseArray<>();
-        int size1 = mCursor != null ? mCursorCount : mItems.size();
-        int size2 = mMergedItems.size();
-        int counter1 = 0;
-        int counter2 = 0;
-        int i = 0;
-        while (counter1 < size1 || counter2 < size2) {
-            if (mCursor != null && mCursor.isClosed()) {
-                Log.e(TAG, "updateIndex - Aborting. Cursor has been closed.");
-                return;
-            }
-            int compareResult;
-            if (counter1 < size1 && counter2 < size2) {
-                compareResult =
-                        getSortString(mMergedItems, counter2).compareTo(getSortString(counter1));
-            } else if (counter1 >= size1) {
-                compareResult = -1;
-            } else {
-                compareResult = 1;
-            }
-            if (compareResult > 0) {
-                Index index = new Index();
-                index.fromMergedItems = false;
-                index.index = counter1++;
-                mIndex.put(i++, index);
-            } else if (compareResult < 0) {
-                Index index = new Index();
-                index.fromMergedItems = true;
-                index.index = counter2++;
-                mIndex.put(i++, index);
-            } else {
-                if (rawGet(counter1) != mMergedItems.get(counter2)) {
-                    Index index = new Index();
-                    index.fromMergedItems = true;
-                    index.index = counter2++;
-                    mIndex.put(i++, index);
-                } else {
-                    counter2++;
-                }
-                Index index = new Index();
-                index.fromMergedItems = false;
-                index.index = counter1++;
-                mIndex.put(i++, index);
-            }
         }
     }
 
@@ -243,54 +159,6 @@ public class CollectionCursor<T> {
             return ((ArtistAlphaComparable) mItems.get(location)).getArtist().getName();
         }
         Log.e(TAG, "getArtistName(int location) - Couldn't return a string");
-        return null;
-    }
-
-    private String getSortString(int location) {
-        if (mCursor != null) {
-            mCursor.moveToPosition(location);
-            if (mClass == PlaylistEntry.class || mClass == Result.class) {
-                if (mSortMode == Collection.SORT_ALPHA) {
-                    return mCursor.getString(3);
-                } else if (mSortMode == Collection.SORT_ARTIST_ALPHA) {
-                    return mCursor.getString(0);
-                } else if (mSortMode == Collection.SORT_LAST_MODIFIED) {
-                    return mCursor.getString(8);
-                }
-            } else if (mClass == Album.class) {
-                if (mSortMode == Collection.SORT_ALPHA) {
-                    return mCursor.getString(0);
-                } else if (mSortMode == Collection.SORT_ARTIST_ALPHA) {
-                    return mCursor.getString(1);
-                } else if (mSortMode == Collection.SORT_LAST_MODIFIED) {
-                    return mCursor.getString(4);
-                }
-            } else if (mClass == Artist.class) {
-                if (mSortMode == Collection.SORT_ALPHA) {
-                    return mCursor.getString(0);
-                } else if (mSortMode == Collection.SORT_LAST_MODIFIED) {
-                    return mCursor.getString(2);
-                }
-            }
-        } else {
-            return getSortString(mItems, location);
-        }
-        Log.e(TAG, "getSortString(int location) - Couldn't return a string");
-        return null;
-    }
-
-    private String getSortString(List<T> items, int location) {
-        if (mSortMode == Collection.SORT_ALPHA) {
-            AlphaComparable item = (AlphaComparable) items.get(location);
-            return item.getName();
-        } else if (mSortMode == Collection.SORT_ARTIST_ALPHA) {
-            ArtistAlphaComparable item = (ArtistAlphaComparable) items.get(location);
-            return item.getArtist().getName();
-        } else if (mSortMode == Collection.SORT_LAST_MODIFIED) {
-            AlphaComparable item = (AlphaComparable) items.get(location); //TODO
-            return item.getName();
-        }
-        Log.e(TAG, "getSortString(List<T> items, int location) - Couldn't return a string");
         return null;
     }
 }
