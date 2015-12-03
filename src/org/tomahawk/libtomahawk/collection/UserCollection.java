@@ -23,6 +23,7 @@ import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.database.CollectionDb;
 import org.tomahawk.libtomahawk.database.CollectionDbManager;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.database.UserCollectionDb;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.UserCollectionStubResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
@@ -477,5 +478,44 @@ public class UserCollection extends DbCollection {
             }
         }
         return false;
+    }
+
+    public void addLoved(Artist... artists) {
+        UserCollectionDb db = (UserCollectionDb) CollectionDbManager.get().getCollectionDb(
+                TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        db.add(artists);
+    }
+
+    public void removeLoved(Artist... artists) {
+        UserCollectionDb db = (UserCollectionDb) CollectionDbManager.get().getCollectionDb(
+                TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        db.remove(artists);
+    }
+
+
+    public boolean isLoved(Artist artist) {
+        UserCollectionDb db = (UserCollectionDb) CollectionDbManager.get().getCollectionDb(
+                TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        return db.isLoved(artist);
+    }
+
+
+    public void addLoved(Album... albums) {
+        UserCollectionDb db = (UserCollectionDb) CollectionDbManager.get().getCollectionDb(
+                TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        db.add(albums);
+    }
+
+    public void removeLoved(Album... albums) {
+        UserCollectionDb db = (UserCollectionDb) CollectionDbManager.get().getCollectionDb(
+                TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        db.remove(albums);
+    }
+
+
+    public boolean isLoved(Album album) {
+        UserCollectionDb db = (UserCollectionDb) CollectionDbManager.get().getCollectionDb(
+                TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        return db.isLoved(album);
     }
 }

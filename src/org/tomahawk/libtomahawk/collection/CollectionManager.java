@@ -238,19 +238,18 @@ public class CollectionManager {
     }
 
     public void toggleLovedItem(final Artist artist) {
-        boolean doSweetSweetLovin = !DatabaseHelper.get().isItemLoved(artist);
+        UserCollection userCollection =
+                (UserCollection) getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        boolean doSweetSweetLovin = !userCollection.isLoved(artist);
         Log.d(TAG, "Hatchet sync - " + (doSweetSweetLovin ? "starred" : "unstarred") + " artist "
                 + artist.getName());
-        DatabaseHelper.get().setLovedItem(artist, doSweetSweetLovin);
-        UpdatedEvent event = new UpdatedEvent();
-        event.mUpdatedItemIds = new HashSet<>();
-        event.mUpdatedItemIds.add(artist.getCacheKey());
-        EventBus.getDefault().post(event);
         final AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         if (doSweetSweetLovin) {
+            userCollection.addLoved(artist);
             InfoSystem.get().sendRelationshipPostStruct(hatchetAuthUtils, artist);
         } else {
+            userCollection.removeLoved(artist);
             User.getSelf().done(new DoneCallback<User>() {
                 @Override
                 public void onDone(User result) {
@@ -264,22 +263,25 @@ public class CollectionManager {
                 }
             });
         }
+        UpdatedEvent event = new UpdatedEvent();
+        event.mUpdatedItemIds = new HashSet<>();
+        event.mUpdatedItemIds.add(artist.getCacheKey());
+        EventBus.getDefault().post(event);
     }
 
     public void toggleLovedItem(final Album album) {
-        boolean doSweetSweetLovin = !DatabaseHelper.get().isItemLoved(album);
+        UserCollection userCollection =
+                (UserCollection) getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+        boolean doSweetSweetLovin = !userCollection.isLoved(album);
         Log.d(TAG, "Hatchet sync - " + (doSweetSweetLovin ? "starred" : "unstarred") + " album "
                 + album.getName() + " by " + album.getArtist().getName());
-        DatabaseHelper.get().setLovedItem(album, doSweetSweetLovin);
-        UpdatedEvent event = new UpdatedEvent();
-        event.mUpdatedItemIds = new HashSet<>();
-        event.mUpdatedItemIds.add(album.getCacheKey());
-        EventBus.getDefault().post(event);
         final AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         if (doSweetSweetLovin) {
+            userCollection.addLoved(album);
             InfoSystem.get().sendRelationshipPostStruct(hatchetAuthUtils, album);
         } else {
+            userCollection.removeLoved(album);
             User.getSelf().done(new DoneCallback<User>() {
                 @Override
                 public void onDone(User result) {
@@ -293,6 +295,10 @@ public class CollectionManager {
                 }
             });
         }
+        UpdatedEvent event = new UpdatedEvent();
+        event.mUpdatedItemIds = new HashSet<>();
+        event.mUpdatedItemIds.add(album.getCacheKey());
+        EventBus.getDefault().post(event);
     }
 
     /**
@@ -559,7 +565,9 @@ public class CollectionManager {
             List<Album> fetchedAlbums = user.getStarredAlbums();
             Log.d(TAG, "Hatchet sync - received list of starred albums, count: "
                     + fetchedAlbums.size());
-            DatabaseHelper.get().storeStarredAlbums(fetchedAlbums);
+            UserCollection userCollection =
+                    (UserCollection) getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+            userCollection.addLoved(fetchedAlbums.toArray(new Album[fetchedAlbums.size()]));
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDARTISTS) {
             List<User> results = data.getResultList(User.class);
             if (results == null || results.size() == 0) {
@@ -570,7 +578,9 @@ public class CollectionManager {
             List<Artist> fetchedArtists = user.getStarredArtists();
             Log.d(TAG, "Hatchet sync - received list of starred artists, count: "
                     + fetchedArtists.size());
-            DatabaseHelper.get().storeStarredArtists(fetchedArtists);
+            UserCollection userCollection =
+                    (UserCollection) getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+            userCollection.addLoved(fetchedArtists.toArray(new Artist[fetchedArtists.size()]));
         }
     }
 

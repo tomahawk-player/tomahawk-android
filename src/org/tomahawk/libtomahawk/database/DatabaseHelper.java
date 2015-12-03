@@ -17,8 +17,6 @@
  */
 package org.tomahawk.libtomahawk.database;
 
-import org.tomahawk.libtomahawk.collection.Album;
-import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistComparator;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -688,47 +686,6 @@ public class DatabaseHelper {
     }
 
     /**
-     * Checks if an artist with the same artistName as the given artist is loved
-     *
-     * @return whether or not the given artist is loved
-     */
-    public boolean isItemLoved(Artist artist) {
-        boolean isLoved = false;
-        String[] columns = new String[]{TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME};
-
-        Cursor artistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, columns,
-                TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME + " = ?",
-                new String[]{artist.getName()}, null, null, null);
-        if (artistsCursor.getCount() > 0) {
-            isLoved = true;
-        }
-        artistsCursor.close();
-        return isLoved;
-    }
-
-    /**
-     * Checks if an album with the same albumName as the given album is loved
-     *
-     * @return whether or not the given album is loved
-     */
-    public boolean isItemLoved(Album album) {
-        boolean isLoved = false;
-        String[] columns = new String[]{TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME,
-                TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME};
-
-        Cursor albumsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, columns,
-                TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME + " = ? AND "
-                        + TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME + " = ?",
-                new String[]{album.getName(), album.getArtist().getName()}, null, null, null
-        );
-        if (albumsCursor.getCount() > 0) {
-            isLoved = true;
-        }
-        albumsCursor.close();
-        return isLoved;
-    }
-
-    /**
      * Store the given query as a lovedItem, if isLoved is true. Otherwise remove(unlove) the
      * query.
      */
@@ -751,112 +708,6 @@ public class DatabaseHelper {
             event.mPlaylistId = LOVEDITEMS_PLAYLIST_ID;
             EventBus.getDefault().post(event);
         }
-    }
-
-    /**
-     * Store the given artist as a lovedItem, if isLoved is true. Otherwise remove(unlove) it.
-     */
-    public void setLovedItem(final Artist artist, final boolean isLoved) {
-        mDatabase.beginTransaction();
-        if (isLoved) {
-            ContentValues values = new ContentValues();
-            values.put(TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME,
-                    artist.getName());
-            mDatabase.insert(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, null, values);
-        } else {
-            mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS,
-                    TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME + " = ?",
-                    new String[]{artist.getName()});
-        }
-        mDatabase.setTransactionSuccessful();
-        mDatabase.endTransaction();
-    }
-
-    /**
-     * Store the given album as a lovedItem, if isLoved is true. Otherwise remove(unlove) it.
-     */
-    public void setLovedItem(final Album album, final boolean isLoved) {
-        mDatabase.beginTransaction();
-        if (isLoved) {
-            ContentValues values = new ContentValues();
-            values.put(TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME,
-                    album.getName());
-            values.put(TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME,
-                    album.getArtist().getName());
-            mDatabase.insert(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, null, values);
-        } else {
-            mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS,
-                    TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME + " = ? AND "
-                            + TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME
-                            + " = ?",
-                    new String[]{album.getName(), album.getArtist().getName()});
-        }
-        mDatabase.setTransactionSuccessful();
-        mDatabase.endTransaction();
-    }
-
-    public void storeStarredArtists(final List<Artist> artists) {
-        mDatabase.beginTransaction();
-        mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, null, null);
-        for (Artist artist : artists) {
-            ContentValues values = new ContentValues();
-            values.put(TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME,
-                    artist.getName());
-            mDatabase.insert(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, null, values);
-        }
-        mDatabase.setTransactionSuccessful();
-        mDatabase.endTransaction();
-        EventBus.getDefault().post(new PlaylistsUpdatedEvent());
-    }
-
-    public void storeStarredAlbums(final List<Album> albums) {
-        mDatabase.beginTransaction();
-        mDatabase.delete(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, null, null);
-        for (Album album : albums) {
-            ContentValues values = new ContentValues();
-            values.put(TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME,
-                    album.getName());
-            values.put(TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME,
-                    album.getArtist().getName());
-            mDatabase.insert(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS, null, values);
-        }
-        mDatabase.setTransactionSuccessful();
-        mDatabase.endTransaction();
-        EventBus.getDefault().post(new PlaylistsUpdatedEvent());
-    }
-
-    public ArrayList<Artist> getStarredArtists() {
-        ArrayList<Artist> starredArtists = new ArrayList<>();
-        String[] columns = new String[]{TomahawkSQLiteHelper.LOVED_ARTISTS_COLUMN_ARTISTNAME};
-
-        Cursor artistsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_LOVED_ARTISTS, columns,
-                null, null, null, null, null);
-        artistsCursor.moveToFirst();
-        while (!artistsCursor.isAfterLast()) {
-            String artistName = artistsCursor.getString(0);
-            starredArtists.add(Artist.get(artistName));
-            artistsCursor.moveToNext();
-        }
-        artistsCursor.close();
-        return starredArtists;
-    }
-
-    public ArrayList<Album> getStarredAlbums() {
-        ArrayList<Album> starredAlbums = new ArrayList<>();
-        String[] columns = new String[]{TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ARTISTNAME,
-                TomahawkSQLiteHelper.LOVED_ALBUMS_COLUMN_ALBUMNAME};
-
-        Cursor albumsCursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_LOVED_ALBUMS,
-                columns, null, null, null, null, null);
-        albumsCursor.moveToFirst();
-        while (!albumsCursor.isAfterLast()) {
-            String artistName = albumsCursor.getString(0);
-            String albumName = albumsCursor.getString(1);
-            starredAlbums.add(Album.get(albumName, Artist.get(artistName)));
-            albumsCursor.moveToNext();
-        }
-        albumsCursor.close();
-        return starredAlbums;
     }
 
     public Cursor getSearchHistoryCursor(String entry) {

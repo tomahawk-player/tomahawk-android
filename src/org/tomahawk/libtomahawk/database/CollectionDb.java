@@ -52,6 +52,8 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     public static final String ARTISTS_LASTMODIFIED = "artistLastModified";
 
+    public static final String ARTISTS_TYPE = "artistType";
+
     public static final String TABLE_ALBUMARTISTS = "albumArtists";
 
     public static final String ALBUMARTISTS_ALBUMARTIST = "albumArtist";
@@ -69,6 +71,8 @@ public class CollectionDb extends SQLiteOpenHelper {
     public static final String ALBUMS_ALBUMARTISTID = "albumArtistId";
 
     public static final String ALBUMS_LASTMODIFIED = "albumLastModified";
+
+    public static final String ALBUMS_TYPE = "albumType";
 
     public static final String TABLE_ARTISTALBUMS = "artistAlbums";
 
@@ -94,13 +98,26 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     public static final String TRACKS_LASTMODIFIED = "trackLastModified";
 
+    protected static final int TYPE_DEFAULT = 0;
+
+    // This type marks an entry that has been explicitly loved.
+    // E.g. an artist that has been loved by the user.
+    protected static final int TYPE_HATCHET_EXPLICIT = 1;
+
+    // This type marks an entry that has not been explicitly loved by the user but has been added to
+    // the collection because it was necessary in order to love another entry. E.g. an artist that
+    // was added implicitly because an album has been loved by the user.
+    protected static final int TYPE_HATCHET_IMPLICIT = 2;
+
     private static final String CREATE_TABLE_ARTISTS = "CREATE TABLE IF NOT EXISTS "
             + TABLE_ARTISTS + " ("
             + ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + ARTISTS_ARTIST + " TEXT,"
             + ARTISTS_ARTISTDISAMBIGUATION + " TEXT,"
             + ARTISTS_LASTMODIFIED + " INTEGER,"
-            + "UNIQUE (" + ARTISTS_ARTIST + ", " + ARTISTS_ARTISTDISAMBIGUATION
+            + ARTISTS_TYPE + " INTEGER,"
+            + "UNIQUE (" + ARTISTS_ARTIST + ", " + ARTISTS_ARTISTDISAMBIGUATION + ", "
+            + ARTISTS_TYPE
             + ") ON CONFLICT IGNORE);";
 
     private static final String CREATE_TABLE_ALBUMARTISTS = "CREATE TABLE IF NOT EXISTS "
@@ -119,7 +136,9 @@ public class CollectionDb extends SQLiteOpenHelper {
             + ALBUMS_ALBUMARTISTID + " INTEGER,"
             + ALBUMS_IMAGEPATH + " TEXT,"
             + ALBUMS_LASTMODIFIED + " INTEGER,"
-            + "UNIQUE (" + ALBUMS_ALBUM + ", " + ALBUMS_ALBUMARTISTID + ") ON CONFLICT IGNORE,"
+            + ALBUMS_TYPE + " INTEGER,"
+            + "UNIQUE (" + ALBUMS_ALBUM + ", " + ALBUMS_ALBUMARTISTID + ", " + ALBUMS_TYPE
+            + ") ON CONFLICT IGNORE,"
             + "FOREIGN KEY(" + ALBUMS_ALBUMARTISTID + ") REFERENCES "
             + TABLE_ALBUMARTISTS + "(" + ID + "));";
 
@@ -153,11 +172,11 @@ public class CollectionDb extends SQLiteOpenHelper {
             + "FOREIGN KEY(" + TRACKS_ALBUMID + ") REFERENCES "
             + TABLE_ALBUMS + "(" + ID + "));";
 
-    private static final int DB_VERSION = 3;
+    private static final int DB_VERSION = 4;
 
     private static final String DB_FILE_SUFFIX = "_collection.db";
 
-    private final SQLiteDatabase mDb;
+    protected final SQLiteDatabase mDb;
 
     private static final String LAST_COLLECTION_DB_UPDATE_SUFFIX = "_last_collection_db_update";
 
@@ -207,11 +226,7 @@ public class CollectionDb extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         Log.d(TAG, "Upgrading database from version " + oldVersion + " to " + newVersion
                 + ", which might destroy all old data");
-        if (oldVersion < 2) {
-            db.execSQL("ALTER TABLE `" + TABLE_ALBUMS + "` ADD COLUMN `"
-                    + ALBUMS_IMAGEPATH + "` TEXT");
-        }
-        if (oldVersion < 3) {
+        if (oldVersion < 4) {
             wipe(db);
         }
     }
@@ -269,6 +284,7 @@ public class CollectionDb extends SQLiteOpenHelper {
                     lastModified = track.lastModified;
                 }
                 values.put(ARTISTS_LASTMODIFIED, lastModified);
+                values.put(ARTISTS_TYPE, TYPE_DEFAULT);
                 mDb.insert(TABLE_ARTISTS, null, values);
             }
             ContentValues values = new ContentValues();
@@ -281,6 +297,7 @@ public class CollectionDb extends SQLiteOpenHelper {
                 lastModified = track.lastModified;
             }
             values.put(ARTISTS_LASTMODIFIED, lastModified);
+            values.put(ARTISTS_TYPE, TYPE_DEFAULT);
             mDb.insert(TABLE_ARTISTS, null, values);
             values = new ContentValues();
             values.put(ALBUMARTISTS_ALBUMARTIST, track.albumArtist);
@@ -330,6 +347,7 @@ public class CollectionDb extends SQLiteOpenHelper {
                 lastModified = track.lastModified;
             }
             values.put(ALBUMS_LASTMODIFIED, lastModified);
+            values.put(ALBUMS_TYPE, TYPE_DEFAULT);
             mDb.insert(TABLE_ALBUMS, null, values);
         }
 
@@ -427,7 +445,9 @@ public class CollectionDb extends SQLiteOpenHelper {
         joinInfo.table = TABLE_ALBUMS;
         joinInfo.conditions.put(TABLE_TRACKS + "." + TRACKS_ALBUMID, TABLE_ALBUMS + "." + ID);
         joinInfos.add(joinInfo);
-        return sqlSelect(TABLE_TRACKS, fields, where, joinInfos, orderBy);
+        String[] groupBy = new String[]{TRACKS_TRACK, ARTISTS_ARTIST, ALBUMS_ALBUM};
+        return sqlSelect(TABLE_TRACKS, fields, where, joinInfos, orderBy, groupBy, null,
+                TRACKS_LASTMODIFIED, false);
     }
 
     public synchronized long tracksCurrentRevision() {
@@ -436,7 +456,7 @@ public class CollectionDb extends SQLiteOpenHelper {
         Cursor cursor = null;
         try {
             cursor = sqlSelect(TABLE_TRACKS, fields, null, null,
-                    new String[]{TRACKS_LASTMODIFIED + " DESC"});
+                    new String[]{TRACKS_LASTMODIFIED + " DESC"}, null, null, null, false);
             if (cursor.moveToFirst()) {
                 currentRevision = cursor.getLong(0);
             } else {
@@ -460,19 +480,28 @@ public class CollectionDb extends SQLiteOpenHelper {
         joinInfo.conditions.put(
                 TABLE_ALBUMS + "." + ALBUMS_ALBUMARTISTID, TABLE_ARTISTS + "." + ID);
         joinInfos.add(joinInfo);
-        return sqlSelect(TABLE_ALBUMS, fields, null, joinInfos, orderBy);
+        String[] groupBy = new String[]{ALBUMS_ALBUM, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION};
+        return sqlSelect(TABLE_ALBUMS, fields, null, joinInfos, orderBy, groupBy, ALBUMS_TYPE,
+                ALBUMS_LASTMODIFIED, false);
     }
 
     public synchronized Cursor artists(String[] orderBy) {
         String[] fields = new String[]{ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION,
                 ARTISTS_LASTMODIFIED};
-        return sqlSelect(TABLE_ARTISTS, fields, null, null, orderBy);
+        JoinInfo joinInfo = new JoinInfo();
+        joinInfo.table = TABLE_ARTISTS;
+        String[] groupBy = new String[]{ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION};
+        return sqlSelect(TABLE_ARTISTS, fields, null, null, orderBy, groupBy, ARTISTS_TYPE,
+                ARTISTS_LASTMODIFIED, false);
     }
 
     public synchronized Cursor albumArtists(String[] orderBy) {
         String[] fields = new String[]{ALBUMARTISTS_ALBUMARTIST,
                 ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION, ALBUMARTISTS_LASTMODIFIED};
-        return sqlSelect(TABLE_ALBUMARTISTS, fields, null, null, orderBy);
+        String[] groupBy = new String[]{ALBUMARTISTS_ALBUMARTIST,
+                ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION};
+        return sqlSelect(TABLE_ALBUMARTISTS, fields, null, null, orderBy, groupBy, null,
+                ALBUMARTISTS_LASTMODIFIED, false);
     }
 
     public synchronized long artistCurrentRevision(String artist, String artistDisambiguation) {
@@ -484,7 +513,8 @@ public class CollectionDb extends SQLiteOpenHelper {
         long currentRevision = -1;
         Cursor cursor = null;
         try {
-            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null);
+            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null, null, null, null,
+                    false);
             if (cursor.moveToFirst()) {
                 currentRevision = cursor.getLong(0);
             } else {
@@ -508,7 +538,8 @@ public class CollectionDb extends SQLiteOpenHelper {
         int artistId;
         Cursor cursor = null;
         try {
-            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null);
+            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null, null, ARTISTS_TYPE,
+                    null, true);
             if (cursor.moveToFirst()) {
                 artistId = cursor.getInt(0);
             } else {
@@ -537,7 +568,7 @@ public class CollectionDb extends SQLiteOpenHelper {
                 TABLE_ALBUMS + "." + ALBUMS_ALBUMARTISTID, TABLE_ARTISTS + "." + ID);
         joinInfos.add(joinInfo);
         return sqlSelect(TABLE_ARTISTALBUMS, fields, whereInfo, joinInfos,
-                new String[]{ALBUMS_ALBUM});
+                new String[]{ALBUMS_ALBUM}, null, ALBUMS_TYPE, null, true);
     }
 
     public synchronized long albumCurrentRevision(String album, String albumArtist,
@@ -550,7 +581,8 @@ public class CollectionDb extends SQLiteOpenHelper {
         int artistId;
         Cursor cursor = null;
         try {
-            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null);
+            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null, null, null, null,
+                    false);
             if (cursor.moveToFirst()) {
                 artistId = cursor.getInt(0);
             } else {
@@ -570,7 +602,8 @@ public class CollectionDb extends SQLiteOpenHelper {
         long currentRevision = -1;
         cursor = null;
         try {
-            cursor = sqlSelect(TABLE_ALBUMS, fields, whereInfo, null, null);
+            cursor = sqlSelect(TABLE_ALBUMS, fields, whereInfo, null, null, null, null, null,
+                    false);
             if (cursor.moveToFirst()) {
                 currentRevision = cursor.getLong(0);
             } else {
@@ -595,7 +628,8 @@ public class CollectionDb extends SQLiteOpenHelper {
         int artistId;
         Cursor cursor = null;
         try {
-            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null);
+            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null, null, ARTISTS_TYPE,
+                    null, true);
             if (cursor.moveToFirst()) {
                 artistId = cursor.getInt(0);
             } else {
@@ -615,7 +649,8 @@ public class CollectionDb extends SQLiteOpenHelper {
         int albumId;
         cursor = null;
         try {
-            cursor = sqlSelect(TABLE_ALBUMS, fields, whereInfo, null, null);
+            cursor = sqlSelect(TABLE_ALBUMS, fields, whereInfo, null, null, null, ALBUMS_TYPE,
+                    null, true);
             if (cursor.moveToFirst()) {
                 albumId = cursor.getInt(0);
             } else {
@@ -630,12 +665,13 @@ public class CollectionDb extends SQLiteOpenHelper {
 
         whereInfo = new WhereInfo();
         whereInfo.connection = "AND";
-        whereInfo.where.put(TRACKS_ALBUMID, new String[]{String.valueOf(String.valueOf(albumId))});
+        whereInfo.where.put(TRACKS_ALBUMID, new String[]{String.valueOf(albumId)});
         return tracks(whereInfo, new String[]{TRACKS_ALBUMPOS});
     }
 
     private Cursor sqlSelect(String table, String[] fields, WhereInfo where,
-            List<JoinInfo> joinInfos, String[] orderBy) {
+            List<JoinInfo> joinInfos, String[] orderBy, String[] groupBy, String typeColumn,
+            String lastModifiedColumn, boolean filterAllLoved) {
         String whereString = "";
         List<String> allWhereValues = new ArrayList<>();
         if (where != null) {
@@ -652,6 +688,26 @@ public class CollectionDb extends SQLiteOpenHelper {
                     allWhereValues.add(whereValue);
                 }
             }
+        }
+        if (typeColumn != null) {
+            if (whereString.isEmpty()) {
+                whereString = " WHERE ";
+            } else {
+                whereString += " AND ";
+            }
+            // filter out all implicitly added items
+            whereString += typeColumn + " != ?";
+            allWhereValues.add(String.valueOf(TYPE_HATCHET_IMPLICIT));
+        }
+        if (filterAllLoved) {
+            if (whereString.isEmpty()) {
+                whereString = " WHERE ";
+            } else {
+                whereString += " AND ";
+            }
+            // filter out all explicitly added items
+            whereString += typeColumn + " != ?";
+            allWhereValues.add(String.valueOf(TYPE_HATCHET_EXPLICIT));
         }
 
         String joinString = "";
@@ -676,12 +732,24 @@ public class CollectionDb extends SQLiteOpenHelper {
             orderString = "";
         }
 
+        String deduplicationOrderString = "";
+        String groupString = StringUtils.join(" , ", groupBy);
+        if (groupBy != null) {
+            groupString = " GROUP BY " + groupString;
+            if (lastModifiedColumn != null) {
+                deduplicationOrderString = " ORDER BY " + lastModifiedColumn;
+            }
+        } else {
+            groupString = "";
+        }
+
         String fieldsString = StringUtils.join(", ", fields);
         if (fields == null) {
             fieldsString = "*";
         }
-        String statement = "SELECT " + fieldsString + " FROM " + table + joinString + whereString
-                + " ORDER BY " + orderString;
+
+        String statement = "SELECT * FROM ( SELECT " + fieldsString + " FROM " + table + joinString
+                + whereString + deduplicationOrderString + " ) " + groupString + orderString;
         String[] allWhereValuesArray = null;
         if (allWhereValues.size() > 0) {
             allWhereValuesArray = allWhereValues.toArray(new String[allWhereValues.size()]);
