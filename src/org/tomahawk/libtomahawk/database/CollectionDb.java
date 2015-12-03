@@ -190,6 +190,8 @@ public class CollectionDb extends SQLiteOpenHelper {
 
         public Map<String, String[]> where = new HashMap<>();
 
+        public boolean equals = true;
+
     }
 
     private static class JoinInfo {
@@ -480,8 +482,12 @@ public class CollectionDb extends SQLiteOpenHelper {
         joinInfo.conditions.put(
                 TABLE_ALBUMS + "." + ALBUMS_ALBUMARTISTID, TABLE_ARTISTS + "." + ID);
         joinInfos.add(joinInfo);
+        WhereInfo whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(ALBUMS_ALBUM, new String[]{""});
+        whereInfo.equals = false;
         String[] groupBy = new String[]{ALBUMS_ALBUM, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION};
-        return sqlSelect(TABLE_ALBUMS, fields, null, joinInfos, orderBy, groupBy, ALBUMS_TYPE,
+        return sqlSelect(TABLE_ALBUMS, fields, whereInfo, joinInfos, orderBy, groupBy, ALBUMS_TYPE,
                 ALBUMS_LASTMODIFIED, false);
     }
 
@@ -490,8 +496,12 @@ public class CollectionDb extends SQLiteOpenHelper {
                 ARTISTS_LASTMODIFIED};
         JoinInfo joinInfo = new JoinInfo();
         joinInfo.table = TABLE_ARTISTS;
+        WhereInfo whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(ARTISTS_ARTIST, new String[]{Artist.COMPILATION_ARTIST.getName(), ""});
+        whereInfo.equals = false;
         String[] groupBy = new String[]{ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION};
-        return sqlSelect(TABLE_ARTISTS, fields, null, null, orderBy, groupBy, ARTISTS_TYPE,
+        return sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, orderBy, groupBy, ARTISTS_TYPE,
                 ARTISTS_LASTMODIFIED, false);
     }
 
@@ -500,7 +510,11 @@ public class CollectionDb extends SQLiteOpenHelper {
                 ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION, ALBUMARTISTS_LASTMODIFIED};
         String[] groupBy = new String[]{ALBUMARTISTS_ALBUMARTIST,
                 ALBUMARTISTS_ALBUMARTISTDISAMBIGUATION};
-        return sqlSelect(TABLE_ALBUMARTISTS, fields, null, null, orderBy, groupBy, null,
+        WhereInfo whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(ARTISTS_ARTIST, new String[]{Artist.COMPILATION_ARTIST.getName(), ""});
+        whereInfo.equals = false;
+        return sqlSelect(TABLE_ALBUMARTISTS, fields, whereInfo, null, orderBy, groupBy, null,
                 ALBUMARTISTS_LASTMODIFIED, false);
     }
 
@@ -684,7 +698,7 @@ public class CollectionDb extends SQLiteOpenHelper {
                         whereString += " " + where.connection + " ";
                     }
                     notFirst = true;
-                    whereString += table + "." + whereKey + " = ?";
+                    whereString += table + "." + whereKey + (where.equals ? " = " : " != ") + "?";
                     allWhereValues.add(whereValue);
                 }
             }
