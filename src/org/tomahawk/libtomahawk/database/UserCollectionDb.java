@@ -39,6 +39,7 @@ public class UserCollectionDb extends CollectionDb {
             values.put(ARTISTS_ARTIST, artist.getName());
             values.put(ARTISTS_ARTISTDISAMBIGUATION, "");
             values.put(ARTISTS_TYPE, TYPE_HATCHET_EXPLICIT);
+            values.put(ARTISTS_LASTMODIFIED, Long.MAX_VALUE);
             mDb.insert(TABLE_ARTISTS, null, values);
         }
         mDb.setTransactionSuccessful();
@@ -79,6 +80,7 @@ public class UserCollectionDb extends CollectionDb {
             values.put(ARTISTS_ARTIST, album.getArtist().getName());
             values.put(ARTISTS_ARTISTDISAMBIGUATION, "");
             values.put(ARTISTS_TYPE, TYPE_HATCHET_IMPLICIT);
+            values.put(ARTISTS_LASTMODIFIED, Long.MAX_VALUE);
             mDb.insert(TABLE_ARTISTS, null, values);
         }
         mDb.setTransactionSuccessful();
@@ -92,6 +94,7 @@ public class UserCollectionDb extends CollectionDb {
             values.put(ALBUMS_ALBUMARTISTID,
                     getArtistId(album.getArtist().getName(), TYPE_HATCHET_IMPLICIT));
             values.put(ALBUMS_TYPE, TYPE_HATCHET_EXPLICIT);
+            values.put(ALBUMS_LASTMODIFIED, Long.MAX_VALUE);
             mDb.insert(TABLE_ALBUMS, null, values);
         }
         mDb.setTransactionSuccessful();
