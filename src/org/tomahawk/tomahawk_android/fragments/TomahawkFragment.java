@@ -408,7 +408,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         mIsResumed = false;
 
         if (mTomahawkListAdapter != null) {
-            mTomahawkListAdapter.closeSegments();
+            mTomahawkListAdapter.closeSegments(null);
             setListAdapter(null);
             mTomahawkListAdapter = null;
         }
@@ -442,6 +442,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected void fillAdapter(List<Segment> segments) {
         fillAdapter(segments, null, null);
+    }
+
+    protected void fillAdapter(List<Segment> segments, Collection collection) {
+        fillAdapter(segments, null, collection);
     }
 
     protected void fillAdapter(final List<Segment> segments, final View headerSpacerForwardView,

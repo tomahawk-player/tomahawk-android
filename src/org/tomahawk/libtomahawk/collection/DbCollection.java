@@ -343,6 +343,42 @@ public abstract class DbCollection extends Collection {
     }
 
     @Override
+    public Promise<Playlist, Throwable, Void> getArtistTracks(final Artist artist) {
+        final Deferred<Playlist, Throwable, Void> deferred = new ADeferredObject<>();
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(final String collectionId) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        CollectionDb db = CollectionDbManager.get().getCollectionDb(collectionId);
+                        String currentRevision =
+                                String.valueOf(db.artistCurrentRevision(artist.getName(), ""));
+                        Playlist playlist = Playlist.get(
+                                collectionId + "_" + artist.getCacheKey() + "_" + currentRevision,
+                                false);
+                        if (playlist.getCurrentRevision().isEmpty()) {
+                            Cursor cursor = db.artistTracks(artist.getName(), "");
+                            if (cursor == null) {
+                                deferred.resolve(null);
+                                return;
+                            }
+                            CollectionCursor<PlaylistEntry> collectionCursor
+                                    = new CollectionCursor<>(
+                                    cursor, PlaylistEntry.class, mResolver, playlist);
+                            playlist.setCursor(collectionCursor);
+                            playlist.setFilled(true);
+                            playlist.setCurrentRevision(currentRevision);
+                        }
+                        deferred.resolve(playlist);
+                    }
+                }).start();
+            }
+        });
+        return deferred;
+    }
+
+    @Override
     public Promise<Playlist, Throwable, Void> getAlbumTracks(final Album album) {
         final Deferred<Playlist, Throwable, Void> deferred = new ADeferredObject<>();
         getCollectionId().done(new DoneCallback<String>() {

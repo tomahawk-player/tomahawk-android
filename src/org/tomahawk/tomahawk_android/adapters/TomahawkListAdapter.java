@@ -150,7 +150,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     }
 
     private void setSegments(List<Segment> segments) {
-        closeSegments();
+        closeSegments(segments);
         mSegments = segments;
         mRowCount = 0;
         for (Segment segment : mSegments) {
@@ -158,10 +158,12 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         }
     }
 
-    public void closeSegments() {
+    public void closeSegments(List<Segment> newSegments) {
         if (mSegments != null) {
             for (Segment segment : mSegments) {
-                segment.close();
+                if (newSegments == null || !newSegments.contains(segment)) {
+                    segment.close();
+                }
             }
         }
     }
@@ -246,7 +248,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             }
         }
         if (viewHolders.size() != expectedViewHoldersCount
-                || viewHolders.get(0).mLayoutId != viewType) {
+                || viewHolders.size() == 0 || viewHolders.get(0).mLayoutId != viewType) {
             // If the viewHolder is null or the old viewType is different than the new one,
             // we need to inflate a new view and construct a new viewHolder,
             // which we set as the view's tag
@@ -719,7 +721,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             View view = getView(i, null, listView.getWrappedList());
             if (view != null) {
                 view.measure(View.MeasureSpec.makeMeasureSpec(0,
-                                View.MeasureSpec.UNSPECIFIED),
+                        View.MeasureSpec.UNSPECIFIED),
                         View.MeasureSpec.makeMeasureSpec(0,
                                 View.MeasureSpec.UNSPECIFIED));
                 footerSpacerHeight -= view.getMeasuredHeight();
@@ -729,7 +731,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 View headerView = getHeaderView(i, null, listView.getWrappedList());
                 if (headerView != null) {
                     headerView.measure(View.MeasureSpec.makeMeasureSpec(0,
-                                    View.MeasureSpec.UNSPECIFIED),
+                            View.MeasureSpec.UNSPECIFIED),
                             View.MeasureSpec.makeMeasureSpec(0,
                                     View.MeasureSpec.UNSPECIFIED));
                     footerSpacerHeight -= headerView.getMeasuredHeight();
