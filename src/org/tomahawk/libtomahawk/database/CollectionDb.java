@@ -433,7 +433,7 @@ public class CollectionDb extends SQLiteOpenHelper {
     public synchronized Cursor tracks(WhereInfo where, String[] orderBy) {
         String[] fields = new String[]{ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION, ALBUMS_ALBUM,
                 TRACKS_TRACK, TRACKS_DURATION, TRACKS_URL, TRACKS_LINKURL, TRACKS_ALBUMPOS,
-                TRACKS_LASTMODIFIED};
+                TRACKS_LASTMODIFIED, TRACKS_ALBUMID};
         return tracks(where, orderBy, fields);
     }
 
@@ -681,6 +681,35 @@ public class CollectionDb extends SQLiteOpenHelper {
         whereInfo.connection = "AND";
         whereInfo.where.put(TRACKS_ALBUMID, new String[]{String.valueOf(albumId)});
         return tracks(whereInfo, new String[]{TRACKS_ALBUMPOS});
+    }
+
+    public synchronized Cursor artistTracks(String artist, String artistDisambiguation) {
+        String[] fields = new String[]{ID};
+        WhereInfo whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(ARTISTS_ARTIST, new String[]{artist});
+        whereInfo.where.put(ARTISTS_ARTISTDISAMBIGUATION, new String[]{artistDisambiguation});
+        int artistId;
+        Cursor cursor = null;
+        try {
+            cursor = sqlSelect(TABLE_ARTISTS, fields, whereInfo, null, null, null, ARTISTS_TYPE,
+                    null, true);
+            if (cursor.moveToFirst()) {
+                artistId = cursor.getInt(0);
+            } else {
+                Log.e(TAG, "artistTracks - Couldn't find artist with given name!");
+                return null;
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        whereInfo = new WhereInfo();
+        whereInfo.connection = "AND";
+        whereInfo.where.put(TRACKS_ARTISTID, new String[]{String.valueOf(artistId)});
+        return tracks(whereInfo, new String[]{TRACKS_ALBUMID});
     }
 
     private Cursor sqlSelect(String table, String[] fields, WhereInfo where,

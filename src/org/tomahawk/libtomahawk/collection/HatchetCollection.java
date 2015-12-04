@@ -171,6 +171,12 @@ public class HatchetCollection extends Collection {
         return deferred.resolve(collectionCursor);
     }
 
+    @Override
+    public Promise<Playlist, Throwable, Void> getArtistTracks(Artist artist) {
+        Deferred<Playlist, Throwable, Void> deferred = new ADeferredObject<>();
+        return deferred.resolve(null);
+    }
+
     public void addAlbumTracks(Album album, Playlist playlist) {
         mAlbumTracks.put(album, playlist);
     }

@@ -81,6 +81,8 @@ public abstract class Collection {
     public abstract Promise<CollectionCursor<Album>, Throwable, Void> getArtistAlbums(
             Artist artist);
 
+    public abstract Promise<Playlist, Throwable, Void> getArtistTracks(Artist artist);
+
     public abstract Promise<Playlist, Throwable, Void> getAlbumTracks(Album album);
 
     public abstract Promise<Integer, Throwable, Void> getAlbumTrackCount(Album album);

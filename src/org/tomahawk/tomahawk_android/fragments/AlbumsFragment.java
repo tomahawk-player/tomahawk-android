@@ -124,6 +124,22 @@ public class AlbumsFragment extends TomahawkFragment {
 
         if (mArtist != null) {
             if (!TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
+                final List<Segment> segments = new ArrayList<>();
+                mCollection.getArtistTracks(mArtist).done(new DoneCallback<Playlist>() {
+                    @Override
+                    public void onDone(Playlist artistTracks) {
+                        Segment segment = new Segment.Builder(artistTracks)
+                                .headerLayout(R.layout.single_line_list_header)
+                                .headerString(mCollection.getName() + " "
+                                        + getString(R.string.tracks))
+                                .build();
+                        segment.setShowNumeration(true, 1);
+                        segment.setHideArtistName(true);
+                        segment.setShowDuration(true);
+                        segments.add(0, segment);
+                        fillAdapter(segments, mCollection);
+                    }
+                });
                 mCollection.getArtistAlbums(mArtist)
                         .done(new DoneCallback<CollectionCursor<Album>>() {
                             @Override
@@ -136,7 +152,8 @@ public class AlbumsFragment extends TomahawkFragment {
                                                 R.dimen.padding_superlarge,
                                                 R.dimen.padding_superlarge)
                                         .build();
-                                fillAdapter(segment, mCollection);
+                                segments.add(segment);
+                                fillAdapter(segments, mCollection);
                             }
                         });
             } else {
@@ -220,7 +237,7 @@ public class AlbumsFragment extends TomahawkFragment {
                                     .headerLayout(R.layout.dropdown_header)
                                     .headerStrings(constructDropdownItems())
                                     .spinner(constructDropdownListener(
-                                                    COLLECTION_ALBUMS_SPINNER_POSITION),
+                                            COLLECTION_ALBUMS_SPINNER_POSITION),
                                             getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION))
                                     .showAsGrid(R.integer.grid_column_count,
                                             R.dimen.padding_superlarge,
