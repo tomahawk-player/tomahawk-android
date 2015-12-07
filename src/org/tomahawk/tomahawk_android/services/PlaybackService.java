@@ -199,7 +199,7 @@ public class PlaybackService extends Service implements MusicFocusable {
 
     private PlaylistEntry mCurrentEntry;
 
-    private int mCurrentIndex;
+    private int mCurrentIndex = -1;
 
     private TomahawkMediaPlayer mCurrentMediaPlayer;
 
@@ -1180,8 +1180,12 @@ public class PlaybackService extends Service implements MusicFocusable {
             mQueueStartPos = mCurrentIndex + 1;
         }
         mQueue.addQuery(0, query);
-        EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
-        onTrackChanged();
+        if (getCurrentEntry() == null) {
+            setCurrentEntry(getPlaybackListEntry(0));
+        } else {
+            EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
+            onTrackChanged();
+        }
     }
 
     /**
