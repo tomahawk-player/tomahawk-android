@@ -7,7 +7,7 @@
   <string name="register">Registrer</string>
   <string name="register_and_login">Registrer &amp; Logg på</string>
   <string name="internal_storage">Intern lagring</string>
-  <string name="tracks">Spor</string>
+  <string name="tracks">Låter</string>
   <string name="albums">Albumer</string>
   <string name="artists">Artister</string>
   <string name="users">Brukere</string>
@@ -15,7 +15,7 @@
   <string name="search">Søk</string>
   <string name="playlist">Spilleliste</string>
   <string name="unknown">ukjent</string>
-  <string name="no_track">ingen spor</string>
+  <string name="no_track">ingen låter</string>
   <string name="save_playlist">Lagre nåværende spilleliste</string>
   <string name="create_playlist">Opprett spilleliste</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
