@@ -38,3 +38,7 @@ Tomahawk.Collection.addTracks = function (params) {
 Tomahawk.Collection.wipe = function (params) {
     return Tomahawk.NativeScriptJobManager.invoke("collectionWipe", params);
 };
+
+Tomahawk.Collection.revision = function (params) {
+    return Tomahawk.NativeScriptJobManager.invoke("collectionRevision", params);
+};
