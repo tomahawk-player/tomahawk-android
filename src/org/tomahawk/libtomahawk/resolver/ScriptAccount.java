@@ -22,6 +22,7 @@ import com.google.gson.JsonObject;
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
+import org.tomahawk.libtomahawk.database.CollectionDb;
 import org.tomahawk.libtomahawk.database.CollectionDbManager;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
@@ -405,30 +406,36 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
                 + "'" + escapedStatusText + "');");
     }
 
-    public class CollectionAddTracksResult {
+    public class NativeScriptJobParams {
 
         String id;
 
         ScriptResolverTrack[] tracks;
     }
 
-    public class CollectionWipeResult {
-
-        String id;
-    }
-
     public void invokeNativeScriptJob(int requestId, String methodName, String paramsString) {
+        String result = null;
+        NativeScriptJobParams params =
+                GsonHelper.get().fromJson(paramsString, NativeScriptJobParams.class);
         if (methodName.equals("collectionAddTracks")) {
-            CollectionAddTracksResult result =
-                    GsonHelper.get().fromJson(paramsString, CollectionAddTracksResult.class);
-            CollectionDbManager.get().getCollectionDb(result.id).addTracks(result.tracks);
+            CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(params.id);
+            collectionDb.addTracks(params.tracks);
+            result = collectionDb.getRevision();
         } else if (methodName.equals("collectionWipe")) {
-            CollectionWipeResult result =
-                    GsonHelper.get().fromJson(paramsString, CollectionWipeResult.class);
-            CollectionDbManager.get().getCollectionDb(result.id).wipe();
+            CollectionDbManager.get().getCollectionDb(params.id).wipe();
+        } else if (methodName.equals("collectionRevision")) {
+            CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(params.id);
+            result = collectionDb.getRevision();
+        } else if (methodName.equals("collectionInitialized")) {
+            CollectionDbManager.get().getCollectionDb(params.id).wipe();
         }
-        evaluateJavaScript(
-                "Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult(" + requestId + ");");
+        if (result == null) {
+            evaluateJavaScript("Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult("
+                    + requestId + ");");
+        } else {
+            evaluateJavaScript("Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult("
+                    + requestId + ", '" + result + "');");
+        }
     }
 
 }

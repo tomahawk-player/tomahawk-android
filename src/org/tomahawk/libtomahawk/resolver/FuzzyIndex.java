@@ -87,7 +87,7 @@ public class FuzzyIndex {
         mLastUpdateStorageKey = mCollectionId + LAST_FUZZY_INDEX_UPDATE_SUFFIX;
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        long lastDbUpdate = preferences.getLong(collectionDb.getLastUpdateStorageKey(), -1);
+        long lastDbUpdate = collectionDb.getLastUpdated();
         long lastIndexUpdate = preferences.getLong(mLastUpdateStorageKey, -2);
         create(lastDbUpdate > lastIndexUpdate);
     }

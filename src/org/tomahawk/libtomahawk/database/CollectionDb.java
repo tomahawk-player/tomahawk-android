@@ -98,6 +98,20 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     public static final String TRACKS_LASTMODIFIED = "trackLastModified";
 
+    public static final String TABLE_REVISIONHISTORY = "revisionHistory";
+
+    public static final String REVISIONHISTORY_ACTION = "action";
+
+    public static final String REVISIONHISTORY_TRACKCOUNT = "trackCount";
+
+    public static final String REVISIONHISTORY_REVISION = "revision";
+
+    public static final String REVISIONHISTORY_TIMESTAMP = "timeStamp";
+
+    protected static final int ACTION_WIPE = 0;
+
+    protected static final int ACTION_ADDTRACKS = 1;
+
     protected static final int TYPE_DEFAULT = 0;
 
     // This type marks an entry that has been explicitly loved.
@@ -172,15 +186,21 @@ public class CollectionDb extends SQLiteOpenHelper {
             + "FOREIGN KEY(" + TRACKS_ALBUMID + ") REFERENCES "
             + TABLE_ALBUMS + "(" + ID + "));";
 
-    private static final int DB_VERSION = 4;
+    private static final String CREATE_TABLE_REVISIONHISTORY = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_REVISIONHISTORY + " ("
+            + ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + REVISIONHISTORY_ACTION + " INTEGER,"
+            + REVISIONHISTORY_TRACKCOUNT + " INTEGER,"
+            + REVISIONHISTORY_REVISION + " TEXT,"
+            + REVISIONHISTORY_TIMESTAMP + " INTEGER );";
+
+    private static final int DB_VERSION = 5;
 
     private static final String DB_FILE_SUFFIX = "_collection.db";
 
     protected final SQLiteDatabase mDb;
 
     private static final String LAST_COLLECTION_DB_UPDATE_SUFFIX = "_last_collection_db_update";
-
-    private final String mLastUpdateStorageKey;
 
     private boolean mInitialized = false;
 
@@ -202,17 +222,15 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     }
 
+    private String mCollectionId;
+
     public CollectionDb(Context context, String collectionId) {
         super(context, collectionId + DB_FILE_SUFFIX, null, DB_VERSION);
 
-        mLastUpdateStorageKey = collectionId + LAST_COLLECTION_DB_UPDATE_SUFFIX;
+        mCollectionId = collectionId;
 
         close();
         mDb = getWritableDatabase();
-    }
-
-    public String getLastUpdateStorageKey() {
-        return mLastUpdateStorageKey;
     }
 
     @Override
@@ -222,6 +240,7 @@ public class CollectionDb extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_ALBUMS);
         db.execSQL(CREATE_TABLE_ARTISTALBUMS);
         db.execSQL(CREATE_TABLE_TRACKS);
+        db.execSQL(CREATE_TABLE_REVISIONHISTORY);
     }
 
     @Override
@@ -230,6 +249,16 @@ public class CollectionDb extends SQLiteOpenHelper {
                 + ", which might destroy all old data");
         if (oldVersion < 4) {
             wipe(db);
+        }
+        if (oldVersion < 5) {
+            db.execSQL(CREATE_TABLE_REVISIONHISTORY);
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+            long lastDbUpdate =
+                    preferences.getLong(mCollectionId + LAST_COLLECTION_DB_UPDATE_SUFFIX, -1);
+            if (lastDbUpdate > 0) {
+                storeNewRevision(db, String.valueOf(lastDbUpdate), ACTION_ADDTRACKS);
+            }
         }
     }
 
@@ -405,9 +434,9 @@ public class CollectionDb extends SQLiteOpenHelper {
         mInitialized = true;
         Log.d(TAG, "Added " + tracks.length + " tracks in " + (System.currentTimeMillis() - time)
                 + "ms");
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        preferences.edit().putLong(mLastUpdateStorageKey, System.currentTimeMillis()).commit();
+        if (tracks.length > 0) {
+            storeNewRevision(String.valueOf(System.currentTimeMillis()), ACTION_ADDTRACKS);
+        }
     }
 
     public synchronized void wipe() {
@@ -425,6 +454,7 @@ public class CollectionDb extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_ARTISTALBUMS);
         db.execSQL("DROP TABLE IF EXISTS `" + TABLE_TRACKS + "`;");
         db.execSQL(CREATE_TABLE_TRACKS);
+        storeNewRevision(db, String.valueOf(System.currentTimeMillis()), ACTION_WIPE);
     }
 
     /**
@@ -798,6 +828,58 @@ public class CollectionDb extends SQLiteOpenHelper {
             allWhereValuesArray = allWhereValues.toArray(new String[allWhereValues.size()]);
         }
         return mDb.rawQuery(statement, allWhereValuesArray);
+    }
+
+    private void storeNewRevision(String revision, int action) {
+        storeNewRevision(mDb, revision, action);
+    }
+
+    private static void storeNewRevision(SQLiteDatabase db, String revision, int action) {
+        Cursor cursor = db.query(TABLE_TRACKS, new String[]{ID}, null, null, null, null, null);
+        int trackCount = cursor.getCount();
+        cursor.close();
+
+        db.beginTransaction();
+        ContentValues values = new ContentValues();
+        values.put(REVISIONHISTORY_ACTION, action);
+        values.put(REVISIONHISTORY_TRACKCOUNT, trackCount);
+        values.put(REVISIONHISTORY_REVISION, revision);
+        values.put(REVISIONHISTORY_TIMESTAMP, System.currentTimeMillis());
+        db.insert(TABLE_REVISIONHISTORY, null, values);
+        db.setTransactionSuccessful();
+        db.endTransaction();
+    }
+
+    public String getRevision() {
+        Cursor cursor = null;
+        try {
+            cursor = mDb.query(TABLE_REVISIONHISTORY, new String[]{REVISIONHISTORY_REVISION},
+                    null, null, null, null, REVISIONHISTORY_TIMESTAMP + " DESC", "1");
+            if (!cursor.moveToFirst()) {
+                return null;
+            }
+            return cursor.getString(0);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    public long getLastUpdated() {
+        Cursor cursor = null;
+        try {
+            cursor = mDb.query(TABLE_REVISIONHISTORY, new String[]{REVISIONHISTORY_TIMESTAMP},
+                    null, null, null, null, REVISIONHISTORY_TIMESTAMP + " DESC", "1");
+            if (!cursor.moveToFirst()) {
+                return -1;
+            }
+            return cursor.getLong(0);
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     private static String concatKeys(Object... keys) {
