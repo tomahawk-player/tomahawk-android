@@ -154,6 +154,31 @@ var SubsonicResolver = Tomahawk.extend(Tomahawk.Resolver, {
     _ensureCollection: function () {
         var that = this;
 
+        return subsonicCollection.revision({
+            id: subsonicCollection.settings.id
+        }).then(function (result) {
+            var lastCollectionUpdate = window.localStorage["subsonic_last_collection_update"];
+            if (lastCollectionUpdate && lastCollectionUpdate == result) {
+                Tomahawk.log("Collection database has not been changed since last time.");
+                var ifModifiedSince;
+                if (window.localStorage["subsonic_last_cache_update"]) {
+                    ifModifiedSince = window.localStorage["subsonic_last_cache_update"];
+                }
+                return that._fetchAndStoreCollection(ifModifiedSince);
+            } else {
+                Tomahawk.log("Collection database has been changed. Wiping and re-fetching...");
+                return subsonicCollection.wipe({
+                    id: subsonicCollection.settings.id
+                }).then(function () {
+                    return that._fetchAndStoreCollection();
+                });
+            }
+        });
+    },
+
+    _fetchAndStoreCollection: function (ifModifiedSince) {
+        var that = this;
+
         if (!this._requestPromise) {
             Tomahawk.log("Checking if collection needs to be updated");
             var time = Date.now();
@@ -168,25 +193,49 @@ var SubsonicResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     v: this._subsonicApiVersion
                 }
             };
-            if (window.localStorage["subsonic_last_cache_update"]) {
-                settings.data.ifModifiedSince = window.localStorage["subsonic_last_cache_update"];
+            if (ifModifiedSince) {
+                settings.data.ifModifiedSince = ifModifiedSince;
             }
             this._requestPromise = Tomahawk.get(url, settings).then(function (response) {
                 Tomahawk.PluginManager.registerPlugin("collection", subsonicCollection);
-                if (response["subsonic-response"].indexes) {
+                var artists = response["subsonic-response"].indexes;
+                if (artists) {
                     Tomahawk.log("Collection needs to be updated");
 
-                    var tracks = that._convertTracks(response["subsonic-response"].indexes.child);
-                    subsonicCollection.wipe({
-                        id: subsonicCollection.settings.id
-                    }).then(function () {
+                    var promises = [];
+                    for (var i = 0; i < artists.index.length; i++) {
+                        var directoryId = artists.index[i].artist[0].id;
+                        var url = that.subsonic_url + "/rest/getMusicDirectory.view";
+                        var settings = {
+                            data: {
+                                c: "tomahawk",
+                                f: "json",
+                                p: that.password,
+                                u: that.user,
+                                v: that._subsonicApiVersion,
+                                id: directoryId
+                            }
+                        };
+                        var promise = Tomahawk.get(url, settings).then(function (response) {
+                            return that._convertTracks(
+                                response["subsonic-response"].directory.child);
+                        });
+                        promises.push(promise);
+                    }
+
+                    RSVP.all(promises).then(function (tracksList) {
+                        var tracks = [];
+                        for (var i = 0; i < tracksList.length; i++) {
+                            tracks = tracks.concat(tracksList[i]);
+                        }
                         subsonicCollection.addTracks({
                             id: subsonicCollection.settings.id,
                             tracks: tracks
-                        }).then(function () {
+                        }).then(function (newRevision) {
                             Tomahawk.log("Updated cache in " + (Date.now() - time) + "ms");
                             window.localStorage["subsonic_last_cache_update"]
                                 = response["subsonic-response"].indexes.lastModified;
+                            window.localStorage["subsonic_last_collection_update"] = newRevision;
                         });
                     });
                 } else {
