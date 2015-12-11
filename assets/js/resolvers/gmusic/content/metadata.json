@@ -3,7 +3,7 @@
     "pluginName": "gmusic",
     "author": "Sam Hanes, Lalit Maganti, Enno Gottschalk",
     "email": "sam@maltera.com, lalitmaganti@gmail.com, mrmaffen@gmail.com",
-    "version": "0.6.3",
+    "version": "0.6.4",
     "website": "http://gettomahawk.com",
     "description": "Streams music from your Google Play Music locker and the entire Google Music catalog for subscribers.",
     "type": "resolver/javascript",

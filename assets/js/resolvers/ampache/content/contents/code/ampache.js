@@ -102,6 +102,32 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
     _ensureCollection: function () {
         var that = this;
 
+        return ampacheCollection.revision({
+            id: ampacheCollection.settings.id
+        }).then(function (result) {
+            var lastCollectionUpdate = window.localStorage["ampache_last_collection_update"];
+            if (lastCollectionUpdate && lastCollectionUpdate == result) {
+                Tomahawk.log("Collection database has not been changed since last time.");
+                var add;
+                if (window.localStorage["ampache_last_cache_update"]) {
+                    var date = new Date(parseInt(window.localStorage["ampache_last_cache_update"]));
+                    add = date.toISOString();
+                }
+                return that._fetchAndStoreCollection(add);
+            } else {
+                Tomahawk.log("Collection database has been changed. Wiping and re-fetching...");
+                return ampacheCollection.wipe({
+                    id: ampacheCollection.settings.id
+                }).then(function () {
+                    return that._fetchAndStoreCollection();
+                });
+            }
+        });
+    },
+
+    _fetchAndStoreCollection: function (add) {
+        var that = this;
+
         if (!this._requestPromise) {
             Tomahawk.log("Checking if collection needs to be updated");
             var time = Date.now();
@@ -110,9 +136,8 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 offset: 0,
                 limit: 1000000 // EHRM.
             };
-            if (window.localStorage["ampache_last_cache_update"]) {
-                var date = new Date(parseInt(window.localStorage["ampache_last_cache_update"]));
-                settings.update = date.toISOString();
+            if (add) {
+                settings.add = add;
             }
             this._requestPromise = this._apiCall("songs", settings).then(function (xmlDoc) {
                 var songs;
@@ -125,16 +150,13 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     Tomahawk.log("Collection needs to be updated");
 
                     var tracks = that._parseSongResponse(xmlDoc);
-                    ampacheCollection.wipe({
-                        id: ampacheCollection.settings.id
-                    }).then(function () {
-                        ampacheCollection.addTracks({
-                            id: ampacheCollection.settings.id,
-                            tracks: tracks
-                        }).then(function () {
-                            Tomahawk.log("Updated cache in " + (Date.now() - time) + "ms");
-                            window.localStorage["ampache_last_cache_update"] = Date.now();
-                        });
+                    ampacheCollection.addTracks({
+                        id: ampacheCollection.settings.id,
+                        tracks: tracks
+                    }).then(function (newRevision) {
+                        Tomahawk.log("Updated cache in " + (Date.now() - time) + "ms");
+                        window.localStorage["ampache_last_cache_update"] = Date.now();
+                        window.localStorage["ampache_last_collection_update"] = newRevision;
                     });
                 } else {
                     Tomahawk.log("Collection doesn't need to be updated");

@@ -39,10 +39,6 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 widget: "serverField",
                 property: "text"
             }, {
-                name: "useAuth",
-                widget: "useAuthCheckBox",
-                property: "checked"
-            }, {
                 name: "username",
                 widget: "usernameField",
                 property: "text"
@@ -84,16 +80,48 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
 
     init: function () {
         var config = this._sanitizeConfig(this.getUserConfig());
+        this._server = config.server;
+        this._username = config.username;
+        this._password = config.password;
+
+        this._ensureCollection();
+    },
+
+    _ensureCollection: function () {
+        var that = this;
+
+        return beetsCollection.revision({
+            id: beetsCollection.settings.id
+        }).then(function (result) {
+            var lastCollectionUpdate = window.localStorage["beets_last_collection_update"];
+            if (lastCollectionUpdate && lastCollectionUpdate == result) {
+                Tomahawk.log("Collection database has not been changed since last time.");
+                return that._fetchAndStoreCollection();
+            } else {
+                Tomahawk.log("Collection database has been changed. Wiping and re-fetching...");
+                window.localStorage.removeItem("beets_trackCount");
+                window.localStorage.removeItem("beets_albumCount");
+                return beetsCollection.wipe({
+                    id: beetsCollection.settings.id
+                }).then(function () {
+                    return that._fetchAndStoreCollection();
+                });
+            }
+        });
+    },
+
+    _fetchAndStoreCollection: function () {
+        var that = this;
 
         var settings;
-        if (config.useAuth) {
+        if (this._username && this._password) {
             settings = {
-                username: config.username,
-                password: config.password
+                username: this._username,
+                password: this._password
             };
         }
 
-        Tomahawk.get(config.server + 'stats', settings).then(function (response) {
+        Tomahawk.get(this._server + 'stats', settings).then(function (response) {
             var trackCount = parseInt(response.items);
             var albumCount = parseInt(response.albums);
             Tomahawk.PluginManager.registerPlugin("collection", beetsCollection);
@@ -109,7 +137,7 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
                         + " to " + albumCount + ". ";
                 }
                 Tomahawk.log(msg + "Updating collection ...");
-                return Tomahawk.get(config.server + "item", settings).then(function (response) {
+                return Tomahawk.get(that._server + "item", settings).then(function (response) {
                     var searchResults = [];
                     response.items.forEach(function (item) {
                         searchResults.push({
@@ -120,7 +148,7 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
                             album: item.album,
                             track: item.title,
                             albumpos: item.track,
-                            url: config.server + 'item/' + item.id + '/file',
+                            url: that._server + 'item/' + item.id + '/file',
                             duration: Math.floor(item.length)
                         });
                     });
@@ -128,9 +156,10 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
                         beetsCollection.addTracks({
                             id: beetsCollection.settings.id,
                             tracks: searchResults
-                        }).then(function () {
+                        }).then(function (newRevision) {
                             window.localStorage["beets_trackCount"] = trackCount;
                             window.localStorage["beets_albumCount"] = albumCount;
+                            window.localStorage["beets_last_collection_update"] = newRevision;
                         });
                     });
                 });
@@ -144,13 +173,14 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 });
             }
         });
+
     },
 
     testConfig: function (config) {
         config = this._sanitizeConfig(config);
 
         var settings;
-        if (config.useAuth) {
+        if (config.username && config.password) {
             settings = {
                 username: config.username,
                 password: config.password
