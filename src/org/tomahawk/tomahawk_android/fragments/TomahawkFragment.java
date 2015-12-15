@@ -170,9 +170,13 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         @Override
         public void handleMessage(Message msg) {
             TomahawkFragment fragment = getReferencedObject();
-            if (fragment != null) {
+            if (fragment != null && getReferencedObject().shouldAutoResolve()) {
+                Log.d(TAG, "Auto resolving ...");
                 removeMessages(msg.what);
-                fragment.resolveVisibleItems();
+                getReferencedObject().resolveItemsFromTo(
+                        getReferencedObject().mFirstVisibleItemLastTime - 2,
+                        getReferencedObject().mFirstVisibleItemLastTime
+                                + getReferencedObject().mVisibleItemCount + 2);
             }
         }
     }
@@ -575,11 +579,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 RESOLVE_QUERIES_REPORTER_DELAY);
     }
 
-    private void resolveVisibleItems() {
-        resolveItemsFromTo(mFirstVisibleItemLastTime - 2,
-                mFirstVisibleItemLastTime + mVisibleItemCount + 2);
-    }
-
     private void resolveItemsFromTo(int start, int end) {
         if (mTomahawkListAdapter != null) {
             start = Math.max(start, 0);
@@ -722,6 +721,11 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         SharedPreferences preferences = PreferenceManager
                 .getDefaultSharedPreferences(TomahawkApp.getContext());
         return preferences.getInt(prefKey, 0);
+    }
+
+    private boolean shouldAutoResolve() {
+        return mContainerFragmentClass != SearchPagerFragment.class && (mCollection == null
+                || mCollection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET));
     }
 }
 
