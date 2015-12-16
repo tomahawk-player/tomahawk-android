@@ -17,7 +17,12 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import org.jdeferred.AlwaysCallback;
 import org.jdeferred.DoneCallback;
+import org.jdeferred.Promise;
+import org.jdeferred.android.AndroidDeferredManager;
+import org.jdeferred.multiple.MultipleResults;
+import org.jdeferred.multiple.OneReject;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.ArtistAlphaComparator;
@@ -125,26 +130,29 @@ public class AlbumsFragment extends TomahawkFragment {
         if (mArtist != null) {
             if (!TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
                 final List<Segment> segments = new ArrayList<>();
-                mCollection.getArtistTracks(mArtist).done(new DoneCallback<Playlist>() {
-                    @Override
-                    public void onDone(Playlist artistTracks) {
-                        Segment segment = new Segment.Builder(artistTracks)
-                                .headerLayout(R.layout.single_line_list_header)
-                                .headerString(mCollection.getName() + " "
-                                        + getString(R.string.tracks))
-                                .build();
-                        segment.setShowNumeration(true, 1);
-                        segment.setHideArtistName(true);
-                        segment.setShowDuration(true);
-                        segments.add(0, segment);
-                        fillAdapter(segments, mCollection);
-                    }
-                });
-                mCollection.getArtistAlbums(mArtist)
-                        .done(new DoneCallback<CollectionCursor<Album>>() {
+                List<Promise> promises = new ArrayList<>();
+                promises.add(mCollection.getArtistTracks(mArtist));
+                promises.add(mCollection.getArtistAlbums(mArtist));
+                AndroidDeferredManager deferredManager = new AndroidDeferredManager();
+                deferredManager.when(promises.toArray(new Promise[promises.size()])).always(
+                        new AlwaysCallback<MultipleResults, OneReject>() {
                             @Override
-                            public void onDone(CollectionCursor<Album> cursor) {
-                                Segment segment = new Segment.Builder(cursor)
+                            public void onAlways(Promise.State state, MultipleResults resolved,
+                                    OneReject rejected) {
+                                Playlist artistTracks = (Playlist) resolved.get(0).getResult();
+                                Segment segment = new Segment.Builder(artistTracks)
+                                        .headerLayout(R.layout.single_line_list_header)
+                                        .headerString(mCollection.getName() + " "
+                                                + getString(R.string.tracks))
+                                        .build();
+                                segment.setShowNumeration(true, 1);
+                                segment.setHideArtistName(true);
+                                segment.setShowDuration(true);
+                                segments.add(0, segment);
+
+                                CollectionCursor<Album> cursor =
+                                        (CollectionCursor<Album>) resolved.get(1).getResult();
+                                segment = new Segment.Builder(cursor)
                                         .headerLayout(R.layout.single_line_list_header)
                                         .headerString(mCollection.getName() + " "
                                                 + getString(R.string.albums))
@@ -159,24 +167,27 @@ public class AlbumsFragment extends TomahawkFragment {
             } else {
                 HatchetCollection collection = (HatchetCollection) mCollection;
                 final List<Segment> segments = new ArrayList<>();
-                collection.getArtistTopHits(mArtist).done(new DoneCallback<Playlist>() {
-                    @Override
-                    public void onDone(Playlist artistTophits) {
-                        Segment segment = new Segment.Builder(artistTophits)
-                                .headerLayout(R.layout.single_line_list_header)
-                                .headerString(R.string.top_hits)
-                                .build();
-                        segment.setShowNumeration(true, 1);
-                        segment.setHideArtistName(true);
-                        segment.setShowDuration(true);
-                        segments.add(0, segment);
-                        fillAdapter(segments);
-                    }
-                });
-                collection.getArtistAlbums(mArtist)
-                        .done(new DoneCallback<CollectionCursor<Album>>() {
+                List<Promise> promises = new ArrayList<>();
+                promises.add(collection.getArtistTopHits(mArtist));
+                promises.add(collection.getArtistAlbums(mArtist));
+                AndroidDeferredManager deferredManager = new AndroidDeferredManager();
+                deferredManager.when(promises.toArray(new Promise[promises.size()])).always(
+                        new AlwaysCallback<MultipleResults, OneReject>() {
                             @Override
-                            public void onDone(CollectionCursor<Album> cursor) {
+                            public void onAlways(Promise.State state, MultipleResults resolved,
+                                    OneReject rejected) {
+                                Playlist artistTophits = (Playlist) resolved.get(0).getResult();
+                                Segment segment = new Segment.Builder(artistTophits)
+                                        .headerLayout(R.layout.single_line_list_header)
+                                        .headerString(R.string.top_hits)
+                                        .build();
+                                segment.setShowNumeration(true, 1);
+                                segment.setHideArtistName(true);
+                                segment.setShowDuration(true);
+                                segments.add(0, segment);
+
+                                CollectionCursor<Album> cursor =
+                                        (CollectionCursor<Album>) resolved.get(1).getResult();
                                 List<Album> albumsAndEps = new ArrayList<>();
                                 List<Album> others = new ArrayList<>();
                                 if (cursor != null) {
@@ -193,7 +204,7 @@ public class AlbumsFragment extends TomahawkFragment {
                                         }
                                     }
                                 }
-                                Segment segment = new Segment.Builder(albumsAndEps)
+                                segment = new Segment.Builder(albumsAndEps)
                                         .headerLayout(R.layout.single_line_list_header)
                                         .headerString(R.string.albums_and_eps)
                                         .showAsGrid(R.integer.grid_column_count,
