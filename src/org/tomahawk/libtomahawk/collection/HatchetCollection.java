@@ -156,6 +156,7 @@ public class HatchetCollection extends Collection {
     }
 
     public void addArtistAlbums(Artist artist, List<Album> albums) {
+        Collections.sort(albums, new AlphaComparator());
         mArtistAlbums.put(artist, albums);
     }
 
