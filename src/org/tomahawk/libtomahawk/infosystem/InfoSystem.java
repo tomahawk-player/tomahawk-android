@@ -25,13 +25,14 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaybackLogEntry;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaybackLogPostStruct;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntries;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntryPostStruct;
-import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntryRequest;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntriesPostStruct;
+import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistEntriesRequest;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistPostStruct;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetPlaylistRequest;
 import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetRelationshipPostStruct;
@@ -474,10 +475,9 @@ public class InfoSystem {
         String jsonString = GsonHelper.get().toJson(struct);
         QueryParams params = new QueryParams();
         params.playlist_local_id = localId;
-        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+        return new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS, params,
                 InfoRequestData.HTTPTYPE_POST, jsonString);
-        return infoRequestData;
     }
 
     public void sendPlaylistPostStruct(AuthenticatorUtils authenticatorUtils,
@@ -489,30 +489,32 @@ public class InfoSystem {
         sendLoggedOps(authenticatorUtils);
     }
 
-    public InfoRequestData buildPlaylistEntriesPostStruct(String localPlaylistId, String trackName,
-            String artistName, String albumName) {
-        HatchetPlaylistEntryRequest request = new HatchetPlaylistEntryRequest();
-        request.trackString = trackName;
-        request.artistString = artistName;
-        request.albumString = albumName;
-        HatchetPlaylistEntryPostStruct struct = new HatchetPlaylistEntryPostStruct();
-        struct.playlistEntry = request;
+    public InfoRequestData buildPlaylistEntriesPostStruct(String localPlaylistId,
+            List<PlaylistEntry> entries) {
+        HatchetPlaylistEntriesPostStruct struct = new HatchetPlaylistEntriesPostStruct();
+        struct.playlistEntries = new ArrayList<>();
+        for (PlaylistEntry entry : entries) {
+            HatchetPlaylistEntriesRequest request = new HatchetPlaylistEntriesRequest();
+            request.trackString = entry.getQuery().getName();
+            request.artistString = entry.getArtist().getName();
+            request.albumString = entry.getAlbum().getName();
+            struct.playlistEntries.add(request);
+        }
 
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
         String jsonString = GsonHelper.get().toJson(struct);
         QueryParams params = new QueryParams();
         params.playlist_local_id = localPlaylistId;
-        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+        return new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_PLAYLISTS_PLAYLISTENTRIES, params,
                 InfoRequestData.HTTPTYPE_POST, jsonString);
-        return infoRequestData;
     }
 
     public void sendPlaylistEntriesPostStruct(AuthenticatorUtils authenticatorUtils,
-            String localPlaylistId, String trackName, String artistName, String albumName) {
+            String localPlaylistId, List<PlaylistEntry> entries) {
         long timeStamp = System.currentTimeMillis();
         InfoRequestData infoRequestData =
-                buildPlaylistEntriesPostStruct(localPlaylistId, trackName, artistName, albumName);
+                buildPlaylistEntriesPostStruct(localPlaylistId, entries);
         DatabaseHelper.get().addOpToInfoSystemOpLog(infoRequestData,
                 (int) (timeStamp / 1000));
         sendLoggedOps(authenticatorUtils);
@@ -579,10 +581,9 @@ public class InfoSystem {
         String requestId = TomahawkMainActivity.getSessionUniqueStringId();
 
         String jsonString = GsonHelper.get().toJson(struct);
-        InfoRequestData infoRequestData = new InfoRequestData(requestId,
+        return new InfoRequestData(requestId,
                 InfoRequestData.INFOREQUESTDATA_TYPE_RELATIONSHIPS, null,
                 InfoRequestData.HTTPTYPE_POST, jsonString);
-        return infoRequestData;
     }
 
     public void sendRelationshipPostStruct(AuthenticatorUtils authenticatorUtils,
@@ -723,11 +724,20 @@ public class InfoSystem {
                         if (queuedLoggedOp.getHttpType() == InfoRequestData.HTTPTYPE_POST) {
                             // Now that we know the hatchetId, we can add it to the playlistEntry
                             // object we POST to Hatchet
-                            HatchetPlaylistEntryPostStruct struct = GsonHelper.get()
-                                    .fromJson(queuedLoggedOp.getJsonStringToSend(),
-                                            HatchetPlaylistEntryPostStruct.class);
-                            struct.playlistEntry.playlist = Integer.valueOf(hatchetId);
-                            queuedLoggedOp.setJsonStringToSend(GsonHelper.get().toJson(struct));
+                            int newHatchetId = Integer.valueOf(hatchetId);
+                            JsonElement element = GsonHelper.get().fromJson(
+                                    queuedLoggedOp.getJsonStringToSend(), JsonElement.class);
+                            if (element.isJsonObject()) {
+                                JsonObject object = (JsonObject) element;
+                                if (object.has("playlist")) {
+                                    // new way of posting playlistEntries
+                                    object.addProperty("playlist", newHatchetId);
+                                } else {
+                                    object.getAsJsonObject("playlistEntry")
+                                            .addProperty("playlist", newHatchetId);
+                                }
+                            }
+                            queuedLoggedOp.setJsonStringToSend(GsonHelper.get().toJson(element));
                         } else if (queuedLoggedOp.getHttpType()
                                 == InfoRequestData.HTTPTYPE_DELETE) {
                             params.playlist_id = hatchetId;
@@ -782,9 +792,9 @@ public class InfoSystem {
             JsonElement element =
                     GsonHelper.get().fromJson(loggedOp.getJsonStringToSend(), JsonElement.class);
             if (element instanceof JsonObject) {
-                JsonObject playlist = ((JsonObject) element).getAsJsonObject("playlist");
-                if (playlist != null) {
-                    String title = getAsString(playlist, "title");
+                JsonElement playlist = ((JsonObject) element).get("playlist");
+                if (playlist instanceof JsonObject) {
+                    String title = getAsString((JsonObject) playlist, "title");
                     convertedLogOp = buildPlaylistPostStruct(
                             loggedOp.getQueryParams().playlist_local_id, title);
                 }
@@ -798,9 +808,15 @@ public class InfoSystem {
                     String trackString = getAsString(playlistEntry, "trackString");
                     String artistString = getAsString(playlistEntry, "artistString");
                     String albumString = getAsString(playlistEntry, "albumString");
+
+                    Query query = Query.get(trackString, albumString, artistString, false, true);
+                    PlaylistEntry entry = PlaylistEntry.get(
+                            loggedOp.getQueryParams().playlist_local_id, query,
+                            TomahawkMainActivity.getLifetimeUniqueStringId());
+                    List<PlaylistEntry> entries = new ArrayList<>();
+                    entries.add(entry);
                     convertedLogOp = buildPlaylistEntriesPostStruct(
-                            loggedOp.getQueryParams().playlist_local_id, trackString, artistString,
-                            albumString);
+                            loggedOp.getQueryParams().playlist_local_id, entries);
                 }
             }
         }
