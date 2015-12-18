@@ -88,12 +88,42 @@
 
     </FrameLayout>
 
-    <org.tomahawk.tomahawk_android.views.AlbumArtViewPager
-            android:id="@+id/albumart_viewpager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="@dimen/playback_panel_height"
-            android:layout_marginBottom="@dimen/playback_clear_space_bottom"/>
+    <FrameLayout android:id="@+id/albumart_viewpager_frame"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:layout_marginTop="@dimen/playback_panel_height"
+                 android:layout_marginBottom="@dimen/playback_clear_space_bottom">
+
+        <org.tomahawk.tomahawk_android.views.AlbumArtViewPager
+                android:id="@+id/albumart_viewpager"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        <ImageView android:id="@+id/swipe_hint_left"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_gravity="center_vertical"
+                   android:layout_marginLeft="-6dp"
+                   android:src="@drawable/ic_navigation_chevron_left"
+                   android:visibility="gone"/>
+
+        <ImageView android:id="@+id/swipe_hint_right"
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_gravity="center_vertical|right"
+                   android:layout_marginRight="-6dp"
+                   android:src="@drawable/ic_navigation_chevron_right"
+                   android:visibility="gone"/>
+
+    </FrameLayout>
+
+    <ImageView android:id="@+id/swipe_hint_bottom"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_gravity="center_horizontal|bottom"
+               android:layout_marginBottom="-4dp"
+               android:src="@drawable/ic_navigation_expand_more"
+               android:visibility="gone"/>
 
     <ViewStub android:id="@+id/listview_stub"
               android:layout="@layout/listview"

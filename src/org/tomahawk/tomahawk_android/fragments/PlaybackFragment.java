@@ -48,6 +48,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -66,6 +67,18 @@ public class PlaybackFragment extends TomahawkFragment {
     private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
 
     private AlbumArtViewPager mAlbumArtViewPager;
+
+    private FrameLayout mAlbumArtViewPagerFrame;
+
+    private ImageView mSwipeHintLeft;
+
+    private ImageView mSwipeHintRight;
+
+    private ImageView mSwipeHintBottom;
+
+    private boolean mSwipeHintsShown = false;
+
+    private boolean mShouldShowSwipeHints = false;
 
     private int mOriginalViewPagerHeight;
 
@@ -111,16 +124,23 @@ public class PlaybackFragment extends TomahawkFragment {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(TomahawkMainActivity.SlidingLayoutChangedEvent event) {
-        switch (event.mSlideState) {
-            case COLLAPSED:
-            case EXPANDED:
-                if (mAlbumArtSwipeAdapter != null) {
-                    mAlbumArtSwipeAdapter.notifyDataSetChanged();
-                }
-                if (getListView() != null) {
-                    getListView().smoothScrollToPosition(0);
-                }
-                break;
+        if (event.mSlideState == SlidingUpPanelLayout.PanelState.EXPANDED
+                || event.mSlideState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+            if (mAlbumArtSwipeAdapter != null) {
+                mAlbumArtSwipeAdapter.notifyDataSetChanged();
+            }
+            if (getListView() != null) {
+                getListView().smoothScrollToPosition(0);
+            }
+        }
+        if (event.mSlideState == SlidingUpPanelLayout.PanelState.EXPANDED) {
+            if (mShouldShowSwipeHints) {
+                mShouldShowSwipeHints = false;
+                showSwipeHints();
+            }
+        }
+        if (event.mSlideState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
+            mShouldShowSwipeHints = true;
         }
     }
 
@@ -155,7 +175,19 @@ public class PlaybackFragment extends TomahawkFragment {
 
         getListView().setFastScrollEnabled(false);
 
-        mAlbumArtViewPager = (AlbumArtViewPager) view.findViewById(R.id.albumart_viewpager);
+        mSwipeHintLeft = (ImageView) view.findViewById(R.id.swipe_hint_left);
+        mSwipeHintRight = (ImageView) view.findViewById(R.id.swipe_hint_right);
+        mSwipeHintBottom = (ImageView) view.findViewById(R.id.swipe_hint_bottom);
+
+        mAlbumArtViewPagerFrame = (FrameLayout) view.findViewById(R.id.albumart_viewpager_frame);
+
+        mAlbumArtViewPager = (AlbumArtViewPager)
+                mAlbumArtViewPagerFrame.findViewById(R.id.albumart_viewpager);
+        int padding = getResources().getDimensionPixelSize(R.dimen.padding_large);
+        mAlbumArtViewPager.setPadding(padding, 0, padding, 0);
+        mAlbumArtViewPager.setClipToPadding(false);
+        padding = getResources().getDimensionPixelSize(R.dimen.padding_large);
+        mAlbumArtViewPager.setPageMargin(padding);
         mAlbumArtViewPager.setShowContextMenuListener(mShowContextMenuListener);
         mAlbumArtViewPager
                 .setPlaybackService(((TomahawkMainActivity) getActivity()).getPlaybackService());
@@ -394,8 +426,8 @@ public class PlaybackFragment extends TomahawkFragment {
     }
 
     private void setupAlbumArtAnimation() {
-        if (mAlbumArtViewPager != null) {
-            ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(mAlbumArtViewPager) {
+        if (mAlbumArtViewPagerFrame != null) {
+            ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(mAlbumArtViewPagerFrame) {
                 @Override
                 public void run() {
                     if (mOriginalViewPagerHeight <= 0) {
@@ -558,6 +590,42 @@ public class PlaybackFragment extends TomahawkFragment {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (activity.getSlidingOffset() > 0f) {
             activity.getPlaybackPanel().animate(position + 10000);
+        }
+    }
+
+    public void showSwipeHints() {
+        if (!mSwipeHintsShown && mSwipeHintLeft != null && mSwipeHintRight != null
+                && mSwipeHintBottom != null) {
+            mSwipeHintsShown = true;
+            AnimationUtils.fade(
+                    mSwipeHintBottom, AnimationUtils.DURATION_PLAYBACKTOPPANEL, true);
+            PlaybackService playbackService =
+                    ((TomahawkMainActivity) getActivity()).getPlaybackService();
+            final boolean hasPreviousEntry = playbackService.hasPreviousEntry();
+            final boolean hasNextEntry = playbackService.hasNextEntry();
+            if (hasPreviousEntry) {
+                AnimationUtils.fade(mSwipeHintLeft, AnimationUtils.DURATION_PLAYBACKTOPPANEL, true);
+            }
+            if (hasNextEntry) {
+                AnimationUtils.fade(
+                        mSwipeHintRight, AnimationUtils.DURATION_PLAYBACKTOPPANEL, true);
+            }
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mSwipeHintsShown = false;
+                    if (hasPreviousEntry) {
+                        AnimationUtils.fade(
+                                mSwipeHintLeft, AnimationUtils.DURATION_PLAYBACKTOPPANEL, false);
+                    }
+                    if (hasNextEntry) {
+                        AnimationUtils.fade(
+                                mSwipeHintRight, AnimationUtils.DURATION_PLAYBACKTOPPANEL, false);
+                    }
+                    AnimationUtils.fade(
+                            mSwipeHintBottom, AnimationUtils.DURATION_PLAYBACKTOPPANEL, false);
+                }
+            }, 1500);
         }
     }
 }
