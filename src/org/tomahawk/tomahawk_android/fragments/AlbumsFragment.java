@@ -85,14 +85,24 @@ public class AlbumsFragment extends TomahawkFragment {
                     if (playbackService.getCurrentEntry() == entry) {
                         playbackService.playPause();
                     } else {
-                        HatchetCollection collection = (HatchetCollection) mCollection;
-                        collection.getArtistTopHits(mArtist).done(new DoneCallback<Playlist>() {
-                            @Override
-                            public void onDone(Playlist topHits) {
-                                playbackService.setPlaylist(topHits, entry);
-                                playbackService.start();
-                            }
-                        });
+                        if (!TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
+                            mCollection.getArtistTracks(mArtist).done(new DoneCallback<Playlist>() {
+                                @Override
+                                public void onDone(Playlist topHits) {
+                                    playbackService.setPlaylist(topHits, entry);
+                                    playbackService.start();
+                                }
+                            });
+                        } else {
+                            HatchetCollection collection = (HatchetCollection) mCollection;
+                            collection.getArtistTopHits(mArtist).done(new DoneCallback<Playlist>() {
+                                @Override
+                                public void onDone(Playlist topHits) {
+                                    playbackService.setPlaylist(topHits, entry);
+                                    playbackService.start();
+                                }
+                            });
+                        }
                     }
                 }
             }
