@@ -610,11 +610,8 @@ public class CollectionManager {
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         InfoSystem.get().sendPlaylistPostStruct(
                 hatchetAuthUtils, playlist.getId(), playlist.getName());
-        for (PlaylistEntry entry : playlist.getEntries()) {
-            InfoSystem.get().sendPlaylistEntriesPostStruct(hatchetAuthUtils,
-                    playlist.getId(), entry.getName(), entry.getArtist().getName(),
-                    entry.getAlbum().getName());
-        }
+        InfoSystem.get().sendPlaylistEntriesPostStruct(hatchetAuthUtils,
+                playlist.getId(), playlist.getEntries());
     }
 
     public void addPlaylistEntries(String playlistId, ArrayList<PlaylistEntry> entries) {
@@ -625,10 +622,7 @@ public class CollectionManager {
             DatabaseHelper.get().addEntriesToPlaylist(playlistId, entries);
             AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                     .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-            for (PlaylistEntry entry : entries) {
-                InfoSystem.get().sendPlaylistEntriesPostStruct(hatchetAuthUtils, playlistId,
-                        entry.getName(), entry.getArtist().getName(), entry.getAlbum().getName());
-            }
+            InfoSystem.get().sendPlaylistEntriesPostStruct(hatchetAuthUtils, playlistId, entries);
         } else {
             Log.e(TAG, "Hatchet sync - couldn't add " + entries.size()
                     + " entries to playlist with id: " + playlistId);
