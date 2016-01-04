@@ -5,12 +5,16 @@
   <string name="login">Logga in</string>
   <string name="logout">Logga ut</string>
   <string name="register">Registrera</string>
+  <string name="register_and_login">Registrera &amp; Logga in</string>
+  <string name="internal_storage">Intern lagring</string>
   <string name="tracks">Spår</string>
   <string name="albums">Album</string>
   <string name="artists">Artister</string>
   <string name="users">Användare</string>
   <string name="top_hits">Top Hits</string>
   <string name="top_albums">Top Album</string>
+  <string name="albums_and_eps">Album och EPs</string>
+  <string name="other_releases">Andra släpp</string>
   <string name="playlist_details">Information om spellistan</string>
   <string name="album_details">Information om albumet</string>
   <string name="search">Sök</string>
@@ -22,7 +26,9 @@
   <string name="unknown">Okänd</string>
   <string name="no_track">Ingen låt</string>
   <string name="save_playlist">Spara aktiv spellista</string>
+  <string name="create_playlist">Skapa spellista</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Titel</string>
   <string name="login_name_label">E-post/Användarnamn</string>
   <string name="login_username">Användarnamn</string>
   <string name="login_password">Lösenord</string>
@@ -36,10 +42,15 @@
   <string name="error_simultaneous_streams">Kommandot är inte tillåtet, ditt konto används på en annan enhet/plats.</string>
   <string name="error_account_expired">Ditt konto har gått ut.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Loggade in i %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Loggade ut ur %1$s</string>
   <string name="local_collection_pretty_name">Enhetens samling</string>
+  <string name="local">Lokalt</string>
+  <string name="all">Alla</string>
   <string name="preferences_hatchet_text">Synkroniserar med %1$s.</string>
   <string name="preferences_playback">Uppspelning</string>
+  <string name="preferences_equalizer">Equalizer</string>
   <string name="preferences_playback_data">Scrobbla allt</string>
   <string name="preferences_playback_data_text">Scrobbla alla låtar från alla musikspelare på telefonen till %1$s.</string>
   <string name="preferences_plug_and_play">Koppla in och spela</string>
@@ -49,7 +60,9 @@
   <string name="preferences_info">Info</string>
   <string name="preferences_app_version">App-Version</string>
   <string name="preferences_app_uservoice">Återkoppling</string>
+  <string name="preferences_app_uservoice_text">Dela dina idéer eller fråga efter hjälp.</string>
   <string name="preferences_app_sendlog">Skicka logg</string>
+  <string name="preferences_app_sendlog_email">Din e-postadress</string>
   <string name="crash_dialog_title">Tomahawk har kraschat</string>
   <string name="crash_dialog_text">Ett oväntat fel har inträffat och tvingat programmet att avslutas. Hjälp oss fixa det genom att skicka datan om felet, allt du behöver göra är att trycka OK.</string>
   <string name="crash_dialog_comment_prompt">Skriv din kommentar om felet (frivilligt):</string>
@@ -58,6 +71,7 @@
   <string name="context_menu_add_to_queue">Lägg till i kön</string>
   <string name="context_menu_add_to_playlist">Lägg till i spellistan</string>
   <string name="context_menu_delete">Ta bort</string>
+  <string name="context_menu_removefromplaylist">Ta bort från spellista</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <string name="context_menu_removefromcollection">Ta bort från samling</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
@@ -72,8 +86,12 @@
   <string name="drawer_title_playlists">Spellista</string>
   <string name="drawer_title_lovedtracks">Favoriter</string>
   <string name="drawer_title_settings">Inställningar</string>
+  <string name="drawer_header_cloudcollections">Molmsamlingar</string>
   <string name="collection_dropdown_recently_added">Nyligen tillagda</string>
+  <string name="collection_dropdown_alpha_artists">Artist A-Z</string>
   <string name="collection_dropdown_play_count">Antal spelningar</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
   <string name="history">Historik</string>
   <string name="preferences_bitrate_low">Normal</string>
   <string name="preferences_bitrate_medium">Bra</string>
@@ -85,16 +103,61 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Följ</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">Förslag på personer att följa</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">%1$s följer nu</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
+  <plurals name="socialaction_type_love_track">
+    <item quantity="one">%1$s älskade ett spår</item>
+    <item quantity="other">%1$s älskade %2$d spår</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
+  <plurals name="socialaction_type_collected_track">
+    <item quantity="one">%1$s samlade ett spår</item>
+    <item quantity="other">%1$s samlade %2$d spår</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
+  <plurals name="socialaction_type_collected_album">
+    <item quantity="one">%1$s samlade ett album</item>
+    <item quantity="other">%1$s samlade %2$d album</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
+  <plurals name="socialaction_type_collected_artist">
+    <item quantity="one">%1$s samlade en artist</item>
+    <item quantity="other">%1$s samlade %2$d artister</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">%1$s kommenterade på</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
+  <plurals name="socialaction_type_latchon">
+    <item quantity="one">%1$s lyssnade tillsammans med en vän</item>
+    <item quantity="other">%1$s lyssnade tillsammans med %2$d vänner</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
+  <plurals name="socialaction_type_createplaylist">
+    <item quantity="one">%1$s skapade en spellista</item>
+    <item quantity="other">%1$s skapade %2$d spellistor</item>
+  </plurals>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s av %2$s</string>
+  <string name="time_afewseconds">några sekunder sedan</string>
+  <plurals name="time_minute">
+    <item quantity="one">en minut sedan</item>
+    <item quantity="other">%1$d minuter sedan</item>
+  </plurals>
+  <plurals name="time_hour">
+    <item quantity="one">en timme sedan</item>
+    <item quantity="other">%1$d timmar sedan</item>
+  </plurals>
+  <plurals name="time_day">
+    <item quantity="one">en dag sedan</item>
+    <item quantity="other">%1$d dagar sedan</item>
+  </plurals>
+  <string name="users_favorites_suffix">%1$ss favoriter</string>
+  <string name="users_playlist_suffix">%1$ss spellistor</string>
+  <string name="my_playbacklog">Mina senaste spelningar</string>
+  <string name="my_favorites">Mina favoriter</string>
+  <string name="my_playlist">Min spellista</string>
   <string name="music">Musik</string>
   <string name="biography">Biografi</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -102,17 +165,47 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Låtar</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <plurals name="songs_with_count">
+    <item quantity="one">%1$d låt</item>
+    <item quantity="other">%1$d låtar</item>
+  </plurals>
   <string name="activity">Aktivitet</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Följare</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Följer</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">Följare: %1$d, Följer: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Logga in på</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Logga ut från</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Ladda ner plugin för</string>
   <string name="ask_access_activity_header">Vill du automatisk spara all data om låtarna du spelar till Hatchet?</string>
   <string name="ask_access_activity_text1">Vi fixar det åt dig! Aktivera vår tjänst i systeminställningarna.</string>
   <string name="button_close">Stäng</string>
   <string name="view_album">Se album</string>
+  <string name="connect">Anslut</string>
+  <string name="connect_header_manualresolvers">Manuellt installerad</string>
+  <string name="advanced">Avancerat</string>
+  <string name="info">Information</string>
+  <string name="slidinglayout_enqueue_coachmark">Tryck för att lägga till spåret till kön.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="next_page">Nästa</string>
+  <string name="welcome_fragment_explanation_title">Kom igång</string>
+  <string name="welcome_fragment_explanation_heading">Musik finns överallt.\nNu behöver inte du vara det.</string>
+  <string name="welcome_fragment_hatchet_title">Vill du socialisera?</string>
+  <string name="welcome_fragment_setup_title">Anslut</string>
+  <string name="welcome_fragment_done_title">Färdig!</string>
+  <string name="welcome_fragment_done_heading">Allt klart!</string>
+  <plurals name="add_to_playlist_headertext">
+    <item quantity="one">Välj en spellista att lägga till %1$d spår till:</item>
+    <item quantity="other">Välj en spellista att lägga till %1$d spår till:</item>
+  </plurals>
+  <string name="install_plugin_title">Plugin-installation</string>
+  <string name="install_plugin_warning2">Är du säker på att du vill installera detta plugin?</string>
+  <string name="uninstall_plugin_title">Avinstallerar plugin</string>
+  <string name="uninstall_plugin_warning">Är du säker på att du vill avinstallera detta plugin?</string>
+  <string name="gmusic_info_text">Välj ett konto:</string>
+  <string name="invalid_file">Kan inte öppna fil.</string>
+  <string name="unknown_album">Okänt album</string>
+  <string name="unknown_artist">Okänd artist</string>
 </resources>

@@ -217,7 +217,7 @@
   <string name="welcome_fragment_explanation_title">Úvod</string>
   <string name="welcome_fragment_explanation_heading">Hudba je všude.
 Vy teď nemusíte.</string>
-  <string name="welcome_fragment_explanation_text">Přestaňte naháňet hudbu po celém internetu - po službách, které nepoužíváte, ve zdrojích, ke kterým nemáte přístup. Vložte jméno nebo odkaz na píseň, album nebo seznam skladeb a Tomahawk pro vás najde ty nejlepší zdroje a prostě je přehraje.</string>
+  <string name="welcome_fragment_explanation_text">Přestaňte naháňet hudbu po celém internetu - po službách, které nepoužíváte, ve zdrojích, ke kterým nemáte přístup. Vložte název nebo odkaz na píseň, album nebo seznam skladeb a Tomahawk pro vás najde ty nejlepší zdroje a prostě je přehraje.</string>
   <string name="welcome_fragment_hatchet_title">Chcete se stýkat?</string>
   <string name="welcome_fragment_hatchet_text">S Hatchet můžete mít konečně celou vaši hudební sbírku na jednom místě. Sdílejte vaše seznamy skladeb a oblíbené skladby. Nebo prostě aplikaci synchronizujte s vaším Tomahawkem na počítači.</string>
   <string name="welcome_fragment_setup_title">Připojit</string>
