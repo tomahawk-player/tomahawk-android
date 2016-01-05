@@ -23,7 +23,6 @@ import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
-import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
@@ -76,9 +75,7 @@ public class Result extends Cacheable {
         mResolvedBy = resolvedBy;
         if (TomahawkApp.PLUGINNAME_SPOTIFY.equals(mResolvedBy.getId())) {
             mMediaPlayerInterface = SpotifyMediaPlayer.get();
-        } else if (TomahawkApp.PLUGINNAME_RDIO.equals(mResolvedBy.getId())) {
-            mMediaPlayerInterface = RdioMediaPlayer.get();
-        } else if (TomahawkApp.PLUGINNAME_DEEZER.equals(mResolvedBy.getId())) {
+        }else if (TomahawkApp.PLUGINNAME_DEEZER.equals(mResolvedBy.getId())) {
             mMediaPlayerInterface = DeezerMediaPlayer.get();
         } else {
             mMediaPlayerInterface = VLCMediaPlayer.get();

@@ -85,11 +85,6 @@ public class RedirectConfigDialog extends ConfigDialog {
         int buttonTextColor;
         View.OnClickListener onClickListener;
         switch (mScriptResolver.getId()) {
-            case TomahawkApp.PLUGINNAME_RDIO:
-                buttonBackgroundResId = R.drawable.selectable_background_tomahawk_rectangle_gray;
-                buttonTextColor = getResources().getColor(R.color.primary_textcolor);
-                onClickListener = new RedirectButtonListener(TomahawkApp.PLUGINNAME_RDIO);
-                break;
             case TomahawkApp.PLUGINNAME_SPOTIFY:
                 buttonBackgroundResId = R.drawable.selectable_background_tomahawk_rectangle_gray;
                 buttonTextColor = getResources().getColor(R.color.primary_textcolor);

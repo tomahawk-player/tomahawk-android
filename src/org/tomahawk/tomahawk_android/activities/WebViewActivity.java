@@ -62,12 +62,6 @@ public class WebViewActivity extends Activity {
                     urlHandler.onRedirectCallback(url);
                     finish();
                     return true;
-                } else if (url.startsWith("tomahawkrdioresolver")) {
-                    ScriptResolver urlHandler = (ScriptResolver)
-                            PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_RDIO);
-                    urlHandler.onRedirectCallback(url);
-                    finish();
-                    return true;
                 } else {
                     view.loadUrl(url);
                     return false;

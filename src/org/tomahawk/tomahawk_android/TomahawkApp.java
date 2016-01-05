@@ -61,8 +61,6 @@ public class TomahawkApp extends Application {
 
     public final static String PLUGINNAME_BEATSMUSIC = "beatsmusic";
 
-    public final static String PLUGINNAME_RDIO = "rdio";
-
     public final static String PLUGINNAME_JAMENDO = "jamendo";
 
     public final static String PLUGINNAME_OFFICIALFM = "officialfm";
