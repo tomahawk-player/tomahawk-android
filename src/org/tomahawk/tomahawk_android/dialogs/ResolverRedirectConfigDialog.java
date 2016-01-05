@@ -24,7 +24,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
-import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 
 import android.app.AlertDialog;
@@ -74,10 +73,6 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                             url = "http://download.tomahawk-player.org/android-plugins/"
                                     + "tomahawk-android-deezer-x86-release.apk";
                             break;
-                        case TomahawkApp.PLUGINNAME_RDIO:
-                            url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-rdio-x86-release-20.apk";
-                            break;
                     }
                 } else {
                     switch (mScriptResolver.getId()) {
@@ -88,10 +83,6 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                         case TomahawkApp.PLUGINNAME_DEEZER:
                             url = "http://download.tomahawk-player.org/android-plugins/"
                                     + "tomahawk-android-deezer-armv7a-release.apk";
-                            break;
-                        case TomahawkApp.PLUGINNAME_RDIO:
-                            url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-rdio-armv7a-release-20.apk";
                             break;
                     }
                 }
@@ -211,10 +202,6 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
             case TomahawkApp.PLUGINNAME_DEEZER:
                 pluginPackageName = DeezerMediaPlayer.get().getPackageName();
                 pluginMinVersionCode = DeezerMediaPlayer.get().getMinVersionCode();
-                break;
-            case TomahawkApp.PLUGINNAME_RDIO:
-                pluginPackageName = RdioMediaPlayer.get().getPackageName();
-                pluginMinVersionCode = RdioMediaPlayer.get().getMinVersionCode();
                 break;
         }
         for (PackageInfo info : packageInfos) {

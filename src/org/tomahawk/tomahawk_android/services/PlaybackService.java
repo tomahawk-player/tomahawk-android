@@ -38,7 +38,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.PluginMediaPlayer;
-import org.tomahawk.tomahawk_android.mediaplayers.RdioMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayerCallback;
@@ -602,7 +601,6 @@ public class PlaybackService extends Service implements MusicFocusable {
         mMediaPlayers.add(VLCMediaPlayer.get());
         mMediaPlayers.add(DeezerMediaPlayer.get());
         mMediaPlayers.add(SpotifyMediaPlayer.get());
-        mMediaPlayers.add(RdioMediaPlayer.get());
 
         startService(new Intent(this, MicroService.class));
 
@@ -1509,7 +1507,6 @@ public class PlaybackService extends Service implements MusicFocusable {
     private void releaseAllPlayers() {
         VLCMediaPlayer.get().release();
         SpotifyMediaPlayer.get().release();
-        RdioMediaPlayer.get().release();
         DeezerMediaPlayer.get().release();
     }
 }
