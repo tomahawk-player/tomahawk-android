@@ -480,16 +480,16 @@ public class UserCollection extends DbCollection {
         return false;
     }
 
-    public void addLoved(Artist... artists) {
+    public void addLovedArtists(List<Artist> artists, List<Long> lastModifieds) {
         UserCollectionDb db = (UserCollectionDb) CollectionDbManager.get().getCollectionDb(
                 TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        db.add(artists);
+        db.addArtists(artists, lastModifieds);
     }
 
-    public void removeLoved(Artist... artists) {
+    public void removeLoved(Artist artist) {
         UserCollectionDb db = (UserCollectionDb) CollectionDbManager.get().getCollectionDb(
                 TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        db.remove(artists);
+        db.remove(artist);
     }
 
 
@@ -500,16 +500,16 @@ public class UserCollection extends DbCollection {
     }
 
 
-    public void addLoved(Album... albums) {
+    public void addLovedAlbums(List<Album> albums, List<Long> lastModifieds) {
         UserCollectionDb db = (UserCollectionDb) CollectionDbManager.get().getCollectionDb(
                 TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        db.add(albums);
+        db.addAlbums(albums, lastModifieds);
     }
 
-    public void removeLoved(Album... albums) {
+    public void removeLoved(Album album) {
         UserCollectionDb db = (UserCollectionDb) CollectionDbManager.get().getCollectionDb(
                 TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        db.remove(albums);
+        db.remove(album);
     }
 
 

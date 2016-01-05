@@ -24,6 +24,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 
+import java.util.List;
+
 public class UserCollectionDb extends CollectionDb {
 
     public static final String TAG = UserCollectionDb.class.getSimpleName();
@@ -32,26 +34,31 @@ public class UserCollectionDb extends CollectionDb {
         super(context, collectionId);
     }
 
-    public void add(Artist... artists) {
+    public void addArtists(List<Artist> artists, List<Long> lastModifieds) {
         mDb.beginTransaction();
-        for (Artist artist : artists) {
+        for (int i = 0, artistsSize = artists.size(); i < artistsSize; i++) {
+            Artist artist = artists.get(i);
             ContentValues values = new ContentValues();
             values.put(ARTISTS_ARTIST, artist.getName());
             values.put(ARTISTS_ARTISTDISAMBIGUATION, "");
             values.put(ARTISTS_TYPE, TYPE_HATCHET_EXPLICIT);
-            values.put(ARTISTS_LASTMODIFIED, Long.MAX_VALUE);
+            long lastModified;
+            if (lastModifieds != null && i < lastModifieds.size()) {
+                lastModified = lastModifieds.get(i);
+            } else {
+                lastModified = Long.MAX_VALUE;
+            }
+            values.put(ARTISTS_LASTMODIFIED, lastModified);
             mDb.insert(TABLE_ARTISTS, null, values);
         }
         mDb.setTransactionSuccessful();
         mDb.endTransaction();
     }
 
-    public void remove(Artist... artists) {
+    public void remove(Artist artist) {
         mDb.beginTransaction();
-        for (Artist artist : artists) {
-            mDb.delete(TABLE_ARTISTS, ARTISTS_ARTIST + " = ? AND " + ARTISTS_TYPE + " = ?",
-                    new String[]{artist.getName(), String.valueOf(TYPE_HATCHET_EXPLICIT)});
-        }
+        mDb.delete(TABLE_ARTISTS, ARTISTS_ARTIST + " = ? AND " + ARTISTS_TYPE + " = ?",
+                new String[]{artist.getName(), String.valueOf(TYPE_HATCHET_EXPLICIT)});
         mDb.setTransactionSuccessful();
         mDb.endTransaction();
     }
@@ -72,7 +79,7 @@ public class UserCollectionDb extends CollectionDb {
         return isLoved;
     }
 
-    public void add(Album... albums) {
+    public void addAlbums(List<Album> albums, List<Long> lastModifieds) {
         // Add the album's artist as an implicitly loved entry
         mDb.beginTransaction();
         for (Album album : albums) {
@@ -88,31 +95,36 @@ public class UserCollectionDb extends CollectionDb {
 
         // Add the album as an explicitly loved entry
         mDb.beginTransaction();
-        for (Album album : albums) {
+        for (int i = 0, albumsSize = albums.size(); i < albumsSize; i++) {
+            Album album = albums.get(i);
             ContentValues values = new ContentValues();
             values.put(ALBUMS_ALBUM, album.getName());
             values.put(ALBUMS_ALBUMARTISTID,
                     getArtistId(album.getArtist().getName(), TYPE_HATCHET_IMPLICIT));
             values.put(ALBUMS_TYPE, TYPE_HATCHET_EXPLICIT);
-            values.put(ALBUMS_LASTMODIFIED, Long.MAX_VALUE);
+            long lastModified;
+            if (lastModifieds != null && i < lastModifieds.size()) {
+                lastModified = lastModifieds.get(i);
+            } else {
+                lastModified = Long.MAX_VALUE;
+            }
+            values.put(ALBUMS_LASTMODIFIED, lastModified);
             mDb.insert(TABLE_ALBUMS, null, values);
         }
         mDb.setTransactionSuccessful();
         mDb.endTransaction();
     }
 
-    public void remove(Album... albums) {
+    public void remove(Album album) {
         mDb.beginTransaction();
-        for (Album album : albums) {
-            int albumArtistId = getArtistId(album.getArtist().getName(), TYPE_HATCHET_IMPLICIT);
-            mDb.delete(TABLE_ARTISTS, ARTISTS_ARTIST + " = ? AND " + ARTISTS_TYPE + " = ?",
-                    new String[]{album.getArtist().getName(),
-                            String.valueOf(TYPE_HATCHET_IMPLICIT)});
-            mDb.delete(TABLE_ALBUMS, ALBUMS_ALBUM + " = ? AND " + ALBUMS_ALBUMARTISTID + " = ? AND "
-                            + ALBUMS_TYPE + " = ?",
-                    new String[]{album.getName(), String.valueOf(albumArtistId),
-                            String.valueOf(TYPE_HATCHET_EXPLICIT)});
-        }
+        int albumArtistId = getArtistId(album.getArtist().getName(), TYPE_HATCHET_IMPLICIT);
+        mDb.delete(TABLE_ARTISTS, ARTISTS_ARTIST + " = ? AND " + ARTISTS_TYPE + " = ?",
+                new String[]{album.getArtist().getName(),
+                        String.valueOf(TYPE_HATCHET_IMPLICIT)});
+        mDb.delete(TABLE_ALBUMS, ALBUMS_ALBUM + " = ? AND " + ALBUMS_ALBUMARTISTID + " = ? AND "
+                        + ALBUMS_TYPE + " = ?",
+                new String[]{album.getName(), String.valueOf(albumArtistId),
+                        String.valueOf(TYPE_HATCHET_EXPLICIT)});
         mDb.setTransactionSuccessful();
         mDb.endTransaction();
     }

@@ -114,7 +114,7 @@ public class User extends Cacheable implements AlphaComparable {
 
     private boolean mIsOffline;
 
-    private Map<Object, String> mRelationshipIds = new ConcurrentHashMap<>();
+    private Map<Object, Relationship> mRelationships = new ConcurrentHashMap<>();
 
     /**
      * Construct a new {@link User} with the given id
@@ -169,12 +169,12 @@ public class User extends Cacheable implements AlphaComparable {
         return deferred;
     }
 
-    public void putRelationShipId(Object object, String relationShipId) {
-        mRelationshipIds.put(object, relationShipId);
+    public void putRelationship(Object object, Relationship relationship) {
+        mRelationships.put(object, relationship);
     }
 
-    public String getRelationShipId(Object object) {
-        return mRelationshipIds.get(object);
+    public Relationship getRelationship(Object object) {
+        return mRelationships.get(object);
     }
 
     public boolean isOffline() {

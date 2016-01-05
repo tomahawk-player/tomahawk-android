@@ -37,6 +37,7 @@ import org.tomahawk.libtomahawk.collection.PlaylistComparator;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
+import org.tomahawk.libtomahawk.infosystem.Relationship;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -164,6 +165,7 @@ public class Store {
         mCache.addCache(SocialAction.class);
         mCache.addCache(Search.class);
         mCache.addCache(SearchResult.class);
+        mCache.addCache(Relationship.class);
     }
 
     public Hatchet getImplementation(boolean isBackgroundRequest) {
@@ -392,16 +394,26 @@ public class Store {
                             == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDALBUMS) {
                         JsonElement rawLovedAlbums = get(o, "lovedAlbums");
                         if (rawLovedAlbums instanceof JsonObject) {
-                            List<Album> albums = storeRecords(
-                                    (JsonObject) rawLovedAlbums, Album.class, isBackgroundRequest);
+                            List<Relationship> relationships = storeRecords(
+                                    (JsonObject) rawLovedAlbums, Relationship.class,
+                                    isBackgroundRequest);
+                            List<Album> albums = new ArrayList<>();
+                            for (Relationship relationship : relationships) {
+                                albums.add(relationship.getAlbum());
+                            }
                             user.setStarredAlbums(albums);
                         }
                     } else if (requestType
                             == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDARTISTS) {
                         JsonElement rawLovedArtists = get(o, "lovedArtists");
                         if (rawLovedArtists instanceof JsonObject) {
-                            List<Artist> artists = storeRecords((JsonObject) rawLovedArtists,
-                                    Artist.class, isBackgroundRequest);
+                            List<Relationship> relationships = storeRecords(
+                                    (JsonObject) rawLovedArtists, Relationship.class,
+                                    isBackgroundRequest);
+                            List<Artist> artists = new ArrayList<>();
+                            for (Relationship relationship : relationships) {
+                                artists.add(relationship.getArtist());
+                            }
                             user.setStarredArtists(artists);
                         }
                     } else if (requestType
@@ -728,20 +740,30 @@ public class Store {
                     if (type.equals(HatchetInfoPlugin.HATCHET_RELATIONSHIPS_TYPE_LOVE)) {
                         String userId = getAsString(o, "user");
                         User user = findRecord(userId, User.class, isBackgroundRequest);
-                        String trackId = getAsString(o, "targetTrack");
-                        if (trackId != null) {
-                            Query query = findRecord(trackId, Query.class, isBackgroundRequest);
-                            user.putRelationShipId(query, id);
+                        String dateString = getAsString(o, "date");
+                        Date date = null;
+                        if (dateString != null) {
+                            date = ISO8601Utils.parse(dateString);
                         }
-                        String albumId = getAsString(o, "targetAlbum");
-                        if (albumId != null) {
-                            Album album = findRecord(albumId, Album.class, isBackgroundRequest);
-                            user.putRelationShipId(album, id);
+                        Relationship relationship = Relationship.get(id, type, user, date);
+                        String targetId;
+                        if ((targetId = getAsString(o, "targetTrack")) != null) {
+                            Query query = findRecord(targetId, Query.class, isBackgroundRequest);
+                            relationship.setQuery(query);
+                            user.putRelationship(query, relationship);
+                        } else if ((targetId = getAsString(o, "targetAlbum")) != null) {
+                            Album album = findRecord(targetId, Album.class, isBackgroundRequest);
+                            relationship.setAlbum(album);
+                            user.putRelationship(album, relationship);
+                        } else if ((targetId = getAsString(o, "targetArtist")) != null) {
+                            Artist artist =
+                                    findRecord(targetId, Artist.class, isBackgroundRequest);
+                            relationship.setArtist(artist);
+                            user.putRelationship(artist, relationship);
                         }
-                        String artistId = getAsString(o, "targetArtist");
-                        if (artistId != null) {
-                            Artist artist = findRecord(artistId, Artist.class, isBackgroundRequest);
-                            user.putRelationShipId(artist, id);
+                        mCache.put(Relationship.class, id, relationship);
+                        if (resultType == Relationship.class) {
+                            results.add((T) relationship);
                         }
                     }
                 }
