@@ -32,6 +32,7 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
+import org.tomahawk.libtomahawk.infosystem.Relationship;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
@@ -225,13 +226,14 @@ public class CollectionManager {
             User.getSelf().done(new DoneCallback<User>() {
                 @Override
                 public void onDone(User result) {
-                    String relationShipId = result.getRelationShipId(query);
-                    if (relationShipId == null) {
+                    Relationship relationship = result.getRelationship(query);
+                    if (relationship == null) {
                         Log.e(TAG, "Can't unlove track, because there's no relationshipId"
                                 + " associated with it.");
                         return;
                     }
-                    InfoSystem.get().deleteRelationship(hatchetAuthUtils, relationShipId);
+                    InfoSystem.get().deleteRelationship(
+                            hatchetAuthUtils, relationship.getCacheKey());
                 }
             });
         }
@@ -246,20 +248,25 @@ public class CollectionManager {
         final AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         if (doSweetSweetLovin) {
-            userCollection.addLoved(artist);
+            List<Artist> artists = new ArrayList<>();
+            artists.add(artist);
+            List<Long> lastModifieds = new ArrayList<>();
+            lastModifieds.add(System.currentTimeMillis());
+            userCollection.addLovedArtists(artists, lastModifieds);
             InfoSystem.get().sendRelationshipPostStruct(hatchetAuthUtils, artist);
         } else {
             userCollection.removeLoved(artist);
             User.getSelf().done(new DoneCallback<User>() {
                 @Override
                 public void onDone(User result) {
-                    String relationShipId = result.getRelationShipId(artist);
-                    if (relationShipId == null) {
-                        Log.e(TAG, "Can't unlove artist, because there's no relationshipId"
+                    Relationship relationship = result.getRelationship(artist);
+                    if (relationship == null) {
+                        Log.e(TAG, "Can't unlove artist, because there's no relationship"
                                 + " associated with it.");
                         return;
                     }
-                    InfoSystem.get().deleteRelationship(hatchetAuthUtils, relationShipId);
+                    InfoSystem.get().deleteRelationship(
+                            hatchetAuthUtils, relationship.getCacheKey());
                 }
             });
         }
@@ -278,20 +285,25 @@ public class CollectionManager {
         final AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
         if (doSweetSweetLovin) {
-            userCollection.addLoved(album);
+            List<Album> albums = new ArrayList<>();
+            albums.add(album);
+            List<Long> lastModifieds = new ArrayList<>();
+            lastModifieds.add(System.currentTimeMillis());
+            userCollection.addLovedAlbums(albums, lastModifieds);
             InfoSystem.get().sendRelationshipPostStruct(hatchetAuthUtils, album);
         } else {
             userCollection.removeLoved(album);
             User.getSelf().done(new DoneCallback<User>() {
                 @Override
                 public void onDone(User result) {
-                    String relationShipId = result.getRelationShipId(album);
-                    if (relationShipId == null) {
-                        Log.e(TAG, "Can't unlove album, because there's no relationshipId"
+                    Relationship relationship = result.getRelationship(album);
+                    if (relationship == null) {
+                        Log.e(TAG, "Can't unlove album, because there's no relationship"
                                 + " associated with it.");
                         return;
                     }
-                    InfoSystem.get().deleteRelationship(hatchetAuthUtils, relationShipId);
+                    InfoSystem.get().deleteRelationship(
+                            hatchetAuthUtils, relationship.getCacheKey());
                 }
             });
         }
@@ -567,7 +579,18 @@ public class CollectionManager {
                     + fetchedAlbums.size());
             UserCollection userCollection =
                     (UserCollection) getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-            userCollection.addLoved(fetchedAlbums.toArray(new Album[fetchedAlbums.size()]));
+            List<Long> lastModifieds = new ArrayList<>();
+            for (Album album : fetchedAlbums) {
+                Relationship relationship = user.getRelationship(album);
+                if (relationship == null) {
+                    Log.e(TAG, "Hatchet sync - couldn't find associated relationship for album '"
+                            + album.getName() + "'!");
+                    lastModifieds.add(Long.MAX_VALUE);
+                } else {
+                    lastModifieds.add(relationship.getDate().getTime());
+                }
+            }
+            userCollection.addLovedAlbums(fetchedAlbums, lastModifieds);
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDARTISTS) {
             List<User> results = data.getResultList(User.class);
             if (results == null || results.size() == 0) {
@@ -580,7 +603,18 @@ public class CollectionManager {
                     + fetchedArtists.size());
             UserCollection userCollection =
                     (UserCollection) getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-            userCollection.addLoved(fetchedArtists.toArray(new Artist[fetchedArtists.size()]));
+            List<Long> lastModifieds = new ArrayList<>();
+            for (Artist artist : fetchedArtists) {
+                Relationship relationship = user.getRelationship(artist);
+                if (relationship == null) {
+                    Log.e(TAG, "Hatchet sync - couldn't find associated relationship for artist '"
+                            + artist.getName() + "'!");
+                    lastModifieds.add(Long.MAX_VALUE);
+                } else {
+                    lastModifieds.add(relationship.getDate().getTime());
+                }
+            }
+            userCollection.addLovedArtists(fetchedArtists, lastModifieds);
         }
     }
 
