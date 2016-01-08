@@ -41,7 +41,7 @@ public class CollectionDbManager {
         return Holder.instance;
     }
 
-    public CollectionDb getCollectionDb(String collectionId) {
+    public synchronized CollectionDb getCollectionDb(String collectionId) {
         CollectionDb db = mCollectionDbs.get(collectionId);
         if (db == null) {
             if (collectionId.equals(TomahawkApp.PLUGINNAME_USERCOLLECTION)) {
