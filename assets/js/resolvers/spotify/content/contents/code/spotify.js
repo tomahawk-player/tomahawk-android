@@ -265,12 +265,12 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var url = params.url;
         Tomahawk.log("lookupUrl: " + url);
 
-        var match = url.match(/spotify:(album|artist|track):([^:]+)/);
+        var match = url.match(/spotify[/:]+(album|artist|track)[/:]+([^/:?]+)/);
         if (match == null) {
             match
                 = url.match(/https?:\/\/(?:play|open)\.spotify\.[^\/]+\/(album|artist|track)\/([^\/\?]+)/);
         }
-        var playlistmatch = url.match(/spotify:user:([^:]+):playlist:([^:]+)/);
+        var playlistmatch = url.match(/spotify[/:]+user[/:]+([^/:]+)[/:]+playlist[/:]+([^/:?]+)/);
         if (playlistmatch == null) {
             playlistmatch
                 = url.match(/https?:\/\/(?:play|open)\.spotify\.[^\/]+\/user\/([^\/]+)\/playlist\/([^\/\?]+)/);
