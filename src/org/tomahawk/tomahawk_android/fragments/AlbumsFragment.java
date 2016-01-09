@@ -28,12 +28,11 @@ import org.tomahawk.libtomahawk.collection.AlphaComparator;
 import org.tomahawk.libtomahawk.collection.ArtistAlphaComparator;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionCursor;
-import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.HatchetCollection;
 import org.tomahawk.libtomahawk.collection.LastModifiedComparator;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
-import org.tomahawk.libtomahawk.collection.UserCollection;
+import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -47,7 +46,9 @@ import android.view.View;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * {@link TomahawkFragment} which shows a set of {@link Album}s inside its {@link
@@ -237,7 +238,7 @@ public class AlbumsFragment extends TomahawkFragment {
         } else if (mAlbumArray != null) {
             fillAdapter(new Segment.Builder(mAlbumArray).build());
         } else if (mUser != null) {
-            Segment segment = new Segment.Builder(sortAlbums(mUser.getStarredAlbums()))
+            Segment segment = new Segment.Builder(sortLovedAlbums(mUser, mUser.getStarredAlbums()))
                     .headerLayout(R.layout.dropdown_header)
                     .headerStrings(constructDropdownItems())
                     .spinner(constructDropdownListener(COLLECTION_ALBUMS_SPINNER_POSITION),
@@ -293,27 +294,22 @@ public class AlbumsFragment extends TomahawkFragment {
         }
     }
 
-    private List<Album> sortAlbums(java.util.Collection<Album> albums) {
-        List<Album> sortedAlbums;
-        if (albums instanceof List) {
-            sortedAlbums = (List<Album>) albums;
-        } else {
-            sortedAlbums = new ArrayList<>(albums);
-        }
+    private List<Album> sortLovedAlbums(User user, List<Album> albums) {
         switch (getDropdownPos(COLLECTION_ALBUMS_SPINNER_POSITION)) {
             case 0:
-                UserCollection userColl = (UserCollection) CollectionManager.get()
-                        .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                Collections.sort(sortedAlbums,
-                        new LastModifiedComparator<>(userColl.getAlbumTimeStamps()));
+                Map<Album, Long> timestamps = new HashMap<>();
+                for (Album album : albums) {
+                    timestamps.put(album, user.getRelationship(album).getDate().getTime());
+                }
+                Collections.sort(albums, new LastModifiedComparator<>(timestamps));
                 break;
             case 1:
-                Collections.sort(sortedAlbums, new AlphaComparator());
+                Collections.sort(albums, new AlphaComparator());
                 break;
             case 2:
-                Collections.sort(sortedAlbums, new ArtistAlphaComparator());
+                Collections.sort(albums, new ArtistAlphaComparator());
                 break;
         }
-        return sortedAlbums;
+        return albums;
     }
 }

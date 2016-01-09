@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -134,11 +135,11 @@ public class ArtistsFragment extends TomahawkFragment {
     private int getSortMode() {
         switch (getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION)) {
             case 0:
-                return org.tomahawk.libtomahawk.collection.Collection.SORT_LAST_MODIFIED;
+                return Collection.SORT_LAST_MODIFIED;
             case 1:
-                return org.tomahawk.libtomahawk.collection.Collection.SORT_ALPHA;
+                return Collection.SORT_ALPHA;
             default:
-                return org.tomahawk.libtomahawk.collection.Collection.SORT_NOT;
+                return Collection.SORT_NOT;
         }
     }
 }
