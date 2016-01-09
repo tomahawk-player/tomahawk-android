@@ -23,6 +23,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -52,7 +53,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
     public static final int SHOW_MODE_PLAYBACKLOG = 1;
 
     public static final String COLLECTION_TRACKS_SPINNER_POSITION
-            = "org.tomahawk.tomahawk_android.collection_tracks_spinner_position";
+            = "org.tomahawk.tomahawk_android.collection_tracks_spinner_position_";
 
     private Set<String> mResolvingTopArtistNames = new HashSet<>();
 
@@ -244,12 +245,13 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                         @Override
                         public void run() {
                             mCurrentPlaylist = playlist;
+                            String id = mCollection.getId();
                             Segment segment = new Segment.Builder(playlist)
                                     .headerLayout(R.layout.dropdown_header)
                                     .headerStrings(constructDropdownItems())
                                     .spinner(constructDropdownListener(
-                                                    COLLECTION_TRACKS_SPINNER_POSITION),
-                                            getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION))
+                                            COLLECTION_TRACKS_SPINNER_POSITION + id),
+                                            getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION + id))
                                     .build();
                             fillAdapter(segment);
                         }
@@ -261,22 +263,37 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
 
     private List<Integer> constructDropdownItems() {
         List<Integer> dropDownItems = new ArrayList<>();
-        dropDownItems.add(R.string.collection_dropdown_recently_added);
+        if (!(mCollection instanceof ScriptResolverCollection)) {
+            dropDownItems.add(R.string.collection_dropdown_recently_added);
+        }
         dropDownItems.add(R.string.collection_dropdown_alpha);
         dropDownItems.add(R.string.collection_dropdown_alpha_artists);
         return dropDownItems;
     }
 
     private int getSortMode() {
-        switch (getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION)) {
-            case 0:
-                return Collection.SORT_LAST_MODIFIED;
-            case 1:
-                return Collection.SORT_ALPHA;
-            case 2:
-                return Collection.SORT_ARTIST_ALPHA;
-            default:
-                return Collection.SORT_NOT;
+        String id = mCollection.getId();
+        int pos = getDropdownPos(COLLECTION_TRACKS_SPINNER_POSITION + id);
+        if (!(mCollection instanceof ScriptResolverCollection)) {
+            switch (pos) {
+                case 0:
+                    return Collection.SORT_LAST_MODIFIED;
+                case 1:
+                    return Collection.SORT_ALPHA;
+                case 2:
+                    return Collection.SORT_ARTIST_ALPHA;
+                default:
+                    return Collection.SORT_NOT;
+            }
+        } else {
+            switch (pos) {
+                case 0:
+                    return Collection.SORT_ALPHA;
+                case 1:
+                    return Collection.SORT_ARTIST_ALPHA;
+                default:
+                    return Collection.SORT_NOT;
+            }
         }
     }
 

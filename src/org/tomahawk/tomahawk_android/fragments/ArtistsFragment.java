@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionCursor;
+import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -41,7 +42,7 @@ import java.util.List;
 public class ArtistsFragment extends TomahawkFragment {
 
     public static final String COLLECTION_ARTISTS_SPINNER_POSITION
-            = "org.tomahawk.tomahawk_android.collection_artists_spinner_position";
+            = "org.tomahawk.tomahawk_android.collection_artists_spinner_position_";
 
     @Override
     public void onResume() {
@@ -106,13 +107,15 @@ public class ArtistsFragment extends TomahawkFragment {
                             new Thread(new Runnable() {
                                 @Override
                                 public void run() {
+                                    String id = mCollection.getId();
                                     Segment segment = new Segment.Builder(cursor)
                                             .headerLayout(R.layout.dropdown_header)
                                             .headerStrings(constructDropdownItems())
                                             .spinner(constructDropdownListener(
-                                                            COLLECTION_ARTISTS_SPINNER_POSITION),
+                                                    COLLECTION_ARTISTS_SPINNER_POSITION + id),
                                                     getDropdownPos(
-                                                            COLLECTION_ARTISTS_SPINNER_POSITION))
+                                                            COLLECTION_ARTISTS_SPINNER_POSITION
+                                                                    + id))
                                             .showAsGrid(R.integer.grid_column_count,
                                                     R.dimen.padding_superlarge,
                                                     R.dimen.padding_superlarge)
@@ -127,19 +130,32 @@ public class ArtistsFragment extends TomahawkFragment {
 
     private List<Integer> constructDropdownItems() {
         List<Integer> dropDownItems = new ArrayList<>();
-        dropDownItems.add(R.string.collection_dropdown_recently_added);
+        if (!(mCollection instanceof ScriptResolverCollection)) {
+            dropDownItems.add(R.string.collection_dropdown_recently_added);
+        }
         dropDownItems.add(R.string.collection_dropdown_alpha);
         return dropDownItems;
     }
 
     private int getSortMode() {
-        switch (getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION)) {
-            case 0:
-                return Collection.SORT_LAST_MODIFIED;
-            case 1:
-                return Collection.SORT_ALPHA;
-            default:
-                return Collection.SORT_NOT;
+        String id = mCollection.getId();
+        int pos = getDropdownPos(COLLECTION_ARTISTS_SPINNER_POSITION + id);
+        if (!(mCollection instanceof ScriptResolverCollection)) {
+            switch (pos) {
+                case 0:
+                    return Collection.SORT_LAST_MODIFIED;
+                case 1:
+                    return Collection.SORT_ALPHA;
+                default:
+                    return Collection.SORT_NOT;
+            }
+        } else {
+            switch (pos) {
+                case 0:
+                    return Collection.SORT_ALPHA;
+                default:
+                    return Collection.SORT_NOT;
+            }
         }
     }
 }
