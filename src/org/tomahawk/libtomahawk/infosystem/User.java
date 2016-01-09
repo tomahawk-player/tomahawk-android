@@ -358,7 +358,9 @@ public class User extends Cacheable implements AlphaComparable {
     }
 
     public void setPlaybackLog(Playlist playbackLog) {
-        mPlaybackLog = playbackLog;
+        if (playbackLog != null) {
+            mPlaybackLog = playbackLog;
+        }
     }
 
     public Playlist getFavorites() {
@@ -369,8 +371,8 @@ public class User extends Cacheable implements AlphaComparable {
         if (favorites != null) {
             favorites.setUserId(mId);
             favorites.setFilled(true);
+            mFavorites = favorites;
         }
-        mFavorites = favorites;
     }
 
     public TreeMap<User, String> getFollowings() {
