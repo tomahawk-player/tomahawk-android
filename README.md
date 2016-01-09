@@ -3,6 +3,9 @@
 Music is everywhere, now you don’t have to be. Tomahawk, the critically acclaimed multi-source music player, is now available on Android. Given the name of an artist, album or song Tomahawk will find the best available source and play it - whether that be from Spotify, Beats Music, Rdio, Deezer, GMusic, Grooveshark, Soundcloud, Official.fm, Jamendo, Beets, Ampache, Subsonic or your phone’s local storage.
 Tomahawk for Android also syncs your history, your loved tracks, artists, albums and your playlists to/from the desktop version of Tomahawk via our new music community, Hatchet. On Hatchet you can hear your friends' favorite tracks and see what they're currently listening to.
 
+![Tomahawk Screenshot1](/screenshots/screenshot1.png) | ![Tomahawk Screenshot2](/screenshots/screenshot2.png) | ![Tomahawk Screenshot3](/screenshots/screenshot3.png)
+------ | -----  | -----
+
 ## Beta and Nightly
 
 Join this Google+ community to take part in our current beta test on Google Play:
