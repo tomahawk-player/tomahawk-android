@@ -20,12 +20,17 @@ package org.tomahawk.tomahawk_android.dialogs;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.HatchetStubResolver;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.widget.Toast;
 
 /**
  * A {@link android.support.v4.app.DialogFragment} which is being shown to the user to ask him to
@@ -63,8 +68,19 @@ public class AskAccessConfigDialog extends ConfigDialog {
 
     @Override
     protected void onPositiveAction() {
-        startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
-                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        try {
+            startActivity(new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS")
+                    .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+        } catch (ActivityNotFoundException e) {
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(TomahawkApp.getContext(),
+                            R.string.notification_settings_activity_not_found, Toast.LENGTH_LONG)
+                            .show();
+                }
+            });
+        }
         dismiss();
     }
 

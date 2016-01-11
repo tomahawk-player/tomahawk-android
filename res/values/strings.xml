@@ -227,4 +227,5 @@
   <string name="invalid_file">Can\'t open file.</string>
   <string name="unknown_album">Unknown album</string>
   <string name="unknown_artist">Unknown artist</string>
+  <string name="notification_settings_activity_not_found">Couldn't find Settings App on your device. Please give Tomahawk access to your notifications in your System Settings.</string>
 </resources>
