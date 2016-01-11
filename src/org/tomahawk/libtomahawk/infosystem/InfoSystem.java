@@ -729,12 +729,13 @@ public class InfoSystem {
                                     queuedLoggedOp.getJsonStringToSend(), JsonElement.class);
                             if (element.isJsonObject()) {
                                 JsonObject object = (JsonObject) element;
-                                if (object.has("playlist")) {
-                                    // new way of posting playlistEntries
-                                    object.addProperty("playlist", newHatchetId);
+                                JsonObject playlistEntry = object.getAsJsonObject("playlistEntry");
+                                if (playlistEntry != null) {
+                                    // old way of posting playlistEntries (one per request)
+                                    playlistEntry.addProperty("playlist", newHatchetId);
                                 } else {
-                                    object.getAsJsonObject("playlistEntry")
-                                            .addProperty("playlist", newHatchetId);
+                                    // new way of posting playlistEntries (all at once)
+                                    object.addProperty("playlist", newHatchetId);
                                 }
                             }
                             queuedLoggedOp.setJsonStringToSend(GsonHelper.get().toJson(element));
@@ -793,7 +794,9 @@ public class InfoSystem {
                     GsonHelper.get().fromJson(loggedOp.getJsonStringToSend(), JsonElement.class);
             if (element instanceof JsonObject) {
                 JsonElement playlist = ((JsonObject) element).get("playlist");
-                if (playlist instanceof JsonObject) {
+                if (playlist instanceof JsonObject
+                        && !((JsonObject) element).has("playlistEntry")) {
+                    // It's definitely an old "create playlist"-struct
                     String title = getAsString((JsonObject) playlist, "title");
                     convertedLogOp = buildPlaylistPostStruct(
                             loggedOp.getQueryParams().playlist_local_id, title);
