@@ -202,7 +202,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     @SuppressWarnings("unused")
     public void onEvent(PipeLine.ResolversChangedEvent event) {
-        forceResolveVisibleItems(true);
+        forceResolveVisibleItems(event.mManuallyAdded);
     }
 
     @SuppressWarnings("unused")
