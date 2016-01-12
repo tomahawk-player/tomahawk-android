@@ -1433,10 +1433,15 @@ public class PlaybackService extends Service implements MusicFocusable {
                 + getCurrentQuery().getArtist().getPrettyName() + ", "
                 + getCurrentQuery().getPrettyName());
 
-        Picasso.with(TomahawkApp.getContext()).cancelRequest(mLockscreenTarget);
-        ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
-                getCurrentQuery().getImage(), mLockscreenTarget,
-                Image.getLargeImageSize(), getCurrentQuery().hasArtistImage());
+        new Handler(Looper.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                Picasso.with(TomahawkApp.getContext()).cancelRequest(mLockscreenTarget);
+                ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
+                        getCurrentQuery().getImage(), mLockscreenTarget,
+                        Image.getLargeImageSize(), getCurrentQuery().hasArtistImage());
+            }
+        });
     }
 
     /**
