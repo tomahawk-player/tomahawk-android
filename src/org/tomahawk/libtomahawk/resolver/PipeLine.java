@@ -88,9 +88,14 @@ public class PipeLine {
 
     public static class ResolversChangedEvent {
 
+        public boolean mManuallyAdded;
+
     }
 
     private final Set<ScriptAccount> mScriptAccounts =
+            Collections.newSetFromMap(new ConcurrentHashMap<ScriptAccount, Boolean>());
+
+    private final Set<ScriptAccount> mManualScriptAccounts =
             Collections.newSetFromMap(new ConcurrentHashMap<ScriptAccount, Boolean>());
 
     private final Set<Resolver> mResolvers =
@@ -169,19 +174,22 @@ public class PipeLine {
     }
 
     public void addScriptAccount(ScriptAccount scriptAccount) {
+        mManualScriptAccounts.add(scriptAccount);
         mScriptAccounts.add(scriptAccount);
         mLoadingPlugins.add(scriptAccount);
     }
 
-    public void addResolver(Resolver resolver) {
+    public void addResolver(ScriptResolver resolver) {
         mResolvers.add(resolver);
         if (!resolver.isInitialized()) {
             mInitializingResolvers.add(resolver);
         }
-        EventBus.getDefault().post(new ResolversChangedEvent());
+        ResolversChangedEvent event = new ResolversChangedEvent();
+        event.mManuallyAdded = mManualScriptAccounts.contains(resolver.getScriptAccount());
+        EventBus.getDefault().post(event);
     }
 
-    public void removeResolver(Resolver resolver) {
+    public void removeResolver(ScriptResolver resolver) {
         mResolvers.remove(resolver);
         EventBus.getDefault().post(new ResolversChangedEvent());
     }
