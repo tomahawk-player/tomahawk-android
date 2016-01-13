@@ -117,6 +117,8 @@
   <string name="connect_headertext">Pasirinkite paslaugas, kuriomis norite naudotis. Tomahawk veikia geriau, kuomet yra aktyvuota daugiau paslaugų.</string>
   <string name="info">Informacija</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="next_page">Kitas</string>
+  <string name="welcome_fragment_explanation_title">Darbo pradžia</string>
   <string name="welcome_fragment_done_title">Atlikta!</string>
   <string name="welcome_fragment_done_heading">Viskas atlikta!</string>
   <string name="invalid_file">Nepavyksta atverti failo.</string>
