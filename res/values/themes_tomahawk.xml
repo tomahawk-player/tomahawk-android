@@ -15,6 +15,7 @@
         <item name="colorPrimary">@color/tomahawk_red</item>
         <item name="colorPrimaryDark">@color/tomahawk_red</item>
         <item name="colorAccent">@color/tomahawk_red</item>
+        <item name="android:textColorSecondary">@color/tomahawk_red</item>
 
     </style>
 
