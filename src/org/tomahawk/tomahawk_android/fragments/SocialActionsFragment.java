@@ -85,6 +85,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
             return;
         }
 
+        mHideRemoveButton = true;
+
         if (mShowMode == SHOW_MODE_DASHBOARD) {
             if (mContainerFragmentClass == null) {
                 getActivity().setTitle(getString(R.string.drawer_title_feed).toUpperCase());
