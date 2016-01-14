@@ -31,31 +31,21 @@
                    android:layout_width="match_parent"
                    android:layout_height="match_parent"
                    android:scaleType="centerCrop"
-                   android:src="@color/tomahawk_red"/>
+                   android:src="@android:color/black"/>
 
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="@dimen/row_height_verylarge"
                       android:layout_marginRight="@dimen/padding_medium"
                       android:layout_marginLeft="@dimen/padding_medium">
 
-            <FrameLayout android:layout_width="wrap_content"
-                         android:layout_height="match_parent"
-                         android:layout_marginRight="@dimen/padding_small">
-
-                <ImageView android:id="@+id/config_dialog_connect_bg_imageview"
-                           android:layout_width="@dimen/row_height_medium"
-                           android:layout_height="@dimen/row_height_medium"
-                           android:layout_gravity="center_vertical"
-                           android:src="@drawable/selectable_background_button_green"
-                           android:visibility="gone"/>
-
-                <ImageView android:id="@+id/config_dialog_connect_imageview"
-                           android:layout_width="@dimen/row_height_medium"
-                           android:layout_height="@dimen/row_height_medium"
-                           android:layout_gravity="center_vertical"
-                           android:src="@drawable/ic_connected"/>
-
-            </FrameLayout>
+            <org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox
+                    android:id="@+id/config_dialog_enable_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="@dimen/padding_small"
+                    android:layout_gravity="center"
+                    android:checked="false"
+                    android:enabled="false"/>
 
             <TextView android:id="@+id/config_dialog_title_textview"
                       android:layout_width="0dp"

@@ -23,8 +23,8 @@ import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.ui.widgets.BoundedLinearLayout;
+import org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox;
 
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -32,6 +32,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -63,9 +64,7 @@ public abstract class ConfigDialog extends DialogFragment {
 
     private ImageView mStatusImageView;
 
-    private ImageView mConnectImageView;
-
-    private ImageView mConnectBgImageView;
+    private ConfigCheckbox mEnableCheckbox;
 
     private ImageView mRemoveButton;
 
@@ -129,10 +128,8 @@ public abstract class ConfigDialog extends DialogFragment {
         mNegativeButton.setOnClickListener(mNegativeButtonListener);
         mStatusImageView = (ImageView) mDialogView
                 .findViewById(R.id.config_dialog_status_imageview);
-        mConnectImageView = (ImageView) mDialogView
-                .findViewById(R.id.config_dialog_connect_imageview);
-        mConnectBgImageView = (ImageView) mDialogView
-                .findViewById(R.id.config_dialog_connect_bg_imageview);
+        mEnableCheckbox = (ConfigCheckbox) mDialogView
+                .findViewById(R.id.config_dialog_enable_checkbox);
         mProgressBar = (SmoothProgressBar) mDialogView
                 .findViewById(R.id.smoothprogressbar);
         mRemoveButton = (ImageView) mDialogView
@@ -202,7 +199,7 @@ public abstract class ConfigDialog extends DialogFragment {
     }
 
     protected void hideConnectImage() {
-        mConnectImageView.setVisibility(View.GONE);
+        mEnableCheckbox.setVisibility(View.GONE);
     }
 
     protected void showRemoveButton() {
@@ -217,13 +214,14 @@ public abstract class ConfigDialog extends DialogFragment {
     }
 
     protected void setConnectImageViewClickable() {
-        mConnectBgImageView.setOnClickListener(new View.OnClickListener() {
+        mEnableCheckbox.setChecked(mResolverEnabled);
+        mEnableCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
-            public void onClick(View v) {
-                onEnabledCheckedChange(!mResolverEnabled);
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                onEnabledCheckedChange(isChecked);
             }
         });
-        mConnectBgImageView.setVisibility(View.VISIBLE);
+        mEnableCheckbox.setEnabled(true);
     }
 
     protected void setStatus(Resolver resolver) {
@@ -240,11 +238,7 @@ public abstract class ConfigDialog extends DialogFragment {
         } else {
             resolver.loadIcon(mStatusImageView, false);
         }
-        int resId = resolver.isEnabled() ? R.drawable.ic_connected : R.drawable.ic_connect;
-        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), mConnectImageView, resId);
-        int bgResId = resolver.isEnabled() ? R.drawable.selectable_background_button_green
-                : R.drawable.selectable_background_button_white;
-        mConnectBgImageView.setImageResource(bgResId);
+        mEnableCheckbox.setChecked(resolver.isEnabled());
     }
 
     protected void setDialogTitle(String title) {
