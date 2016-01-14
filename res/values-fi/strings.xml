@@ -226,4 +226,5 @@
   <string name="invalid_file">Tiedostoa ei voida avata.</string>
   <string name="unknown_album">Tuntematon albumi</string>
   <string name="unknown_artist">Tuntematon artisti</string>
+  <string name="notification_settings_activity_not_found">Laitteeltasi ei löydetty Asetukset-sovellusta. Ole hyvä ja anna järjestelmäasetuksista Tomahawkille pääsy ilmoituksiisi.</string>
 </resources>
