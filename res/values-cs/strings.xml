@@ -239,4 +239,5 @@ Vy teď nemusíte.</string>
   <string name="invalid_file">Nelze otevřít soubor.</string>
   <string name="unknown_album">Neznámé album</string>
   <string name="unknown_artist">Neznámý umělec</string>
+  <string name="notification_settings_activity_not_found">Na vašem zařízení se nepodařilo najít nastavení aplikace. Dejte, prosím, Tomahawku přístup k vašemu oznamování v nastavení systému.</string>
 </resources>
