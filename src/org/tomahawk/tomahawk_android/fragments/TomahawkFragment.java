@@ -413,7 +413,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
         if (mTomahawkListAdapter != null) {
             mTomahawkListAdapter.closeSegments(null);
-            setListAdapter(null);
             mTomahawkListAdapter = null;
         }
     }
