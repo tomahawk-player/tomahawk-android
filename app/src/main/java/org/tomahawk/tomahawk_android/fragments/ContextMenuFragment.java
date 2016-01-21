@@ -233,7 +233,7 @@ public class ContextMenuFragment extends Fragment {
                 rootView.draw(canvas);
                 bm = Bitmap.createScaledBitmap(bm, bm.getWidth() / 4,
                         bm.getHeight() / 4, true);
-                bm = BlurTransformation.staticTransform(bm, 25f);
+                bm = new BlurTransformation(getContext(), 25).transform(bm);
 
                 ImageView bgImageView =
                         (ImageView) view.findViewById(R.id.background);

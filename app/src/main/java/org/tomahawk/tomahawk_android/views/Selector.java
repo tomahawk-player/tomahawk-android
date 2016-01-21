@@ -87,7 +87,7 @@ public class Selector extends FrameLayout {
             mRootView.draw(canvas);
             bm = Bitmap.createScaledBitmap(bm, bm.getWidth() / 4,
                     bm.getHeight() / 4, true);
-            bm = BlurTransformation.staticTransform(bm, 25f);
+            bm = new BlurTransformation(getContext(), 25).transform(bm);
             final ImageView bgImageView = (ImageView) findViewById(R.id.background);
             bgImageView.setImageBitmap(bm);
 

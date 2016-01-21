@@ -9,8 +9,8 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
-import org.tomahawk.tomahawk_android.utils.CircularImageTransformation;
 import org.tomahawk.tomahawk_android.utils.ColorTintTransformation;
+import org.tomahawk.tomahawk_android.utils.CropCircleTransformation;
 
 import android.annotation.SuppressLint;
 import android.app.Notification;
@@ -59,7 +59,7 @@ public class ImageUtils {
                 creator.placeholder(placeHolderResId);
                 creator.error(placeHolderResId);
             }
-            creator.transform(new BlurTransformation());
+            creator.transform(new BlurTransformation(context, 16));
             creator.into(imageView);
         } else {
             RequestCreator creator = Picasso.with(context).load(placeHolderResId)
@@ -121,7 +121,7 @@ public class ImageUtils {
             textView.setVisibility(View.GONE);
             String imagePath = buildImagePath(user.getImage(), width);
             Picasso.with(context).load(ImageUtils.preparePathForPicasso(imagePath))
-                    .transform(new CircularImageTransformation())
+                    .transform(new CropCircleTransformation())
                     .placeholder(placeHolder)
                     .error(placeHolder)
                     .fit()
@@ -172,8 +172,7 @@ public class ImageUtils {
      * Load a {@link Drawable} asynchronously (convenience method)
      *
      * @param context       the context needed for fetching resources
-     * @param imageView     the {@link ImageView}, which will be used to show the
-     *                      {@link Drawable}
+     * @param imageView     the {@link ImageView}, which will be used to show the {@link Drawable}
      * @param drawableResId the resource id of the drawable to load into the imageview
      */
     public static void loadDrawableIntoImageView(Context context, ImageView imageView,
@@ -185,8 +184,7 @@ public class ImageUtils {
      * Load a {@link Drawable} asynchronously
      *
      * @param context       the context needed for fetching resources
-     * @param imageView     the {@link ImageView}, which will be used to show the
-     *                      {@link Drawable}
+     * @param imageView     the {@link ImageView}, which will be used to show the {@link Drawable}
      * @param drawableResId the resource id of the drawable to load into the imageview
      * @param colorResId    the color with which to tint the imageview drawable
      */
