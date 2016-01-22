@@ -67,22 +67,22 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                     switch (mScriptResolver.getId()) {
                         case TomahawkApp.PLUGINNAME_SPOTIFY:
                             url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-spotify-x86-release-30.apk";
+                                    + "tomahawk-android-spotify-x86-release-40.apk";
                             break;
                         case TomahawkApp.PLUGINNAME_DEEZER:
                             url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-deezer-x86-release.apk";
+                                    + "tomahawk-android-deezer-x86-release-20.apk";
                             break;
                     }
                 } else {
                     switch (mScriptResolver.getId()) {
                         case TomahawkApp.PLUGINNAME_SPOTIFY:
                             url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-spotify-armv7a-release-30.apk";
+                                    + "tomahawk-android-spotify-armv7a-release-40.apk";
                             break;
                         case TomahawkApp.PLUGINNAME_DEEZER:
                             url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-deezer-armv7a-release.apk";
+                                    + "tomahawk-android-deezer-armv7a-release-20.apk";
                             break;
                     }
                 }

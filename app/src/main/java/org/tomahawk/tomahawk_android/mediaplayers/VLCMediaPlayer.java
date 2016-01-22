@@ -29,7 +29,6 @@ import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 import org.videolan.libvlc.util.AndroidUtil;
 
-import android.app.Application;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -192,8 +191,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
      * Prepare the given url
      */
     @Override
-    public TomahawkMediaPlayer prepare(Application application, Query query,
-            TomahawkMediaPlayerCallback callback) {
+    public TomahawkMediaPlayer prepare(Query query, TomahawkMediaPlayerCallback callback) {
         Log.d(TAG, "prepare()");
         mMediaPlayerCallback = callback;
         return prepare(query);

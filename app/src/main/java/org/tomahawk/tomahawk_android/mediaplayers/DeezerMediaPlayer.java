@@ -17,17 +17,14 @@
  */
 package org.tomahawk.tomahawk_android.mediaplayers;
 
-import org.tomahawk.aidl.IPluginService;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.app.Application;
-import android.os.RemoteException;
-import android.util.Log;
+import android.os.Bundle;
 
-public class DeezerMediaPlayer extends PluginMediaPlayer implements TomahawkMediaPlayer {
+public class DeezerMediaPlayer extends PluginMediaPlayer {
 
     private static final String TAG = DeezerMediaPlayer.class.getSimpleName();
 
@@ -46,28 +43,27 @@ public class DeezerMediaPlayer extends PluginMediaPlayer implements TomahawkMedi
     }
 
     @Override
-    public ServiceCall getPrepareServiceCall(Application application, final Query query) {
-        return new ServiceCall() {
-            @Override
-            public void call(final IPluginService pluginService) {
-                getScriptResolver().getAccessToken(
-                        new ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult>(
-                                ScriptResolverAccessTokenResult.class) {
-                            @Override
-                            public void onReportResults(ScriptResolverAccessTokenResult results) {
-                                String strippedPath = query.getPreferredTrackResult().getPath()
-                                        .replace("deezer://track/", "");
-                                String[] parts = strippedPath.split("/");
-                                try {
-                                    pluginService.prepare(parts[0], results.accessToken, null,
-                                            results.accessTokenExpires);
-                                } catch (RemoteException e) {
-                                    Log.e(TAG, "prepare: " + e.getClass() + ": "
-                                            + e.getLocalizedMessage());
-                                }
-                            }
-                        });
-            }
-        };
+    public String getUri(Query query) {
+        String strippedPath = query.getPreferredTrackResult().getPath()
+                .replace("deezer://track/", "");
+        String[] parts = strippedPath.split("/");
+        return parts[0];
+    }
+
+    @Override
+    public void prepare(final String uri) {
+        getScriptResolver().getAccessToken(
+                new ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult>(
+                        ScriptResolverAccessTokenResult.class) {
+                    @Override
+                    public void onReportResults(ScriptResolverAccessTokenResult results) {
+                        Bundle args = new Bundle();
+                        args.putString(MSG_PREPARE_ARG_URI, uri);
+                        args.putString(MSG_PREPARE_ARG_ACCESSTOKEN, results.accessToken);
+                        args.putLong(MSG_PREPARE_ARG_ACCESSTOKENEXPIRES,
+                                results.accessTokenExpires);
+                        callService(MSG_PREPARE, args);
+                    }
+                });
     }
 }
