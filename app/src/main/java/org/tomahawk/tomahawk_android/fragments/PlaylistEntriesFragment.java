@@ -219,7 +219,9 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                             public void run() {
                                 if (mCurrentPlaylist.getTopArtistNames() == null
                                         || mCurrentPlaylist.getTopArtistNames().length == 0) {
-                                    mCurrentPlaylist.updateTopArtistNames();
+                                    boolean isFavorites = mUser != null
+                                            && mCurrentPlaylist == mUser.getFavorites();
+                                    mCurrentPlaylist.updateTopArtistNames(isFavorites);
                                 } else {
                                     for (int i = 0; i < mCurrentPlaylist.getTopArtistNames().length
                                             && i < 5; i++) {
