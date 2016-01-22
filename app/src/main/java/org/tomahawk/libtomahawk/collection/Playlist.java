@@ -218,28 +218,37 @@ public class Playlist extends Cacheable implements AlphaComparable {
         mTopArtistNames = topArtistNames;
     }
 
-    public void updateTopArtistNames() {
-        final HashMap<String, Integer> countMap = new HashMap<>();
-        for (int i = 0; i < size(); i++) {
-            String artistName = getArtistName(i);
-            if (countMap.containsKey(artistName)) {
-                countMap.put(artistName, countMap.get(artistName) + 1);
-            } else {
-                countMap.put(artistName, 1);
+    public void updateTopArtistNames(boolean getMostRecentArtists) {
+        String[] results;
+        if (getMostRecentArtists) {
+            List<String> artistNames = new ArrayList<>();
+            for (int i = 0; i < size() && i < 5; i++) {
+                artistNames.add(getArtistName(i));
             }
-        }
-        String[] results = new String[0];
-        if (countMap.size() > 0) {
-            PriorityQueue<String> topArtistNames = new PriorityQueue<>(countMap.size(),
-                    new Comparator<String>() {
-                        @Override
-                        public int compare(String lhs, String rhs) {
-                            return countMap.get(lhs) >= countMap.get(rhs) ? -1 : 1;
+            results = artistNames.toArray(new String[artistNames.size()]);
+        } else {
+            final HashMap<String, Integer> countMap = new HashMap<>();
+            for (int i = 0; i < size(); i++) {
+                String artistName = getArtistName(i);
+                if (countMap.containsKey(artistName)) {
+                    countMap.put(artistName, countMap.get(artistName) + 1);
+                } else {
+                    countMap.put(artistName, 1);
+                }
+            }
+            results = new String[0];
+            if (countMap.size() > 0) {
+                PriorityQueue<String> topArtistNames = new PriorityQueue<>(countMap.size(),
+                        new Comparator<String>() {
+                            @Override
+                            public int compare(String lhs, String rhs) {
+                                return countMap.get(lhs) >= countMap.get(rhs) ? -1 : 1;
+                            }
                         }
-                    }
-            );
-            topArtistNames.addAll(countMap.keySet());
-            results = topArtistNames.toArray(new String[topArtistNames.size()]);
+                );
+                topArtistNames.addAll(countMap.keySet());
+                results = topArtistNames.toArray(new String[topArtistNames.size()]);
+            }
         }
         mTopArtistNames = results;
     }

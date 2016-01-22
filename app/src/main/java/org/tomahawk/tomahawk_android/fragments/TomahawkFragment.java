@@ -635,7 +635,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                                     pl = DatabaseHelper.get().getPlaylist(pl.getId());
                                 }
                                 if (pl != null && pl.size() > 0) {
-                                    pl.updateTopArtistNames();
+                                    boolean isFavorites = mUser != null
+                                            && pl == mUser.getFavorites();
+                                    pl.updateTopArtistNames(isFavorites);
                                     DatabaseHelper.get().updatePlaylist(pl);
                                     if (pl.getTopArtistNames() != null) {
                                         for (int i = 0; i < pl.getTopArtistNames().length && i < 5;
