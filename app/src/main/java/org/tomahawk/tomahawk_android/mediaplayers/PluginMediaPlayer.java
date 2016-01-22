@@ -18,27 +18,87 @@
 package org.tomahawk.tomahawk_android.mediaplayers;
 
 import org.tomahawk.aidl.IPluginService;
-import org.tomahawk.aidl.IPluginServiceCallback;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
-import android.app.Application;
+import android.os.Bundle;
 import android.os.Message;
+import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 
-public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
-        implements TomahawkMediaPlayer {
+public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
 
     private static final String TAG = PluginMediaPlayer.class.getSimpleName();
+
+    /**
+     * Command to the service to register a client, receiving callbacks from the service. The
+     * Message's replyTo field must be a Messenger of the client where callbacks should be sent.
+     */
+    public static final int MSG_REGISTER_CLIENT = 1;
+
+    /**
+     * Command to the service to unregister a client, ot stop receiving callbacks from the service.
+     * The Message's replyTo field must be a Messenger of the client as previously given with
+     * MSG_REGISTER_CLIENT.
+     */
+    public static final int MSG_UNREGISTER_CLIENT = 2;
+
+    /**
+     * Commands to the service
+     */
+    protected static final int MSG_PREPARE = 100;
+
+    protected static final String MSG_PREPARE_ARG_URI = "uri";
+
+    protected static final String MSG_PREPARE_ARG_ACCESSTOKEN = "accessToken";
+
+    protected static final String MSG_PREPARE_ARG_ACCESSTOKENEXPIRES = "accessTokenExpires";
+
+    protected static final int MSG_PLAY = 101;
+
+    protected static final int MSG_PAUSE = 102;
+
+    protected static final int MSG_SEEK = 103;
+
+    protected static final String MSG_SEEK_ARG_MS = "ms";
+
+    protected static final int MSG_SETBITRATE = 104;
+
+    protected static final String MSG_SETBITRATE_ARG_MODE = "mode";
+
+    /**
+     * Commands to the client
+     */
+    protected static final int MSG_ONPAUSE = 200;
+
+    protected static final int MSG_ONPLAY = 201;
+
+    protected static final int MSG_ONPREPARED = 202;
+
+    protected static final String MSG_ONPREPARED_ARG_URI = "uri";
+
+    protected static final int MSG_ONPLAYERENDOFTRACK = 203;
+
+    protected static final int MSG_ONPLAYERPOSITIONCHANGED = 204;
+
+    protected static final String MSG_ONPLAYERPOSITIONCHANGED_ARG_POSITION = "position";
+
+    protected static final String MSG_ONPLAYERPOSITIONCHANGED_ARG_TIMESTAMP = "timestamp";
+
+    protected static final int MSG_ONERROR = 205;
+
+    protected static final String MSG_ONERROR_ARG_MESSAGE = "message";
 
     private String mPluginName;
 
@@ -46,14 +106,14 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
 
     private int mMinVersionCode;
 
-    private IPluginService mService;
+    private boolean mIsRequestingService = false;
 
-    private List<ServiceCall> mWaitingServiceCalls = new ArrayList<>();
+    /**
+     * Messenger for communicating with service.
+     */
+    private Messenger mService = null;
 
-    public interface ServiceCall {
-
-        void call(IPluginService pluginService);
-    }
+    private List<Message> mWaitingMessages = new ArrayList<>();
 
     private TomahawkMediaPlayerCallback mMediaPlayerCallback;
 
@@ -91,6 +151,8 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
 
     private int mFakePositionOffset;
 
+    private Map<String, Query> mUriToQueryMap = new HashMap<>();
+
     public PluginMediaPlayer(String pluginName, String packageName, int minVersionCode) {
         mPluginName = pluginName;
         mPackageName = packageName;
@@ -114,44 +176,101 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
         return scriptResolver;
     }
 
-    public void setService(IPluginService service) {
-        mService = service;
-        if (mService != null) {
-            for (int i = 0; i < mWaitingServiceCalls.size(); i++) {
-                mWaitingServiceCalls.remove(i).call(mService);
+    /**
+     * Handler of incoming messages from service.
+     */
+    private static class IncomingHandler extends WeakReferenceHandler<PluginMediaPlayer> {
+
+        public IncomingHandler(PluginMediaPlayer referencedObject) {
+            super(referencedObject);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            PluginMediaPlayer mp = getReferencedObject();
+            switch (msg.what) {
+                case MSG_ONPREPARED:
+                    String uri = msg.getData().getString(MSG_ONPREPARED_ARG_URI);
+                    Log.d(TAG, "onPrepared() - uri: " + uri);
+                    mp.mPositionOffset = 0;
+                    mp.mPositionTimeStamp = System.currentTimeMillis();
+                    mp.mPreparedQuery = mp.mUriToQueryMap.get(uri);
+                    mp.mPreparingQuery = null;
+                    mp.mMediaPlayerCallback.onPrepared(mp.mPreparedQuery);
+                    break;
+                case MSG_ONPLAY:
+                    mp.mPositionTimeStamp = System.currentTimeMillis();
+                    break;
+                case MSG_ONPAUSE:
+                    mp.mPositionOffset =
+                            (int) (System.currentTimeMillis() - mp.mPositionTimeStamp)
+                                    + mp.mPositionOffset;
+                    mp.mPositionTimeStamp = System.currentTimeMillis();
+                    break;
+                case MSG_ONPLAYERPOSITIONCHANGED:
+                    long timeStamp =
+                            msg.getData().getLong(MSG_ONPLAYERPOSITIONCHANGED_ARG_TIMESTAMP);
+                    int position =
+                            msg.getData().getInt(MSG_ONPLAYERPOSITIONCHANGED_ARG_POSITION);
+
+                    mp.mPositionTimeStamp = timeStamp;
+                    mp.mPositionOffset = position;
+                    break;
+                case MSG_ONPLAYERENDOFTRACK:
+                    Log.d(TAG, "onCompletion()");
+                    mp.mMediaPlayerCallback.onCompletion(mp.mPreparedQuery);
+                    break;
+                case MSG_ONERROR:
+                    String message = msg.getData().getString(MSG_ONERROR_ARG_MESSAGE);
+
+                    mp.mMediaPlayerCallback.onError(message);
+                default:
+                    super.handleMessage(msg);
             }
         }
     }
 
     /**
-     * Call the {@link IPluginService} that is associated with this {@link PluginMediaPlayer}. If it
-     * is not available, a binding will be requested. The given {@link ServiceCall} will be cached
-     * in that case and called after a successful binding to the {@link IPluginService}.
-     *
-     * @param serviceCall the actual {@link ServiceCall} that should be made to the {@link
-     *                    IPluginService}.
+     * Target we publish for clients to send messages to IncomingHandler.
      */
-    protected void callService(ServiceCall serviceCall) {
-        callService(serviceCall, true);
+    final Messenger mReceivingMessenger = new Messenger(new IncomingHandler(this));
+
+    public Messenger getReceivingMessenger() {
+        return mReceivingMessenger;
     }
 
-    /**
-     * Call the {@link IPluginService} that is associated with this {@link PluginMediaPlayer}. If it
-     * is not available, a binding will be requested.
-     *
-     * @param serviceCall the actual {@link ServiceCall} that should be made to the {@link
-     *                    IPluginService}.
-     * @param cacheCall   Whether or not the given {@link ServiceCall} should be cached if the
-     *                    {@link IPluginService} is unavailable and called after a successful
-     *                    binding to the {@link IPluginService}.
-     */
-    protected void callService(ServiceCall serviceCall, boolean cacheCall) {
+    public synchronized void setService(Messenger service) {
+        mIsRequestingService = false;
+        mService = service;
         if (mService != null) {
-            serviceCall.call(mService);
-        } else {
-            if (cacheCall) {
-                mWaitingServiceCalls.add(serviceCall);
+            // send all cached messages
+            while (!mWaitingMessages.isEmpty()) {
+                callService(mWaitingMessages.remove(0));
             }
+        }
+    }
+
+    protected synchronized void callService(int what) {
+        callService(what, null);
+    }
+
+    protected synchronized void callService(int what, Bundle bundle) {
+        Message message = Message.obtain(null, what);
+        message.setData(bundle);
+        callService(message);
+    }
+
+    private synchronized void callService(Message message) {
+        if (mService != null) {
+            try {
+                mService.send(message);
+            } catch (RemoteException e) {
+                Log.e(TAG, "Service crashed: ", e);
+            }
+        } else if (!mIsRequestingService) {
+            // cache the message, will be send in setService
+            mIsRequestingService = true;
+            mWaitingMessages.add(message);
             requestService();
         }
     }
@@ -167,95 +286,73 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
         EventBus.getDefault().post(event);
     }
 
-    /**
-     * This method returns a {@link ServiceCall} which defines the way the {@link PluginMediaPlayer}
-     * calls the {@link IPluginService} in order to prepare a given Query for playback.
-     */
-    public abstract ServiceCall getPrepareServiceCall(Application application, Query query);
+    public abstract String getUri(Query query);
+
+    public abstract void prepare(String uri);
 
     /**
      * Prepare the given {@link Query} for playback
      *
-     * @param application an {@link Application} object that can be used as {@link
-     *                    android.content.Context}
-     * @param query       the {@link Query} that should be prepared for playback
-     * @param callback    a {@link TomahawkMediaPlayerCallback} that should be stored and be used to
-     *                    report certain callbacks back to the {@link PlaybackService}
+     * @param query    the {@link Query} that should be prepared for playback
+     * @param callback a {@link TomahawkMediaPlayerCallback} that should be stored and be used to
+     *                 report certain callbacks back to the {@link PlaybackService}
      */
     @Override
-    public TomahawkMediaPlayer prepare(Application application, final Query query,
-            TomahawkMediaPlayerCallback callback) {
+    public TomahawkMediaPlayer prepare(Query query, TomahawkMediaPlayerCallback callback) {
         Log.d(TAG, "prepare()");
         mMediaPlayerCallback = callback;
         mPositionOffset = 0;
         mPositionTimeStamp = System.currentTimeMillis();
         mPreparedQuery = null;
         mPreparingQuery = query;
-        callService(getPrepareServiceCall(application, query));
+
+        String uri = getUri(query);
+        mUriToQueryMap.put(uri, query);
+        prepare(uri);
         return this;
     }
 
     /**
      * Start playing the previously prepared {@link Query}
      */
+    @Override
     public void start() {
         Log.d(TAG, "start()");
         mIsPlaying = true;
-        callService(new ServiceCall() {
-            @Override
-            public void call(IPluginService pluginService) {
-                try {
-                    pluginService.play();
-                } catch (RemoteException e) {
-                    Log.e(TAG, "start: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
-            }
-        });
+        callService(MSG_PLAY);
     }
 
     /**
      * Pause playing the current {@link Query}
      */
+    @Override
     public void pause() {
         Log.d(TAG, "pause()");
         mIsPlaying = false;
-        callService(new ServiceCall() {
-            @Override
-            public void call(IPluginService pluginService) {
-                try {
-                    pluginService.pause();
-                } catch (RemoteException e) {
-                    Log.e(TAG, "pause: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
-            }
-        });
+        callService(MSG_PAUSE);
     }
 
     /**
      * Seek to the given playback position (in ms)
      */
+    @Override
     public void seekTo(final int msec) {
         Log.d(TAG, "seekTo()");
-        callService(new ServiceCall() {
-            @Override
-            public void call(IPluginService pluginService) {
-                try {
-                    pluginService.seek(msec);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "seekTo: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
-                mFakePositionOffset = msec;
-                mFakePositionTimeStamp = System.currentTimeMillis();
-                mShowFakePosition = true;
-                // After 1 second, we set mShowFakePosition to false again
-                mDisableFakePositionHandler.sendEmptyMessageDelayed(1337, 1000);
-            }
-        });
+        Bundle args = new Bundle();
+        args.putInt(MSG_SEEK_ARG_MS, msec);
+        callService(MSG_SEEK, args);
+
+        mFakePositionOffset = msec;
+        mFakePositionTimeStamp = System.currentTimeMillis();
+        mShowFakePosition = true;
+        // After 1 second, we set mShowFakePosition to false again
+        mDisableFakePositionHandler.sendEmptyMessageDelayed(1337, 1000);
     }
 
     /**
      * Release any relevant resources that this {@link PluginMediaPlayer} might hold onto
      */
+    @Override
     public void release() {
         Log.d(TAG, "release()");
         pause();
@@ -264,6 +361,7 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
     /**
      * @return the current track position
      */
+    @Override
     public int getPosition() {
         if (mShowFakePosition) {
             if (mIsPlaying) {
@@ -281,57 +379,19 @@ public abstract class PluginMediaPlayer extends IPluginServiceCallback.Stub
         }
     }
 
+    @Override
     public boolean isPlaying(Query query) {
         return mPreparedQuery == query && mIsPlaying;
     }
 
+    @Override
     public boolean isPreparing(Query query) {
         return mPreparingQuery == query;
     }
 
+    @Override
     public boolean isPrepared(Query query) {
         return mPreparedQuery == query;
     }
-
-    // < Implementation of IPluginServiceCallback.Stub>
-    @Override
-    public void onPause() throws RemoteException {
-        mPositionOffset =
-                (int) (System.currentTimeMillis() - mPositionTimeStamp) + mPositionOffset;
-        mPositionTimeStamp = System.currentTimeMillis();
-    }
-
-    @Override
-    public void onPlay() throws RemoteException {
-        mPositionTimeStamp = System.currentTimeMillis();
-    }
-
-    @Override
-    public void onPrepared() throws RemoteException {
-        Log.d(TAG, "onPrepared()");
-        mPositionOffset = 0;
-        mPositionTimeStamp = System.currentTimeMillis();
-        mPreparedQuery = mPreparingQuery;
-        mPreparingQuery = null;
-        mMediaPlayerCallback.onPrepared(mPreparedQuery);
-    }
-
-    @Override
-    public void onPlayerEndOfTrack() throws RemoteException {
-        Log.d(TAG, "onCompletion()");
-        mMediaPlayerCallback.onCompletion(mPreparedQuery);
-    }
-
-    @Override
-    public void onPlayerPositionChanged(int position, long timeStamp) throws RemoteException {
-        mPositionTimeStamp = timeStamp;
-        mPositionOffset = position;
-    }
-
-    @Override
-    public void onError(String message) throws RemoteException {
-        mMediaPlayerCallback.onError(message);
-    }
-    // </ Implementation of IPluginServiceCallback.Stub>
 
 }

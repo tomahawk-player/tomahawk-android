@@ -19,8 +19,6 @@ package org.tomahawk.tomahawk_android.mediaplayers;
 
 import org.tomahawk.libtomahawk.resolver.Query;
 
-import android.app.Application;
-
 public interface TomahawkMediaPlayer {
 
     void start();
@@ -29,8 +27,7 @@ public interface TomahawkMediaPlayer {
 
     void seekTo(int msec);
 
-    TomahawkMediaPlayer prepare(Application application, Query query,
-            TomahawkMediaPlayerCallback callback);
+    TomahawkMediaPlayer prepare(Query query, TomahawkMediaPlayerCallback callback);
 
     void release();
 

@@ -21,7 +21,6 @@ package org.tomahawk.tomahawk_android.services;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
-import org.tomahawk.aidl.IPluginService;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
@@ -69,6 +68,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Messenger;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
@@ -430,24 +430,29 @@ public class PlaybackService extends Service implements MusicFocusable {
             mPluginMediaPlayer = pluginMediaPlayer;
         }
 
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            // This is called when the connection with the service has been
-            // established, giving us the service object we can use to
-            // interact with the service.  We are communicating with our
-            // service through an IDL interface, so get a client-side
-            // representation of that from the raw service object.
-            IPluginService pluginService = IPluginService.Stub.asInterface(service);
-            mPluginMediaPlayer.setService(pluginService);
-
+        public void onServiceConnected(ComponentName className,
+                IBinder service) {
             // We want to monitor the service for as long as we are
             // connected to it.
             try {
-                pluginService.registerCallback(mPluginMediaPlayer);
+                // This is called when the connection with the service has been
+                // established, giving us the service object we can use to
+                // interact with the service.  We are communicating with our
+                // service through an IDL interface, so get a client-side
+                // representation of that from the raw service object.
+                Messenger messenger = new Messenger(service);
+                Message msg = Message.obtain(null, PluginMediaPlayer.MSG_REGISTER_CLIENT);
+                msg.replyTo = mPluginMediaPlayer.getReceivingMessenger();
+                messenger.send(msg);
+                mPluginMediaPlayer.setService(messenger);
+                Log.d(TAG, "Successfully attached to service! :)");
             } catch (RemoteException e) {
                 // In this case the service has crashed before we could even
                 // do anything with it; we can count on soon being
                 // disconnected (and then reconnected if it can be restarted)
                 // so there is no need to do anything here.
+                Log.e(TAG, "Service crashed before we could do anything."
+                        + " Waiting for it to restart and report for duty...");
             }
         }
 
@@ -455,6 +460,7 @@ public class PlaybackService extends Service implements MusicFocusable {
             // This is called when the connection with the service has been
             // unexpectedly disconnected -- that is, its process crashed.
             mPluginMediaPlayer.setService(null);
+            Log.e(TAG, "Service crashed :(");
         }
     }
 
@@ -521,10 +527,15 @@ public class PlaybackService extends Service implements MusicFocusable {
                 }
                 handlePlayState();
             } else {
-                Log.e(TAG, "onPrepared received for an unexpected Query: "
-                        + query.getName() + "' by '" + query.getArtist().getName()
-                        + "' resolved by Resolver "
-                        + query.getPreferredTrackResult().getResolvedBy().getId());
+                String queryInfo;
+                if (query != null) {
+                    queryInfo = query.getName() + "' by '" + query.getArtist().getName()
+                            + "' resolved by Resolver "
+                            + query.getPreferredTrackResult().getResolvedBy().getId();
+                } else {
+                    queryInfo = "null";
+                }
+                Log.e(TAG, "onPrepared received for an unexpected Query: " + queryInfo);
             }
         }
 
@@ -586,7 +597,7 @@ public class PlaybackService extends Service implements MusicFocusable {
 
     @SuppressWarnings("unused")
     public void onEvent(RequestServiceBindingEvent event) {
-        Intent intent = new Intent(IPluginService.class.getName());
+        Intent intent = new Intent(event.mServicePackageName + ".BindToService");
         intent.setPackage(event.mServicePackageName);
         bindService(intent, new PluginServiceConnection(event.mRequestingPlayer),
                 Context.BIND_AUTO_CREATE);
@@ -1019,8 +1030,7 @@ public class PlaybackService extends Service implements MusicFocusable {
                     public void run() {
                         if (isPlaying() && getCurrentQuery().getMediaPlayerInterface() != null) {
                             if (getCurrentQuery().getMediaPlayerInterface().prepare(
-                                    getApplication(), getCurrentQuery(), mMediaPlayerCallback)
-                                    == null) {
+                                    getCurrentQuery(), mMediaPlayerCallback) == null) {
                                 boolean isNetworkAvailable = isNetworkAvailable();
                                 if (isNetworkAvailable
                                         && getCurrentQuery().getPreferredTrackResult() != null) {

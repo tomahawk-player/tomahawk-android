@@ -17,18 +17,16 @@
  */
 package org.tomahawk.tomahawk_android.mediaplayers;
 
-import org.tomahawk.aidl.IPluginService;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.RemoteException;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -57,7 +55,7 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
     }
 
     private SpotifyMediaPlayer() {
-        super(TomahawkApp.PLUGINNAME_SPOTIFY, "org.tomahawk.spotifyplugin", 30);
+        super(TomahawkApp.PLUGINNAME_SPOTIFY, "org.tomahawk.spotifyplugin", 40);
     }
 
     public static SpotifyMediaPlayer get() {
@@ -65,41 +63,31 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
     }
 
     @Override
-    public ServiceCall getPrepareServiceCall(Application application, final Query query) {
-        return new ServiceCall() {
-            @Override
-            public void call(final IPluginService pluginService) {
-                getScriptResolver().getAccessToken(
-                        new ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult>(
-                                ScriptResolverAccessTokenResult.class) {
-                            @Override
-                            public void onReportResults(ScriptResolverAccessTokenResult results) {
-                                String[] pathParts =
-                                        query.getPreferredTrackResult().getPath().split("/");
-                                String uri = "spotify:track:" + pathParts[pathParts.length - 1];
-                                try {
-                                    pluginService.prepare(uri, results.accessToken, null, -1);
-                                } catch (RemoteException e) {
-                                    Log.e(TAG, "prepare: " + e.getClass() + ": "
-                                            + e.getLocalizedMessage());
-                                }
-                            }
-                        });
-            }
-        };
+    public String getUri(Query query) {
+        String[] pathParts =
+                query.getPreferredTrackResult().getPath().split("/");
+        return "spotify:track:" + pathParts[pathParts.length - 1];
+    }
+
+    @Override
+    public void prepare(final String uri) {
+        getScriptResolver().getAccessToken(
+                new ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult>(
+                        ScriptResolverAccessTokenResult.class) {
+                    @Override
+                    public void onReportResults(ScriptResolverAccessTokenResult results) {
+                        Bundle args = new Bundle();
+                        args.putString(MSG_PREPARE_ARG_URI, uri);
+                        args.putString(MSG_PREPARE_ARG_ACCESSTOKEN, results.accessToken);
+                        callService(MSG_PREPARE, args);
+                    }
+                });
     }
 
     public void setBitRate(final int bitrateMode) {
-        callService(new ServiceCall() {
-            @Override
-            public void call(IPluginService pluginService) {
-                try {
-                    pluginService.setBitRate(bitrateMode);
-                } catch (RemoteException e) {
-                    Log.e(TAG, "setBitRate: " + e.getClass() + ": " + e.getLocalizedMessage());
-                }
-            }
-        });
+        Bundle args = new Bundle();
+        args.putInt(MSG_SETBITRATE_ARG_MODE, bitrateMode);
+        callService(MSG_SETBITRATE, args);
     }
 
     public void updateBitrate() {
