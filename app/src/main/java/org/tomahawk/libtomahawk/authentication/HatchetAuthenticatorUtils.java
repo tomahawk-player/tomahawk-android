@@ -34,7 +34,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import android.accounts.Account;
 import android.accounts.AccountManager;
 import android.accounts.OnAccountsUpdateListener;
-import android.app.Activity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -237,7 +236,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     @Override
-    public void login(Activity activity, final String name, final String password) {
+    public void login(final String name, final String password) {
         ThreadManager.get().execute(
                 new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_AUTHENTICATING) {
                     @Override
@@ -276,7 +275,7 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
     }
 
     @Override
-    public void logout(Activity activity) {
+    public void logout() {
         final AccountManager am = AccountManager.get(TomahawkApp.getContext());
         if (am != null && getAccount() != null) {
             am.removeAccount(getAccount(), null, null);

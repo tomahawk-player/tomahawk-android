@@ -57,10 +57,7 @@ public class ShareUtils {
             String urlStr = sHatchetBaseUrl + "music/" + album.getArtist().getName() + "/"
                     + album.getName();
             try {
-                URL url = new URL(urlStr);
-                URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
-                        url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-                return uri.toURL().toString();
+                return escapeUrlString(urlStr);
             } catch (MalformedURLException | URISyntaxException e) {
                 Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
@@ -78,6 +75,13 @@ public class ShareUtils {
         return null;
     }
 
+    private static String escapeUrlString(String urlString)
+            throws MalformedURLException, URISyntaxException {
+        URL url = new URL(urlString);
+        URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
+                url.getPort(), url.getPath(), url.getQuery(), url.getRef());
+        return uri.toURL().toString();
+    }
 
     public static void sendShareIntent(Activity activity, Artist item) {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -90,10 +94,7 @@ public class ShareUtils {
         if (artist != null) {
             String urlStr = sHatchetBaseUrl + "music/" + artist.getName();
             try {
-                URL url = new URL(urlStr);
-                URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
-                        url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-                return uri.toURL().toString();
+                return escapeUrlString(urlStr);
             } catch (MalformedURLException | URISyntaxException e) {
                 Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
@@ -121,10 +122,7 @@ public class ShareUtils {
             String urlStr = sHatchetBaseUrl + "music/" + query.getArtist().getName() + "/_/"
                     + query.getName();
             try {
-                URL url = new URL(urlStr);
-                URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
-                        url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-                return uri.toURL().toString();
+                return escapeUrlString(urlStr);
             } catch (MalformedURLException | URISyntaxException e) {
                 Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
@@ -160,10 +158,7 @@ public class ShareUtils {
             String urlStr = sHatchetBaseUrl + "people/" + user.getName() + "/playlists/"
                     + playlist.getHatchetId();
             try {
-                URL url = new URL(urlStr);
-                URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(),
-                        url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-                return uri.toURL().toString();
+                return escapeUrlString(urlStr);
             } catch (MalformedURLException | URISyntaxException e) {
                 Log.e(TAG, "generateLink: " + e.getClass() + ": " + e.getLocalizedMessage());
             }

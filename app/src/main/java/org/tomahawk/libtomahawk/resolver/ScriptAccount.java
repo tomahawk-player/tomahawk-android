@@ -34,6 +34,7 @@ import org.tomahawk.libtomahawk.utils.StringUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
@@ -82,14 +83,11 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
     private ScriptInfoPluginFactory mInfoPluginFactory =
             new ScriptInfoPluginFactory();
 
-    private boolean mStopped;
-
     private ScriptResolver mScriptResolver;
 
     private ScriptResolverMetaData mMetaData;
 
-    private Map<String, FuzzyIndex> mFuzzyIndexMap = new HashMap<>();
-
+    @SuppressLint({"AddJavascriptInterface", "SetJavaScriptEnabled"})
     public ScriptAccount(String path, boolean manuallyInstalled) {
         String prefix = manuallyInstalled ? "file://" : "file:///android_asset";
         mPath = prefix + path;
@@ -370,10 +368,6 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         }
     }
 
-    public boolean isStopped() {
-        return mStopped;
-    }
-
     public void nativeAsyncRequestDone(final int requestId, final String responseText,
             final Map<String, List<String>> responseHeaders, final int status,
             final String statusText) {
@@ -417,17 +411,24 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         String result = null;
         NativeScriptJobParams params =
                 GsonHelper.get().fromJson(paramsString, NativeScriptJobParams.class);
-        if (methodName.equals("collectionAddTracks")) {
-            CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(params.id);
-            collectionDb.addTracks(params.tracks);
-            result = collectionDb.getRevision();
-        } else if (methodName.equals("collectionWipe")) {
-            CollectionDbManager.get().getCollectionDb(params.id).wipe();
-        } else if (methodName.equals("collectionRevision")) {
-            CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(params.id);
-            result = collectionDb.getRevision();
-        } else if (methodName.equals("collectionInitialized")) {
-            CollectionDbManager.get().getCollectionDb(params.id).wipe();
+        switch (methodName) {
+            case "collectionAddTracks": {
+                CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(params.id);
+                collectionDb.addTracks(params.tracks);
+                result = collectionDb.getRevision();
+                break;
+            }
+            case "collectionWipe":
+                CollectionDbManager.get().getCollectionDb(params.id).wipe();
+                break;
+            case "collectionRevision": {
+                CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(params.id);
+                result = collectionDb.getRevision();
+                break;
+            }
+            case "collectionInitialized":
+                CollectionDbManager.get().getCollectionDb(params.id).wipe();
+                break;
         }
         if (result == null) {
             evaluateJavaScript("Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult("

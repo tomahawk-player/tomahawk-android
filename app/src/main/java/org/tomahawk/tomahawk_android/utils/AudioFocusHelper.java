@@ -22,20 +22,19 @@ import android.media.AudioManager;
 /**
  * Convenience class to deal with audio focus. This class deals with everything related to audio
  * focus: it can request and abandon focus, and will intercept focus change events and deliver them
- * to a MusicFocusable interface (which, in our case, is implemented by {@link
- * org.tomahawk.tomahawk_android.services.PlaybackService}).
+ * to a {@link AudioFocusable} interface.
  *
  * This class can only be used on SDK level 8 and above, since it uses API features that are not
  * available on previous SDK's.
  */
 public class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener {
 
-    final AudioManager mAM;
+    final AudioManager mAudioManager;
 
-    final MusicFocusable mFocusable;
+    final AudioFocusable mFocusable;
 
-    public AudioFocusHelper(Context ctx, MusicFocusable focusable) {
-        mAM = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
+    public AudioFocusHelper(Context ctx, AudioFocusable focusable) {
+        mAudioManager = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
         mFocusable = focusable;
     }
 
@@ -44,7 +43,7 @@ public class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener
      */
     public boolean requestFocus() {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
-                mAM.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
+                mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                         AudioManager.AUDIOFOCUS_GAIN);
     }
 
@@ -52,7 +51,7 @@ public class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener
      * Abandons audio focus. Returns whether request was successful or not.
      */
     public boolean abandonFocus() {
-        return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == mAM.abandonAudioFocus(this);
+        return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == mAudioManager.abandonAudioFocus(this);
     }
 
     /**

@@ -54,9 +54,9 @@ public abstract class ConfigDialog extends DialogFragment {
 
     private TextView mTitleTextView;
 
-    protected LinearLayout mScrollingDialogFrame;
+    private LinearLayout mScrollingDialogFrame;
 
-    protected BoundedLinearLayout mDialogFrame;
+    private BoundedLinearLayout mDialogFrame;
 
     private TextView mPositiveButton;
 

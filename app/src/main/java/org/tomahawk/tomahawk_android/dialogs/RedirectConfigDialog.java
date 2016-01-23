@@ -59,9 +59,9 @@ public class RedirectConfigDialog extends ConfigDialog {
         @Override
         public void onClick(View v) {
             if (mAuthenticatorUtils.isLoggedIn()) {
-                mAuthenticatorUtils.logout(getActivity());
+                mAuthenticatorUtils.logout();
             } else {
-                mAuthenticatorUtils.login(getActivity(), null, null);
+                mAuthenticatorUtils.login(null, null);
             }
         }
     }

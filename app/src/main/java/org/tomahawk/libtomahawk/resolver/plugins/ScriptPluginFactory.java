@@ -32,9 +32,7 @@ public abstract class ScriptPluginFactory<T> {
             if (scriptPlugin != null) {
                 mScriptPlugins.put(object.getId(), scriptPlugin);
             }
-            if (!account.isStopped()) {
-                addPlugin(scriptPlugin);
-            }
+            addPlugin(scriptPlugin);
         }
     }
 

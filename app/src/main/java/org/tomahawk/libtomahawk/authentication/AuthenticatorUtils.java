@@ -17,8 +17,6 @@
  */
 package org.tomahawk.libtomahawk.authentication;
 
-import android.app.Activity;
-
 public abstract class AuthenticatorUtils {
 
     private final String mPrettyName;
@@ -46,21 +44,13 @@ public abstract class AuthenticatorUtils {
 
     public abstract void register(String name, String password, String email);
 
-    public abstract void login(Activity activity, String email, String password);
+    public abstract void login(String email, String password);
 
-    public abstract void logout(Activity activity);
+    public abstract void logout();
 
     public abstract boolean isLoggedIn();
 
     public abstract String getUserName();
-
-    public void login(String email, String password) {
-        login(null, email, password);
-    }
-
-    public void logout() {
-        logout(null);
-    }
 
     public abstract boolean doesAllowRegistration();
 }

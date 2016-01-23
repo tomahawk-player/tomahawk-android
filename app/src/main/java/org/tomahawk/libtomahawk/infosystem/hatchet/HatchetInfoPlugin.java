@@ -43,8 +43,6 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import android.util.Log;
 
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -123,7 +121,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
                 try {
                     boolean success = getParseConvert(infoRequestData);
                     InfoSystem.get().reportResults(infoRequestData, success);
-                } catch (KeyManagementException | NoSuchAlgorithmException | IOException e) {
+                } catch (IOException e) {
                     Log.e(TAG, "resolve: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
             }
@@ -138,8 +136,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
      * @return true if the type of the given InfoRequestData was valid and could be processed. false
      * otherwise
      */
-    private boolean getParseConvert(InfoRequestData infoRequestData)
-            throws NoSuchAlgorithmException, KeyManagementException, IOException {
+    private boolean getParseConvert(InfoRequestData infoRequestData) throws IOException {
         QueryParams params = infoRequestData.getQueryParams();
         HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager.get()
                 .getCollection(TomahawkApp.PLUGINNAME_HATCHET);

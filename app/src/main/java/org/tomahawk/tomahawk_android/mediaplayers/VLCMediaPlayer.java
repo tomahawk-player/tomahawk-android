@@ -64,23 +64,24 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     private final ConcurrentHashMap<Result, String> mTranslatedUrls
             = new ConcurrentHashMap<>();
 
-    private final MediaPlayer.EventListener mMediaPlayerListener = new MediaPlayer.EventListener() {
+    private class MediaPlayerListener implements MediaPlayer.EventListener {
+
         @Override
         public void onEvent(MediaPlayer.Event event) {
-                switch (event.type) {
-                    case MediaPlayer.Event.EncounteredError:
-                        Log.d(TAG, "onError()");
-                        mPreparedQuery = null;
-                        mPreparingQuery = null;
-                        mMediaPlayerCallback.onError("MediaPlayerEncounteredError");
-                        break;
-                    case MediaPlayer.Event.EndReached:
-                        Log.d(TAG, "onCompletion()");
-                        mMediaPlayerCallback.onCompletion(mPreparedQuery);
-                        break;
-                }
+            switch (event.type) {
+                case MediaPlayer.Event.EncounteredError:
+                    Log.d(TAG, "onError()");
+                    mPreparedQuery = null;
+                    mPreparingQuery = null;
+                    mMediaPlayerCallback.onError("MediaPlayerEncounteredError");
+                    break;
+                case MediaPlayer.Event.EndReached:
+                    Log.d(TAG, "onCompletion()");
+                    mMediaPlayerCallback.onCompletion(mPreparedQuery);
+                    break;
+            }
         }
-    };
+    }
 
     private VLCMediaPlayer() {
         ArrayList<String> options = new ArrayList<>();
@@ -100,7 +101,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
             }
             mMediaPlayer.setEqualizer(equalizer);
         }
-        mMediaPlayer.setEventListener(mMediaPlayerListener);
+        mMediaPlayer.setEventListener(new MediaPlayerListener());
         EventBus.getDefault().register(this);
     }
 

@@ -230,7 +230,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
             currentFragmentInfos.add(list.getCurrentFragmentInfo());
         }
         mViewPager = (ViewPager) getView().findViewById(R.id.fragmentpager);
-        mViewPager.setOnPageChangeListener(this);
+        mViewPager.addOnPageChangeListener(this);
         mViewPager.setOffscreenPageLimit(offscreenPageLimit);
         if (initialPage >= 0) {
             mViewPager.setCurrentItem(initialPage);

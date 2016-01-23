@@ -21,7 +21,7 @@ package org.tomahawk.tomahawk_android.utils;
  * using AudioManager.OnAudioFocusChangeListener because that interface is only available in SDK
  * level 8 and above, and we want our application to work on previous SDKs.
  */
-public interface MusicFocusable {
+public interface AudioFocusable {
 
     /**
      * Signals that audio focus was gained.

@@ -112,18 +112,6 @@ public class FakePreferenceGroup {
     }
 
     /**
-     * Get the {@link FakePreference} with the given key
-     */
-    public FakePreference getFakePreferenceByKey(String key) {
-        for (FakePreference fakePreference : mFakePreferences) {
-            if (fakePreference.getKey().equals(key)) {
-                return fakePreference;
-            }
-        }
-        return null;
-    }
-
-    /**
      * @return the header to be shown to the user
      */
     public String getHeader() {

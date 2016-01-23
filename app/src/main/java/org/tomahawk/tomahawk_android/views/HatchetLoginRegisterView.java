@@ -22,7 +22,6 @@ import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v4.view.PagerAdapter;
@@ -44,8 +43,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class HatchetLoginRegisterView extends LinearLayout {
-
-    private Activity mActivity;
 
     private AuthenticatorUtils mAuthenticatorUtils;
 
@@ -268,9 +265,7 @@ public class HatchetLoginRegisterView extends LinearLayout {
         inflate(getContext(), R.layout.hatchet_login_register, this);
     }
 
-    public void setup(Activity activity, AuthenticatorUtils authenticatorUtils,
-            ProgressBar progressBar) {
-        mActivity = activity;
+    public void setup(AuthenticatorUtils authenticatorUtils, ProgressBar progressBar) {
         mAuthenticatorUtils = authenticatorUtils;
         mProgressBar = progressBar;
 
@@ -289,7 +284,7 @@ public class HatchetLoginRegisterView extends LinearLayout {
     private void loginButtonClick() {
         if (mAuthenticatorUtils.isLoggedIn()) {
             mProgressBar.setVisibility(VISIBLE);
-            mAuthenticatorUtils.logout(mActivity);
+            mAuthenticatorUtils.logout();
         } else {
             switch (mViewPager.getCurrentItem()) {
                 case 0:
@@ -339,7 +334,7 @@ public class HatchetLoginRegisterView extends LinearLayout {
             focusView.requestFocus();
         } else {
             // Tell the service to login
-            mAuthenticatorUtils.login(mActivity, mEmail, mPassword);
+            mAuthenticatorUtils.login(mEmail, mPassword);
             mProgressBar.setVisibility(VISIBLE);
         }
     }

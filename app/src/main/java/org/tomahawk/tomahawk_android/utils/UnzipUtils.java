@@ -21,23 +21,26 @@ import java.util.zip.ZipInputStream;
  *
  * @author www.codejava.net
  */
-public class UnzipUtility {
+public class UnzipUtils {
 
-    private final static String TAG = UnzipUtility.class.getSimpleName();
+    private final static String TAG = UnzipUtils.class.getSimpleName();
 
     /**
-     * Size of the buffer to read/write data
+     * Size of the buffer (in bytes) to read/write data
      */
     private static final int BUFFER_SIZE = 4096;
 
     /**
      * Extracts a zip file specified by the zipFilePath to a directory specified by destDirectory
-     * (will be created if does not exists)
+     * (will be created if it doesn't exist)
      */
     public static boolean unzip(Uri zipFilePath, String destDirectory) {
         File destDir = new File(destDirectory);
         if (!destDir.exists()) {
-            destDir.mkdirs();
+            boolean success = destDir.mkdirs();
+            if (!success) {
+                Log.e(TAG, "unzip - Wasn't able to create directory: " + destDirectory);
+            }
         }
         ZipInputStream zipIn = null;
         Response response = null;
@@ -64,7 +67,10 @@ public class UnzipUtility {
                 } else {
                     // if the entry is a directory, make the directory
                     File dir = new File(filePath);
-                    dir.mkdirs();
+                    boolean success = dir.mkdirs();
+                    if (!success) {
+                        Log.e(TAG, "unzip - Wasn't able to create directory: " + filePath);
+                    }
                 }
                 zipIn.closeEntry();
                 entry = zipIn.getNextEntry();
@@ -91,7 +97,10 @@ public class UnzipUtility {
      */
     private static void extractFile(ZipInputStream zipIn, String filePath) throws IOException {
         File dir = new File(filePath).getParentFile();
-        dir.mkdirs();
+        boolean success = dir.mkdirs();
+        if (!success) {
+            Log.e(TAG, "extractFile - Wasn't able to create directory: " + filePath);
+        }
         BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(filePath));
         byte[] bytesIn = new byte[BUFFER_SIZE];
         int read;

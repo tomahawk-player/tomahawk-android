@@ -98,8 +98,7 @@ public class DirectoryChooser extends FrameLayout implements
         boolean isFirstRoot = mDrillDownCount == 0;
         ArrayList<DirectoryChooserAdapter.CustomDirectory> dirs
                 = new ArrayList<>();
-        for (int i = 0; i < folders.size(); i++) {
-            File folder = folders.get(i);
+        for (File folder : folders) {
             DirectoryChooserAdapter.CustomDirectory dir
                     = new DirectoryChooserAdapter.CustomDirectory();
             dir.file = folder;

@@ -107,7 +107,7 @@ public abstract class DbCollection extends Collection {
 
     public abstract Promise<String, Throwable, Void> getCollectionId();
 
-    public boolean resolve(final Query query) {
+    public void resolve(final Query query) {
         getCollectionId().done(new DoneCallback<String>() {
             @Override
             public void onDone(final String collectionId) {
@@ -153,7 +153,6 @@ public abstract class DbCollection extends Collection {
                 }
             }
         });
-        return true;
     }
 
     @Override

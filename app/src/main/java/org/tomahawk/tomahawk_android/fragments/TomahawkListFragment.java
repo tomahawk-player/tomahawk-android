@@ -82,13 +82,13 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
             if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_CLASSNAME)) {
                 String fragmentName = getArguments().getString(
                         TomahawkFragment.CONTAINER_FRAGMENT_CLASSNAME);
-                if (fragmentName.equals(ArtistPagerFragment.class.getName())) {
+                if (ArtistPagerFragment.class.getName().equals(fragmentName)) {
                     mContainerFragmentClass = ArtistPagerFragment.class;
-                } else if (fragmentName.equals(SearchPagerFragment.class.getName())) {
+                } else if (SearchPagerFragment.class.getName().equals(fragmentName)) {
                     mContainerFragmentClass = SearchPagerFragment.class;
-                } else if (fragmentName.equals(UserPagerFragment.class.getName())) {
+                } else if (UserPagerFragment.class.getName().equals(fragmentName)) {
                     mContainerFragmentClass = UserPagerFragment.class;
-                } else if (fragmentName.equals(CollectionPagerFragment.class.getName())) {
+                } else if (CollectionPagerFragment.class.getName().equals(fragmentName)) {
                     mContainerFragmentClass = CollectionPagerFragment.class;
                 }
             }
