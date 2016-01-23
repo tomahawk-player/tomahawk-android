@@ -73,7 +73,7 @@ public class SimplePagerIndicator extends FrameLayout {
 
     public void setViewPager(final ViewPager viewPager) {
         removeAllViews();
-        viewPager.setOnPageChangeListener(mOnPageChangeListener);
+        viewPager.addOnPageChangeListener(mOnPageChangeListener);
         mItemCount = viewPager.getAdapter().getCount();
         ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(this) {
             @Override

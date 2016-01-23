@@ -192,7 +192,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
         });
 
         // presets
-        mEqualizerPresets.setAdapter(new ArrayAdapter<String>(getActivity(),
+        mEqualizerPresets.setAdapter(new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_spinner_dropdown_item, presets));
 
         // Set the default selection asynchronously to prevent a layout initialization bug.
@@ -233,9 +233,6 @@ public class EqualizerFragment extends ContentHeaderFragment {
 
     private static String[] getEqualizerPresets() {
         final int count = MediaPlayer.Equalizer.getPresetCount();
-        if (count <= 0) {
-            return null;
-        }
         final String[] presets = new String[count];
         for (int i = 0; i < count; ++i) {
             presets[i] = MediaPlayer.Equalizer.getPresetName(i);
@@ -264,7 +261,8 @@ public class EqualizerFragment extends ContentHeaderFragment {
         }
     }
 
-    public static void storeEqualizerSettings(Context context, MediaPlayer.Equalizer eq, int preset) {
+    public static void storeEqualizerSettings(Context context, MediaPlayer.Equalizer eq,
+            int preset) {
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = pref.edit();
         if (eq != null) {

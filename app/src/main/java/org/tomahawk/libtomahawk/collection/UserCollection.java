@@ -53,6 +53,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -78,7 +79,7 @@ public class UserCollection extends DbCollection {
     private static final List<String> TYPE_WHITELIST = Arrays.asList("vfat", "exfat", "sdcardfs",
             "fuse", "ntfs", "fat32", "ext3", "ext4", "esdfs");
 
-    private static final List<String> TYPE_BLACKLIST = Arrays.asList("tmpfs");
+    private static final List<String> TYPE_BLACKLIST = Collections.singletonList("tmpfs");
 
     private static final String[] MOUNT_WHITELIST = {"/mnt", "/Removable", "/storage"};
 
@@ -335,7 +336,6 @@ public class UserCollection extends DbCollection {
         private void processMediaWrappers(List<MediaWrapper> mws) {
             Log.d(TAG, "Processing " + mws.size() + " media items...");
             Map<String, Set<String>> albumArtistsMap = new HashMap<>();
-            Map<String, Album> albumMap = new HashMap<>();
             for (MediaWrapper mw : mws) {
                 if (mw.getType() == MediaWrapper.TYPE_AUDIO) {
                     String albumKey = mw.getAlbum() != null ? mw.getAlbum().toLowerCase() : "";
@@ -343,13 +343,6 @@ public class UserCollection extends DbCollection {
                         albumArtistsMap.put(albumKey, new HashSet<String>());
                     }
                     albumArtistsMap.get(albumKey).add(mw.getArtist());
-                    int artistCount = albumArtistsMap.get(albumKey).size();
-                    if (artistCount == 1) {
-                        Artist artist = Artist.get(mw.getArtist());
-                        albumMap.put(albumKey, Album.get(mw.getAlbum(), artist));
-                    } else if (artistCount == 2) {
-                        albumMap.put(albumKey, Album.get(mw.getAlbum(), Artist.COMPILATION_ARTIST));
-                    }
                 }
             }
             List<ScriptResolverTrack> tracks = new ArrayList<>();

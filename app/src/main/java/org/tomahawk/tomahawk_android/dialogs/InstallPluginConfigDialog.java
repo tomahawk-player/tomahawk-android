@@ -26,7 +26,7 @@ import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.UnzipUtility;
+import org.tomahawk.tomahawk_android.utils.UnzipUtils;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -91,7 +91,7 @@ public class InstallPluginConfigDialog extends ConfigDialog {
                             "onPositiveAction: " + e.getClass() + ": " + e.getLocalizedMessage());
                 }
                 try {
-                    if (UnzipUtility.unzip(mPathToAxe, destDirPath)) {
+                    if (UnzipUtils.unzip(mPathToAxe, destDirPath)) {
                         File metadataFile = new File(destDirPath + File.separator + "content"
                                 + File.separator + "metadata.json");
                         String metadataString = FileUtils.readFileToString(metadataFile,
@@ -101,7 +101,11 @@ public class InstallPluginConfigDialog extends ConfigDialog {
                         final File renamedFile = new File(
                                 destDir.getParent() + File.separator + metaData.pluginName
                                         + "_" + System.currentTimeMillis());
-                        destDir.renameTo(renamedFile);
+                        boolean success = destDir.renameTo(renamedFile);
+                        if (!success) {
+                            Log.e(TAG, "onPositiveAction - Wasn't able to rename directory: "
+                                    + renamedFile.getAbsolutePath());
+                        }
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {

@@ -349,33 +349,37 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     }
                 }
             }
-            if (getArguments().containsKey(USERARRAY)) {
+            ArrayList<String> argList = getArguments().getStringArrayList(USERARRAY);
+            if (argList != null) {
                 mUserArray = new ArrayList<>();
-                for (String userId : getArguments().getStringArrayList(USERARRAY)) {
+                for (String userId : argList) {
                     mUserArray.add(User.getUserById(userId));
                 }
             }
-            if (getArguments().containsKey(ARTISTARRAY)) {
+            argList = getArguments().getStringArrayList(ARTISTARRAY);
+            if (argList != null) {
                 mArtistArray = new ArrayList<>();
-                for (String artistKey : getArguments().getStringArrayList(ARTISTARRAY)) {
+                for (String artistKey : argList) {
                     Artist artist = Artist.getByKey(artistKey);
                     if (artist != null) {
                         mArtistArray.add(artist);
                     }
                 }
             }
-            if (getArguments().containsKey(ALBUMARRAY)) {
+            argList = getArguments().getStringArrayList(ALBUMARRAY);
+            if (argList != null) {
                 mAlbumArray = new ArrayList<>();
-                for (String albumKey : getArguments().getStringArrayList(ALBUMARRAY)) {
+                for (String albumKey : argList) {
                     Album album = Album.getByKey(albumKey);
                     if (album != null) {
                         mAlbumArray.add(album);
                     }
                 }
             }
-            if (getArguments().containsKey(QUERYARRAY)) {
+            argList = getArguments().getStringArrayList(QUERYARRAY);
+            if (argList != null) {
                 mQueryArray = new ArrayList<>();
-                for (String queryKey : getArguments().getStringArrayList(QUERYARRAY)) {
+                for (String queryKey : argList) {
                     Query query = Query.getByKey(queryKey);
                     if (query != null) {
                         mQueryArray.add(query);

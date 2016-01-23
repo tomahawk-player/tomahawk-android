@@ -82,8 +82,7 @@ public class HatchetStubResolver implements Resolver {
     }
 
     @Override
-    public boolean resolve(final Query queryToSearchFor) {
-        return false;
+    public void resolve(final Query queryToSearchFor) {
     }
 
     @Override

@@ -337,25 +337,10 @@ public class CollectionDb extends SQLiteOpenHelper {
             mDb.insert(TABLE_ALBUMARTISTS, null, values);
         }
 
-        Map<String, Integer> cachedArtists = new HashMap<>();
-        Map<Integer, String> cachedArtistIds = new HashMap<>();
         Cursor cursor = mDb.query(TABLE_ARTISTS,
                 new String[]{ID, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION},
                 null, null, null, null, null);
-        try {
-            cursor.moveToFirst();
-            if (!cursor.isAfterLast()) {
-                do {
-                    cachedArtists.put(concatKeys(cursor.getString(1), cursor.getString(2)),
-                            cursor.getInt(0));
-                    cachedArtistIds.put(cursor.getInt(0), cursor.getString(1));
-                } while (cursor.moveToNext());
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
+        Map<String, Integer> cachedArtists = cursorToMap(cursor);
 
         Map<String, Long> mAlbumLastModifiedMap = new HashMap<>();
         for (ScriptResolverTrack track : tracks) {
@@ -382,25 +367,10 @@ public class CollectionDb extends SQLiteOpenHelper {
             mDb.insert(TABLE_ALBUMS, null, values);
         }
 
-        Map<String, Integer> cachedAlbums = new HashMap<>();
-        Map<Integer, String> cachedAlbumIds = new HashMap<>();
         cursor = mDb.query(TABLE_ALBUMS,
                 new String[]{ID, ALBUMS_ALBUM, ALBUMS_ALBUMARTISTID},
                 null, null, null, null, null);
-        try {
-            cursor.moveToFirst();
-            if (!cursor.isAfterLast()) {
-                do {
-                    cachedAlbums.put(concatKeys(cursor.getString(1), cursor.getString(2)),
-                            cursor.getInt(0));
-                    cachedAlbumIds.put(cursor.getInt(0), cursor.getString(1));
-                } while (cursor.moveToNext());
-            }
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
+        Map<String, Integer> cachedAlbums = cursorToMap(cursor);
 
         for (ScriptResolverTrack track : tracks) {
             ContentValues values = new ContentValues();
@@ -437,6 +407,24 @@ public class CollectionDb extends SQLiteOpenHelper {
         if (tracks.length > 0) {
             storeNewRevision(String.valueOf(System.currentTimeMillis()), ACTION_ADDTRACKS);
         }
+    }
+
+    private static Map<String, Integer> cursorToMap(Cursor cursor) {
+        Map<String, Integer> map = new HashMap<>();
+        try {
+            cursor.moveToFirst();
+            if (!cursor.isAfterLast()) {
+                do {
+                    map.put(concatKeys(cursor.getString(1), cursor.getString(2)),
+                            cursor.getInt(0));
+                } while (cursor.moveToNext());
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+        return map;
     }
 
     public synchronized void wipe() {

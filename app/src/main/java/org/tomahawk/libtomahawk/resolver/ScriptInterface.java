@@ -173,7 +173,10 @@ public class ScriptInterface {
     public void localStorageSetItem(String key, String value) {
         String dirPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
                 + File.separator + "TomahawkWebViewStorage";
-        new File(dirPath).mkdirs();
+        boolean success = new File(dirPath).mkdirs();
+        if (!success) {
+            Log.e(TAG, "localStorageSetItem - Wasn't able to create directory: " + dirPath);
+        }
         try {
             FileUtils.writeStringToFile(new File(dirPath + File.separator + key), value,
                     Charsets.UTF_8);
@@ -186,7 +189,10 @@ public class ScriptInterface {
     public String localStorageGetItem(String key) {
         String dirPath = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
                 + File.separator + "TomahawkWebViewStorage";
-        new File(dirPath).mkdirs();
+        boolean success = new File(dirPath).mkdirs();
+        if (!success) {
+            Log.e(TAG, "localStorageGetItem - Wasn't able to create directory: " + dirPath);
+        }
         try {
             return FileUtils
                     .readFileToString(new File(dirPath + File.separator + key), Charsets.UTF_8);
@@ -200,7 +206,10 @@ public class ScriptInterface {
     public void localStorageRemoveItem(String key) {
         String path = TomahawkApp.getContext().getFilesDir().getAbsolutePath()
                 + File.separator + "TomahawkWebViewStorage" + File.separator + key;
-        new File(path).delete();
+        boolean success = new File(path).delete();
+        if (!success) {
+            Log.e(TAG, "localStorageRemoveItem - Wasn't able to delete file: " + path);
+        }
     }
 
     @JavascriptInterface

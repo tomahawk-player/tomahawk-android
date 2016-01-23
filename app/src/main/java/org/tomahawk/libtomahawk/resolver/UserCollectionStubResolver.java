@@ -94,11 +94,9 @@ public class UserCollectionStubResolver implements Resolver {
      * Resolve the given {@link Query}.
      *
      * @param queryToSearchFor the {@link Query} which should be resolved
-     * @return whether or not the Resolver is ready to resolve
      */
     @Override
-    public boolean resolve(final Query queryToSearchFor) {
-        return false;
+    public void resolve(final Query queryToSearchFor) {
     }
 
     /**

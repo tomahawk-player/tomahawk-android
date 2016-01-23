@@ -75,7 +75,7 @@ public class SimplePagerTabs extends FrameLayout {
 
     public void setViewPager(final ViewPager viewPager) {
         removeAllViews();
-        viewPager.setOnPageChangeListener(mOnPageChangeListener);
+        viewPager.addOnPageChangeListener(mOnPageChangeListener);
         LinearLayout itemContainer = new LinearLayout(getContext());
         addView(itemContainer);
         mItemCount = viewPager.getAdapter().getCount();

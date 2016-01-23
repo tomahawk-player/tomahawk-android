@@ -69,7 +69,7 @@ public class LoginConfigDialog extends ConfigDialog {
         headerTextView.setText(mAuthenticatorUtils.getDescription());
         mHatchetLoginRegisterView = (HatchetLoginRegisterView) addScrollingViewToFrame(
                 R.layout.config_hatchetloginregister);
-        mHatchetLoginRegisterView.setup(getActivity(), mAuthenticatorUtils, mProgressBar);
+        mHatchetLoginRegisterView.setup(mAuthenticatorUtils, mProgressBar);
 
         setDialogTitle(mAuthenticatorUtils.getPrettyName());
         if (TomahawkApp.PLUGINNAME_HATCHET.equals(mAuthenticatorUtils.getId())) {

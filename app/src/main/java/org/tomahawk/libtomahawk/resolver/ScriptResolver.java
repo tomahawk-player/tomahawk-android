@@ -268,10 +268,9 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
      * Invoke the javascript to resolve the given {@link Query}.
      *
      * @param query the {@link Query} which should be resolved
-     * @return whether or not the Resolver is ready to resolve
      */
     @Override
-    public boolean resolve(final Query query) {
+    public void resolve(final Query query) {
         if (mInitialized) {
             mStopped = false;
             mTimeOutHandler.removeCallbacksAndMessages(null);
@@ -300,7 +299,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                 ScriptJob.start(mScriptObject, "resolve", args, callback);
             }
         }
-        return mInitialized;
     }
 
     public void getStreamUrl(final Result result) {

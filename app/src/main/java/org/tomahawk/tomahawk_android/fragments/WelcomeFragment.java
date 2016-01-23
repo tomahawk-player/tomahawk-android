@@ -92,7 +92,7 @@ public class WelcomeFragment extends Fragment {
                                     TomahawkApp.PLUGINNAME_HATCHET);
                     mHatchetLoginRegisterView =
                             (HatchetLoginRegisterView) v.findViewById(R.id.hatchetloginregister);
-                    mHatchetLoginRegisterView.setup(getActivity(), authenticatorUtils, progressBar);
+                    mHatchetLoginRegisterView.setup(authenticatorUtils, progressBar);
                     break;
                 case 3:
                     v = inflater.inflate(R.layout.welcome_fragment_page_done, container,

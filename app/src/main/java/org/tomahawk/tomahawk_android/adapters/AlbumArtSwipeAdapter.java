@@ -92,7 +92,7 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
         mActivity = activity;
         mLayoutInflater = layoutInflater;
         mViewPager = viewPager;
-        mViewPager.setOnPageChangeListener(mOnPageChangeListener);
+        mViewPager.addOnPageChangeListener(mOnPageChangeListener);
     }
 
     /**
@@ -200,9 +200,9 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
     }
 
     private void setCurrentViewPagerItem(int position, boolean smoothScroll) {
-        mViewPager.setOnPageChangeListener(null);
+        mViewPager.clearOnPageChangeListeners();
         mViewPager.setCurrentItem(position, smoothScroll);
-        mViewPager.setOnPageChangeListener(mOnPageChangeListener);
+        mViewPager.addOnPageChangeListener(mOnPageChangeListener);
     }
 
     /**

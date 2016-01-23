@@ -84,7 +84,7 @@ public class MediaWrapper implements Parcelable {
     private Bitmap mPicture;
     private boolean mIsPictureParsed;
     private int mFlags = 0;
-    private long mLastModified = 0l;
+    private long mLastModified = 0L;
 
     /**
      * Create a new MediaWrapper

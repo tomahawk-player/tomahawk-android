@@ -21,7 +21,7 @@ import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
 import com.google.android.gms.auth.GooglePlayServicesAvailabilityException;
 import com.google.android.gms.auth.UserRecoverableAuthException;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.GoogleApiAvailability;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
@@ -78,7 +78,7 @@ public class GMusicConfigDialog extends ConfigDialog {
 
             if (account != null) {
                 Log.d(TAG, "Account " + account.name + " selected. Getting auth token ...");
-                fetchToken(account.name);
+                fetchToken(account);
             } else {
                 Log.e(TAG, "Account was null");
             }
@@ -156,7 +156,7 @@ public class GMusicConfigDialog extends ConfigDialog {
         if (account != null) {
             Log.d(TAG, "Account " + account.name + " selected. Getting auth token ...");
             startLoadingAnimation();
-            fetchToken(account.name);
+            fetchToken(account);
         } else {
             Log.e(TAG, "Account was null");
         }
@@ -167,26 +167,24 @@ public class GMusicConfigDialog extends ConfigDialog {
         dismiss();
     }
 
-    private void fetchToken(final String accountName) {
+    private void fetchToken(final Account account) {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    String authToken = GoogleAuthUtil.getToken(TomahawkApp.getContext(),
-                            accountName, "sj");
+                    String authToken =
+                            GoogleAuthUtil.getToken(TomahawkApp.getContext(), account, "sj");
                     Log.d(TAG, "Received auth token!");
                     Map<String, Object> config = mScriptResolver.getConfig();
                     config.put("token", authToken);
-                    config.put("email", accountName);
+                    config.put("email", account.name);
                     mScriptResolver.setConfig(config);
                     mScriptResolver.testConfig(config);
                 } catch (GooglePlayServicesAvailabilityException e) {
                     Log.d(TAG, "GooglePlayServicesAvailabilityException: "
                             + e.getLocalizedMessage());
-                    Dialog d = GooglePlayServicesUtil.getErrorDialog(
-                            e.getConnectionStatusCode(), getActivity(),
-                            REQUEST_CODE_PLAY_SERVICES_ERROR);
-                    d.show();
+                    GoogleApiAvailability.getInstance().showErrorDialogFragment(getActivity(),
+                            e.getConnectionStatusCode(), REQUEST_CODE_PLAY_SERVICES_ERROR);
                 } catch (UserRecoverableAuthException e) {
                     Log.d(TAG, "UserRecoverableAuthException: " + e.getLocalizedMessage());
                     getActivity().startActivityForResult(e.getIntent(),

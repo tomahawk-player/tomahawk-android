@@ -42,7 +42,7 @@ import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayerCallback;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
 import org.tomahawk.tomahawk_android.utils.MediaButtonReceiver;
-import org.tomahawk.tomahawk_android.utils.MusicFocusable;
+import org.tomahawk.tomahawk_android.utils.AudioFocusable;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
@@ -261,26 +261,6 @@ public class PlaybackService extends Service {
         public void onPause() {
             super.onPause();
             pause();
-        }
-
-        @Override
-        public void onSkipToNext() {
-            super.onSkipToNext();
-        }
-
-        @Override
-        public void onSkipToPrevious() {
-            super.onSkipToPrevious();
-        }
-
-        @Override
-        public void onSeekTo(long pos) {
-            super.onSeekTo(pos);
-        }
-
-        @Override
-        public void onStop() {
-            super.onStop();
         }
     };
 
@@ -581,7 +561,7 @@ public class PlaybackService extends Service {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
-        mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), new MusicFocusable() {
+        mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), new AudioFocusable() {
             @Override
             public void onGainedAudioFocus() {
                 //TODO

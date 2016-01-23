@@ -61,10 +61,8 @@ public interface Resolver {
 
     /**
      * Resolve the given {@link Query}
-     *
-     * @return whether or not the Resolver is ready to resolve
      */
-    boolean resolve(Query query);
+    void resolve(Query query);
 
     /**
      * @return this {@link Resolver}'s id
