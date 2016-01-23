@@ -103,8 +103,8 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.TextUtils;
 import android.util.Log;
@@ -128,8 +128,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 /**
  * The main Tomahawk activity
  */
-public class TomahawkMainActivity extends ActionBarActivity
-        implements PlaybackServiceConnectionListener, SlidingUpPanelLayout.PanelSlideListener {
+public class TomahawkMainActivity extends AppCompatActivity {
 
     private final static String TAG = TomahawkMainActivity.class.getSimpleName();
 
@@ -178,8 +177,16 @@ public class TomahawkMainActivity extends ActionBarActivity
     protected final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
     private final PlaybackServiceConnection mPlaybackServiceConnection
-            = new PlaybackServiceConnection(
-            this);
+            = new PlaybackServiceConnection(new PlaybackServiceConnectionListener() {
+        @Override
+        public void setPlaybackService(PlaybackService ps) {
+            mPlaybackService = ps;
+            if (mPlaybackService != null) {
+                EventBus.getDefault().post(new PlaybackService.ReadyEvent());
+                mPlaybackPanel.update(mPlaybackService);
+            }
+        }
+    });
 
     private PlaybackService mPlaybackService;
 
@@ -312,9 +319,6 @@ public class TomahawkMainActivity extends ActionBarActivity
          */
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            HatchetAuthenticatorUtils authenticatorUtils
-                    = (HatchetAuthenticatorUtils) AuthenticatorManager.get()
-                    .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
             TomahawkMenuAdapter.ResourceHolder holder =
                     (TomahawkMenuAdapter.ResourceHolder) mDrawerList.getAdapter().getItem(position);
             final Bundle bundle = new Bundle();
@@ -410,6 +414,105 @@ public class TomahawkMainActivity extends ActionBarActivity
             }
         }
     }
+
+    private SlidingUpPanelLayout.PanelSlideListener mPanelSlideListener
+            = new SlidingUpPanelLayout.PanelSlideListener() {
+
+        @Override
+        public void onPanelSlide(View view, float v) {
+            mSlidingOffset = v;
+            if (v > 0.5f) {
+                hideActionbar();
+            } else if (v < 0.5f && v > 0f) {
+                showActionBar(true);
+            }
+            final View topPanel = mSlidingUpPanelLayout.findViewById(R.id.top_buttonpanel);
+            if (v > 0.15f) {
+                AnimationUtils.fade(topPanel, 0f, 1f,
+                        AnimationUtils.DURATION_PLAYBACKTOPPANEL, true,
+                        new Animator.AnimatorListener() {
+                            @Override
+                            public void onAnimationStart(Animator animation) {
+                                topPanel.findViewById(R.id.imageButton_repeat)
+                                        .setVisibility(View.VISIBLE);
+                                topPanel.findViewById(R.id.close_button)
+                                        .setVisibility(View.VISIBLE);
+                                topPanel.findViewById(R.id.imageButton_shuffle)
+                                        .setVisibility(View.VISIBLE);
+                                animation.removeListener(this);
+                            }
+
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                            }
+
+                            @Override
+                            public void onAnimationCancel(Animator animation) {
+                            }
+
+                            @Override
+                            public void onAnimationRepeat(Animator animation) {
+                            }
+                        });
+            } else if (v < 0.15f) {
+                AnimationUtils
+                        .fade(mSlidingUpPanelLayout.findViewById(R.id.top_buttonpanel), 1f, 0f,
+                                AnimationUtils.DURATION_PLAYBACKTOPPANEL, false,
+                                new Animator.AnimatorListener() {
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        topPanel.findViewById(R.id.imageButton_repeat)
+                                                .setVisibility(View.GONE);
+                                        topPanel.findViewById(R.id.close_button)
+                                                .setVisibility(View.GONE);
+                                        topPanel.findViewById(R.id.imageButton_shuffle)
+                                                .setVisibility(View.GONE);
+                                        animation.removeListener(this);
+                                    }
+
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animator animation) {
+                                    }
+                                });
+            }
+            int position = Math.min(10000, Math.max(0, (int) ((v - 0.8f) * 10000f / (1f - 0.8f))));
+            mPlaybackPanel.animate(position);
+            sendSlidingLayoutChangedEvent();
+        }
+
+        @Override
+        public void onPanelCollapsed(View view) {
+            sendSlidingLayoutChangedEvent();
+        }
+
+        @Override
+        public void onPanelExpanded(View view) {
+            SharedPreferences preferences =
+                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+            preferences.edit().putBoolean(
+                    TomahawkMainActivity.COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED, true)
+                    .apply();
+            sendSlidingLayoutChangedEvent();
+        }
+
+        @Override
+        public void onPanelAnchored(View view) {
+            sendSlidingLayoutChangedEvent();
+        }
+
+        @Override
+        public void onPanelHidden(View view) {
+            sendSlidingLayoutChangedEvent();
+        }
+    };
 
     /**
      * If the {@link PipeLine} was able to parse a given url (like a link to a spotify track for
@@ -609,7 +712,7 @@ public class TomahawkMainActivity extends ActionBarActivity
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
         mSlidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        mSlidingUpPanelLayout.setPanelSlideListener(this);
+        mSlidingUpPanelLayout.setPanelSlideListener(mPanelSlideListener);
 
         mPlaybackPanel = (PlaybackPanel) findViewById(R.id.playback_panel);
 
@@ -810,9 +913,9 @@ public class TomahawkMainActivity extends ActionBarActivity
             mPlaybackPanel.update(mPlaybackService);
             mPlaybackPanel.setVisibility(View.VISIBLE);
             if (mSlidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
-                onPanelSlide(mSlidingUpPanelLayout, 1f);
+                mPanelSlideListener.onPanelSlide(mSlidingUpPanelLayout, 1f);
             } else {
-                onPanelSlide(mSlidingUpPanelLayout, 0f);
+                mPanelSlideListener.onPanelSlide(mSlidingUpPanelLayout, 0f);
             }
         }
 
@@ -976,7 +1079,9 @@ public class TomahawkMainActivity extends ActionBarActivity
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        outState.putBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, !getSupportActionBar().isShowing());
+        if (getSupportActionBar() != null) {
+            outState.putBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, !getSupportActionBar().isShowing());
+        }
     }
 
     @Override
@@ -1093,20 +1198,6 @@ public class TomahawkMainActivity extends ActionBarActivity
     public void setTitle(CharSequence title) {
         mTitle = title;
         getSupportActionBar().setTitle(mTitle);
-    }
-
-    /**
-     * If the PlaybackService signals, that it is ready, this method is being called
-     */
-    @Override
-    public void onPlaybackServiceReady() {
-        EventBus.getDefault().post(new PlaybackService.ReadyEvent());
-        mPlaybackPanel.update(mPlaybackService);
-    }
-
-    @Override
-    public void setPlaybackService(PlaybackService ps) {
-        mPlaybackService = ps;
     }
 
     public PlaybackService getPlaybackService() {
@@ -1243,97 +1334,6 @@ public class TomahawkMainActivity extends ActionBarActivity
 
     public float getSlidingOffset() {
         return mSlidingOffset;
-    }
-
-    @Override
-    public void onPanelSlide(View view, float v) {
-        mSlidingOffset = v;
-        if (v > 0.5f) {
-            hideActionbar();
-        } else if (v < 0.5f && v > 0f) {
-            showActionBar(true);
-        }
-        final View topPanel = mSlidingUpPanelLayout.findViewById(R.id.top_buttonpanel);
-        if (v > 0.15f) {
-            AnimationUtils.fade(topPanel, 0f, 1f,
-                    AnimationUtils.DURATION_PLAYBACKTOPPANEL, true,
-                    new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                            topPanel.findViewById(R.id.imageButton_repeat)
-                                    .setVisibility(View.VISIBLE);
-                            topPanel.findViewById(R.id.close_button).setVisibility(View.VISIBLE);
-                            topPanel.findViewById(R.id.imageButton_shuffle)
-                                    .setVisibility(View.VISIBLE);
-                            animation.removeListener(this);
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-                        }
-                    });
-        } else if (v < 0.15f) {
-            AnimationUtils.fade(mSlidingUpPanelLayout.findViewById(R.id.top_buttonpanel), 1f, 0f,
-                    AnimationUtils.DURATION_PLAYBACKTOPPANEL, false,
-                    new Animator.AnimatorListener() {
-                        @Override
-                        public void onAnimationStart(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationEnd(Animator animation) {
-                            topPanel.findViewById(R.id.imageButton_repeat).setVisibility(View.GONE);
-                            topPanel.findViewById(R.id.close_button).setVisibility(View.GONE);
-                            topPanel.findViewById(R.id.imageButton_shuffle)
-                                    .setVisibility(View.GONE);
-                            animation.removeListener(this);
-                        }
-
-                        @Override
-                        public void onAnimationCancel(Animator animation) {
-                        }
-
-                        @Override
-                        public void onAnimationRepeat(Animator animation) {
-                        }
-                    });
-        }
-        int position = Math.min(10000, Math.max(0, (int) ((v - 0.8f) * 10000f / (1f - 0.8f))));
-        mPlaybackPanel.animate(position);
-        sendSlidingLayoutChangedEvent();
-    }
-
-    @Override
-    public void onPanelCollapsed(View view) {
-        sendSlidingLayoutChangedEvent();
-    }
-
-    @Override
-    public void onPanelExpanded(View view) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(this);
-        preferences.edit().putBoolean(
-                TomahawkMainActivity.COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED, true)
-                .apply();
-        sendSlidingLayoutChangedEvent();
-    }
-
-    @Override
-    public void onPanelAnchored(View view) {
-        sendSlidingLayoutChangedEvent();
-    }
-
-    @Override
-    public void onPanelHidden(View view) {
-        sendSlidingLayoutChangedEvent();
     }
 
     public void collapsePanel() {
