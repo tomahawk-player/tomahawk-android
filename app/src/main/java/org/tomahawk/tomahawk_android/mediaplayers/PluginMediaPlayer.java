@@ -24,7 +24,10 @@ import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
+import android.content.ComponentName;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
@@ -142,6 +145,42 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
             }
         }
     }
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        public void onServiceConnected(ComponentName className,
+                IBinder service) {
+            // We want to monitor the service for as long as we are
+            // connected to it.
+            try {
+                // This is called when the connection with the service has been
+                // established, giving us the service object we can use to
+                // interact with the service.  We are communicating with our
+                // service through an IDL interface, so get a client-side
+                // representation of that from the raw service object.
+                Messenger messenger = new Messenger(service);
+                Message msg = Message.obtain(null, PluginMediaPlayer.MSG_REGISTER_CLIENT);
+                msg.replyTo = getReceivingMessenger();
+                messenger.send(msg);
+                setService(messenger);
+                Log.d(TAG, "Successfully attached to service! :)");
+            } catch (RemoteException e) {
+                // In this case the service has crashed before we could even
+                // do anything with it; we can count on soon being
+                // disconnected (and then reconnected if it can be restarted)
+                // so there is no need to do anything here.
+                Log.e(TAG, "Service crashed before we could do anything."
+                        + " Waiting for it to restart and report for duty...");
+            }
+        }
+
+        public void onServiceDisconnected(ComponentName className) {
+            // This is called when the connection with the service has been
+            // unexpectedly disconnected -- that is, its process crashed.
+            setService(null);
+            Log.e(TAG, "Service crashed :(");
+        }
+    };
 
     private long mPositionTimeStamp;
 
@@ -282,7 +321,7 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
      */
     private void requestService() {
         PlaybackService.RequestServiceBindingEvent event =
-                new PlaybackService.RequestServiceBindingEvent(this, mPackageName);
+                new PlaybackService.RequestServiceBindingEvent(mConnection, mPackageName);
         EventBus.getDefault().post(event);
     }
 

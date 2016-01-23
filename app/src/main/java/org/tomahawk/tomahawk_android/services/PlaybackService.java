@@ -36,7 +36,6 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
-import org.tomahawk.tomahawk_android.mediaplayers.PluginMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayerCallback;
@@ -68,9 +67,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
-import android.os.Messenger;
 import android.os.PowerManager;
-import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -95,7 +92,7 @@ import de.greenrobot.event.EventBus;
 /**
  * This {@link Service} handles all playback related processes.
  */
-public class PlaybackService extends Service implements MusicFocusable {
+public class PlaybackService extends Service {
 
     private static final String TAG = PlaybackService.class.getSimpleName();
 
@@ -119,14 +116,6 @@ public class PlaybackService extends Service implements MusicFocusable {
 
     public static final String ACTION_FAVORITE
             = "org.tomahawk.tomahawk_android.ACTION_FAVORITE";
-
-    public static final String MERGED_PLAYLIST_ID = "merged_playlist_id";
-
-    public static final String SHUFFLED_PLAYLIST_ID = "shuffled_playlist_id";
-
-    // The volume we set the media player to when we lose audio focus, but are allowed to reduce
-    // the volume instead of stopping playback.
-    public static final float DUCK_VOLUME = 0.1f;
 
     public static final int NOT_REPEATING = 0;
 
@@ -170,13 +159,12 @@ public class PlaybackService extends Service implements MusicFocusable {
 
     public static class RequestServiceBindingEvent {
 
-        private PluginMediaPlayer mRequestingPlayer;
+        private ServiceConnection mConnection;
 
         private String mServicePackageName;
 
-        public RequestServiceBindingEvent(PluginMediaPlayer requestingPlayer,
-                String servicePackageName) {
-            mRequestingPlayer = requestingPlayer;
+        public RequestServiceBindingEvent(ServiceConnection connection, String servicePackageName) {
+            mConnection = connection;
             mServicePackageName = servicePackageName;
         }
 
@@ -356,6 +344,13 @@ public class PlaybackService extends Service implements MusicFocusable {
         }
     };
 
+    public class PlaybackServiceBinder extends Binder {
+
+        public PlaybackService getService() {
+            return PlaybackService.this;
+        }
+    }
+
     /**
      * The static {@link ServiceConnection} which calls methods in {@link
      * PlaybackServiceConnectionListener} to let every depending object know, if the {@link
@@ -368,8 +363,6 @@ public class PlaybackService extends Service implements MusicFocusable {
         public interface PlaybackServiceConnectionListener {
 
             void setPlaybackService(PlaybackService ps);
-
-            void onPlaybackServiceReady();
         }
 
         public PlaybackServiceConnection(
@@ -382,7 +375,6 @@ public class PlaybackService extends Service implements MusicFocusable {
 
             PlaybackServiceBinder binder = (PlaybackServiceBinder) service;
             mPlaybackServiceConnectionListener.setPlaybackService(binder.getService());
-            mPlaybackServiceConnectionListener.onPlaybackServiceReady();
         }
 
         @Override
@@ -419,57 +411,6 @@ public class PlaybackService extends Service implements MusicFocusable {
                     mStartCallTime = 0L;
                     break;
             }
-        }
-    }
-
-    private class PluginServiceConnection implements ServiceConnection {
-
-        private PluginMediaPlayer mPluginMediaPlayer;
-
-        public PluginServiceConnection(PluginMediaPlayer pluginMediaPlayer) {
-            mPluginMediaPlayer = pluginMediaPlayer;
-        }
-
-        public void onServiceConnected(ComponentName className,
-                IBinder service) {
-            // We want to monitor the service for as long as we are
-            // connected to it.
-            try {
-                // This is called when the connection with the service has been
-                // established, giving us the service object we can use to
-                // interact with the service.  We are communicating with our
-                // service through an IDL interface, so get a client-side
-                // representation of that from the raw service object.
-                Messenger messenger = new Messenger(service);
-                Message msg = Message.obtain(null, PluginMediaPlayer.MSG_REGISTER_CLIENT);
-                msg.replyTo = mPluginMediaPlayer.getReceivingMessenger();
-                messenger.send(msg);
-                mPluginMediaPlayer.setService(messenger);
-                Log.d(TAG, "Successfully attached to service! :)");
-            } catch (RemoteException e) {
-                // In this case the service has crashed before we could even
-                // do anything with it; we can count on soon being
-                // disconnected (and then reconnected if it can be restarted)
-                // so there is no need to do anything here.
-                Log.e(TAG, "Service crashed before we could do anything."
-                        + " Waiting for it to restart and report for duty...");
-            }
-        }
-
-        public void onServiceDisconnected(ComponentName className) {
-            // This is called when the connection with the service has been
-            // unexpectedly disconnected -- that is, its process crashed.
-            mPluginMediaPlayer.setService(null);
-            Log.e(TAG, "Service crashed :(");
-        }
-    }
-
-    ;
-
-    public class PlaybackServiceBinder extends Binder {
-
-        public PlaybackService getService() {
-            return PlaybackService.this;
         }
     }
 
@@ -599,8 +540,7 @@ public class PlaybackService extends Service implements MusicFocusable {
     public void onEvent(RequestServiceBindingEvent event) {
         Intent intent = new Intent(event.mServicePackageName + ".BindToService");
         intent.setPackage(event.mServicePackageName);
-        bindService(intent, new PluginServiceConnection(event.mRequestingPlayer),
-                Context.BIND_AUTO_CREATE);
+        bindService(intent, event.mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
@@ -641,7 +581,17 @@ public class PlaybackService extends Service implements MusicFocusable {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
-        mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), this);
+        mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), new MusicFocusable() {
+            @Override
+            public void onGainedAudioFocus() {
+                //TODO
+            }
+
+            @Override
+            public void onLostAudioFocus(boolean canDuck) {
+                //TODO
+            }
+        });
 
         // Initialize killtime handler (watchdog style)
         mKillTimerHandler.removeCallbacksAndMessages(null);
@@ -1477,16 +1427,6 @@ public class PlaybackService extends Service implements MusicFocusable {
                     .build();
             mMediaSessionCompat.setPlaybackState(playbackStateCompat);
         }
-    }
-
-    @Override
-    public void onGainedAudioFocus() {
-
-    }
-
-    @Override
-    public void onLostAudioFocus(boolean canDuck) {
-
     }
 
     void tryToGetAudioFocus() {
