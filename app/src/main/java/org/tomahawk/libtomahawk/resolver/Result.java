@@ -24,7 +24,6 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
-import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 
 /**
@@ -32,7 +31,7 @@ import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
  */
 public class Result extends Cacheable {
 
-    private TomahawkMediaPlayer mMediaPlayerInterface;
+    private Class mMediaPlayerClass;
 
     private Artist mArtist;
 
@@ -74,11 +73,11 @@ public class Result extends Cacheable {
         }
         mResolvedBy = resolvedBy;
         if (TomahawkApp.PLUGINNAME_SPOTIFY.equals(mResolvedBy.getId())) {
-            mMediaPlayerInterface = SpotifyMediaPlayer.get();
-        }else if (TomahawkApp.PLUGINNAME_DEEZER.equals(mResolvedBy.getId())) {
-            mMediaPlayerInterface = DeezerMediaPlayer.get();
+            mMediaPlayerClass = SpotifyMediaPlayer.class;
+        } else if (TomahawkApp.PLUGINNAME_DEEZER.equals(mResolvedBy.getId())) {
+            mMediaPlayerClass = DeezerMediaPlayer.class;
         } else {
-            mMediaPlayerInterface = VLCMediaPlayer.get();
+            mMediaPlayerClass = VLCMediaPlayer.class;
             if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(mResolvedBy.getId())) {
                 mIsLocal = true;
             }
@@ -123,8 +122,8 @@ public class Result extends Cacheable {
         return cacheable != null ? (Result) cacheable : new Result(album);
     }
 
-    public TomahawkMediaPlayer getMediaPlayerInterface() {
-        return mMediaPlayerInterface;
+    public Class getMediaPlayerClass() {
+        return mMediaPlayerClass;
     }
 
     /**

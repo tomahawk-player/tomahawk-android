@@ -196,12 +196,12 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         int pluginMinVersionCode = 0;
         switch (mScriptResolver.getId()) {
             case TomahawkApp.PLUGINNAME_SPOTIFY:
-                pluginPackageName = SpotifyMediaPlayer.get().getPackageName();
-                pluginMinVersionCode = SpotifyMediaPlayer.get().getMinVersionCode();
+                pluginPackageName = SpotifyMediaPlayer.PACKAGE_NAME;
+                pluginMinVersionCode = SpotifyMediaPlayer.MIN_VERSION;
                 break;
             case TomahawkApp.PLUGINNAME_DEEZER:
-                pluginPackageName = DeezerMediaPlayer.get().getPackageName();
-                pluginMinVersionCode = DeezerMediaPlayer.get().getMinVersionCode();
+                pluginPackageName = DeezerMediaPlayer.PACKAGE_NAME;
+                pluginMinVersionCode = DeezerMediaPlayer.MIN_VERSION;
                 break;
         }
         for (PackageInfo info : packageInfos) {

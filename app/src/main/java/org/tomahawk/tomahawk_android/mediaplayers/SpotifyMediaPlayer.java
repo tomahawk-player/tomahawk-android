@@ -38,6 +38,10 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
 
     private static final String TAG = SpotifyMediaPlayer.class.getSimpleName();
 
+    public static final String PACKAGE_NAME = "org.tomahawk.spotifyplugin";
+
+    public static final int MIN_VERSION = 40;
+
     // String tags used to store Spotify's preferred bitrate
     private static final String SPOTIFY_PREF_BITRATE
             = "org.tomahawk.tomahawk_android.spotify_pref_bitrate";
@@ -48,18 +52,8 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
 
     public static final int SPOTIFY_PREF_BITRATE_MODE_HIGH = 2;
 
-    private static class Holder {
-
-        private static final SpotifyMediaPlayer instance = new SpotifyMediaPlayer();
-
-    }
-
-    private SpotifyMediaPlayer() {
-        super(TomahawkApp.PLUGINNAME_SPOTIFY, "org.tomahawk.spotifyplugin", 40);
-    }
-
-    public static SpotifyMediaPlayer get() {
-        return Holder.instance;
+    public SpotifyMediaPlayer() {
+        super(TomahawkApp.PLUGINNAME_SPOTIFY, PACKAGE_NAME);
     }
 
     @Override
@@ -84,7 +78,8 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
                 });
     }
 
-    public void setBitRate(final int bitrateMode) {
+    @Override
+    public void setBitrate(int bitrateMode) {
         Bundle args = new Bundle();
         args.putInt(MSG_SETBITRATE_ARG_MODE, bitrateMode);
         callService(MSG_SETBITRATE, args);
@@ -96,7 +91,7 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
         NetworkInfo netInfo = conMan.getActiveNetworkInfo();
         if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
             Log.d(TAG, "Updating bitrate to HIGH, because we have a Wifi connection");
-            setBitRate(SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_HIGH);
+            setBitrate(SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_HIGH);
         } else {
             Log.d(TAG, "Updating bitrate to user setting, because we don't have a Wifi connection");
             SharedPreferences preferences = PreferenceManager
@@ -104,7 +99,7 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
             int prefbitrate = preferences.getInt(
                     SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE,
                     SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
-            setBitRate(prefbitrate);
+            setBitrate(prefbitrate);
         }
     }
 }

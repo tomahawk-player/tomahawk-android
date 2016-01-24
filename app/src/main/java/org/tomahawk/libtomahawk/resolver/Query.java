@@ -28,7 +28,6 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 
 import android.text.TextUtils;
 
@@ -222,9 +221,9 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
         return (Query) get(Query.class, cacheKey);
     }
 
-    public TomahawkMediaPlayer getMediaPlayerInterface() {
+    public Class getMediaPlayerClass() {
         if (getPreferredTrackResult() != null) {
-            return getPreferredTrackResult().getMediaPlayerInterface();
+            return getPreferredTrackResult().getMediaPlayerClass();
         } else {
             return null;
         }

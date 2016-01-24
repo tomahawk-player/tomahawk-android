@@ -45,15 +45,17 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
 
     private static final String TAG = VLCMediaPlayer.class.getSimpleName();
 
-    private static class Holder {
+    private static MediaPlayer sMediaPlayer;
 
-        private static final VLCMediaPlayer instance = new VLCMediaPlayer();
+    private static LibVLC sLibVLC;
 
+    static {
+        ArrayList<String> options = new ArrayList<>();
+        options.add("--http-reconnect");
+        options.add("--network-caching=2000");
+        sLibVLC = new LibVLC(options);
+        sMediaPlayer = new MediaPlayer(sLibVLC);
     }
-
-    private LibVLC mLibVLC;
-
-    private MediaPlayer mMediaPlayer;
 
     private TomahawkMediaPlayerCallback mMediaPlayerCallback;
 
@@ -83,12 +85,8 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
         }
     }
 
-    private VLCMediaPlayer() {
-        ArrayList<String> options = new ArrayList<>();
-        options.add("--http-reconnect");
-        options.add("--network-caching=2000");
-        mLibVLC = new LibVLC(options);
-        mMediaPlayer = new MediaPlayer(mLibVLC);
+    public VLCMediaPlayer() {
+        sMediaPlayer = new MediaPlayer(sLibVLC);
         SharedPreferences pref =
                 PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
         if (pref.getBoolean(EqualizerFragment.EQUALIZER_ENABLED_PREFERENCE_KEY, false)) {
@@ -99,22 +97,18 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
             for (int i = 0; i < MediaPlayer.Equalizer.getBandCount(); i++) {
                 equalizer.setAmp(i, bands[i + 1]);
             }
-            mMediaPlayer.setEqualizer(equalizer);
+            sMediaPlayer.setEqualizer(equalizer);
         }
-        mMediaPlayer.setEventListener(new MediaPlayerListener());
+        sMediaPlayer.setEventListener(new MediaPlayerListener());
         EventBus.getDefault().register(this);
     }
 
-    public LibVLC getLibVlcInstance() {
-        return mLibVLC;
+    public static LibVLC getLibVlcInstance() {
+        return sLibVLC;
     }
 
-    public MediaPlayer getMediaPlayerInstance() {
-        return mMediaPlayer;
-    }
-
-    public static VLCMediaPlayer get() {
-        return Holder.instance;
+    public static MediaPlayer getMediaPlayerInstance() {
+        return sMediaPlayer;
     }
 
     @SuppressWarnings("unused")
@@ -179,7 +173,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
                 path = result.getPath();
             }
         }
-        Media media = new Media(mLibVLC, AndroidUtil.LocationToUri(path));
+        Media media = new Media(sLibVLC, AndroidUtil.LocationToUri(path));
         getMediaPlayerInstance().setMedia(media);
         Log.d(TAG, "onPrepared()");
         mPreparedQuery = mPreparingQuery;
@@ -216,6 +210,10 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
         } else {
             return 0;
         }
+    }
+
+    @Override
+    public void setBitrate(int bitrateMode) {
     }
 
     @Override
