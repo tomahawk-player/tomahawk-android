@@ -17,7 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.mediaplayers;
 
-import org.tomahawk.aidl.IPluginService;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
@@ -107,8 +106,6 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
 
     private String mPackageName;
 
-    private int mMinVersionCode;
-
     private boolean mIsRequestingService = false;
 
     /**
@@ -192,18 +189,9 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
 
     private Map<String, Query> mUriToQueryMap = new HashMap<>();
 
-    public PluginMediaPlayer(String pluginName, String packageName, int minVersionCode) {
+    public PluginMediaPlayer(String pluginName, String packageName) {
         mPluginName = pluginName;
         mPackageName = packageName;
-        mMinVersionCode = minVersionCode;
-    }
-
-    public String getPackageName() {
-        return mPackageName;
-    }
-
-    public int getMinVersionCode() {
-        return mMinVersionCode;
     }
 
     public ScriptResolver getScriptResolver() {
@@ -278,17 +266,6 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
         return mReceivingMessenger;
     }
 
-    public synchronized void setService(Messenger service) {
-        mIsRequestingService = false;
-        mService = service;
-        if (mService != null) {
-            // send all cached messages
-            while (!mWaitingMessages.isEmpty()) {
-                callService(mWaitingMessages.remove(0));
-            }
-        }
-    }
-
     protected synchronized void callService(int what) {
         callService(what, null);
     }
@@ -305,24 +282,38 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
                 mService.send(message);
             } catch (RemoteException e) {
                 Log.e(TAG, "Service crashed: ", e);
+                mWaitingMessages.add(message);
             }
-        } else if (!mIsRequestingService) {
+        } else {
             // cache the message, will be send in setService
-            mIsRequestingService = true;
             mWaitingMessages.add(message);
-            requestService();
+            if (!mIsRequestingService) {
+                mIsRequestingService = true;
+                requestService();
+            }
         }
     }
 
     /**
      * Construct and send off a {@link PlaybackService.RequestServiceBindingEvent} to the {@link
      * PlaybackService}. As soon as the {@link PlaybackService} has been successfully bound to the
-     * {@link IPluginService} {@link #setService} will be called.
+     * PluginService {@link #setService} will be called.
      */
     private void requestService() {
         PlaybackService.RequestServiceBindingEvent event =
                 new PlaybackService.RequestServiceBindingEvent(mConnection, mPackageName);
         EventBus.getDefault().post(event);
+    }
+
+    public synchronized void setService(Messenger service) {
+        mIsRequestingService = false;
+        mService = service;
+        if (mService != null) {
+            // send all cached messages
+            while (!mWaitingMessages.isEmpty()) {
+                callService(mWaitingMessages.remove(0));
+            }
+        }
     }
 
     public abstract String getUri(Query query);

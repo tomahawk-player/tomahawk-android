@@ -94,7 +94,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
 
             mEqualizer.setPreAmp(progress - 20);
             if (mEnableButton.isChecked()) {
-                VLCMediaPlayer.get().getMediaPlayerInstance().setEqualizer(mEqualizer);
+                VLCMediaPlayer.getMediaPlayerInstance().setEqualizer(mEqualizer);
             }
         }
     };
@@ -111,8 +111,8 @@ public class EqualizerFragment extends ContentHeaderFragment {
         public void onProgressChanged(float value) {
             mEqualizer.setAmp(index, value);
             if (mEnableButton.isChecked()
-                    && VLCMediaPlayer.get().getMediaPlayerInstance() != null) {
-                VLCMediaPlayer.get().getMediaPlayerInstance().setEqualizer(mEqualizer);
+                    && VLCMediaPlayer.getMediaPlayerInstance() != null) {
+                VLCMediaPlayer.getMediaPlayerInstance().setEqualizer(mEqualizer);
             }
         }
     }
@@ -184,8 +184,8 @@ public class EqualizerFragment extends ContentHeaderFragment {
         mEnableButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (VLCMediaPlayer.get().getMediaPlayerInstance() != null) {
-                    VLCMediaPlayer.get().getMediaPlayerInstance().setEqualizer(
+                if (VLCMediaPlayer.getMediaPlayerInstance() != null) {
+                    VLCMediaPlayer.getMediaPlayerInstance().setEqualizer(
                             isChecked ? mEqualizer : null);
                 }
             }

@@ -28,18 +28,12 @@ public class DeezerMediaPlayer extends PluginMediaPlayer {
 
     private static final String TAG = DeezerMediaPlayer.class.getSimpleName();
 
-    private static class Holder {
+    public static final String PACKAGE_NAME = "org.tomahawk.deezerplugin";
 
-        private static final DeezerMediaPlayer instance = new DeezerMediaPlayer();
+    public static final int MIN_VERSION = 20;
 
-    }
-
-    private DeezerMediaPlayer() {
-        super(TomahawkApp.PLUGINNAME_DEEZER, "org.tomahawk.deezerplugin", 10);
-    }
-
-    public static DeezerMediaPlayer get() {
-        return Holder.instance;
+    public DeezerMediaPlayer() {
+        super(TomahawkApp.PLUGINNAME_SPOTIFY, PACKAGE_NAME);
     }
 
     @Override
@@ -65,5 +59,10 @@ public class DeezerMediaPlayer extends PluginMediaPlayer {
                         callService(MSG_PREPARE, args);
                     }
                 });
+    }
+
+    @Override
+    public void setBitrate(int bitrateMode) {
+        // The Deezer Android SDK doesn't support setting a bitrate
     }
 }

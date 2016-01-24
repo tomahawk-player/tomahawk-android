@@ -279,7 +279,7 @@ public class UserCollection extends DbCollection {
                         }
                     } else {
                         // create new media item
-                        final Media media = new Media(VLCMediaPlayer.get().getLibVlcInstance(),
+                        final Media media = new Media(VLCMediaPlayer.getLibVlcInstance(),
                                 Uri.parse(fileURI));
                         media.parse();
                         parseCounter++;

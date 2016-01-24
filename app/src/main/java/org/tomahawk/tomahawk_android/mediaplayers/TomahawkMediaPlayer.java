@@ -33,6 +33,8 @@ public interface TomahawkMediaPlayer {
 
     int getPosition();
 
+    void setBitrate(int mode);
+
     boolean isPlaying(Query query);
 
     boolean isPreparing(Query query);

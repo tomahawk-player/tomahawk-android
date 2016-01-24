@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.adapters;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 
 import android.content.Context;
@@ -37,6 +38,8 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import de.greenrobot.event.EventBus;
 
 /**
  * Since {@link android.preference.PreferenceFragment} is not supported with the official support
@@ -67,7 +70,9 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putInt(mKey, position);
                 editor.commit();
-                SpotifyMediaPlayer.get().setBitRate(position);
+                PlaybackService.SetBitrateEvent event = new PlaybackService.SetBitrateEvent();
+                event.mode = position;
+                EventBus.getDefault().post(event);
             }
         }
 
