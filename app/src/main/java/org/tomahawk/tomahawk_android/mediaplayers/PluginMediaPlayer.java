@@ -316,6 +316,14 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
         }
     }
 
+    public synchronized boolean isBound() {
+        return mService != null;
+    }
+
+    public ServiceConnection getServiceConnection() {
+        return mConnection;
+    }
+
     public abstract String getUri(Query query);
 
     public abstract void prepare(String uri);

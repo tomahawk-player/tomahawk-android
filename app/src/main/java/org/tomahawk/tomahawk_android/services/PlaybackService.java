@@ -36,6 +36,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
+import org.tomahawk.tomahawk_android.mediaplayers.PluginMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayerCallback;
@@ -649,6 +650,16 @@ public class PlaybackService extends Service {
         mPhoneCallListener = null;
         mKillTimerHandler.removeCallbacksAndMessages(null);
         mKillTimerHandler = null;
+
+        for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
+            if (mp instanceof PluginMediaPlayer) {
+                PluginMediaPlayer pmp = (PluginMediaPlayer) mp;
+                if (pmp.isBound()) {
+                    pmp.setService(null);
+                    unbindService(pmp.getServiceConnection());
+                }
+            }
+        }
 
         Log.d(TAG, "PlaybackService has been destroyed");
     }
