@@ -80,6 +80,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -481,8 +482,14 @@ public class PlaybackService extends Service {
         }
 
         @Override
-        public void onError(String message) {
+        public void onError(final String message) {
             Log.e(TAG, "onError - " + message);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Toast.makeText(TomahawkApp.getContext(), message, Toast.LENGTH_LONG).show();
+                }
+            });
             giveUpAudioFocus();
             if (hasNextEntry()) {
                 next();
