@@ -372,12 +372,10 @@ public class PlaybackService extends Service {
         }
     }
 
-    private PhoneCallListener mPhoneCallListener = new PhoneCallListener();
-
     /**
      * Listens for incoming phone calls and handles playback.
      */
-    private class PhoneCallListener extends PhoneStateListener {
+    private PhoneStateListener mPhoneCallListener = new PhoneStateListener() {
 
         private long mStartCallTime = 0L;
 
@@ -401,7 +399,7 @@ public class PlaybackService extends Service {
                     break;
             }
         }
-    }
+    };
 
     // Stops this service if it doesn't have any bound services
     private KillTimerHandler mKillTimerHandler = new KillTimerHandler(this);
@@ -657,6 +655,9 @@ public class PlaybackService extends Service {
         mPhoneCallListener = null;
         mKillTimerHandler.removeCallbacksAndMessages(null);
         mKillTimerHandler = null;
+        mMediaSessionCompat.setCallback(null);
+        mMediaSessionCompat.release();
+        mMediaSessionCompat = null;
 
         for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
             if (mp instanceof PluginMediaPlayer) {
