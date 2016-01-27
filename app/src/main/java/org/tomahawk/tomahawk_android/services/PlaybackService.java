@@ -340,6 +340,21 @@ public class PlaybackService extends Service {
         }
     }
 
+    private RemoteControllerConnection mRemoteControllerConnection;
+
+    private static class RemoteControllerConnection implements ServiceConnection {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.d(TAG, "Connected to RemoteControllerService!");
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            Log.e(TAG, "RemoteControllerService has crashed :(");
+        }
+    }
+
     /**
      * The static {@link ServiceConnection} which calls methods in {@link
      * PlaybackServiceConnectionListener} to let every depending object know, if the {@link
@@ -553,19 +568,10 @@ public class PlaybackService extends Service {
 
         startService(new Intent(this, MicroService.class));
 
-        ServiceConnection connection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName name, IBinder service) {
-            }
-
-            @Override
-            public void onServiceDisconnected(ComponentName name) {
-            }
-        };
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            bindService(new Intent(this, RemoteControllerService.class), connection,
-                    Context.BIND_AUTO_CREATE);
+            mRemoteControllerConnection = new RemoteControllerConnection();
+            bindService(new Intent(this, RemoteControllerService.class),
+                    mRemoteControllerConnection, Context.BIND_AUTO_CREATE);
         }
 
         mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
@@ -658,6 +664,10 @@ public class PlaybackService extends Service {
         mMediaSessionCompat.setCallback(null);
         mMediaSessionCompat.release();
         mMediaSessionCompat = null;
+
+        if (mRemoteControllerConnection != null) {
+            unbindService(mRemoteControllerConnection);
+        }
 
         for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
             if (mp instanceof PluginMediaPlayer) {
