@@ -74,7 +74,7 @@ public class FragmentUtils {
                     Fragment.instantiate(activity, CollectionPagerFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
         }
-        ft.commit();
+        ft.commitAllowingStateLoss();
     }
 
     /**
@@ -107,7 +107,7 @@ public class FragmentUtils {
                 FRAGMENT_TAG);
         ft.addToBackStack(FRAGMENT_TAG);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.commit();
+        ft.commitAllowingStateLoss();
         activity.collapsePanel();
     }
 
@@ -126,7 +126,7 @@ public class FragmentUtils {
         ft.add(frameResId, Fragment.instantiate(activity, clss.getName(), bundle), FRAGMENT_TAG);
         ft.addToBackStack(FRAGMENT_TAG);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.commit();
+        ft.commitAllowingStateLoss();
     }
 
     /**

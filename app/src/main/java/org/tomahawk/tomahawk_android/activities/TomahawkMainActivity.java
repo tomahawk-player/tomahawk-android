@@ -1034,7 +1034,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
                                         TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED,
                                         false)) {
                                     FragmentUtils.replace(
-                                            TomahawkMainActivity.this, WelcomeFragment.class, null);
+                                            TomahawkMainActivity.this, WelcomeFragment.class,
+                                            null);
                                 }
                             }
                         });
