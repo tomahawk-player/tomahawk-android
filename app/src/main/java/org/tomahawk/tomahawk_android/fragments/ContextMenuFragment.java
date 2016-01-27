@@ -372,17 +372,7 @@ public class ContextMenuFragment extends Fragment {
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPlaylist.getHatchetId() == null) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(TomahawkApp.getContext(),
-                                    R.string.contest_menu_share_error, Toast.LENGTH_LONG).show();
-                        }
-                    });
-                    return;
-                }
-                getActivity().getSupportFragmentManager().popBackStack();
+                boolean error = false;
                 if (mAlbum != null) {
                     ShareUtils.sendShareIntent(activity, mAlbum);
                 } else if (mArtist != null) {
@@ -392,7 +382,22 @@ public class ContextMenuFragment extends Fragment {
                 } else if (mPlaylistEntry != null) {
                     ShareUtils.sendShareIntent(activity, mPlaylistEntry.getQuery());
                 } else if (mPlaylist != null) {
-                    ShareUtils.sendShareIntent(activity, mPlaylist);
+                    if (mPlaylist.getHatchetId() == null) {
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(TomahawkApp.getContext(),
+                                        R.string.contest_menu_share_error, Toast.LENGTH_LONG)
+                                        .show();
+                            }
+                        });
+                        error = true;
+                    } else {
+                        ShareUtils.sendShareIntent(activity, mPlaylist);
+                    }
+                }
+                if (!error) {
+                    getActivity().getSupportFragmentManager().popBackStack();
                 }
             }
         });
