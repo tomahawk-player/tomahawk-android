@@ -211,7 +211,8 @@ public class ContextMenuFragment extends Fragment {
                         mCorrespondingRequestIds.add(requestId);
                     }
                 }
-                if (mPlaylist != null && !mPlaylist.getUserId().equals(result.getId())) {
+                if (mPlaylist != null && mPlaylist.getUserId() != null
+                        && !mPlaylist.getUserId().equals(result.getId())) {
                     String requestId = InfoSystem.get().resolve(mPlaylist);
                     if (requestId != null) {
                         mCorrespondingRequestIds.add(requestId);
