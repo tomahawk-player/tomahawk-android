@@ -81,7 +81,7 @@ public class WelcomeFragment extends Fragment {
                     ft.add(R.id.welcome_fragment_page_setup_container,
                             Fragment.instantiate(activity,
                                     PreferenceConnectFragment.class.getName(), null));
-                    ft.commit();
+                    ft.commitAllowingStateLoss();
                     break;
                 case 2:
                     v = inflater.inflate(R.layout.welcome_fragment_page_hatchet, container,
