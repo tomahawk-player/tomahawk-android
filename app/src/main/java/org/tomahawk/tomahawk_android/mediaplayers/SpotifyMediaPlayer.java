@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -40,7 +41,7 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
 
     public static final String PACKAGE_NAME = "org.tomahawk.spotifyplugin";
 
-    public static final int MIN_VERSION = 40;
+    public static final int MIN_VERSION = 41;
 
     // String tags used to store Spotify's preferred bitrate
     private static final String SPOTIFY_PREF_BITRATE
@@ -54,6 +55,16 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
 
     public SpotifyMediaPlayer() {
         super(TomahawkApp.PLUGINNAME_SPOTIFY, PACKAGE_NAME);
+    }
+
+    public static String getPluginDownloadLink() {
+        if (Build.CPU_ABI.equals("x86")) {
+            return "http://download.tomahawk-player.org/android-plugins/"
+                    + "tomahawk-android-spotify-x86-release-" + MIN_VERSION + ".apk";
+        } else {
+            return "http://download.tomahawk-player.org/android-plugins/"
+                    + "tomahawk-android-spotify-armv7a-release-" + MIN_VERSION + ".apk";
+        }
     }
 
     @Override
