@@ -32,7 +32,6 @@ import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
@@ -63,28 +62,13 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                 }
             } else {
                 String url = null;
-                if (Build.CPU_ABI.equals("x86")) {
-                    switch (mScriptResolver.getId()) {
-                        case TomahawkApp.PLUGINNAME_SPOTIFY:
-                            url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-spotify-x86-release-40.apk";
-                            break;
-                        case TomahawkApp.PLUGINNAME_DEEZER:
-                            url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-deezer-x86-release-20.apk";
-                            break;
-                    }
-                } else {
-                    switch (mScriptResolver.getId()) {
-                        case TomahawkApp.PLUGINNAME_SPOTIFY:
-                            url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-spotify-armv7a-release-40.apk";
-                            break;
-                        case TomahawkApp.PLUGINNAME_DEEZER:
-                            url = "http://download.tomahawk-player.org/android-plugins/"
-                                    + "tomahawk-android-deezer-armv7a-release-20.apk";
-                            break;
-                    }
+                switch (mScriptResolver.getId()) {
+                    case TomahawkApp.PLUGINNAME_SPOTIFY:
+                        url = SpotifyMediaPlayer.getPluginDownloadLink();
+                        break;
+                    case TomahawkApp.PLUGINNAME_DEEZER:
+                        url = DeezerMediaPlayer.getPluginDownloadLink();
+                        break;
                 }
                 if (url != null) {
                     Intent i = new Intent(Intent.ACTION_VIEW);

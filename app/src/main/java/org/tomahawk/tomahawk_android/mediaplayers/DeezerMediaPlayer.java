@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
+import android.os.Build;
 import android.os.Bundle;
 
 public class DeezerMediaPlayer extends PluginMediaPlayer {
@@ -34,6 +35,16 @@ public class DeezerMediaPlayer extends PluginMediaPlayer {
 
     public DeezerMediaPlayer() {
         super(TomahawkApp.PLUGINNAME_SPOTIFY, PACKAGE_NAME);
+    }
+
+    public static String getPluginDownloadLink() {
+        if (Build.CPU_ABI.equals("x86")) {
+            return "http://download.tomahawk-player.org/android-plugins/"
+                    + "tomahawk-android-deezer-x86-release-" + MIN_VERSION + ".apk";
+        } else {
+            return "http://download.tomahawk-player.org/android-plugins/"
+                    + "tomahawk-android-deezer-armv7a-release-" + MIN_VERSION + ".apk";
+        }
     }
 
     @Override
