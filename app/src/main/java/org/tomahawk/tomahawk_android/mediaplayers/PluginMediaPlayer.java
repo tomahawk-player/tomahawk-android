@@ -179,6 +179,10 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
         }
     };
 
+    private boolean mRestorePosition = false;
+
+    private String mPreparedUri;
+
     private long mPositionTimeStamp;
 
     private int mPositionOffset;
@@ -219,11 +223,18 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
                 case MSG_ONPREPARED:
                     String uri = msg.getData().getString(MSG_ONPREPARED_ARG_URI);
                     Log.d(TAG, "onPrepared() - uri: " + uri);
-                    mp.mPositionOffset = 0;
-                    mp.mPositionTimeStamp = System.currentTimeMillis();
                     mp.mPreparedQuery = mp.mUriToQueryMap.get(uri);
                     mp.mPreparingQuery = null;
                     mp.mMediaPlayerCallback.onPrepared(mp.mPreparedQuery);
+                    if (mp.mRestorePosition && mp.mPreparedUri != null
+                            && mp.mPreparedUri.equals(uri)) {
+                        mp.mRestorePosition = false;
+                        mp.seekTo(mp.mPositionOffset);
+                    } else {
+                        mp.mPositionOffset = 0;
+                        mp.mPositionTimeStamp = System.currentTimeMillis();
+                    }
+                    mp.mPreparedUri = uri;
                     break;
                 case MSG_ONPLAY:
                     mp.mPositionTimeStamp = System.currentTimeMillis();
@@ -313,6 +324,11 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
             while (!mWaitingMessages.isEmpty()) {
                 callService(mWaitingMessages.remove(0));
             }
+        } else {
+            mRestorePosition = true;
+            mPreparedQuery = null;
+            mPreparingQuery = null;
+            mIsPlaying = false;
         }
     }
 
@@ -339,8 +355,6 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
     public TomahawkMediaPlayer prepare(Query query, TomahawkMediaPlayerCallback callback) {
         Log.d(TAG, "prepare()");
         mMediaPlayerCallback = callback;
-        mPositionOffset = 0;
-        mPositionTimeStamp = System.currentTimeMillis();
         mPreparedQuery = null;
         mPreparingQuery = query;
 

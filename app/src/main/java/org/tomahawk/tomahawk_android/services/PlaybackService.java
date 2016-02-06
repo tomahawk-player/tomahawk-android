@@ -416,29 +416,69 @@ public class PlaybackService extends Service {
         }
     };
 
+    private SuicideHandler mSuicideHandler = new SuicideHandler(this);
+
     // Stops this service if it doesn't have any bound services
-    private KillTimerHandler mKillTimerHandler = new KillTimerHandler(this);
+    private static class SuicideHandler extends KillTimerHandler {
 
-    private static class KillTimerHandler extends WeakReferenceHandler<PlaybackService> {
-
-        public KillTimerHandler(PlaybackService referencedObject) {
-            super(referencedObject);
+        public SuicideHandler(PlaybackService service) {
+            super(service, 1800000);
         }
 
         @Override
         public void handleMessage(Message msg) {
-            PlaybackService service = getReferencedObject();
-            if (service != null) {
-                if (service.isPlaying()) {
-                    removeCallbacksAndMessages(null);
-                    Message msgx = obtainMessage();
-                    sendMessageDelayed(msgx, DELAY_TO_KILL);
-                    Log.d(TAG, "Killtimer checked if I should die, but I survived *cheer*");
-                } else {
-                    Log.d(TAG, "Killtimer called stopSelf() on me");
-                    service.stopSelf();
+            if (getReferencedObject() != null) {
+                Log.d(TAG, "Killtimer called stopSelf() on me");
+                getReferencedObject().stopSelf();
+            }
+        }
+    }
+
+    private PluginServiceKillHandler mPluginServiceKillHandler = new PluginServiceKillHandler(this);
+
+    private static class PluginServiceKillHandler extends KillTimerHandler {
+
+        public PluginServiceKillHandler(PlaybackService service) {
+            super(service, 1800000);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (getReferencedObject() != null) {
+                Log.d(TAG, "Unbinding from every PluginService...");
+                for (TomahawkMediaPlayer mp : getReferencedObject().mMediaPlayers.values()) {
+                    if (mp instanceof PluginMediaPlayer) {
+                        PluginMediaPlayer pmp = (PluginMediaPlayer) mp;
+                        if (pmp.isBound()) {
+                            pmp.setService(null);
+                            getReferencedObject().unbindService(pmp.getServiceConnection());
+                        }
+                    }
                 }
             }
+        }
+    }
+
+    private static abstract class KillTimerHandler extends WeakReferenceHandler<PlaybackService> {
+
+        private int mDelayToKill;
+
+        public KillTimerHandler(PlaybackService referencedObject, int delayToKill) {
+            super(referencedObject);
+
+            mDelayToKill = delayToKill;
+        }
+
+        public abstract void handleMessage(Message msg);
+
+        public void start() {
+            removeCallbacksAndMessages(null);
+            Message message = obtainMessage();
+            sendMessageDelayed(message, mDelayToKill);
+        }
+
+        public void stop() {
+            removeCallbacksAndMessages(null);
         }
     }
 
@@ -597,11 +637,6 @@ public class PlaybackService extends Service {
             }
         });
 
-        // Initialize killtime handler (watchdog style)
-        mKillTimerHandler.removeCallbacksAndMessages(null);
-        Message msg = mKillTimerHandler.obtainMessage();
-        mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
-
         mPlaylist =
                 Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), false, "");
         mQueue =
@@ -659,8 +694,10 @@ public class PlaybackService extends Service {
                 (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
         telephonyManager.listen(mPhoneCallListener, PhoneStateListener.LISTEN_NONE);
         mPhoneCallListener = null;
-        mKillTimerHandler.removeCallbacksAndMessages(null);
-        mKillTimerHandler = null;
+        mSuicideHandler.stop();
+        mSuicideHandler = null;
+        mPluginServiceKillHandler.stop();
+        mPluginServiceKillHandler = null;
         mMediaSessionCompat.setCallback(null);
         mMediaSessionCompat.release();
         mMediaSessionCompat = null;
@@ -708,6 +745,8 @@ public class PlaybackService extends Service {
     public void start() {
         Log.d(TAG, "start");
         if (getCurrentQuery() != null) {
+            mSuicideHandler.stop();
+            mPluginServiceKillHandler.stop();
             mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
             EventBus.getDefault().post(new PlayStateChangedEvent());
             handlePlayState();
@@ -733,6 +772,8 @@ public class PlaybackService extends Service {
      */
     public void pause(boolean dismissNotificationOnPause) {
         Log.d(TAG, "pause, dismissing Notification:" + dismissNotificationOnPause);
+        mSuicideHandler.start();
+        mPluginServiceKillHandler.start();
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
         EventBus.getDefault().post(new PlayStateChangedEvent());
         handlePlayState();
@@ -789,11 +830,6 @@ public class PlaybackService extends Service {
                         "handlePlayState IllegalStateException, msg:" + e1.getLocalizedMessage()
                                 + " , preparing=" + isPreparing()
                 );
-            }
-            if (mKillTimerHandler != null) {
-                mKillTimerHandler.removeCallbacksAndMessages(null);
-                Message msg = mKillTimerHandler.obtainMessage();
-                mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
             }
         } else {
             Log.d(TAG, "handlePlayState couldn't do anything, isPreparing" + isPreparing());
@@ -980,10 +1016,6 @@ public class PlaybackService extends Service {
         Log.d(TAG, "prepareCurrentQuery");
         if (getCurrentQuery() != null) {
             if (getCurrentQuery().isPlayable()) {
-                mKillTimerHandler.removeCallbacksAndMessages(null);
-                Message msg = mKillTimerHandler.obtainMessage();
-                mKillTimerHandler.sendMessageDelayed(msg, DELAY_TO_KILL);
-
                 if (getCurrentQuery().getImage() == null) {
                     String requestId = InfoSystem.get().resolve(
                             getCurrentQuery().getArtist(), false);
