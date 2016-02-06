@@ -41,7 +41,7 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
 
     public static final String PACKAGE_NAME = "org.tomahawk.spotifyplugin";
 
-    public static final int MIN_VERSION = 41;
+    public static final int MIN_VERSION = 42;
 
     // String tags used to store Spotify's preferred bitrate
     private static final String SPOTIFY_PREF_BITRATE
