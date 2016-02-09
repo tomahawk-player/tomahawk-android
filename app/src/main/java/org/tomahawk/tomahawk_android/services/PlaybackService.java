@@ -698,9 +698,11 @@ public class PlaybackService extends Service {
         mSuicideHandler = null;
         mPluginServiceKillHandler.stop();
         mPluginServiceKillHandler = null;
-        mMediaSessionCompat.setCallback(null);
-        mMediaSessionCompat.release();
-        mMediaSessionCompat = null;
+        if (mMediaSessionCompat != null) {
+            mMediaSessionCompat.setCallback(null);
+            mMediaSessionCompat.release();
+            mMediaSessionCompat = null;
+        }
 
         if (mRemoteControllerConnection != null) {
             unbindService(mRemoteControllerConnection);
