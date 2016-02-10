@@ -160,7 +160,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
 
     @Override
     protected void onConfigTestResult(Object component, int type, String message) {
-        if (mScriptResolver == component && mScriptResolver.isConfigTestable()) {
+        if (mScriptResolver == component) {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
                 mRedirectButtonTextView.setText(
                         getString(R.string.resolver_config_redirect_button_text_log_out_of));
