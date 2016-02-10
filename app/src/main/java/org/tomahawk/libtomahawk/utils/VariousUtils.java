@@ -1,9 +1,13 @@
 package org.tomahawk.libtomahawk.utils;
 
+import com.google.android.gms.common.GooglePlayServicesUtil;
+
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import java.io.File;
@@ -63,6 +67,16 @@ public class VariousUtils {
             editor.putString(key, json.toString());
         } catch (JSONException e) {
             Log.e(TAG, "putFloatArray: " + e.getClass() + ": " + e.getLocalizedMessage());
+        }
+    }
+
+    public static boolean isPlayStoreInstalled() {
+        try {
+            TomahawkApp.getContext().getPackageManager()
+                    .getPackageInfo(GooglePlayServicesUtil.GOOGLE_PLAY_STORE_PACKAGE, 0);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
         }
     }
 }
