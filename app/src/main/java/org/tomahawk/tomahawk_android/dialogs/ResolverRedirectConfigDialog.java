@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.dialogs;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
@@ -60,12 +61,21 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                 }
             } else {
                 String url = null;
+                boolean isPlayStoreInstalled = VariousUtils.isPlayStoreInstalled();
                 switch (mScriptResolver.getId()) {
                     case TomahawkApp.PLUGINNAME_SPOTIFY:
-                        url = SpotifyMediaPlayer.getPluginDownloadLink();
+                        if (isPlayStoreInstalled) {
+                            url = "market://details?id=" + SpotifyMediaPlayer.PACKAGE_NAME;
+                        } else {
+                            url = SpotifyMediaPlayer.getPluginDownloadLink();
+                        }
                         break;
                     case TomahawkApp.PLUGINNAME_DEEZER:
-                        url = DeezerMediaPlayer.getPluginDownloadLink();
+                        if (isPlayStoreInstalled) {
+                            url = "market://details?id=" + DeezerMediaPlayer.PACKAGE_NAME;
+                        } else {
+                            url = DeezerMediaPlayer.getPluginDownloadLink();
+                        }
                         break;
                 }
                 if (url != null) {
