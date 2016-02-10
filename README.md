@@ -10,8 +10,8 @@ Tomahawk for Android also syncs your history, your loved tracks, artists, albums
 
 ## Beta and Nightly
 
-Join this Google+ community to take part in our current beta test on Google Play:
-https://plus.google.com/u/0/communities/107064391247577662665
+Get the Beta version on Google Play:
+https://play.google.com/store/apps/details?id=org.tomahawk.tomahawk_android
 
 Nightly builds are available here:
 http://download.tomahawk-player.org/nightly/android/?C=M;O=D
@@ -23,8 +23,9 @@ First of all you have to properly setup your Android SDK/NDK:
 - Download and install the Android SDK http://developer.android.com/sdk/index.html
     - Make sure you have updated and installed the following in your Android SDK Manager:
         - "/Tools"
-        - the newest Android SDK Platform folder (e.g. "/Android 4.4 (API 19)")
-        - "/Extras/Android Support Repository" and "/Extras/Android Support Library"
+        - the latest Android SDK Platform folder (e.g. "/Android 6.0 (API 23)")
+        - "/Extras/Android Support Repository" and "/Extras/Android Support Library"    
+        - "/Extras/Google Play Services" and "/Extras/Google Repository"
 
 Build it on the commandline with gradle:
 
@@ -42,20 +43,16 @@ Setup using Android Studio and gradle (highly recommended):
 Setup using other IDEs without gradle:
 
 - Import tomahawk-android into the IDE of your choice
-- tomahawk-android depends on the several 3rd party libraries. You can look up a list of those in ./build.gradle under dependencies{...}
+- tomahawk-android depends on several 3rd party libraries. You can look up a list of all dependencies in ./app/build.gradle under dependencies{...}
 - Make sure you setup the support libraries correctly (http://developer.android.com/tools/support-library/setup.html)
 - Add all dependencies to your tomahawk-android project
 - tomahawk-android should now compile successfully.
 
 If you have any further problems, feel free to join the #tomahawk.mobile irc channel on irc.freenode.org
 
-## Found a bug?
-
-Please report it here https://bugs.tomahawk-player.org/browse/THA
-
 ## Ready to contribute?
 
-Here's a link to the bug/to-do tracker https://bugs.tomahawk-player.org/secure/RapidBoard.jspa?rapidView=2
+Drop us an e-mail at welisten@tomahawk-player.org or join our IRC Channel #tomahawk.mobile on irc.freenode.org
 
 ## Code Style Guidelines for Contributors
 
@@ -66,8 +63,7 @@ In order to keep everything clean and cozy, please use the official Android code
 For a larger overview you should read the official Android "Code Style Guidelines for Contributors":
 - http://source.android.com/source/code-style.html
 
-## Recommended IDE
+## Plugin Apps Source Code
 
-http://developer.android.com/sdk/installing/studio.html
-
-Since there are some glitches/bugs and performance issues with Eclipse, the new Android Studio IDE (which is based on IntelliJ) is a great alternative.
+[Spotify Plugin App](https://github.com/tomahawk-player/tomahawk-android-spotify)     
+[Deezer Plugin App](https://github.com/tomahawk-player/tomahawk-android-deezer)
