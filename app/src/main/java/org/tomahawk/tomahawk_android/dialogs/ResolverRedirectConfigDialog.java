@@ -39,8 +39,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import java.util.List;
-
 public class ResolverRedirectConfigDialog extends ConfigDialog {
 
     public final static String TAG = ResolverRedirectConfigDialog.class.getSimpleName();
@@ -174,8 +172,6 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
     }
 
     private boolean isPluginInstalled() {
-        List<PackageInfo> packageInfos = getActivity().getPackageManager().getInstalledPackages(
-                PackageManager.GET_SERVICES);
         String pluginPackageName = "";
         int pluginMinVersionCode = 0;
         switch (mScriptResolver.getId()) {
@@ -188,16 +184,17 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                 pluginMinVersionCode = DeezerMediaPlayer.MIN_VERSION;
                 break;
         }
-        for (PackageInfo info : packageInfos) {
-            if (pluginPackageName.equals(info.packageName)) {
-                // Remove the first digit that identifies the architecture type
-                String versionCodeString = String.valueOf(info.versionCode);
-                versionCodeString = versionCodeString.substring(1, versionCodeString.length());
-                int versionCode = Integer.valueOf(versionCodeString);
-                if (versionCode >= pluginMinVersionCode) {
-                    return true;
-                }
+        try {
+            PackageInfo info = getActivity().getPackageManager()
+                    .getPackageInfo(pluginPackageName, PackageManager.GET_SERVICES);
+            // Remove the first digit that identifies the architecture type
+            String versionCodeString = String.valueOf(info.versionCode);
+            versionCodeString = versionCodeString.substring(1, versionCodeString.length());
+            int versionCode = Integer.valueOf(versionCodeString);
+            if (versionCode >= pluginMinVersionCode) {
+                return true;
             }
+        } catch (PackageManager.NameNotFoundException ignored) {
         }
         return false;
     }
