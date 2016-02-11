@@ -227,6 +227,9 @@ public class CollectionDb extends SQLiteOpenHelper {
     public CollectionDb(Context context, String collectionId) {
         super(context, collectionId + DB_FILE_SUFFIX, null, DB_VERSION);
 
+        Log.d(TAG, "Constructed CollectionDb '" + collectionId + DB_FILE_SUFFIX + "' with version "
+                + DB_VERSION + ", objectId: " + this.hashCode());
+
         mCollectionId = collectionId;
 
         close();
@@ -235,12 +238,16 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.d(TAG, "onCreate - CollectionDb '" + db.getPath() + "' with version "
+                + db.getVersion() + ", objectId: " + this.hashCode());
         db.execSQL(CREATE_TABLE_ARTISTS);
         db.execSQL(CREATE_TABLE_ALBUMARTISTS);
         db.execSQL(CREATE_TABLE_ALBUMS);
         db.execSQL(CREATE_TABLE_ARTISTALBUMS);
         db.execSQL(CREATE_TABLE_TRACKS);
         db.execSQL(CREATE_TABLE_REVISIONHISTORY);
+        Log.d(TAG, "onCreate finished - CollectionDb '" + db.getPath() + "' with version "
+                + db.getVersion() + ", objectId: " + this.hashCode());
     }
 
     @Override
