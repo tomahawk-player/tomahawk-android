@@ -134,8 +134,6 @@ public class PlaybackService extends Service {
 
     private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 1;
 
-    private static final int DELAY_TO_KILL = 300000;
-
     public static class PlayingTrackChangedEvent {
 
     }
@@ -273,20 +271,18 @@ public class PlaybackService extends Service {
         }
     };
 
-    AudioManager mAudioManager;
-
     // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
     // If not available, this will be null. Always check for null before using!
-    AudioFocusHelper mAudioFocusHelper = null;
+    private AudioFocusHelper mAudioFocusHelper = null;
 
     // do we have audio focus?
-    enum AudioFocus {
+    private enum AudioFocus {
         NoFocusNoDuck,    // we don't have audio focus, and can't duck
         NoFocusCanDuck,   // we don't have focus, but can play at a low volume ("ducking")
         Focused           // we have full audio focus
     }
 
-    AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
+    private AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
 
     private final Map<Class, TomahawkMediaPlayer> mMediaPlayers = new HashMap<>();
 
@@ -613,8 +609,6 @@ public class PlaybackService extends Service {
             bindService(new Intent(this, RemoteControllerService.class),
                     mRemoteControllerConnection, Context.BIND_AUTO_CREATE);
         }
-
-        mAudioManager = (AudioManager) getSystemService(AUDIO_SERVICE);
 
         // Initialize PhoneCallListener
         TelephonyManager telephonyManager =
