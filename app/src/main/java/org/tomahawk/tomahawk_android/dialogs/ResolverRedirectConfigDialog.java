@@ -48,6 +48,8 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
 
     private TextView mRedirectButtonTextView;
 
+    private TextView mWarningTextView;
+
     private class RedirectButtonListener implements View.OnClickListener {
 
         @Override
@@ -101,6 +103,8 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
         headerTextView.setText(mScriptResolver.getDescription());
 
+        mWarningTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
+
         int buttonBackgroundResId = R.drawable.selectable_background_tomahawk_rectangle_gray;
         int buttonTextColor = getResources().getColor(R.color.primary_textcolor);
         View.OnClickListener onClickListener = new RedirectButtonListener();
@@ -120,9 +124,12 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
             mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
                     ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                     : getString(R.string.resolver_config_redirect_button_text_log_into));
+            mWarningTextView.setVisibility(View.GONE);
         } else {
             mRedirectButtonTextView.setText(
                     getString(R.string.resolver_config_redirect_button_text_download_plugin));
+            mWarningTextView.setText(R.string.warn_closed_source_text);
+            mWarningTextView.setVisibility(View.VISIBLE);
         }
 
         button.setOnClickListener(onClickListener);
@@ -146,9 +153,12 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                 mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
                         ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                         : getString(R.string.resolver_config_redirect_button_text_log_into));
+                mWarningTextView.setVisibility(View.GONE);
             } else {
                 mRedirectButtonTextView.setText(
                         getString(R.string.resolver_config_redirect_button_text_download_plugin));
+                mWarningTextView.setText(R.string.warn_closed_source_text);
+                mWarningTextView.setVisibility(View.VISIBLE);
             }
         }
     }
