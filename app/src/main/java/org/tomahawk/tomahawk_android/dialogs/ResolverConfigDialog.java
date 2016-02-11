@@ -69,7 +69,7 @@ public class ResolverConfigDialog extends ConfigDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments().containsKey(TomahawkFragment.PREFERENCEID)) {
             String resolverId = getArguments().getString(TomahawkFragment.PREFERENCEID);
-            mScriptResolver = (ScriptResolver) PipeLine.get().getResolver(resolverId);
+            mScriptResolver = PipeLine.get().getResolver(resolverId);
         }
 
         EditText showKeyboardEditText = null;

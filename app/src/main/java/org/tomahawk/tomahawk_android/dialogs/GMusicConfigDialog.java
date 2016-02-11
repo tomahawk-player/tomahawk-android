@@ -94,8 +94,7 @@ public class GMusicConfigDialog extends ConfigDialog {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        mScriptResolver =
-                (ScriptResolver) PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_GMUSIC);
+        mScriptResolver = PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_GMUSIC);
 
         TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
         headerTextView.setText(mScriptResolver.getDescription());

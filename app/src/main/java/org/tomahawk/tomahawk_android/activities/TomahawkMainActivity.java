@@ -44,6 +44,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.UserCollectionStubResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
+import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.libtomahawk.utils.parser.XspfParser;
 import org.tomahawk.tomahawk_android.R;
@@ -53,6 +54,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.dialogs.AskAccessConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.GMusicConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.InstallPluginConfigDialog;
+import org.tomahawk.tomahawk_android.dialogs.WarnOldPluginDialog;
 import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
@@ -678,6 +680,27 @@ public class TomahawkMainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, WebViewActivity.class);
         intent.putExtra(WebViewActivity.URL_EXTRA, event.mUrl);
         startActivity(intent);
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventAsync(PipeLine.ResolversChangedEvent event) {
+        String resolverId = event.mScriptResolver.getId();
+        if ((resolverId.equals(TomahawkApp.PLUGINNAME_DEEZER)
+                || resolverId.equals(TomahawkApp.PLUGINNAME_SPOTIFY))
+                && event.mScriptResolver.isEnabled()
+                && !VariousUtils.isPluginUpToDate(resolverId)) {
+            PipeLine.get().getResolver(resolverId).setEnabled(false);
+            WarnOldPluginDialog dialog = new WarnOldPluginDialog();
+            Bundle args = new Bundle();
+            args.putString(TomahawkFragment.PREFERENCEID, resolverId);
+            if (VariousUtils.isPluginInstalled(resolverId)) {
+                args.putString(TomahawkFragment.MESSAGE, getString(R.string.warn_old_plugin));
+            } else {
+                args.putString(TomahawkFragment.MESSAGE, getString(R.string.warn_no_plugin));
+            }
+            dialog.setArguments(args);
+            dialog.show(getSupportFragmentManager(), null);
+        }
     }
 
     @Override

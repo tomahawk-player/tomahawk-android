@@ -199,8 +199,7 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
     }
 
     public ScriptResolver getScriptResolver() {
-        ScriptResolver scriptResolver =
-                (ScriptResolver) PipeLine.get().getResolver(mPluginName);
+        ScriptResolver scriptResolver = PipeLine.get().getResolver(mPluginName);
         if (scriptResolver == null) {
             Log.e(TAG, "getScriptResolver - Couldn't find associated ScriptResolver!");
         }

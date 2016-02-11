@@ -74,7 +74,7 @@ public class RedirectConfigDialog extends ConfigDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments().containsKey(TomahawkFragment.PREFERENCEID)) {
             String id = getArguments().getString(TomahawkFragment.PREFERENCEID);
-            mScriptResolver = (ScriptResolver) PipeLine.get().getResolver(id);
+            mScriptResolver = PipeLine.get().getResolver(id);
             mAuthenticatorUtils = AuthenticatorManager.get().getAuthenticatorUtils(id);
         }
 
