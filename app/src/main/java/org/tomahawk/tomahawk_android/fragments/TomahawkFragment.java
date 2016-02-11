@@ -113,6 +113,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     public static final String LIST_SCROLL_POSITION = "list_scroll_position";
 
+    public static final String MESSAGE = "message";
+
     protected static final int RESOLVE_QUERIES_REPORTER_MSG = 1336;
 
     protected static final long RESOLVE_QUERIES_REPORTER_DELAY = 100;

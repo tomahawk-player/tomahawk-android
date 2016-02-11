@@ -229,4 +229,6 @@
   <string name="unknown_artist">Unknown artist</string>
   <string name="notification_settings_activity_not_found">Couldn\'t find Settings App on your device. Please give Tomahawk access to your notifications in your System Settings.</string>
   <string name="warn_closed_source_text">Warning: You are about to download a plugin that contains closed-source parts.</string>
+  <string name="warn_old_plugin">The required plugin application is outdated and no longer compatible. Do you want to update it now?</string>
+  <string name="warn_no_plugin">The required plugin application is no longer installed. Do you want to install it now?</string>
 </resources>

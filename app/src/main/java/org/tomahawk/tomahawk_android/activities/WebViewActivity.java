@@ -53,13 +53,13 @@ public class WebViewActivity extends Activity {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
                 if (url.startsWith("tomahawkspotifyresolver")) {
-                    ScriptResolver urlHandler = (ScriptResolver)
+                    ScriptResolver urlHandler =
                             PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
                     urlHandler.onRedirectCallback(url);
                     finish();
                     return true;
                 } else if (url.startsWith("tomahawkdeezerresolver")) {
-                    ScriptResolver urlHandler = (ScriptResolver)
+                    ScriptResolver urlHandler =
                             PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_DEEZER);
                     urlHandler.onRedirectCallback(url);
                     finish();

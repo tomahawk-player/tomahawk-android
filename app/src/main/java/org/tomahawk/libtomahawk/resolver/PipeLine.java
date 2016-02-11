@@ -88,6 +88,8 @@ public class PipeLine {
 
     public static class ResolversChangedEvent {
 
+        public ScriptResolver mScriptResolver;
+
         public boolean mManuallyAdded;
 
     }
@@ -98,8 +100,8 @@ public class PipeLine {
     private final Set<ScriptAccount> mManualScriptAccounts =
             Collections.newSetFromMap(new ConcurrentHashMap<ScriptAccount, Boolean>());
 
-    private final Set<Resolver> mResolvers =
-            Collections.newSetFromMap(new ConcurrentHashMap<Resolver, Boolean>());
+    private final Set<ScriptResolver> mResolvers =
+            Collections.newSetFromMap(new ConcurrentHashMap<ScriptResolver, Boolean>());
 
     private final Set<String> mWaitingUrlLookups =
             Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
@@ -185,6 +187,7 @@ public class PipeLine {
             mInitializingResolvers.add(resolver);
         }
         ResolversChangedEvent event = new ResolversChangedEvent();
+        event.mScriptResolver = resolver;
         event.mManuallyAdded = mManualScriptAccounts.contains(resolver.getScriptAccount());
         EventBus.getDefault().post(event);
     }
@@ -195,10 +198,10 @@ public class PipeLine {
     }
 
     /**
-     * Get the {@link Resolver} with the given id, null if not found
+     * Get the {@link ScriptResolver} with the given id, null if not found
      */
-    public Resolver getResolver(String id) {
-        for (Resolver resolver : mResolvers) {
+    public ScriptResolver getResolver(String id) {
+        for (ScriptResolver resolver : mResolvers) {
             if (resolver.getId().equals(id)) {
                 return resolver;
             }

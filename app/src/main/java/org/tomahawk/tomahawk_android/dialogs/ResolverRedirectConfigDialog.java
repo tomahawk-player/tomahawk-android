@@ -30,8 +30,6 @@ import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -55,7 +53,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         @Override
         public void onClick(View v) {
             startLoadingAnimation();
-            if (isPluginInstalled()) {
+            if (VariousUtils.isPluginUpToDate(mScriptResolver.getId())) {
                 if (mScriptResolver.isEnabled()) {
                     mScriptResolver.logout();
                 } else {
@@ -97,7 +95,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         if (getArguments() != null && getArguments().containsKey(TomahawkFragment.PREFERENCEID)) {
             String id = getArguments().getString(TomahawkFragment.PREFERENCEID);
-            mScriptResolver = (ScriptResolver) PipeLine.get().getResolver(id);
+            mScriptResolver = PipeLine.get().getResolver(id);
         }
 
         TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
@@ -120,7 +118,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                 .findViewById(R.id.config_redirect_button_text);
         mRedirectButtonTextView.setTextColor(buttonTextColor);
 
-        if (isPluginInstalled()) {
+        if (VariousUtils.isPluginUpToDate(mScriptResolver.getId())) {
             mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
                     ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                     : getString(R.string.resolver_config_redirect_button_text_log_into));
@@ -149,7 +147,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         super.onResume();
 
         if (mScriptResolver != null) {
-            if (isPluginInstalled()) {
+            if (VariousUtils.isPluginUpToDate(mScriptResolver.getId())) {
                 mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
                         ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                         : getString(R.string.resolver_config_redirect_button_text_log_into));
@@ -189,33 +187,5 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
 
     @Override
     protected void onNegativeAction() {
-    }
-
-    private boolean isPluginInstalled() {
-        String pluginPackageName = "";
-        int pluginMinVersionCode = 0;
-        switch (mScriptResolver.getId()) {
-            case TomahawkApp.PLUGINNAME_SPOTIFY:
-                pluginPackageName = SpotifyMediaPlayer.PACKAGE_NAME;
-                pluginMinVersionCode = SpotifyMediaPlayer.MIN_VERSION;
-                break;
-            case TomahawkApp.PLUGINNAME_DEEZER:
-                pluginPackageName = DeezerMediaPlayer.PACKAGE_NAME;
-                pluginMinVersionCode = DeezerMediaPlayer.MIN_VERSION;
-                break;
-        }
-        try {
-            PackageInfo info = getActivity().getPackageManager()
-                    .getPackageInfo(pluginPackageName, PackageManager.GET_SERVICES);
-            // Remove the first digit that identifies the architecture type
-            String versionCodeString = String.valueOf(info.versionCode);
-            versionCodeString = versionCodeString.substring(1, versionCodeString.length());
-            int versionCode = Integer.valueOf(versionCodeString);
-            if (versionCode >= pluginMinVersionCode) {
-                return true;
-            }
-        } catch (PackageManager.NameNotFoundException ignored) {
-        }
-        return false;
     }
 }
