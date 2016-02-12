@@ -134,6 +134,12 @@ public class PlaybackService extends Service {
 
     private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 1;
 
+    private static final int DELAY_SCROBBLE = 15000;
+
+    private static final int DELAY_UNBIND_PLUGINSERVICES = 1800000;
+
+    private static final int DELAY_SUICIDE = 1800000;
+
     public static class PlayingTrackChangedEvent {
 
     }
@@ -415,10 +421,10 @@ public class PlaybackService extends Service {
     private SuicideHandler mSuicideHandler = new SuicideHandler(this);
 
     // Stops this service if it doesn't have any bound services
-    private static class SuicideHandler extends KillTimerHandler {
+    private static class SuicideHandler extends DelayedHandler {
 
         public SuicideHandler(PlaybackService service) {
-            super(service, 1800000);
+            super(service, DELAY_SUICIDE);
         }
 
         @Override
@@ -432,10 +438,10 @@ public class PlaybackService extends Service {
 
     private PluginServiceKillHandler mPluginServiceKillHandler = new PluginServiceKillHandler(this);
 
-    private static class PluginServiceKillHandler extends KillTimerHandler {
+    private static class PluginServiceKillHandler extends DelayedHandler {
 
         public PluginServiceKillHandler(PlaybackService service) {
-            super(service, 1800000);
+            super(service, DELAY_UNBIND_PLUGINSERVICES);
         }
 
         @Override
@@ -455,25 +461,61 @@ public class PlaybackService extends Service {
         }
     }
 
-    private static abstract class KillTimerHandler extends WeakReferenceHandler<PlaybackService> {
+    private ScrobbleHandler mScrobbleHandler = new ScrobbleHandler(this);
 
-        private int mDelayToKill;
+    private static class ScrobbleHandler extends DelayedHandler {
 
-        public KillTimerHandler(PlaybackService referencedObject, int delayToKill) {
+        public ScrobbleHandler(PlaybackService service) {
+            super(service, DELAY_SCROBBLE);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            if (getReferencedObject() != null) {
+                Log.d(TAG, "Scrobbling delay has passed. Scrobbling...");
+                InfoSystem.get().sendNowPlayingPostStruct(
+                        AuthenticatorManager.get().getAuthenticatorUtils(
+                                TomahawkApp.PLUGINNAME_HATCHET),
+                        getReferencedObject().getCurrentQuery()
+                );
+            }
+        }
+    }
+
+    private static abstract class DelayedHandler extends WeakReferenceHandler<PlaybackService> {
+
+        private int mDelay;
+
+        private long mStartingTime = 0L;
+
+        private int mDelayReduction = 0;
+
+        public DelayedHandler(PlaybackService referencedObject, int delay) {
             super(referencedObject);
 
-            mDelayToKill = delayToKill;
+            mDelay = delay;
         }
 
         public abstract void handleMessage(Message msg);
 
+        public void reset() {
+            mDelayReduction = 0;
+        }
+
         public void start() {
-            removeCallbacksAndMessages(null);
-            Message message = obtainMessage();
-            sendMessageDelayed(message, mDelayToKill);
+            if (mDelay - mDelayReduction > 0) {
+                mStartingTime = System.currentTimeMillis();
+                removeCallbacksAndMessages(null);
+                Message message = obtainMessage();
+                sendMessageDelayed(message, mDelay - mDelayReduction);
+            }
         }
 
         public void stop() {
+            int delayReduction = (int) (System.currentTimeMillis() - mStartingTime);
+            if (delayReduction > 0) {
+                mDelayReduction += delayReduction;
+            }
             removeCallbacksAndMessages(null);
         }
     }
@@ -497,13 +539,8 @@ public class PlaybackService extends Service {
                 }
                 if (allPlayersReleased) {
                     prepareCurrentQuery();
-                } else if (isPlaying()) {
-                    InfoSystem.get().sendNowPlayingPostStruct(
-                            AuthenticatorManager.get().getAuthenticatorUtils(
-                                    TomahawkApp.PLUGINNAME_HATCHET),
-                            getCurrentQuery()
-                    );
                 }
+                mScrobbleHandler.reset();
                 handlePlayState();
             } else {
                 String queryInfo;
@@ -743,6 +780,7 @@ public class PlaybackService extends Service {
         if (getCurrentQuery() != null) {
             mSuicideHandler.stop();
             mPluginServiceKillHandler.stop();
+            mScrobbleHandler.start();
             mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
             EventBus.getDefault().post(new PlayStateChangedEvent());
             handlePlayState();
@@ -770,6 +808,7 @@ public class PlaybackService extends Service {
         Log.d(TAG, "pause, dismissing Notification:" + dismissNotificationOnPause);
         mSuicideHandler.start();
         mPluginServiceKillHandler.start();
+        mScrobbleHandler.stop();
         mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
         EventBus.getDefault().post(new PlayStateChangedEvent());
         handlePlayState();
