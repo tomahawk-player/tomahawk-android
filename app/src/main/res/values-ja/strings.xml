@@ -216,4 +216,7 @@
   <string name="unknown_album">不明なアルバム</string>
   <string name="unknown_artist">不明なアーティスト</string>
   <string name="notification_settings_activity_not_found">お使いのデバイスで設定アプリを見つけることができませんでした。システム設定で Tomahawk に通知へのアクセス権を与えてください。</string>
+  <string name="warn_closed_source_text">警告: クローズドソースのパーツが含まれたプラグインをダウンロードしようとしています。</string>
+  <string name="warn_old_plugin">必要なプラグイン アプリケーションが古く、もはや互換性がありません。今すぐ、それを更新しますか?</string>
+  <string name="warn_no_plugin">必要なプラグイン アプリケーションがインストールされていません。今すぐインストールしますか?</string>
 </resources>
