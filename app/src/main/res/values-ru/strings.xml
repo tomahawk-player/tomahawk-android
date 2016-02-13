@@ -5,6 +5,7 @@
   <string name="login">Вход</string>
   <string name="logout">Выход</string>
   <string name="register">Регистрация</string>
+  <string name="register_and_login">Зарегистрироваться &amp; Войти</string>
   <string name="rescan">Пересканировать сейчас</string>
   <string name="internal_storage">Внутренняя память</string>
   <string name="tracks">Песни</string>
@@ -13,6 +14,8 @@
   <string name="users">Пользователи</string>
   <string name="top_hits">Top Хитов</string>
   <string name="top_albums">Top Албомы</string>
+  <string name="albums_and_eps">Альбомы и EP</string>
+  <string name="other_releases">Другие версии</string>
   <string name="playlist_details">Информация о Плейлисте</string>
   <string name="album_details">Информация о Альбоме</string>
   <string name="search">Поиск</string>
@@ -23,7 +26,7 @@
   <string name="repeat_off_label">Повтор выключен</string>
   <string name="unknown">Неизвестно</string>
   <string name="no_track">Нет песни</string>
-  <string name="save_playlist">Сохранить в текущий список</string>
+  <string name="save_playlist">Сохранить в текущий плейлист</string>
   <string name="create_playlist">Создать плейлист</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Название</string>
@@ -40,7 +43,9 @@
   <string name="error_simultaneous_streams">Действие не разрешено, аккаунт уже используется.</string>
   <string name="error_account_expired">Ваш аккаунт истёк.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Вошли в %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Вышли из %1$s</string>
   <string name="local_collection_pretty_name">Локальная коллекция</string>
   <string name="local">Локальная</string>
   <string name="all">Все</string>
@@ -82,6 +87,7 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Не любимая</string>
   <string name="context_menu_share">Поделиться</string>
+  <string name="contest_menu_share_error">Вы должны войти в Hatchet, чтобы поделиться этим списком воспроизведения.</string>
   <string name="drawer_title_feed">Фид</string>
   <string name="drawer_title_collection">Коллекция</string>
   <string name="drawer_title_playlists">Плейлисты</string>
@@ -90,6 +96,7 @@
   <string name="drawer_header_cloudcollections">Облачная коллекция</string>
   <string name="collection_dropdown_recently_added">Последняя добавленая</string>
   <string name="collection_dropdown_alpha_artists">Исполнитель от А до Я</string>
+  <string name="collection_dropdown_play_count">Количество воспроизведений</string>
   <string name="collection_dropdown_alpha_albums">Альбом от А до Я</string>
   <string name="collection_dropdown_alpha">От А до Я</string>
   <string name="history">История</string>
@@ -101,8 +108,11 @@
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Читаемые</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Подписаться</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">Рекомендованные люди</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">%1$s подписался</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
@@ -111,6 +121,14 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s от %2$s</string>
+  <string name="time_afewseconds">пару секунд назад</string>
+  <string name="users_playbacklog_suffix">%1$s недавно слушал</string>
+  <string name="users_favorites_suffix">%1$s избранное</string>
+  <string name="users_playlist_suffix">%1$s плейлист</string>
+  <string name="my_playbacklog">Мои недавно прослушанные</string>
+  <string name="my_favorites">Моё избранное</string>
+  <string name="my_playlist">Мой Плейлист</string>
   <string name="music">Музыка</string>
   <string name="biography">Биография</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -124,6 +142,7 @@
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Читаемые</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">Подписчики: %1$d, Подписки: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Войти в</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Выйти из</string>
   <string name="resolver_config_redirect_button_text_download_plugin">Скачать плагин для </string>
@@ -132,10 +151,41 @@
   <string name="button_close">Закрыть</string>
   <string name="view_album">Посмотреть Альбом</string>
   <string name="connect">Соединиться</string>
+  <string name="connect_headertext">Выберите сервисы, которые хотели бы добавить. Tomahawk работает тем лучше, чем больше сервис активировано.</string>
+  <string name="connect_header_manualresolvers">Установлено обычным образом</string>
   <string name="advanced">Расширенные</string>
   <string name="info">Информация</string>
+  <string name="playbackpanel_seek_coachmark">Вы можете перематывать песню долгим нажатием на кнопку Воспроизведения.</string>
+  <string name="slidinglayout_enqueue_coachmark">Нажмите, чтобы добавить песню в очередь.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Потяните вверх, чтобы увидеть текущий плейлист.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Потяните вниз, чтобы закрыть окно воспроизведения.</string>
+  <string name="playbackfragment_navigation_coachmark_center">Смахните налево или направо, чтобы включить следующую или предыдущую песню. Долгое нажатие, чтобы открыть меню. Двойное нажатие, чтобы добавить в избранное.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">Следующая</string>
+  <string name="welcome_fragment_explanation_title">Начиная работу</string>
+  <string name="welcome_fragment_explanation_text">Хватит выискивать музыку по всему интернету - сервисам, которые Вы не используете или к которым не имеете доступа. Лишь по имени или ссылке на песню, альбому или плейлисту, Tomahawk найдёт песню в лучшем качестве и включит её.</string>
+  <string name="welcome_fragment_hatchet_text">С Hatchet Вы, наконец, можете иметь свою музыкальную коллекцию собранную в одном месте. Делитесь списками и любимыми песнями. Или просто синхронизируйте Приложение с Tomahawk на вашем компьютере.</string>
+  <string name="welcome_fragment_setup_title">Подключиться</string>
   <string name="welcome_fragment_done_title">Выполнена</string>
   <string name="welcome_fragment_done_heading">Все задачи выполнены</string>
+  <string name="welcome_fragment_done_text">Весёлого Вам использования нашего приложения и не забудьте сказать, что Вы о нём думаете!</string>
+  <plurals name="add_to_playlist_headertext">
+    <item quantity="one">Выберите плейлист, в который надо добавить %1$d песню:</item>
+    <item quantity="few">Выберите плейлист, в который надо добавить %1$d песни:</item>
+    <item quantity="many">Выберите плейлист, в который надо добавить %1$d песен:</item>
+    <item quantity="other">Выберите плейлист, в который надо добавить %1$d песен:</item>
+  </plurals>
+  <string name="install_plugin_title">Установка плагинов</string>
+  <string name="install_plugin_warning">Вы хотите добавить в Tomahawk плагин из неизвестного источника. Это небезопасно.</string>
+  <string name="install_plugin_warning2">Вы действительно хотите установить этот Плагин?</string>
+  <string name="uninstall_plugin_title">Удалить плагин</string>
+  <string name="uninstall_plugin_warning">Вы действительно хотите удалить этот Плагин?</string>
+  <string name="gmusic_info_text">Выберите аккаунт:</string>
+  <string name="invalid_file">Невозможно открыть файл.</string>
+  <string name="unknown_album">Неизвестный альбом</string>
+  <string name="unknown_artist">Неизвестный исполнитель</string>
+  <string name="notification_settings_activity_not_found">Не найдено Приложение Настроек на вашем девайсе. Пожалуйста, предоставьте Tomahawk доступ к уведомлениям в Системных Настройках.</string>
+  <string name="warn_closed_source_text">Внимание: Вы загрузите плагин с частью закрытого кода.</string>
+  <string name="warn_old_plugin">Требуемые плагин устарел и больше не совместим. Вы хотите обновить его сейчас?</string>
+  <string name="warn_no_plugin">Требуемый плагин не установлен. Вы хотите установить его сейчас?</string>
 </resources>

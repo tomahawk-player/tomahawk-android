@@ -227,4 +227,7 @@
   <string name="unknown_album">Tuntematon albumi</string>
   <string name="unknown_artist">Tuntematon artisti</string>
   <string name="notification_settings_activity_not_found">Laitteeltasi ei löydetty Asetukset-sovellusta. Ole hyvä ja anna järjestelmäasetuksista Tomahawkille pääsy ilmoituksiisi.</string>
+  <string name="warn_closed_source_text">Varoitus: olet lataamassa liitännäistä, jossa on suljetun lähdekoodin osia.</string>
+  <string name="warn_old_plugin">Vaadittu liitännäissovellus on vanhentunut eikä ole enää yhteensopiva. Haluatko päivittää sen nyt?</string>
+  <string name="warn_no_plugin">Vaadittu liitännäissovellus ei ole enää asennettuna. Haluatko asentaa sen nyt?</string>
 </resources>
