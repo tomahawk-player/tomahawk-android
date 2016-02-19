@@ -340,7 +340,7 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     albumpos: Tomahawk.valueForSubNode(song, "track"),
                     //result.year = 0;//valueForSubNode(song, "year");
                     source: this.settings.name,
-                    url: Tomahawk.valueForSubNode(song, "url"),
+                    url: "ampache://track/" + song.getAttribute("id"),
                     //mimetype: valueForSubNode(song, "mime"), //FIXME what's up here? it was there before :\
                     //result.bitrate = valueForSubNode(song, "title");
                     size: Tomahawk.valueForSubNode(song, "size"),
@@ -350,6 +350,26 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
             }
         }
         return results;
+    },
+
+    getStreamUrl: function (params) {
+        var url = params.url;
+
+        var settings = {
+            filter: url.replace("ampache://track/", "")
+        };
+
+        return this._apiCall("song", settings).then(function (xmlDoc) {
+            // check the response
+            var songs = xmlDoc.getElementsByTagName("song");
+            if (songs[0] !== undefined && songs[0].childNodes.length > 0) {
+                return {
+                    url: Tomahawk.valueForSubNode(songs[0], "url")
+                }
+            } else {
+                throw new Error("Wasn't able to get streaming url for song " + settings.filter);
+            }
+        });
     },
 
     resolve: function (params) {
