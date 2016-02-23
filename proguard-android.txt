@@ -138,6 +138,9 @@
 -dontwarn org.apache.regexp.**
 -dontwarn org.apache.commons.codec.binary.**
 -dontwarn java.lang.management.**
+-keep class org.apache.regexp.**
+-keep class org.apache.commons.codec.binary.**
+-keep class java.lang.management.**
 -keep class org.apache.lucene.codecs.Codec
 -keep class * extends org.apache.lucene.codecs.Codec
 -keep class org.apache.lucene.codecs.PostingsFormat
