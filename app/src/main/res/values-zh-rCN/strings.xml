@@ -215,4 +215,8 @@
   <string name="invalid_file">无法打开文件</string>
   <string name="unknown_album">未知专辑</string>
   <string name="unknown_artist">未知艺术家</string>
+  <string name="notification_settings_activity_not_found">无法在你的设备上找到设置应用。请通过系统设置允许 Tomahawk 访问你的通知。</string>
+  <string name="warn_closed_source_text">警告：你即将下载包含闭源组件的插件。</string>
+  <string name="warn_old_plugin">一个必需的插件应用已过期且不再兼容。你希望更新这个插件吗？</string>
+  <string name="warn_no_plugin">一个必需的插件应用未安装。你希望安装这个插件吗？</string>
 </resources>
