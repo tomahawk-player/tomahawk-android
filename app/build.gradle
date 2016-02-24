@@ -89,13 +89,6 @@ android {
             versionName getNewVersionName() + "_armv7a"
             versionCode Integer.parseInt("2$defaultConfig.versionCode")
         }
-        arm {
-            ndk {
-                abiFilter "armeabi"
-            }
-            versionName getNewVersionName() + "_arm"
-            versionCode Integer.parseInt("1$defaultConfig.versionCode")
-        }
     }
 }
 
