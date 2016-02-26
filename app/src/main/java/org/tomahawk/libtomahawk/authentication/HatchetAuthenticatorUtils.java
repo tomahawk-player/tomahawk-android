@@ -217,17 +217,22 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                         } catch (RetrofitError e) {
                             Log.d(TAG,
                                     "register: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            HatchetAuthResponse authResponse = (HatchetAuthResponse)
-                                    e.getBodyAs(HatchetAuthResponse.class);
-                            if (authResponse != null && authResponse.error != null &&
-                                    authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
-                                onLoginFailed(
-                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                                        authResponse.error_description);
-                            } else {
-                                onLoginFailed(
-                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR,
-                                        "");
+                            try {
+                                HatchetAuthResponse authResponse = (HatchetAuthResponse)
+                                        e.getBodyAs(HatchetAuthResponse.class);
+                                if (authResponse != null && authResponse.error != null &&
+                                        authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
+                                    onLoginFailed(
+                                            AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                                            authResponse.error_description);
+                                } else {
+                                    onLoginFailed(
+                                            AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR,
+                                            "");
+                                }
+                            } catch (RuntimeException e1) {
+                                onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                                        "Hatchet authentication error. Sorry, please try again later.");
                             }
                         }
                     }
@@ -256,17 +261,22 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
                             }
                         } catch (RetrofitError e) {
                             Log.d(TAG, "login: " + e.getClass() + ": " + e.getLocalizedMessage());
-                            HatchetAuthResponse authResponse = (HatchetAuthResponse)
-                                    e.getBodyAs(HatchetAuthResponse.class);
-                            if (authResponse != null && authResponse.error != null &&
-                                    authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
-                                onLoginFailed(
-                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_INVALIDCREDS,
-                                        authResponse.error_description);
-                            } else {
-                                onLoginFailed(
-                                        AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR,
-                                        "");
+                            try {
+                                HatchetAuthResponse authResponse = (HatchetAuthResponse)
+                                        e.getBodyAs(HatchetAuthResponse.class);
+                                if (authResponse != null && authResponse.error != null &&
+                                        authResponse.error.equals(RESPONSE_ERROR_INVALID_REQUEST)) {
+                                    onLoginFailed(
+                                            AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_INVALIDCREDS,
+                                            authResponse.error_description);
+                                } else {
+                                    onLoginFailed(
+                                            AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_COMMERROR,
+                                            "");
+                                }
+                            } catch (RuntimeException e1) {
+                                onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                                        "Hatchet authentication error. Sorry, please try again later.");
                             }
                         }
                     }
@@ -425,13 +435,18 @@ public class HatchetAuthenticatorUtils extends AuthenticatorUtils {
             }
         } catch (RetrofitError e) {
             Log.e(TAG, "fetchAccessToken: " + e.getClass() + ": " + e.getLocalizedMessage());
-            HatchetAuthResponse authResponse = (HatchetAuthResponse)
-                    e.getBodyAs(HatchetAuthResponse.class);
-            if (authResponse != null && (authResponse.error != null
-                    || !VariousUtils.containsIgnoreCase(tokenType, authResponse.token_type))) {
-                logout();
+            try {
+                HatchetAuthResponse authResponse = (HatchetAuthResponse)
+                        e.getBodyAs(HatchetAuthResponse.class);
+                if (authResponse != null && (authResponse.error != null
+                        || !VariousUtils.containsIgnoreCase(tokenType, authResponse.token_type))) {
+                    logout();
+                    onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
+                            "Please reenter your Hatchet credentials");
+                }
+            } catch (RuntimeException e1) {
                 onLoginFailed(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                        "Please reenter your Hatchet credentials");
+                        "Hatchet authentication error. Sorry, please try again later.");
             }
         }
         return accessToken;
