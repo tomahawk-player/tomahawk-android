@@ -86,6 +86,7 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">لا أحبّها</string>
   <string name="context_menu_share">شارك</string>
+  <string name="contest_menu_share_error">عليك الولوج إلى Hatchet لتشارك قائمة التّشغيل هذه.</string>
   <string name="drawer_title_feed">التّغذية</string>
   <string name="drawer_title_collection">التّجميعة</string>
   <string name="drawer_title_playlists">قوائم التّشغيل</string>
@@ -265,4 +266,8 @@
   <string name="invalid_file">تعذّر فتح الملفّ.</string>
   <string name="unknown_album">ألبوم مجهول</string>
   <string name="unknown_artist">فنّان مجهول</string>
+  <string name="notification_settings_activity_not_found">تعذّر العثور على تطبيق الإعدادات في جهازك. فضلًا أعطِ توماهوك النّفاذ إلى إخطاراتك في إعدادات النّظام.</string>
+  <string name="warn_closed_source_text">تحذير: أنت على وشك تنزيل ملحقة تحوي أجزاء مغلقة المصدر.</string>
+  <string name="warn_old_plugin">تطبيق الملحقة المطلوب قديم ولم يعد متوافقًا. أتريد التّحديث إليه الآن؟</string>
+  <string name="warn_no_plugin">تطبيق الملحقة المطلوب لم يعد مثبّتًا. أتريد تثبيته الآن؟</string>
 </resources>
