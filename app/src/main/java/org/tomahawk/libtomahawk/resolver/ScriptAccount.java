@@ -41,6 +41,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 
@@ -124,7 +125,12 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
             }
         }
 
+        CookieManager.setAcceptFileSchemeCookies(true);
+
         mWebView = new WebView(TomahawkApp.getContext());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            CookieManager.getInstance().setAcceptThirdPartyCookies(mWebView, true);
+        }
         WebSettings settings = mWebView.getSettings();
         settings.setJavaScriptEnabled(true);
         settings.setDatabaseEnabled(true);
