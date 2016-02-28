@@ -21,26 +21,30 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverConfigUiField;
-import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox;
+import org.tomahawk.tomahawk_android.ui.widgets.ConfigDropDown;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
-import org.tomahawk.tomahawk_android.ui.widgets.ConfigNumberEdittext;
-import org.tomahawk.tomahawk_android.ui.widgets.StringView;
+import org.tomahawk.tomahawk_android.ui.widgets.ConfigFieldView;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.Html;
 import android.text.InputType;
+import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,15 +55,9 @@ public class ResolverConfigDialog extends ConfigDialog {
 
     public final static String TAG = ResolverConfigDialog.class.getSimpleName();
 
-    public static final String PROPERTY_CHECKED = "checked";
-
-    public static final String PROPERTY_TEXT = "text";
-
-    public static final String PROPERTY_VALUE = "value";
-
     private ScriptResolver mScriptResolver;
 
-    private final ArrayList<StringView> mStringViews = new ArrayList<>();
+    private final ArrayList<ConfigFieldView> mConfigFieldViews = new ArrayList<>();
 
     /**
      * Called when this {@link android.support.v4.app.DialogFragment} is being created
@@ -74,34 +72,47 @@ public class ResolverConfigDialog extends ConfigDialog {
 
         EditText showKeyboardEditText = null;
         EditText lastEditText = null;
-        if (mScriptResolver.getConfigUi() != null && mScriptResolver.getConfigUi().fields != null) {
+        if (mScriptResolver.getConfigUi() != null) {
             TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
             headerTextView.setText(mScriptResolver.getDescription());
-            for (ScriptResolverConfigUiField field : mScriptResolver.getConfigUi().fields) {
+            for (ScriptResolverConfigUiField field : mScriptResolver.getConfigUi()) {
                 Map<String, Object> config = mScriptResolver.getConfig();
-                if (PROPERTY_CHECKED.equals(field.property)) {
+                if (ScriptResolverConfigUiField.TYPE_TEXTVIEW.equals(field.type)) {
+                    TextView textView =
+                            (TextView) addScrollingViewToFrame(R.layout.config_textview);
+                    if (field.text.startsWith("<html>")) {
+                        textView.setText(Html.fromHtml(field.text));
+                        textView.setMovementMethod(LinkMovementMethod.getInstance());
+                    } else {
+                        textView.setText(field.text);
+                    }
+                } else if (ScriptResolverConfigUiField.TYPE_CHECKBOX.equals(field.type)) {
                     LinearLayout checkboxLayout =
                             (LinearLayout) addScrollingViewToFrame(R.layout.config_checkbox);
-                    TextView textView = (TextView) checkboxLayout
-                            .findViewById(R.id.config_textview);
-                    textView.setText(field.name);
-                    ConfigCheckbox checkBox = (ConfigCheckbox) checkboxLayout
-                            .findViewById(R.id.config_checkbox);
-                    checkBox.mFieldName = field.name;
-                    mStringViews.add(checkBox);
-                    if (config.get(field.name) != null) {
-                        checkBox.setChecked((Boolean) config.get(field.name));
+                    TextView textView =
+                            (TextView) checkboxLayout.findViewById(R.id.config_textview);
+                    textView.setText(field.label);
+                    ConfigCheckbox checkBox =
+                            (ConfigCheckbox) checkboxLayout.findViewById(R.id.config_checkbox);
+                    checkBox.mConfigFieldId = field.id;
+                    mConfigFieldViews.add(checkBox);
+                    if (config.get(field.id) != null) {
+                        checkBox.setChecked((Boolean) config.get(field.id));
+                    } else {
+                        checkBox.setChecked(Boolean.valueOf(field.defaultValue));
                     }
-                } else if (PROPERTY_TEXT.equals(field.property)) {
+                } else if (ScriptResolverConfigUiField.TYPE_TEXTFIELD.equals(field.type)) {
                     ConfigEdittext editText =
                             (ConfigEdittext) addScrollingViewToFrame(R.layout.config_edittext);
-                    editText.mFieldName = field.name;
-                    editText.setHint(field.name);
-                    mStringViews.add(editText);
-                    if (config.get(field.name) != null) {
-                        editText.setText((String) config.get(field.name));
+                    editText.mConfigFieldId = field.id;
+                    editText.setHint(field.label);
+                    mConfigFieldViews.add(editText);
+                    if (config.get(field.id) != null) {
+                        editText.setText((String) config.get(field.id));
+                    } else {
+                        editText.setText(field.defaultValue);
                     }
-                    if (VariousUtils.containsIgnoreCase(field.name, "password")) {
+                    if (field.isPassword) {
                         editText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
                         editText.setTransformationMethod(new PasswordTransformationMethod());
                     }
@@ -109,24 +120,28 @@ public class ResolverConfigDialog extends ConfigDialog {
                         showKeyboardEditText = editText;
                     }
                     lastEditText = editText;
-                } else if (PROPERTY_VALUE.equals(field.property)) {
+                } else if (ScriptResolverConfigUiField.TYPE_DROPDOWN.equals(field.type)) {
                     LinearLayout numberpickerLayout =
-                            (LinearLayout) addScrollingViewToFrame(R.layout.config_numberpicker);
-                    TextView textView = (TextView) numberpickerLayout
-                            .findViewById(R.id.config_textview);
-                    textView.setText(field.name);
-                    ConfigNumberEdittext editText = (ConfigNumberEdittext) numberpickerLayout
-                            .findViewById(R.id.config_edittext);
-                    editText.mFieldName = field.name;
-                    editText.setHint(field.name);
-                    mStringViews.add(editText);
-                    if (config.get(field.name) != null) {
-                        editText.setText(String.valueOf(config.get(field.name)));
+                            (LinearLayout) addScrollingViewToFrame(R.layout.config_dropdown);
+                    TextView textView =
+                            (TextView) numberpickerLayout.findViewById(R.id.config_textview);
+                    textView.setText(field.label);
+                    ConfigDropDown dropDown =
+                            (ConfigDropDown) numberpickerLayout.findViewById(R.id.config_dropdown);
+                    dropDown.mConfigFieldId = field.id;
+                    mConfigFieldViews.add(dropDown);
+                    List<CharSequence> list = new ArrayList<>();
+                    for (String item : field.items) {
+                        list.add(item);
                     }
-                    if (showKeyboardEditText == null) {
-                        showKeyboardEditText = editText;
+                    ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(
+                            TomahawkApp.getContext(), R.layout.spinner_textview, list);
+                    dropDown.setAdapter(adapter);
+                    if (config.get(field.id) != null) {
+                        dropDown.setSelection(((Double) config.get(field.id)).intValue());
+                    } else {
+                        dropDown.setSelection(Integer.valueOf(field.defaultValue));
                     }
-                    lastEditText = editText;
                 }
             }
         } else {
@@ -157,8 +172,8 @@ public class ResolverConfigDialog extends ConfigDialog {
      */
     public void saveConfig() {
         Map<String, Object> config = mScriptResolver.getConfig();
-        for (StringView stringView : mStringViews) {
-            config.put(stringView.getFieldName(), stringView.getValue());
+        for (ConfigFieldView configFieldView : mConfigFieldViews) {
+            config.put(configFieldView.getConfigFieldId(), configFieldView.getValue());
         }
         mScriptResolver.setConfig(config);
         if (mScriptResolver.isConfigTestable()) {

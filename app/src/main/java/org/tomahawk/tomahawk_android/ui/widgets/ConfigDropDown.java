@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2016, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,9 +17,28 @@
  */
 package org.tomahawk.tomahawk_android.ui.widgets;
 
-public interface StringView {
+import android.content.Context;
+import android.support.v7.widget.AppCompatSpinner;
+import android.util.AttributeSet;
 
-    Object getValue();
+public class ConfigDropDown extends AppCompatSpinner implements ConfigFieldView {
 
-    String getFieldName();
+    public String mConfigFieldId;
+
+    public ConfigDropDown(Context context) {
+        super(context);
+    }
+
+    public ConfigDropDown(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    @Override
+    public Object getValue() {
+        return getSelectedItemPosition();
+    }
+
+    public String getConfigFieldId() {
+        return mConfigFieldId;
+    }
 }

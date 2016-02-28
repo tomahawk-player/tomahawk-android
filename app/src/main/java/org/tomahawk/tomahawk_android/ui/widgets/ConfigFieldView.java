@@ -17,29 +17,9 @@
  */
 package org.tomahawk.tomahawk_android.ui.widgets;
 
-import android.content.Context;
-import android.support.v7.widget.AppCompatEditText;
-import android.util.AttributeSet;
+public interface ConfigFieldView {
 
-public class ConfigNumberEdittext extends AppCompatEditText implements StringView {
+    Object getValue();
 
-    public String mFieldName;
-
-    public ConfigNumberEdittext(Context context) {
-        super(context);
-    }
-
-    public ConfigNumberEdittext(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    @Override
-    public Object getValue() {
-        return Double.valueOf(getText().toString());
-    }
-
-    @Override
-    public String getFieldName() {
-        return mFieldName;
-    }
+    String getConfigFieldId();
 }

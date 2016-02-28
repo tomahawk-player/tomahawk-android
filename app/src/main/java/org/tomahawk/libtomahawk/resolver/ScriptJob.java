@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.utils.GsonHelper;
 
 import android.util.Log;
 
+import java.lang.reflect.Type;
 import java.util.Map;
 
 /**
@@ -83,6 +84,21 @@ public class ScriptJob {
         public abstract void onReportResults(T results);
 
         public Class<T> getType() {
+            return type;
+        }
+    }
+
+    public static abstract class ResultsCollectionCallback implements SuccessCallback {
+
+        private Type type;
+
+        public ResultsCollectionCallback(Type type) {
+            this.type = type;
+        }
+
+        public abstract void onReportResults(Object results);
+
+        public Type getType() {
             return type;
         }
     }

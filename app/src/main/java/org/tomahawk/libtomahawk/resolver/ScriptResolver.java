@@ -19,16 +19,18 @@ package org.tomahawk.libtomahawk.resolver;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonPrimitive;
+import com.google.gson.reflect.TypeToken;
 
 import com.squareup.okhttp.Response;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
-import org.tomahawk.libtomahawk.resolver.models.ScriptResolverConfigUi;
+import org.tomahawk.libtomahawk.resolver.models.ScriptResolverConfigUiField;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverSettings;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverStreamUrlResult;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
+import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -41,8 +43,10 @@ import android.util.Log;
 import android.widget.ImageView;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import de.greenrobot.event.EventBus;
@@ -68,7 +72,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
 
     private int mTimeout;
 
-    private ScriptResolverConfigUi mConfigUi;
+    private List<ScriptResolverConfigUiField> mConfigUi;
 
     private boolean mEnabled;
 
@@ -236,12 +240,13 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
      * This method tries to get the {@link Resolver}'s UserConfig.
      */
     private void resolverGetConfigUi() {
-        ScriptJob.start(mScriptObject, "getConfigUi",
-                new ScriptJob.ResultsCallback<ScriptResolverConfigUi>(
-                        ScriptResolverConfigUi.class) {
+        ScriptJob.start(mScriptObject, "configUi",
+                new ScriptJob.ResultsArrayCallback() {
                     @Override
-                    public void onReportResults(ScriptResolverConfigUi results) {
-                        mConfigUi = results;
+                    public void onReportResults(JsonArray results) {
+                        Type type = new TypeToken<List<ScriptResolverConfigUiField>>() {
+                        }.getType();
+                        mConfigUi = GsonHelper.get().fromJson(results, type);
                     }
                 });
     }
@@ -393,7 +398,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
         return mScriptAccount.getMetaData().description;
     }
 
-    public ScriptResolverConfigUi getConfigUi() {
+    public List<ScriptResolverConfigUiField> getConfigUi() {
         return mConfigUi;
     }
 
