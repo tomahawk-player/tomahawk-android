@@ -27,5 +27,4 @@
           android:layout_marginLeft="@dimen/padding_superlarge"
           android:layout_marginRight="@dimen/padding_superlarge"
           android:textColor="@color/primary_textcolor"
-          android:textSize="@dimen/text_size_small"
-          android:background="@drawable/selectable_background_tomahawk"/>
+          android:textSize="@dimen/text_size_small"/>

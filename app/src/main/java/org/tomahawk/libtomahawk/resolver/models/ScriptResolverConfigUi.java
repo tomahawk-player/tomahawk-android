@@ -18,15 +18,10 @@
 package org.tomahawk.libtomahawk.resolver.models;
 
 import java.util.List;
-import java.util.Map;
 
 public class ScriptResolverConfigUi {
 
-    public String widget;
-
     public List<ScriptResolverConfigUiField> fields;
-
-    public List<Map<String, String>> images;
 
     public ScriptResolverConfigUi() {
     }

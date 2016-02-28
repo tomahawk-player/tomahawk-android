@@ -21,9 +21,9 @@ import android.content.Context;
 import android.support.v7.widget.AppCompatEditText;
 import android.util.AttributeSet;
 
-public class ConfigEdittext extends AppCompatEditText implements StringView {
+public class ConfigEdittext extends AppCompatEditText implements ConfigFieldView {
 
-    public String mFieldName;
+    public String mConfigFieldId;
 
     public ConfigEdittext(Context context) {
         super(context);
@@ -38,8 +38,7 @@ public class ConfigEdittext extends AppCompatEditText implements StringView {
         return getText().toString();
     }
 
-    @Override
-    public String getFieldName() {
-        return mFieldName;
+    public String getConfigFieldId() {
+        return mConfigFieldId;
     }
 }

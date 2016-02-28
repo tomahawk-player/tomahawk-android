@@ -21,9 +21,9 @@ import android.content.Context;
 import android.support.v7.widget.AppCompatCheckBox;
 import android.util.AttributeSet;
 
-public class ConfigCheckbox extends AppCompatCheckBox implements StringView {
+public class ConfigCheckbox extends AppCompatCheckBox implements ConfigFieldView {
 
-    public String mFieldName;
+    public String mConfigFieldId;
 
     public ConfigCheckbox(Context context) {
         super(context);
@@ -38,8 +38,7 @@ public class ConfigCheckbox extends AppCompatCheckBox implements StringView {
         return isChecked();
     }
 
-    @Override
-    public String getFieldName() {
-        return mFieldName;
+    public String getConfigFieldId() {
+        return mConfigFieldId;
     }
 }

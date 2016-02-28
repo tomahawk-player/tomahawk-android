@@ -17,13 +17,31 @@
  */
 package org.tomahawk.libtomahawk.resolver.models;
 
+import java.util.List;
+
 public class ScriptResolverConfigUiField {
 
-    public String name;
+    public static final String TYPE_TEXTVIEW = "textview";
 
-    public String widget;
+    public static final String TYPE_TEXTFIELD = "textfield";
 
-    public String property;
+    public static final String TYPE_CHECKBOX = "checkbox";
+
+    public static final String TYPE_DROPDOWN = "dropdown";
+
+    public String id;
+
+    public String type;
+
+    public String text;
+
+    public String label;
+
+    public String defaultValue;
+
+    public boolean isPassword;
+
+    public List<String> items;
 
     public ScriptResolverConfigUiField() {
     }

@@ -2,7 +2,7 @@
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2016, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
               android:layout_marginTop="@dimen/padding_small"
               android:layout_marginBottom="@dimen/padding_small"
               android:layout_marginLeft="@dimen/padding_superlarge"
-              android:layout_marginRight="@dimen/padding_superlarge"
+              android:layout_marginRight="@dimen/padding_verysmall"
               android:background="@drawable/selectable_background_tomahawk">
 
     <TextView
@@ -34,18 +34,15 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_gravity="bottom"
+            android:layout_gravity="center"
             android:singleLine="true"
             android:textColor="@color/primary_textcolor"
             android:textSize="@dimen/text_size_large"/>
 
-    <org.tomahawk.tomahawk_android.ui.widgets.ConfigNumberEdittext
-            android:id="@+id/config_edittext"
-            android:layout_width="0dp"
+    <org.tomahawk.tomahawk_android.ui.widgets.ConfigDropDown
+            android:id="@+id/config_dropdown"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:imeOptions="flagNoExtractUi"
-            android:singleLine="true"
-            android:inputType="number"/>
+            android:layout_gravity="center"/>
 
 </LinearLayout>
