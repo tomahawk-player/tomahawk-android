@@ -1,9 +1,9 @@
 {
     "name": "Beets",
     "pluginName": "beets",
-    "author": "Adrian, Uwe and Enno",
+    "author": "Adrian, Uwe, Enno and Dominik",
     "email": "uwelk@xhochy.com",
-    "version": "0.6.1",
+    "version": "0.6.3",
     "website": "http://gettomahawk.com",
     "description": "Connects to a beets server and resolves tracks.",
     "type": "resolver/javascript",

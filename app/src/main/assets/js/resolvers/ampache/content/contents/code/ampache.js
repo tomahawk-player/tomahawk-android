@@ -59,6 +59,29 @@ var AmpacheResolver = Tomahawk.extend(Tomahawk.Resolver, {
         };
     },
 
+    /**
+     * Defines this Resolver's config dialog UI.
+     */
+    configUi: [
+        {
+            id: "server",
+            type: "textfield",
+            label: "Server URL",
+            defaultValue: "http://localhost/ampache"
+        },
+        {
+            id: "username",
+            type: "textfield",
+            label: "Username"
+        },
+        {
+            id: "password",
+            type: "textfield",
+            label: "Password",
+            isPassword: true
+        }
+    ],
+
     newConfigSaved: function (newConfig) {
         if ((newConfig.username != this.username) || (newConfig.password != this.password)
             || (newConfig.server != this.server)) {

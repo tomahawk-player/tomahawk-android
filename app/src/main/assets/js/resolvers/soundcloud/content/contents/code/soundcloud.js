@@ -64,6 +64,27 @@ var SoundcloudResolver = Tomahawk.extend(Tomahawk.Resolver, {
         };
     },
 
+    /**
+     * Defines this Resolver's config dialog UI.
+     */
+    configUi: [
+        {
+            id: "includeCovers",
+            type: "checkbox",
+            label: "Include cover versions"
+        },
+        {
+            id: "includeRemixes",
+            type: "checkbox",
+            label: "Include remix versions"
+        },
+        {
+            id: "includeLive",
+            type: "checkbox",
+            label: "Include live versions"
+        }
+    ],
+
     newConfigSaved: function (newConfig) {
         this.includeCovers = newConfig.includeCovers;
         this.includeRemixes = newConfig.includeRemixes;
@@ -86,7 +107,7 @@ var SoundcloudResolver = Tomahawk.extend(Tomahawk.Resolver, {
             this.includeLive = false;
         }
 
-        Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
+        Tomahawk.PluginManager.registerPlugin("linkParser", this);
     },
 
     _isValidTrack: function (trackTitle, origTitle) {

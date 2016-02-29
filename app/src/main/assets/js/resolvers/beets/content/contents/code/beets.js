@@ -50,6 +50,29 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
         };
     },
 
+    /**
+     * Defines this Resolver's config dialog UI.
+     */
+    configUi: [
+        {
+            id: "server",
+            type: "textfield",
+            label: "Server URL",
+            defaultValue: "http://localhost:8337/"
+        },
+        {
+            id: "username",
+            type: "textfield",
+            label: "Username"
+        },
+        {
+            id: "password",
+            type: "textfield",
+            label: "Password",
+            isPassword: true
+        }
+    ],
+
     newConfigSaved: function (newConfig) {
         Tomahawk.log("Invalidating cache");
         var that = this;
@@ -68,11 +91,15 @@ var BeetsResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 // couldn't find a proper protocol, so we default to "http://"
                 config.server = "http://" + config.server;
             }
-            var url = new URL(config.server);
-            if (!url.port) {
-                url.port = 8337;
+
+            // qtwebkit doesn't support toString() or href on URLs
+            if(URL.prototype.hasOwnProperty('toString')) {
+                var url = new URL(config.server);
+                if (!url.port) {
+                    url.port = 8337;
+                }
+                config.server = url.toString();
             }
-            config.server = url.toString();
         }
 
         return config;

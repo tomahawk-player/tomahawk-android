@@ -72,6 +72,38 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         };
     },
 
+    /**
+     * Defines this Resolver's config dialog UI.
+     */
+    configUi: [
+        {
+            type: "textview",
+            text: "For this plug-in to work you must first login using the official Google Music "
+            + "iOS or Android app and play a song. After you've done that Tomahawk should then be "
+            + "able to authenticate with your account."
+        },
+        {
+            type: "textview",
+            text: "<html>Note: If you use 2-Step Verification, then you must create an "
+            + "<a href=\"https://support.google.com/accounts/answer/185833?hl=en\">app-specific "
+            + "password</a> to use in Tomahawk. Otherwise, make sure that you enable "
+            + "\"less secure apps\" in your "
+            + "<a href=\"https://www.google.com/settings/security/lesssecureapps\">Google account "
+            + "settings</a></html>"
+        },
+        {
+            id: "email",
+            type: "textfield",
+            label: "E-Mail"
+        },
+        {
+            id: "password",
+            type: "textfield",
+            label: "Password",
+            isPassword: true
+        }
+    ],
+
     newConfigSaved: function (newConfig) {
         if (this._email !== newConfig.email
             || this._password !== newConfig.password
@@ -89,7 +121,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var name = this.settings.name;
         var config = this.getUserConfig();
         if (!config.email || (!config.token && !config.password)) {
-            Tomahawk.reportCapabilities(TomahawkResolverCapability.NullCapability);
+            Tomahawk.PluginManager.unregisterPlugin("collection", gmusicCollection);
             Tomahawk.log(name + " resolver not configured.");
             return;
         }
@@ -348,11 +380,11 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
             if (album) {
                 query += ' - ' + album;
             }
-            query += ' - ' + title;
-            Tomahawk.log("All Access: Resolved track '" + artist + " - " + title + " - "
-                + album + "' for " + (Date.now() - time) + "ms and found "
-                + (resultIds ? resultIds.length : 0) + " track results");
+            query += ' - ' + track;
             return this._execSearchAllAccess(query, 1).then(function (results) {
+                Tomahawk.log("All Access: Resolved track '" + artist + " - " + track + " - "
+                + album + "' for " + (Date.now() - time) + "ms and found "
+                + results.tracks.length + " track results");
                 return results.tracks;
             });
         } else {
@@ -687,6 +719,7 @@ var GMusicResolver = Tomahawk.extend(Tomahawk.Resolver, {
 Tomahawk.resolver.instance = GMusicResolver;
 
 var gmusicCollection = Tomahawk.extend(Tomahawk.Collection, {
+    resolver: GMusicResolver,
     settings: {
         id: "gmusic",
         prettyname: "Google Music",

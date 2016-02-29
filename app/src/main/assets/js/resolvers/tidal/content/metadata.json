@@ -3,7 +3,7 @@
     "pluginName": "tidal",
     "author": "Anton Romanov and Will Stott",
     "email": "",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "website": "http://gettomahawk.com",
     "description": "Streams music from tidal.com (requires subscription)",
     "type": "resolver/javascript",

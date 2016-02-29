@@ -51,6 +51,30 @@ var TidalResolver = Tomahawk.extend(Tomahawk.Resolver, {
         };
     },
 
+    /**
+     * Defines this Resolver's config dialog UI.
+     */
+    configUi: [
+        {
+            id: "email",
+            type: "textfield",
+            label: "E-Mail"
+        },
+        {
+            id: "password",
+            type: "textfield",
+            label: "Password",
+            isPassword: true
+        },
+        {
+            id: "quality",
+            type: "dropdown",
+            label: "Audio quality",
+            items: ["Low", "High", "Lossless"],
+            defaultValue: 2
+        }
+    ],
+
     newConfigSaved: function (newConfig) {
         var changed =
             this._email !== newConfig.email ||
@@ -82,14 +106,14 @@ var TidalResolver = Tomahawk.extend(Tomahawk.Resolver, {
         this._quality = config.quality;
 
         if (!this._email || !this._password) {
-            Tomahawk.reportCapabilities(TomahawkResolverCapability.NullCapability);
+            Tomahawk.PluginManager.unregisterPlugin("linkParser", this);
             //This is being called even for disabled ones
             //throw new Error( "Invalid configuration." );
             Tomahawk.log("Invalid Configuration");
             return;
         }
 
-        Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
+        Tomahawk.PluginManager.registerPlugin("linkParser", this);
 
         this._login(config);
     },
@@ -179,7 +203,7 @@ var TidalResolver = Tomahawk.extend(Tomahawk.Resolver, {
         var album = params.album;
         var track = params.track;
 
-        var query = [artist, album, track].join(' ');
+        var query = [artist, track].join(' ');
 
         return this.search({
             query: query,
