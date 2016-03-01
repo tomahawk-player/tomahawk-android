@@ -27,6 +27,8 @@ public class ScriptInterfaceRequestOptions {
 
     public String data;
 
+    public boolean isTestingConfig;
+
     public ScriptInterfaceRequestOptions() {
     }
 }

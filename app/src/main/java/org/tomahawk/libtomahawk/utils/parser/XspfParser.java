@@ -60,7 +60,7 @@ public class XspfParser {
         String xspfString = null;
         Response response = null;
         try {
-            response = NetworkUtils.httpRequest(null, url, null, null, null, null, true);
+            response = NetworkUtils.httpRequest(null, url, null, null, null, null, true, null);
             xspfString = response.body().string();
         } catch (IOException e) {
             Log.e(TAG, "parse: " + e.getClass() + ": " + e.getLocalizedMessage());
