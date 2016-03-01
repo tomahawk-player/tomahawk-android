@@ -50,7 +50,7 @@ public class UnzipUtils {
                 inputStream = new FileInputStream(zipFilePath.getPath());
             } else if (zipFilePath.getScheme().contains("http")) {
                 response = NetworkUtils.httpRequest("GET", zipFilePath.toString(), null,
-                        null, null, null, true);
+                        null, null, null, true, null);
                 inputStream = response.body().byteStream();
             } else {
                 Log.e(TAG, "unzip - Can't handle URI scheme");

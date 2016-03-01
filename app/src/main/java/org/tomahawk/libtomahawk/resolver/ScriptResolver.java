@@ -323,7 +323,8 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                                     // If headers are given we first have to resolve the url that
                                     // the call is being redirected to
                                     response = NetworkUtils.httpRequest("GET",
-                                            results.url, results.headers, null, null, null, false);
+                                            results.url, results.headers, null, null, null, false,
+                                            null);
                                     event.mUrl = response.header("Location");
                                 } else {
                                     event.mUrl = results.url;

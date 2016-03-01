@@ -133,14 +133,22 @@ public class ScriptInterface {
                     String username = null;
                     String password = null;
                     String data = null;
+                    String cookieContextId = null;
                     if (options != null) {
                         method = options.method;
                         username = options.username;
                         password = options.password;
                         data = options.data;
+                        if (options.isTestingConfig) {
+                            cookieContextId = mScriptAccount.getMetaData().pluginName
+                                    + "_testConfig";
+                        } else {
+                            cookieContextId = mScriptAccount.getMetaData().pluginName;
+                        }
                     }
                     response = NetworkUtils.httpRequest(
-                            method, url, extraHeaders, username, password, data, true);
+                            method, url, extraHeaders, username, password, data, true,
+                            cookieContextId);
                     String responseText = response.body().string();
                     Map<String, List<String>> responseHeaders = new HashMap<>();
                     for (String headerName : response.headers().names()) {
