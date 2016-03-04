@@ -104,7 +104,7 @@ var DeezerResolver = Tomahawk.extend(Tomahawk.Resolver, {
     },
 
     init: function () {
-        Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
+        Tomahawk.PluginManager.registerPlugin("linkParser", this);
 
         this.accessToken = Tomahawk.localStorage.getItem(this.storageKeyAccessToken);
         this.accessTokenExpires = Tomahawk.localStorage.getItem(this.storageKeyAccessTokenExpires);
