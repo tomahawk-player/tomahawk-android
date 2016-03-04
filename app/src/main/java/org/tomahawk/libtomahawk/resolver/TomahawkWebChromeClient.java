@@ -31,7 +31,12 @@ public class TomahawkWebChromeClient extends WebChromeClient {
 
     @Override
     public boolean onConsoleMessage(@NonNull ConsoleMessage cm) {
-        Log.d(TAG, cm.message() + " -- From line " + cm.lineNumber() + " of " + cm.sourceId());
+        String msg = cm.message() + " -- From line " + cm.lineNumber() + " of " + cm.sourceId();
+        if (cm.messageLevel() == ConsoleMessage.MessageLevel.ERROR) {
+            Log.e(TAG, msg);
+        } else {
+            Log.d(TAG, msg);
+        }
         return true;
     }
 }

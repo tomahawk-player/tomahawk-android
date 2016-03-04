@@ -42,6 +42,8 @@ Tomahawk.apiVersion = "0.2.2";
 //Statuses considered a success for HTTP request
 var httpSuccessStatuses = [200, 201];
 
+Tomahawk.error = console.error;
+
 // install RSVP error handler for uncaught(!) errors
 RSVP.on('error', function (reason) {
     var resolverName = "";
@@ -49,9 +51,9 @@ RSVP.on('error', function (reason) {
         resolverName = Tomahawk.resolver.instance.settings.name + " - ";
     }
     if (reason) {
-        console.error(resolverName + 'Uncaught error:', reason);
+        Tomahawk.error(resolverName + 'Uncaught error:', reason);
     } else {
-        console.error(resolverName + 'Uncaught error: error thrown from RSVP but it was empty');
+        Tomahawk.error(resolverName + 'Uncaught error: error thrown from RSVP but it was empty');
     }
 });
 
@@ -407,11 +409,7 @@ var shouldDoNativeRequest = function (options) {
  */
 var doRequest = function(options) {
     if (shouldDoNativeRequest(options)) {
-        Tomahawk.log("nativeAsyncRequest: " + JSON.stringify(options));
         return Tomahawk.NativeScriptJobManager.invoke('httpRequest', options).then(function(xhr) {
-            Tomahawk.log("nativeAsyncRequestDone: " + JSON.stringify(xhr.responseHeaders) + ", "
-                + JSON.stringify(xhr.status) + ", " + JSON.stringify(xhr.statusText) + ", "
-                + JSON.stringify(xhr.responseText));
             xhr.responseHeaders = xhr.responseHeaders || {};
             xhr.getAllResponseHeaders = function() {
                 return this.responseHeaders;
@@ -1456,9 +1454,7 @@ Tomahawk.Collection = {
             return new RSVP.Promise(function (resolve, reject) {
                 that.cachedDbs[id].changeVersion(that.cachedDbs[id].version, "", null,
                     function (err) {
-                        if (console.error) {
-                            console.error("Error!: %o", err);
-                        }
+                        Tomahawk.error("Error trying to change db version!", err);
                         reject();
                     }, function () {
                         delete that.cachedDbs[id];

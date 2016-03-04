@@ -47,3 +47,22 @@ Tomahawk.Collection.revision = function (params) {
 var encodeParamsToNativeFunctions = function (param) {
     return JSON.stringify(param);
 };
+
+Tomahawk.error = function (msg, obj) {
+    var objString = "";
+    if (obj) {
+        objString = " - " + JSON.stringify(obj);
+    }
+    var error;
+    if (obj instanceof Error) {
+        error = obj;
+    } else {
+        error = new Error('');
+    }
+    var stack = error.stack;
+    stack = stack.split('\n').map(function (line) {
+        return line.trim();
+    });
+    stack = stack.splice(stack[0] == 'Error' ? 2 : 1).join("\n");
+    console.error(msg + objString + "\n" + stack + "\n");
+};
