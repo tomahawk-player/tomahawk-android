@@ -14,19 +14,20 @@
  */
 
 /**
- * This method is externalized from Tomahawk.asyncRequest, so that we can inject our own logic that
- * determines whether or not to do a request natively.
+ * This method is externalized from Tomahawk.asyncRequest, so that other clients
+ * (like tomahawk-android) can inject their own logic that determines whether or not to do a request
+ * natively.
  *
  * @returns boolean indicating whether or not to do a request with the given parameters natively
  */
-shouldDoNativeRequest = function (url, callback, extraHeaders, options) {
+var shouldDoNativeRequest = function (options) {
     return ((options && options.needCookieHeader)
-        || (extraHeaders
-            && (extraHeaders.hasOwnProperty("Referer")
-            || extraHeaders.hasOwnProperty("referer")
-            || extraHeaders.hasOwnProperty("Origin")
-            || extraHeaders.hasOwnProperty("origin")
-            || extraHeaders.hasOwnProperty("User-Agent"))
+        || (options.headers
+            && (options.headers.hasOwnProperty("Referer")
+            || options.headers.hasOwnProperty("referer")
+            || options.headers.hasOwnProperty("Origin")
+            || options.headers.hasOwnProperty("origin")
+            || options.headers.hasOwnProperty("User-Agent"))
         )
     );
 };
@@ -41,4 +42,8 @@ Tomahawk.Collection.wipe = function (params) {
 
 Tomahawk.Collection.revision = function (params) {
     return Tomahawk.NativeScriptJobManager.invoke("collectionRevision", params);
+};
+
+var encodeParamsToNativeFunctions = function (param) {
+    return JSON.stringify(param);
 };

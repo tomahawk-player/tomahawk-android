@@ -363,7 +363,7 @@ public class UserCollection extends DbCollection {
             }
             CollectionDb db = CollectionDbManager.get().getCollectionDb(getId());
             db.wipe();
-            db.addTracks(tracks.toArray(new ScriptResolverTrack[tracks.size()]));
+            db.addTracks(tracks);
             Log.d(TAG, "Processed " + mws.size() + " media items. " + tracks.size()
                     + " tracks have been added to the UserCollection.");
         }

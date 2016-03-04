@@ -19,17 +19,22 @@ package org.tomahawk.libtomahawk.resolver;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+
+import com.squareup.okhttp.Response;
 
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.IOUtils;
 import org.tomahawk.libtomahawk.database.CollectionDb;
 import org.tomahawk.libtomahawk.database.CollectionDbManager;
+import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptCollectionPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptInfoPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptResolverPluginFactory;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
+import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.libtomahawk.utils.StringUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -357,92 +362,137 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         if (object == null) {
             Log.e(TAG, "unregisterScriptPlugin - ScriptAccount:" + mName
                     + ", tried to unregister a plugin that was not registered!");
-        }
-        switch (type) {
-            case ScriptObject.TYPE_RESOLVER:
-                mResolverPluginFactory.unregisterPlugin(object);
-                break;
-            case ScriptObject.TYPE_COLLECTION:
-                mCollectionPluginFactory.unregisterPlugin(object);
-                break;
-            case ScriptObject.TYPE_INFOPLUGIN:
-                mInfoPluginFactory.unregisterPlugin(object);
-                break;
-            default:
-                Log.e(TAG, "unregisterScriptPlugin - ScriptAccount:" + mName
-                        + ", ScriptPlugin type not supported!");
-        }
-    }
-
-    public void nativeAsyncRequestDone(final int requestId, final String responseText,
-            final Map<String, List<String>> responseHeaders, final int status,
-            final String statusText) {
-        final Map<String, String> headers = new HashMap<>();
-        for (String key : responseHeaders.keySet()) {
-            if (key != null) {
-                String concatenatedValues = "";
-                for (int i = 0; i < responseHeaders.get(key).size(); i++) {
-                    if (i > 0) {
-                        concatenatedValues += "\n";
-                    }
-                    concatenatedValues += responseHeaders.get(key).get(i);
-                }
-                headers.put(key, concatenatedValues);
+        } else {
+            switch (type) {
+                case ScriptObject.TYPE_RESOLVER:
+                    mResolverPluginFactory.unregisterPlugin(object);
+                    break;
+                case ScriptObject.TYPE_COLLECTION:
+                    mCollectionPluginFactory.unregisterPlugin(object);
+                    break;
+                case ScriptObject.TYPE_INFOPLUGIN:
+                    mInfoPluginFactory.unregisterPlugin(object);
+                    break;
+                default:
+                    Log.e(TAG, "unregisterScriptPlugin - ScriptAccount:" + mName
+                            + ", ScriptPlugin type not supported!");
             }
         }
-        String headersString = GsonHelper.get().toJson(headers);
-        // We have to encode the %-chars because the Android WebView automatically decodes
-        // percentage-escaped chars ... for whatever reason. Seems likely that this is a bug.
-        String escapedResponseText =
-                StringUtils.escapeJavaScript(responseText).replace("%", "%25");
-        String escapedHeadersString =
-                StringUtils.escapeJavaScript(headersString).replace("%", "%25");
-        String escapedStatusText =
-                StringUtils.escapeJavaScript(statusText).replace("%", "%25");
-        evaluateJavaScript("Tomahawk._nativeAsyncRequestDone(" + requestId + ","
-                + "'" + escapedResponseText + "',"
-                + "'" + escapedHeadersString + "',"
-                + status + ","
-                + "'" + escapedStatusText + "');");
-    }
-
-    public class NativeScriptJobParams {
-
-        String id;
-
-        ScriptResolverTrack[] tracks;
     }
 
     public void invokeNativeScriptJob(int requestId, String methodName, String paramsString) {
         String result = null;
-        NativeScriptJobParams params =
-                GsonHelper.get().fromJson(paramsString, NativeScriptJobParams.class);
-        switch (methodName) {
-            case "collectionAddTracks": {
-                CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(params.id);
-                collectionDb.addTracks(params.tracks);
-                result = collectionDb.getRevision();
-                break;
-            }
-            case "collectionWipe":
-                CollectionDbManager.get().getCollectionDb(params.id).wipe();
-                break;
-            case "collectionRevision": {
-                CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(params.id);
-                result = collectionDb.getRevision();
-                break;
-            }
-            case "collectionInitialized":
-                CollectionDbManager.get().getCollectionDb(params.id).wipe();
-                break;
+        JsonObject params = GsonHelper.get().fromJson(paramsString, JsonObject.class);
+        if (methodName.equals("collectionAddTracks")) {
+            String id = params.get("id").getAsString();
+            List<ScriptResolverTrack> tracks = GsonHelper.get().fromJson(
+                    params.getAsJsonArray("tracks"),
+                    new TypeToken<List<ScriptResolverTrack>>() {
+                    }.getType());
+
+            CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(id);
+            collectionDb.addTracks(tracks);
+
+            result = "'" + collectionDb.getRevision() + "'";
+        } else if (methodName.equals("collectionWipe")) {
+            String id = params.get("id").getAsString();
+
+            CollectionDbManager.get().getCollectionDb(id).wipe();
+        } else if (methodName.equals("collectionRevision")) {
+            String id = params.get("id").getAsString();
+
+            CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(id);
+
+            result = "'" + collectionDb.getRevision() + "'";
+        } else if (methodName.equals("collectionInitialized")) {
+            String id = params.get("id").getAsString();
+
+            CollectionDbManager.get().getCollectionDb(id).wipe();
+        } else if (methodName.equals("httpRequest")) {
+            ScriptInterfaceRequestOptions options =
+                    GsonHelper.get().fromJson(paramsString, ScriptInterfaceRequestOptions.class);
+
+            result = GsonHelper.get().toJson(jsHttpRequest(options));
         }
+
         if (result == null) {
-            evaluateJavaScript("Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult("
-                    + requestId + ");");
+            evaluateJavaScript("Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult( "
+                    + requestId + " );");
         } else {
-            evaluateJavaScript("Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult("
-                    + requestId + ", '" + result + "');");
+            evaluateJavaScript("Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult( "
+                    + requestId + ", " + result + " );");
         }
+    }
+
+    private JsonObject jsHttpRequest(ScriptInterfaceRequestOptions options) {
+        Response response = null;
+        try {
+            String url = null;
+            Map<String, String> headers = null;
+            String method = null;
+            String username = null;
+            String password = null;
+            String data = null;
+            boolean isTestingConfig = false;
+            if (options != null) {
+                url = options.url;
+                headers = options.headers;
+                method = options.method;
+                username = options.username;
+                password = options.password;
+                data = options.data;
+                isTestingConfig = options.isTestingConfig;
+            }
+            java.net.CookieManager cookieManager = getCookieManager(isTestingConfig);
+            response = NetworkUtils.httpRequest(method, url, headers, username, password, data,
+                    true, cookieManager);
+            // We have to encode the %-chars because the Android WebView automatically decodes
+            // percentage-escaped chars ... for whatever reason. Seems likely that this is a bug.
+            String responseText = response.body().string().replace("%", "%25");
+            JsonObject responseHeaders = new JsonObject();
+            for (String headerName : response.headers().names()) {
+                String concatenatedValues = "";
+                for (int i = 0; i < response.headers(headerName).size(); i++) {
+                    if (i > 0) {
+                        concatenatedValues += "\n";
+                    }
+                    concatenatedValues += response.headers(headerName).get(i);
+                }
+                String escapedKey = headerName.toLowerCase().replace("%", "%25");
+                String escapedValue = concatenatedValues.replace("%", "%25");
+                responseHeaders.addProperty(escapedKey, escapedValue);
+            }
+            int status = response.code();
+            String statusText = response.message().replace("%", "%25");
+
+            JsonObject result = new JsonObject();
+            result.addProperty("responseText", responseText);
+            result.add("responseHeaders", responseHeaders);
+            result.addProperty("status", status);
+            result.addProperty("statusText", statusText);
+            return result;
+        } catch (IOException e) {
+            Log.e(TAG, "jsHttpRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+            return null;
+        } finally {
+            if (response != null) {
+                try {
+                    response.body().close();
+                } catch (IOException e) {
+                    Log.e(TAG, "jsHttpRequest: " + e.getClass() + ": " + e.getLocalizedMessage());
+                }
+            }
+        }
+    }
+
+    public java.net.CookieManager getCookieManager(boolean isTestingConfig) {
+        String cookieContextId;
+        if (isTestingConfig) {
+            cookieContextId = mMetaData.pluginName + "_testConfig";
+        } else {
+            cookieContextId = mMetaData.pluginName;
+        }
+        return NetworkUtils.getCookieManager(cookieContextId);
     }
 
 }

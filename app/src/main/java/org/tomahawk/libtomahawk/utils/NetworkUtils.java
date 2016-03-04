@@ -12,7 +12,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.text.TextUtils;
 
 import java.io.IOException;
 import java.net.CookieManager;
@@ -31,7 +30,7 @@ public class NetworkUtils {
 
     private static Map<String, CookieManager> sCookieManagerMap = new ConcurrentHashMap<>();
 
-    private static CookieManager getCookieManager(String cookieContextId) {
+    public static CookieManager getCookieManager(String cookieContextId) {
         if (sCookieManagerMap.containsKey(cookieContextId)) {
             return sCookieManagerMap.get(cookieContextId);
         } else {
@@ -55,15 +54,15 @@ public class NetworkUtils {
      * @param data            the body data included in POST requests (optional)
      * @param followRedirects whether or not to follow redirects (also defines what is being
      *                        returned)
-     * @param cookieContextId an id that defines which cookie store should be used for this request
+     * @param cookieManager   the {@link CookieManager} that should be used for this request
      * @return a HttpURLConnection
      */
     public static Response httpRequest(String method, String urlString,
             Map<String, String> extraHeaders, final String username, final String password,
-            String data, boolean followRedirects, String cookieContextId) throws IOException {
+            String data, boolean followRedirects, CookieManager cookieManager) throws IOException {
         OkHttpClient client = new OkHttpClient();
-        if (!TextUtils.isEmpty(cookieContextId)) {
-            client.setCookieHandler(getCookieManager(cookieContextId));
+        if (cookieManager != null) {
+            client.setCookieHandler(cookieManager);
         }
 
         //Set time-outs

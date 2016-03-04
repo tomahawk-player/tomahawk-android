@@ -17,7 +17,13 @@
  */
 package org.tomahawk.libtomahawk.resolver.models;
 
+import java.util.Map;
+
 public class ScriptInterfaceRequestOptions {
+
+    public String url;
+
+    public Map<String, String> headers;
 
     public String method;
 
