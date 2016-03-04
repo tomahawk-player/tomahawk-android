@@ -172,7 +172,7 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
     },
 
     init: function () {
-        Tomahawk.reportCapabilities(TomahawkResolverCapability.UrlLookup);
+        Tomahawk.PluginManager.registerPlugin("linkParser", this);
     },
 
     getStreamUrl: function (params) {
