@@ -3,25 +3,18 @@ package org.tomahawk.libtomahawk.resolver;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import com.squareup.okhttp.Response;
-
 import org.apache.commons.io.Charsets;
 import org.apache.commons.io.FileUtils;
-import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverData;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
-import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
-import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.JavascriptInterface;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import de.greenrobot.event.EventBus;
@@ -35,26 +28,6 @@ public class ScriptInterface {
     private final static String TAG = ScriptInterface.class.getSimpleName();
 
     private final ScriptAccount mScriptAccount;
-
-    /**
-     * Class to make a callback on the javascript side of this ScriptInterface. The callback is
-     * stored in a map on the js side and can be identified by its callback-id, which is given to
-     * this JsCallback in its constructor.
-     */
-    public class JsCallback {
-
-        private final int mReqId;
-
-        public JsCallback(int reqId) {
-            mReqId = reqId;
-        }
-
-        public void call(String responseText, Map<String, List<String>> responseHeaders, int status,
-                String statusText) {
-            mScriptAccount.nativeAsyncRequestDone(
-                    mReqId, responseText, responseHeaders, status, statusText);
-        }
-    }
 
     ScriptInterface(ScriptAccount scriptAccount) {
         mScriptAccount = scriptAccount;
@@ -105,76 +78,6 @@ public class ScriptInterface {
         // We return an empty string because we don't want the base64 string containing png image
         // data or stuff from config.ui.
         return "";
-    }
-
-    @JavascriptInterface
-    public void nativeAsyncRequestString(final int reqId, final String url,
-            final String stringifiedExtraHeaders, final String stringifiedOptions) {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Response response = null;
-                try {
-                    Map<String, String> extraHeaders = new HashMap<>();
-                    if (!TextUtils.isEmpty(stringifiedExtraHeaders)) {
-                        extraHeaders = GsonHelper.get()
-                                .fromJson(stringifiedExtraHeaders, Map.class);
-                    }
-                    ScriptInterfaceRequestOptions options = null;
-                    if (!TextUtils.isEmpty(stringifiedOptions)) {
-                        options = GsonHelper.get().fromJson(stringifiedOptions,
-                                ScriptInterfaceRequestOptions.class);
-                    }
-                    JsCallback callback = null;
-                    if (reqId >= 0) {
-                        callback = new JsCallback(reqId);
-                    }
-                    String method = null;
-                    String username = null;
-                    String password = null;
-                    String data = null;
-                    String cookieContextId = null;
-                    if (options != null) {
-                        method = options.method;
-                        username = options.username;
-                        password = options.password;
-                        data = options.data;
-                        if (options.isTestingConfig) {
-                            cookieContextId = mScriptAccount.getMetaData().pluginName
-                                    + "_testConfig";
-                        } else {
-                            cookieContextId = mScriptAccount.getMetaData().pluginName;
-                        }
-                    }
-                    response = NetworkUtils.httpRequest(
-                            method, url, extraHeaders, username, password, data, true,
-                            cookieContextId);
-                    String responseText = response.body().string();
-                    Map<String, List<String>> responseHeaders = new HashMap<>();
-                    for (String headerName : response.headers().names()) {
-                        responseHeaders.put(headerName.toLowerCase(), response.headers(headerName));
-                    }
-                    int status = response.code();
-                    String statusText = response.message();
-
-                    if (callback != null) {
-                        callback.call(responseText, responseHeaders, status, statusText);
-                    }
-                } catch (IOException e) {
-                    Log.e(TAG, "nativeAsyncRequestString: " + e.getClass() + ": "
-                            + e.getLocalizedMessage());
-                } finally {
-                    if (response != null) {
-                        try {
-                            response.body().close();
-                        } catch (IOException e) {
-                            Log.e(TAG, "nativeAsyncRequestString: " + e.getClass() + ": "
-                                    + e.getLocalizedMessage());
-                        }
-                    }
-                }
-            }
-        }).start();
     }
 
     @JavascriptInterface
@@ -242,26 +145,6 @@ public class ScriptInterface {
     }
 
     @JavascriptInterface
-    public void onConfigTestResult(int type) {
-        if (mScriptAccount.getScriptResolver() != null) {
-            mScriptAccount.getScriptResolver().onConfigTestResult(type, "");
-        } else {
-            Log.e(TAG, "onConfigTestResult - ScriptResolver not set in ScriptAccount: "
-                    + mScriptAccount.getName());
-        }
-    }
-
-    @JavascriptInterface
-    public void onConfigTestResult(int type, String message) {
-        if (mScriptAccount.getScriptResolver() != null) {
-            mScriptAccount.getScriptResolver().onConfigTestResult(type, message);
-        } else {
-            Log.e(TAG, "onConfigTestResult - ScriptResolver not set in ScriptAccount: "
-                    + mScriptAccount.getName());
-        }
-    }
-
-    @JavascriptInterface
     public void showWebView(String url) {
         TomahawkMainActivity.ShowWebViewEvent event
                 = new TomahawkMainActivity.ShowWebViewEvent();
@@ -270,8 +153,8 @@ public class ScriptInterface {
     }
 
     @JavascriptInterface
-    public void reportScriptJobResultsString(String result) {
-        JsonElement node = GsonHelper.get().fromJson(result, JsonElement.class);
+    public void reportScriptJobResults(String resultsString) {
+        JsonElement node = GsonHelper.get().fromJson(resultsString, JsonElement.class);
         if (node.isJsonObject()) {
             mScriptAccount.reportScriptJobResult((JsonObject) node);
         }

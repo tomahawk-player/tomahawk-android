@@ -273,7 +273,7 @@ public class CollectionDb extends SQLiteOpenHelper {
         return mInitialized;
     }
 
-    public synchronized void addTracks(ScriptResolverTrack[] tracks) {
+    public synchronized void addTracks(List<ScriptResolverTrack> tracks) {
         long time = System.currentTimeMillis();
         mDb.beginTransaction();
 
@@ -409,9 +409,9 @@ public class CollectionDb extends SQLiteOpenHelper {
         mDb.setTransactionSuccessful();
         mDb.endTransaction();
         mInitialized = true;
-        Log.d(TAG, "Added " + tracks.length + " tracks in " + (System.currentTimeMillis() - time)
+        Log.d(TAG, "Added " + tracks.size() + " tracks in " + (System.currentTimeMillis() - time)
                 + "ms");
-        if (tracks.length > 0) {
+        if (tracks.size() > 0) {
             storeNewRevision(String.valueOf(System.currentTimeMillis()), ACTION_ADDTRACKS);
         }
     }

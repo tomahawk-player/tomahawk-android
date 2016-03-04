@@ -49,7 +49,7 @@ RSVP.on('error', function (reason) {
         resolverName = Tomahawk.resolver.instance.settings.name + " - ";
     }
     if (reason) {
-        console.error(resolverName + 'Uncaught error:' + JSON.stringify(reason));
+        console.error(resolverName + 'Uncaught error:', reason);
     } else {
         console.error(resolverName + 'Uncaught error: error thrown from RSVP but it was empty');
     }
@@ -173,7 +173,8 @@ var TomahawkUrlType = {
     Playlist: 1,
     Track: 2,
     Album: 4,
-    Artist: 8
+    Artist: 8,
+    Xspf: 16
 };
 
 //Deprecated for 0.9 resolvers. Use Tomahawk.ConfigTestResultType instead.
@@ -236,7 +237,7 @@ var TomahawkResolver = {
     collection: function () {
         return {};
     },
-    _testConfig: function (config) {
+    _adapter_testConfig: function (config) {
         return RSVP.Promise.resolve(this.testConfig(config)).then(function () {
             return {result: Tomahawk.ConfigTestResultType.Success};
         });
@@ -272,84 +273,41 @@ Tomahawk.Resolver = {
     getStreamUrl: function (params) {
         return params;
     },
-
-    _convertUrls: function (results) {
-        var that = this;
-        return results.map(function (r) {
-            if (r && r.url) {
-                r.url = that._urlProtocol + '://' + r.url;
+    resolve: function() {
+    },
+    _adapter_resolve: function (params) {
+        return RSVP.Promise.resolve(this.resolve(params)).then(function (results) {
+            if(Array.isArray(results)) {
+                return {
+                    'tracks': results
+                };
             }
-            return r;
+
+            return results;
         });
     },
 
-    _adapter_resolve: function (qid, artist, album, title) {
-        var that = this;
-        var collectionPromises = [];
-        Tomahawk.collections.forEach(function (col) {
-            if (col.resolve) {
-                collectionPromises.push(col.resolve({artist: artist, album: album, track: title}));
+    _adapter_search: function (params) {
+        return RSVP.Promise.resolve(this.search(params)).then(function (results) {
+            if(Array.isArray(results)) {
+                return {
+                    'tracks': results
+                };
             }
-        });
-        RSVP.Promise.all(collectionPromises).then(function (collectionResults) {
-            var merged = [];
-            return merged.concat.apply(merged, collectionResults);
-        }).then(function (collectionResults) {
-            RSVP.Promise.resolve(that.resolve({
-                artist: artist,
-                album: album,
-                track: title
-            })).then(function (results) {
-                Tomahawk.addTrackResults({
-                    'qid': qid,
-                    'results': that._convertUrls(results.concat(collectionResults))
-                });
-            });
+
+            return results;
         });
     },
 
-    _adapter_init: function () {
-        this._urlProtocol = this.settings.name.replace(/[^a-zA-Z]/g, '').toLowerCase();
-        Tomahawk.addCustomUrlHandler(this._urlProtocol, '_adapter_getStreamUrl', true);
-        Tomahawk.log('Registered custom url handler for protocol "' + this._urlProtocol + '"');
-        this.init();
-    },
-
-    _adapter_getStreamUrl: function (params) {
-        params.url = params.url.slice(this._urlProtocol.length + 3);
-        RSVP.Promise.resolve(this.getStreamUrl(params)).then(function (result) {
-            Tomahawk.reportStreamUrl(params.qid, result.url, result.headers);
-        });
-    },
-
-    _adapter_search: function (qid, query) {
-        var that = this;
-        var collectionPromises = [];
-        Tomahawk.collections.forEach(function (col) {
-            if (col.search) {
-                collectionPromises.push(col.search({query: query}));
-            }
-        });
-        RSVP.Promise.all(collectionPromises).then(function (collectionResults) {
-            var merged = [];
-            return merged.concat.apply(merged, collectionResults);
-        }).then(function (collectionResults) {
-            RSVP.Promise.resolve(that.search({query: query})).then(function (results) {
-                Tomahawk.addTrackResults({
-                    'qid': qid,
-                    'results': that._convertUrls(results.concat(collectionResults))
-                });
-            });
-        });
-    },
-
-    _testConfig: function (config) {
-        return RSVP.Promise.resolve(this.testConfig(config)).then(function () {
-            return {result: Tomahawk.ConfigTestResultType.Success};
+    _adapter_testConfig: function (config) {
+        return RSVP.Promise.resolve(this.testConfig(config)).then(function (results) {
+            results = results || Tomahawk.ConfigTestResultType.Success;
+            return results;
+        }, function (error) {
+            return error;
         });
     }
 };
-
 
 // help functions
 
@@ -364,34 +322,6 @@ Tomahawk.valueForSubNode = function (node, tag) {
     }
 
     return element.textContent;
-};
-
-/**
- * Do a synchronous HTTP(S) request. For further options see
- * Tomahawk.asyncRequest
- */
-Tomahawk.syncRequest = function (url, extraHeaders, options) {
-    // unpack options
-    var opt = options || {};
-    var method = opt.method || 'GET';
-
-    var xmlHttpRequest = new XMLHttpRequest();
-    xmlHttpRequest.open(method, url, false, opt.username, opt.password);
-    if (extraHeaders) {
-        for (var headerName in extraHeaders) {
-            xmlHttpRequest.setRequestHeader(headerName, extraHeaders[headerName]);
-        }
-    }
-    xmlHttpRequest.send(null);
-    if (httpSuccessStatuses.indexOf(xmlHttpRequest.status) != -1) {
-        return xmlHttpRequest.responseText;
-    } else {
-        Tomahawk.log("Failed to do GET request: to: " + url);
-        Tomahawk.log("Status Code was: " + xmlHttpRequest.status);
-        if (opt.hasOwnProperty('errorHandler')) {
-            opt.errorHandler.call(window, xmlHttpRequest);
-        }
-    }
 };
 
 /**
@@ -450,47 +380,22 @@ Tomahawk.retrievedMetadata = function (metadataId, metadata, error) {
 };
 
 /**
- * Internal counter used to identify asyncRequest callback from native code.
- */
-Tomahawk.asyncRequestIdCounter = 0;
-/**
- * Internal map used to map asyncRequestIds to the respective javascript
- * callback functions.
- */
-Tomahawk.asyncRequestCallbacks = {};
-
-/**
- * Pass the natively retrieved reply back to the javascript callback
- * and augment the fake XMLHttpRequest object.
+ * This method is externalized from Tomahawk.asyncRequest, so that other clients
+ * (like tomahawk-android) can inject their own logic that determines whether or not to do a request
+ * natively.
  *
- * Internal use only!
+ * @returns boolean indicating whether or not to do a request with the given parameters natively
  */
-Tomahawk.nativeAsyncRequestDone = function (reqId, xhr) {
-    // Check that we have a matching callback stored.
-    if (!Tomahawk.asyncRequestCallbacks.hasOwnProperty(reqId)) {
-        return;
-    }
-
-    // Call the real callback
-    if (xhr.readyState == 4 && httpSuccessStatuses.indexOf(xhr.status) != -1) {
-        // Call the real callback
-        if (Tomahawk.asyncRequestCallbacks[reqId].callback) {
-            Tomahawk.asyncRequestCallbacks[reqId].callback(xhr);
-        }
-    } else if (xhr.readyState === 4) {
-        Tomahawk.log("Failed to do nativeAsyncRequest");
-        Tomahawk.log("Status Code was: " + xhr.status);
-        if (Tomahawk.asyncRequestCallbacks[reqId].errorHandler) {
-            Tomahawk.asyncRequestCallbacks[reqId].errorHandler(xhr);
-        }
-    }
-
-    // Callbacks are only used once.
-    delete Tomahawk.asyncRequestCallbacks[reqId];
+var shouldDoNativeRequest = function (options) {
+    var extraHeaders = options.headers;
+    return (extraHeaders && (extraHeaders.hasOwnProperty("Referer")
+        || extraHeaders.hasOwnProperty("referer")
+        || extraHeaders.hasOwnProperty("User-Agent")));
 };
 
 /**
  * Possible options:
+ *  - url: The URL to call
  *  - method: The HTTP request method (default: GET)
  *  - username: The username for HTTP Basic Auth
  *  - password: The password for HTTP Basic Auth
@@ -498,57 +403,47 @@ Tomahawk.nativeAsyncRequestDone = function (reqId, xhr) {
  *  - data: body data included in POST requests
  *  - needCookieHeader: boolean indicating whether or not the request needs to be able to get the
  *                      "Set-Cookie" response header
+ *  - headers: headers set on the request
  */
-Tomahawk.asyncRequest = function (url, callback, extraHeaders, options) {
-    // unpack options
-    var opt = options || {};
-    var method = opt.method || 'GET';
+var doRequest = function(options) {
+    if (shouldDoNativeRequest(options)) {
+        Tomahawk.log("nativeAsyncRequest: " + JSON.stringify(options));
+        return Tomahawk.NativeScriptJobManager.invoke('httpRequest', options).then(function(xhr) {
+            Tomahawk.log("nativeAsyncRequestDone: " + JSON.stringify(xhr.responseHeaders) + ", "
+                + JSON.stringify(xhr.status) + ", " + JSON.stringify(xhr.statusText) + ", "
+                + JSON.stringify(xhr.responseText));
+            xhr.responseHeaders = xhr.responseHeaders || {};
+            xhr.getAllResponseHeaders = function() {
+                return this.responseHeaders;
+            };
+            xhr.getResponseHeader = function (header) {
+                return this.responseHeaders[header.toLowerCase()];
+            };
 
-    if (shouldDoNativeRequest(url, callback, extraHeaders, options)) {
-        // Assign a request Id to the callback so we can use it when we are
-        // returning from the native call.
-        var reqId = Tomahawk.asyncRequestIdCounter;
-        Tomahawk.asyncRequestIdCounter++;
-        Tomahawk.asyncRequestCallbacks[reqId] = {
-            callback: callback,
-            errorHandler: opt.errorHandler
-        };
-        Tomahawk.nativeAsyncRequest(reqId, url, extraHeaders, options);
+            return xhr;
+        });
     } else {
-        var xmlHttpRequest = new XMLHttpRequest();
-        xmlHttpRequest.open(method, url, true, opt.username, opt.password);
-        if (extraHeaders) {
-            for (var headerName in extraHeaders) {
-                xmlHttpRequest.setRequestHeader(headerName, extraHeaders[headerName]);
-            }
-        }
-        xmlHttpRequest.onreadystatechange = function () {
-            if (xmlHttpRequest.readyState == 4
-                && httpSuccessStatuses.indexOf(xmlHttpRequest.status) != -1) {
-                callback.call(window, xmlHttpRequest);
-            } else if (xmlHttpRequest.readyState === 4) {
-                Tomahawk.log("Failed to do " + method + " request: to: " + url);
-                Tomahawk.log("Status Code was: " + xmlHttpRequest.status);
-                if (opt.hasOwnProperty('errorHandler')) {
-                    opt.errorHandler.call(window, xmlHttpRequest);
+        return new RSVP.Promise(function(resolve, reject) {
+            var xmlHttpRequest = new XMLHttpRequest();
+            xmlHttpRequest.open(options.method, options.url, true, options.username, options.password);
+            if (options.headers) {
+                for (var headerName in options.headers) {
+                    xmlHttpRequest.setRequestHeader(headerName, options.headers[headerName]);
                 }
             }
-        };
-        xmlHttpRequest.send(opt.data || null);
+            xmlHttpRequest.onreadystatechange = function () {
+                if (xmlHttpRequest.readyState == 4
+                    && httpSuccessStatuses.indexOf(xmlHttpRequest.status) != -1) {
+                    resolve(xmlHttpRequest);
+                } else if (xmlHttpRequest.readyState === 4) {
+                    Tomahawk.log("Failed to do " + options.method + " request: to: " + options.url);
+                    Tomahawk.log("Status Code was: " + xmlHttpRequest.status);
+                    reject(xmlHttpRequest);
+                }
+            };
+            xmlHttpRequest.send(options.data || null);
+        });
     }
-};
-
-/**
- * This method is externalized from Tomahawk.asyncRequest, so that other clients
- * (like tomahawk-android) can inject their own logic that determines whether or not to do a request
- * natively.
- *
- * @returns boolean indicating whether or not to do a request with the given parameters natively
- */
-var shouldDoNativeRequest = function (url, callback, extraHeaders, options) {
-    return (extraHeaders && (extraHeaders.hasOwnProperty("Referer")
-    || extraHeaders.hasOwnProperty("referer")
-    || extraHeaders.hasOwnProperty("User-Agent")));
 };
 
 Tomahawk.ajax = function (url, settings) {
@@ -608,10 +503,7 @@ Tomahawk.ajax = function (url, settings) {
         }
     }
 
-    return new RSVP.Promise(function (resolve, reject) {
-        settings.errorHandler = reject;
-        Tomahawk.asyncRequest(settings.url, resolve, settings.headers, settings);
-    }).then(function (xhr) {
+    return doRequest(settings).then(function (xhr) {
             if (settings.rawResponse) {
                 return xhr;
             }
@@ -818,6 +710,7 @@ Tomahawk.base64Encode = function (b) {
 };
 
 Tomahawk.PluginManager = {
+    wrapperPrefix: '_adapter_',
     objects: {},
     objectCounter: 0,
     identifyObject: function (object) {
@@ -829,10 +722,6 @@ Tomahawk.PluginManager = {
     },
     registerPlugin: function (type, object) {
         this.objects[this.identifyObject(object)] = object;
-        if (type === 'collection') {
-            Tomahawk.collections.push(object);
-        }
-
         Tomahawk.log("registerPlugin: " + type + " id: " + object.id);
         Tomahawk.registerScriptPlugin(type, object.id);
     },
@@ -846,15 +735,10 @@ Tomahawk.PluginManager = {
 
     resolve: [],
     invokeSync: function (requestId, objectId, methodName, params) {
-        if (!Tomahawk.resolver.instance.apiVersion || Tomahawk.resolver.instance.apiVersion < 0.9) {
-            if (methodName === 'artistAlbums') {
-                methodName = 'albums';
-            } else if (methodName === 'albumTracks') {
-                methodName = 'tracks';
-            }
+        if (this.objects[objectId][this.wrapperPrefix + methodName]) {
+            methodName = this.wrapperPrefix + methodName;
         }
 
-        var pluginManager = this;
         if (!this.objects[objectId]) {
             Tomahawk.log("Object not found! objectId: " + objectId + " methodName: " + methodName);
         } else {
@@ -863,85 +747,64 @@ Tomahawk.PluginManager = {
             }
         }
 
-        if (typeof this.objects[objectId][methodName] === 'function') {
-            if (!Tomahawk.resolver.instance.apiVersion
-                || Tomahawk.resolver.instance.apiVersion < 0.9) {
-                if (methodName == 'artists') {
-                    return new RSVP.Promise(function (resolve, reject) {
-                        pluginManager.resolve[requestId] = resolve;
-                        Tomahawk.resolver.instance.artists(requestId);
-                    });
-                } else if (methodName == 'albums') {
-                    return new RSVP.Promise(function (resolve, reject) {
-                        pluginManager.resolve[requestId] = resolve;
-                        Tomahawk.resolver.instance.albums(requestId, params.artist);
-                    });
-                } else if (methodName == 'tracks') {
-                    return new RSVP.Promise(function (resolve, reject) {
-                        pluginManager.resolve[requestId] = resolve;
-                        Tomahawk.resolver.instance.tracks(requestId, params.artist, params.album);
-                    });
-                } else if (methodName == 'lookupUrl') {
-                    return new RSVP.Promise(function (resolve, reject) {
-                        pluginManager.resolve[params.url] = resolve;
-                        Tomahawk.resolver.instance.lookupUrl(params.url);
-                    });
-                } else if (methodName == 'getStreamUrl') {
-                    return new RSVP.Promise(function (resolve, reject) {
-                        pluginManager.resolve[requestId] = resolve;
-                        Tomahawk.resolver.instance.getStreamUrl(requestId, params.url);
-                    });
-                } else if (methodName == 'resolve') {
-                    return new RSVP.Promise(function (resolve, reject) {
-                        pluginManager.resolve[requestId] = resolve;
-                        Tomahawk.resolver.instance.resolve(requestId, params.artist,
-                            params.album, params.track);
-                    });
-                } else if (methodName == 'search') {
-                    return new RSVP.Promise(function (resolve, reject) {
-                        pluginManager.resolve[requestId] = resolve;
-                        Tomahawk.resolver.instance.search(requestId, params.query);
-                    });
-                }
-            }
-
-            return this.objects[objectId][methodName](params);
+        if (typeof this.objects[objectId][methodName] !== 'function' && this.objects[objectId][methodName]) {
+            return this.objects[objectId][methodName];
+        } else if (typeof this.objects[objectId][methodName] !== 'function') {
+            throw new Error('\'' + methodName + '\' on ScriptObject ' + objectId + ' is not a function', typeof this.objects[objectId][methodName]);
         }
 
-        return this.objects[objectId][methodName];
+        return this.objects[objectId][methodName](params);
     },
 
     invoke: function (requestId, objectId, methodName, params) {
         RSVP.Promise.resolve(this.invokeSync(requestId, objectId, methodName, params))
             .then(function (result) {
-                Tomahawk.reportScriptJobResults({
+                var params = {
                     requestId: requestId,
                     data: result
-                });
+                };
+                Tomahawk.reportScriptJobResults(encodeParamsToNativeFunctions(params));
             }, function (error) {
-                Tomahawk.reportScriptJobResults({
+                var params = {
                     requestId: requestId,
                     error: error
-                });
+                };
+                Tomahawk.reportScriptJobResults(encodeParamsToNativeFunctions(params));
             });
     }
+};
+
+var encodeParamsToNativeFunctions = function(param) {
+    return param;
 };
 
 Tomahawk.NativeScriptJobManager = {
     idCounter: 0,
     deferreds: {},
     invoke: function (methodName, params) {
+        params = params || {};
+
         var requestId = this.idCounter++;
-        Tomahawk.invokeNativeScriptJob(requestId, methodName, JSON.stringify(params));
-        this.deferreds[requestId] = RSVP.defer();
-        return this.deferreds[requestId].promise;
+        var deferred = RSVP.defer();
+        this.deferreds[requestId] = deferred;
+        Tomahawk.invokeNativeScriptJob(requestId, methodName, encodeParamsToNativeFunctions(params));
+        return deferred.promise;
     },
-    reportNativeScriptJobResult: function (requestId, result) {
+    reportNativeScriptJobResult: function(requestId, result) {
         var deferred = this.deferreds[requestId];
         if (!deferred) {
             Tomahawk.log("Deferred object with the given requestId is not present!");
         }
         deferred.resolve(result);
+        delete this.deferreds[requestId];
+    },
+    reportNativeScriptJobError: function(requestId, error) {
+        var deferred = this.deferreds[requestId];
+        if (!deferred) {
+            console.log("Deferred object with the given requestId is not present!");
+        }
+        deferred.reject(error);
+        delete this.deferreds[requestId];
     }
 };
 
@@ -1214,8 +1077,6 @@ Tomahawk.Country = {
     SaintMartin: 245,
     LatinAmericaAndTheCaribbean: 246
 };
-
-Tomahawk.collections = [];
 
 Tomahawk.Collection = {
     BrowseCapability: {
@@ -1664,6 +1525,14 @@ Tomahawk.Collection = {
         });
     },
 
+    _adapter_resolve: function (params) {
+        return RSVP.Promise.resolve(this.resolve(params)).then(function (results) {
+            return {
+                'tracks': results
+            };
+        });
+    },
+
     resolve: function (params) {
         var resultIds = Tomahawk.resolveFromFuzzyIndex(params.artist, params.album, params.track);
         return this._fuzzyIndexIdsToTracks(resultIds);
@@ -1671,7 +1540,12 @@ Tomahawk.Collection = {
 
     search: function (params) {
         var resultIds = Tomahawk.searchFuzzyIndex(params.query);
-        return this._fuzzyIndexIdsToTracks(resultIds);
+
+        return this._fuzzyIndexIdsToTracks(resultIds).then(function(tracks) {
+            return {
+                tracks: tracks
+            };
+        });
     },
 
     tracks: function (params, where) {
@@ -1715,7 +1589,7 @@ Tomahawk.Collection = {
             );
             return t.execDeferredStatements();
         }).then(function (results) {
-            return {results: Tomahawk.resolver.instance._convertUrls(results[0])};
+            return {tracks: results[0]};
         });
     },
 
@@ -1889,71 +1763,13 @@ Tomahawk.Collection = {
             Tomahawk.Collection.BrowseCapability.Albums,
             Tomahawk.Collection.BrowseCapability.Tracks];
         return this.settings;
+    },
+
+    getStreamUrl: function(params) {
+        if(this.resolver) {
+          return this.resolver.getStreamUrl(params);
+        }
+
+        return params;
     }
-};
-
-// Legacy compability for 0.8 and before
-Tomahawk.reportCapabilities = function (capabilities) {
-    if (capabilities & TomahawkResolverCapability.Browsable) {
-        Tomahawk.PluginManager.registerPlugin("collection", Tomahawk.resolver.instance);
-    }
-
-    Tomahawk.nativeReportCapabilities(capabilities);
-};
-
-Tomahawk.addArtistResults = Tomahawk.addAlbumResults = Tomahawk.addAlbumTrackResults
-    = function (result) {
-    Tomahawk.PluginManager.resolve[result.qid](result);
-    delete Tomahawk.PluginManager.resolve[result.qid];
-};
-
-Tomahawk.addTrackResults = function (result) {
-    Tomahawk.PluginManager.resolve[result.qid](result.results);
-    delete Tomahawk.PluginManager.resolve[result.qid];
-};
-
-Tomahawk.reportStreamUrl = function (qid, streamUrl, headers) {
-    Tomahawk.PluginManager.resolve[qid]({
-        url: streamUrl,
-        headers: headers
-    });
-    delete Tomahawk.PluginManager.resolve[qid];
-};
-
-Tomahawk.addUrlResult = function (url, result) {
-    /* Merge the whole mess into one consistent result which is independent of type
-     var cleanResult = {
-     type: result.type,
-     guid: result.guid,
-     info: result.info,
-     creator: result.creator,
-     linkUrl: result.url
-     };
-     if (cleanResult.type == "track") {
-     cleanResult.track = result.title;
-     cleanResult.artist = result.artist;
-     } else if (cleanResult.type == "artist") {
-     cleanResult.artist = result.name;
-     } else if (cleanResult.type == "album") {
-     cleanResult.album = result.name;
-     cleanResult.artist = result.artist;
-     } else if (cleanResult.type == "playlist") {
-     cleanResult.title = result.title;
-     } else if (cleanResult.type == "xspf-url") {
-     cleanResult.url = result.url;
-     }
-     if (result.tracks) {
-     cleanResult.tracks = [];
-     var i;
-     for (i=0;i<result.tracks.length;i++) {
-     var cleanTrack = {
-     track: result.tracks[i].title,
-     artist: result.tracks[i].artist
-     };
-     cleanResult.push(cleanTrack)
-     }
-     Tomahawk.PluginManager.resolve[url](cleanResult);
-     */
-    Tomahawk.PluginManager.resolve[url](result);
-    delete Tomahawk.PluginManager.resolve[url];
 };

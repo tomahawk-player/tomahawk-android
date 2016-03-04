@@ -18,6 +18,7 @@
 package org.tomahawk.libtomahawk.resolver;
 
 import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.reflect.TypeToken;
 
@@ -281,11 +282,12 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
             mTimeOutHandler.removeCallbacksAndMessages(null);
             mTimeOutHandler.sendEmptyMessageDelayed(TIMEOUT_HANDLER_MSG, mTimeout);
 
-            ScriptJob.ResultsArrayCallback callback = new ScriptJob.ResultsArrayCallback() {
+            ScriptJob.ResultsObjectCallback callback = new ScriptJob.ResultsObjectCallback() {
                 @Override
-                public void onReportResults(JsonArray results) {
+                public void onReportResults(JsonObject results) {
+                    JsonArray tracks = results.getAsJsonArray("tracks");
                     ArrayList<Result> parsedResults =
-                            ScriptUtils.parseResultList(ScriptResolver.this, results);
+                            ScriptUtils.parseResultList(ScriptResolver.this, tracks);
                     PipeLine.get().reportResults(query, parsedResults, mId);
                     mTimeOutHandler.removeCallbacksAndMessages(null);
                     mStopped = true;
@@ -295,13 +297,13 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
             if (query.isFullTextQuery()) {
                 HashMap<String, Object> args = new HashMap<>();
                 args.put("query", query.getFullTextQuery());
-                ScriptJob.start(mScriptObject, "search", args, callback);
+                ScriptJob.start(mScriptObject, "_adapter_search", args, callback);
             } else {
                 HashMap<String, Object> args = new HashMap<>();
                 args.put("artist", query.getArtist().getName());
                 args.put("album", query.getAlbum().getName());
                 args.put("track", query.getName());
-                ScriptJob.start(mScriptObject, "resolve", args, callback);
+                ScriptJob.start(mScriptObject, "_adapter_resolve", args, callback);
             }
         }
     }
@@ -426,36 +428,38 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     }
 
     public void testConfig(Map<String, Object> config) {
-        ScriptJob.start(mScriptObject, "testConfig", config,
+        // Always wipe all cookies in the testingConfig cookie store beforehand
+        mScriptAccount.getCookieManager(true).getCookieStore().removeAll();
+
+        ScriptJob.start(mScriptObject, "_adapter_testConfig", config,
                 new ScriptJob.ResultsPrimitiveCallback() {
                     @Override
                     public void onReportResults(JsonPrimitive results) {
+                        int type = -1;
+                        String message = null;
                         if (results.isString()) {
-                            onConfigTestResult(AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER,
-                                    results.getAsString());
+                            type = AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER;
+                            message = results.getAsString();
                         } else if (results.isNumber()
                                 && results.getAsInt() > 0 && results.getAsInt() < 8) {
-                            onConfigTestResult(results.getAsInt(), null);
+                            type = results.getAsInt();
                         }
+                        Log.d(TAG, getName() + ": Config test result received. type: " + type
+                                + ", message:" + message);
+                        if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
+                            setEnabled(true);
+                        } else {
+                            setEnabled(false);
+                        }
+                        AuthenticatorManager.ConfigTestResultEvent event
+                                = new AuthenticatorManager.ConfigTestResultEvent();
+                        event.mComponent = ScriptResolver.this;
+                        event.mType = type;
+                        event.mMessage = message;
+                        EventBus.getDefault().post(event);
+                        AuthenticatorManager.showToast(getPrettyName(), event);
                     }
                 });
-    }
-
-    public void onConfigTestResult(final int type, final String message) {
-        Log.d(TAG, getName() + ": Config test result received. type: " + type + ", message:"
-                + message);
-        if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
-            setEnabled(true);
-        } else {
-            setEnabled(false);
-        }
-        AuthenticatorManager.ConfigTestResultEvent event
-                = new AuthenticatorManager.ConfigTestResultEvent();
-        event.mComponent = this;
-        event.mType = type;
-        event.mMessage = message;
-        EventBus.getDefault().post(event);
-        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
     public void getAccessToken(ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult> cb) {
