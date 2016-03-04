@@ -1,0 +1,23 @@
+{
+    "name": "Amazon Music",
+    "pluginName": "amazon",
+    "author": "Creepy Guy In The Corner",
+    "email": "",
+    "version": "0.0.2",
+    "website": "http://gettomahawk.com",
+    "description": "Streams music from Amazon Music",
+    "type": "resolver/javascript",
+    "manifest": {
+        "main": "contents/code/amazon.js",
+        "icon": "contents/images/icon.png",
+        "iconWhite": "contents/images/iconWhite.png",
+        "iconBackground": "contents/images/iconBackground.png",
+        "scripts": [],
+        "resources": [
+            "contents/code/config.ui"
+        ]
+    },
+    "staticCapabilities": [
+        "configTestable"
+    ]
+}
