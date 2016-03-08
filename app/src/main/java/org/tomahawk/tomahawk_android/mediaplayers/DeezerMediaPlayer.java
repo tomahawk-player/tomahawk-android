@@ -34,7 +34,7 @@ public class DeezerMediaPlayer extends PluginMediaPlayer {
     public static final int MIN_VERSION = 20;
 
     public DeezerMediaPlayer() {
-        super(TomahawkApp.PLUGINNAME_SPOTIFY, PACKAGE_NAME);
+        super(TomahawkApp.PLUGINNAME_DEEZER, PACKAGE_NAME);
     }
 
     public static String getPluginDownloadLink() {
