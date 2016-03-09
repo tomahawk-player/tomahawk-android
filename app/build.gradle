@@ -125,7 +125,7 @@ dependencies {
     compile 'com.squareup.okhttp:okhttp:2.7.2'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.7.2'
     compile 'com.github.castorflex.smoothprogressbar:library:1.1.0'
-    compile 'de.mrmaffen:vlc-android-sdk:3.0.0'
+    compile 'de.mrmaffen:vlc-android-sdk:1.9.0'
     compile 'de.mrmaffen:holocircularprogressbar:1.0.1'
     compile 'org.apache.lucene:lucene-core:4.7.2'
     compile 'org.apache.lucene:lucene-analyzers-common:4.7.2'
