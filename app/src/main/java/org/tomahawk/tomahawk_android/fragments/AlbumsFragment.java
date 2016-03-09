@@ -201,7 +201,10 @@ public class AlbumsFragment extends TomahawkFragment {
                                 CollectionCursor<Album> cursor =
                                         (CollectionCursor<Album>) resolved.get(1).getResult();
                                 List<Album> albumsAndEps = new ArrayList<>();
+                                /* Remove this for now since all "other releases" albums returned by
+                                   Hatchet are empty
                                 List<Album> others = new ArrayList<>();
+                                */
                                 if (cursor != null) {
                                     for (int i = 0; i < cursor.size(); i++) {
                                         Album album = cursor.get(i);
@@ -211,9 +214,13 @@ public class AlbumsFragment extends TomahawkFragment {
                                                 || Album.RELEASETYPE_EPS.equals(
                                                 album.getReleaseType()))) {
                                             albumsAndEps.add(album);
-                                        } else {
+                                        }
+                                        /* Remove this for now since all "other releases" albums returned by
+                                           Hatchet are empty
+                                        else {
                                             others.add(album);
                                         }
+                                        */
                                     }
                                 }
                                 segment = new Segment.Builder(albumsAndEps)
@@ -224,6 +231,8 @@ public class AlbumsFragment extends TomahawkFragment {
                                                 R.dimen.padding_superlarge)
                                         .build();
                                 segments.add(segment);
+                                /* Remove this for now since all "other releases" albums returned by
+                                   Hatchet are empty
                                 segment = new Segment.Builder(others)
                                         .headerLayout(R.layout.single_line_list_header)
                                         .headerString(R.string.other_releases)
@@ -232,6 +241,7 @@ public class AlbumsFragment extends TomahawkFragment {
                                                 R.dimen.padding_superlarge)
                                         .build();
                                 segments.add(segment);
+                                */
                                 fillAdapter(segments);
                             }
                         });
