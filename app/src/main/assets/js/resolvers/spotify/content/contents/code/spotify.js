@@ -97,54 +97,52 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
             += "&scope=playlist-read-private%20streaming%20user-read-private%20user-library-read";
         authUrl += "&show_dialog=true";
 
-        Tomahawk.showWebView(authUrl);
+        var that = this;
+
+        var params = {
+            url: authUrl
+        };
+        return Tomahawk.NativeScriptJobManager.invoke("showWebView", params).then(
+            function (result) {
+                var error = that._getParameterByName(result.url, "error");
+                if (error) {
+                    Tomahawk.log("Authorization failed: " + error);
+                    return error;
+                } else {
+                    Tomahawk.log("Authorization successful, fetching new refresh token ...");
+                    var settings = {
+                        headers: {
+                            "Authorization": "Basic "
+                            + Tomahawk.base64Encode(that._spell(that.clientId)
+                                + ":" + that._spell(that.clientSecret)),
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        data: {
+                            grant_type: "authorization_code",
+                            code: encodeURIComponent(that._getParameterByName(result.url, "code")),
+                            redirect_uri: encodeURIComponent(that.redirectUri)
+                        }
+                    };
+
+                    return Tomahawk.post("https://accounts.spotify.com/api/token", settings)
+                        .then(function (response) {
+                            Tomahawk.localStorage.setItem(that.storageKeyRefreshToken,
+                                response.refresh_token);
+                            Tomahawk.log("Received new refresh token!");
+                            return TomahawkConfigTestResultType.Success;
+                        });
+                }
+            });
     },
 
     logout: function () {
         Tomahawk.localStorage.removeItem(this.storageKeyRefreshToken);
-        Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Logout);
+        return TomahawkConfigTestResultType.Logout;
     },
 
     isLoggedIn: function () {
         var refreshToken = Tomahawk.localStorage.getItem(this.storageKeyRefreshToken);
         return refreshToken !== null && refreshToken.length > 0;
-    },
-
-    /**
-     * This function is being called from the native side whenever it has received a redirect
-     * callback. In other words, the WebView shown to the user can call the js side here.
-     */
-    onRedirectCallback: function (params) {
-        var url = params.url;
-
-        var error = this._getParameterByName(url, "error");
-        if (error) {
-            Tomahawk.log("Authorization failed: " + error);
-            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other, error);
-        } else {
-            Tomahawk.log("Authorization successful, fetching new refresh token ...");
-            var settings = {
-                headers: {
-                    "Authorization": "Basic " + Tomahawk.base64Encode(this._spell(this.clientId)
-                        + ":" + this._spell(this.clientSecret)),
-                    "Content-Type": "application/x-www-form-urlencoded"
-                },
-                data: {
-                    grant_type: "authorization_code",
-                    code: encodeURIComponent(this._getParameterByName(url, "code")),
-                    redirect_uri: encodeURIComponent(this.redirectUri)
-                }
-            };
-
-            var that = this;
-            Tomahawk.post("https://accounts.spotify.com/api/token", settings)
-                .then(function (response) {
-                    Tomahawk.localStorage.setItem(that.storageKeyRefreshToken,
-                        response.refresh_token);
-                    Tomahawk.log("Received new refresh token!");
-                    Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Success);
-                });
-        }
     },
 
     /**

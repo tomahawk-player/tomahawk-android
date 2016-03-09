@@ -59,39 +59,37 @@ var DeezerResolver = Tomahawk.extend(Tomahawk.Resolver, {
         authUrl += "&perms=offline_access";
         authUrl += "&response_type=token";
 
-        Tomahawk.showWebView(authUrl);
+        var that = this;
+
+        var params = {
+            url: authUrl
+        };
+        return Tomahawk.NativeScriptJobManager.invoke("showWebView", params).then(
+            function (result) {
+                var error = that._getParameterByName(result.url, "error_reason");
+                if (error) {
+                    Tomahawk.log("Authorization failed: " + error);
+                    return error;
+                } else {
+                    Tomahawk.log("Authorization successful, received new access token ...");
+                    that.accessToken = that._getParameterByName(result.url, "access_token");
+                    that.accessTokenExpires = that._getParameterByName(result.url, "expires");
+                    Tomahawk.localStorage.setItem(that.storageKeyAccessToken, that.accessToken);
+                    Tomahawk.localStorage.setItem(that.storageKeyAccessTokenExpires,
+                        that.accessTokenExpires);
+                    return TomahawkConfigTestResultType.Success;
+                }
+            });
     },
 
     logout: function () {
         Tomahawk.localStorage.removeItem(this.storageKeyAccessToken);
-        Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Logout);
+        return TomahawkConfigTestResultType.Logout;
     },
 
     isLoggedIn: function () {
         var accessToken = Tomahawk.localStorage.getItem(this.storageKeyAccessToken);
         return accessToken !== null && accessToken.length > 0;
-    },
-
-    /**
-     * This function is being called from the native side whenever it has received a redirect
-     * callback. In other words, the WebView shown to the user can call the js side here.
-     */
-    onRedirectCallback: function (params) {
-        var url = params.url;
-
-        var error = this._getParameterByName(url, "error_reason");
-        if (error) {
-            Tomahawk.log("Authorization failed: " + error);
-            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Other, error);
-        } else {
-            Tomahawk.log("Authorization successful, received new access token ...");
-            this.accessToken = this._getParameterByName(url, "access_token");
-            this.accessTokenExpires = this._getParameterByName(url, "expires");
-            Tomahawk.localStorage.setItem(this.storageKeyAccessToken, this.accessToken);
-            Tomahawk.localStorage.setItem(this.storageKeyAccessTokenExpires,
-                this.accessTokenExpires);
-            Tomahawk.onConfigTestResult(TomahawkConfigTestResultType.Success);
-        }
     },
 
     /**

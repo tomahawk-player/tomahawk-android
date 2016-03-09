@@ -351,19 +351,21 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     }
 
     public void login() {
-        ScriptJob.start(mScriptObject, "login");
+        ScriptJob.start(mScriptObject, "login", null, new ScriptJob.ResultsPrimitiveCallback() {
+            @Override
+            public void onReportResults(JsonPrimitive results) {
+                onTestConfigFinished(results);
+            }
+        });
     }
 
     public void logout() {
-        ScriptJob.start(mScriptObject, "logout");
-    }
-
-    public void onRedirectCallback(String url) {
-        if (url != null) {
-            HashMap<String, Object> args = new HashMap<>();
-            args.put("url", url);
-            ScriptJob.start(mScriptObject, "onRedirectCallback", args);
-        }
+        ScriptJob.start(mScriptObject, "logout", null, new ScriptJob.ResultsPrimitiveCallback() {
+            @Override
+            public void onReportResults(JsonPrimitive results) {
+                onTestConfigFinished(results);
+            }
+        });
     }
 
     /**
@@ -435,31 +437,35 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                 new ScriptJob.ResultsPrimitiveCallback() {
                     @Override
                     public void onReportResults(JsonPrimitive results) {
-                        int type = -1;
-                        String message = null;
-                        if (results.isString()) {
-                            type = AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER;
-                            message = results.getAsString();
-                        } else if (results.isNumber()
-                                && results.getAsInt() > 0 && results.getAsInt() < 8) {
-                            type = results.getAsInt();
-                        }
-                        Log.d(TAG, getName() + ": Config test result received. type: " + type
-                                + ", message:" + message);
-                        if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
-                            setEnabled(true);
-                        } else {
-                            setEnabled(false);
-                        }
-                        AuthenticatorManager.ConfigTestResultEvent event
-                                = new AuthenticatorManager.ConfigTestResultEvent();
-                        event.mComponent = ScriptResolver.this;
-                        event.mType = type;
-                        event.mMessage = message;
-                        EventBus.getDefault().post(event);
-                        AuthenticatorManager.showToast(getPrettyName(), event);
+                        onTestConfigFinished(results);
                     }
                 });
+    }
+
+    private void onTestConfigFinished(JsonPrimitive results) {
+        int type = -1;
+        String message = null;
+        if (results.isString()) {
+            type = AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_OTHER;
+            message = results.getAsString();
+        } else if (results.isNumber()
+                && results.getAsInt() > 0 && results.getAsInt() < 8) {
+            type = results.getAsInt();
+        }
+        Log.d(TAG, getName() + ": Config test result received. type: " + type
+                + ", message:" + message);
+        if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
+            setEnabled(true);
+        } else {
+            setEnabled(false);
+        }
+        AuthenticatorManager.ConfigTestResultEvent event
+                = new AuthenticatorManager.ConfigTestResultEvent();
+        event.mComponent = ScriptResolver.this;
+        event.mType = type;
+        event.mMessage = message;
+        EventBus.getDefault().post(event);
+        AuthenticatorManager.showToast(getPrettyName(), event);
     }
 
     public void getAccessToken(ScriptJob.ResultsCallback<ScriptResolverAccessTokenResult> cb) {

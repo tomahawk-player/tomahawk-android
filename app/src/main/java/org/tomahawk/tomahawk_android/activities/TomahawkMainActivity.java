@@ -259,6 +259,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     public static class ShowWebViewEvent {
 
+        public int mRequestid;
+
         public String mUrl;
     }
 
@@ -679,6 +681,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
     public void onEventMainThread(ShowWebViewEvent event) {
         Intent intent = new Intent(this, WebViewActivity.class);
         intent.putExtra(WebViewActivity.URL_EXTRA, event.mUrl);
+        intent.putExtra(WebViewActivity.REQUESTID_EXTRA, event.mRequestid);
         startActivity(intent);
     }
 

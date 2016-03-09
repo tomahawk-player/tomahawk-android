@@ -35,7 +35,6 @@ import org.tomahawk.libtomahawk.resolver.plugins.ScriptInfoPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptResolverPluginFactory;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.NetworkUtils;
-import org.tomahawk.libtomahawk.utils.StringUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
@@ -57,6 +56,8 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import de.greenrobot.event.EventBus;
 
 public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyListener {
 
@@ -287,14 +288,11 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                String serializedArgs = GsonHelper.get().toJson(job.getArguments());
-                serializedArgs = "JSON.parse('" + StringUtils
-                        .escapeJavaScript(serializedArgs) + "')";
                 evaluateJavaScript("Tomahawk.PluginManager.invoke("
                         + "'" + requestId + "',"
                         + "'" + job.getScriptObject().getId() + "',"
                         + "'" + job.getMethodName() + "',"
-                        + serializedArgs + ")");
+                        + GsonHelper.get().toJson(job.getArguments()) + ")");
             }
         });
     }
@@ -381,7 +379,6 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
     }
 
     public void invokeNativeScriptJob(int requestId, String methodName, String paramsString) {
-        String result = null;
         JsonObject params = GsonHelper.get().fromJson(paramsString, JsonObject.class);
         if (methodName.equals("collectionAddTracks")) {
             String id = params.get("id").getAsString();
@@ -393,34 +390,58 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
             CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(id);
             collectionDb.addTracks(tracks);
 
-            result = "'" + collectionDb.getRevision() + "'";
+            reportNativeScriptJobResult(requestId, "'" + collectionDb.getRevision() + "'");
         } else if (methodName.equals("collectionWipe")) {
             String id = params.get("id").getAsString();
 
             CollectionDbManager.get().getCollectionDb(id).wipe();
+
+            reportNativeScriptJobResult(requestId, null);
         } else if (methodName.equals("collectionRevision")) {
             String id = params.get("id").getAsString();
 
             CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(id);
 
-            result = "'" + collectionDb.getRevision() + "'";
+            reportNativeScriptJobResult(requestId, "'" + collectionDb.getRevision() + "'");
         } else if (methodName.equals("collectionInitialized")) {
             String id = params.get("id").getAsString();
 
             CollectionDbManager.get().getCollectionDb(id).wipe();
+
+            reportNativeScriptJobResult(requestId, null);
         } else if (methodName.equals("httpRequest")) {
             ScriptInterfaceRequestOptions options =
                     GsonHelper.get().fromJson(paramsString, ScriptInterfaceRequestOptions.class);
 
-            result = GsonHelper.get().toJson(jsHttpRequest(options));
-        }
+            reportNativeScriptJobResult(requestId, GsonHelper.get().toJson(jsHttpRequest(options)));
+        } else if (methodName.equals("showWebView")) {
+            String url = params.get("url").getAsString();
 
+            // This will open up a WebViewActivity, which will call onShowWebViewFinished when
+            // finished
+            TomahawkMainActivity.ShowWebViewEvent event
+                    = new TomahawkMainActivity.ShowWebViewEvent();
+            event.mRequestid = requestId;
+            event.mUrl = url;
+            EventBus.getDefault().post(event);
+        }
+    }
+
+    private void reportNativeScriptJobResult(int requestId, String result) {
         if (result == null) {
             evaluateJavaScript("Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult( "
                     + requestId + " );");
         } else {
             evaluateJavaScript("Tomahawk.NativeScriptJobManager.reportNativeScriptJobResult( "
                     + requestId + ", " + result + " );");
+        }
+    }
+
+    public void onShowWebViewFinished(int requestId, String url) {
+        if (url != null) {
+            HashMap<String, Object> args = new HashMap<>();
+            args.put("url", url);
+            reportNativeScriptJobResult(requestId, GsonHelper.get().toJson(args));
         }
     }
 
