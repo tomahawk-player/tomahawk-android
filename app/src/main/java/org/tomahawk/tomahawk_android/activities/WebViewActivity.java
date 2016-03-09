@@ -19,7 +19,7 @@ package org.tomahawk.tomahawk_android.activities;
 
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
-import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.resolver.ScriptAccount;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -37,6 +37,8 @@ public class WebViewActivity extends Activity {
 
     public static final String URL_EXTRA = "url";
 
+    public static final String REQUESTID_EXTRA = "requestId";
+
     private WebView mWebView;
 
     @SuppressLint("SetJavaScriptEnabled")
@@ -47,27 +49,26 @@ public class WebViewActivity extends Activity {
         setContentView(R.layout.web_view_activity);
 
         String url = getIntent().getStringExtra(URL_EXTRA);
+        final int requestId = getIntent().getIntExtra(REQUESTID_EXTRA, -1);
 
         mWebView = (WebView) findViewById(R.id.webview);
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                ScriptAccount account;
                 if (url.startsWith("tomahawkspotifyresolver")) {
-                    ScriptResolver urlHandler =
-                            PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY);
-                    urlHandler.onRedirectCallback(url);
-                    finish();
-                    return true;
+                    account = PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_SPOTIFY)
+                            .getScriptAccount();
                 } else if (url.startsWith("tomahawkdeezerresolver")) {
-                    ScriptResolver urlHandler =
-                            PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_DEEZER);
-                    urlHandler.onRedirectCallback(url);
-                    finish();
-                    return true;
+                    account = PipeLine.get().getResolver(TomahawkApp.PLUGINNAME_DEEZER)
+                            .getScriptAccount();
                 } else {
                     view.loadUrl(url);
                     return false;
                 }
+                account.onShowWebViewFinished(requestId, url);
+                finish();
+                return true;
             }
         });
         mWebView.getSettings().setJavaScriptEnabled(true);

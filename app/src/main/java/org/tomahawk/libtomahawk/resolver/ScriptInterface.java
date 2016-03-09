@@ -8,7 +8,6 @@ import org.apache.commons.io.FileUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverData;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
 import android.util.Log;
 import android.webkit.JavascriptInterface;
@@ -16,8 +15,6 @@ import android.webkit.JavascriptInterface;
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * This class contains all methods that are being exposed to the javascript script inside a {@link
@@ -142,14 +139,6 @@ public class ScriptInterface {
             values[i] = localStorageGetItem(keys[i]);
         }
         return values;
-    }
-
-    @JavascriptInterface
-    public void showWebView(String url) {
-        TomahawkMainActivity.ShowWebViewEvent event
-                = new TomahawkMainActivity.ShowWebViewEvent();
-        event.mUrl = url;
-        EventBus.getDefault().post(event);
     }
 
     @JavascriptInterface
