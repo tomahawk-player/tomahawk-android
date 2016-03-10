@@ -79,6 +79,7 @@ public class FuzzyIndex {
     }
 
     public FuzzyIndex(String collectionId) {
+        Log.d(TAG, "FuzzyIndex constructor called: " + collectionId);
         mCollectionId = collectionId;
         mLucenePath = LUCENE_ROOT_FOLDER + collectionId;
 
@@ -100,6 +101,8 @@ public class FuzzyIndex {
      */
     public synchronized boolean create(boolean recreate) {
         CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(mCollectionId);
+        Log.d(TAG, "create - using CollectionDb " + collectionDb.hashCode() + " with id "
+                + mCollectionId);
         String[] fields = new String[]{CollectionDb.TABLE_TRACKS + "." + CollectionDb.ID,
                 CollectionDb.ARTISTS_ARTIST, CollectionDb.ALBUMS_ALBUM, CollectionDb.TRACKS_TRACK};
         Cursor cursor = collectionDb.tracks(null, null, fields);
