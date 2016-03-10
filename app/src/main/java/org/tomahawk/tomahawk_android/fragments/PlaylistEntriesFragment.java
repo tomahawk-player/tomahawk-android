@@ -110,12 +110,12 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                         CollectionManager.get().fetchPlaylists();
                     }
                 }
-                if (mContainerFragmentClass == null) {
-                    getActivity().setTitle("");
-                }
                 updateAdapter();
             }
         });
+        if (mContainerFragmentClass == null) {
+            getActivity().setTitle("");
+        }
     }
 
     /**
