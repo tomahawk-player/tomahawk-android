@@ -136,7 +136,8 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
 
         if (!this._email || !this._password) {
             Tomahawk.PluginManager.unregisterPlugin("collection", amazonCollection);
-            throw new Error( "Invalid configuration." );
+            Tomahawk.log("Invalid configuration.");
+            return;
         }
 
         var domains = ['.com', '.de', '.co.uk'];
