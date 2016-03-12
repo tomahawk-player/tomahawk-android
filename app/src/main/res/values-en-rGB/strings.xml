@@ -32,31 +32,202 @@
   <string name="name_playlist">Title</string>
   <string name="login_name_label">E-Mail/Username</string>
   <string name="login_username">Username</string>
+  <string name="login_password">Password</string>
   <string name="login_password_confirmation">Password confirmation</string>
   <string name="account_email_label">E-Mail (optional)</string>
+  <string name="error_field_required">This field is required</string>
+  <string name="error_passwords_dont_match">Passwords don\'t match</string>
+  <string name="error_invalid_credentials">Username or password incorrect.</string>
+  <string name="error_invalid_account">Account rejected by server.</string>
+  <string name="error_communication">Unable to authenticate. Please check your connection.</string>
+  <string name="error_simultaneous_streams">Action not allowed, account is in use elsewhere.</string>
+  <string name="error_account_expired">Your account has expired.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Logged into %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Logged out of %1$s</string>
+  <string name="local_collection_pretty_name">Local Collection</string>
+  <string name="local">Local</string>
+  <string name="all">All</string>
+  <string name="preferences_local_collection_text">Choose the directories which should be scanned for local media.</string>
+  <string name="preferences_hatchet_text">Sync your data with %1$s.</string>
+  <string name="preferences_playback">Playback</string>
+  <string name="preferences_equalizer">Equaliser</string>
+  <string name="preferences_equalizer_text">Customise the audio output.</string>
+  <string name="preferences_playback_data">Scrobble Everything</string>
+  <string name="preferences_playback_data_text">Scrobble every track from every music player app on the phone to %1$s.</string>
+  <string name="preferences_plug_and_play">Plug In to Play</string>
+  <string name="preferences_plug_and_play_text">Starts playing music as soon as a headset is connected.</string>
+  <string name="preferences_audio_quality">Preferred Audio Quality</string>
+  <string name="preferences_audio_quality_text">The preferred audio quality if not connected to WiFi.</string>
+  <string name="preferences_info">Info</string>
+  <string name="preferences_app_version">App-Version</string>
+  <string name="preferences_app_uservoice">Feedback</string>
+  <string name="preferences_app_uservoice_text">Share your ideas or ask for support.</string>
+  <string name="preferences_app_sendlog">Send Log</string>
+  <string name="preferences_app_sendlog_text">Send your log file for debug purposes.</string>
+  <string name="preferences_app_sendlog_dialog_text">Please briefly describe the issue you are having and provide an email so we can contact you if needed. Thanks!</string>
+  <string name="preferences_app_sendlog_email">Your email address</string>
+  <string name="preferences_app_sendlog_issue">Issue</string>
+  <string name="crash_dialog_title">Tomahawk has crashed</string>
+  <string name="crash_dialog_text">An unexpected error occurred forcing the application to stop. Please help us fix this by sending us error data, all you have to do is click OK.</string>
+  <string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>
+  <string name="crash_dialog_ok_toast">Thank you !</string>
+  <string name="context_menu_play">Play</string>
+  <string name="context_menu_add_to_queue">Add to Queue</string>
+  <string name="context_menu_add_to_playlist">Add to Playlist</string>
+  <string name="context_menu_delete">Delete</string>
+  <string name="context_menu_removefromplaylist">Remove from Playlist</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">Remove from Collection</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">Add to Collection</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">Love</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">Unlove</string>
+  <string name="context_menu_share">Share</string>
+  <string name="contest_menu_share_error">You have to log into Hatchet to be able to share this playlist.</string>
+  <string name="drawer_title_feed">Feed</string>
+  <string name="drawer_title_collection">Collection</string>
+  <string name="drawer_title_playlists">Playlists</string>
+  <string name="drawer_title_lovedtracks">Favourites</string>
+  <string name="drawer_title_settings">Settings</string>
+  <string name="drawer_header_cloudcollections">Cloud Collections</string>
+  <string name="collection_dropdown_recently_added">Recently Added</string>
+  <string name="collection_dropdown_alpha_artists">Artist A-Z</string>
+  <string name="collection_dropdown_play_count">Play Count</string>
+  <string name="collection_dropdown_alpha_albums">Album A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
+  <string name="history">History</string>
+  <string name="preferences_bitrate_low">Normal</string>
+  <string name="preferences_bitrate_medium">Good</string>
+  <string name="preferences_bitrate_high">Best</string>
+  <string name="drawer_open">Open Navigation Drawer</string>
+  <string name="drawer_close">Close Navigation Drawer</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">Following</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Follow</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">Suggested people to follow</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">%1$s is now following</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
+  <plurals name="socialaction_type_love_track">
+    <item quantity="one">%1$s loved a track</item>
+    <item quantity="other">%1$s loved %2$d tracks</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
+  <plurals name="socialaction_type_collected_track">
+    <item quantity="one">%1$s collected a track</item>
+    <item quantity="other">%1$s collected %2$d tracks</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
+  <plurals name="socialaction_type_collected_album">
+    <item quantity="one">%1$s collected an album</item>
+    <item quantity="other">%1$s collected %2$d albums</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
+  <plurals name="socialaction_type_collected_artist">
+    <item quantity="one">%1$s collected an artist</item>
+    <item quantity="other">%1$s collected %2$d artists</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">%1$s commented on</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
+  <plurals name="socialaction_type_latchon">
+    <item quantity="one">%1$s listened along to a friend</item>
+    <item quantity="other">%1$s listened along to %2$d friends</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
+  <plurals name="socialaction_type_createplaylist">
+    <item quantity="one">%1$s created a playlist</item>
+    <item quantity="other">%1$s created %2$d playlists</item>
+  </plurals>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s by %2$s</string>
+  <string name="time_afewseconds">a few seconds ago</string>
+  <plurals name="time_minute">
+    <item quantity="one">a minute ago</item>
+    <item quantity="other">%1$d minutes ago</item>
+  </plurals>
+  <plurals name="time_hour">
+    <item quantity="one">an hour ago</item>
+    <item quantity="other">%1$d hours ago</item>
+  </plurals>
+  <plurals name="time_day">
+    <item quantity="one">a day ago</item>
+    <item quantity="other">%1$d days ago</item>
+  </plurals>
+  <string name="users_playbacklog_suffix">%1$s\'s recently played</string>
+  <string name="users_favorites_suffix">%1$s\'s Favourites</string>
+  <string name="users_playlist_suffix">%1$s\'s Playlist</string>
+  <string name="my_playbacklog">My recently played</string>
+  <string name="my_favorites">My Favourites</string>
+  <string name="my_playlist">My Playlist</string>
+  <string name="music">Music</string>
+  <string name="biography">Biography</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
+  <string name="similar">Similar</string>
   <!--Shown as a title for a list of songs in the search results view.-->
+  <string name="songs">Songs</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <plurals name="songs_with_count">
+    <item quantity="one">%1$d Song</item>
+    <item quantity="other">%1$d Songs</item>
+  </plurals>
+  <string name="activity">Activity</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
+  <string name="followers">Followers</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
+  <string name="following">Following</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="followers_count">Followers: %1$d, Following: %2$d</string>
+  <string name="resolver_config_redirect_button_text_log_into">Log into</string>
+  <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Download Plugin for</string>
+  <string name="ask_access_activity_header">Want to automatically save data about all the tracks you play on Hatchet?</string>
+  <string name="ask_access_activity_text1">We\'ll do that for you! Please enable our service in your system settings.</string>
+  <string name="button_close">Close</string>
+  <string name="view_album">View Album</string>
+  <string name="connect">Connect</string>
+  <string name="connect_headertext">Select the services you want to use. Tomahawk works better when more services are activated.</string>
+  <string name="connect_header_manualresolvers">Manually installed</string>
+  <string name="advanced">Advanced</string>
+  <string name="info">Info</string>
+  <string name="playbackpanel_seek_coachmark">You can seek through a track with a long-press on the Play button.</string>
+  <string name="slidinglayout_enqueue_coachmark">Tap to add the track to the queue.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Pull up to see the current playlist.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Pull down to close the playback drawer.</string>
+  <string name="playbackfragment_navigation_coachmark_center">Swipe left/right to skip to the next/previous track. Long-press to open context menu. Double-tap to add to favourites.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="next_page">Next</string>
+  <string name="welcome_fragment_explanation_title">Getting started</string>
+  <string name="welcome_fragment_explanation_heading">Music is everywhere.\nNow you don\'t have to be.</string>
+  <string name="welcome_fragment_explanation_text">Stop chasing music across the web - to services you don\'t use, or sources you don\'t have access to. Given the name or link to a song, album or playlist, Tomahawk will find the best available source for you and just play it.</string>
+  <string name="welcome_fragment_hatchet_title">Want to socialise?</string>
+  <string name="welcome_fragment_hatchet_text">With Hatchet you can finally have your music collection in one place. Share your playlists and favourite tracks. Or simply sync the App with Tomahawk on your desktop machine.</string>
+  <string name="welcome_fragment_setup_title">Connect</string>
+  <string name="welcome_fragment_done_title">Done!</string>
+  <string name="welcome_fragment_done_heading">All done!</string>
+  <string name="welcome_fragment_done_text">Have fun exploring the app and be sure to tell us what you think!</string>
+  <plurals name="add_to_playlist_headertext">
+    <item quantity="one">Choose a playlist to add %1$d track to:</item>
+    <item quantity="other">Choose a playlist to add %1$d tracks to:</item>
+  </plurals>
+  <string name="seeking_not_supported">Sorry, this resolver doesn\'t support seeking.</string>
+  <string name="install_plugin_title">Plugin installation</string>
+  <string name="install_plugin_warning">You are about to install a Tomahawk plugin from an unknown source. This can be a security risk.</string>
+  <string name="install_plugin_warning2">Do you really want to install this Plugin?</string>
+  <string name="uninstall_plugin_title">Uninstalling plugin</string>
+  <string name="uninstall_plugin_warning">Do you really want to uninstall this Plugin?</string>
+  <string name="gmusic_info_text">Choose an account:</string>
+  <string name="invalid_file">Can\'t open file.</string>
+  <string name="unknown_album">Unknown album</string>
+  <string name="unknown_artist">Unknown artist</string>
+  <string name="notification_settings_activity_not_found">Couldn\'t find Settings App on your device. Please give Tomahawk access to your notifications in your System Settings.</string>
+  <string name="warn_closed_source_text">Warning: You are about to download a plugin that contains closed-source parts.</string>
+  <string name="warn_old_plugin">The required plugin application is outdated and no longer compatible. Do you want to update it now?</string>
+  <string name="warn_no_plugin">The required plugin application is no longer installed. Do you want to install it now?</string>
 </resources>
