@@ -17,6 +17,9 @@
         <item name="colorAccent">@color/tomahawk_red</item>
         <item name="android:textColorSecondary">@color/tomahawk_red</item>
 
+        <item name="android:windowEnableSplitTouch">false</item>
+        <item name="android:splitMotionEvents">false</item>
+
     </style>
 
     <style name="Theme.Tomahawk.Transparent.ActionBar" parent="@style/Theme.Tomahawk">
