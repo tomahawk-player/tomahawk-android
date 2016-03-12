@@ -323,7 +323,8 @@ public class PlaybackService extends Service {
                                     getCurrentQuery().getPrettyName())
                             .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
                                     getCurrentQuery().getPreferredTrack().getDuration())
-                            .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
+                            .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
+                                    bitmap.copy(bitmap.getConfig(), false));
                     if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getPrettyName())) {
                         builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM,
                                 getCurrentQuery().getAlbum().getPrettyName());
