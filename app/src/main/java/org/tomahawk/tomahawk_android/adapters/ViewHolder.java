@@ -200,21 +200,30 @@ public class ViewHolder {
                 userTextView1);
     }
 
-    public void fillView(Artist artist) {
+    public void fillView(Artist artist, String numerationString) {
         TextView textView1 = (TextView) findViewById(R.id.textview1);
         textView1.setText(artist.getPrettyName());
+        if (numerationString != null) {
+            textView1.setText(numerationString + ": " + artist.getPrettyName());
+        } else {
+            textView1.setText(artist.getPrettyName());
+        }
         ImageView imageView1 = (ImageView) findViewById(R.id.imageview1);
         ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView1,
                 artist.getImage(), Image.getSmallImageSize(), true);
     }
 
-    public void fillView(final Album album, Collection collection) {
+    public void fillView(final Album album, Collection collection, String numerationString) {
         if (collection == null) {
             collection =
                     CollectionManager.get().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
         }
         TextView textView1 = (TextView) findViewById(R.id.textview1);
-        textView1.setText(album.getPrettyName());
+        if (numerationString != null) {
+            textView1.setText(numerationString + ": " + album.getPrettyName());
+        } else {
+            textView1.setText(album.getPrettyName());
+        }
         TextView textView2 = (TextView) findViewById(R.id.textview2);
         textView2.setText(album.getArtist().getPrettyName());
         ImageView imageView1 = (ImageView) findViewById(R.id.imageview1);

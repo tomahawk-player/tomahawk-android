@@ -1,6 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2016, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,39 +15,27 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.libtomahawk.infosystem;
+package org.tomahawk.libtomahawk.resolver.plugins;
 
-import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
+import org.tomahawk.libtomahawk.infosystem.charts.ScriptChartsManager;
+import org.tomahawk.libtomahawk.infosystem.charts.ScriptChartsProvider;
 import org.tomahawk.libtomahawk.resolver.ScriptAccount;
 import org.tomahawk.libtomahawk.resolver.ScriptObject;
-import org.tomahawk.libtomahawk.resolver.ScriptPlugin;
 
-public class ScriptInfoPlugin implements InfoPlugin, ScriptPlugin {
+public class ScriptChartProviderPluginFactory extends ScriptPluginFactory<ScriptChartsProvider> {
 
-    private ScriptAccount mScriptAccount;
-
-    private ScriptObject mScriptObject;
-
-    public ScriptInfoPlugin(ScriptObject scriptObject, ScriptAccount account) {
-        mScriptObject = scriptObject;
-        mScriptAccount = account;
+    @Override
+    public ScriptChartsProvider createPlugin(ScriptObject object, ScriptAccount account) {
+        return new ScriptChartsProvider(object, account);
     }
 
     @Override
-    public void send(InfoRequestData infoRequestData, AuthenticatorUtils authenticatorUtils) {
+    public void addPlugin(ScriptChartsProvider scriptPlugin) {
+        ScriptChartsManager.get().addScriptChartsProvider(scriptPlugin);
     }
 
     @Override
-    public void resolve(InfoRequestData infoRequestData) {
-    }
-
-    @Override
-    public ScriptAccount getScriptAccount() {
-        return mScriptAccount;
-    }
-
-    @Override
-    public ScriptObject getScriptObject() {
-        return mScriptObject;
+    public void removePlugin(ScriptChartsProvider scriptPlugin) {
+        ScriptChartsManager.get().removeScriptChartsProvider(scriptPlugin);
     }
 }

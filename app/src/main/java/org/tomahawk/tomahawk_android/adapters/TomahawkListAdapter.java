@@ -395,10 +395,20 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 }
                 if (viewHolder.mLayoutId == R.layout.grid_item_artist
                         || viewHolder.mLayoutId == R.layout.list_item_artist) {
-                    viewHolder.fillView((Artist) targetItem);
+                    String numerationString = null;
+                    if (getSegment(position).isShowNumeration()) {
+                        numerationString = "" + (getPosInSegment(position) + i
+                                + getSegment(position).getNumerationCorrection());
+                    }
+                    viewHolder.fillView((Artist) targetItem, numerationString);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_album
                         || viewHolder.mLayoutId == R.layout.list_item_album) {
-                    viewHolder.fillView((Album) targetItem, mCollection);
+                    String numerationString = null;
+                    if (getSegment(position).isShowNumeration()) {
+                        numerationString = "" + (getPosInSegment(position) * viewHolders.size() + i
+                                + getSegment(position).getNumerationCorrection());
+                    }
+                    viewHolder.fillView((Album) targetItem, mCollection, numerationString);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
                     viewHolder.fillView((Resolver) targetItem);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_playlist) {

@@ -204,7 +204,8 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 });
             } else {
                 Segment.Builder builder = new Segment.Builder(mCurrentPlaylist);
-                if (mContainerFragmentClass != SearchPagerFragment.class) {
+                if (mContainerFragmentClass != SearchPagerFragment.class
+                        && mShowMode != ChartsPagerFragment.SHOW_MODE_CHARTS) {
                     builder.headerLayout(R.layout.single_line_list_header)
                             .headerString(R.string.playlist_details);
                 }

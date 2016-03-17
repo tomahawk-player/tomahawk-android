@@ -30,11 +30,14 @@ import org.tomahawk.libtomahawk.database.CollectionDbManager;
 import org.tomahawk.libtomahawk.resolver.models.ScriptInterfaceRequestOptions;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
+import org.tomahawk.libtomahawk.resolver.plugins.ScriptChartProviderPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptCollectionPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptInfoPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptResolverPluginFactory;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
+import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.libtomahawk.utils.NetworkUtils;
+import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 
@@ -48,6 +51,7 @@ import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.ImageView;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -89,6 +93,9 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
 
     private ScriptInfoPluginFactory mInfoPluginFactory =
             new ScriptInfoPluginFactory();
+
+    private ScriptChartProviderPluginFactory mChartsProviderPluginFactory =
+            new ScriptChartProviderPluginFactory();
 
     private ScriptResolver mScriptResolver;
 
@@ -254,6 +261,27 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         return result;
     }
 
+    public void loadIcon(ImageView imageView, boolean grayOut) {
+        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                mPath + "/content/" + mMetaData.manifest.icon,
+                grayOut ? R.color.disabled_resolver : 0);
+    }
+
+    public void loadIconWhite(ImageView imageView) {
+        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                mPath + "/content/" + mMetaData.manifest.iconWhite);
+    }
+
+    public String getIconBackgroundPath() {
+        return mPath + "/content/" + mMetaData.manifest.iconBackground;
+    }
+
+    public void loadIconBackground(ImageView imageView, boolean grayOut) {
+        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
+                mPath + "/content/" + mMetaData.manifest.iconBackground,
+                grayOut ? R.color.disabled_resolver : 0);
+    }
+
     public boolean isManuallyInstalled() {
         return mManuallyInstalled;
     }
@@ -263,8 +291,9 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
     }
 
     public void registerPlugin(String type) {
-        evaluateJavaScript("Tomahawk.PluginManager.registerPlugin('" + type
-                + "', Tomahawk.resolver.instance);");
+        evaluateJavaScript("if (Tomahawk.resolver.instance) {"
+                + "Tomahawk.PluginManager.registerPlugin('" + type
+                + "', Tomahawk.resolver.instance);}");
     }
 
     public void unregisterAllPlugins() {
@@ -349,6 +378,9 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
             case ScriptObject.TYPE_INFOPLUGIN:
                 mInfoPluginFactory.registerPlugin(object, this);
                 break;
+            case ScriptObject.TYPE_CHARTSPROVIDER:
+                mChartsProviderPluginFactory.registerPlugin(object, this);
+                break;
             default:
                 Log.e(TAG, "registerScriptPlugin - ScriptAccount:" + mName
                         + ", ScriptPlugin type not supported!");
@@ -370,6 +402,9 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
                     break;
                 case ScriptObject.TYPE_INFOPLUGIN:
                     mInfoPluginFactory.unregisterPlugin(object);
+                    break;
+                case ScriptObject.TYPE_CHARTSPROVIDER:
+                    mChartsProviderPluginFactory.unregisterPlugin(object);
                     break;
                 default:
                     Log.e(TAG, "unregisterScriptPlugin - ScriptAccount:" + mName

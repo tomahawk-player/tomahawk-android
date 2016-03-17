@@ -22,6 +22,13 @@
       xmlns:tomahawk="http://schemas.android.com/apk/res-auto">
 
     <item
+            android:id="@+id/action_country_code_picker"
+            android:title=""
+            tomahawk:showAsAction="always"
+            tomahawk:actionLayout="@layout/spinner_country_code"
+            android:visible="false"/>
+
+    <item
             android:id="@+id/action_search"
             android:icon="@drawable/ic_action_search"
             android:title="@string/search"

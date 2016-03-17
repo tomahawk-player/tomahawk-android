@@ -88,7 +88,7 @@ public abstract class DbCollection extends Collection {
     public String getIconBackgroundPath() {
         if (mResolver instanceof ScriptResolver) {
             ScriptAccount account = ((ScriptResolver) mResolver).getScriptAccount();
-            return account.getPath() + "/content/" + account.getMetaData().manifest.iconBackground;
+            return account.getIconBackgroundPath();
         }
         return null;
     }

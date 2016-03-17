@@ -32,9 +32,7 @@ import org.tomahawk.libtomahawk.resolver.models.ScriptResolverSettings;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverStreamUrlResult;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
-import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.libtomahawk.utils.NetworkUtils;
-import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
@@ -154,24 +152,17 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
 
     @Override
     public void loadIcon(ImageView imageView, boolean grayOut) {
-        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                mScriptAccount.getPath() + "/content/" + mScriptAccount.getMetaData().manifest.icon,
-                grayOut ? R.color.disabled_resolver : 0);
+        mScriptAccount.loadIcon(imageView, grayOut);
     }
 
     @Override
     public void loadIconWhite(ImageView imageView) {
-        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                mScriptAccount.getPath() + "/content/" + mScriptAccount
-                        .getMetaData().manifest.iconWhite);
+        mScriptAccount.loadIconWhite(imageView);
     }
 
     @Override
     public void loadIconBackground(ImageView imageView, boolean grayOut) {
-        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                mScriptAccount.getPath() + "/content/" + mScriptAccount
-                        .getMetaData().manifest.iconBackground,
-                grayOut ? R.color.disabled_resolver : 0);
+        mScriptAccount.loadIconBackground(imageView, grayOut);
     }
 
     @Override
@@ -187,11 +178,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     @Override
     public ScriptObject getScriptObject() {
         return mScriptObject;
-    }
-
-    @Override
-    public void start(ScriptJob job) {
-        mScriptAccount.startJob(job);
     }
 
     /**

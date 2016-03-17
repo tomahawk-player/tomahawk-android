@@ -17,8 +17,11 @@
  */
 package org.tomahawk.tomahawk_android.views;
 
+import org.tomahawk.libtomahawk.infosystem.charts.ScriptChartsManager;
+import org.tomahawk.libtomahawk.infosystem.charts.ScriptChartsProvider;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.fragments.ChartsPagerFragment;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
@@ -101,7 +104,16 @@ public class Selector extends FrameLayout {
                 final TextView textView = (TextView) item.findViewById(R.id.textview);
                 textView.setText(mFragmentInfos.get(i).mTitle.toUpperCase());
                 ImageView imageView = (ImageView) item.findViewById(R.id.imageview);
-                imageView.setImageResource(mFragmentInfos.get(i).mIconResId);
+                if (mFragmentInfos.get(i).mBundle
+                        .containsKey(ChartsPagerFragment.CHARTSPROVIDER_ID)) {
+                    String chartsProviderId = mFragmentInfos.get(i).mBundle
+                            .getString(ChartsPagerFragment.CHARTSPROVIDER_ID);
+                    ScriptChartsProvider provider =
+                            ScriptChartsManager.get().getScriptChartsProvider(chartsProviderId);
+                    provider.getScriptAccount().loadIconWhite(imageView);
+                } else {
+                    imageView.setImageResource(mFragmentInfos.get(i).mIconResId);
+                }
 
                 final int position = i;
                 item.setOnClickListener(new View.OnClickListener() {

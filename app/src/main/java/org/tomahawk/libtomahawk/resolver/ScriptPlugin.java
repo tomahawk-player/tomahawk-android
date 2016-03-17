@@ -23,6 +23,4 @@ public interface ScriptPlugin {
 
     ScriptAccount getScriptAccount();
 
-    void start(ScriptJob job);
-
 }

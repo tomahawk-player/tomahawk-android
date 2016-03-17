@@ -204,6 +204,9 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
             return;
         }
 
+        View loadingIndicator = getView().findViewById(R.id.circularprogressview_pager);
+        loadingIndicator.setVisibility(View.GONE);
+
         fillAdapter(fragmentInfoLists, initialPage, offscreenPageLimit);
 
         mPageIndicator = (PageIndicator) getView().findViewById(R.id.page_indicator);

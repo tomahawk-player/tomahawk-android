@@ -98,7 +98,15 @@ public class ArtistsFragment extends TomahawkFragment {
         }
 
         if (mArtistArray != null) {
-            fillAdapter(new Segment.Builder(mArtistArray).build());
+            Segment.Builder builder = new Segment.Builder(mArtistArray);
+            if (mShowMode == ChartsPagerFragment.SHOW_MODE_CHARTS) {
+                builder.showAsGrid(R.integer.grid_column_count,
+                        R.dimen.padding_superlarge,
+                        R.dimen.padding_superlarge);
+            }
+            Segment segment = builder.build();
+            segment.setShowNumeration(true, 1);
+            fillAdapter(segment);
         } else {
             mCollection.getArtists(getSortMode())
                     .done(new DoneCallback<CollectionCursor<Artist>>() {
