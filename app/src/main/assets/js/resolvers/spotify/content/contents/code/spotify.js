@@ -58,30 +58,30 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 }
                 resolve(refreshToken);
             }).then(function (result) {
-                    Tomahawk.log("Fetching new access token ...");
-                    var settings = {
-                        headers: {
-                            "Authorization": "Basic "
-                            + Tomahawk.base64Encode(that._spell(that.clientId)
-                                + ":" + that._spell(that.clientSecret)),
-                            "Content-Type": "application/x-www-form-urlencoded"
-                        },
-                        data: {
-                            "grant_type": "refresh_token",
-                            "refresh_token": result
-                        }
-                    };
-                    return Tomahawk.post("https://accounts.spotify.com/api/token", settings)
-                        .then(function (res) {
-                            that.accessToken = res.access_token;
-                            that.accessTokenExpires = new Date().getTime() + res.expires_in
-                                * 1000;
-                            Tomahawk.log("Received new access token!");
-                            return {
-                                accessToken: res.access_token
-                            };
-                        });
-                });
+                Tomahawk.log("Fetching new access token ...");
+                var settings = {
+                    headers: {
+                        "Authorization": "Basic "
+                        + Tomahawk.base64Encode(that._spell(that.clientId)
+                            + ":" + that._spell(that.clientSecret)),
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    data: {
+                        "grant_type": "refresh_token",
+                        "refresh_token": result
+                    }
+                };
+                return Tomahawk.post("https://accounts.spotify.com/api/token", settings)
+                    .then(function (res) {
+                        that.accessToken = res.access_token;
+                        that.accessTokenExpires = new Date().getTime() + res.expires_in
+                            * 1000;
+                        Tomahawk.log("Received new access token!");
+                        return {
+                            accessToken: res.access_token
+                        };
+                    });
+            });
         }
         return this.getAccessTokenPromise;
     },
@@ -334,4 +334,131 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
 });
 
 Tomahawk.resolver.instance = SpotifyResolver;
+
+Tomahawk.PluginManager.registerPlugin('chartsProvider', {
+
+    _baseUrl: "https://spotifycharts.com/api/",
+
+    countryCodes: {
+        defaultCode: "global",
+        codes: [
+            {"Global": "global"},
+            {"United States": "us"},
+            {"United Kingdom": "gb"},
+            {"Andorra": "ad"},
+            {"Argentina": "ar"},
+            {"Australia": "au"},
+            {"Austria": "at"},
+            {"Belgium": "be"},
+            {"Bolivia": "bo"},
+            {"Brazil": "br"},
+            {"Bulgaria": "bg"},
+            {"Canada": "ca"},
+            {"Chile": "cl"},
+            {"Colombia": "co"},
+            {"Costa Rica": "cr"},
+            {"Cyprus": "cy"},
+            {"Czech Republic": "cz"},
+            {"Denmark": "dk"},
+            {"Dominican Republic": "do"},
+            {"Ecuador": "ec"},
+            {"El Salvador": "sv"},
+            {"Estonia": "ee"},
+            {"Finland": "fi"},
+            {"France": "fr"},
+            {"Germany": "de"},
+            {"Greece": "gr"},
+            {"Guatemala": "gt"},
+            {"Honduras": "hn"},
+            {"Hong Kong": "hk"},
+            {"Hungary": "hu"},
+            {"Iceland": "is"},
+            {"Ireland": "ie"},
+            {"Italy": "it"},
+            {"Latvia": "lv"},
+            {"Lithuania": "lt"},
+            {"Luxembourg": "lu"},
+            {"Malaysia": "my"},
+            {"Malta": "mt"},
+            {"Mexico": "mx"},
+            {"Netherlands": "nl"},
+            {"New Zealand": "nz"},
+            {"Nicaragua": "ni"},
+            {"Norway": "no"},
+            {"Panama": "pa"},
+            {"Paraguay": "py"},
+            {"Peru": "pe"},
+            {"Philippines": "ph"},
+            {"Poland": "pl"},
+            {"Portugal": "pt"},
+            {"Singapore": "sg"},
+            {"Slovakia": "sk"},
+            {"Spain": "es"},
+            {"Sweden": "se"},
+            {"Switzerland": "ch"},
+            {"Taiwan": "tw"},
+            {"Turkey": "tr"},
+            {"Uruguay": "uy"}
+        ]
+    },
+
+    types: [
+        {"Top 200": "regional"},
+        {"Viral 50": "viral"}
+    ],
+
+    /**
+     * Get the charts from the server specified by the given params map and parse them into the
+     * correct result format.
+     *
+     * @param params A map containing all of the necessary parameters describing the charts which to
+     *               get from the server.
+     *
+     *               Example:
+     *               { countryCode: "us",                //country code from the countryCodes map
+     *                 type: "regional" }                //type from the types map
+     *
+     * @returns A map consisting of the contentType and parsed results.
+     *
+     *          Example:
+     *          { contentType: Tomahawk.UrlType.Track,
+     *            results: [
+     *              { track: "We will rock you",
+     *                artist: "Queen",
+     *                album: "Greatest Hits" },
+     *              { track: "Bohemian rhapsody",
+     *                artist: "Queen",
+     *                album: "Greatest Hits" }
+     *            ]
+     *          }
+     *
+     */
+    charts: function (params) {
+        var url = this._baseUrl;
+        var options = {
+            data: {
+                country: params.countryCode,
+                recurrence: "daily",
+                date: "latest",
+                type: params.type
+            }
+        };
+        return Tomahawk.get(url, options).then(function (response) {
+            var parsedResults = [];
+            for (var i = 0; i < response.entries.items.length; i++) {
+                var entry = response.entries.items[i];
+                parsedResults.push({
+                    track: entry.track.name,
+                    artist: entry.track.artists[0].name,
+                    album: ""
+                });
+            }
+            return {
+                contentType: Tomahawk.UrlType.Track,
+                results: parsedResults
+            };
+        });
+    }
+
+});
 

@@ -1,9 +1,9 @@
 {
-	"name": "Hatchet Metadata",
+	"name": "Hatchet",
 	"pluginName": "hatchet-metadata",
 	"author": "Enno Gottschalk",
 	"email": "mrmaffen@googlemail.com",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"website": "http://gettomahawk.com",
 	"description": "Supports loading/drag'n'drop of hatchet.is URLs.",
 	"type": "resolver/javascript",
@@ -11,8 +11,7 @@
 		"main": "contents/code/hatchet-metadata.js",
 		"scripts": [],
 		"icon": "contents/images/icon.png",
-		"resources": [
-			"contents/code/hatchet-metadata.png"
-		]
+		"iconWhite": "contents/images/iconWhite.png",
+		"iconBackground": "contents/images/iconBackground.png"
 	}
 }

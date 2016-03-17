@@ -1,0 +1,17 @@
+{
+    "name": "iTunes",
+    "pluginName": "itunes",
+    "author": "Enno",
+    "email": "mrmaffen@googlemail.com",
+    "version": "0.0.1",
+    "website": "https://itunes.apple.com",
+    "description": "Gets the latest and greatest iTunes Charts.",
+    "type": "resolver/javascript",
+    "manifest": {
+        "main": "contents/code/itunes.js",
+        "scripts": [],
+        "icon": "contents/images/icon.png",
+        "iconWhite": "contents/images/iconWhite.png",
+        "iconBackground": "contents/images/iconBackground.png"
+    }
+}

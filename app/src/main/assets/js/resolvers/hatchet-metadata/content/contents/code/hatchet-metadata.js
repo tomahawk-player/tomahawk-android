@@ -129,3 +129,114 @@ var HatchetMetadataResolver = Tomahawk.extend(Tomahawk.Resolver, {
 });
 
 Tomahawk.resolver.instance = HatchetMetadataResolver;
+
+Tomahawk.PluginManager.registerPlugin('chartsProvider', {
+
+    _baseUrl: "https://api.hatchet.is/v2/charts",
+
+    countryCodes: {
+        defaultCode: "global",
+        codes: [
+            {"Global": "global"}
+        ]
+    },
+
+    types: [
+        {"Songs": "track"},
+        {"Artists": "artist"},
+        {"Albums": "album"}
+    ],
+
+    /**
+     * Get the charts from the server specified by the given params map and parse them into the
+     * correct result format.
+     *
+     * @param params A map containing all of the necessary parameters describing the charts which to
+     *               get from the server.
+     *
+     *               Example:
+     *               { countryCode: "us",                //country code from the countryCodes map
+     *                 type: "regional" }                //type from the types map
+     *
+     * @returns A map consisting of the contentType and parsed results.
+     *
+     *          Example:
+     *          { contentType: Tomahawk.UrlType.Track,
+     *            results: [
+     *              { track: "We will rock you",
+     *                artist: "Queen",
+     *                album: "Greatest Hits" },
+     *              { track: "Bohemian rhapsody",
+     *                artist: "Queen",
+     *                album: "Greatest Hits" }
+     *            ]
+     *          }
+     *
+     */
+    charts: function (params) {
+        var url = this._baseUrl;
+        var options = {
+            data: {
+                type: params.type
+            }
+        };
+        return Tomahawk.get(url, options).then(function (response) {
+            var chartItemsMaps = {};
+            response.chartItems.forEach(function (item) {
+                chartItemsMaps[item.id] = item;
+            });
+            var tracksMaps = {};
+            if (response.tracks) {
+                response.tracks.forEach(function (item) {
+                    tracksMaps[item.id] = item;
+                });
+            }
+            var artistsMaps = {};
+            response.artists.forEach(function (item) {
+                artistsMaps[item.id] = item;
+            });
+            var albumsMaps = {};
+            if (response.albums) {
+                response.albums.forEach(function (item) {
+                    albumsMaps[item.id] = item;
+                });
+            }
+            var parsedResults = [];
+            for (var i = 0; i < response.chart[0].chartItems.length; i++) {
+                var chartItemId = response.chart[0].chartItems[i];
+                var chartItem = chartItemsMaps[chartItemId];
+                if (params.type == "track") {
+                    var track = tracksMaps[chartItem.track];
+                    parsedResults.push({
+                        track: track.name,
+                        artist: artistsMaps[track.artist].name,
+                        album: ""
+                    });
+                } else if (params.type == "artist") {
+                    parsedResults.push({
+                        artist: artistsMaps[chartItem.artist].name
+                    });
+                } else if (params.type == "album") {
+                    var album = albumsMaps[chartItem.album];
+                    parsedResults.push({
+                        artist: artistsMaps[album.artist].name,
+                        album: album.name
+                    });
+                }
+            }
+            var contentType;
+            if (params.type == "track") {
+                contentType = Tomahawk.UrlType.Track;
+            } else if (params.type == "artist") {
+                contentType = Tomahawk.UrlType.Artist;
+            } else if (params.type == "album") {
+                contentType = Tomahawk.UrlType.Album;
+            }
+            return {
+                contentType: contentType,
+                results: parsedResults
+            };
+        });
+    }
+
+});
