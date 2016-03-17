@@ -65,6 +65,7 @@ import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.fragments.PreferenceAdvancedFragment;
 import org.tomahawk.tomahawk_android.fragments.PreferencePagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
+import org.tomahawk.tomahawk_android.fragments.ChartsSelectorFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.UserPagerFragment;
@@ -137,6 +138,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
     public static final String HUB_ID_USERPAGE = "userpage";
 
     public static final String HUB_ID_FEED = "feed";
+
+    public static final String HUB_ID_CHARTS = "charts";
 
     public static final String HUB_ID_COLLECTION = "collection";
 
@@ -366,6 +369,9 @@ public class TomahawkMainActivity extends AppCompatActivity {
                         });
                     }
                 });
+            } else if (holder.id.equals(HUB_ID_CHARTS)) {
+                FragmentUtils
+                        .replace(TomahawkMainActivity.this, ChartsSelectorFragment.class, bundle);
             } else if (holder.id.equals(HUB_ID_COLLECTION)) {
                 bundle.putString(TomahawkFragment.COLLECTION_ID,
                         TomahawkApp.PLUGINNAME_USERCOLLECTION);
@@ -1273,6 +1279,11 @@ public class TomahawkMainActivity extends AppCompatActivity {
                     holder.iconResId = R.drawable.ic_action_dashboard;
                     holders.add(holder);
                 }
+                holder = new TomahawkMenuAdapter.ResourceHolder();
+                holder.id = HUB_ID_CHARTS;
+                holder.title = getString(R.string.drawer_title_charts);
+                holder.iconResId = R.drawable.ic_action_charts;
+                holders.add(holder);
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = HUB_ID_COLLECTION;
                 holder.title = getString(R.string.drawer_title_collection);

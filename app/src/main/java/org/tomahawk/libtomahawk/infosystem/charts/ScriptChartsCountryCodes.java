@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+/* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2012, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2016, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,13 +15,18 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
--->
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-          android:layout_width="match_parent"
-          android:layout_height="wrap_content"
-          android:layout_gravity="center"
-          android:padding="@dimen/padding_medium"
-          android:ellipsize="marquee"
-          android:singleLine="true"
-          android:textColor="@color/secondary_textcolor"
-          android:textSize="@dimen/text_size_small"/>
+package org.tomahawk.libtomahawk.infosystem.charts;
+
+import android.support.v4.util.Pair;
+
+import java.util.List;
+
+public class ScriptChartsCountryCodes {
+
+    public String defaultCode;
+
+    public List<Pair<String,String>> codes;
+
+    public ScriptChartsCountryCodes() {
+    }
+}

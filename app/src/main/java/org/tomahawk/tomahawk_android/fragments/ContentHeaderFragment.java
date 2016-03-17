@@ -86,6 +86,8 @@ public class ContentHeaderFragment extends Fragment {
 
     public static final int MODE_HEADER_PLAYBACK = 6;
 
+    public static final int MODE_HEADER_STATIC_CHARTS = 7;
+
     public static final int ANIM_BUTTON_ID = 0;
 
     public static final int ANIM_FANCYDROPDOWN_ID = 1;
@@ -183,6 +185,10 @@ public class ContentHeaderFragment extends Fragment {
                     mHeaderNonscrollableHeight = res.getDimensionPixelSize(
                             R.dimen.abc_action_bar_default_height_material)
                             + res.getDimensionPixelSize(R.dimen.pager_indicator_height);
+                    break;
+                case MODE_HEADER_STATIC_CHARTS:
+                    mHeaderNonscrollableHeight = res.getDimensionPixelSize(
+                            R.dimen.header_clear_space_nonscrollable);
                     break;
                 case MODE_ACTIONBAR_FILLED:
                     mHeaderNonscrollableHeight = res.getDimensionPixelSize(

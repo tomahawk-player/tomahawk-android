@@ -247,7 +247,15 @@ public class AlbumsFragment extends TomahawkFragment {
                         });
             }
         } else if (mAlbumArray != null) {
-            fillAdapter(new Segment.Builder(mAlbumArray).build());
+            Segment.Builder builder = new Segment.Builder(mAlbumArray);
+            if (mShowMode == ChartsPagerFragment.SHOW_MODE_CHARTS) {
+                builder.showAsGrid(R.integer.grid_column_count,
+                        R.dimen.padding_superlarge,
+                        R.dimen.padding_superlarge);
+            }
+            Segment segment = builder.build();
+            segment.setShowNumeration(true, 1);
+            fillAdapter(segment);
         } else if (mUser != null) {
             String id = mCollection.getId();
             Segment segment = new Segment.Builder(sortLovedAlbums(mUser, mUser.getStarredAlbums()))

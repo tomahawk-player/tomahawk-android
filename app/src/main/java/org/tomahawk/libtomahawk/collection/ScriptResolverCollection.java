@@ -125,11 +125,6 @@ public class ScriptResolverCollection extends DbCollection implements ScriptPlug
     }
 
     @Override
-    public void start(ScriptJob job) {
-        mScriptAccount.startJob(job);
-    }
-
-    @Override
     public void loadIcon(final ImageView imageView, final boolean grayOut) {
         getMetaData().done(new DoneCallback<ScriptResolverCollectionMetaData>() {
             @Override

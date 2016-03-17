@@ -51,22 +51,44 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
-    <ViewStub android:id="@+id/content_header_pager_stub"
-              android:inflatedId="@+id/content_header_pager"
-              android:layout="@layout/content_header"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"/>
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:orientation="vertical">
 
-    <ViewStub android:id="@+id/content_header_static_pager_stub"
-              android:inflatedId="@+id/content_header_static_pager"
-              android:layout="@layout/content_header_static"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"/>
+        <FrameLayout android:layout_width="match_parent"
+                     android:layout_height="wrap_content">
 
-    <ViewStub android:id="@+id/content_header_user_pager_stub"
-              android:inflatedId="@+id/content_header_user_pager"
-              android:layout="@layout/content_header_user"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"/>
+            <ViewStub android:id="@+id/content_header_pager_stub"
+                      android:inflatedId="@+id/content_header_pager"
+                      android:layout="@layout/content_header"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"/>
+
+            <ViewStub android:id="@+id/content_header_static_pager_stub"
+                      android:inflatedId="@+id/content_header_static_pager"
+                      android:layout="@layout/content_header_static"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"/>
+
+            <ViewStub android:id="@+id/content_header_user_pager_stub"
+                      android:inflatedId="@+id/content_header_user_pager"
+                      android:layout="@layout/content_header_user"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"/>
+        </FrameLayout>
+
+        <com.github.rahatarmanahmed.cpv.CircularProgressView
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/circularprogressview_pager"
+                android:layout_width="@dimen/menu_item_height"
+                android:layout_height="@dimen/menu_item_height"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="48dp"
+                app:cpv_color="@color/tomahawk_red"
+                app:cpv_thickness="2dp"
+                app:cpv_indeterminate="true"
+                app:cpv_animAutostart="true"/>
+
+    </LinearLayout>
 
 </FrameLayout>

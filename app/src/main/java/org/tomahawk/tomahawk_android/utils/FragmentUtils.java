@@ -87,7 +87,7 @@ public class FragmentUtils {
      * @param bundle   Bundle which contains arguments (can be null)
      */
     public static void replace(TomahawkMainActivity activity, Class clss, Bundle bundle) {
-        replace(activity, clss, bundle, R.id.content_viewer_frame);
+        replace(activity, clss, bundle, 0);
     }
 
     /**
@@ -103,9 +103,11 @@ public class FragmentUtils {
     public static void replace(TomahawkMainActivity activity, Class clss, Bundle bundle,
             int frameResId) {
         FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
-        ft.replace(frameResId, Fragment.instantiate(activity, clss.getName(), bundle),
-                FRAGMENT_TAG);
-        ft.addToBackStack(FRAGMENT_TAG);
+        ft.replace(frameResId == 0 ? R.id.content_viewer_frame : frameResId,
+                Fragment.instantiate(activity, clss.getName(), bundle), FRAGMENT_TAG);
+        if (frameResId == 0) {
+            ft.addToBackStack(FRAGMENT_TAG);
+        }
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commitAllowingStateLoss();
         activity.collapsePanel();

@@ -90,6 +90,8 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
                     mContainerFragmentClass = UserPagerFragment.class;
                 } else if (CollectionPagerFragment.class.getName().equals(fragmentName)) {
                     mContainerFragmentClass = CollectionPagerFragment.class;
+                } else if (ChartsPagerFragment.class.getName().equals(fragmentName)) {
+                    mContainerFragmentClass = ChartsPagerFragment.class;
                 }
             }
         }

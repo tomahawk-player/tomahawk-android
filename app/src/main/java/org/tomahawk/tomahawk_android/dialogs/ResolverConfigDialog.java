@@ -136,6 +136,7 @@ public class ResolverConfigDialog extends ConfigDialog {
                     }
                     ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(
                             TomahawkApp.getContext(), R.layout.spinner_textview, list);
+                    adapter.setDropDownViewResource(R.layout.spinner_dropdown_textview);
                     dropDown.setAdapter(adapter);
                     if (config.get(field.id) != null) {
                         dropDown.setSelection(((Double) config.get(field.id)).intValue());
