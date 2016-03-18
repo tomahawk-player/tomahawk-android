@@ -144,9 +144,6 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         super.onDestroyView();
     }
 
-    /**
-     * Save the {@link String} inside the search {@link android.widget.TextView}.
-     */
     @Override
     public void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
