@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.resolver.models.ScriptResolverMetaData;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.adapters.CountryCodeSpinnerAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.views.Selector;
@@ -46,7 +47,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -260,10 +260,12 @@ public class ChartsSelectorFragment extends Fragment {
                 @Override
                 public void onDone(final ScriptChartsCountryCodes result) {
                     final ArrayList<String> countryCodes = new ArrayList<>();
-                    final ArrayList<CharSequence> displayedCountryCodes = new ArrayList<>();
+                    final ArrayList<String> displayedCountryCodes = new ArrayList<>();
+                    final ArrayList<String> displayedCountryCodeNames = new ArrayList<>();
                     for (Pair<String, String> countryCode : result.codes) {
                         countryCodes.add(countryCode.second);
                         displayedCountryCodes.add(countryCode.second.toUpperCase());
+                        displayedCountryCodeNames.add(countryCode.first);
                     }
                     int initialPosition = -1;
                     if (isInitial) {
@@ -282,9 +284,10 @@ public class ChartsSelectorFragment extends Fragment {
                     }
                     Spinner mCountryCodePickerSpinner = (Spinner) mCountryCodePicker
                             .getActionView();
-                    ArrayAdapter<CharSequence> adapter =
-                            new ArrayAdapter<>(TomahawkApp.getContext(),
-                                    R.layout.spinner_textview_country_code, displayedCountryCodes);
+                    CountryCodeSpinnerAdapter adapter =
+                            new CountryCodeSpinnerAdapter(TomahawkApp.getContext(),
+                                    R.layout.spinner_textview_country_code, displayedCountryCodes,
+                                    displayedCountryCodeNames);
                     adapter.setDropDownViewResource(
                             R.layout.spinner_dropdown_textview_country_code);
                     mCountryCodePickerSpinner.setAdapter(adapter);
