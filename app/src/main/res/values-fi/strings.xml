@@ -89,6 +89,7 @@
   <string name="context_menu_share">Jaa</string>
   <string name="contest_menu_share_error">Sinun täytyy kirjautua Hatchetiin, jotta voit jakaa tämän soittolistan.</string>
   <string name="drawer_title_feed">Syöte</string>
+  <string name="drawer_title_charts">Listat</string>
   <string name="drawer_title_collection">Kokoelma</string>
   <string name="drawer_title_playlists">Soittolistat</string>
   <string name="drawer_title_lovedtracks">Suosikit</string>

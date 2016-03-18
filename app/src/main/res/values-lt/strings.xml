@@ -14,6 +14,7 @@
   <string name="users">Naudotojai</string>
   <string name="top_hits">Populiariausi Takeliai</string>
   <string name="top_albums">Populiariausi Albumai</string>
+  <string name="other_releases">Kitos laidos</string>
   <string name="playlist_details">Išsamiau apie Grojaraštį</string>
   <string name="album_details">Išsamiau apie Albumą</string>
   <string name="search">Paieška</string>
@@ -82,6 +83,8 @@
   <string name="collection_dropdown_alpha_albums">Albumai A-Ž</string>
   <string name="collection_dropdown_alpha">A-Ž</string>
   <string name="history">Žurnalas</string>
+  <string name="drawer_open">Atidaryti naršymo stalčių</string>
+  <string name="drawer_close">Uždaryti naršymo stalčių</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Sekate</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
