@@ -89,6 +89,7 @@
   <string name="context_menu_share">Compartir</string>
   <string name="contest_menu_share_error">Debes ingresar a Hatchet para poder compartir esta lista de reproducción.</string>
   <string name="drawer_title_feed">Noticias</string>
+  <string name="drawer_title_charts">Gráficas</string>
   <string name="drawer_title_collection">Colección</string>
   <string name="drawer_title_playlists">Listas de reproducción</string>
   <string name="drawer_title_lovedtracks">Favoritos</string>
@@ -227,4 +228,7 @@
   <string name="unknown_album">Álbum desconocido</string>
   <string name="unknown_artist">Artista desconocido</string>
   <string name="notification_settings_activity_not_found">No se pudo encontrar la configuración de la aplicación en su dispositivo. Por favor dé a Tomahawk acceso a sus alertas en tu Configuración del sistema.</string>
+  <string name="warn_closed_source_text">Advertencia: está a punto de descargar un plugin que contiene partes de código cerrado.</string>
+  <string name="warn_old_plugin">La aplicación plug-in requerida está obsoleta y ya no es compatible. ¿Quieres actualizar ahora?</string>
+  <string name="warn_no_plugin">La aplicación plug-in requerida no se encuentra instalada. ¿Quieres instalarla ahora?</string>
 </resources>
