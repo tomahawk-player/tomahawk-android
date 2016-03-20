@@ -89,6 +89,7 @@
   <string name="context_menu_share">Share</string>
   <string name="contest_menu_share_error">You have to log into Hatchet to be able to share this playlist.</string>
   <string name="drawer_title_feed">Feed</string>
+  <string name="drawer_title_charts">Charts</string>
   <string name="drawer_title_collection">Collection</string>
   <string name="drawer_title_playlists">Playlists</string>
   <string name="drawer_title_lovedtracks">Favourites</string>

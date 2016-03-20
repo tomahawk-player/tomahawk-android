@@ -89,6 +89,7 @@
   <string name="context_menu_share">共有</string>
   <string name="contest_menu_share_error">このプレイリストを共有するには Hatchet にログインする必要があります。</string>
   <string name="drawer_title_feed">フィード</string>
+  <string name="drawer_title_charts">チャート</string>
   <string name="drawer_title_collection">コレックション</string>
   <string name="drawer_title_playlists">プレイリスト</string>
   <string name="drawer_title_lovedtracks">お気に入り</string>
