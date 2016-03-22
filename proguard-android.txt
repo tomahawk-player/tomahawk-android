@@ -33,6 +33,9 @@
 -keep class * implements android.os.Parcelable {
   public static final android.os.Parcelable$Creator *;
 }
+-keep class * implements java.io.Serializable {
+    *;
+}
 -keepclassmembers class **.R$* {
     public static <fields>;
 }
