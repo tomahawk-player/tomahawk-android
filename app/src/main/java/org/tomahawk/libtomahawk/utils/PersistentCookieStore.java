@@ -41,8 +41,6 @@ public class PersistentCookieStore implements CookieStore {
 
     private static final String SP_KEY_DELIMITER = "♠"; // Unusual char in URL
 
-    private static final String SP_KEY_DELIMITER_REGEX = "\\" + SP_KEY_DELIMITER;
-
     private SharedPreferences sharedPreferences;
 
     // In memory
@@ -59,21 +57,22 @@ public class PersistentCookieStore implements CookieStore {
 
         Map<String, ?> allPairs = sharedPreferences.getAll();
         for (Map.Entry<String, ?> entry : allPairs.entrySet()) {
-            String[] uriAndName = entry.getKey().split(SP_KEY_DELIMITER_REGEX, 2);
+            String[] uriAndName = entry.getKey().split(SP_KEY_DELIMITER, 2);
             try {
                 URI uri = new URI(uriAndName[0]);
                 String encodedCookie = (String) entry.getValue();
-                HttpCookie cookie = new SerializableHttpCookie()
-                        .decode(encodedCookie);
+                HttpCookie cookie = new SerializableHttpCookie().decode(encodedCookie);
 
-                Set<HttpCookie> targetCookies = allCookies.get(uri);
-                if (targetCookies == null) {
-                    targetCookies = new HashSet<>();
-                    allCookies.put(uri, targetCookies);
+                if (cookie != null) {
+                    Set<HttpCookie> targetCookies = allCookies.get(uri);
+                    if (targetCookies == null) {
+                        targetCookies = new HashSet<>();
+                        allCookies.put(uri, targetCookies);
+                    }
+                    // Repeated cookies cannot exist in persistence
+                    // targetCookies.remove(cookie)
+                    targetCookies.add(cookie);
                 }
-                // Repeated cookies cannot exist in persistence
-                // targetCookies.remove(cookie)
-                targetCookies.add(cookie);
             } catch (URISyntaxException e) {
                 Log.w(TAG, e);
             }
