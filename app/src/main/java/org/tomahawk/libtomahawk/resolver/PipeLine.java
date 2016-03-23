@@ -106,14 +106,11 @@ public class PipeLine {
     private final Set<String> mWaitingUrlLookups =
             Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
-    private final Set<Query> mWaitingQueries = Collections
-            .newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
+    private final Set<Query> mWaitingQueries =
+            Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
-    private final Set<ScriptAccount> mLoadingPlugins = Collections
-            .newSetFromMap(new ConcurrentHashMap<ScriptAccount, Boolean>());
-
-    private final Set<Resolver> mInitializingResolvers = Collections
-            .newSetFromMap(new ConcurrentHashMap<Resolver, Boolean>());
+    private final Set<ScriptAccount> mLoadingPlugins =
+            Collections.newSetFromMap(new ConcurrentHashMap<ScriptAccount, Boolean>());
 
     private PipeLine() {
         try {
@@ -152,16 +149,8 @@ public class PipeLine {
 
     public void onPluginLoaded(ScriptAccount account) {
         mLoadingPlugins.remove(account);
-    }
-
-    public void onResolverInitialized(ScriptResolver resolver) {
-        mInitializingResolvers.remove(resolver);
-        checkWaitingJobs();
-    }
-
-    private synchronized void checkWaitingJobs() {
-        if (mLoadingPlugins.isEmpty() && mInitializingResolvers.isEmpty()) {
-            Log.d(TAG, "All plugins loaded. All resolvers initialized. Resolving "
+        if (mLoadingPlugins.isEmpty()) {
+            Log.d(TAG, "All plugins loaded. Resolving "
                     + mWaitingQueries.size() + " waiting queries. Looking up "
                     + mWaitingUrlLookups.size() + " waiting URLs.");
             for (Query query : mWaitingQueries) {
@@ -183,9 +172,6 @@ public class PipeLine {
 
     public void addResolver(ScriptResolver resolver) {
         mResolvers.add(resolver);
-        if (!resolver.isInitialized()) {
-            mInitializingResolvers.add(resolver);
-        }
         ResolversChangedEvent event = new ResolversChangedEvent();
         event.mScriptResolver = resolver;
         event.mManuallyAdded = mManualScriptAccounts.contains(resolver.getScriptAccount());
@@ -257,7 +243,7 @@ public class PipeLine {
         final TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_RESOLVING) {
             @Override
             public void run() {
-                if (!mLoadingPlugins.isEmpty() || !mInitializingResolvers.isEmpty()) {
+                if (!mLoadingPlugins.isEmpty()) {
                     mWaitingQueries.add(q);
                 } else {
                     for (Resolver resolver : mResolvers) {
@@ -363,7 +349,7 @@ public class PipeLine {
 
     public void lookupUrl(final String url) {
         Log.d(TAG, "lookupUrl - looking up url: " + url);
-        if (!mLoadingPlugins.isEmpty() || !mInitializingResolvers.isEmpty()) {
+        if (!mLoadingPlugins.isEmpty()) {
             mWaitingUrlLookups.add(url);
         } else {
             for (Resolver resolver : mResolvers) {
