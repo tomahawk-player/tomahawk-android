@@ -44,9 +44,12 @@ import android.widget.ImageView;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
 
@@ -80,6 +83,12 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     private boolean mStopped;
 
     private boolean mConfigTestable;
+
+    private final Set<String> mWaitingUrlLookups =
+            Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
+
+    private final Set<Query> mWaitingQueries =
+            Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     private static final int TIMEOUT_HANDLER_MSG = 1337;
 
@@ -189,15 +198,27 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
             public void onReportResults() {
                 mInitialized = true;
                 Log.d(TAG, "ScriptResolver " + mId + " initialized successfully.");
-                PipeLine.get().onResolverInitialized(ScriptResolver.this);
+                invokeWaitingJobs();
             }
         }, new ScriptJob.FailureCallback() {
             @Override
             public void onReportFailure(String errormessage) {
                 Log.d(TAG, "ScriptResolver " + mId + " failed to initialize.");
-                PipeLine.get().onResolverInitialized(ScriptResolver.this);
             }
         });
+    }
+
+    private synchronized void invokeWaitingJobs() {
+        Log.d(TAG, "Resolving " + mWaitingQueries.size() + " waiting queries. Looking up "
+                + mWaitingUrlLookups.size() + " waiting URLs.");
+        for (Query query : mWaitingQueries) {
+            resolve(query);
+        }
+        mWaitingQueries.clear();
+        for (String url : mWaitingUrlLookups) {
+            lookupUrl(url);
+        }
+        mWaitingUrlLookups.clear();
     }
 
     /**
@@ -239,21 +260,25 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     }
 
     public void lookupUrl(final String url) {
-        HashMap<String, Object> args = new HashMap<>();
-        args.put("url", url);
-        ScriptJob.start(mScriptObject, "lookupUrl", args,
-                new ScriptJob.ResultsCallback<ScriptResolverUrlResult>(
-                        ScriptResolverUrlResult.class) {
-                    @Override
-                    public void onReportResults(ScriptResolverUrlResult results) {
-                        Log.d(TAG, "reportUrlResult - url: " + url);
-                        PipeLine.UrlResultsEvent event = new PipeLine.UrlResultsEvent();
-                        event.mResolver = ScriptResolver.this;
-                        event.mResult = results;
-                        EventBus.getDefault().post(event);
-                        mStopped = true;
-                    }
-                });
+        if (mInitialized) {
+            HashMap<String, Object> args = new HashMap<>();
+            args.put("url", url);
+            ScriptJob.start(mScriptObject, "lookupUrl", args,
+                    new ScriptJob.ResultsCallback<ScriptResolverUrlResult>(
+                            ScriptResolverUrlResult.class) {
+                        @Override
+                        public void onReportResults(ScriptResolverUrlResult results) {
+                            Log.d(TAG, "reportUrlResult - url: " + url);
+                            PipeLine.UrlResultsEvent event = new PipeLine.UrlResultsEvent();
+                            event.mResolver = ScriptResolver.this;
+                            event.mResult = results;
+                            EventBus.getDefault().post(event);
+                            mStopped = true;
+                        }
+                    });
+        } else {
+            mWaitingUrlLookups.add(url);
+        }
     }
 
     /**
@@ -291,6 +316,8 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                 args.put("track", query.getName());
                 ScriptJob.start(mScriptObject, "_adapter_resolve", args, callback);
             }
+        } else {
+            mWaitingQueries.add(query);
         }
     }
 

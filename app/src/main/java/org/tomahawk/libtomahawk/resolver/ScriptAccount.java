@@ -217,8 +217,11 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
      */
     @Override
     public void onWebViewClientReady() {
-        registerPlugin(ScriptObject.TYPE_RESOLVER);
-        PipeLine.get().onPluginLoaded(this);
+        //TODO: Remove this hack once we can get rid of Tomahawk.resolver.instance completely
+        evaluateJavaScript("Tomahawk.resolver.instance = Tomahawk.resolver.instance "
+                + "|| Tomahawk.extend(Tomahawk.Resolver, {});"
+                + "Tomahawk.PluginManager.registerPlugin('" + ScriptObject.TYPE_RESOLVER
+                + "', Tomahawk.resolver.instance);");
     }
 
     public ScriptResolver getScriptResolver() {
@@ -288,12 +291,6 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
 
     private String buildPreferenceKey() {
         return mMetaData.pluginName + "_" + CONFIG;
-    }
-
-    public void registerPlugin(String type) {
-        evaluateJavaScript("if (Tomahawk.resolver.instance) {"
-                + "Tomahawk.PluginManager.registerPlugin('" + type
-                + "', Tomahawk.resolver.instance);}");
     }
 
     public void unregisterAllPlugins() {
@@ -371,6 +368,7 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
         switch (type) {
             case ScriptObject.TYPE_RESOLVER:
                 mResolverPluginFactory.registerPlugin(object, this);
+                PipeLine.get().onPluginLoaded(this);
                 break;
             case ScriptObject.TYPE_COLLECTION:
                 mCollectionPluginFactory.registerPlugin(object, this);
