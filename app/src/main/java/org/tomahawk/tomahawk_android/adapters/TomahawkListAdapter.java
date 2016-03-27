@@ -37,7 +37,6 @@ import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
-import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.views.BiDirectionalFrame;
 
@@ -412,11 +411,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
                     viewHolder.fillView((Resolver) targetItem);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_playlist) {
-                    if (targetItem instanceof Playlist) {
-                        viewHolder.fillView((Playlist) targetItem);
-                    } else if (targetItem instanceof Integer) {
-                        viewHolder.fillView((int) targetItem);
-                    }
+                    viewHolder.fillView((Playlist) targetItem);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_user
                         || viewHolder.mLayoutId == R.layout.list_item_user) {
                     viewHolder.fillView((User) targetItem);
@@ -664,11 +659,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     return R.layout.grid_item_album;
                 } else if (firstItem instanceof Playlist) {
                     return R.layout.grid_item_playlist;
-                } else if (firstItem instanceof Integer) {
-                    switch ((Integer) firstItem) {
-                        case PlaylistsFragment.CREATE_PLAYLIST_BUTTON_ID:
-                            return R.layout.grid_item_playlist;
-                    }
                 } else {
                     Log.e(TAG, "getViewType - Couldn't find appropriate viewType!");
                     return 0;

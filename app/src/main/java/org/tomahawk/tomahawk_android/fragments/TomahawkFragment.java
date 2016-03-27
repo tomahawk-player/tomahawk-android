@@ -123,8 +123,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     protected static final long ADAPTER_UPDATE_DELAY = 500;
 
-    public static final int CREATE_PLAYLIST_BUTTON_ID = 8008135;
-
     private TomahawkListAdapter mTomahawkListAdapter;
 
     protected boolean mIsResumed;

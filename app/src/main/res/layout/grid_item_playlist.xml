@@ -26,12 +26,6 @@
               android:layout_weight="1"
               android:background="@drawable/selectable_background_tomahawk_opaque">
 
-    <ViewStub android:id="@+id/imageview_create_playlist_stub"
-              android:inflatedId="@+id/imageview_create_playlist"
-              android:layout="@layout/imageview_create_playlist"
-              android:layout_width="match_parent"
-              android:layout_height="wrap_content"/>
-
     <ViewStub android:id="@+id/imageview_grid_one_stub"
               android:inflatedId="@+id/imageview_grid_one"
               android:layout="@layout/imageview_grid_one"
