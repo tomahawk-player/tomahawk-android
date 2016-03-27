@@ -84,6 +84,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
         setDialogTitle(getString(R.string.create_playlist));
 
         hideStatusImage();
+        hideConnectImage();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());

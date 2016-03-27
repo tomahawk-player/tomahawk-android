@@ -80,6 +80,8 @@ public class SendLogConfigDialog extends ConfigDialog {
         ViewUtils.showSoftKeyboard(mEmailEditText);
 
         setDialogTitle(getString(R.string.preferences_app_sendlog));
+        hideConnectImage();
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
