@@ -34,7 +34,6 @@ import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
@@ -278,9 +277,6 @@ public class ViewHolder {
     }
 
     public void fillView(Playlist playlist) {
-        if (findViewById(R.id.imageview_create_playlist) != null) {
-            findViewById(R.id.imageview_create_playlist).setVisibility(View.GONE);
-        }
         ArrayList<Image> artistImages = new ArrayList<>();
         String topArtistsString = "";
         String[] artists = playlist.getTopArtistNames();
@@ -403,35 +399,6 @@ public class ViewHolder {
         }
         if (height > 0) {
             v.getLayoutParams().height = height;
-        }
-    }
-
-    public void fillView(int id) {
-        switch (id) {
-            case PlaylistsFragment.CREATE_PLAYLIST_BUTTON_ID:
-                View v = mRootView.findViewById(R.id.imageview_grid_one);
-                if (v != null) {
-                    v.setVisibility(View.GONE);
-                }
-                v = mRootView.findViewById(R.id.imageview_grid_two);
-                if (v != null) {
-                    v.setVisibility(View.GONE);
-                }
-                v = mRootView.findViewById(R.id.imageview_grid_three);
-                if (v != null) {
-                    v.setVisibility(View.GONE);
-                }
-                ViewUtils.ensureInflation(mRootView, R.id.imageview_create_playlist_stub,
-                        R.id.imageview_create_playlist);
-                findViewById(R.id.imageview_create_playlist).setVisibility(View.VISIBLE);
-                TextView textView1 = (TextView) findViewById(R.id.textview1);
-                textView1.setText(
-                        TomahawkApp.getContext().getString(R.string.create_playlist).toUpperCase());
-                TextView textView2 = (TextView) findViewById(R.id.textview2);
-                textView2.setVisibility(View.GONE);
-                TextView textView3 = (TextView) findViewById(R.id.textview3);
-                textView3.setVisibility(View.GONE);
-                break;
         }
     }
 

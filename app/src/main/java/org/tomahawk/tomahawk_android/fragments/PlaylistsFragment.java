@@ -36,7 +36,9 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -56,6 +58,24 @@ public class PlaylistsFragment extends TomahawkFragment {
             mAdapterUpdateHandler.sendEmptyMessageDelayed(
                     ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
         }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+            Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.playlistsfragment_layout, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        view.findViewById(R.id.create_new_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showCreateDialog();
+            }
+        });
     }
 
     @Override
@@ -108,19 +128,21 @@ public class PlaylistsFragment extends TomahawkFragment {
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC);
             FragmentUtils.replace((TomahawkMainActivity) getActivity(),
                     PlaylistEntriesFragment.class, bundle);
-        } else {
-            ArrayList<Query> queries = mQueryArray != null ? mQueryArray : new ArrayList<Query>();
-            Playlist playlist = Playlist.fromQueryList(
-                    TomahawkMainActivity.getLifetimeUniqueStringId(), false, "", null, queries);
-            CreatePlaylistDialog dialog = new CreatePlaylistDialog();
-            Bundle args = new Bundle();
-            args.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
-            args.putString(TomahawkFragment.USER, mUser.getCacheKey());
-            dialog.setArguments(args);
-            dialog.show(getFragmentManager(), null);
         }
         getArguments().remove(QUERYARRAY);
         mQueryArray = null;
+    }
+
+    public void showCreateDialog() {
+        ArrayList<Query> queries = mQueryArray != null ? mQueryArray : new ArrayList<Query>();
+        Playlist playlist = Playlist.fromQueryList(
+                TomahawkMainActivity.getLifetimeUniqueStringId(), false, "", null, queries);
+        CreatePlaylistDialog dialog = new CreatePlaylistDialog();
+        Bundle args = new Bundle();
+        args.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
+        args.putString(TomahawkFragment.USER, mUser.getCacheKey());
+        dialog.setArguments(args);
+        dialog.show(getFragmentManager(), null);
     }
 
     /**
@@ -130,9 +152,8 @@ public class PlaylistsFragment extends TomahawkFragment {
      */
     @Override
     public boolean onItemLongClick(View view, Object item) {
-        return item.equals(CREATE_PLAYLIST_BUTTON_ID) || FragmentUtils
-                .showContextMenu((TomahawkMainActivity) getActivity(), item, null, false,
-                        mHideRemoveButton);
+        return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item, null,
+                false, mHideRemoveButton);
     }
 
     /**
@@ -159,9 +180,6 @@ public class PlaylistsFragment extends TomahawkFragment {
             @Override
             public void onDone(User user) {
                 List playlists = new ArrayList();
-                if (mUser == user) {
-                    playlists.add(CREATE_PLAYLIST_BUTTON_ID);
-                }
                 if (mUser.getPlaylists() == null) {
                     if (mUser != user && !mResolvingUsers.contains(mUser)) {
                         String requestId = InfoSystem.get().resolvePlaylists(mUser, false);
@@ -182,6 +200,14 @@ public class PlaylistsFragment extends TomahawkFragment {
                     public void run() {
                         fillAdapter(segments);
                         showContentHeader(R.drawable.playlists_header);
+                        if (getView() != null) {
+                            View newButton = getView().findViewById(R.id.create_new_button);
+                            int y = mHeaderNonscrollableHeight
+                                    - getResources().getDimensionPixelSize(
+                                    R.dimen.row_height_medium)
+                                    - getResources().getDimensionPixelSize(R.dimen.padding_small);
+                            newButton.setY(y);
+                        }
                     }
                 });
             }

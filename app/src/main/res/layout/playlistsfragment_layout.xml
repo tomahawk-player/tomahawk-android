@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2016, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/fragment_layout"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:background="@color/primary_background_inverted">
+
+    <ViewStub android:id="@+id/imageview_grid_one_stub"
+              android:inflatedId="@+id/imageview_grid_one"
+              android:layout="@layout/imageview_grid_one_content_header"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/imageview_grid_two_stub"
+              android:inflatedId="@+id/imageview_grid_two"
+              android:layout="@layout/imageview_grid_two_content_header"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/imageview_grid_three_stub"
+              android:inflatedId="@+id/imageview_grid_three"
+              android:layout="@layout/imageview_grid_three_content_header"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/listview_stub"
+              android:inflatedId="@+id/listview"
+              android:layout="@layout/listview"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"/>
+
+    <ViewStub android:id="@+id/content_header_stub"
+              android:inflatedId="@+id/content_header"
+              android:layout="@layout/content_header"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/content_header_static_stub"
+              android:inflatedId="@+id/content_header_static"
+              android:layout="@layout/content_header_static"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/content_header_user_stub"
+              android:inflatedId="@+id/content_header_user"
+              android:layout="@layout/content_header_user"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <LinearLayout android:id="@+id/create_new_button"
+                  android:layout_width="wrap_content"
+                  android:layout_height="@dimen/row_height_medium"
+                  android:layout_gravity="center_horizontal"
+                  android:orientation="horizontal"
+                  android:background="@drawable/selectable_background_button_white">
+
+        <TextView android:id="@+id/single_line_list_menu_textview"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center_vertical"
+                  android:paddingLeft="@dimen/padding_small"
+                  android:paddingRight="@dimen/padding_small"
+                  android:ellipsize="marquee"
+                  android:singleLine="true"
+                  android:textColor="@color/primary_textcolor_inverted"
+                  android:textSize="@dimen/text_size_micro"
+                  android:text="@string/create_new"
+                  android:textAllCaps="true"/>
+
+        <ImageView android:id="@+id/icon_menu_imageview"
+                   android:layout_width="14dp"
+                   android:layout_height="14dp"
+                   android:layout_gravity="center_vertical"
+                   android:adjustViewBounds="false"
+                   android:scaleType="centerCrop"
+                   android:src="@drawable/ic_action_playlist"/>
+
+    </LinearLayout>
+
+</FrameLayout>
