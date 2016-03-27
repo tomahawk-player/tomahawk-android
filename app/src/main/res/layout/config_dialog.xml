@@ -35,13 +35,14 @@
 
         <LinearLayout android:layout_width="match_parent"
                       android:layout_height="@dimen/row_height_verylarge"
-                      android:layout_marginRight="@dimen/padding_medium"
-                      android:layout_marginLeft="@dimen/padding_medium">
+                      android:paddingLeft="@dimen/padding_superlarge"
+                      android:paddingRight="@dimen/padding_superlarge">
 
             <org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox
                     android:id="@+id/config_dialog_enable_checkbox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="-8dp"
                     android:layout_marginRight="@dimen/padding_small"
                     android:layout_gravity="center"
                     android:checked="false"
@@ -53,7 +54,8 @@
                       android:layout_weight="1"
                       android:textSize="@dimen/text_size_verylarge"
                       android:textColor="@color/primary_textcolor_inverted"
-                      android:gravity="center_vertical"/>
+                      android:gravity="center_vertical"
+                      android:text="CREATE PLAYLIST"/>
 
             <ImageView android:id="@+id/config_dialog_status_imageview"
                        android:layout_width="@dimen/row_height_medium"
