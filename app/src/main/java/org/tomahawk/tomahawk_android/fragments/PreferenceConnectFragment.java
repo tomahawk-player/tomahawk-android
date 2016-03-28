@@ -109,7 +109,10 @@ public class PreferenceConnectFragment extends TomahawkListFragment
             }
         });
         for (ScriptResolver scriptResolver : scriptResolvers) {
+            //TODO: Remove this hack once we can get rid of Tomahawk.resolver.instance completely (see ScriptAccount#onWebViewClientReady)
             if (!scriptResolver.getId().contains("-metadata")
+                    && !scriptResolver.getId().equals("echonest")
+                    && !scriptResolver.getId().equals("itunes")
                     && !scriptResolver.getScriptAccount().isManuallyInstalled()) {
                 resolvers.add(scriptResolver);
             }
