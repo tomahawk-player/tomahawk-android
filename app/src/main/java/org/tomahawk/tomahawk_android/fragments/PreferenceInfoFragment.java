@@ -25,9 +25,11 @@ import org.tomahawk.tomahawk_android.dialogs.ConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.SendLogConfigDialog;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -54,6 +56,10 @@ public class PreferenceInfoFragment extends TomahawkListFragment
 
     public static final String FAKEPREFERENCEFRAGMENT_ID_SENDLOG = "sendlog";
 
+    public static final String FAKEPREFERENCEFRAGMENT_ID_PLAYSTORELINK = "playstore_link";
+
+    public static final String FAKEPREFERENCEFRAGMENT_ID_WEBSITELINK = "website_link";
+
     public static final String FAKEPREFERENCEFRAGMENT_KEY_APPVERSION
             = "org.tomahawk.tomahawk_android.appversion";
 
@@ -62,6 +68,12 @@ public class PreferenceInfoFragment extends TomahawkListFragment
 
     public static final String FAKEPREFERENCEFRAGMENT_KEY_SENDLOG
             = "org.tomahawk.tomahawk_android.sendlog";
+
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_PLAYSTORELINK
+            = "org.tomahawk.tomahawk_android.playstore_link";
+
+    public static final String FAKEPREFERENCEFRAGMENT_KEY_WEBSITELINK
+            = "org.tomahawk.tomahawk_android.website_link";
 
     /**
      * Called, when this {@link org.tomahawk.tomahawk_android.fragments.PreferenceInfoFragment}'s
@@ -86,6 +98,18 @@ public class PreferenceInfoFragment extends TomahawkListFragment
                 FAKEPREFERENCEFRAGMENT_KEY_USERVOICE,
                 getString(R.string.preferences_app_uservoice),
                 getString(R.string.preferences_app_uservoice_text)));
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
+                FAKEPREFERENCEFRAGMENT_ID_PLAYSTORELINK,
+                FAKEPREFERENCEFRAGMENT_KEY_PLAYSTORELINK,
+                getString(R.string.preferences_app_playstore_link),
+                getString(R.string.preferences_app_playstore_link_text)));
+        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
+                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
+                FAKEPREFERENCEFRAGMENT_ID_WEBSITELINK,
+                FAKEPREFERENCEFRAGMENT_KEY_WEBSITELINK,
+                getString(R.string.preferences_app_website_link),
+                getString(R.string.preferences_app_website_link_text)));
         prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
                 FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
                 FAKEPREFERENCEFRAGMENT_ID_SENDLOG,
@@ -148,6 +172,14 @@ public class PreferenceInfoFragment extends TomahawkListFragment
         } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_SENDLOG)) {
             ConfigDialog dialog = new SendLogConfigDialog();
             dialog.show(getFragmentManager(), null);
+        } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_PLAYSTORELINK)) {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse("market://details?id=org.tomahawk.tomahawk_android"));
+            startActivity(i);
+        } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_WEBSITELINK)) {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse("https://www.tomahawk-player.org/"));
+            startActivity(i);
         }
     }
 
