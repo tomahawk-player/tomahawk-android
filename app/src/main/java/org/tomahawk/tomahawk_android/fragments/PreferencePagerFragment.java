@@ -20,7 +20,6 @@ package org.tomahawk.tomahawk_android.fragments;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.View;
 
@@ -46,8 +45,7 @@ public class PreferencePagerFragment extends PagerFragment {
             }
         }
 
-        showContentHeader(
-                new ColorDrawable(getResources().getColor(R.color.primary_background_inverted)));
+        showContentHeader(R.drawable.settings_header);
 
         List<FragmentInfoList> fragmentInfoLists = new ArrayList<>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();
