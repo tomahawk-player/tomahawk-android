@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
@@ -37,6 +38,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.OnSizeChangedListener;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
@@ -56,6 +58,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
@@ -343,6 +346,25 @@ public class ContentHeaderFragment extends Fragment {
                         ((Album) item).getImage(), Image.getLargeImageSize(), false);
                 View moreButton = getView().findViewById(R.id.more_button);
                 moreButton.setOnClickListener(moreButtonListener);
+                View stationButton = getView().findViewById(R.id.station_button);
+                stationButton.setVisibility(View.VISIBLE);
+                stationButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        PlaybackService playbackService =
+                                ((TomahawkMainActivity) getActivity()).getPlaybackService();
+                        if (playbackService != null) {
+                            if (item != playbackService.getPlaylist()) {
+                                List<Artist> artists = new ArrayList<>();
+                                artists.add(((Album) item).getArtist());
+                                StationPlaylist stationPlaylist =
+                                        StationPlaylist.get(artists, null, null);
+                                playbackService.setPlaylist(stationPlaylist);
+                                playbackService.start();
+                            }
+                        }
+                    }
+                });
             } else if (item instanceof Artist) {
                 View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
                 v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
@@ -351,6 +373,25 @@ public class ContentHeaderFragment extends Fragment {
                         ((Artist) item).getImage(), Image.getLargeImageSize(), true);
                 View moreButton = getView().findViewById(R.id.more_button);
                 moreButton.setOnClickListener(moreButtonListener);
+                View stationButton = getView().findViewById(R.id.station_button);
+                stationButton.setVisibility(View.VISIBLE);
+                stationButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        PlaybackService playbackService =
+                                ((TomahawkMainActivity) getActivity()).getPlaybackService();
+                        if (playbackService != null) {
+                            if (item != playbackService.getPlaylist()) {
+                                List<Artist> artists = new ArrayList<>();
+                                artists.add((Artist) item);
+                                StationPlaylist stationPlaylist =
+                                        StationPlaylist.get(artists, null, null);
+                                playbackService.setPlaylist(stationPlaylist);
+                                playbackService.start();
+                            }
+                        }
+                    }
+                });
             } else if (item instanceof Playlist) {
                 ViewHolder.fillView(getView(), (Playlist) item,
                         mHeaderNonscrollableHeight + mHeaderScrollableHeight, isPagerFragment);
@@ -553,7 +594,7 @@ public class ContentHeaderFragment extends Fragment {
 
     private void setupButtonAnimation(final View view) {
         if (view != null) {
-            View moreButton = view.findViewById(R.id.more_button);
+            View moreButton = view.findViewById(R.id.button_panel);
             if (moreButton != null) {
                 ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(moreButton) {
                     @Override
