@@ -31,23 +31,39 @@
             android:background="@drawable/above_shadow_page_indicator"
             android:visibility="gone"/>
 
-    <ImageView android:id="@+id/more_button"
-               android:layout_width="@dimen/show_context_menu_icon_height"
-               android:layout_height="@dimen/show_context_menu_icon_height"
-               android:padding="@dimen/padding_large"
-               android:layout_marginRight="@dimen/padding_large"
-               android:layout_marginBottom="@dimen/padding_large"
-               android:clickable="true"
-               android:src="@drawable/ic_action_more"
-               android:background="@drawable/selectable_circle"
-               android:layout_alignParentRight="true"/>
+    <LinearLayout android:id="@+id/button_panel"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:layout_alignParentRight="true"
+                  android:layout_marginRight="@dimen/padding_large"
+                  android:layout_marginBottom="@dimen/padding_large">
+
+        <ImageView android:id="@+id/station_button"
+                   android:layout_width="@dimen/show_context_menu_icon_height"
+                   android:layout_height="@dimen/show_context_menu_icon_height"
+                   android:padding="@dimen/padding_medium"
+                   android:layout_marginRight="@dimen/padding_verysmall"
+                   android:clickable="true"
+                   android:src="@drawable/ic_action_station"
+                   android:background="@drawable/selectable_circle"
+                   android:visibility="gone"/>
+
+        <ImageView android:id="@+id/more_button"
+                   android:layout_width="@dimen/show_context_menu_icon_height"
+                   android:layout_height="@dimen/show_context_menu_icon_height"
+                   android:padding="@dimen/padding_large"
+                   android:clickable="true"
+                   android:src="@drawable/ic_action_more"
+                   android:background="@drawable/selectable_circle"/>
+
+    </LinearLayout>
 
     <org.tomahawk.tomahawk_android.views.FancyDropDown
             android:id="@+id/fancydropdown"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="@dimen/padding_megalarge"
-            android:layout_marginRight="@dimen/padding_megalarge"
+            android:layout_marginLeft="72dp"
+            android:layout_marginRight="72dp"
             android:visibility="invisible"/>
 
 </RelativeLayout>
