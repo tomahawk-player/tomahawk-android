@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.database;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistComparator;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
 import org.tomahawk.libtomahawk.infosystem.QueryParams;
@@ -1119,5 +1120,55 @@ public class DatabaseHelper {
         }
         cursor.close();
         return paths;
+    }
+
+    public synchronized void storeStation(StationPlaylist stationPlaylist) {
+        mDatabase.beginTransaction();
+        ContentValues values = new ContentValues();
+        values.put(TomahawkSQLiteHelper.STATIONS_COLUMN_ID, stationPlaylist.getCacheKey());
+        values.put(TomahawkSQLiteHelper.STATIONS_COLUMN_JSON, stationPlaylist.toJson());
+        values.put(TomahawkSQLiteHelper.STATIONS_COLUMN_CREATEDTIMESTAMP,
+                stationPlaylist.getCreatedTimeStamp());
+        values.put(TomahawkSQLiteHelper.STATIONS_COLUMN_PLAYEDTIMESTAMP,
+                stationPlaylist.getPlayedTimeStamp());
+        mDatabase.insert(TomahawkSQLiteHelper.TABLE_STATIONS, null, values);
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+        PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
+        event.mPlaylistId = stationPlaylist.getId();
+        EventBus.getDefault().post(event);
+    }
+
+    public synchronized void deleteStation(StationPlaylist stationPlaylist) {
+        mDatabase.beginTransaction();
+        mDatabase.delete(TomahawkSQLiteHelper.TABLE_STATIONS,
+                TomahawkSQLiteHelper.STATIONS_COLUMN_ID + " = ?",
+                new String[]{stationPlaylist.getCacheKey()});
+        mDatabase.setTransactionSuccessful();
+        mDatabase.endTransaction();
+        PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
+        event.mPlaylistId = stationPlaylist.getId();
+        EventBus.getDefault().post(event);
+    }
+
+    public synchronized List<StationPlaylist> getStations() {
+        Cursor cursor = mDatabase.query(TomahawkSQLiteHelper.TABLE_STATIONS,
+                new String[]{TomahawkSQLiteHelper.STATIONS_COLUMN_JSON,
+                        TomahawkSQLiteHelper.STATIONS_COLUMN_CREATEDTIMESTAMP,
+                        TomahawkSQLiteHelper.STATIONS_COLUMN_PLAYEDTIMESTAMP},
+                null, null, null, null, TomahawkSQLiteHelper.STATIONS_COLUMN_CREATEDTIMESTAMP);
+        cursor.moveToFirst();
+        List<StationPlaylist> stations = new ArrayList<>();
+        if (!cursor.isAfterLast()) {
+            do {
+                String json = cursor.getString(0);
+                StationPlaylist station = StationPlaylist.get(json);
+                station.setCreatedTimeStamp(cursor.getLong(1));
+                station.setPlayedTimeStamp(cursor.getLong(2));
+                stations.add(station);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return stations;
     }
 }

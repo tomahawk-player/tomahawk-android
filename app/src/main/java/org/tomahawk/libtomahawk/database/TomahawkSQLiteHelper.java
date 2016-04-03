@@ -31,6 +31,16 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     public static final String TAG = TomahawkSQLiteHelper.class.getSimpleName();
 
+    public static final String TABLE_STATIONS = "stations";
+
+    public static final String STATIONS_COLUMN_ID = "id";
+
+    public static final String STATIONS_COLUMN_JSON = "json";
+
+    public static final String STATIONS_COLUMN_CREATEDTIMESTAMP = "createdtimestamp";
+
+    public static final String STATIONS_COLUMN_PLAYEDTIMESTAMP = "playedtimestamp";
+
     public static final String TABLE_PLAYLISTS = "playlists";
 
     public static final String PLAYLISTS_COLUMN_ID = "id";
@@ -162,7 +172,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "userplaylists.db";
 
-    private static final int DATABASE_VERSION = 19;
+    private static final int DATABASE_VERSION = 20;
 
     // Database creation sql statements
     private static final String CREATE_TABLE_PLAYLISTS =
@@ -247,6 +257,13 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             + MEDIADIRS_BLACKLISTED + " INTEGER "
             + ");";
 
+    private static final String CREATE_TABLE_STATIONS =
+            "CREATE TABLE `" + TABLE_STATIONS + "` (  `"
+                    + STATIONS_COLUMN_ID + "` TEXT PRIMARY KEY, `"
+                    + STATIONS_COLUMN_JSON + "` TEXT, `"
+                    + STATIONS_COLUMN_CREATEDTIMESTAMP + "` INTEGER, `"
+                    + STATIONS_COLUMN_PLAYEDTIMESTAMP + "` TEXT );";
+
     public TomahawkSQLiteHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -265,6 +282,7 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
         database.execSQL(CREATE_TABLE_LOVED_ARTISTS);
         database.execSQL(CREATE_TABLE_MEDIA);
         database.execSQL(CREATE_TABLE_MEDIADIRS);
+        database.execSQL(CREATE_TABLE_STATIONS);
     }
 
     @Override
@@ -301,6 +319,9 @@ public class TomahawkSQLiteHelper extends SQLiteOpenHelper {
             if (oldVersion < 19) {
                 db.execSQL("DROP TABLE IF EXISTS `" + TABLE_MEDIA + "`;");
                 db.execSQL(CREATE_TABLE_MEDIA);
+            }
+            if (oldVersion < 20) {
+                db.execSQL(CREATE_TABLE_STATIONS);
             }
         }
     }

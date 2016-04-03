@@ -33,6 +33,7 @@ import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptChartProviderPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptCollectionPluginFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptInfoPluginFactory;
+import org.tomahawk.libtomahawk.resolver.plugins.ScriptPlaylistGeneratorFactory;
 import org.tomahawk.libtomahawk.resolver.plugins.ScriptResolverPluginFactory;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
@@ -96,6 +97,9 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
 
     private ScriptChartProviderPluginFactory mChartsProviderPluginFactory =
             new ScriptChartProviderPluginFactory();
+
+    private ScriptPlaylistGeneratorFactory mPlaylistGeneratorFactory =
+            new ScriptPlaylistGeneratorFactory();
 
     private ScriptResolver mScriptResolver;
 
@@ -379,6 +383,9 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
             case ScriptObject.TYPE_CHARTSPROVIDER:
                 mChartsProviderPluginFactory.registerPlugin(object, this);
                 break;
+            case ScriptObject.TYPE_PLAYLISTGENERATOR:
+                mPlaylistGeneratorFactory.registerPlugin(object, this);
+                break;
             default:
                 Log.e(TAG, "registerScriptPlugin - ScriptAccount:" + mName
                         + ", ScriptPlugin type not supported!");
@@ -403,6 +410,9 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
                     break;
                 case ScriptObject.TYPE_CHARTSPROVIDER:
                     mChartsProviderPluginFactory.unregisterPlugin(object);
+                    break;
+                case ScriptObject.TYPE_PLAYLISTGENERATOR:
+                    mPlaylistGeneratorFactory.unregisterPlugin(object);
                     break;
                 default:
                     Log.e(TAG, "unregisterScriptPlugin - ScriptAccount:" + mName

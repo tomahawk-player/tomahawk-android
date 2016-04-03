@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * This class represents a {@link Track}.
  */
-public class Track extends Cacheable {
+public class Track extends Cacheable implements AlphaComparable, ArtistAlphaComparable {
 
     private final String mName;
 

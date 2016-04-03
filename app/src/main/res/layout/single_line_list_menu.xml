@@ -23,8 +23,8 @@
               android:layout_height="wrap_content"
               android:orientation="horizontal"
               android:paddingLeft="@dimen/padding_superlarge"
-              android:paddingTop="@dimen/padding_large"
-              android:paddingBottom="@dimen/padding_large"
+              android:paddingTop="@dimen/padding_medium"
+              android:paddingBottom="@dimen/padding_medium"
               android:background="@drawable/selectable_background_tomahawk">
 
     <ImageView android:id="@+id/icon_menu_imageview"
@@ -45,7 +45,7 @@
               android:ellipsize="marquee"
               android:singleLine="true"
               android:textColor="@color/primary_textcolor_inverted"
-              android:textSize="@dimen/text_size_large"/>
+              android:textSize="@dimen/text_size_medium"/>
 
     <com.github.rahatarmanahmed.cpv.CircularProgressView
             xmlns:app="http://schemas.android.com/apk/res-auto"

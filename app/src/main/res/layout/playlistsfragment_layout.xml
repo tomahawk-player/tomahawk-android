@@ -21,8 +21,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:id="@+id/fragment_layout"
              android:layout_width="match_parent"
-             android:layout_height="match_parent"
-             android:background="@color/primary_background_inverted">
+             android:layout_height="match_parent">
 
     <ViewStub android:id="@+id/imageview_grid_one_stub"
               android:inflatedId="@+id/imageview_grid_one"

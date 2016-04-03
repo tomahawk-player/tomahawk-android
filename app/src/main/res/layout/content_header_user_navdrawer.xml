@@ -25,8 +25,8 @@
               android:layout_height="wrap_content"
               android:orientation="horizontal"
               android:paddingLeft="@dimen/padding_large"
-              android:paddingTop="@dimen/padding_superlarge"
-              android:paddingBottom="@dimen/padding_superlarge"
+              android:paddingTop="@dimen/padding_medium"
+              android:paddingBottom="@dimen/padding_medium"
               android:background="@drawable/selectable_background_tomahawk">
 
     <FrameLayout android:layout_width="@dimen/header_roundedimage_height"
@@ -56,6 +56,6 @@
               android:ellipsize="marquee"
               android:singleLine="true"
               android:textColor="@color/primary_textcolor_inverted"
-              android:textSize="@dimen/text_size_large"/>
+              android:textSize="@dimen/text_size_medium"/>
 
 </LinearLayout>

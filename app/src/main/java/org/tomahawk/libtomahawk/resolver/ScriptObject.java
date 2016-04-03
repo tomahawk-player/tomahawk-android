@@ -29,6 +29,8 @@ public class ScriptObject {
 
     public static final String TYPE_CHARTSPROVIDER = "chartsProvider";
 
+    public static final String TYPE_PLAYLISTGENERATOR = "playlistGenerator";
+
     private String mId;
 
     private ScriptAccount mScriptAccount;
