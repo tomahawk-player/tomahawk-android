@@ -29,6 +29,8 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
+import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -410,8 +412,13 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     viewHolder.fillView((Album) targetItem, mCollection, numerationString);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
                     viewHolder.fillView((Resolver) targetItem);
-                } else if (viewHolder.mLayoutId == R.layout.grid_item_playlist) {
-                    viewHolder.fillView((Playlist) targetItem);
+                } else if (viewHolder.mLayoutId == R.layout.grid_item_playlist
+                        || viewHolder.mLayoutId == R.layout.grid_item_station) {
+                    if (targetItem instanceof StationPlaylist) {
+                        viewHolder.fillView((StationPlaylist) targetItem);
+                    } else {
+                        viewHolder.fillView((Playlist) targetItem);
+                    }
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_user
                         || viewHolder.mLayoutId == R.layout.list_item_user) {
                     viewHolder.fillView((User) targetItem);
@@ -423,67 +430,73 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 } else if (viewHolder.mLayoutId == R.layout.list_item_track_artist
                         || viewType == R.layout.list_item_numeration_track_artist
                         || viewType == R.layout.list_item_numeration_track_duration) {
-                    View coachMark = viewHolder.findViewById(R.id.swipelayout_enqueue_coachmark);
-                    if (coachMark != null) {
-                        coachMark.setVisibility(View.GONE);
-                    }
-                    String numerationString = null;
-                    if (!getSegment(position).isShowAsQueued() && getSegment(position)
-                            .isShowNumeration()) {
-                        numerationString = String.format("%02d", getPosInSegment(position)
-                                + getSegment(position).getNumerationCorrection());
-                    }
-                    final Query query;
-                    final PlaylistEntry entry;
-                    if (targetItem instanceof PlaylistEntry) {
-                        query = ((PlaylistEntry) targetItem).getQuery();
-                        entry = (PlaylistEntry) targetItem;
+                    if (targetItem instanceof Track) {
+                        viewHolder.fillView((Track) targetItem);
                     } else {
-                        query = (Query) targetItem;
-                        entry = null;
-                    }
-                    View.OnClickListener swipeButtonListener;
-                    boolean isShowAsQueued = getSegment(position).isShowAsQueued();
-                    if (isShowAsQueued) {
-                        swipeButtonListener = new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mActivity.getPlaybackService().deleteQueryInQueue(entry);
-                                closeAllItems();
-                            }
-                        };
-                    } else {
-                        swipeButtonListener = new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                mActivity.getPlaybackService().addQueryToQueue(query);
-                                SharedPreferences preferences = PreferenceManager
-                                        .getDefaultSharedPreferences(TomahawkApp.getContext());
-                                preferences.edit().putBoolean(
-                                        TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
-                                        true).apply();
-                                closeAllItems();
-                            }
-                        };
-                    }
-                    viewHolder.fillView(query, numerationString,
-                            mHighlightedItemIsPlaying && shouldBeHighlighted, swipeButtonListener,
-                            isShowAsQueued);
+                        View coachMark = viewHolder
+                                .findViewById(R.id.swipelayout_enqueue_coachmark);
+                        if (coachMark != null) {
+                            coachMark.setVisibility(View.GONE);
+                        }
+                        String numerationString = null;
+                        if (!getSegment(position).isShowAsQueued() && getSegment(position)
+                                .isShowNumeration()) {
+                            numerationString = String.format("%02d", getPosInSegment(position)
+                                    + getSegment(position).getNumerationCorrection());
+                        }
+                        final Query query;
+                        final PlaylistEntry entry;
+                        if (targetItem instanceof PlaylistEntry) {
+                            query = ((PlaylistEntry) targetItem).getQuery();
+                            entry = (PlaylistEntry) targetItem;
+                        } else {
+                            query = (Query) targetItem;
+                            entry = null;
+                        }
+                        View.OnClickListener swipeButtonListener;
+                        boolean isShowAsQueued = getSegment(position).isShowAsQueued();
+                        if (isShowAsQueued) {
+                            swipeButtonListener = new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mActivity.getPlaybackService().deleteQueryInQueue(entry);
+                                    closeAllItems();
+                                }
+                            };
+                        } else {
+                            swipeButtonListener = new View.OnClickListener() {
+                                @Override
+                                public void onClick(View v) {
+                                    mActivity.getPlaybackService().addQueryToQueue(query);
+                                    SharedPreferences preferences = PreferenceManager
+                                            .getDefaultSharedPreferences(TomahawkApp.getContext());
+                                    preferences.edit().putBoolean(
+                                            TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
+                                            true).apply();
+                                    closeAllItems();
+                                }
+                            };
+                        }
+                        viewHolder.fillView(query, numerationString,
+                                mHighlightedItemIsPlaying && shouldBeHighlighted,
+                                swipeButtonListener,
+                                isShowAsQueued);
 
-                    FrameLayout progressBarContainer = (FrameLayout) viewHolder
-                            .findViewById(R.id.progressbar_container);
-                    if (mHighlightedItemIsPlaying && shouldBeHighlighted) {
-                        if (mProgressBar == null) {
-                            mProgressBar = (ProgressBar) mLayoutInflater
-                                    .inflate(R.layout.progressbar,
-                                            progressBarContainer, false);
+                        FrameLayout progressBarContainer = (FrameLayout) viewHolder
+                                .findViewById(R.id.progressbar_container);
+                        if (mHighlightedItemIsPlaying && shouldBeHighlighted) {
+                            if (mProgressBar == null) {
+                                mProgressBar = (ProgressBar) mLayoutInflater
+                                        .inflate(R.layout.progressbar,
+                                                progressBarContainer, false);
+                            }
+                            if (mProgressBar.getParent() instanceof FrameLayout) {
+                                ((FrameLayout) mProgressBar.getParent()).removeView(mProgressBar);
+                            }
+                            progressBarContainer.addView(mProgressBar);
+                        } else {
+                            progressBarContainer.removeAllViews();
                         }
-                        if (mProgressBar.getParent() instanceof FrameLayout) {
-                            ((FrameLayout) mProgressBar.getParent()).removeView(mProgressBar);
-                        }
-                        progressBarContainer.addView(mProgressBar);
-                    } else {
-                        progressBarContainer.removeAllViews();
                     }
                 }
 
@@ -657,6 +670,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     return R.layout.grid_item_artist;
                 } else if (firstItem instanceof Album) {
                     return R.layout.grid_item_album;
+                } else if (firstItem instanceof StationPlaylist) {
+                    return R.layout.grid_item_station;
                 } else if (firstItem instanceof Playlist) {
                     return R.layout.grid_item_playlist;
                 } else {

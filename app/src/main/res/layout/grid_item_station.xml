@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2015, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/mainclickarea"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+              android:layout_weight="1"
+              android:background="@drawable/selectable_background_tomahawk_opaque">
+
+    <ViewStub android:id="@+id/imageview_station_genre_stub"
+              android:inflatedId="@+id/imageview_station_genre"
+              android:layout="@layout/imageview_station_genre"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/imageview_grid_one_stub"
+              android:inflatedId="@+id/imageview_grid_one"
+              android:layout="@layout/imageview_grid_one"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/imageview_grid_two_stub"
+              android:inflatedId="@+id/imageview_grid_two"
+              android:layout="@layout/imageview_grid_two"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <ViewStub android:id="@+id/imageview_grid_three_stub"
+              android:inflatedId="@+id/imageview_grid_three"
+              android:layout="@layout/imageview_grid_three"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"/>
+
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="wrap_content">
+
+        <ImageView android:layout_width="24dp"
+                   android:layout_height="16dp"
+                   android:layout_gravity="bottom"
+                   android:src="@drawable/ic_action_station"
+                   android:tint="@android:color/black"/>
+
+        <TextView android:id="@+id/textview1"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"
+                  android:paddingTop="@dimen/padding_small"
+                  android:ellipsize="marquee"
+                  android:singleLine="true"
+                  android:textColor="@color/primary_textcolor"
+                  android:textSize="@dimen/text_size_small"
+                  android:textStyle="bold"/>
+
+    </LinearLayout>
+
+    <TextView android:id="@+id/textview2"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:ellipsize="marquee"
+              android:singleLine="true"
+              android:textColor="@color/primary_textcolor"
+              android:textSize="@dimen/text_size_micro"
+              android:visibility="gone"/>
+
+</LinearLayout>

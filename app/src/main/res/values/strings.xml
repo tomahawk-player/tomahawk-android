@@ -30,6 +30,10 @@
   <string name="create_playlist">Create playlist</string>
   <!-- Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield. -->
   <string name="name_playlist">Title</string>
+  <string name="create_station">Create station</string>
+  <string name="create_station_search_hint">Search for artists, songs and genres</string>
+  <string name="genres">Genres</string>
+  <string name="moods">Moods</string>
   <string name="login_name_label">E-Mail/Username</string>
   <string name="login_username">Username</string>
   <string name="login_password">Password</string>
@@ -96,6 +100,7 @@
   <string name="drawer_title_charts">Charts</string>
   <string name="drawer_title_collection">Collection</string>
   <string name="drawer_title_playlists">Playlists</string>
+  <string name="drawer_title_stations">Stations</string>
   <string name="drawer_title_lovedtracks">Favorites</string>
   <string name="drawer_title_settings">Settings</string>
   <string name="drawer_header_cloudcollections">Cloud Collections</string>

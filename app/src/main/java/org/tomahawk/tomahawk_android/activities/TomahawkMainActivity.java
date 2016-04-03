@@ -67,6 +67,7 @@ import org.tomahawk.tomahawk_android.fragments.PreferencePagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ChartsSelectorFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
+import org.tomahawk.tomahawk_android.fragments.StationsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.UserPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.WelcomeFragment;
@@ -146,6 +147,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
     public static final String HUB_ID_LOVEDTRACKS = "lovedtracks";
 
     public static final String HUB_ID_PLAYLISTS = "playlists";
+
+    public static final String HUB_ID_STATIONS = "stations";
 
     public static final String HUB_ID_SETTINGS = "settings";
 
@@ -413,7 +416,23 @@ public class TomahawkMainActivity extends AppCompatActivity {
                         });
                     }
                 });
-            } else if (holder.id.equals(HUB_ID_SETTINGS)) {
+            }  else if (holder.id.equals(HUB_ID_STATIONS)) {
+                User.getSelf().done(new DoneCallback<User>() {
+                    @Override
+                    public void onDone(User user) {
+                        bundle.putString(TomahawkFragment.USER, user.getId());
+                        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                                ContentHeaderFragment.MODE_HEADER_STATIC);
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                FragmentUtils.replace(TomahawkMainActivity.this,
+                                        StationsFragment.class, bundle);
+                            }
+                        });
+                    }
+                });
+            }else if (holder.id.equals(HUB_ID_SETTINGS)) {
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_STATIC_SMALL);
                 FragmentUtils.replace(TomahawkMainActivity.this, PreferencePagerFragment.class,
@@ -1302,6 +1321,11 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 holder.id = HUB_ID_PLAYLISTS;
                 holder.title = getString(R.string.drawer_title_playlists);
                 holder.iconResId = R.drawable.ic_action_playlist;
+                holders.add(holder);
+                holder = new TomahawkMenuAdapter.ResourceHolder();
+                holder.id = HUB_ID_STATIONS;
+                holder.title = getString(R.string.drawer_title_stations);
+                holder.iconResId = R.drawable.ic_action_station;
                 holders.add(holder);
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = HUB_ID_SETTINGS;

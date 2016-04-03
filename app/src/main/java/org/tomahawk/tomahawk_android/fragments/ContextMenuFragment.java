@@ -27,6 +27,7 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -78,6 +79,8 @@ public class ContextMenuFragment extends Fragment {
     private Artist mArtist;
 
     private Playlist mPlaylist;
+
+    private StationPlaylist mStationPlaylist;
 
     private PlaylistEntry mPlaylistEntry;
 
@@ -169,6 +172,9 @@ public class ContextMenuFragment extends Fragment {
                         break;
                     case TomahawkFragment.PLAYLIST:
                         mPlaylist = Playlist.getByKey(key);
+                        break;
+                    case TomahawkFragment.STATION:
+                        mStationPlaylist = StationPlaylist.getByKey(key);
                         break;
                     case TomahawkFragment.ARTIST:
                         mArtist = Artist.getByKey(key);
@@ -363,70 +369,77 @@ public class ContextMenuFragment extends Fragment {
         }
 
         // set up "Share" context menu item
-        View v = ViewUtils.ensureInflation(
-                view, R.id.context_menu_share_stub, R.id.context_menu_share);
-        TextView textView = (TextView) v.findViewById(R.id.textview);
-        ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
-        imageView.setImageResource(R.drawable.ic_action_share);
-        textView.setText(R.string.context_menu_share);
-        v.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                boolean error = false;
-                if (mAlbum != null) {
-                    ShareUtils.sendShareIntent(activity, mAlbum);
-                } else if (mArtist != null) {
-                    ShareUtils.sendShareIntent(activity, mArtist);
-                } else if (mQuery != null) {
-                    ShareUtils.sendShareIntent(activity, mQuery);
-                } else if (mPlaylistEntry != null) {
-                    ShareUtils.sendShareIntent(activity, mPlaylistEntry.getQuery());
-                } else if (mPlaylist != null) {
-                    if (mPlaylist.getHatchetId() == null) {
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(TomahawkApp.getContext(),
-                                        R.string.contest_menu_share_error, Toast.LENGTH_LONG)
-                                        .show();
-                            }
-                        });
-                        error = true;
-                    } else {
-                        ShareUtils.sendShareIntent(activity, mPlaylist);
+        if (mStationPlaylist == null) {
+            View v = ViewUtils.ensureInflation(
+                    view, R.id.context_menu_share_stub, R.id.context_menu_share);
+            TextView textView = (TextView) v.findViewById(R.id.textview);
+            ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
+            imageView.setImageResource(R.drawable.ic_action_share);
+            textView.setText(R.string.context_menu_share);
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    boolean error = false;
+                    if (mAlbum != null) {
+                        ShareUtils.sendShareIntent(activity, mAlbum);
+                    } else if (mArtist != null) {
+                        ShareUtils.sendShareIntent(activity, mArtist);
+                    } else if (mQuery != null) {
+                        ShareUtils.sendShareIntent(activity, mQuery);
+                    } else if (mPlaylistEntry != null) {
+                        ShareUtils.sendShareIntent(activity, mPlaylistEntry.getQuery());
+                    } else if (mPlaylist != null) {
+                        if (mPlaylist.getHatchetId() == null) {
+                            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(TomahawkApp.getContext(),
+                                            R.string.contest_menu_share_error, Toast.LENGTH_LONG)
+                                            .show();
+                                }
+                            });
+                            error = true;
+                        } else {
+                            ShareUtils.sendShareIntent(activity, mPlaylist);
+                        }
+                    }
+                    if (!error) {
+                        getActivity().getSupportFragmentManager().popBackStack();
                     }
                 }
-                if (!error) {
-                    getActivity().getSupportFragmentManager().popBackStack();
-                }
-            }
-        });
+            });
+        }
 
         // set up "Remove" context menu item
-        if (!mHideRemoveButton && (mPlaylist != null || mPlaylistEntry != null)) {
+        if (!mHideRemoveButton && (mPlaylist != null || mPlaylistEntry != null
+                || mStationPlaylist != null)) {
             int stringResId;
             if (mPlaylistEntry != null) {
                 stringResId = R.string.context_menu_removefromplaylist;
             } else {
                 stringResId = R.string.context_menu_delete;
             }
-            v = ViewUtils.ensureInflation(view, R.id.context_menu_remove_stub,
+            View v = ViewUtils.ensureInflation(view, R.id.context_menu_remove_stub,
                     R.id.context_menu_remove);
-            textView = (TextView) v.findViewById(R.id.textview);
-            imageView = (ImageView) v.findViewById(R.id.imageview);
+            TextView textView = (TextView) v.findViewById(R.id.textview);
+            ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
             imageView.setImageResource(R.drawable.ic_navigation_close);
             textView.setText(stringResId);
             v.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     getActivity().getSupportFragmentManager().popBackStack();
-                    String localPlaylistId = mPlaylist != null ? mPlaylist.getId()
-                            : mPlaylistEntry.getPlaylistId();
-                    if (mPlaylistEntry != null) {
-                        CollectionManager.get().deletePlaylistEntry(localPlaylistId,
-                                mPlaylistEntry.getId());
+                    if (mStationPlaylist != null) {
+                        DatabaseHelper.get().deleteStation(mStationPlaylist);
                     } else {
-                        CollectionManager.get().deletePlaylist(localPlaylistId);
+                        String localPlaylistId = mPlaylist != null ? mPlaylist.getId()
+                                : mPlaylistEntry.getPlaylistId();
+                        if (mPlaylistEntry != null) {
+                            CollectionManager.get().deletePlaylistEntry(localPlaylistId,
+                                    mPlaylistEntry.getId());
+                        } else {
+                            CollectionManager.get().deletePlaylist(localPlaylistId);
+                        }
                     }
                 }
             });
@@ -436,10 +449,10 @@ public class ContextMenuFragment extends Fragment {
         if (mAlbum != null || mQuery != null || mPlaylistEntry != null || mPlaylist != null) {
             int drawableResId = R.drawable.ic_action_queue;
             int stringResId = R.string.context_menu_add_to_queue;
-            v = ViewUtils.ensureInflation(view, R.id.context_menu_addtoqueue_stub,
+            View v = ViewUtils.ensureInflation(view, R.id.context_menu_addtoqueue_stub,
                     R.id.context_menu_addtoqueue);
-            textView = (TextView) v.findViewById(R.id.textview);
-            imageView = (ImageView) v.findViewById(R.id.imageview);
+            TextView textView = (TextView) v.findViewById(R.id.textview);
+            ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
             imageView.setImageResource(drawableResId);
             textView.setText(stringResId);
             v.setOnClickListener(new View.OnClickListener() {
@@ -540,7 +553,8 @@ public class ContextMenuFragment extends Fragment {
             TextView textView = (TextView) v.findViewById(R.id.textview);
             textView.setText(mAlbum.getName());
             v.setOnClickListener(constructAlbumNameClickListener(mAlbum.getCacheKey()));
-        } else if (mQuery != null || mPlaylistEntry != null || mPlaylist != null) {
+        } else if (mQuery != null || mPlaylistEntry != null || mPlaylist != null
+                || mStationPlaylist != null) {
             View v = ViewUtils.ensureInflation(view, R.id.track_name_stub, R.id.track_name);
             TextView textView = (TextView) v;
             if (mQuery != null) {
@@ -549,6 +563,8 @@ public class ContextMenuFragment extends Fragment {
                 textView.setText(mPlaylistEntry.getName());
             } else if (mPlaylist != null) {
                 textView.setText(mPlaylist.getName());
+            } else if (mStationPlaylist != null) {
+                textView.setText(mStationPlaylist.getName());
             }
         }
         if (mAlbum != null || mQuery != null || mPlaylistEntry != null || mArtist != null) {

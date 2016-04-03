@@ -83,10 +83,17 @@ public class Playlist extends Cacheable implements AlphaComparable {
 
     private String mUserId;
 
+    protected Playlist(Class clss, String cacheKey, boolean isLocal) {
+        super(clss, cacheKey);
+
+        mId = cacheKey;
+        mIsLocal = isLocal;
+    }
+
     /**
      * Construct a new empty {@link Playlist}.
      */
-    private Playlist(String id, boolean isLocal) {
+    protected Playlist(String id, boolean isLocal) {
         super(Playlist.class, getCacheKey(isLocal, id));
 
         mId = id;

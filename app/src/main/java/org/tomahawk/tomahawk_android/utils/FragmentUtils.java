@@ -21,6 +21,7 @@ import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.resolver.Query;
@@ -184,6 +185,11 @@ public class FragmentUtils {
                     ((PlaylistEntry) item).getCacheKey());
             args.putString(TomahawkFragment.TOMAHAWKLISTITEM_TYPE,
                     TomahawkFragment.PLAYLISTENTRY);
+        } else if (item instanceof StationPlaylist) {
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM,
+                    ((StationPlaylist) item).getCacheKey());
+            args.putString(TomahawkFragment.TOMAHAWKLISTITEM_TYPE,
+                    TomahawkFragment.STATION);
         } else if (item instanceof Playlist) {
             args.putString(TomahawkFragment.TOMAHAWKLISTITEM,
                     ((Playlist) item).getCacheKey());

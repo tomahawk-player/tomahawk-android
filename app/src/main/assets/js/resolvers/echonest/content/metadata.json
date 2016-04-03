@@ -1,0 +1,17 @@
+{
+    "name": "echonest",
+    "pluginName": "echonest",
+    "author": "Enno",
+    "email": "mrmaffen@googlemail.com",
+    "version": "0.0.1",
+    "website": "http://the.echonest.com/",
+    "description": "Generates playlists dynamically.",
+    "type": "resolver/javascript",
+    "manifest": {
+        "main": "contents/code/echonest.js",
+        "scripts": [],
+        "icon": "contents/images/icon.png",
+        "iconWhite": "contents/images/iconWhite.png",
+        "iconBackground": "contents/images/iconBackground.png"
+    }
+}

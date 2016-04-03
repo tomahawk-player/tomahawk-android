@@ -25,6 +25,8 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
+import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
@@ -48,6 +50,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v4.util.Pair;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -82,6 +85,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public static final String ARTISTARRAY = "artistarray";
 
     public static final String PLAYLIST = "playlist";
+
+    public static final String STATION = "station";
 
     public static final String USER = "user";
 
@@ -611,6 +616,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             if (!mCorrespondingQueries.contains(query)) {
                 mCorrespondingQueries.add(PipeLine.get().resolve(query));
             }
+        } else if (object instanceof StationPlaylist) {
+            resolveItem((StationPlaylist) object);
         } else if (object instanceof Playlist) {
             resolveItem((Playlist) object);
         } else if (object instanceof SocialAction) {
@@ -621,6 +628,21 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             resolveItem((Artist) object);
         } else if (object instanceof User) {
             resolveItem((User) object);
+        }
+    }
+
+    private void resolveItem(StationPlaylist stationPlaylist) {
+        if (mResolvingItems.add(stationPlaylist)) {
+            if (stationPlaylist.getArtists() != null) {
+                for (Artist artist : stationPlaylist.getArtists()) {
+                    resolveItem(artist);
+                }
+            }
+            if (stationPlaylist.getTracks() != null) {
+                for (Pair<Track, String> pair : stationPlaylist.getTracks()) {
+                    resolveItem(pair.first.getArtist());
+                }
+            }
         }
     }
 

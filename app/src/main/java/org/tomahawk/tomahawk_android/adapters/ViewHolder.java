@@ -24,6 +24,8 @@ import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
+import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.SocialAction;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.libtomahawk.infosystem.hatchet.HatchetInfoPlugin;
@@ -38,6 +40,7 @@ import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.content.res.Resources;
+import android.support.v4.util.Pair;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -177,6 +180,13 @@ public class ViewHolder {
         swipeMenuButton.setOnClickListener(swipeMenuButton1Listener);
     }
 
+    public void fillView(Track track) {
+        TextView trackNameTextView = (TextView) findViewById(R.id.track_textview);
+        trackNameTextView.setText(track.getName());
+        TextView artistNameTextView = (TextView) findViewById(R.id.artist_textview);
+        artistNameTextView.setText(track.getArtist().getPrettyName());
+    }
+
     public void fillView(String string) {
         TextView textView1 = (TextView) findViewById(R.id.textview1);
         textView1.setText(string);
@@ -273,6 +283,47 @@ public class ViewHolder {
             connectImageViewContainer.setVisibility(View.VISIBLE);
         } else {
             connectImageViewContainer.setVisibility(View.GONE);
+        }
+    }
+
+    public void fillView(StationPlaylist playlist) {
+        ArrayList<Image> artistImages = new ArrayList<>();
+        if (playlist.getArtists() != null) {
+            for (Artist artist : playlist.getArtists()) {
+                artistImages.add(artist.getImage());
+            }
+        }
+        if (playlist.getTracks() != null) {
+            for (Pair<Track, String> pair : playlist.getTracks()) {
+                artistImages.add(pair.first.getArtist().getImage());
+            }
+        }
+        if (playlist.getGenres() != null && artistImages.size() == 0) {
+            View v = ViewUtils.ensureInflation(mRootView, R.id.imageview_station_genre_stub,
+                    R.id.imageview_station_genre);
+            v.setVisibility(View.VISIBLE);
+            v = mRootView.findViewById(R.id.imageview_grid_one);
+            if (v != null) {
+                v.setVisibility(View.GONE);
+            }
+            v = mRootView.findViewById(R.id.imageview_grid_two);
+            if (v != null) {
+                v.setVisibility(View.GONE);
+            }
+            v = mRootView.findViewById(R.id.imageview_grid_three);
+            if (v != null) {
+                v.setVisibility(View.GONE);
+            }
+        } else {
+            View v = mRootView.findViewById(R.id.imageview_station_genre);
+            if (v != null) {
+                v.setVisibility(View.GONE);
+            }
+            fillView(mRootView, artistImages, 0, false);
+        }
+        TextView textView1 = (TextView) findViewById(R.id.textview1);
+        if (textView1 != null) {
+            textView1.setText(playlist.getName());
         }
     }
 

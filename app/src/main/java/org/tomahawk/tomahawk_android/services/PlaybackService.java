@@ -26,6 +26,7 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -630,6 +631,13 @@ public class PlaybackService extends Service {
         setBitrate(event.mode);
     }
 
+    @SuppressWarnings("unused")
+    public void onEvent(StationPlaylist.StationPlayableEvent event) {
+        if (mPlaylist == event.mStationPlaylist) {
+            setCurrentEntry(mPlaylist.getEntryAtPos(0));
+        }
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -1112,6 +1120,9 @@ public class PlaybackService extends Service {
         handlePlayState();
         EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
         onTrackChanged();
+        if (mPlaylist instanceof StationPlaylist && !hasNextEntry(getNextEntry())) {
+            ((StationPlaylist) mPlaylist).fillPlaylist(false);
+        }
     }
 
     private void onTrackChanged() {
@@ -1152,8 +1163,32 @@ public class PlaybackService extends Service {
      * Set the current Playlist to playlist and set the current Track to the Playlist's current
      * Track.
      */
+    public void setPlaylist(StationPlaylist stationPlaylist) {
+        Log.d(TAG, "setPlaylist - StationPlaylist");
+        stationPlaylist.setPlayedTimeStamp(System.currentTimeMillis());
+        DatabaseHelper.get().storeStation(stationPlaylist);
+        releaseAllPlayers();
+        mRepeatingMode = NOT_REPEATING;
+        mPlaylist = stationPlaylist;
+        int size = stationPlaylist.size();
+        if (size > 0) {
+            setCurrentEntry(stationPlaylist.getEntryAtPos(size - 1));
+        } else {
+            stationPlaylist.fillPlaylist(true);
+        }
+        if (mQueue.size() > 0) {
+            mQueueStartPos = mCurrentIndex + 1;
+        } else {
+            mQueueStartPos = -1;
+        }
+    }
+
+    /**
+     * Set the current Playlist to playlist and set the current Track to the Playlist's current
+     * Track.
+     */
     public void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
-        Log.d(TAG, "setPlaylist");
+        Log.d(TAG, "setPlaylist - Playlist");
         releaseAllPlayers();
         mRepeatingMode = NOT_REPEATING;
         mPlaylist = playlist;
