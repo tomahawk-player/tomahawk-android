@@ -23,6 +23,7 @@ import com.nineoldandroids.animation.PropertyValuesHolder;
 import com.nineoldandroids.animation.ValueAnimator;
 import com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar;
 
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -58,6 +59,10 @@ public class PlaybackPanel extends FrameLayout {
 
     private View mPanelContainer;
 
+    private View mStationContainer;
+
+    private View mStationContainerInner;
+
     private FrameLayout mArtistNameButton;
 
     private TextView mArtistTextView;
@@ -69,6 +74,8 @@ public class PlaybackPanel extends FrameLayout {
     private TextView mCurrentTimeTextView;
 
     private TextView mSeekTimeTextView;
+
+    private TextView mStationTextView;
 
     private ImageView mResolverImageView;
 
@@ -87,6 +94,8 @@ public class PlaybackPanel extends FrameLayout {
     private FrameLayout mCircularProgressBarContainer;
 
     private HoloCircularProgressBar mCircularProgressBar;
+
+    private ValueAnimator mStationContainerAnimation;
 
     private final Set<ValueAnimator> mAnimators = new HashSet<>();
 
@@ -109,12 +118,15 @@ public class PlaybackPanel extends FrameLayout {
     private void init() {
         mTextViewContainer = (FrameLayout) findViewById(R.id.textview_container);
         mPanelContainer = findViewById(R.id.panel_container);
+        mStationContainer = findViewById(R.id.station_container);
+        mStationContainerInner = findViewById(R.id.station_container_inner);
         mArtistNameButton = (FrameLayout) mTextViewContainer.findViewById(R.id.artist_name_button);
         mArtistTextView = (TextView) mArtistNameButton.findViewById(R.id.artist_textview);
         mTrackTextView = (TextView) mTextViewContainer.findViewById(R.id.track_textview);
         mCompletionTimeTextView = (TextView) findViewById(R.id.completiontime_textview);
         mCurrentTimeTextView = (TextView) findViewById(R.id.currenttime_textview);
         mSeekTimeTextView = (TextView) findViewById(R.id.seektime_textview);
+        mStationTextView = (TextView) findViewById(R.id.station_textview);
         mResolverImageView = (ImageView) findViewById(R.id.resolver_imageview);
         mPlayButton = (ImageView) findViewById(R.id.play_button);
         mPauseButton = (ImageView) findViewById(R.id.pause_button);
@@ -254,7 +266,7 @@ public class PlaybackPanel extends FrameLayout {
             onPlayPositionChanged(0, 0);
             updateTextViewCompleteTime();
             updateText();
-            updateResolverIconImageView();
+            updateImageViews();
             if (mPlaybackService != null) {
                 updatePlayPauseState(mPlaybackService.isPlaying());
             }
@@ -277,6 +289,13 @@ public class PlaybackPanel extends FrameLayout {
         if (mPlaybackService != null && mPlaybackService.getCurrentQuery() != null) {
             mArtistTextView.setText(mPlaybackService.getCurrentQuery().getArtist().getPrettyName());
             mTrackTextView.setText(mPlaybackService.getCurrentQuery().getPrettyName());
+            if (mPlaybackService.getPlaylist() instanceof StationPlaylist) {
+                mStationContainer.setVisibility(VISIBLE);
+                mStationTextView.setText(mPlaybackService.getPlaylist().getName());
+                setupStationContainerAnimation();
+            } else {
+                mStationContainer.setVisibility(GONE);
+            }
         }
     }
 
@@ -295,15 +314,16 @@ public class PlaybackPanel extends FrameLayout {
         }
     }
 
-    private void updateResolverIconImageView() {
-        if (mPlaybackService != null && mPlaybackService.getCurrentQuery() != null
-                && mPlaybackService.getCurrentQuery().getPreferredTrackResult() != null) {
-            Resolver resolver =
-                    mPlaybackService.getCurrentQuery().getPreferredTrackResult().getResolvedBy();
-            if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(resolver.getId())) {
-                resolver.loadIconWhite(mResolverImageView);
-            } else {
-                resolver.loadIcon(mResolverImageView, false);
+    private void updateImageViews() {
+        if (mPlaybackService != null && mPlaybackService.getCurrentQuery() != null) {
+            if (mPlaybackService.getCurrentQuery().getPreferredTrackResult() != null) {
+                Resolver resolver = mPlaybackService.getCurrentQuery().getPreferredTrackResult()
+                        .getResolvedBy();
+                if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(resolver.getId())) {
+                    resolver.loadIconWhite(mResolverImageView);
+                } else {
+                    resolver.loadIcon(mResolverImageView, false);
+                }
             }
         }
     }
@@ -377,6 +397,8 @@ public class PlaybackPanel extends FrameLayout {
                 animator.setCurrentPlayTime(mLastPlayTime);
                 mAnimators.add(animator);
 
+                setupStationContainerAnimation();
+
                 // Setup mTextViewContainer backgroundColor alpha animation
                 Keyframe kfColor1 = Keyframe.ofInt(0f, 0x0);
                 Keyframe kfColor2 = Keyframe.ofInt(0.5f, 0x0);
@@ -408,6 +430,29 @@ public class PlaybackPanel extends FrameLayout {
                 mAnimators.add(animator);
             }
         });
+    }
+
+    public void setupStationContainerAnimation() {
+        int resolverIconSize = getResources().getDimensionPixelSize(
+                R.dimen.playback_panel_resolver_icon_size);
+
+        // Setup mStationContainer animation
+        Keyframe kfX0 = Keyframe.ofFloat(0f,
+                mStationContainer.getWidth() - resolverIconSize);
+        Keyframe kfX1 = Keyframe.ofFloat(0.5f,
+                mStationContainer.getWidth() / 2 - mStationContainerInner.getWidth() / 2);
+        Keyframe kfX2 = Keyframe.ofFloat(1f,
+                mStationContainer.getWidth() / 2 - mStationContainerInner.getWidth() / 2);
+        PropertyValuesHolder pvhX = PropertyValuesHolder.ofKeyframe("x", kfX0, kfX1, kfX2);
+        ValueAnimator animator = ObjectAnimator
+                .ofPropertyValuesHolder(mStationContainerInner, pvhX).setDuration(20000);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.setCurrentPlayTime(mLastPlayTime);
+        if (mStationContainerAnimation != null) {
+            mAnimators.remove(mStationContainerAnimation);
+        }
+        mStationContainerAnimation = animator;
+        mAnimators.add(mStationContainerAnimation);
     }
 
     public void animate(int position) {
