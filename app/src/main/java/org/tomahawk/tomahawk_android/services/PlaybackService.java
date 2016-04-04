@@ -53,9 +53,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -72,14 +74,13 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.widget.RemoteViews;
 import android.widget.Toast;
 
@@ -214,67 +215,101 @@ public class PlaybackService extends Service {
 
     private int mRepeatingMode = NOT_REPEATING;
 
-    private MediaControllerCompat.TransportControls mTransportControls;
-
     private MediaSessionCompat mMediaSessionCompat;
 
     private MediaSessionCompat.Callback mMediaSessionCallback = new MediaSessionCompat.Callback() {
+
+        /**
+         * Override to handle requests to begin playback.
+         */
         @Override
-        public boolean onMediaButtonEvent(Intent intent) {
+        public void onPlay() {
+            start();
+        }
+
+        /**
+         * Override to handle requests to pause playback.
+         */
+        @Override
+        public void onPause() {
+            pause();
+        }
+
+        /**
+         * Override to handle requests to skip to the next media item.
+         */
+        @Override
+        public void onSkipToNext() {
+            next();
+        }
+
+        /**
+         * Override to handle requests to skip to the previous media item.
+         */
+        @Override
+        public void onSkipToPrevious() {
+            previous();
+        }
+
+        /**
+         * Override to handle requests to fast forward.
+         */
+        public void onFastForward() {
+            long duration = getCurrentQuery().getPreferredTrack().getDuration();
+            int newPos = (int) Math.min(duration, Math.max(0, getPosition() + 10000));
+            seekTo(newPos);
+        }
+
+        /**
+         * Override to handle requests to rewind.
+         */
+        public void onRewind() {
+            long duration = getCurrentQuery().getPreferredTrack().getDuration();
+            int newPos = (int) Math.min(duration, Math.max(0, getPosition() - 10000));
+            seekTo(newPos);
+        }
+
+        /**
+         * Override to handle requests to stop playback.
+         */
+        public void onStop() {
+            pause();
+        }
+
+        /**
+         * Override to handle requests to seek to a specific position in ms.
+         *
+         * @param pos New position to move to, in milliseconds.
+         */
+        public void onSeekTo(long pos) {
+            seekTo((int) pos);
+        }
+
+        /**
+         * Override to handle the item being rated.
+         *
+         * @param rating
+         */
+        public void onSetRating(RatingCompat rating) {
+            if (rating.getRatingStyle() == RatingCompat.RATING_HEART) {
+                CollectionManager.get().toggleLovedItem(getCurrentQuery());
+            }
+        }
+
+    };
+
+    private boolean isNoisyReceiverRegistered = false;
+
+    private BroadcastReceiver mAudioBecomingNoisyReceiver = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
             if (AudioManager.ACTION_AUDIO_BECOMING_NOISY.equals(intent.getAction())) {
                 // AudioManager tells us that the sound will be played through the speaker
                 Log.d(TAG, "Action audio becoming noisy, pausing ...");
                 // So we stop playback, if needed
                 pause();
-            } else if (Intent.ACTION_MEDIA_BUTTON.equals(intent.getAction())) {
-                KeyEvent keyEvent = (KeyEvent) intent.getExtras().get(Intent.EXTRA_KEY_EVENT);
-                if (keyEvent == null) {
-                    return false;
-                }
-                Log.d(TAG, "Mediabutton pressed ... keyCode: " + keyEvent.getKeyCode());
-                if (keyEvent.getAction() != KeyEvent.ACTION_DOWN) {
-                    return false;
-                }
-
-                switch (keyEvent.getKeyCode()) {
-                    case KeyEvent.KEYCODE_HEADSETHOOK:
-                    case KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE:
-                        if (isPlaying()) {
-                            mTransportControls.pause();
-                        } else {
-                            mTransportControls.play();
-                        }
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PLAY:
-                        mTransportControls.play();
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PAUSE:
-                        mTransportControls.pause();
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_STOP:
-                        mTransportControls.stop();
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_NEXT:
-                        mTransportControls.skipToNext();
-                        break;
-                    case KeyEvent.KEYCODE_MEDIA_PREVIOUS:
-                        mTransportControls.skipToPrevious();
-                        break;
-                }
             }
-            return super.onMediaButtonEvent(intent);
-        }
-
-        @Override
-        public void onPlay() {
-            super.onPlay();
-            start();
-        }
-
-        @Override
-        public void onPause() {
-            super.onPause();
-            pause();
         }
     };
 
@@ -324,6 +359,9 @@ public class PlaybackService extends Service {
                                     getCurrentQuery().getPrettyName())
                             .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
                                     getCurrentQuery().getPreferredTrack().getDuration())
+                            .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING,
+                                    RatingCompat.newHeartRating(
+                                            DatabaseHelper.get().isItemLoved(getCurrentQuery())))
                             .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
                                     bitmap.copy(bitmap.getConfig(), false));
                     if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getPrettyName())) {
@@ -668,12 +706,18 @@ public class PlaybackService extends Service {
         mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), new AudioFocusable() {
             @Override
             public void onGainedAudioFocus() {
-                //TODO
+                AudioManager am =
+                        (AudioManager) TomahawkApp.getContext().getSystemService(AUDIO_SERVICE);
+                ComponentName componentName =
+                        new ComponentName(TomahawkApp.getContext(), MediaButtonReceiver.class);
+                am.registerMediaButtonEventReceiver(componentName);
             }
 
             @Override
             public void onLostAudioFocus(boolean canDuck) {
-                //TODO
+                if (!canDuck) {
+                    pause();
+                }
             }
         });
 
@@ -787,6 +831,11 @@ public class PlaybackService extends Service {
     public void start() {
         Log.d(TAG, "start");
         if (getCurrentQuery() != null) {
+            if (!isNoisyReceiverRegistered) {
+                registerReceiver(mAudioBecomingNoisyReceiver,
+                        new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+                isNoisyReceiverRegistered = true;
+            }
             mSuicideHandler.stop();
             mPluginServiceKillHandler.stop();
             mScrobbleHandler.start();
@@ -815,6 +864,10 @@ public class PlaybackService extends Service {
      */
     public void pause(boolean dismissNotificationOnPause) {
         Log.d(TAG, "pause, dismissing Notification:" + dismissNotificationOnPause);
+        if (isNoisyReceiverRegistered) {
+            unregisterReceiver(mAudioBecomingNoisyReceiver);
+            isNoisyReceiverRegistered = false;
+        }
         mSuicideHandler.start();
         mPluginServiceKillHandler.start();
         mScrobbleHandler.stop();
@@ -1485,20 +1538,17 @@ public class PlaybackService extends Service {
 
         if (mMediaSessionCompat == null) {
             ComponentName componentName = new ComponentName(this, MediaButtonReceiver.class);
-            Intent intent = new Intent(Intent.ACTION_MEDIA_BUTTON);
-            intent.setComponent(componentName);
             mMediaSessionCompat = new MediaSessionCompat(
                     getApplicationContext(), "Tomahawk", componentName, null);
-            mMediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
-                    MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-            intent = new Intent(PlaybackService.this, TomahawkMainActivity.class);
+            mMediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS);
+            Intent intent = new Intent(PlaybackService.this, TomahawkMainActivity.class);
             intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
             intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
             PendingIntent pendingIntent = PendingIntent.getActivity(PlaybackService.this, 0,
                     intent, PendingIntent.FLAG_UPDATE_CURRENT);
             mMediaSessionCompat.setSessionActivity(pendingIntent);
             mMediaSessionCompat.setCallback(mMediaSessionCallback);
-            mTransportControls = mMediaSessionCompat.getController().getTransportControls();
+            mMediaSessionCompat.setRatingType(RatingCompat.RATING_HEART);
         }
 
         updateLockscreenPlayState();
@@ -1513,7 +1563,10 @@ public class PlaybackService extends Service {
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE,
                         getCurrentQuery().getPrettyName())
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
-                        getCurrentQuery().getPreferredTrack().getDuration());
+                        getCurrentQuery().getPreferredTrack().getDuration())
+                .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING,
+                        RatingCompat.newHeartRating(
+                                DatabaseHelper.get().isItemLoved(getCurrentQuery())));
         if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getPrettyName())) {
             builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM,
                     getCurrentQuery().getAlbum().getPrettyName());
@@ -1543,7 +1596,8 @@ public class PlaybackService extends Service {
             long actions = PlaybackStateCompat.ACTION_PLAY |
                     PlaybackStateCompat.ACTION_PAUSE |
                     PlaybackStateCompat.ACTION_STOP |
-                    PlaybackStateCompat.ACTION_SEEK_TO;
+                    PlaybackStateCompat.ACTION_SEEK_TO |
+                    PlaybackStateCompat.ACTION_SET_RATING;
             if (hasNextEntry()) {
                 actions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
             }
