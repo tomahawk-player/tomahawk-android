@@ -113,6 +113,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
 
     @SuppressWarnings("unused")
     public void onEventAsync(PipeLine.StreamUrlEvent event) {
+        Log.d(TAG, "Received stream url: " + event.mResult + ", " + event.mUrl);
         mTranslatedUrls.put(event.mResult, event.mUrl);
         if (mPreparingQuery != null
                 && event.mResult == mPreparingQuery.getPreferredTrackResult()) {
@@ -158,6 +159,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
      * Prepare the given url
      */
     private TomahawkMediaPlayer prepare(Query query) {
+        Log.d(TAG, "prepare()");
         release();
         mPreparedQuery = null;
         mPreparingQuery = query;
@@ -175,10 +177,10 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
         }
         Media media = new Media(sLibVLC, AndroidUtil.LocationToUri(path));
         getMediaPlayerInstance().setMedia(media);
-        Log.d(TAG, "onPrepared()");
         mPreparedQuery = mPreparingQuery;
         mPreparingQuery = null;
         mMediaPlayerCallback.onPrepared(mPreparedQuery);
+        Log.d(TAG, "onPrepared()");
         return this;
     }
 
@@ -187,7 +189,6 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
      */
     @Override
     public TomahawkMediaPlayer prepare(Query query, TomahawkMediaPlayerCallback callback) {
-        Log.d(TAG, "prepare()");
         mMediaPlayerCallback = callback;
         return prepare(query);
     }
