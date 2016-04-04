@@ -150,6 +150,34 @@
                   android:textSize="@dimen/text_size_micro"
                   android:textColor="@color/primary_textcolor_inverted"/>
 
+        <FrameLayout android:id="@+id/station_container"
+                     android:layout_width="match_parent"
+                     android:layout_height="@dimen/playback_panel_height"
+                     android:layout_marginLeft="@dimen/playback_panel_height"
+                     android:layout_marginRight="@dimen/playback_panel_height"
+                     android:visibility="gone">
+
+            <LinearLayout android:id="@+id/station_container_inner"
+                          android:layout_width="wrap_content"
+                          android:layout_height="match_parent">
+
+                <ImageView android:id="@+id/station_imageview"
+                           android:layout_width="@dimen/playback_panel_resolver_icon_size"
+                           android:layout_height="match_parent"
+                           android:src="@drawable/ic_action_station"/>
+
+                <TextView android:id="@+id/station_textview"
+                          android:layout_width="wrap_content"
+                          android:layout_height="match_parent"
+                          android:layout_marginLeft="@dimen/padding_verysmall"
+                          android:gravity="center"
+                          android:textSize="@dimen/text_size_micro"
+                          android:textColor="@color/primary_textcolor_inverted"/>
+
+            </LinearLayout>
+
+        </FrameLayout>
+
         <include layout="@layout/progressbar_white"
                  android:id="@+id/progressbar"
                  android:layout_width="match_parent"
