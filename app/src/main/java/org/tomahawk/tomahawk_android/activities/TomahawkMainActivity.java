@@ -56,6 +56,7 @@ import org.tomahawk.tomahawk_android.dialogs.GMusicConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.InstallPluginConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.WarnOldPluginDialog;
 import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
+import org.tomahawk.tomahawk_android.fragments.ChartsSelectorFragment;
 import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
 import org.tomahawk.tomahawk_android.fragments.ContextMenuFragment;
@@ -65,7 +66,6 @@ import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.fragments.PreferenceAdvancedFragment;
 import org.tomahawk.tomahawk_android.fragments.PreferencePagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
-import org.tomahawk.tomahawk_android.fragments.ChartsSelectorFragment;
 import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.StationsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
@@ -416,7 +416,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                         });
                     }
                 });
-            }  else if (holder.id.equals(HUB_ID_STATIONS)) {
+            } else if (holder.id.equals(HUB_ID_STATIONS)) {
                 User.getSelf().done(new DoneCallback<User>() {
                     @Override
                     public void onDone(User user) {
@@ -432,7 +432,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                         });
                     }
                 });
-            }else if (holder.id.equals(HUB_ID_SETTINGS)) {
+            } else if (holder.id.equals(HUB_ID_SETTINGS)) {
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_STATIC_SMALL);
                 FragmentUtils.replace(TomahawkMainActivity.this, PreferencePagerFragment.class,
@@ -838,12 +838,14 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     private void handleIntent(Intent intent) {
         if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(intent.getAction())) {
+            intent.setAction(null);
             // if this Activity is being shown after the user clicked the notification
             if (mSlidingUpPanelLayout != null) {
                 mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.EXPANDED);
             }
         }
         if (intent.hasExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE)) {
+            intent.removeExtra(AccountManager.KEY_ACCOUNT_AUTHENTICATOR_RESPONSE);
             Bundle bundle = new Bundle();
             bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_STATIC_SMALL);
