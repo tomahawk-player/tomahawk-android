@@ -36,13 +36,14 @@ import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -104,18 +105,26 @@ public class CreateStationDialog extends ConfigDialog {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        LinearLayout linearLayout = (LinearLayout) addViewToFrame(R.layout.config_create_station);
+        View layout = addViewToFrame(R.layout.config_create_station);
         mListView =
-                (StickyListHeadersListView) linearLayout.findViewById(R.id.create_station_listview);
-
-        mSearchEditText = (ConfigEdittext) linearLayout.findViewById(R.id.create_station_edittext);
+                (StickyListHeadersListView) layout.findViewById(R.id.create_station_listview);
+        mSearchEditText = (ConfigEdittext) layout.findViewById(R.id.create_station_edittext);
         mSearchEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
 
         ViewUtils.showSoftKeyboard(mSearchEditText);
 
         setDialogTitle(getString(R.string.create_station));
 
-        hideStatusImage();
+        setStatusImage(R.drawable.ic_echonest);
+        setStatusImageClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent i = new Intent(Intent.ACTION_VIEW);
+                i.setData(Uri.parse("http://the.echonest.com/"));
+                startActivity(i);
+            }
+        });
+
         hideConnectImage();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -135,12 +144,16 @@ public class CreateStationDialog extends ConfigDialog {
 
     @Override
     protected void onPositiveAction() {
+        mListView.setVisibility(View.GONE);
+        startLoadingAnimation();
         ScriptPlaylistGenerator generator =
                 ScriptPlaylistGeneratorManager.get().getDefaultPlaylistGenerator();
         generator.search(mSearchEditText.getText().toString())
                 .done(new DoneCallback<ScriptPlaylistGeneratorSearchResult>() {
                     @Override
                     public void onDone(ScriptPlaylistGeneratorSearchResult result) {
+                        stopLoadingAnimation();
+                        mListView.setVisibility(View.VISIBLE);
                         List<Segment> segments = new ArrayList<>();
                         if (result.mArtists.size() > 0) {
                             segments.add(new Segment.Builder(result.mArtists)

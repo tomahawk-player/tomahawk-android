@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
-/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+/* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2016, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -17,13 +15,23 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
--->
-<org.tomahawk.tomahawk_android.views.DirectoryChooser
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/directory_chooser"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="@dimen/padding_small"
-        android:layout_marginBottom="@dimen/padding_small"
-        android:layout_marginLeft="@dimen/padding_superlarge"/>
+package org.tomahawk.libtomahawk.collection;
+
+/**
+ * This class represents an {@link ListItemDrawable}.
+ */
+public class ListItemDrawable {
+
+    private final int mResourceId;
+
+    /**
+     * Construct a new {@link ListItemDrawable} with the given resource id
+     */
+    public ListItemDrawable(int resourceId) {
+        mResourceId = resourceId;
+    }
+
+    public int getResourceId() {
+        return mResourceId;
+    }
+}

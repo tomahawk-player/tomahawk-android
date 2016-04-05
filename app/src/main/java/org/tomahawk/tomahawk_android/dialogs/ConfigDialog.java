@@ -21,9 +21,7 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
-import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.ui.widgets.BoundedLinearLayout;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox;
 
 import android.os.Bundle;
@@ -56,7 +54,7 @@ public abstract class ConfigDialog extends DialogFragment {
 
     private LinearLayout mScrollingDialogFrame;
 
-    private BoundedLinearLayout mDialogFrame;
+    private LinearLayout mDialogFrame;
 
     private TextView mPositiveButton;
 
@@ -116,7 +114,7 @@ public abstract class ConfigDialog extends DialogFragment {
                 .findViewById(R.id.config_dialog_header_background);
         mTitleTextView = (TextView) mDialogView
                 .findViewById(R.id.config_dialog_title_textview);
-        mDialogFrame = (BoundedLinearLayout) mDialogView
+        mDialogFrame = (LinearLayout) mDialogView
                 .findViewById(R.id.config_dialog_frame);
         mScrollingDialogFrame = (LinearLayout) mDialogView
                 .findViewById(R.id.scrolling_config_dialog_frame);
@@ -159,14 +157,12 @@ public abstract class ConfigDialog extends DialogFragment {
 
     protected void addScrollingViewToFrame(View view) {
         mScrollingDialogFrame.addView(view);
-        updateContainerHeight();
     }
 
     protected View addScrollingViewToFrame(int layoutId) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(layoutId, mScrollingDialogFrame, false);
         mScrollingDialogFrame.addView(view);
-        updateContainerHeight();
         return view;
     }
 
@@ -175,7 +171,6 @@ public abstract class ConfigDialog extends DialogFragment {
         View view = inflater.inflate(layoutId, mScrollingDialogFrame, false);
         mDialogFrame.addView(view);
         mDialogFrame.setVisibility(View.VISIBLE);
-        updateContainerHeight();
         return view;
     }
 
@@ -241,6 +236,14 @@ public abstract class ConfigDialog extends DialogFragment {
         mEnableCheckbox.setChecked(resolver.isEnabled());
     }
 
+    protected void setStatusImage(int drawableResId) {
+        mStatusImageView.setImageResource(drawableResId);
+    }
+
+    protected void setStatusImageClickListener(View.OnClickListener clickListener) {
+        mStatusImageView.setOnClickListener(clickListener);
+    }
+
     protected void setDialogTitle(String title) {
         if (mTitleTextView != null) {
             mTitleTextView.setText(title);
@@ -273,25 +276,5 @@ public abstract class ConfigDialog extends DialogFragment {
      */
     public void stopLoadingAnimation() {
         mProgressBar.setVisibility(View.GONE);
-    }
-
-    private void updateContainerHeight() {
-        final int panelHeight = getResources().getDimensionPixelSize(R.dimen.row_height_verylarge);
-
-        ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(getDialogView()) {
-            @Override
-            public void run() {
-                setContainerHeight(getDialogView().getHeight() - panelHeight * 2);
-            }
-        });
-    }
-
-    private void setContainerHeight(final int height) {
-        ViewUtils.afterViewGlobalLayout(new ViewUtils.ViewRunnable(getDialogView()) {
-            @Override
-            public void run() {
-                mDialogFrame.setMaxHeight(height);
-            }
-        });
     }
 }

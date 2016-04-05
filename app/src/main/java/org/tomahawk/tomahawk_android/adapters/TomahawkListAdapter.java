@@ -26,6 +26,7 @@ import com.daimajia.swipe.util.Attributes;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
+import org.tomahawk.libtomahawk.collection.ListItemDrawable;
 import org.tomahawk.libtomahawk.collection.ListItemString;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
@@ -427,6 +428,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 } else if (viewHolder.mLayoutId == R.layout.list_item_text
                         || viewHolder.mLayoutId == R.layout.list_item_text_highlighted) {
                     viewHolder.fillView(((ListItemString) targetItem).getText());
+                } else if (viewHolder.mLayoutId == R.layout.list_item_image) {
+                    viewHolder.fillView((ListItemDrawable) targetItem);
                 } else if (viewHolder.mLayoutId == R.layout.list_item_track_artist
                         || viewType == R.layout.list_item_numeration_track_artist
                         || viewType == R.layout.list_item_numeration_track_duration) {
@@ -695,6 +698,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             } else {
                 return R.layout.list_item_text;
             }
+        } else if (item instanceof ListItemDrawable) {
+            return R.layout.list_item_image;
         } else if (item instanceof Album) {
             return R.layout.list_item_album;
         } else if (item instanceof Artist) {
