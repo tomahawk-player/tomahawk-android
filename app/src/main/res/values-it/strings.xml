@@ -210,4 +210,5 @@
     <item quantity="other">Scegli una playlist a cui aggiungere %1$d canzoni:</item>
   </plurals>
   <string name="seeking_not_supported">Spiacente, questo resolver non supporta la ricerca.</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

@@ -231,4 +231,5 @@
   <string name="warn_closed_source_text">Advertencia: está a punto de descargar un plugin que contiene partes de código cerrado.</string>
   <string name="warn_old_plugin">La aplicación plug-in requerida está obsoleta y ya no es compatible. ¿Quieres actualizar ahora?</string>
   <string name="warn_no_plugin">La aplicación plug-in requerida no se encuentra instalada. ¿Quieres instalarla ahora?</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

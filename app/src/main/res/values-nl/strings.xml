@@ -182,4 +182,5 @@
   <string name="invalid_file">Het bestand kan niet worden geopend.</string>
   <string name="unknown_album">Onbekend album</string>
   <string name="unknown_artist">Onbekende artiest</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

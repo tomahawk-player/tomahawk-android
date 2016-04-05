@@ -208,4 +208,5 @@
   <string name="invalid_file">Kan inte öppna fil.</string>
   <string name="unknown_album">Okänt album</string>
   <string name="unknown_artist">Okänd artist</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

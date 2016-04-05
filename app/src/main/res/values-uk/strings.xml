@@ -218,4 +218,5 @@
   <string name="warn_closed_source_text">Увага: Ви завантажите втулку з частиною закритого коду.</string>
   <string name="warn_old_plugin">Потрібна втулка застаріла й більше не сумісна. Ви бажаєте оновити її зараз?</string>
   <string name="warn_no_plugin">Потрібна втулка не встановлена. Ви волієте встановити її зараз?</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

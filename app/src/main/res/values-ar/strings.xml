@@ -270,4 +270,5 @@
   <string name="warn_closed_source_text">تحذير: أنت على وشك تنزيل ملحقة تحوي أجزاء مغلقة المصدر.</string>
   <string name="warn_old_plugin">تطبيق الملحقة المطلوب قديم ولم يعد متوافقًا. أتريد التّحديث إليه الآن؟</string>
   <string name="warn_no_plugin">تطبيق الملحقة المطلوب لم يعد مثبّتًا. أتريد تثبيته الآن؟</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

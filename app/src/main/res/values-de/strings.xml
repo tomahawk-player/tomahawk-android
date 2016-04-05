@@ -87,7 +87,9 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Aus den Favoriten entfernen</string>
   <string name="context_menu_share">Teilen</string>
+  <string name="contest_menu_share_error">Bitte logge dich in Hatchet ein, um diese Playlist teilen zu können</string>
   <string name="drawer_title_feed">Feed</string>
+  <string name="drawer_title_charts">Charts</string>
   <string name="drawer_title_collection">Sammlung</string>
   <string name="drawer_title_playlists">Playlists</string>
   <string name="drawer_title_lovedtracks">Favoriten</string>
@@ -162,6 +164,9 @@
   <string name="users_playbacklog_suffix">%1$ss kürzlich gespielte Lieder</string>
   <string name="users_favorites_suffix">%1$ss Favoriten</string>
   <string name="users_playlist_suffix">%1$ss Playlist</string>
+  <string name="my_playbacklog">Meine Abspielverlauf</string>
+  <string name="my_favorites">Meine Favoriten</string>
+  <string name="my_playlist">Meine Playlist</string>
   <string name="music">Musik</string>
   <string name="biography">Biografie</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -222,4 +227,9 @@
   <string name="invalid_file">Kann Datei nicht öffnen.</string>
   <string name="unknown_album">Unbekanntes Album</string>
   <string name="unknown_artist">Unbekannter Interpret</string>
+  <string name="notification_settings_activity_not_found">Die Einstellungs-App konnte nicht gefunden werden. Bitte gib Tomahawk Zugriff auf deine Benachrichtigungen in deinen Systemeinstellungen.</string>
+  <string name="warn_closed_source_text">Achtung: Du bist im Begriff ein Plugin herunterzuladen, welches nicht vollständig open-source ist.</string>
+  <string name="warn_old_plugin">Die benötigte Plugin-Applikation ist veraltet oder nicht länger kompatibel. Möchtest du sie jetzt updaten?</string>
+  <string name="warn_no_plugin">Die benötigte Plugin-Applikation ist nicht mehr installiert. Möchtest du sie jetzt installieren?</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

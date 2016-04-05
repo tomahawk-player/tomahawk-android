@@ -240,4 +240,5 @@ Vy teď nemusíte.</string>
   <string name="unknown_album">Neznámé album</string>
   <string name="unknown_artist">Neznámý umělec</string>
   <string name="notification_settings_activity_not_found">Na vašem zařízení se nepodařilo najít nastavení aplikace. Dejte, prosím, Tomahawku přístup k vašemu oznamování v nastavení systému.</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

@@ -30,6 +30,10 @@
   <string name="create_playlist">Luo soittolista</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Nimi</string>
+  <string name="create_station">Luo asema</string>
+  <string name="create_station_search_hint">Etsi artisteja/kappaleita/lajityyppejä</string>
+  <string name="genres">Lajityypit</string>
+  <string name="moods">Mielialat</string>
   <string name="login_name_label">Sähköposti/käyttäjätunnus</string>
   <string name="login_username">Käyttäjätunnus</string>
   <string name="login_password">Salasana</string>
@@ -64,6 +68,10 @@
   <string name="preferences_app_version">Sovelluksen versio</string>
   <string name="preferences_app_uservoice">Palaute</string>
   <string name="preferences_app_uservoice_text">Kerro ideasi tai pyydä tukea</string>
+  <string name="preferences_app_playstore_link">Arvostele sovellus</string>
+  <string name="preferences_app_playstore_link_text">Arvostele Tomahawk Google Play-kaupassa.</string>
+  <string name="preferences_app_website_link">Avaa verkkosivumme</string>
+  <string name="preferences_app_website_link_text">Avaa tomahawk-player.org selaimeesi.</string>
   <string name="preferences_app_sendlog">Lähetä loki</string>
   <string name="preferences_app_sendlog_text">Lähetä lokitiedosto vianjäljitystä varten.</string>
   <string name="preferences_app_sendlog_dialog_text">Kerro kokemasi ongelma lyhyesti ja anna sähköpostiosoite, jotta voimme tarvittaessa ottaa sinuun yhteyttä. Kiitos!</string>
@@ -92,6 +100,7 @@
   <string name="drawer_title_charts">Listat</string>
   <string name="drawer_title_collection">Kokoelma</string>
   <string name="drawer_title_playlists">Soittolistat</string>
+  <string name="drawer_title_stations">Asemat</string>
   <string name="drawer_title_lovedtracks">Suosikit</string>
   <string name="drawer_title_settings">Asetukset</string>
   <string name="drawer_header_cloudcollections">Pilvikokoelmat</string>
@@ -231,4 +240,6 @@
   <string name="warn_closed_source_text">Varoitus: olet lataamassa liitännäistä, jossa on suljetun lähdekoodin osia.</string>
   <string name="warn_old_plugin">Vaadittu liitännäissovellus on vanhentunut eikä ole enää yhteensopiva. Haluatko päivittää sen nyt?</string>
   <string name="warn_no_plugin">Vaadittu liitännäissovellus ei ole enää asennettuna. Haluatko asentaa sen nyt?</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">uusi</string>
 </resources>

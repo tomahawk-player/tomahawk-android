@@ -127,4 +127,5 @@
   <string name="invalid_file">Nepavyksta atverti failo.</string>
   <string name="unknown_album">Nežinomas albumas</string>
   <string name="unknown_artist">Nežinomas atlikėjas</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

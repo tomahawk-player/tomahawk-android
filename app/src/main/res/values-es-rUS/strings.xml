@@ -226,4 +226,5 @@
   <string name="invalid_file">No se puede abrir el archivo.</string>
   <string name="unknown_album">Álbum desconocido</string>
   <string name="unknown_artist">Artista desconocido</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>
