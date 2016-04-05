@@ -218,4 +218,5 @@
   <string name="uninstall_plugin_warning">Você deseja realmente desinstalar este plugin? </string>
   <string name="gmusic_info_text">Escolher uma conta:</string>
   <string name="invalid_file">Não foi possível abrir o arquivo.</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

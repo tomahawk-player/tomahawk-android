@@ -114,4 +114,5 @@
   <string name="button_close">ปิด</string>
   <string name="view_album">ดูอัลบั้ม</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

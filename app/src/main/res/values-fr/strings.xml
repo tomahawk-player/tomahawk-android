@@ -187,7 +187,7 @@
   <string name="ask_access_activity_text1">On peut faire ça ! Il vous suffit d\'activer ce service dans vos paramétres d\'utilisation.</string>
   <string name="button_close">Fermer</string>
   <string name="view_album">Voir l\'album</string>
-  <string name="connect">Connexion</string>
+  <string name="connect">Se connecter</string>
   <string name="connect_headertext">Sélectionnez les services que vous souhaitez utiliser. Tomahawk fonctionne d\'autant mieux que plusieurs services sont activés.</string>
   <string name="connect_header_manualresolvers">Installé manuellement</string>
   <string name="advanced">Avancé</string>
@@ -222,4 +222,5 @@
   <string name="invalid_file">Fichier impossible à ouvrir.</string>
   <string name="unknown_album">Album inconnu</string>
   <string name="unknown_artist">Artiste inconnu</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>

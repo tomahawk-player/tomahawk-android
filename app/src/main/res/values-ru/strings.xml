@@ -30,6 +30,10 @@
   <string name="create_playlist">Создать плейлист</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Название</string>
+  <string name="create_station">Создать станцию</string>
+  <string name="create_station_search_hint">Поиск артистов/песен/жанров</string>
+  <string name="genres">Жанры</string>
+  <string name="moods">Настроение</string>
   <string name="login_name_label">e-mail/имя пользователя</string>
   <string name="login_username">Имя пользователя</string>
   <string name="login_password">Пароль</string>
@@ -64,6 +68,10 @@
   <string name="preferences_app_version">Версия приложения</string>
   <string name="preferences_app_uservoice">Обратная связь</string>
   <string name="preferences_app_uservoice_text">Поделитесь идеями или спросите о поддержке</string>
+  <string name="preferences_app_playstore_link">Оцените приложение</string>
+  <string name="preferences_app_playstore_link_text">Оцените Tomahawk в Google Play Маркете.</string>
+  <string name="preferences_app_website_link">Посетите наш сайт</string>
+  <string name="preferences_app_website_link_text">Открыть tomahawk-player.org в вашем браузере.</string>
   <string name="preferences_app_sendlog">Отправить логи</string>
   <string name="preferences_app_sendlog_text">Отправить ваши логи для отладки</string>
   <string name="preferences_app_sendlog_dialog_text">Пожалуйста, кратко опишите проблему, которая у вас возникла и укажите ваш e-mail, чтобы мы могли связаться с вами. Спасибо!</string>
@@ -89,8 +97,10 @@
   <string name="context_menu_share">Поделиться</string>
   <string name="contest_menu_share_error">Вы должны войти в Hatchet, чтобы поделиться этим списком воспроизведения.</string>
   <string name="drawer_title_feed">Фид</string>
+  <string name="drawer_title_charts">Чарты</string>
   <string name="drawer_title_collection">Коллекция</string>
   <string name="drawer_title_playlists">Плейлисты</string>
+  <string name="drawer_title_stations">Станции</string>
   <string name="drawer_title_lovedtracks">Избранное</string>
   <string name="drawer_title_settings">Настройки</string>
   <string name="drawer_header_cloudcollections">Облачная коллекция</string>
@@ -114,15 +124,64 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s подписался</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
+  <plurals name="socialaction_type_love_track">
+    <item quantity="one">%1$s оценил песеню</item>
+    <item quantity="few">%1$s оценил %2$d песен</item>
+    <item quantity="many">%1$s оценил %2$d песен</item>
+    <item quantity="other">%1$s оценил %2$d песен</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
+  <plurals name="socialaction_type_collected_track">
+    <item quantity="one">%1$s добавил песеню</item>
+    <item quantity="few">%1$s добавил %2$d песен</item>
+    <item quantity="many">%1$s добавил %2$d песен</item>
+    <item quantity="other">%1$s добавил %2$d песен</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
+  <plurals name="socialaction_type_collected_album">
+    <item quantity="one">%1$s добавил альбом</item>
+    <item quantity="few">%1$s добавил %2$d альбомов</item>
+    <item quantity="many">%1$s добавил %2$d альбомов</item>
+    <item quantity="other">%1$s добавил %2$d альбомов</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
+  <plurals name="socialaction_type_collected_artist">
+    <item quantity="one">%1$s добавил артиста</item>
+    <item quantity="few">%1$s добавил %2$d артистов</item>
+    <item quantity="many">%1$s добавил %2$d артистов</item>
+    <item quantity="other">%1$s добавил %2$d артистов</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">%1$s прокомментировал</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
+  <plurals name="socialaction_type_latchon">
+    <item quantity="one">%1$s послушал вместе с другом</item>
+    <item quantity="few">%1$s послушал вместе с %2$d друзьями</item>
+    <item quantity="many">%1$s послушал вместе с %2$d друзьями</item>
+    <item quantity="other">%1$s послушал вместе с %2$d друзьями</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
+  <plurals name="socialaction_type_createplaylist">
+    <item quantity="one">%1$s создал пейлист</item>
+    <item quantity="few">%1$s создал %2$d пейлистов</item>
+    <item quantity="many">%1$s создал %2$d пейлистов</item>
+    <item quantity="other">%1$s создал %2$d пейлистов</item>
+  </plurals>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s от %2$s</string>
   <string name="time_afewseconds">пару секунд назад</string>
+  <plurals name="time_minute">
+    <item quantity="one">минуту назад</item>
+    <item quantity="few">%1$d минут назад</item>
+    <item quantity="many">%1$d минут назад</item>
+    <item quantity="other">%1$d минут назад</item>
+  </plurals>
+  <plurals name="time_hour">
+    <item quantity="one">час назад</item>
+    <item quantity="few">%1$d часов назад</item>
+    <item quantity="many">%1$d часов назад</item>
+    <item quantity="other">%1$d часов назад</item>
+  </plurals>
   <string name="users_playbacklog_suffix">%1$s недавно слушал</string>
   <string name="users_favorites_suffix">%1$s избранное</string>
   <string name="users_playlist_suffix">%1$s плейлист</string>
@@ -136,6 +195,12 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Песни</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <plurals name="songs_with_count">
+    <item quantity="one">%1$d песню</item>
+    <item quantity="few">%1$d песен</item>
+    <item quantity="many">%1$d песен</item>
+    <item quantity="other">%1$d песен</item>
+  </plurals>
   <string name="activity">Действие</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Читающие</string>
@@ -163,7 +228,9 @@
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">Следующая</string>
   <string name="welcome_fragment_explanation_title">Начиная работу</string>
+  <string name="welcome_fragment_explanation_heading">Музыка повсюду.\nИ теперь Вам не придётся за ней повсюду гоняться.</string>
   <string name="welcome_fragment_explanation_text">Хватит выискивать музыку по всему интернету - сервисам, которые Вы не используете или к которым не имеете доступа. Лишь по имени или ссылке на песню, альбому или плейлисту, Tomahawk найдёт песню в лучшем качестве и включит её.</string>
+  <string name="welcome_fragment_hatchet_title">Хотите войти через соц. сети?</string>
   <string name="welcome_fragment_hatchet_text">С Hatchet Вы, наконец, можете иметь свою музыкальную коллекцию собранную в одном месте. Делитесь списками и любимыми песнями. Или просто синхронизируйте Приложение с Tomahawk на вашем компьютере.</string>
   <string name="welcome_fragment_setup_title">Подключиться</string>
   <string name="welcome_fragment_done_title">Выполнена</string>
@@ -175,6 +242,7 @@
     <item quantity="many">Выберите плейлист, в который надо добавить %1$d песен:</item>
     <item quantity="other">Выберите плейлист, в который надо добавить %1$d песен:</item>
   </plurals>
+  <string name="seeking_not_supported">Извините, это дополнение не поддерживает поиск.</string>
   <string name="install_plugin_title">Установка плагинов</string>
   <string name="install_plugin_warning">Вы хотите добавить в Tomahawk плагин из неизвестного источника. Это небезопасно.</string>
   <string name="install_plugin_warning2">Вы действительно хотите установить этот Плагин?</string>
@@ -188,4 +256,6 @@
   <string name="warn_closed_source_text">Внимание: Вы загрузите плагин с частью закрытого кода.</string>
   <string name="warn_old_plugin">Требуемые плагин устарел и больше не совместим. Вы хотите обновить его сейчас?</string>
   <string name="warn_no_plugin">Требуемый плагин не установлен. Вы хотите установить его сейчас?</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">новое</string>
 </resources>

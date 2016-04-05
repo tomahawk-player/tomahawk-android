@@ -219,4 +219,5 @@
   <string name="warn_closed_source_text">警告：你即将下载包含闭源组件的插件。</string>
   <string name="warn_old_plugin">一个必需的插件应用已过期且不再兼容。你希望更新这个插件吗？</string>
   <string name="warn_no_plugin">一个必需的插件应用未安装。你希望安装这个插件吗？</string>
+  <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
 </resources>
