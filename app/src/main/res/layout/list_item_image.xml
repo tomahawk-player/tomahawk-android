@@ -2,7 +2,7 @@
 <!--
 /*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2016, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -18,12 +18,13 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<org.tomahawk.tomahawk_android.views.DirectoryChooser
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/directory_chooser"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_marginTop="@dimen/padding_small"
-        android:layout_marginBottom="@dimen/padding_small"
-        android:layout_marginLeft="@dimen/padding_superlarge"/>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/imageview1"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:paddingLeft="@dimen/padding_superlarge"
+          android:paddingRight="@dimen/padding_superlarge"
+          android:paddingTop="@dimen/padding_superlarge"
+          android:paddingBottom="@dimen/padding_superlarge"
+          android:descendantFocusability="afterDescendants"
+          android:background="@color/primary_background"/>

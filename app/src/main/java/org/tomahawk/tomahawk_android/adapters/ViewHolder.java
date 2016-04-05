@@ -23,6 +23,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
+import org.tomahawk.libtomahawk.collection.ListItemDrawable;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.collection.Track;
@@ -190,6 +191,11 @@ public class ViewHolder {
     public void fillView(String string) {
         TextView textView1 = (TextView) findViewById(R.id.textview1);
         textView1.setText(string);
+    }
+
+    public void fillView(ListItemDrawable drawable) {
+        ImageView imageView = (ImageView) findViewById(R.id.imageview1);
+        imageView.setImageResource(drawable.getResourceId());
     }
 
     public void fillView(User user) {

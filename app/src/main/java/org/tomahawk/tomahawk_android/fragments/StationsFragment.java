@@ -18,6 +18,7 @@
 package org.tomahawk.tomahawk_android.fragments;
 
 import org.jdeferred.DoneCallback;
+import org.tomahawk.libtomahawk.collection.ListItemDrawable;
 import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -29,6 +30,8 @@ import org.tomahawk.tomahawk_android.dialogs.CreateStationDialog;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -99,6 +102,10 @@ public class StationsFragment extends TomahawkFragment {
                     playbackService.start();
                 }
             }
+        } else if (item instanceof ListItemDrawable) {
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse("http://the.echonest.com/"));
+            startActivity(i);
         }
     }
 
@@ -132,6 +139,9 @@ public class StationsFragment extends TomahawkFragment {
                         .showAsGrid(R.integer.grid_column_count, R.dimen.padding_superlarge,
                                 R.dimen.padding_superlarge)
                         .build());
+                List echonestDrawable = new ArrayList();
+                echonestDrawable.add(new ListItemDrawable(R.drawable.ic_echonest_large));
+                segments.add(new Segment.Builder(echonestDrawable).build());
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
