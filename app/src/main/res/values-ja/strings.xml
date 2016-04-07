@@ -30,6 +30,10 @@
   <string name="create_playlist">プレイリストを作成</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">タイトル</string>
+  <string name="create_station">ラジオ局を作成</string>
+  <string name="create_station_search_hint">アーティスト/曲/ジャンルの検索</string>
+  <string name="genres">ジャンル</string>
+  <string name="moods">ムード</string>
   <string name="login_name_label">メール/ユーザー名</string>
   <string name="login_username">ユーザー名</string>
   <string name="login_password">パスワード</string>
@@ -64,6 +68,10 @@
   <string name="preferences_app_version">アプリバージョン</string>
   <string name="preferences_app_uservoice">フィードバック</string>
   <string name="preferences_app_uservoice_text">ご意見を共有、お問い合わせ等。</string>
+  <string name="preferences_app_playstore_link">アプリを評価</string>
+  <string name="preferences_app_playstore_link_text">Google Play ストアで Tomahawk を評価します。</string>
+  <string name="preferences_app_website_link">私たちの Web サイトを訪問</string>
+  <string name="preferences_app_website_link_text">お使いのブラウザーで tomahawk-player.org を開きます。</string>
   <string name="preferences_app_sendlog">ログを送信</string>
   <string name="preferences_app_sendlog_text">デバッグの目的でログファイルを送信します。</string>
   <string name="preferences_app_sendlog_dialog_text">発生した問題を簡単に説明してください。必要に応じて私たちがあなたに連絡できるように、メールアドレスを入力してください。ありがとうございます！</string>
@@ -92,6 +100,7 @@
   <string name="drawer_title_charts">チャート</string>
   <string name="drawer_title_collection">コレックション</string>
   <string name="drawer_title_playlists">プレイリスト</string>
+  <string name="drawer_title_stations">ラジオ局</string>
   <string name="drawer_title_lovedtracks">お気に入り</string>
   <string name="drawer_title_settings">設定</string>
   <string name="drawer_header_cloudcollections">クラウドコレクション</string>
@@ -221,4 +230,5 @@
   <string name="warn_old_plugin">必要なプラグイン アプリケーションが古く、もはや互換性がありません。今すぐ、それを更新しますか?</string>
   <string name="warn_no_plugin">必要なプラグイン アプリケーションがインストールされていません。今すぐインストールしますか?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">新規</string>
 </resources>
