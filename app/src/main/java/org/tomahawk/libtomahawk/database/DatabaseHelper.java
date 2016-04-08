@@ -1131,7 +1131,8 @@ public class DatabaseHelper {
                 stationPlaylist.getCreatedTimeStamp());
         values.put(TomahawkSQLiteHelper.STATIONS_COLUMN_PLAYEDTIMESTAMP,
                 stationPlaylist.getPlayedTimeStamp());
-        mDatabase.insert(TomahawkSQLiteHelper.TABLE_STATIONS, null, values);
+        mDatabase.insertWithOnConflict(TomahawkSQLiteHelper.TABLE_STATIONS, null, values,
+                SQLiteDatabase.CONFLICT_REPLACE);
         mDatabase.setTransactionSuccessful();
         mDatabase.endTransaction();
         PlaylistsUpdatedEvent event = new PlaylistsUpdatedEvent();
