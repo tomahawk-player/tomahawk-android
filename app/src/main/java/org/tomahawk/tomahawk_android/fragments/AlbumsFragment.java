@@ -92,7 +92,7 @@ public class AlbumsFragment extends TomahawkFragment {
                                 @Override
                                 public void onDone(Playlist topHits) {
                                     playbackService.setPlaylist(topHits, entry);
-                                    playbackService.start();
+                                    playbackService.play();
                                 }
                             });
                         } else {
@@ -101,7 +101,7 @@ public class AlbumsFragment extends TomahawkFragment {
                                 @Override
                                 public void onDone(Playlist topHits) {
                                     playbackService.setPlaylist(topHits, entry);
-                                    playbackService.start();
+                                    playbackService.play();
                                 }
                             });
                         }

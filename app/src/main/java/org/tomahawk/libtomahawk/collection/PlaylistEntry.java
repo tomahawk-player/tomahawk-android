@@ -72,10 +72,6 @@ public class PlaylistEntry extends Cacheable {
         return mQuery;
     }
 
-    public String getName() {
-        return mQuery.getName();
-    }
-
     public Artist getArtist() {
         return mQuery.getArtist();
     }

@@ -360,7 +360,7 @@ public class ContentHeaderFragment extends Fragment {
                                 StationPlaylist stationPlaylist =
                                         StationPlaylist.get(artists, null, null);
                                 playbackService.setPlaylist(stationPlaylist);
-                                playbackService.start();
+                                playbackService.play();
                             }
                         }
                     }
@@ -387,7 +387,7 @@ public class ContentHeaderFragment extends Fragment {
                                 StationPlaylist stationPlaylist =
                                         StationPlaylist.get(artists, null, null);
                                 playbackService.setPlaylist(stationPlaylist);
-                                playbackService.start();
+                                playbackService.play();
                             }
                         }
                     }

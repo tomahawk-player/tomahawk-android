@@ -164,7 +164,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
                             playlist = mUser.getFriendsFeedPlaylist();
                         }
                         playbackService.setPlaylist(playlist, entry);
-                        playbackService.start();
+                        playbackService.play();
                     }
                 }
             }

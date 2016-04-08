@@ -44,13 +44,11 @@ import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayerCallback;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
 import org.tomahawk.tomahawk_android.utils.AudioFocusable;
-import org.tomahawk.tomahawk_android.utils.MediaButtonReceiver;
+import org.tomahawk.tomahawk_android.utils.MediaNotification;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -67,23 +65,32 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PowerManager;
-import android.support.v4.app.NotificationCompat;
+import android.os.RemoteException;
+import android.os.SystemClock;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaBrowserServiceCompat;
+import android.support.v4.media.MediaDescriptionCompat;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.RatingCompat;
+import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.RemoteViews;
+import android.util.LruCache;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -97,30 +104,11 @@ import de.greenrobot.event.EventBus;
 /**
  * This {@link Service} handles all playback related processes.
  */
-public class PlaybackService extends Service {
+public class PlaybackService extends MediaBrowserServiceCompat {
 
     private static final String TAG = PlaybackService.class.getSimpleName();
 
-    public static final String ACTION_PLAYPAUSE
-            = "org.tomahawk.tomahawk_android.ACTION_PLAYPAUSE";
-
-    public static final String ACTION_PLAY
-            = "org.tomahawk.tomahawk_android.ACTION_PLAY";
-
-    public static final String ACTION_PAUSE
-            = "org.tomahawk.tomahawk_android.ACTION_PAUSE";
-
-    public static final String ACTION_NEXT
-            = "org.tomahawk.tomahawk_android.ACTION_NEXT";
-
-    public static final String ACTION_PREVIOUS
-            = "org.tomahawk.tomahawk_android.ACTION_PREVIOUS";
-
-    public static final String ACTION_EXIT
-            = "org.tomahawk.tomahawk_android.ACTION_EXIT";
-
-    public static final String ACTION_FAVORITE
-            = "org.tomahawk.tomahawk_android.ACTION_FAVORITE";
+    public static final String ACTION_PLAY = "org.tomahawk.tomahawk_android.ACTION_PLAY";
 
     public static final int NOT_REPEATING = 0;
 
@@ -128,19 +116,19 @@ public class PlaybackService extends Service {
 
     public static final int REPEAT_ONE = 2;
 
-    private static final int PLAYBACKSERVICE_PLAYSTATE_PLAYING = 0;
+    private static final int MAX_ALBUM_ART_CACHE_SIZE = 5 * 1024 * 1024;
 
-    private static final int PLAYBACKSERVICE_PLAYSTATE_PAUSED = 1;
-
-    private int mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
-
-    private static final int PLAYBACKSERVICE_NOTIFICATION_ID = 1;
+    private int mPlayState = PlaybackStateCompat.STATE_NONE;
 
     private static final int DELAY_SCROBBLE = 15000;
 
     private static final int DELAY_UNBIND_PLUGINSERVICES = 1800000;
 
     private static final int DELAY_SUICIDE = 1800000;
+
+    public static final String MEDIA_ID_ROOT = "__ROOT__";
+
+    public static final String MEDIA_ID_ALBUMS = "__ALBUMS__";
 
     public static class PlayingTrackChangedEvent {
 
@@ -185,7 +173,9 @@ public class PlaybackService extends Service {
 
     }
 
-    private boolean mShowingNotification;
+    public static class HeadsetPluggedInEvent {
+
+    }
 
     protected final Set<Query> mCorrespondingQueries
             = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
@@ -205,17 +195,13 @@ public class PlaybackService extends Service {
 
     private TomahawkMediaPlayer mCurrentMediaPlayer;
 
-    private Notification mNotification;
-
-    private RemoteViews mLargeNotificationView;
-
-    private RemoteViews mSmallNotificationView;
+    private MediaNotification mNotification;
 
     private PowerManager.WakeLock mWakeLock;
 
     private int mRepeatingMode = NOT_REPEATING;
 
-    private MediaSessionCompat mMediaSessionCompat;
+    private MediaSessionCompat mMediaSession;
 
     private MediaSessionCompat.Callback mMediaSessionCallback = new MediaSessionCompat.Callback() {
 
@@ -224,7 +210,7 @@ public class PlaybackService extends Service {
          */
         @Override
         public void onPlay() {
-            start();
+            play();
         }
 
         /**
@@ -254,6 +240,7 @@ public class PlaybackService extends Service {
         /**
          * Override to handle requests to fast forward.
          */
+        @Override
         public void onFastForward() {
             long duration = getCurrentQuery().getPreferredTrack().getDuration();
             int newPos = (int) Math.min(duration, Math.max(0, getPosition() + 10000));
@@ -263,6 +250,7 @@ public class PlaybackService extends Service {
         /**
          * Override to handle requests to rewind.
          */
+        @Override
         public void onRewind() {
             long duration = getCurrentQuery().getPreferredTrack().getDuration();
             int newPos = (int) Math.min(duration, Math.max(0, getPosition() - 10000));
@@ -272,6 +260,7 @@ public class PlaybackService extends Service {
         /**
          * Override to handle requests to stop playback.
          */
+        @Override
         public void onStop() {
             pause();
         }
@@ -281,6 +270,7 @@ public class PlaybackService extends Service {
          *
          * @param pos New position to move to, in milliseconds.
          */
+        @Override
         public void onSeekTo(long pos) {
             seekTo((int) pos);
         }
@@ -290,9 +280,11 @@ public class PlaybackService extends Service {
          *
          * @param rating
          */
+        @Override
         public void onSetRating(RatingCompat rating) {
             if (rating.getRatingStyle() == RatingCompat.RATING_HEART) {
-                CollectionManager.get().toggleLovedItem(getCurrentQuery());
+                CollectionManager.get().setLovedItem(getCurrentQuery(), rating.hasHeart());
+                updateMediaMetadata();
             }
         }
 
@@ -328,52 +320,49 @@ public class PlaybackService extends Service {
 
     private final Map<Class, TomahawkMediaPlayer> mMediaPlayers = new HashMap<>();
 
-    private final Target mLockscreenTarget = new Target() {
+    private final LruCache<Image, Bitmap> mMediaImageCache =
+            new LruCache<Image, Bitmap>(MAX_ALBUM_ART_CACHE_SIZE) {
+                @Override
+                protected int sizeOf(Image key, Bitmap value) {
+                    return value.getByteCount();
+                }
+            };
+
+    private MediaImageTarget mMediaImageTarget;
+
+    private class MediaImageTarget implements Target {
+
+        private Image mImageToLoad;
+
+        public MediaImageTarget(Image imageToLoad) {
+            mImageToLoad = imageToLoad;
+        }
+
         @Override
         public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
-            updateAlbumArt(bitmap);
-        }
-
-        @Override
-        public void onBitmapFailed(Drawable drawable) {
-            updateAlbumArt(BitmapFactory
-                    .decodeResource(getResources(), R.drawable.album_placeholder_grid));
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable drawable) {
-            updateAlbumArt(BitmapFactory
-                    .decodeResource(getResources(), R.drawable.album_placeholder_grid));
-        }
-
-        private void updateAlbumArt(final Bitmap bitmap) {
             new Runnable() {
                 @Override
                 public void run() {
-                    MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
-                            .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST,
-                                    getCurrentQuery().getArtist().getPrettyName())
-                            .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,
-                                    getCurrentQuery().getArtist().getPrettyName())
-                            .putString(MediaMetadataCompat.METADATA_KEY_TITLE,
-                                    getCurrentQuery().getPrettyName())
-                            .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
-                                    getCurrentQuery().getPreferredTrack().getDuration())
-                            .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING,
-                                    RatingCompat.newHeartRating(
-                                            DatabaseHelper.get().isItemLoved(getCurrentQuery())))
-                            .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART,
-                                    bitmap.copy(bitmap.getConfig(), false));
-                    if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getPrettyName())) {
-                        builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM,
-                                getCurrentQuery().getAlbum().getPrettyName());
+                    if (mMediaSession == null) {
+                        Log.e(TAG, "updateAlbumArt failed - mMediaSession == null!");
+                        return;
                     }
-                    mMediaSessionCompat.setMetadata(builder.build());
+                    mMediaImageCache.put(mImageToLoad, bitmap.copy(bitmap.getConfig(), false));
+                    mMediaSession.setMetadata(buildMetadata());
                     Log.d(TAG, "Setting lockscreen bitmap");
                 }
             }.run();
         }
-    };
+
+        @Override
+        public void onBitmapFailed(Drawable drawable) {
+        }
+
+        @Override
+        public void onPrepareLoad(Drawable drawable) {
+        }
+
+    }
 
     public class PlaybackServiceBinder extends Binder {
 
@@ -449,7 +438,7 @@ public class PlaybackService extends Service {
                 case TelephonyManager.CALL_STATE_IDLE:
                     if (mStartCallTime > 0 && (System.currentTimeMillis() - mStartCallTime
                             < 30000)) {
-                        start();
+                        play();
                     }
 
                     mStartCallTime = 0L;
@@ -628,8 +617,7 @@ public class PlaybackService extends Service {
     @SuppressWarnings("unused")
     public void onEventMainThread(PipeLine.ResultsEvent event) {
         if (getCurrentQuery() != null && getCurrentQuery() == event.mQuery) {
-            updateNotification();
-            updateLockscreenControls();
+            updateMediaMetadata();
             EventBus.getDefault().post(new PlayingTrackChangedEvent());
             if (mCurrentMediaPlayer == null
                     || !(mCurrentMediaPlayer.isPrepared(getCurrentQuery())
@@ -643,8 +631,7 @@ public class PlaybackService extends Service {
     public void onEventMainThread(InfoSystem.ResultsEvent event) {
         if (getCurrentEntry() != null && getCurrentQuery().getCacheKey()
                 .equals(mCorrespondingRequestIds.get(event.mInfoRequestData.getRequestId()))) {
-            updateNotification();
-            updateLockscreenControls();
+            updateMediaMetadata();
             EventBus.getDefault().post(new PlayingTrackChangedEvent());
         }
     }
@@ -653,7 +640,7 @@ public class PlaybackService extends Service {
     public void onEvent(CollectionManager.UpdatedEvent event) {
         if (event.mUpdatedItemIds != null && getCurrentQuery() != null
                 && event.mUpdatedItemIds.contains(getCurrentQuery().getCacheKey())) {
-            updateNotification();
+            updateMediaMetadata();
         }
     }
 
@@ -673,7 +660,13 @@ public class PlaybackService extends Service {
     public void onEvent(StationPlaylist.StationPlayableEvent event) {
         if (mPlaylist == event.mStationPlaylist) {
             setCurrentEntry(mPlaylist.getEntryAtPos(0));
+            play();
         }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEvent(HeadsetPluggedInEvent event) {
+        play();
     }
 
     @Override
@@ -706,11 +699,6 @@ public class PlaybackService extends Service {
         mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), new AudioFocusable() {
             @Override
             public void onGainedAudioFocus() {
-                AudioManager am =
-                        (AudioManager) TomahawkApp.getContext().getSystemService(AUDIO_SERVICE);
-                ComponentName componentName =
-                        new ComponentName(TomahawkApp.getContext(), MediaButtonReceiver.class);
-                am.registerMediaButtonEventReceiver(componentName);
             }
 
             @Override
@@ -725,28 +713,39 @@ public class PlaybackService extends Service {
                 Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), false, "");
         mQueue =
                 Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), false, "");
+
+        initMediaSession();
+
+        try {
+            mNotification = new MediaNotification(this);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Could not connect to media controller: ", e);
+        }
+
         Log.d(TAG, "PlaybackService has been created");
+    }
+
+    private void initMediaSession() {
+        ComponentName componentName = new ComponentName(this, MediaButtonReceiver.class);
+        mMediaSession = new MediaSessionCompat(
+                getApplicationContext(), "Tomahawk", componentName, null);
+        setSessionToken(mMediaSession.getSessionToken());
+        mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
+                MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        Intent intent = new Intent(PlaybackService.this, TomahawkMainActivity.class);
+        intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(PlaybackService.this, 0,
+                intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        mMediaSession.setSessionActivity(pendingIntent);
+        mMediaSession.setCallback(mMediaSessionCallback);
+        mMediaSession.setRatingType(RatingCompat.RATING_HEART);
+        updateMediaPlayState();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && intent.getAction() != null) {
-            if (intent.getAction().equals(ACTION_PREVIOUS)) {
-                previous();
-            } else if (intent.getAction().equals(ACTION_PLAYPAUSE)) {
-                playPause();
-            } else if (intent.getAction().equals(ACTION_PLAY)) {
-                start();
-            } else if (intent.getAction().equals(ACTION_PAUSE)) {
-                pause();
-            } else if (intent.getAction().equals(ACTION_NEXT)) {
-                next();
-            } else if (intent.getAction().equals(ACTION_FAVORITE)) {
-                CollectionManager.get().toggleLovedItem(getCurrentQuery());
-            } else if (intent.getAction().equals(ACTION_EXIT)) {
-                pause(true);
-            }
-        }
+        MediaButtonReceiver.handleIntent(mMediaSession, intent);
         return START_STICKY;
     }
 
@@ -754,6 +753,18 @@ public class PlaybackService extends Service {
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "Client has been bound to PlaybackService");
         return new PlaybackServiceBinder();
+    }
+
+    @Nullable
+    @Override
+    public BrowserRoot onGetRoot(@NonNull String clientPackageName,
+            int clientUid, @Nullable Bundle rootHints) {
+        return null;
+    }
+
+    @Override
+    public void onLoadChildren(@NonNull String parentId,
+            @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
     }
 
     @Override
@@ -782,10 +793,10 @@ public class PlaybackService extends Service {
         mSuicideHandler = null;
         mPluginServiceKillHandler.stop();
         mPluginServiceKillHandler = null;
-        if (mMediaSessionCompat != null) {
-            mMediaSessionCompat.setCallback(null);
-            mMediaSessionCompat.release();
-            mMediaSessionCompat = null;
+        if (mMediaSession != null) {
+            mMediaSession.setCallback(null);
+            mMediaSession.release();
+            mMediaSession = null;
         }
 
         if (mRemoteControllerConnection != null) {
@@ -818,18 +829,18 @@ public class PlaybackService extends Service {
      * @param dismissNotificationOnPause if true, dismiss notification on pause, otherwise don't
      */
     public void playPause(boolean dismissNotificationOnPause) {
-        if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PLAYING) {
+        if (mPlayState == PlaybackStateCompat.STATE_PLAYING) {
             pause(dismissNotificationOnPause);
-        } else if (mPlayState == PLAYBACKSERVICE_PLAYSTATE_PAUSED) {
-            start();
+        } else if (mPlayState == PlaybackStateCompat.STATE_PAUSED) {
+            play();
         }
     }
 
     /**
      * Initial start of playback. Acquires wakelock and creates a notification
      */
-    public void start() {
-        Log.d(TAG, "start");
+    public void play() {
+        Log.d(TAG, "play");
         if (getCurrentQuery() != null) {
             if (!isNoisyReceiverRegistered) {
                 registerReceiver(mAudioBecomingNoisyReceiver,
@@ -839,14 +850,13 @@ public class PlaybackService extends Service {
             mSuicideHandler.stop();
             mPluginServiceKillHandler.stop();
             mScrobbleHandler.start();
-            mPlayState = PLAYBACKSERVICE_PLAYSTATE_PLAYING;
+            mPlayState = PlaybackStateCompat.STATE_PLAYING;
             EventBus.getDefault().post(new PlayStateChangedEvent());
             handlePlayState();
 
-            mShowingNotification = true;
-            updateNotification();
+            mNotification.startNotification();
             tryToGetAudioFocus();
-            updateLockscreenPlayState();
+            updateMediaPlayState();
         }
     }
 
@@ -871,20 +881,13 @@ public class PlaybackService extends Service {
         mSuicideHandler.start();
         mPluginServiceKillHandler.start();
         mScrobbleHandler.stop();
-        mPlayState = PLAYBACKSERVICE_PLAYSTATE_PAUSED;
+        mPlayState = PlaybackStateCompat.STATE_PAUSED;
         EventBus.getDefault().post(new PlayStateChangedEvent());
         handlePlayState();
         if (dismissNotificationOnPause) {
-            mShowingNotification = false;
-            stopForeground(true);
-            giveUpAudioFocus();
-            NotificationManager notificationManager = (NotificationManager) TomahawkApp.getContext()
-                    .getSystemService(Context.NOTIFICATION_SERVICE);
-            notificationManager.cancel(PLAYBACKSERVICE_NOTIFICATION_ID);
-        } else {
-            updateNotification();
+            mNotification.stopNotification();
         }
-        updateLockscreenPlayState();
+        updateMediaPlayState();
     }
 
     /**
@@ -897,7 +900,7 @@ public class PlaybackService extends Service {
             try {
                 TomahawkMediaPlayer mp = mMediaPlayers.get(getCurrentQuery().getMediaPlayerClass());
                 switch (mPlayState) {
-                    case PLAYBACKSERVICE_PLAYSTATE_PLAYING:
+                    case PlaybackStateCompat.STATE_PLAYING:
                         if (mWakeLock != null && mWakeLock.isHeld()) {
                             mWakeLock.acquire();
                         }
@@ -909,7 +912,7 @@ public class PlaybackService extends Service {
                             prepareCurrentQuery();
                         }
                         break;
-                    case PLAYBACKSERVICE_PLAYSTATE_PAUSED:
+                    case PlaybackStateCompat.STATE_PAUSED:
                         if (mp.isPlaying(getCurrentQuery()) && mp.isPrepared(getCurrentQuery())) {
                             InfoSystem.get().sendPlaybackEntryPostStruct(
                                     AuthenticatorManager.get().getAuthenticatorUtils(
@@ -1017,7 +1020,7 @@ public class PlaybackService extends Service {
      * Returns whether this PlaybackService is currently playing media.
      */
     public boolean isPlaying() {
-        return mPlayState == PLAYBACKSERVICE_PLAYSTATE_PLAYING;
+        return mPlayState == PlaybackStateCompat.STATE_PLAYING;
     }
 
     /**
@@ -1183,8 +1186,7 @@ public class PlaybackService extends Service {
         EventBus.getDefault().post(new PlayingTrackChangedEvent());
         if (getCurrentEntry() != null) {
             resolveQueriesFromTo(mCurrentIndex, mCurrentIndex - 2 + 10);
-            updateNotification();
-            updateLockscreenControls();
+            updateMediaMetadata();
         }
     }
 
@@ -1374,188 +1376,65 @@ public class PlaybackService extends Service {
     }
 
     /**
-     * Create or update an ongoing notification
+     * Update the playback controls/views which are being shown on the lockscreen
      */
-    public void updateNotification() {
-        if (mShowingNotification) {
-            Log.d(TAG, "updateNotification");
+    private void updateMediaMetadata() {
+        Log.d(TAG, "updateMediaMetadata()");
 
-            String albumName = "";
-            String artistName = "";
-            if (getCurrentQuery().getAlbum() != null) {
-                albumName = getCurrentQuery().getAlbum().getName();
-            }
-            if (getCurrentQuery().getArtist() != null) {
-                artistName = getCurrentQuery().getArtist().getName();
-            }
+        if (mMediaSession == null) {
+            Log.e(TAG, "updateMediaMetadata failed - mMediaSession == null!");
+            return;
+        }
+        updateMediaPlayState();
+        mMediaSession.setActive(true);
 
-            Intent intent = new Intent(ACTION_PREVIOUS, null, PlaybackService.this,
-                    PlaybackService.class);
-            PendingIntent previousPendingIntent = PendingIntent
-                    .getService(PlaybackService.this, 0, intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT);
-            intent = new Intent(ACTION_PLAYPAUSE, null, PlaybackService.this,
-                    PlaybackService.class);
-            PendingIntent playPausePendingIntent = PendingIntent
-                    .getService(PlaybackService.this, 0, intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT);
-            intent = new Intent(ACTION_NEXT, null, PlaybackService.this, PlaybackService.class);
-            PendingIntent nextPendingIntent = PendingIntent
-                    .getService(PlaybackService.this, 0, intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT);
-            intent = new Intent(ACTION_FAVORITE, null, PlaybackService.this, PlaybackService.class);
-            PendingIntent favoritePendingIntent = PendingIntent
-                    .getService(PlaybackService.this, 0, intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT);
-            intent = new Intent(ACTION_EXIT, null, PlaybackService.this, PlaybackService.class);
-            PendingIntent exitPendingIntent = PendingIntent
-                    .getService(PlaybackService.this, 0, intent,
-                            PendingIntent.FLAG_UPDATE_CURRENT);
+        mMediaSession.setMetadata(buildMetadata());
+        Log.d(TAG, "Setting lockscreen metadata to: "
+                + getCurrentQuery().getArtist().getPrettyName() + ", "
+                + getCurrentQuery().getPrettyName());
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                mSmallNotificationView = new RemoteViews(getPackageName(),
-                        R.layout.notification_small);
-            } else {
-                mSmallNotificationView = new RemoteViews(getPackageName(),
-                        R.layout.notification_small_compat);
-            }
-            mSmallNotificationView
-                    .setTextViewText(R.id.notification_small_textview, getCurrentQuery().getName());
-            if (TextUtils.isEmpty(albumName)) {
-                mSmallNotificationView
-                        .setTextViewText(R.id.notification_small_textview2, artistName);
-            } else {
-                mSmallNotificationView.setTextViewText(R.id.notification_small_textview2,
-                        artistName + " - " + albumName);
-            }
-            if (isPlaying()) {
-                mSmallNotificationView
-                        .setImageViewResource(R.id.notification_small_imageview_playpause,
-                                R.drawable.ic_av_pause);
-            } else {
-                mSmallNotificationView
-                        .setImageViewResource(R.id.notification_small_imageview_playpause,
-                                R.drawable.ic_av_play_arrow);
-            }
-            mSmallNotificationView
-                    .setOnClickPendingIntent(R.id.notification_small_imageview_playpause,
-                            playPausePendingIntent);
-            mSmallNotificationView
-                    .setOnClickPendingIntent(R.id.notification_small_imageview_next,
-                            nextPendingIntent);
-            mSmallNotificationView
-                    .setOnClickPendingIntent(R.id.notification_small_imageview_exit,
-                            exitPendingIntent);
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(
-                    PlaybackService.this)
-                    .setSmallIcon(R.drawable.ic_notification).setContentTitle(artistName)
-                    .setContentText(getCurrentQuery().getName()).setOngoing(true).setPriority(
-                            NotificationCompat.PRIORITY_MAX).setContent(mSmallNotificationView);
-
-            Intent notificationIntent = new Intent(PlaybackService.this,
-                    TomahawkMainActivity.class);
-            notificationIntent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
-            notificationIntent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent resultPendingIntent = PendingIntent
-                    .getActivity(PlaybackService.this, 0, notificationIntent,
-                            PendingIntent.FLAG_UPDATE_CURRENT);
-            builder.setContentIntent(resultPendingIntent);
-
-            mNotification = builder.build();
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                mLargeNotificationView = new RemoteViews(getPackageName(),
-                        R.layout.notification_large);
-                mLargeNotificationView.setTextViewText(R.id.notification_large_textview,
-                        getCurrentQuery().getName());
-                mLargeNotificationView
-                        .setTextViewText(R.id.notification_large_textview2, artistName);
-                mLargeNotificationView
-                        .setTextViewText(R.id.notification_large_textview3, albumName);
-                if (isPlaying()) {
-                    mLargeNotificationView
-                            .setImageViewResource(R.id.notification_large_imageview_playpause,
-                                    R.drawable.ic_av_pause);
-                } else {
-                    mLargeNotificationView
-                            .setImageViewResource(R.id.notification_large_imageview_playpause,
-                                    R.drawable.ic_av_play_arrow);
-                }
-                if (DatabaseHelper.get().isItemLoved(getCurrentQuery())) {
-                    mLargeNotificationView
-                            .setImageViewResource(R.id.notification_large_imageview_favorite,
-                                    R.drawable.ic_action_favorites_underlined);
-                } else {
-                    mLargeNotificationView
-                            .setImageViewResource(R.id.notification_large_imageview_favorite,
-                                    R.drawable.ic_action_favorites);
-                }
-                mLargeNotificationView
-                        .setOnClickPendingIntent(R.id.notification_large_imageview_previous,
-                                previousPendingIntent);
-                mLargeNotificationView
-                        .setOnClickPendingIntent(R.id.notification_large_imageview_playpause,
-                                playPausePendingIntent);
-                mLargeNotificationView
-                        .setOnClickPendingIntent(R.id.notification_large_imageview_next,
-                                nextPendingIntent);
-                mLargeNotificationView
-                        .setOnClickPendingIntent(R.id.notification_large_imageview_favorite,
-                                favoritePendingIntent);
-                mLargeNotificationView
-                        .setOnClickPendingIntent(R.id.notification_large_imageview_exit,
-                                exitPendingIntent);
-                mNotification.bigContentView = mLargeNotificationView;
-
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        ImageUtils.loadImageIntoNotification(TomahawkApp.getContext(),
-                                getCurrentQuery().getImage(), mSmallNotificationView,
-                                R.id.notification_small_imageview_albumart,
-                                PLAYBACKSERVICE_NOTIFICATION_ID,
-                                mNotification, Image.getSmallImageSize(),
-                                getCurrentQuery().hasArtistImage());
-                        ImageUtils.loadImageIntoNotification(TomahawkApp.getContext(),
-                                getCurrentQuery().getImage(), mLargeNotificationView,
-                                R.id.notification_large_imageview_albumart,
-                                PLAYBACKSERVICE_NOTIFICATION_ID,
-                                mNotification, Image.getSmallImageSize(),
-                                getCurrentQuery().hasArtistImage());
-                    }
-                });
-            }
-            startForeground(PLAYBACKSERVICE_NOTIFICATION_ID, mNotification);
+        mMediaSession.setQueue(buildQueue());
+        if (mPlaylist != null) {
+            mMediaSession.setQueueTitle(mPlaylist.getName());
         }
     }
 
-    /**
-     * Update the playback controls/views which are being shown on the lockscreen
-     */
-    private void updateLockscreenControls() {
-        Log.d(TAG, "updateLockscreenControls()");
-
-        if (mMediaSessionCompat == null) {
-            ComponentName componentName = new ComponentName(this, MediaButtonReceiver.class);
-            mMediaSessionCompat = new MediaSessionCompat(
-                    getApplicationContext(), "Tomahawk", componentName, null);
-            mMediaSessionCompat.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS);
-            Intent intent = new Intent(PlaybackService.this, TomahawkMainActivity.class);
-            intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
-            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            PendingIntent pendingIntent = PendingIntent.getActivity(PlaybackService.this, 0,
-                    intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            mMediaSessionCompat.setSessionActivity(pendingIntent);
-            mMediaSessionCompat.setCallback(mMediaSessionCallback);
-            mMediaSessionCompat.setRatingType(RatingCompat.RATING_HEART);
+    public void updateMediaPlayState() {
+        if (mMediaSession == null) {
+            Log.e(TAG, "updateMediaPlayState failed - mMediaSession == null!");
+            return;
         }
+        long actions = PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
+        if (getCurrentQuery() != null) {
+            actions |= PlaybackStateCompat.ACTION_SET_RATING |
+                    PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM;
+        }
+        if (isPlaying()) {
+            actions |= PlaybackStateCompat.ACTION_PAUSE |
+                    PlaybackStateCompat.ACTION_SEEK_TO |
+                    PlaybackStateCompat.ACTION_FAST_FORWARD |
+                    PlaybackStateCompat.ACTION_REWIND;
+        } else {
+            actions |= PlaybackStateCompat.ACTION_PLAY;
+        }
+        if (hasNextEntry()) {
+            actions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+        }
+        if (hasPreviousEntry()) {
+            actions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+        }
+        Log.d(TAG, "updateMediaPlayState()");
+        PlaybackStateCompat playbackStateCompat = new PlaybackStateCompat.Builder()
+                .setActions(actions)
+                .setState(mPlayState, getPosition(), 1f, SystemClock.elapsedRealtime())
+                .build();
+        mMediaSession.setPlaybackState(playbackStateCompat);
+    }
 
-        updateLockscreenPlayState();
-        mMediaSessionCompat.setActive(true);
-
-        // Update the remote controls
+    private MediaMetadataCompat buildMetadata() {
         MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID,
+                        getCurrentEntry().getCacheKey())
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST,
                         getCurrentQuery().getArtist().getPrettyName())
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,
@@ -1567,50 +1446,55 @@ public class PlaybackService extends Service {
                 .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING,
                         RatingCompat.newHeartRating(
                                 DatabaseHelper.get().isItemLoved(getCurrentQuery())));
+        Bitmap bitmap;
+        if (getCurrentQuery().getImage() == null) {
+            bitmap =
+                    BitmapFactory.decodeResource(getResources(), R.drawable.album_placeholder_grid);
+        } else {
+            bitmap = mMediaImageCache.get(getCurrentQuery().getImage());
+        }
+        if (bitmap == null) {
+            bitmap =
+                    BitmapFactory.decodeResource(getResources(), R.drawable.album_placeholder_grid);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    if (mMediaImageTarget == null
+                            || mMediaImageTarget.mImageToLoad != getCurrentQuery().getImage()) {
+                        mMediaImageTarget = new MediaImageTarget(getCurrentQuery().getImage());
+                        ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
+                                getCurrentQuery().getImage(), mMediaImageTarget,
+                                Image.getLargeImageSize(), getCurrentQuery().hasArtistImage());
+                    }
+                }
+            });
+        }
+        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
         if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getPrettyName())) {
             builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM,
                     getCurrentQuery().getAlbum().getPrettyName());
         }
-        mMediaSessionCompat.setMetadata(builder.build());
-        Log.d(TAG, "Setting lockscreen metadata to: "
-                + getCurrentQuery().getArtist().getPrettyName() + ", "
-                + getCurrentQuery().getPrettyName());
-
-        new Handler(Looper.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                Picasso.with(TomahawkApp.getContext()).cancelRequest(mLockscreenTarget);
-                ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
-                        getCurrentQuery().getImage(), mLockscreenTarget,
-                        Image.getLargeImageSize(), getCurrentQuery().hasArtistImage());
-            }
-        });
+        return builder.build();
     }
 
-    /**
-     * Create or update an ongoing notification
-     */
-    public void updateLockscreenPlayState() {
-        if (getCurrentQuery() != null) {
-            Log.d(TAG, "updateLockscreenPlayState()");
-            long actions = PlaybackStateCompat.ACTION_PLAY |
-                    PlaybackStateCompat.ACTION_PAUSE |
-                    PlaybackStateCompat.ACTION_STOP |
-                    PlaybackStateCompat.ACTION_SEEK_TO |
-                    PlaybackStateCompat.ACTION_SET_RATING;
-            if (hasNextEntry()) {
-                actions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+    private List<MediaSessionCompat.QueueItem> buildQueue() {
+        List<MediaSessionCompat.QueueItem> queue = null;
+        if (mPlaylist != null) {
+            queue = new ArrayList<>();
+            int currentIndex = getPlaybackListIndex(getCurrentEntry());
+            for (int i = Math.max(0, currentIndex - 10);
+                    i < Math.min(getPlaybackListSize(), currentIndex + 40); i++) {
+                PlaylistEntry entry = getPlaybackListEntry(i);
+                MediaDescriptionCompat.Builder descBuilder = new MediaDescriptionCompat.Builder();
+                descBuilder.setMediaId(entry.getCacheKey());
+                descBuilder.setTitle(entry.getQuery().getPrettyName());
+                descBuilder.setSubtitle(entry.getArtist().getPrettyName());
+                MediaSessionCompat.QueueItem item =
+                        new MediaSessionCompat.QueueItem(descBuilder.build(), i);
+                queue.add(item);
             }
-            if (hasPreviousEntry()) {
-                actions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
-            }
-            PlaybackStateCompat playbackStateCompat = new PlaybackStateCompat.Builder()
-                    .setActions(actions)
-                    .setState(isPlaying() ? PlaybackStateCompat.STATE_PLAYING
-                            : PlaybackStateCompat.STATE_PAUSED, getPosition(), 1f)
-                    .build();
-            mMediaSessionCompat.setPlaybackState(playbackStateCompat);
         }
+        return queue;
     }
 
     void tryToGetAudioFocus() {

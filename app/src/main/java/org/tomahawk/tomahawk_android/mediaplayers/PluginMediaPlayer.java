@@ -368,7 +368,7 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
      */
     @Override
     public void start() {
-        Log.d(TAG, "start()");
+        Log.d(TAG, "play()");
         mIsPlaying = true;
         callService(MSG_PLAY);
     }
