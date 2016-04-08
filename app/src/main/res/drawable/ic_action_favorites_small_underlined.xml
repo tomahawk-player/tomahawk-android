@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <bitmap android:src="@drawable/ic_action_favorites_small" android:gravity="center"/>
+    </item>
+
+    <item android:drawable="@drawable/white_underline_thin"
+          android:top="22dp"
+          android:left="4dp"
+          android:right="4dp">
+    </item>
+
+</layer-list>

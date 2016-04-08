@@ -13,13 +13,11 @@ import org.tomahawk.tomahawk_android.utils.ColorTintTransformation;
 import org.tomahawk.tomahawk_android.utils.CropCircleTransformation;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.RemoteViews;
 import android.widget.TextView;
 
 public class ImageUtils {
@@ -218,30 +216,6 @@ public class ImageUtils {
             Picasso.with(context).load(placeHolder)
                     .resize(width, width)
                     .into(target);
-        }
-    }
-
-    /**
-     * Load a {@link android.graphics.Bitmap} asynchronously
-     *
-     * @param context the context needed for fetching resources
-     * @param image   the path to load the image from
-     * @param width   the width in pixels to scale the image down to
-     */
-    public static void loadImageIntoNotification(Context context, Image image,
-            RemoteViews remoteViews, int viewId, int notificationId, Notification notification,
-            int width, boolean isArtistImage) {
-        int placeHolder = isArtistImage ? R.drawable.artist_placeholder_grid
-                : R.drawable.album_placeholder_grid;
-        if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
-            String imagePath = buildImagePath(image, width);
-            Picasso.with(context).load(ImageUtils.preparePathForPicasso(imagePath))
-                    .resize(width, width)
-                    .into(remoteViews, viewId, notificationId, notification);
-        } else {
-            Picasso.with(context).load(placeHolder)
-                    .resize(width, width)
-                    .into(remoteViews, viewId, notificationId, notification);
         }
     }
 

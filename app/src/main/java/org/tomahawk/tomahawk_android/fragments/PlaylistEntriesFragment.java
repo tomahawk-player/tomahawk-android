@@ -136,7 +136,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                         playbackService.playPause();
                     } else {
                         playbackService.setPlaylist(mCurrentPlaylist, entry);
-                        playbackService.start();
+                        playbackService.play();
                     }
                 }
             }

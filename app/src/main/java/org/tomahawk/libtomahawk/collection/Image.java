@@ -86,6 +86,10 @@ public class Image extends Cacheable {
                 : new Image(imagePath, scaleItDown, width, height);
     }
 
+    public static Image getByKey(String id) {
+        return (Image) get(Image.class, id);
+    }
+
     public String getImagePath() {
         return mImagePath;
     }

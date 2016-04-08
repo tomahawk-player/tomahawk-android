@@ -126,7 +126,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
      */
     @Override
     public void start() throws IllegalStateException {
-        Log.d(TAG, "start()");
+        Log.d(TAG, "play()");
         if (!getMediaPlayerInstance().isPlaying()) {
             getMediaPlayerInstance().play();
         }

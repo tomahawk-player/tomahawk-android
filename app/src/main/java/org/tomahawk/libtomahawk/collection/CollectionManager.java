@@ -208,6 +208,20 @@ public class CollectionManager {
      * Remove or add a lovedItem-query from the LovedItems-Playlist, depending on whether or not it
      * is already a lovedItem
      */
+    public void setLovedItem(final Query query, boolean loved) {
+        boolean isLoved = DatabaseHelper.get().isItemLoved(query);
+        if (loved != isLoved) {
+            toggleLovedItem(query);
+        } else {
+            Log.e(TAG, "Track " + query.getName() + " by " + query.getArtist().getName() + " on "
+                    + query.getAlbum().getName() + " was already loved!");
+        }
+    }
+
+    /**
+     * Remove or add a lovedItem-query from the LovedItems-Playlist, depending on whether or not it
+     * is already a lovedItem
+     */
     public void toggleLovedItem(final Query query) {
         boolean doSweetSweetLovin = !DatabaseHelper.get().isItemLoved(query);
         Log.d(TAG, "Hatchet sync - " + (doSweetSweetLovin ? "loved" : "unloved") + " track "

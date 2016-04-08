@@ -99,7 +99,7 @@ public class StationsFragment extends TomahawkFragment {
             if (playbackService != null) {
                 if (item != playbackService.getPlaylist()) {
                     playbackService.setPlaylist((StationPlaylist) item);
-                    playbackService.start();
+                    playbackService.play();
                 }
             }
         } else if (item instanceof ListItemDrawable) {

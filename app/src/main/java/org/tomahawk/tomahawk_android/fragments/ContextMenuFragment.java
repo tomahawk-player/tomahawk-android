@@ -560,7 +560,7 @@ public class ContextMenuFragment extends Fragment {
             if (mQuery != null) {
                 textView.setText(mQuery.getName());
             } else if (mPlaylistEntry != null) {
-                textView.setText(mPlaylistEntry.getName());
+                textView.setText(mPlaylistEntry.getQuery().getPrettyName());
             } else if (mPlaylist != null) {
                 textView.setText(mPlaylist.getName());
             } else if (mStationPlaylist != null) {
