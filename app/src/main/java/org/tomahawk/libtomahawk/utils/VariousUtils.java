@@ -1,16 +1,9 @@
 package org.tomahawk.libtomahawk.utils;
 
-import com.google.android.gms.common.GooglePlayServicesUtil;
-
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
-import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.util.Log;
 
 import java.io.File;
@@ -73,60 +66,4 @@ public class VariousUtils {
         }
     }
 
-    public static boolean isPluginInstalled(String pluginName) {
-        String pluginPackageName = "";
-        switch (pluginName) {
-            case TomahawkApp.PLUGINNAME_SPOTIFY:
-                pluginPackageName = SpotifyMediaPlayer.PACKAGE_NAME;
-                break;
-            case TomahawkApp.PLUGINNAME_DEEZER:
-                pluginPackageName = DeezerMediaPlayer.PACKAGE_NAME;
-                break;
-        }
-        try {
-            TomahawkApp.getContext().getPackageManager()
-                    .getPackageInfo(pluginPackageName, PackageManager.GET_SERVICES);
-            return true;
-        } catch (PackageManager.NameNotFoundException ignored) {
-        }
-        return false;
-    }
-
-    public static boolean isPluginUpToDate(String pluginName) {
-        String pluginPackageName = "";
-        int pluginMinVersionCode = 0;
-        switch (pluginName) {
-            case TomahawkApp.PLUGINNAME_SPOTIFY:
-                pluginPackageName = SpotifyMediaPlayer.PACKAGE_NAME;
-                pluginMinVersionCode = SpotifyMediaPlayer.MIN_VERSION;
-                break;
-            case TomahawkApp.PLUGINNAME_DEEZER:
-                pluginPackageName = DeezerMediaPlayer.PACKAGE_NAME;
-                pluginMinVersionCode = DeezerMediaPlayer.MIN_VERSION;
-                break;
-        }
-        try {
-            PackageInfo info = TomahawkApp.getContext().getPackageManager()
-                    .getPackageInfo(pluginPackageName, PackageManager.GET_SERVICES);
-            // Remove the first digit that identifies the architecture type
-            String versionCodeString = String.valueOf(info.versionCode);
-            versionCodeString = versionCodeString.substring(1, versionCodeString.length());
-            int versionCode = Integer.valueOf(versionCodeString);
-            if (versionCode >= pluginMinVersionCode) {
-                return true;
-            }
-        } catch (PackageManager.NameNotFoundException ignored) {
-        }
-        return false;
-    }
-
-    public static boolean isPlayStoreInstalled() {
-        try {
-            TomahawkApp.getContext().getPackageManager()
-                    .getPackageInfo(GooglePlayServicesUtil.GOOGLE_PLAY_STORE_PACKAGE, 0);
-            return true;
-        } catch (PackageManager.NameNotFoundException e) {
-            return false;
-        }
-    }
 }

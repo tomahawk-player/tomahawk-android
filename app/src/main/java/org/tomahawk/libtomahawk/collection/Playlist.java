@@ -18,7 +18,7 @@
 package org.tomahawk.libtomahawk.collection;
 
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 
 import android.util.Log;
 
@@ -144,7 +144,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
         List<PlaylistEntry> entries = new ArrayList<>();
         for (Query query : queries) {
             entries.add(PlaylistEntry.get(id, query,
-                    TomahawkMainActivity.getLifetimeUniqueStringId()));
+                    IdGenerator.getLifetimeUniqueStringId()));
         }
         CollectionCursor<PlaylistEntry> cursor =
                 new CollectionCursor<>(entries, PlaylistEntry.class);
@@ -333,7 +333,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
      */
     public PlaylistEntry addQuery(int position, Query query) {
         PlaylistEntry entry = PlaylistEntry.get(mId, query,
-                TomahawkMainActivity.getLifetimeUniqueStringId());
+                IdGenerator.getLifetimeUniqueStringId());
         mAddedEntries.add(entry);
         Index index = new Index(mAddedEntries.size() - 1, true);
         mIndex.add(position, index);

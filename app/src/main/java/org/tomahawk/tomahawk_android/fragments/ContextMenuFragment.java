@@ -42,6 +42,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
@@ -676,7 +677,7 @@ public class ContextMenuFragment extends Fragment {
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
                 bundle.putLong(TomahawkFragment.CONTAINER_FRAGMENT_ID,
-                        TomahawkMainActivity.getSessionUniqueId());
+                        IdGenerator.getSessionUniqueId());
                 FragmentUtils.replace((TomahawkMainActivity) getActivity(),
                         ArtistPagerFragment.class, bundle);
             }

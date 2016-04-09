@@ -35,6 +35,7 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -180,7 +181,7 @@ public class SocialActionsFragment extends TomahawkFragment implements
             bundle.putInt(CONTENT_HEADER_MODE,
                     ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
             bundle.putLong(CONTAINER_FRAGMENT_ID,
-                    TomahawkMainActivity.getSessionUniqueId());
+                    IdGenerator.getSessionUniqueId());
             FragmentUtils.replace(activity, ArtistPagerFragment.class, bundle);
         } else if (item instanceof Playlist) {
             bundle.putInt(CONTENT_HEADER_MODE,

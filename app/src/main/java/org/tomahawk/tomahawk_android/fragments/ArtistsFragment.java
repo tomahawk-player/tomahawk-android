@@ -28,6 +28,7 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 
 import android.os.Bundle;
 import android.view.View;
@@ -79,7 +80,7 @@ public class ArtistsFragment extends TomahawkFragment {
                     bundle.putInt(CONTENT_HEADER_MODE,
                             ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
                     bundle.putLong(CONTAINER_FRAGMENT_ID,
-                            TomahawkMainActivity.getSessionUniqueId());
+                            IdGenerator.getSessionUniqueId());
                     FragmentUtils.replace((TomahawkMainActivity) getActivity(),
                             ArtistPagerFragment.class, bundle);
                 }

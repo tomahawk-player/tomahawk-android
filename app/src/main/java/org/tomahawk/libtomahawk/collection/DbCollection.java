@@ -42,6 +42,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import de.greenrobot.event.EventBus;
+
 /**
  * This class represents a Collection which contains tracks/albums/artists which are being stored in
  * a local sqlite db.
@@ -57,10 +59,33 @@ public abstract class DbCollection extends Collection {
 
     private Resolver mResolver;
 
+    private boolean mInitialized;
+
+    public class InitializedEvent {
+
+        String collectionId;
+    }
+
     public DbCollection(Resolver resolver) {
         super(resolver.getId(), resolver.getPrettyName());
 
         mResolver = resolver;
+    }
+
+    public boolean isInitialized() {
+        return mInitialized;
+    }
+
+    public void setInitialized(boolean initialized) {
+        mInitialized = initialized;
+        getCollectionId().done(new DoneCallback<String>() {
+            @Override
+            public void onDone(final String collectionId) {
+                InitializedEvent event = new InitializedEvent();
+                event.collectionId = collectionId;
+                EventBus.getDefault().post(event);
+            }
+        });
     }
 
     protected void initFuzzyIndex() {
@@ -91,18 +116,6 @@ public abstract class DbCollection extends Collection {
             return account.getIconBackgroundPath();
         }
         return null;
-    }
-
-    public Promise<Boolean, Throwable, Void> isInitializing() {
-        final Deferred<Boolean, Throwable, Void> deferred = new ADeferredObject<>();
-        getCollectionId().done(new DoneCallback<String>() {
-            @Override
-            public void onDone(String collectionId) {
-                deferred.resolve(
-                        !CollectionDbManager.get().getCollectionDb(collectionId).isInitialized());
-            }
-        });
-        return deferred;
     }
 
     public abstract Promise<String, Throwable, Void> getCollectionId();

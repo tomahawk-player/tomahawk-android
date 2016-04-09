@@ -32,6 +32,7 @@ import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreatePlaylistDialog;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -113,7 +114,7 @@ public class PlaylistsFragment extends TomahawkFragment {
                 ArrayList<PlaylistEntry> entries = new ArrayList<>();
                 for (Query query : mQueryArray) {
                     entries.add(PlaylistEntry.get(playlistId, query,
-                            TomahawkMainActivity.getLifetimeUniqueStringId()));
+                            IdGenerator.getLifetimeUniqueStringId()));
                 }
                 CollectionManager.get().addPlaylistEntries(playlistId, entries);
                 // invalidate the current list of entries
@@ -136,7 +137,7 @@ public class PlaylistsFragment extends TomahawkFragment {
     public void showCreateDialog() {
         ArrayList<Query> queries = mQueryArray != null ? mQueryArray : new ArrayList<Query>();
         Playlist playlist = Playlist.fromQueryList(
-                TomahawkMainActivity.getLifetimeUniqueStringId(), false, "", null, queries);
+                IdGenerator.getLifetimeUniqueStringId(), false, "", null, queries);
         CreatePlaylistDialog dialog = new CreatePlaylistDialog();
         Bundle args = new Bundle();
         args.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());

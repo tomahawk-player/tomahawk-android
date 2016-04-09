@@ -27,7 +27,7 @@ import org.tomahawk.libtomahawk.infosystem.QueryParams;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.MediaWrapper;
 import org.videolan.libvlc.util.AndroidUtil;
 
@@ -459,7 +459,7 @@ public class DatabaseHelper {
                 if (tracksCursor.getString(5) != null) {
                     entryId = tracksCursor.getString(5);
                 } else {
-                    entryId = TomahawkMainActivity.getLifetimeUniqueStringId();
+                    entryId = IdGenerator.getLifetimeUniqueStringId();
                 }
                 PlaylistEntry entry = PlaylistEntry.get(playlistId, query, entryId);
                 entries.add(entry);
@@ -818,7 +818,7 @@ public class DatabaseHelper {
                 TomahawkSQLiteHelper.INFOSYSTEMOPLOG_COLUMN_TIMESTAMP + " DESC");
         opLogCursor.moveToFirst();
         while (!opLogCursor.isAfterLast()) {
-            String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+            String requestId = IdGenerator.getSessionUniqueStringId();
             String paramJsonString = opLogCursor.getString(4);
             QueryParams params = null;
             if (paramJsonString != null) {

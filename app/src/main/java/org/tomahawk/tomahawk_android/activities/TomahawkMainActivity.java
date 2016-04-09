@@ -28,11 +28,9 @@ import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Album;
 import org.tomahawk.libtomahawk.collection.Artist;
-import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.DbCollection;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
@@ -44,38 +42,33 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.UserCollectionStubResolver;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
-import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.libtomahawk.utils.parser.XspfParser;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
-import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.dialogs.AskAccessConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.GMusicConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.InstallPluginConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.WarnOldPluginDialog;
 import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
-import org.tomahawk.tomahawk_android.fragments.ChartsSelectorFragment;
-import org.tomahawk.tomahawk_android.fragments.CollectionPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
 import org.tomahawk.tomahawk_android.fragments.ContextMenuFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
-import org.tomahawk.tomahawk_android.fragments.PlaylistsFragment;
 import org.tomahawk.tomahawk_android.fragments.PreferenceAdvancedFragment;
 import org.tomahawk.tomahawk_android.fragments.PreferencePagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
-import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
-import org.tomahawk.tomahawk_android.fragments.StationsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.fragments.UserPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.WelcomeFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
 import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
+import org.tomahawk.tomahawk_android.utils.MenuDrawer;
+import org.tomahawk.tomahawk_android.utils.PluginUtils;
 import org.tomahawk.tomahawk_android.utils.SearchViewStyle;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -115,19 +108,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 import fr.castorflex.android.smoothprogressbar.SmoothProgressBar;
-import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 /**
  * The main Tomahawk activity
@@ -135,22 +123,6 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 public class TomahawkMainActivity extends AppCompatActivity {
 
     private final static String TAG = TomahawkMainActivity.class.getSimpleName();
-
-    public static final String HUB_ID_USERPAGE = "userpage";
-
-    public static final String HUB_ID_FEED = "feed";
-
-    public static final String HUB_ID_CHARTS = "charts";
-
-    public static final String HUB_ID_COLLECTION = "collection";
-
-    public static final String HUB_ID_LOVEDTRACKS = "lovedtracks";
-
-    public static final String HUB_ID_PLAYLISTS = "playlists";
-
-    public static final String HUB_ID_STATIONS = "stations";
-
-    public static final String HUB_ID_SETTINGS = "settings";
 
     public static final String SAVED_STATE_ACTION_BAR_HIDDEN = "saved_state_action_bar_hidden";
 
@@ -170,8 +142,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
     public static final String COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED
             = "coachmark_swipelayout_enqueue_disabled";
 
-    public static int ACTIONBAR_HEIGHT;
-
     public static class SlidingLayoutChangedEvent {
 
         public SlidingUpPanelLayout.PanelState mSlideState;
@@ -179,8 +149,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
     }
 
     private float mSlidingOffset = -1f;
-
-    private static long mSessionIdCounter = 0;
 
     protected final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
@@ -200,11 +168,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     private MenuItem mSearchItem;
 
-    private DrawerLayout mDrawerLayout;
-
-    private StickyListHeadersListView mDrawerList;
-
-    private TomahawkMenuAdapter mTomahawkMenuAdapter;
+    private MenuDrawer mMenuDrawer;
 
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -230,8 +194,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     private Runnable mRunAfterInit;
 
-    private Map<Collection, Boolean> mCollectionLoadingMap = new HashMap<>();
-
     private Handler mShouldShowAnimationHandler;
 
     private final Runnable mShouldShowAnimationRunnable = new Runnable() {
@@ -246,20 +208,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 mSmoothProgressBar.setVisibility(View.GONE);
             }
             mShouldShowAnimationHandler.postDelayed(mShouldShowAnimationRunnable, 500);
-            for (final Collection collection : CollectionManager.get().getCollections()) {
-                if (collection instanceof DbCollection) {
-                    ((DbCollection) collection).isInitializing().then(new DoneCallback<Boolean>() {
-                        @Override
-                        public void onDone(Boolean result) {
-                            Boolean lastResult = mCollectionLoadingMap.get(collection);
-                            mCollectionLoadingMap.put(collection, result);
-                            if (lastResult == null || lastResult != result) {
-                                updateDrawer();
-                            }
-                        }
-                    });
-                }
-            }
         }
     };
 
@@ -312,134 +260,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
                             .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                     InfoSystem.get().sendLoggedOps(hatchetAuthUtils);
                 }
-            }
-        }
-    }
-
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-
-        /**
-         * Called every time an item inside the {@link android.widget.ListView} is clicked
-         *
-         * @param parent   The AdapterView where the click happened.
-         * @param view     The view within the AdapterView that was clicked (this will be a view
-         *                 provided by the adapter)
-         * @param position The position of the view in the adapter.
-         * @param id       The row id of the item that was clicked.
-         */
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            TomahawkMenuAdapter.ResourceHolder holder =
-                    (TomahawkMenuAdapter.ResourceHolder) mDrawerList.getAdapter().getItem(position);
-            final Bundle bundle = new Bundle();
-            if (holder.collection != null) {
-                bundle.putString(TomahawkFragment.COLLECTION_ID, holder.collection.getId());
-                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                        ContentHeaderFragment.MODE_HEADER_STATIC);
-                FragmentUtils
-                        .replace(TomahawkMainActivity.this, CollectionPagerFragment.class, bundle);
-            } else if (holder.id.equals(HUB_ID_USERPAGE)) {
-                User.getSelf().done(new DoneCallback<User>() {
-                    @Override
-                    public void onDone(User user) {
-                        bundle.putString(TomahawkFragment.USER, user.getId());
-                        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                                ContentHeaderFragment.MODE_HEADER_STATIC_USER);
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                FragmentUtils.replace(TomahawkMainActivity.this,
-                                        UserPagerFragment.class, bundle);
-                            }
-                        });
-                    }
-                });
-            } else if (holder.id.equals(HUB_ID_FEED)) {
-                User.getSelf().done(new DoneCallback<User>() {
-                    @Override
-                    public void onDone(User user) {
-                        bundle.putString(TomahawkFragment.USER, user.getId());
-                        bundle.putInt(TomahawkFragment.SHOW_MODE,
-                                SocialActionsFragment.SHOW_MODE_DASHBOARD);
-                        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                                ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                FragmentUtils.replace(TomahawkMainActivity.this,
-                                        SocialActionsFragment.class, bundle);
-                            }
-                        });
-                    }
-                });
-            } else if (holder.id.equals(HUB_ID_CHARTS)) {
-                FragmentUtils
-                        .replace(TomahawkMainActivity.this, ChartsSelectorFragment.class, bundle);
-            } else if (holder.id.equals(HUB_ID_COLLECTION)) {
-                bundle.putString(TomahawkFragment.COLLECTION_ID,
-                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                        ContentHeaderFragment.MODE_HEADER_STATIC);
-                FragmentUtils
-                        .replace(TomahawkMainActivity.this, CollectionPagerFragment.class, bundle);
-            } else if (holder.id.equals(HUB_ID_LOVEDTRACKS)) {
-                User.getSelf().done(new DoneCallback<User>() {
-                    @Override
-                    public void onDone(User user) {
-                        bundle.putInt(TomahawkFragment.SHOW_MODE,
-                                PlaylistEntriesFragment.SHOW_MODE_LOVEDITEMS);
-                        bundle.putString(TomahawkFragment.USER, user.getId());
-                        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                                ContentHeaderFragment.MODE_HEADER_DYNAMIC);
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                FragmentUtils.replace(TomahawkMainActivity.this,
-                                        PlaylistEntriesFragment.class, bundle);
-                            }
-                        });
-                    }
-                });
-            } else if (holder.id.equals(HUB_ID_PLAYLISTS)) {
-                User.getSelf().done(new DoneCallback<User>() {
-                    @Override
-                    public void onDone(User user) {
-                        bundle.putString(TomahawkFragment.USER, user.getId());
-                        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                                ContentHeaderFragment.MODE_HEADER_STATIC);
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                FragmentUtils.replace(TomahawkMainActivity.this,
-                                        PlaylistsFragment.class, bundle);
-                            }
-                        });
-                    }
-                });
-            } else if (holder.id.equals(HUB_ID_STATIONS)) {
-                User.getSelf().done(new DoneCallback<User>() {
-                    @Override
-                    public void onDone(User user) {
-                        bundle.putString(TomahawkFragment.USER, user.getId());
-                        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                                ContentHeaderFragment.MODE_HEADER_STATIC);
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                FragmentUtils.replace(TomahawkMainActivity.this,
-                                        StationsFragment.class, bundle);
-                            }
-                        });
-                    }
-                });
-            } else if (holder.id.equals(HUB_ID_SETTINGS)) {
-                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                        ContentHeaderFragment.MODE_HEADER_STATIC_SMALL);
-                FragmentUtils.replace(TomahawkMainActivity.this, PreferencePagerFragment.class,
-                        bundle);
-            }
-            if (mDrawerLayout != null) {
-                mDrawerLayout.closeDrawer(mDrawerList);
             }
         }
     }
@@ -562,7 +382,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC_PAGER);
                 bundle.putLong(TomahawkFragment.CONTAINER_FRAGMENT_ID,
-                        TomahawkMainActivity.getSessionUniqueId());
+                        IdGenerator.getSessionUniqueId());
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
@@ -591,7 +411,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 queries = new ArrayList<>();
                 query = Query.get(event.mResult.track, "", event.mResult.artist, false);
                 queries.add(query);
-                playlist = Playlist.fromQueryList(getSessionUniqueStringId(), false,
+                playlist = Playlist.fromQueryList(IdGenerator.getSessionUniqueStringId(), false,
                         event.mResult.track + " - " + event.mResult.artist, "", queries);
                 playlist.setFilled(true);
                 bundle.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
@@ -618,7 +438,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                     }
                     queries.add(query);
                 }
-                playlist = Playlist.fromQueryList(TomahawkMainActivity.getLifetimeUniqueStringId(),
+                playlist = Playlist.fromQueryList(IdGenerator.getLifetimeUniqueStringId(),
                         false, event.mResult.title, null, queries);
                 playlist.setFilled(true);
                 bundle.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
@@ -651,12 +471,17 @@ public class TomahawkMainActivity extends AppCompatActivity {
     }
 
     @SuppressWarnings("unused")
+    public void onEventMainThread(DbCollection.InitializedEvent event) {
+        mMenuDrawer.updateDrawer(this);
+    }
+
+    @SuppressWarnings("unused")
     public void onEventMainThread(InfoSystem.ResultsEvent event) {
         if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
             if (event.mInfoRequestData != null
                     && event.mInfoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
-                updateDrawer();
+                mMenuDrawer.updateDrawer(this);
             }
         }
     }
@@ -684,12 +509,12 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(CollectionManager.AddedEvent event) {
-        updateDrawer();
+        mMenuDrawer.updateDrawer(this);
     }
 
     @SuppressWarnings("unused")
     public void onEventMainThread(HatchetAuthenticatorUtils.UserLoginEvent event) {
-        updateDrawer();
+        mMenuDrawer.updateDrawer(this);
     }
 
     @SuppressWarnings("unused")
@@ -716,12 +541,12 @@ public class TomahawkMainActivity extends AppCompatActivity {
         if ((resolverId.equals(TomahawkApp.PLUGINNAME_DEEZER)
                 || resolverId.equals(TomahawkApp.PLUGINNAME_SPOTIFY))
                 && event.mScriptResolver.isEnabled()
-                && !VariousUtils.isPluginUpToDate(resolverId)) {
+                && !PluginUtils.isPluginUpToDate(resolverId)) {
             PipeLine.get().getResolver(resolverId).setEnabled(false);
             WarnOldPluginDialog dialog = new WarnOldPluginDialog();
             Bundle args = new Bundle();
             args.putString(TomahawkFragment.PREFERENCEID, resolverId);
-            if (VariousUtils.isPluginInstalled(resolverId)) {
+            if (PluginUtils.isPluginInstalled(resolverId)) {
                 args.putString(TomahawkFragment.MESSAGE, getString(R.string.warn_old_plugin));
             } else {
                 args.putString(TomahawkFragment.MESSAGE, getString(R.string.warn_no_plugin));
@@ -760,8 +585,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
         mTitle = mDrawerTitle = getTitle().toString().toUpperCase();
         getSupportActionBar().setTitle("");
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-
         mSlidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         mSlidingUpPanelLayout.setPanelSlideListener(mPanelSlideListener);
 
@@ -769,26 +592,25 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
         mActionBarBg = findViewById(R.id.action_bar_background);
 
-        if (mDrawerLayout != null) {
-            mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.drawer_open,
-                    R.string.drawer_close) {
+        mMenuDrawer = (MenuDrawer) findViewById(R.id.drawer_layout);
+        mDrawerToggle = new ActionBarDrawerToggle(this, mMenuDrawer, R.string.drawer_open,
+                R.string.drawer_close) {
 
-                /** Called when a drawer has settled in a completely closed state. */
-                public void onDrawerClosed(View view) {
-                    getSupportActionBar().setTitle(mTitle);
-                }
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                getSupportActionBar().setTitle(mTitle);
+            }
 
-                /** Called when a drawer has settled in a completely open state. */
-                public void onDrawerOpened(View drawerView) {
-                    getSupportActionBar().setTitle(mDrawerTitle);
-                    if (mSearchItem != null) {
-                        MenuItemCompat.collapseActionView(mSearchItem);
-                    }
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                getSupportActionBar().setTitle(mDrawerTitle);
+                if (mSearchItem != null) {
+                    MenuItemCompat.collapseActionView(mSearchItem);
                 }
-            };
-            // Set the drawer toggle as the DrawerListener
-            mDrawerLayout.setDrawerListener(mDrawerToggle);
-        }
+            }
+        };
+        // Set the drawer toggle as the DrawerListener
+        mMenuDrawer.addDrawerListener(mDrawerToggle);
 
         // set customization variables on the ActionBar
         final ActionBar actionBar = getSupportActionBar();
@@ -934,7 +756,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 List<Query> queries = new ArrayList<>();
                 queries.add(query);
                 Playlist playlist = Playlist.fromQueryList(
-                        TomahawkMainActivity.getSessionUniqueStringId(), false, "", "", queries);
+                        IdGenerator.getSessionUniqueStringId(), false, "", "", queries);
                 bundle.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
@@ -954,9 +776,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-
-        ACTIONBAR_HEIGHT = TomahawkApp.getContext().getResources()
-                .getDimensionPixelSize(R.dimen.abc_action_bar_default_height_material);
 
         if (mSlidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
             mPlaybackPanel.setVisibility(View.GONE);
@@ -1003,14 +822,13 @@ public class TomahawkMainActivity extends AppCompatActivity {
                                 FragmentUtils.FRAGMENT_TAG);
                         if (lastFragment instanceof WelcomeFragment
                                 || lastFragment instanceof ContextMenuFragment) {
-                            if (mDrawerLayout != null) {
-                                mDrawerLayout.setDrawerLockMode(
-                                        DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+                            if (mMenuDrawer != null) {
+                                mMenuDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
                             }
                             hideActionbar();
                         } else {
-                            if (mDrawerLayout != null) {
-                                mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+                            if (mMenuDrawer != null) {
+                                mMenuDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
                             }
                             showActionBar(false);
                         }
@@ -1055,7 +873,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
         if (!mRootViewsInitialized) {
             mRootViewsInitialized = true;
 
-            updateDrawer();
+            mMenuDrawer.updateDrawer(this);
 
             Intent intent = new Intent(TomahawkMainActivity.this,
                     PlaybackService.class);
@@ -1254,6 +1072,10 @@ public class TomahawkMainActivity extends AppCompatActivity {
         getSupportActionBar().setTitle(mTitle);
     }
 
+    public void closeDrawer() {
+        mMenuDrawer.closeDrawer();
+    }
+
     public PlaybackService getPlaybackService() {
         return mPlaybackService;
     }
@@ -1273,99 +1095,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 }
             });
         }
-        updateDrawer();
-    }
-
-    public void updateDrawer() {
-        User.getSelf().done(new DoneCallback<User>() {
-            @Override
-            public void onDone(User user) {
-                HatchetAuthenticatorUtils authenticatorUtils
-                        = (HatchetAuthenticatorUtils) AuthenticatorManager.get()
-                        .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-                // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
-                mDrawerList = (StickyListHeadersListView) findViewById(R.id.left_drawer);
-                final ArrayList<TomahawkMenuAdapter.ResourceHolder> holders = new ArrayList<>();
-                TomahawkMenuAdapter.ResourceHolder holder
-                        = new TomahawkMenuAdapter.ResourceHolder();
-                if (authenticatorUtils.isLoggedIn()) {
-                    holder.id = HUB_ID_USERPAGE;
-                    holder.title = user.getName();
-                    holder.image = user.getImage();
-                    holder.user = user;
-                    holders.add(holder);
-                    holder = new TomahawkMenuAdapter.ResourceHolder();
-                    holder.id = HUB_ID_FEED;
-                    holder.title = getString(R.string.drawer_title_feed);
-                    holder.iconResId = R.drawable.ic_action_dashboard;
-                    holders.add(holder);
-                }
-                holder = new TomahawkMenuAdapter.ResourceHolder();
-                holder.id = HUB_ID_CHARTS;
-                holder.title = getString(R.string.drawer_title_charts);
-                holder.iconResId = R.drawable.ic_action_charts;
-                holders.add(holder);
-                holder = new TomahawkMenuAdapter.ResourceHolder();
-                holder.id = HUB_ID_COLLECTION;
-                holder.title = getString(R.string.drawer_title_collection);
-                holder.iconResId = R.drawable.ic_action_collection;
-                Collection userCollection = CollectionManager.get().getCollection(
-                        TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                Boolean isLoading = mCollectionLoadingMap.get(userCollection);
-                holder.isLoading = isLoading != null && isLoading;
-                holders.add(holder);
-                holder = new TomahawkMenuAdapter.ResourceHolder();
-                holder.id = HUB_ID_LOVEDTRACKS;
-                holder.title = getString(R.string.drawer_title_lovedtracks);
-                holder.iconResId = R.drawable.ic_action_favorites;
-                holders.add(holder);
-                holder = new TomahawkMenuAdapter.ResourceHolder();
-                holder.id = HUB_ID_PLAYLISTS;
-                holder.title = getString(R.string.drawer_title_playlists);
-                holder.iconResId = R.drawable.ic_action_playlist;
-                holders.add(holder);
-                holder = new TomahawkMenuAdapter.ResourceHolder();
-                holder.id = HUB_ID_STATIONS;
-                holder.title = getString(R.string.drawer_title_stations);
-                holder.iconResId = R.drawable.ic_action_station;
-                holders.add(holder);
-                holder = new TomahawkMenuAdapter.ResourceHolder();
-                holder.id = HUB_ID_SETTINGS;
-                holder.title = getString(R.string.drawer_title_settings);
-                holder.iconResId = R.drawable.ic_action_settings;
-                holders.add(holder);
-                for (Collection collection : CollectionManager.get().getCollections()) {
-                    if (collection instanceof ScriptResolverCollection) {
-                        ScriptResolverCollection resolverCollection
-                                = (ScriptResolverCollection) collection;
-                        holder = new TomahawkMenuAdapter.ResourceHolder();
-                        holder.collection = resolverCollection;
-                        isLoading = mCollectionLoadingMap.get(resolverCollection);
-                        holder.isLoading = isLoading != null && isLoading;
-                        holders.add(holder);
-                    }
-                }
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mDrawerList.getAdapter() == null) {
-                            mTomahawkMenuAdapter = new TomahawkMenuAdapter(holders);
-                            mDrawerList.setAdapter(mTomahawkMenuAdapter);
-                        } else {
-                            mTomahawkMenuAdapter.setResourceHolders(holders);
-                        }
-                    }
-                });
-
-                mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-            }
-        });
-    }
-
-    public void closeDrawer() {
-        if (mDrawerLayout != null && mDrawerList != null) {
-            mDrawerLayout.closeDrawer(mDrawerList);
-        }
+        mMenuDrawer.updateDrawer(this);
     }
 
     @Override
@@ -1382,18 +1112,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
             }
             super.onBackPressed();
         }
-    }
-
-    public static long getSessionUniqueId() {
-        return mSessionIdCounter++;
-    }
-
-    public static String getSessionUniqueStringId() {
-        return String.valueOf(getSessionUniqueId());
-    }
-
-    public static String getLifetimeUniqueStringId() {
-        return String.valueOf(System.currentTimeMillis()) + getSessionUniqueStringId();
     }
 
     public float getSlidingOffset() {
@@ -1431,7 +1149,9 @@ public class TomahawkMainActivity extends AppCompatActivity {
             if (!getSupportActionBar().isShowing()) {
                 getSupportActionBar().show();
             }
-            AnimationUtils.moveY(mActionBarBg, 0, -ACTIONBAR_HEIGHT, 250, true);
+            int actionBarHeight = getResources().getDimensionPixelSize(
+                    R.dimen.abc_action_bar_default_height_material);
+            AnimationUtils.moveY(mActionBarBg, 0, -actionBarHeight, 250, true);
         }
     }
 
@@ -1439,7 +1159,9 @@ public class TomahawkMainActivity extends AppCompatActivity {
         if (getSupportActionBar().isShowing()) {
             getSupportActionBar().hide();
         }
-        AnimationUtils.moveY(mActionBarBg, 0, -ACTIONBAR_HEIGHT, 250, false);
+        int actionBarHeight = getResources().getDimensionPixelSize(
+                R.dimen.abc_action_bar_default_height_material);
+        AnimationUtils.moveY(mActionBarBg, 0, -actionBarHeight, 250, false);
     }
 
     public void showPlaybackPanel(boolean forced) {

@@ -20,7 +20,7 @@ package org.tomahawk.libtomahawk.collection;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 
 import android.database.Cursor;
 import android.text.TextUtils;
@@ -99,7 +99,7 @@ public class CollectionCursor<T> {
                     Query query = Query.get(result, false);
                     query.addTrackResult(result, 1.0f);
                     PlaylistEntry entry = PlaylistEntry.get(mPlaylist.getId(), query,
-                            TomahawkMainActivity.getLifetimeUniqueStringId());
+                            IdGenerator.getLifetimeUniqueStringId());
                     cachedItem = (T) entry;
                 } else if (mClass == Result.class) {
                     Artist artist = Artist.get(mCursor.getString(0));
