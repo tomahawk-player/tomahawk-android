@@ -20,12 +20,12 @@ package org.tomahawk.tomahawk_android.dialogs;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
-import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
+import org.tomahawk.tomahawk_android.utils.PluginUtils;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -53,7 +53,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         @Override
         public void onClick(View v) {
             startLoadingAnimation();
-            if (VariousUtils.isPluginUpToDate(mScriptResolver.getId())) {
+            if (PluginUtils.isPluginUpToDate(mScriptResolver.getId())) {
                 if (mScriptResolver.isEnabled()) {
                     mScriptResolver.logout();
                 } else {
@@ -61,7 +61,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                 }
             } else {
                 String url = null;
-                boolean isPlayStoreInstalled = VariousUtils.isPlayStoreInstalled();
+                boolean isPlayStoreInstalled = PluginUtils.isPlayStoreInstalled();
                 switch (mScriptResolver.getId()) {
                     case TomahawkApp.PLUGINNAME_SPOTIFY:
                         if (isPlayStoreInstalled) {
@@ -118,7 +118,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                 .findViewById(R.id.config_redirect_button_text);
         mRedirectButtonTextView.setTextColor(buttonTextColor);
 
-        if (VariousUtils.isPluginUpToDate(mScriptResolver.getId())) {
+        if (PluginUtils.isPluginUpToDate(mScriptResolver.getId())) {
             mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
                     ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                     : getString(R.string.resolver_config_redirect_button_text_log_into));
@@ -147,7 +147,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         super.onResume();
 
         if (mScriptResolver != null) {
-            if (VariousUtils.isPluginUpToDate(mScriptResolver.getId())) {
+            if (PluginUtils.isPluginUpToDate(mScriptResolver.getId())) {
                 mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
                         ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
                         : getString(R.string.resolver_config_redirect_button_text_log_into));

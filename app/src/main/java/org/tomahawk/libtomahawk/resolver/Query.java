@@ -27,7 +27,7 @@ import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 
 import android.text.TextUtils;
 
@@ -250,7 +250,7 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
                 queries.add(query);
             }
         }
-        Playlist playlist = Playlist.fromQueryList(TomahawkMainActivity.getSessionUniqueStringId(),
+        Playlist playlist = Playlist.fromQueryList(IdGenerator.getSessionUniqueStringId(),
                 false, mFullTextQuery, "", queries);
         playlist.setFilled(true);
         return playlist;

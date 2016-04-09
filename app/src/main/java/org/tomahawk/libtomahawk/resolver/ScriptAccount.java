@@ -41,6 +41,7 @@ import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -313,7 +314,7 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
     }
 
     public void startJob(final ScriptJob job) {
-        final String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+        final String requestId = IdGenerator.getSessionUniqueStringId();
         mJobs.put(requestId, job);
         new Handler(Looper.getMainLooper()).post(new Runnable() {
             @Override

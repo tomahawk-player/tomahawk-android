@@ -31,6 +31,7 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 
 import android.content.BroadcastReceiver;
@@ -61,7 +62,7 @@ public class SearchPagerFragment extends PagerFragment {
     private final ArrayList<String> mUserIds = new ArrayList<>();
 
     private Playlist mTrackResultPlaylist =
-            Playlist.fromEmptyList(TomahawkMainActivity.getSessionUniqueStringId(), false, "");
+            Playlist.fromEmptyList(IdGenerator.getSessionUniqueStringId(), false, "");
 
     private SearchFragmentReceiver mSearchFragmentReceiver;
 
@@ -239,7 +240,7 @@ public class SearchPagerFragment extends PagerFragment {
     public void resolveFullTextQuery(String fullTextQuery) {
         ((TomahawkMainActivity) getActivity()).closeDrawer();
         mTrackResultPlaylist =
-                Playlist.fromEmptyList(TomahawkMainActivity.getSessionUniqueStringId(), false, "");
+                Playlist.fromEmptyList(IdGenerator.getSessionUniqueStringId(), false, "");
         mAlbumIds.clear();
         mArtistIds.clear();
         mUserIds.clear();

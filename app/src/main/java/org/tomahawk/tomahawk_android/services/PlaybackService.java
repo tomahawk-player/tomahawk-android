@@ -44,6 +44,7 @@ import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayerCallback;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
 import org.tomahawk.tomahawk_android.utils.AudioFocusable;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.MediaNotification;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -709,10 +710,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             }
         });
 
-        mPlaylist =
-                Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), false, "");
-        mQueue =
-                Playlist.fromEmptyList(TomahawkMainActivity.getLifetimeUniqueStringId(), false, "");
+        mPlaylist = Playlist.fromEmptyList(IdGenerator.getLifetimeUniqueStringId(), false, "");
+        mQueue = Playlist.fromEmptyList(IdGenerator.getLifetimeUniqueStringId(), false, "");
 
         initMediaSession();
 

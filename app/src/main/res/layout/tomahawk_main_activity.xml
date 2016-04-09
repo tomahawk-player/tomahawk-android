@@ -22,7 +22,7 @@
              android:layout_width="match_parent"
              android:layout_height="match_parent">
 
-    <android.support.v4.widget.DrawerLayout
+    <org.tomahawk.tomahawk_android.utils.MenuDrawer
             android:id="@+id/drawer_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -74,7 +74,7 @@
                 android:dividerHeight="0px"
                 android:background="@color/navdrawer_background"/>
 
-    </android.support.v4.widget.DrawerLayout>
+    </org.tomahawk.tomahawk_android.utils.MenuDrawer>
 
     <View android:id="@+id/action_bar_background"
           android:layout_width="match_parent"

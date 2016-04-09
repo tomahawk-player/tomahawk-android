@@ -40,7 +40,7 @@ import org.tomahawk.libtomahawk.infosystem.hatchet.models.HatchetRelationshipStr
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.IdGenerator;
 
 import android.text.TextUtils;
 import android.util.Log;
@@ -358,7 +358,7 @@ public class InfoSystem {
             QueryParams params = new QueryParams();
             params.ids = new ArrayList<>();
             params.ids.add(user.getId());
-            String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+            String requestId = IdGenerator.getSessionUniqueStringId();
             InfoRequestData infoRequestData = new InfoRequestData(requestId,
                     InfoRequestData.INFOREQUESTDATA_TYPE_USERS_PLAYLISTS, params,
                     isBackgroundRequest);
@@ -389,7 +389,7 @@ public class InfoSystem {
      * @return the created InfoRequestData's requestId
      */
     public String resolve(int type, QueryParams params, boolean isBackgroundRequest) {
-        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+        String requestId = IdGenerator.getSessionUniqueStringId();
         InfoRequestData infoRequestData = new InfoRequestData(requestId, type, params,
                 isBackgroundRequest);
         resolve(infoRequestData);
@@ -425,7 +425,7 @@ public class InfoSystem {
             HatchetPlaybackLogPostStruct playbackLogPostStruct = new HatchetPlaybackLogPostStruct();
             playbackLogPostStruct.playbackLogEntry = playbackLogEntry;
 
-            String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+            String requestId = IdGenerator.getSessionUniqueStringId();
             String jsonString = GsonHelper.get().toJson(playbackLogPostStruct);
             InfoRequestData infoRequestData = new InfoRequestData(requestId,
                     InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES, null,
@@ -456,7 +456,7 @@ public class InfoSystem {
             HatchetPlaybackLogPostStruct playbackLogPostStruct = new HatchetPlaybackLogPostStruct();
             playbackLogPostStruct.playbackLogEntry = playbackLogEntry;
 
-            String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+            String requestId = IdGenerator.getSessionUniqueStringId();
             String jsonString = GsonHelper.get().toJson(playbackLogPostStruct);
             InfoRequestData infoRequestData = new InfoRequestData(requestId,
                     InfoRequestData.INFOREQUESTDATA_TYPE_PLAYBACKLOGENTRIES, null,
@@ -471,7 +471,7 @@ public class InfoSystem {
         HatchetPlaylistPostStruct struct = new HatchetPlaylistPostStruct();
         struct.playlist = request;
 
-        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+        String requestId = IdGenerator.getSessionUniqueStringId();
         String jsonString = GsonHelper.get().toJson(struct);
         QueryParams params = new QueryParams();
         params.playlist_local_id = localId;
@@ -501,7 +501,7 @@ public class InfoSystem {
             struct.playlistEntries.add(request);
         }
 
-        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+        String requestId = IdGenerator.getSessionUniqueStringId();
         String jsonString = GsonHelper.get().toJson(struct);
         QueryParams params = new QueryParams();
         params.playlist_local_id = localPlaylistId;
@@ -522,7 +522,7 @@ public class InfoSystem {
 
     public void deletePlaylist(AuthenticatorUtils authenticatorUtils, String localPlaylistId) {
         long timeStamp = System.currentTimeMillis();
-        String requestId = TomahawkMainActivity.getLifetimeUniqueStringId();
+        String requestId = IdGenerator.getLifetimeUniqueStringId();
         QueryParams params = new QueryParams();
         params.playlist_local_id = localPlaylistId;
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
@@ -536,7 +536,7 @@ public class InfoSystem {
     public void deletePlaylistEntry(AuthenticatorUtils authenticatorUtils, String localPlaylistId,
             String entryId) {
         long timeStamp = System.currentTimeMillis();
-        String requestId = TomahawkMainActivity.getLifetimeUniqueStringId();
+        String requestId = IdGenerator.getLifetimeUniqueStringId();
         QueryParams params = new QueryParams();
         params.entry_id = entryId;
         params.playlist_local_id = localPlaylistId;
@@ -578,7 +578,7 @@ public class InfoSystem {
         HatchetRelationshipPostStruct struct = new HatchetRelationshipPostStruct();
         struct.relationShip = relationship;
 
-        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+        String requestId = IdGenerator.getSessionUniqueStringId();
 
         String jsonString = GsonHelper.get().toJson(struct);
         return new InfoRequestData(requestId,
@@ -597,7 +597,7 @@ public class InfoSystem {
 
     public void deleteRelationship(AuthenticatorUtils authenticatorUtils, String relationshipId) {
         long timeStamp = System.currentTimeMillis();
-        String requestId = TomahawkMainActivity.getSessionUniqueStringId();
+        String requestId = IdGenerator.getSessionUniqueStringId();
         QueryParams params = new QueryParams();
         params.relationship_id = relationshipId;
         InfoRequestData infoRequestData = new InfoRequestData(requestId,
@@ -815,7 +815,7 @@ public class InfoSystem {
                     Query query = Query.get(trackString, albumString, artistString, false, true);
                     PlaylistEntry entry = PlaylistEntry.get(
                             loggedOp.getQueryParams().playlist_local_id, query,
-                            TomahawkMainActivity.getLifetimeUniqueStringId());
+                            IdGenerator.getLifetimeUniqueStringId());
                     List<PlaylistEntry> entries = new ArrayList<>();
                     entries.add(entry);
                     convertedLogOp = buildPlaylistEntriesPostStruct(

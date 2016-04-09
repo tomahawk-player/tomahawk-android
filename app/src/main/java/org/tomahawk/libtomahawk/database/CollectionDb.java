@@ -18,6 +18,8 @@
 package org.tomahawk.libtomahawk.database;
 
 import org.tomahawk.libtomahawk.collection.Artist;
+import org.tomahawk.libtomahawk.collection.CollectionManager;
+import org.tomahawk.libtomahawk.collection.DbCollection;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
 import org.tomahawk.libtomahawk.utils.StringUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -202,8 +204,6 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     private static final String LAST_COLLECTION_DB_UPDATE_SUFFIX = "_last_collection_db_update";
 
-    private boolean mInitialized = false;
-
     public static class WhereInfo {
 
         public String connection;
@@ -267,10 +267,6 @@ public class CollectionDb extends SQLiteOpenHelper {
                 storeNewRevision(db, String.valueOf(lastDbUpdate), ACTION_ADDTRACKS);
             }
         }
-    }
-
-    public boolean isInitialized() {
-        return mInitialized;
     }
 
     public synchronized void addTracks(List<ScriptResolverTrack> tracks) {
@@ -408,7 +404,7 @@ public class CollectionDb extends SQLiteOpenHelper {
 
         mDb.setTransactionSuccessful();
         mDb.endTransaction();
-        mInitialized = true;
+        ((DbCollection) CollectionManager.get().getCollection(mCollectionId)).setInitialized(true);
         Log.d(TAG, "Added " + tracks.size() + " tracks in " + (System.currentTimeMillis() - time)
                 + "ms");
         if (tracks.size() > 0) {
