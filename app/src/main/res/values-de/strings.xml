@@ -30,6 +30,10 @@
   <string name="create_playlist">Playlist erstellen</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Titel</string>
+  <string name="create_station">Station erstellen</string>
+  <string name="create_station_search_hint">Suche nach Künstlern/Liedern/Genres</string>
+  <string name="genres">Genres</string>
+  <string name="moods">Stimmungen</string>
   <string name="login_name_label">E-Mail/Benutzername</string>
   <string name="login_username">Benutzername</string>
   <string name="login_password">Passwort</string>
@@ -64,6 +68,10 @@
   <string name="preferences_app_version">App-Version</string>
   <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Teile deine Ideen oder frag nach Hilfe.</string>
+  <string name="preferences_app_playstore_link">Bewerte die App</string>
+  <string name="preferences_app_playstore_link_text">Bewerte Tomahawk im Google Play Store</string>
+  <string name="preferences_app_website_link">Besuche unsere Webseite</string>
+  <string name="preferences_app_website_link_text">Öffne tomahawk-player.org in deinem Browser</string>
   <string name="preferences_app_sendlog">Protokoll senden</string>
   <string name="preferences_app_sendlog_text">Versende die Protokolldatei zu Debugzwecken.</string>
   <string name="preferences_app_sendlog_dialog_text">Bitte beschreibe kurz dein Problem und gib eine E-Mail an, damit wir dich gegebenenfalls kontaktieren können. Danke!</string>
@@ -92,6 +100,7 @@
   <string name="drawer_title_charts">Charts</string>
   <string name="drawer_title_collection">Sammlung</string>
   <string name="drawer_title_playlists">Playlists</string>
+  <string name="drawer_title_stations">Stationen</string>
   <string name="drawer_title_lovedtracks">Favoriten</string>
   <string name="drawer_title_settings">Einstellungen</string>
   <string name="drawer_header_cloudcollections">Cloud Sammlungen</string>
@@ -232,4 +241,5 @@
   <string name="warn_old_plugin">Die benötigte Plugin-Applikation ist veraltet oder nicht länger kompatibel. Möchtest du sie jetzt updaten?</string>
   <string name="warn_no_plugin">Die benötigte Plugin-Applikation ist nicht mehr installiert. Möchtest du sie jetzt installieren?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">Neu</string>
 </resources>
