@@ -175,7 +175,7 @@ public class ContextMenuFragment extends Fragment {
                         mPlaylist = Playlist.getByKey(key);
                         break;
                     case TomahawkFragment.STATION:
-                        mStationPlaylist = StationPlaylist.getByKey(key);
+                        mStationPlaylist = (StationPlaylist) Playlist.getByKey(key);
                         break;
                     case TomahawkFragment.ARTIST:
                         mArtist = Artist.getByKey(key);
