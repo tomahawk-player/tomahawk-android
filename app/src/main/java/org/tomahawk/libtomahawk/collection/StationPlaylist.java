@@ -79,7 +79,7 @@ public class StationPlaylist extends Playlist {
 
     private StationPlaylist(List<Artist> artists, List<Pair<Track, String>> tracks,
             List<String> genres) {
-        super(StationPlaylist.class, getCacheKey(artists, tracks, genres), false);
+        super(getCacheKey(artists, tracks, genres), false);
 
         mArtists = artists;
         mTracks = tracks;
@@ -191,13 +191,9 @@ public class StationPlaylist extends Playlist {
 
     public static StationPlaylist get(List<Artist> artists, List<Pair<Track, String>> tracks,
             List<String> genres) {
-        Cacheable cacheable = get(StationPlaylist.class, getCacheKey(artists, tracks, genres));
+        Cacheable cacheable = get(Playlist.class, getCacheKey(artists, tracks, genres));
         return cacheable != null ? (StationPlaylist) cacheable
                 : new StationPlaylist(artists, tracks, genres);
-    }
-
-    public static StationPlaylist getByKey(String id) {
-        return (StationPlaylist) get(StationPlaylist.class, id);
     }
 
     public List<Artist> getArtists() {
