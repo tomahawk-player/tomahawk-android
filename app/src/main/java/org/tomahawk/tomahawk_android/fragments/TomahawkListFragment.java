@@ -104,13 +104,6 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 
@@ -128,13 +121,6 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         super.onPause();
 
         mListState = getListState();
-    }
-
-    @Override
-    public void onStop() {
-        EventBus.getDefault().unregister(this);
-
-        super.onStop();
     }
 
     @Override

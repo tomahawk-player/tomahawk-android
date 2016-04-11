@@ -28,13 +28,13 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
-import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -47,6 +47,8 @@ import java.util.Set;
  * org.tomahawk.libtomahawk.collection.Track}s inside its {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class PlaylistEntriesFragment extends TomahawkFragment {
+
+    private static final String TAG = PlaylistEntriesFragment.class.getSimpleName();
 
     public static final int SHOW_MODE_LOVEDITEMS = 0;
 
@@ -126,18 +128,24 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
      */
     @Override
     public void onItemClick(View view, Object item) {
+        if (getMediaController() == null) {
+            Log.e(TAG, "onItemClick failed because getMediaController() is null");
+            return;
+        }
         if (item instanceof PlaylistEntry) {
             PlaylistEntry entry = (PlaylistEntry) item;
             if (entry.getQuery().isPlayable()) {
-                TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-                final PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null) {
-                    if (playbackService.getCurrentEntry() == entry) {
-                        playbackService.playPause();
-                    } else {
-                        playbackService.setPlaylist(mCurrentPlaylist, entry);
-                        playbackService.play();
+                if (getPlaybackManager().getCurrentEntry() == entry) {
+                    // if the user clicked on an already playing track
+                    int playState = getMediaController().getPlaybackState().getState();
+                    if (playState == PlaybackStateCompat.STATE_PLAYING) {
+                        getMediaController().getTransportControls().pause();
+                    } else if (playState == PlaybackStateCompat.STATE_PAUSED) {
+                        getMediaController().getTransportControls().play();
                     }
+                } else {
+                    getPlaybackManager().setPlaylist(mCurrentPlaylist, entry);
+                    getMediaController().getTransportControls().play();
                 }
             }
         }

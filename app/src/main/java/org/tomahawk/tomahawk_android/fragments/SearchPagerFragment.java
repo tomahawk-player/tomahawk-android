@@ -62,7 +62,7 @@ public class SearchPagerFragment extends PagerFragment {
     private final ArrayList<String> mUserIds = new ArrayList<>();
 
     private Playlist mTrackResultPlaylist =
-            Playlist.fromEmptyList(IdGenerator.getSessionUniqueStringId(), false, "");
+            Playlist.fromEmptyList(IdGenerator.getSessionUniqueStringId(), "");
 
     private SearchFragmentReceiver mSearchFragmentReceiver;
 
@@ -239,8 +239,7 @@ public class SearchPagerFragment extends PagerFragment {
      */
     public void resolveFullTextQuery(String fullTextQuery) {
         ((TomahawkMainActivity) getActivity()).closeDrawer();
-        mTrackResultPlaylist =
-                Playlist.fromEmptyList(IdGenerator.getSessionUniqueStringId(), false, "");
+        mTrackResultPlaylist = Playlist.fromEmptyList(IdGenerator.getSessionUniqueStringId(), "");
         mAlbumIds.clear();
         mArtistIds.clear();
         mUserIds.clear();

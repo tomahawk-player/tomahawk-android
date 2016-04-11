@@ -22,13 +22,13 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.jdeferred.DoneCallback;
+import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.infosystem.stations.ScriptPlaylistGenerator;
 import org.tomahawk.libtomahawk.infosystem.stations.ScriptPlaylistGeneratorManager;
 import org.tomahawk.libtomahawk.infosystem.stations.ScriptPlaylistGeneratorResult;
-import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
-import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.support.v4.util.Pair;
 
@@ -38,8 +38,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-
-import de.greenrobot.event.EventBus;
 
 public class StationPlaylist extends Playlist {
 
@@ -51,35 +49,16 @@ public class StationPlaylist extends Playlist {
 
     private List<String> mGenres;
 
-    private final Set<Query> mCorrespondingQueries =
+    private final Set<Query> mCandidates =
             Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
     private long mCreatedTimeStamp = 0L;
 
     private long mPlayedTimeStamp = 0L;
 
-    public static class StationPlayableEvent {
-
-        public StationPlaylist mStationPlaylist;
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(PipeLine.ResultsEvent event) {
-        if (event.mQuery.isPlayable() && mCorrespondingQueries.remove(event.mQuery)) {
-            addQuery(size(), event.mQuery);
-            EventBus.getDefault().post(new PlaybackService.PlayingPlaylistChangedEvent());
-
-            if (size() == 1) {
-                StationPlayableEvent e = new StationPlayableEvent();
-                e.mStationPlaylist = this;
-                EventBus.getDefault().post(e);
-            }
-        }
-    }
-
     private StationPlaylist(List<Artist> artists, List<Pair<Track, String>> tracks,
             List<String> genres) {
-        super(getCacheKey(artists, tracks, genres), false);
+        super(getCacheKey(artists, tracks, genres));
 
         mArtists = artists;
         mTracks = tracks;
@@ -113,8 +92,6 @@ public class StationPlaylist extends Playlist {
         setName(name);
 
         mCreatedTimeStamp = System.currentTimeMillis();
-
-        EventBus.getDefault().register(this);
     }
 
     private static String getCacheKey(List<Artist> artists, List<Pair<Track, String>> tracks,
@@ -224,19 +201,18 @@ public class StationPlaylist extends Playlist {
         mPlayedTimeStamp = playedTimeStamp;
     }
 
-    public void fillPlaylist(final boolean initial) {
+    public Promise<List<Query>, Throwable, Void> fillPlaylist(final boolean initial) {
         final ScriptPlaylistGenerator generator =
                 ScriptPlaylistGeneratorManager.get().getDefaultPlaylistGenerator();
+        final ADeferredObject<List<Query>, Throwable, Void> deferred = new ADeferredObject<>();
         if (generator != null) {
             final DoneCallback<ScriptPlaylistGeneratorResult> callback
                     = new DoneCallback<ScriptPlaylistGeneratorResult>() {
                 @Override
                 public void onDone(ScriptPlaylistGeneratorResult result) {
                     mSessionId = result.sessionId;
-                    for (Query query : result.results) {
-                        mCorrespondingQueries.add(query);
-                        PipeLine.get().resolve(query);
-                    }
+                    mCandidates.addAll(result.results);
+                    deferred.resolve(result.results);
                 }
             };
             if (mSessionId == null) {
@@ -262,6 +238,11 @@ public class StationPlaylist extends Playlist {
                         });
             }
         }
+        return deferred;
+    }
+
+    public boolean isCandidate(Query query) {
+        return mCandidates.contains(query);
     }
 
     public String toJson() {

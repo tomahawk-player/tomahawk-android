@@ -1,6 +1,7 @@
-/* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+<?xml version="1.0" encoding="utf-8"?>    <!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
- *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2016, Enno Gottschalk <mrmaffen@googlemail.com>
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU General Public License as published by
@@ -15,30 +16,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.tomahawk_android.mediaplayers;
-
-import org.tomahawk.libtomahawk.resolver.Query;
-
-public interface TomahawkMediaPlayer {
-
-    void start();
-
-    void pause();
-
-    void seekTo(long msec);
-
-    TomahawkMediaPlayer prepare(Query query, TomahawkMediaPlayerCallback callback);
-
-    void release();
-
-    long getPosition();
-
-    void setBitrate(int mode);
-
-    boolean isPlaying(Query query);
-
-    boolean isPreparing(Query query);
-
-    boolean isPrepared(Query query);
-
-}
+-->
+<automotiveApp>
+    <uses name="media"/>
+</automotiveApp>

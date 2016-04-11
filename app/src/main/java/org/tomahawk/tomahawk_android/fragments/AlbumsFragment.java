@@ -39,10 +39,11 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.os.Bundle;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.View;
 
 import java.util.ArrayList;
@@ -56,6 +57,8 @@ import java.util.Map;
  * se.emilsjolander.stickylistheaders.StickyListHeadersListView}
  */
 public class AlbumsFragment extends TomahawkFragment {
+
+    private static final String TAG = AlbumsFragment.class.getSimpleName();
 
     public static final String COLLECTION_ALBUMS_SPINNER_POSITION
             = "org.tomahawk.tomahawk_android.collection_albums_spinner_position_";
@@ -78,33 +81,39 @@ public class AlbumsFragment extends TomahawkFragment {
      */
     @Override
     public void onItemClick(View view, final Object item) {
-        final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
+        if (getMediaController() == null) {
+            Log.e(TAG, "onItemClick failed because getMediaController() is null");
+            return;
+        }
         if (item instanceof PlaylistEntry) {
             final PlaylistEntry entry = (PlaylistEntry) item;
             if (entry.getQuery().isPlayable()) {
-                final PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null) {
-                    if (playbackService.getCurrentEntry() == entry) {
-                        playbackService.playPause();
+                if (getPlaybackManager().getCurrentEntry() == entry) {
+                    // if the user clicked on an already playing track
+                    int playState = getMediaController().getPlaybackState().getState();
+                    if (playState == PlaybackStateCompat.STATE_PLAYING) {
+                        getMediaController().getTransportControls().pause();
+                    } else if (playState == PlaybackStateCompat.STATE_PAUSED) {
+                        getMediaController().getTransportControls().play();
+                    }
+                } else {
+                    if (!TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
+                        mCollection.getArtistTracks(mArtist).done(new DoneCallback<Playlist>() {
+                            @Override
+                            public void onDone(Playlist topHits) {
+                                getPlaybackManager().setPlaylist(topHits, entry);
+                                getMediaController().getTransportControls().play();
+                            }
+                        });
                     } else {
-                        if (!TomahawkApp.PLUGINNAME_HATCHET.equals(mCollection.getId())) {
-                            mCollection.getArtistTracks(mArtist).done(new DoneCallback<Playlist>() {
-                                @Override
-                                public void onDone(Playlist topHits) {
-                                    playbackService.setPlaylist(topHits, entry);
-                                    playbackService.play();
-                                }
-                            });
-                        } else {
-                            HatchetCollection collection = (HatchetCollection) mCollection;
-                            collection.getArtistTopHits(mArtist).done(new DoneCallback<Playlist>() {
-                                @Override
-                                public void onDone(Playlist topHits) {
-                                    playbackService.setPlaylist(topHits, entry);
-                                    playbackService.play();
-                                }
-                            });
-                        }
+                        HatchetCollection collection = (HatchetCollection) mCollection;
+                        collection.getArtistTopHits(mArtist).done(new DoneCallback<Playlist>() {
+                            @Override
+                            public void onDone(Playlist topHits) {
+                                getPlaybackManager().setPlaylist(topHits, entry);
+                                getMediaController().getTransportControls().play();
+                            }
+                        });
                     }
                 }
             }

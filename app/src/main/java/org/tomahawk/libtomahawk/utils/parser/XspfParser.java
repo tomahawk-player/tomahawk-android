@@ -86,8 +86,8 @@ public class XspfParser {
                     qs.add(Query.get(track.title, track.album, track.creator, false));
                 }
                 String title = xspfPlaylist.title == null ? "XSPF Playlist" : xspfPlaylist.title;
-                Playlist pl = Playlist.fromQueryList(
-                        IdGenerator.getLifetimeUniqueStringId(), false, title, null, qs);
+                Playlist pl = Playlist
+                        .fromQueryList(IdGenerator.getLifetimeUniqueStringId(), title, null, qs);
                 pl.setFilled(true);
                 return pl;
             }

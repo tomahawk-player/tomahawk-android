@@ -39,6 +39,7 @@ import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
@@ -464,29 +465,44 @@ public class ContextMenuFragment extends Fragment {
                         mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<Playlist>() {
                             @Override
                             public void onDone(Playlist playlist) {
-                                List<Query> queries = new ArrayList<>();
+                                ArrayList<String> queryKeys = new ArrayList<>();
                                 if (playlist != null) {
                                     for (PlaylistEntry entry : playlist.getEntries()) {
-                                        queries.add(entry.getQuery());
+                                        queryKeys.add(entry.getQuery().getCacheKey());
                                     }
                                 }
-                                ((TomahawkMainActivity) getActivity()).getPlaybackService()
-                                        .addQueriesToQueue(queries);
+                                Bundle extras = new Bundle();
+                                extras.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
+                                getActivity().getSupportMediaController()
+                                        .getTransportControls().sendCustomAction(
+                                        PlaybackService.ACTION_ADD_QUERIES_TO_QUEUE, extras);
                             }
                         });
                     } else if (mQuery != null) {
-                        ((TomahawkMainActivity) getActivity()).getPlaybackService()
-                                .addQueryToQueue(mQuery);
+                        Bundle extras = new Bundle();
+                        extras.putString(TomahawkFragment.QUERY, mQuery.getCacheKey());
+                        getActivity().getSupportMediaController()
+                                .getTransportControls().sendCustomAction(
+                                PlaybackService.ACTION_ADD_QUERY_TO_QUEUE, extras);
                     } else if (mPlaylistEntry != null) {
-                        ((TomahawkMainActivity) getActivity()).getPlaybackService()
-                                .addQueryToQueue(mPlaylistEntry.getQuery());
+                        Bundle extras = new Bundle();
+                        extras.putString(TomahawkFragment.QUERY,
+                                mPlaylistEntry.getQuery().getCacheKey());
+                        getActivity().getSupportMediaController()
+                                .getTransportControls().sendCustomAction(
+                                PlaybackService.ACTION_ADD_QUERY_TO_QUEUE, extras);
                     } else if (mPlaylist != null) {
-                        List<Query> queries = new ArrayList<>();
-                        for (PlaylistEntry entry : mPlaylist.getEntries()) {
-                            queries.add(entry.getQuery());
+                        ArrayList<String> queryKeys = new ArrayList<>();
+                        if (mPlaylist != null) {
+                            for (PlaylistEntry entry : mPlaylist.getEntries()) {
+                                queryKeys.add(entry.getQuery().getCacheKey());
+                            }
                         }
-                        ((TomahawkMainActivity) getActivity()).getPlaybackService()
-                                .addQueriesToQueue(queries);
+                        Bundle extras = new Bundle();
+                        extras.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
+                        getActivity().getSupportMediaController()
+                                .getTransportControls().sendCustomAction(
+                                PlaybackService.ACTION_ADD_QUERIES_TO_QUEUE, extras);
                     }
                 }
             });

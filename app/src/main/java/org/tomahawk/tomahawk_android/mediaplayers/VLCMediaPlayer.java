@@ -147,7 +147,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
      * Seek to the given playback position (in ms)
      */
     @Override
-    public void seekTo(int msec) throws IllegalStateException {
+    public void seekTo(long msec) throws IllegalStateException {
         Log.d(TAG, "seekTo()");
         if (mPreparedQuery != null && !TomahawkApp.PLUGINNAME_BEATSMUSIC.equals(
                 mPreparedQuery.getPreferredTrackResult().getResolvedBy().getId())) {
@@ -205,11 +205,11 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
      * @return the current track position
      */
     @Override
-    public int getPosition() {
+    public long getPosition() {
         if (mPreparedQuery != null) {
-            return (int) getMediaPlayerInstance().getTime();
+            return getMediaPlayerInstance().getTime();
         } else {
-            return 0;
+            return 0L;
         }
     }
 

@@ -137,7 +137,7 @@ public class PlaylistsFragment extends TomahawkFragment {
     public void showCreateDialog() {
         ArrayList<Query> queries = mQueryArray != null ? mQueryArray : new ArrayList<Query>();
         Playlist playlist = Playlist.fromQueryList(
-                IdGenerator.getLifetimeUniqueStringId(), false, "", null, queries);
+                IdGenerator.getLifetimeUniqueStringId(), "", null, queries);
         CreatePlaylistDialog dialog = new CreatePlaylistDialog();
         Bundle args = new Bundle();
         args.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());

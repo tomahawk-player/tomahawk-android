@@ -249,4 +249,6 @@
   <string name="playback_next">Next Track</string>
   <string name="playback_favorite">Add to Favorites</string>
   <string name="playback_unfavorite">Remove from Favorites</string>
+  <!-- Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this. -->
+  <string name="mediabrowser_queue_title">Now Playing</string>
 </resources>

@@ -516,6 +516,12 @@
         <activity android:name=".activities.WebViewActivity"
                   android:theme="@style/Theme.Tomahawk"/>
 
+        <meta-data android:name="com.google.android.gms.car.application"
+                   android:resource="@xml/automotive_app_desc"/>
+
+        <meta-data android:name="com.google.android.gms.car.notification.SmallIcon"
+                   android:resource="@drawable/ic_notification"/>
+
         <receiver android:name="android.support.v4.media.session.MediaButtonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
@@ -525,9 +531,10 @@
         <service
                 android:name=".services.PlaybackService"
                 android:stopWithTask="true"
-                android:exported="false">
+                android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
+                <action android:name="android.media.browse.MediaBrowserService"/>
             </intent-filter>
         </service>
 

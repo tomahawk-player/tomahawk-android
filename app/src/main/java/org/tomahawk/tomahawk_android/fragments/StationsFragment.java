@@ -27,7 +27,6 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.CreateStationDialog;
-import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 
 import android.content.Intent;
@@ -35,6 +34,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -43,6 +43,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class StationsFragment extends TomahawkFragment {
+
+    private static final String TAG = StationsFragment.class.getSimpleName();
 
     @SuppressWarnings("unused")
     public void onEventAsync(DatabaseHelper.PlaylistsUpdatedEvent event) {
@@ -93,14 +95,14 @@ public class StationsFragment extends TomahawkFragment {
      */
     @Override
     public void onItemClick(View view, Object item) {
+        if (getMediaController() == null) {
+            Log.e(TAG, "onItemClick failed because getMediaController() is null");
+            return;
+        }
         if (item instanceof StationPlaylist) {
-            PlaybackService playbackService =
-                    ((TomahawkMainActivity) getActivity()).getPlaybackService();
-            if (playbackService != null) {
-                if (item != playbackService.getPlaylist()) {
-                    playbackService.setPlaylist((StationPlaylist) item);
-                    playbackService.play();
-                }
+            if (item != getPlaybackManager().getPlaylist()) {
+                getPlaybackManager().setPlaylist((StationPlaylist) item);
+                getMediaController().getTransportControls().play();
             }
         } else if (item instanceof ListItemDrawable) {
             Intent i = new Intent(Intent.ACTION_VIEW);

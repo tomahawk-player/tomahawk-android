@@ -25,7 +25,6 @@ import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
-import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -37,6 +36,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 import org.tomahawk.tomahawk_android.views.AlbumArtViewPager;
 import org.tomahawk.tomahawk_android.views.PlaybackFragmentFrame;
 
@@ -44,7 +44,14 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -52,7 +59,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +69,8 @@ import java.util.List;
  * {@link se.emilsjolander.stickylistheaders.StickyListHeadersListView}.
  */
 public class PlaybackFragment extends TomahawkFragment {
+
+    private static final String TAG = PlaybackFragment.class.getSimpleName();
 
     private AlbumArtSwipeAdapter mAlbumArtSwipeAdapter;
 
@@ -82,28 +90,28 @@ public class PlaybackFragment extends TomahawkFragment {
 
     private int mOriginalViewPagerHeight;
 
-    private Toast mToast;
-
-    public abstract static class ShowContextMenuListener {
-
-        public abstract void onShowContextMenu(Query query);
-
-        public abstract void onDoubleTap(Query query);
-    }
-
-    private final ShowContextMenuListener mShowContextMenuListener = new ShowContextMenuListener() {
+    private final GestureDetector.SimpleOnGestureListener mGestureListener
+            = new GestureDetector.SimpleOnGestureListener() {
 
         @Override
-        public void onShowContextMenu(Query query) {
-            FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), query, null, true,
-                    true);
+        public void onLongPress(MotionEvent e) {
+            if (getMediaController() == null) {
+                Log.d(TAG, "onLongPress failed because getMediaController() is null");
+                return;
+            }
+            FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(),
+                    getPlaybackManager().getCurrentEntry().getQuery(), null, true, true);
         }
 
         @Override
-        public void onDoubleTap(Query query) {
+        public boolean onDoubleTap(MotionEvent e) {
+            if (getMediaController() == null) {
+                Log.d(TAG, "onDoubleTap failed because getMediaController() is null");
+                return false;
+            }
             final ImageView imageView =
                     (ImageView) getView().findViewById(R.id.imageview_favorite_doubletap);
-            if (DatabaseHelper.get().isItemLoved(query)) {
+            if (DatabaseHelper.get().isItemLoved(getPlaybackManager().getCurrentQuery())) {
                 ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
                         R.drawable.ic_action_unfavorite_large);
             } else {
@@ -118,7 +126,8 @@ public class PlaybackFragment extends TomahawkFragment {
                 }
             };
             new Handler().postDelayed(r, 2000);
-            CollectionManager.get().toggleLovedItem(query);
+            CollectionManager.get().toggleLovedItem(getPlaybackManager().getCurrentQuery());
+            return false;
         }
     };
 
@@ -136,12 +145,19 @@ public class PlaybackFragment extends TomahawkFragment {
         if (event.mSlideState == SlidingUpPanelLayout.PanelState.EXPANDED) {
             if (mShouldShowSwipeHints) {
                 mShouldShowSwipeHints = false;
-                showSwipeHints();
+                if (getMediaController() != null) {
+                    showSwipeHints(getMediaController().getPlaybackState());
+                }
             }
         }
         if (event.mSlideState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
             mShouldShowSwipeHints = true;
         }
+    }
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(MediaControllerConnectedEvent event) {
+        refreshAll();
     }
 
     @Override
@@ -188,9 +204,7 @@ public class PlaybackFragment extends TomahawkFragment {
         mAlbumArtViewPager.setClipToPadding(false);
         padding = getResources().getDimensionPixelSize(R.dimen.padding_large);
         mAlbumArtViewPager.setPageMargin(padding);
-        mAlbumArtViewPager.setShowContextMenuListener(mShowContextMenuListener);
-        mAlbumArtViewPager
-                .setPlaybackService(((TomahawkMainActivity) getActivity()).getPlaybackService());
+        mAlbumArtViewPager.setOnGestureListener(mGestureListener);
 
         PlaybackFragmentFrame playbackFragmentFrame = (PlaybackFragmentFrame) view.getParent();
         playbackFragmentFrame.setListView(getListView());
@@ -248,21 +262,23 @@ public class PlaybackFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
-        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                .getPlaybackService();
-
-        onPlaylistChanged();
-
-        mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter((TomahawkMainActivity) getActivity(),
-                getActivity().getLayoutInflater(), mAlbumArtViewPager);
-        mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
+        mAlbumArtSwipeAdapter = new AlbumArtSwipeAdapter(mAlbumArtViewPager);
         mAlbumArtViewPager.setAdapter(mAlbumArtSwipeAdapter);
 
         setupAlbumArtAnimation();
 
-        refreshTrackInfo();
-        refreshRepeatButtonState();
-        refreshShuffleButtonState();
+        if (getMediaController() != null) {
+            refreshAll();
+        }
+    }
+
+    private void refreshAll() {
+        mAlbumArtSwipeAdapter.setMediaController(getMediaController());
+        mAlbumArtSwipeAdapter.setPlaybackManager(getPlaybackManager());
+        mAlbumArtSwipeAdapter.updatePlaylist();
+        refreshTrackInfo(getMediaController().getMetadata());
+        refreshRepeatButtonState(getMediaController().getPlaybackState());
+        refreshShuffleButtonState(getMediaController().getPlaybackState());
         updateAdapter();
     }
 
@@ -274,18 +290,26 @@ public class PlaybackFragment extends TomahawkFragment {
      */
     @Override
     public void onItemClick(View view, Object item) {
-        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                .getPlaybackService();
-        if (playbackService != null) {
-            if (item instanceof PlaylistEntry) {
-                PlaylistEntry entry = (PlaylistEntry) item;
-                if (entry.getQuery().isPlayable()) {
+        if (getMediaController() == null) {
+            Log.d(TAG, "onItemClick failed because getMediaController() is null");
+            return;
+        }
+        if (item instanceof PlaylistEntry) {
+            PlaylistEntry entry = (PlaylistEntry) item;
+            if (entry.getQuery().isPlayable()) {
+                if (getPlaybackManager().getCurrentEntry() == entry) {
                     // if the user clicked on an already playing track
-                    if (playbackService.getCurrentEntry() == entry) {
-                        playbackService.playPause();
-                    } else {
-                        playbackService.setCurrentEntry(entry);
+                    int playState = getMediaController().getPlaybackState().getState();
+                    if (playState == PlaybackStateCompat.STATE_PLAYING) {
+                        getMediaController().getTransportControls().pause();
+                    } else if (playState == PlaybackStateCompat.STATE_PAUSED) {
+                        getMediaController().getTransportControls().play();
                     }
+                } else {
+                    Bundle extras = new Bundle();
+                    extras.putString(PLAYLISTENTRY, entry.getCacheKey());
+                    getMediaController().getTransportControls()
+                            .sendCustomAction(PlaybackService.ACTION_SET_CURRENT_ENTRY, extras);
                 }
             }
         }
@@ -308,72 +332,42 @@ public class PlaybackFragment extends TomahawkFragment {
         return false;
     }
 
-    /**
-     * If the PlaybackService signals, that it is ready, this method is being called
-     */
     @Override
-    public void onPlaybackServiceReady() {
-        super.onPlaybackServiceReady();
+    public void onMediaControllerConnected(){
+        mAlbumArtSwipeAdapter.setPlaybackManager(getPlaybackManager());
 
-        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                .getPlaybackService();
-        if (playbackService != null) {
-            if (mAlbumArtSwipeAdapter != null) {
-                mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
-                refreshTrackInfo();
-                refreshRepeatButtonState();
-                refreshShuffleButtonState();
-            }
-            mAlbumArtViewPager.setPlaybackService(playbackService);
-        }
-        onPlaylistChanged();
     }
 
-    /**
-     * Called when the PlaybackServiceBroadcastReceiver received a Broadcast indicating that the
-     * track has changed inside our PlaybackService
-     */
     @Override
-    public void onTrackChanged() {
-        super.onTrackChanged();
+    public void onMetadataChanged(MediaMetadataCompat metadata) {
+        super.onMetadataChanged(metadata);
 
-        refreshTrackInfo();
+        refreshTrackInfo(metadata);
         updateAdapter();
     }
 
-    /**
-     * Called when the PlaybackServiceBroadcastReceiver received a Broadcast indicating that the
-     * playlist has changed inside our PlaybackService
-     */
     @Override
-    public void onPlaylistChanged() {
-        super.onPlaylistChanged();
+    public void onQueueChanged(List<MediaSessionCompat.QueueItem> queue) {
+        super.onQueueChanged(queue);
 
         forceResolveVisibleItems(false);
         updateAdapter();
 
-        refreshRepeatButtonState();
-        refreshShuffleButtonState();
+        if (getMediaController() != null) {
+            refreshRepeatButtonState(getMediaController().getPlaybackState());
+            refreshShuffleButtonState(getMediaController().getPlaybackState());
+        }
         if (mAlbumArtSwipeAdapter != null) {
             mAlbumArtSwipeAdapter.updatePlaylist();
         }
-        TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-        PlaybackService playbackService = activity.getPlaybackService();
-        if (playbackService == null || playbackService.getPlaybackListSize() == 0) {
-            activity.hidePanel();
-        } else {
-            activity.showPanel();
-        }
     }
 
-    /**
-     * Called when the PlaybackServiceBroadcastReceiver in PlaybackFragment received a Broadcast
-     * indicating that the playState (playing or paused) has changed inside our PlaybackService
-     */
     @Override
-    public void onPlaystateChanged() {
-        super.onPlaystateChanged();
+    public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
+        super.onPlaybackStateChanged(state);
 
+        refreshRepeatButtonState(state);
+        refreshShuffleButtonState(state);
         if (mAlbumArtSwipeAdapter != null) {
             mAlbumArtSwipeAdapter.updatePlaylist();
         }
@@ -385,42 +379,19 @@ public class PlaybackFragment extends TomahawkFragment {
     @Override
     protected void updateAdapter() {
         if (!mIsResumed) {
+            Log.e(TAG, "updateAdapter failed because Fragment is not resumed");
+            return;
+        }
+        if (getMediaController() == null) {
+            Log.e(TAG, "updateAdapter failed because getMediaController() is null");
             return;
         }
 
-        PlaybackService playbackService =
-                ((TomahawkMainActivity) getActivity()).getPlaybackService();
-        if (playbackService != null) {
+        if (getPlaybackManager() != null) {
             List<Segment> segments = new ArrayList<>();
-            List entries = new ArrayList();
-            entries.add(playbackService.getCurrentEntry());
-            Segment segment = new Segment.Builder(entries).build();
+            Segment segment = new Segment.Builder(getPlaybackManager()).build();
             segment.setShowNumeration(true, 0);
             segments.add(segment);
-
-            entries = new ArrayList();
-            entries.addAll(playbackService.getQueue().getEntries());
-            entries.remove(playbackService
-                    .getCurrentEntry()); // don't show queue entry if currently playing
-            segment = new Segment.Builder(entries).build();
-            segment.setShowAsQueued(true);
-            segments.add(segment);
-
-            if (playbackService.getPlaylist().size() > 1) {
-                int currentIndex;
-                if (playbackService.getQueue().getIndexOfEntry(playbackService.getCurrentEntry())
-                        > 0) {
-                    currentIndex = playbackService.getQueueStartPos();
-                } else {
-                    currentIndex = playbackService.getPlaylist()
-                            .getIndexOfEntry(playbackService.getCurrentEntry());
-                }
-                segment = new Segment.Builder(playbackService.getPlaylist())
-                        .offset(Math.max(1, currentIndex + 1))
-                        .build();
-                segment.setShowNumeration(true, 1);
-                segments.add(segment);
-            }
             fillAdapter(segments, mAlbumArtViewPager, null);
         }
     }
@@ -454,18 +425,19 @@ public class PlaybackFragment extends TomahawkFragment {
      * Called when the shuffle button is clicked.
      */
     public void onShuffleClicked() {
-        final PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                .getPlaybackService();
-        if (playbackService != null) {
-            playbackService.setShuffled(!playbackService.isShuffled());
-
-            if (mToast != null) {
-                mToast.cancel();
-            }
-            mToast = Toast.makeText(getActivity(), getString(playbackService.isShuffled()
-                    ? R.string.shuffle_on_label
-                    : R.string.shuffle_off_label), Toast.LENGTH_SHORT);
-            mToast.show();
+        if (getMediaController() == null) {
+            Log.e(TAG, "onShuffleClicked failed because getMediaController() is null");
+            return;
+        }
+        Bundle playbackStateExtras = getMediaController().getPlaybackState().getExtras();
+        if (playbackStateExtras != null) {
+            int shuffleMode = playbackStateExtras.getInt(PlaybackService.EXTRAS_KEY_SHUFFLE_MODE);
+            int newShuffleMode = shuffleMode == PlaybackManager.SHUFFLED
+                    ? PlaybackManager.NOT_SHUFFLED : PlaybackManager.SHUFFLED;
+            Bundle extras = new Bundle();
+            extras.putInt(PlaybackService.EXTRAS_KEY_SHUFFLE_MODE, newShuffleMode);
+            getMediaController().getTransportControls()
+                    .sendCustomAction(PlaybackService.ACTION_SET_SHUFFLE_MODE, extras);
         }
     }
 
@@ -473,62 +445,41 @@ public class PlaybackFragment extends TomahawkFragment {
      * Called when the repeat button is clicked.
      */
     public void onRepeatClicked() {
-        final PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                .getPlaybackService();
-        if (playbackService != null) {
-            int repeatMode = playbackService.getRepeatingMode();
-            if (repeatMode == PlaybackService.NOT_REPEATING) {
-                playbackService.setRepeatingMode(PlaybackService.REPEAT_ALL);
-            } else if (repeatMode == PlaybackService.REPEAT_ALL) {
-                playbackService.setRepeatingMode(PlaybackService.REPEAT_ONE);
-            } else if (repeatMode == PlaybackService.REPEAT_ONE) {
-                playbackService.setRepeatingMode(PlaybackService.NOT_REPEATING);
-            }
+        if (getMediaController() == null) {
+            Log.e(TAG, "onRepeatClicked failed because getMediaController() is null");
+            return;
         }
-    }
-
-    /**
-     * Refresh the information in this fragment to reflect that of the current Track, if possible
-     * (meaning mPlaybackService is not null).
-     */
-    protected void refreshTrackInfo() {
-        final PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                .getPlaybackService();
-        if (playbackService != null) {
-            refreshTrackInfo(playbackService.getCurrentQuery());
-        } else {
-            refreshTrackInfo(null);
+        Bundle playbackStateExtras = getMediaController().getPlaybackState().getExtras();
+        if (playbackStateExtras != null) {
+            int repeatMode = playbackStateExtras.getInt(PlaybackService.EXTRAS_KEY_REPEAT_MODE);
+            int newRepeatMode = PlaybackManager.NOT_REPEATING;
+            if (repeatMode == PlaybackManager.NOT_REPEATING) {
+                newRepeatMode = PlaybackManager.REPEAT_ALL;
+            } else if (repeatMode == PlaybackManager.REPEAT_ALL) {
+                newRepeatMode = PlaybackManager.REPEAT_ONE;
+            } else if (repeatMode == PlaybackManager.REPEAT_ONE) {
+                newRepeatMode = PlaybackManager.NOT_REPEATING;
+            }
+            Bundle extras = new Bundle();
+            extras.putInt(PlaybackService.EXTRAS_KEY_REPEAT_MODE, newRepeatMode);
+            getMediaController().getTransportControls()
+                    .sendCustomAction(PlaybackService.ACTION_SET_REPEAT_MODE, extras);
         }
     }
 
     /**
      * Refresh the information in this fragment to reflect that of the given Track.
-     *
-     * @param query the query to which the track info view stuff should be updated to
      */
-    protected void refreshTrackInfo(final Query query) {
-        if (getView() != null) {
-            final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
-            final PlaybackService playbackService = activity.getPlaybackService();
-            if (query != null && playbackService != null) {
-                /*
-                This logic makes sure, that if a track is being skipped by the user, it doesn't do this
-                for eternity. Because a press of the next button would cause the AlbumArtSwipeAdapter
-                to display a swipe to the next track, which would then cause another skipping to the
-                next track. That's why we have to make a difference between a swipe by the user, and a
-                programmatically called swipe.
-                */
-                mAlbumArtViewPager.setPlaybackService(playbackService);
-                mAlbumArtSwipeAdapter.setPlaybackService(playbackService);
-
+    protected void refreshTrackInfo(MediaMetadataCompat metadata) {
+        if (getView() != null && metadata != null) {
+            if (getPlaybackManager().getCurrentQuery() != null) {
                 // Make all buttons clickable
                 getView().findViewById(R.id.imageButton_shuffle).setClickable(true);
                 getView().findViewById(R.id.imageButton_repeat).setClickable(true);
 
-                ImageView bgImageView =
-                        (ImageView) getView().findViewById(R.id.background);
+                ImageView bgImageView = (ImageView) getView().findViewById(R.id.background);
                 ImageUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(), bgImageView,
-                        playbackService.getCurrentQuery().getImage(),
+                        getPlaybackManager().getCurrentQuery().getImage(),
                         Image.getSmallImageSize(), R.color.playerview_default_bg);
             } else {
                 // Make all buttons not clickable
@@ -541,25 +492,21 @@ public class PlaybackFragment extends TomahawkFragment {
     /**
      * Refresh the information in this fragment to reflect that of the current repeatButton state.
      */
-    protected void refreshRepeatButtonState() {
+    protected void refreshRepeatButtonState(PlaybackStateCompat playbackState) {
         if (getView() != null) {
             ImageButton imageButton = (ImageButton) getView().findViewById(R.id.imageButton_repeat);
-            if (imageButton != null) {
-                PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                        .getPlaybackService();
-                if (playbackService != null) {
-                    if (playbackService.getRepeatingMode() == PlaybackService.REPEAT_ALL) {
-                        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                                imageButton, R.drawable.repeat_all, R.color.tomahawk_red);
-                    } else if (playbackService.getRepeatingMode() == PlaybackService.REPEAT_ONE) {
-                        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                                imageButton, R.drawable.repeat_one, R.color.tomahawk_red);
-                    } else {
-                        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                                imageButton, R.drawable.repeat_all);
-                    }
-                } else {
-                    ImageUtils.clearTint(imageButton.getDrawable());
+            if (imageButton != null && playbackState.getExtras() != null) {
+                int repeatMode =
+                        playbackState.getExtras().getInt(PlaybackService.EXTRAS_KEY_REPEAT_MODE);
+                if (repeatMode == PlaybackManager.REPEAT_ALL) {
+                    ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                            imageButton, R.drawable.repeat_all, R.color.tomahawk_red);
+                } else if (repeatMode == PlaybackManager.REPEAT_ONE) {
+                    ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                            imageButton, R.drawable.repeat_one, R.color.tomahawk_red);
+                } else if (repeatMode == PlaybackManager.NOT_REPEATING) {
+                    ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                            imageButton, R.drawable.repeat_all);
                 }
             }
         }
@@ -568,16 +515,16 @@ public class PlaybackFragment extends TomahawkFragment {
     /**
      * Refresh the information in this fragment to reflect that of the current shuffleButton state.
      */
-    protected void refreshShuffleButtonState() {
+    protected void refreshShuffleButtonState(PlaybackStateCompat playbackState) {
         if (getView() != null) {
             ImageButton imageButton = (ImageButton) getView()
                     .findViewById(R.id.imageButton_shuffle);
-            if (imageButton != null) {
-                PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                        .getPlaybackService();
-                if (playbackService != null && playbackService.isShuffled()) {
+            if (imageButton != null && playbackState.getExtras() != null) {
+                int repeatMode =
+                        playbackState.getExtras().getInt(PlaybackService.EXTRAS_KEY_SHUFFLE_MODE);
+                if (repeatMode == PlaybackManager.SHUFFLED) {
                     ImageUtils.setTint(imageButton.getDrawable(), R.color.tomahawk_red);
-                } else {
+                } else if (repeatMode == PlaybackManager.NOT_SHUFFLED) {
                     ImageUtils.clearTint(imageButton.getDrawable());
                 }
             }
@@ -593,16 +540,16 @@ public class PlaybackFragment extends TomahawkFragment {
         }
     }
 
-    public void showSwipeHints() {
+    public void showSwipeHints(PlaybackStateCompat playbackState) {
         if (!mSwipeHintsShown && mSwipeHintLeft != null && mSwipeHintRight != null
                 && mSwipeHintBottom != null) {
             mSwipeHintsShown = true;
-            AnimationUtils.fade(
-                    mSwipeHintBottom, AnimationUtils.DURATION_PLAYBACKTOPPANEL, true);
-            PlaybackService playbackService =
-                    ((TomahawkMainActivity) getActivity()).getPlaybackService();
-            final boolean hasPreviousEntry = playbackService.hasPreviousEntry();
-            final boolean hasNextEntry = playbackService.hasNextEntry();
+            AnimationUtils.fade(mSwipeHintBottom, AnimationUtils.DURATION_PLAYBACKTOPPANEL, true);
+            long actions = playbackState.getActions();
+            final boolean hasPreviousEntry =
+                    (actions & PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS) != 0;
+            final boolean hasNextEntry =
+                    (actions & PlaybackStateCompat.ACTION_SKIP_TO_NEXT) != 0;
             if (hasPreviousEntry) {
                 AnimationUtils.fade(mSwipeHintLeft, AnimationUtils.DURATION_PLAYBACKTOPPANEL, true);
             }

@@ -37,9 +37,9 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
+import org.tomahawk.tomahawk_android.utils.ProgressBarUpdater;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
@@ -50,6 +50,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.util.Pair;
 import android.text.TextUtils;
 import android.util.Log;
@@ -74,7 +79,7 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 public abstract class TomahawkFragment extends TomahawkListFragment
         implements MultiColumnClickListener, AbsListView.OnScrollListener {
 
-    public static final String TAG = TomahawkFragment.class.getSimpleName();
+    private static final String TAG = TomahawkFragment.class.getSimpleName();
 
     public static final String ALBUM = "album";
 
@@ -130,6 +135,17 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     private TomahawkListAdapter mTomahawkListAdapter;
 
+    private ProgressBarUpdater mProgressBarUpdater = new ProgressBarUpdater(
+            new ProgressBarUpdater.UpdateProgressRunnable() {
+                @Override
+                public void updateProgress(PlaybackStateCompat playbackState, long duration) {
+                    if (mTomahawkListAdapter != null) {
+                        mTomahawkListAdapter
+                                .onPlayPositionChanged(duration, playbackState.getPosition());
+                    }
+                }
+            });
+
     protected boolean mIsResumed;
 
     protected final Set<String> mCorrespondingRequestIds =
@@ -163,6 +179,26 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     private int mVisibleItemCount = 0;
 
     protected int mShowMode = -1;
+
+    private final MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
+        @Override
+        public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
+            Log.d(TAG, "onPlaybackstate changed" + state);
+            TomahawkFragment.this.onPlaybackStateChanged(state);
+        }
+
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            Log.d(TAG, "onMetadataChanged changed" + metadata);
+            TomahawkFragment.this.onMetadataChanged(metadata);
+        }
+
+        @Override
+        public void onQueueChanged(List<MediaSessionCompat.QueueItem> queue) {
+            Log.d(TAG, "onQueueChanged changed queue.size()= " + queue.size());
+            TomahawkFragment.this.onQueueChanged(queue);
+        }
+    };
 
     private final Handler mResolveQueriesHandler = new ResolveQueriesHandler(this);
 
@@ -231,21 +267,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     @SuppressWarnings("unused")
-    public void onEventMainThread(PlaybackService.PlayingTrackChangedEvent event) {
-        onTrackChanged();
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(PlaybackService.PlayStateChangedEvent event) {
-        onPlaystateChanged();
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(PlaybackService.PlayingPlaylistChangedEvent event) {
-        onPlaylistChanged();
-    }
-
-    @SuppressWarnings("unused")
     public void onEventMainThread(CollectionManager.UpdatedEvent event) {
         if (event.mUpdatedItemIds != null) {
             if ((mPlaylist != null && event.mUpdatedItemIds.contains(mPlaylist.getId()))
@@ -262,18 +283,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
                         ADAPTER_UPDATE_DELAY);
             }
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(PlaybackService.ReadyEvent event) {
-        onPlaybackServiceReady();
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(PlaybackService.PlayPositionChangedEvent event) {
-        if (mTomahawkListAdapter != null) {
-            mTomahawkListAdapter.onPlayPositionChanged(event.duration, event.currentPosition);
         }
     }
 
@@ -401,8 +410,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             list.setOnScrollListener(this);
         }
 
-        onPlaylistChanged();
-
         mIsResumed = true;
     }
 
@@ -423,6 +430,32 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         if (mTomahawkListAdapter != null) {
             mTomahawkListAdapter.closeSegments(null);
             mTomahawkListAdapter = null;
+        }
+
+        mProgressBarUpdater.stopSeekbarUpdate();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG, "onStart()");
+        MediaControllerCompat controller = getActivity().getSupportMediaController();
+        if (controller != null) {
+            onPlaybackStateChanged(controller.getPlaybackState());
+            onMetadataChanged(controller.getMetadata());
+            controller.registerCallback(mCallback);
+        } else {
+            Log.e(TAG, "Couldn't get MediaController object!");
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Log.d(TAG, "onStop()");
+        MediaControllerCompat controller = getActivity().getSupportMediaController();
+        if (controller != null) {
+            controller.unregisterCallback(mCallback);
         }
     }
 
@@ -477,7 +510,6 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     } else {
                         mTomahawkListAdapter.setSegments(segments, getListView());
                     }
-                    updateShowPlaystate();
                     forceResolveVisibleItems(false);
                     setupNonScrollableSpacer(getListView());
                     setupScrollableSpacer(getListAdapter(), getListView(),
@@ -517,51 +549,30 @@ public abstract class TomahawkFragment extends TomahawkListFragment
      */
     protected abstract void updateAdapter();
 
-    /**
-     * If the PlaybackService signals, that it is ready, this method is being called
-     */
-    protected void onPlaybackServiceReady() {
-        updateShowPlaystate();
-    }
-
-    /**
-     * Called when the PlaybackServiceBroadcastReceiver received a Broadcast indicating that the
-     * playlist has changed inside our PlaybackService
-     */
-    protected void onPlaylistChanged() {
-        updateShowPlaystate();
-    }
-
-    /**
-     * Called when the PlaybackServiceBroadcastReceiver in PlaybackFragment received a Broadcast
-     * indicating that the playState (playing or paused) has changed inside our PlaybackService
-     */
-    protected void onPlaystateChanged() {
-        updateShowPlaystate();
-    }
-
-    /**
-     * Called when the PlaybackServiceBroadcastReceiver received a Broadcast indicating that the
-     * track has changed inside our PlaybackService
-     */
-    protected void onTrackChanged() {
-        updateShowPlaystate();
-    }
-
-    private void updateShowPlaystate() {
-        PlaybackService playbackService = ((TomahawkMainActivity) getActivity())
-                .getPlaybackService();
+    protected void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
         if (mTomahawkListAdapter != null) {
-            if (playbackService != null) {
-                mTomahawkListAdapter.setShowPlaystate(true);
-                mTomahawkListAdapter.setHighlightedItemIsPlaying(playbackService.isPlaying());
-                mTomahawkListAdapter.setHighlightedEntry(playbackService.getCurrentEntry());
-                mTomahawkListAdapter.setHighlightedQuery(playbackService.getCurrentQuery());
-            } else {
-                mTomahawkListAdapter.setShowPlaystate(false);
-            }
+            boolean isPlaying = playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
+            mTomahawkListAdapter.setHighlightedItemIsPlaying(isPlaying);
             mTomahawkListAdapter.notifyDataSetChanged();
+            if (isPlaying) {
+                mProgressBarUpdater.scheduleSeekbarUpdate();
+            } else {
+                mProgressBarUpdater.stopSeekbarUpdate();
+            }
         }
+    }
+
+    protected void onMetadataChanged(MediaMetadataCompat metadata) {
+        if (mTomahawkListAdapter != null && metadata != null) {
+            if (getPlaybackManager().getCurrentEntry() != null) {
+                mTomahawkListAdapter.setHighlightedEntry(getPlaybackManager().getCurrentEntry());
+                mTomahawkListAdapter.setHighlightedQuery(getPlaybackManager().getCurrentQuery());
+                mTomahawkListAdapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+    protected void onQueueChanged(List<MediaSessionCompat.QueueItem> queue) {
     }
 
     @Override

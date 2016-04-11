@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.adapters;
 import org.tomahawk.libtomahawk.collection.CollectionCursor;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 
 import android.content.res.Resources;
 import android.widget.AdapterView;
@@ -49,9 +50,7 @@ public class Segment {
 
     private Playlist mPlaylist;
 
-    private int mOffset;
-
-    private boolean mShowAsQueued;
+    private PlaybackManager mPlaybackManager;
 
     private int mNumerationCorrection;
 
@@ -80,6 +79,11 @@ public class Segment {
         public Builder(Playlist playlist) {
             mSegment = new Segment();
             mSegment.mPlaylist = playlist;
+        }
+
+        public Builder(PlaybackManager playbackManager) {
+            mSegment = new Segment();
+            mSegment.mPlaybackManager = playbackManager;
         }
 
         public Builder headerLayout(int headerLayoutId) {
@@ -120,11 +124,6 @@ public class Segment {
             return this;
         }
 
-        public Builder offset(int offset) {
-            mSegment.mOffset = offset;
-            return this;
-        }
-
         public Segment build() {
             return mSegment;
         }
@@ -159,11 +158,14 @@ public class Segment {
 
     public int getCount() {
         if (mCollectionCursor != null) {
-            return mCollectionCursor.size() - mOffset;
+            return mCollectionCursor.size();
         } else if (mPlaylist != null) {
-            return mPlaylist.size() - mOffset;
+            return mPlaylist.size();
+        } else if (mPlaybackManager != null) {
+            return mPlaybackManager.getPlaybackListSize()
+                    - Math.max(1, mPlaybackManager.getCurrentIndex() + 1);
         } else {
-            return mListItems.size() - mOffset;
+            return mListItems.size();
         }
     }
 
@@ -172,7 +174,6 @@ public class Segment {
     }
 
     public Object get(int location) {
-        location = location + mOffset;
         if (mColumnCount > 1) {
             List<Object> list = new ArrayList<>();
             for (int i = location * mColumnCount; i < location * mColumnCount + mColumnCount; i++) {
@@ -181,6 +182,8 @@ public class Segment {
                     item = mCollectionCursor.get(i);
                 } else if (mPlaylist != null) {
                     item = mPlaylist.getEntryAtPos(i);
+                } else if (mPlaybackManager != null) {
+                    item = mPlaybackManager.getPlaybackListEntry(i);
                 } else if (i < mListItems.size()) {
                     item = mListItems.get(i);
                 }
@@ -193,6 +196,8 @@ public class Segment {
                 item = mCollectionCursor.get(location);
             } else if (mPlaylist != null) {
                 item = mPlaylist.getEntryAtPos(location);
+            } else if (mPlaybackManager != null) {
+                item = mPlaybackManager.getPlaybackListEntry(location);
             } else {
                 item = mListItems.get(location);
             }
@@ -224,11 +229,8 @@ public class Segment {
     }
 
     public boolean isShowAsQueued() {
-        return mShowAsQueued;
-    }
-
-    public void setShowAsQueued(boolean showAsQueued) {
-        mShowAsQueued = showAsQueued;
+        // TODO
+        return false;
     }
 
     public boolean isShowDuration() {

@@ -251,7 +251,7 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
             }
         }
         Playlist playlist = Playlist.fromQueryList(IdGenerator.getSessionUniqueStringId(),
-                false, mFullTextQuery, "", queries);
+                mFullTextQuery, "", queries);
         playlist.setFilled(true);
         return playlist;
     }

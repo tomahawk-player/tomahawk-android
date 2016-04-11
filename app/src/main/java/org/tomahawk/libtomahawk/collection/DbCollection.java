@@ -196,8 +196,7 @@ public abstract class DbCollection extends Collection {
                         CollectionDb db = CollectionDbManager.get().getCollectionDb(collectionId);
                         String currentRevision = String.valueOf(db.tracksCurrentRevision());
                         Playlist playlist = Playlist.get(
-                                collectionId + "_tracks_" + currentRevision + "_" + sortMode,
-                                false);
+                                collectionId + "_tracks_" + currentRevision + "_" + sortMode);
                         if (playlist.getCurrentRevision().isEmpty()) {
                             Cursor cursor = db.tracks(null, orderBy);
                             if (cursor == null) {
@@ -367,8 +366,7 @@ public abstract class DbCollection extends Collection {
                         String currentRevision =
                                 String.valueOf(db.artistCurrentRevision(artist.getName(), ""));
                         Playlist playlist = Playlist.get(
-                                collectionId + "_" + artist.getCacheKey() + "_" + currentRevision,
-                                false);
+                                collectionId + "_" + artist.getCacheKey() + "_" + currentRevision);
                         if (playlist.getCurrentRevision().isEmpty()) {
                             Cursor cursor = db.artistTracks(artist.getName(), "");
                             if (cursor == null) {
@@ -403,8 +401,7 @@ public abstract class DbCollection extends Collection {
                         String currentRevision = String.valueOf(db.albumCurrentRevision(
                                 album.getName(), album.getArtist().getName(), ""));
                         Playlist playlist = Playlist.get(
-                                collectionId + "_" + album.getCacheKey() + "_" + currentRevision,
-                                false);
+                                collectionId + "_" + album.getCacheKey() + "_" + currentRevision);
                         if (playlist.getCurrentRevision().isEmpty()) {
                             Cursor cursor = db.albumTracks(
                                     album.getName(), album.getArtist().getName(), "");

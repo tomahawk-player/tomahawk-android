@@ -189,7 +189,7 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
 
     private long mFakePositionTimeStamp;
 
-    private int mFakePositionOffset;
+    private long mFakePositionOffset;
 
     private Map<String, Query> mUriToQueryMap = new HashMap<>();
 
@@ -387,10 +387,10 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
      * Seek to the given playback position (in ms)
      */
     @Override
-    public void seekTo(final int msec) {
+    public void seekTo(final long msec) {
         Log.d(TAG, "seekTo()");
         Bundle args = new Bundle();
-        args.putInt(MSG_SEEK_ARG_MS, msec);
+        args.putInt(MSG_SEEK_ARG_MS, (int)msec);
         callService(MSG_SEEK, args);
 
         mFakePositionOffset = msec;
@@ -413,17 +413,16 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
      * @return the current track position
      */
     @Override
-    public int getPosition() {
+    public long getPosition() {
         if (mShowFakePosition) {
             if (mIsPlaying) {
-                return (int) (System.currentTimeMillis() - mFakePositionTimeStamp)
-                        + mFakePositionOffset;
+                return System.currentTimeMillis() - mFakePositionTimeStamp + mFakePositionOffset;
             } else {
                 return mFakePositionOffset;
             }
         } else {
             if (mIsPlaying) {
-                return (int) (System.currentTimeMillis() - mPositionTimeStamp) + mPositionOffset;
+                return System.currentTimeMillis() - mPositionTimeStamp + mPositionOffset;
             } else {
                 return mPositionOffset;
             }
