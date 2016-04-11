@@ -391,7 +391,7 @@ public class DatabaseHelper {
                 columns, TomahawkSQLiteHelper.PLAYLISTS_COLUMN_ID + " = ?",
                 new String[]{playlistId}, null, null, null);
         if (playlistsCursor.moveToFirst()) {
-            Playlist playlist = Playlist.get(playlistId, true);
+            Playlist playlist = Playlist.get(playlistId);
             playlist.setName(playlistsCursor.getString(0));
             playlist.setCurrentRevision(playlistsCursor.getString(1));
             playlist.setHatchetId(playlistsCursor.getString(2));
@@ -465,7 +465,7 @@ public class DatabaseHelper {
                 entries.add(entry);
                 tracksCursor.moveToNext();
             }
-            Playlist playlist = Playlist.fromEntriesList(playlistId, true,
+            Playlist playlist = Playlist.fromEntriesList(playlistId,
                     playlistsCursor.getString(0), playlistsCursor.getString(1), entries);
             playlist.setHatchetId(playlistsCursor.getString(2));
             playlist.setFilled(true);

@@ -21,21 +21,23 @@ package org.tomahawk.tomahawk_android.services;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.StationPlaylist;
-import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
+import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.PluginMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
@@ -44,11 +46,12 @@ import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayerCallback;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
 import org.tomahawk.tomahawk_android.utils.AudioFocusable;
+import org.tomahawk.tomahawk_android.utils.DelayedHandler;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.MediaNotification;
+import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
-import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -62,9 +65,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -109,13 +109,41 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private static final String TAG = PlaybackService.class.getSimpleName();
 
-    public static final String ACTION_PLAY = "org.tomahawk.tomahawk_android.ACTION_PLAY";
+    public static final String ACTION_PLAY
+            = "org.tomahawk.tomahawk_android.ACTION_PLAY";
 
-    public static final int NOT_REPEATING = 0;
+    public static final String ACTION_SET_PLAYLIST
+            = "org.tomahawk.tomahawk_android.SET_PLAYLIST";
 
-    public static final int REPEAT_ALL = 1;
+    public static final String ACTION_SET_CURRENT_ENTRY
+            = "org.tomahawk.tomahawk_android.SET_CURRENT_ENTRY";
 
-    public static final int REPEAT_ONE = 2;
+    public static final String ACTION_STOP_NOTIFICATION
+            = "org.tomahawk.tomahawk_android.STOP_NOTIFICATION";
+
+    public static final String ACTION_DELETE_ENTRY_IN_QUEUE
+            = "org.tomahawk.tomahawk_android.DELETE_ENTRY_IN_QUEUE";
+
+    public static final String ACTION_ADD_QUERY_TO_QUEUE
+            = "org.tomahawk.tomahawk_android.ADD_QUERY_TO_QUEUE";
+
+    public static final String ACTION_ADD_QUERIES_TO_QUEUE
+            = "org.tomahawk.tomahawk_android.ADD_QUERIES_TO_QUEUE";
+
+    public static final String ACTION_SET_SHUFFLE_MODE
+            = "org.tomahawk.tomahawk_android.SET_SHUFFLE_MODE";
+
+    public static final String ACTION_SET_REPEAT_MODE
+            = "org.tomahawk.tomahawk_android.SET_REPEAT_MODE";
+
+    public static final String EXTRAS_KEY_PLAYBACKMANAGER
+            = "org.tomahawk.tomahawk_android.PLAYBACKMANAGER";
+
+    public static final String EXTRAS_KEY_REPEAT_MODE
+            = "org.tomahawk.tomahawk_android.REPEAT_MODE";
+
+    public static final String EXTRAS_KEY_SHUFFLE_MODE
+            = "org.tomahawk.tomahawk_android.SHUFFLE_MODE";
 
     private static final int MAX_ALBUM_ART_CACHE_SIZE = 5 * 1024 * 1024;
 
@@ -127,80 +155,19 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private static final int DELAY_SUICIDE = 1800000;
 
-    public static final String MEDIA_ID_ROOT = "__ROOT__";
-
-    public static final String MEDIA_ID_ALBUMS = "__ALBUMS__";
-
-    public static class PlayingTrackChangedEvent {
-
-    }
-
-    public static class PlayingPlaylistChangedEvent {
-
-    }
-
-    public static class PlayStateChangedEvent {
-
-    }
-
-    public static class PlayPositionChangedEvent {
-
-        public long duration;
-
-        public int currentPosition;
-
-    }
-
-    public static class ReadyEvent {
-
-    }
-
-    public static class RequestServiceBindingEvent {
-
-        private ServiceConnection mConnection;
-
-        private String mServicePackageName;
-
-        public RequestServiceBindingEvent(ServiceConnection connection, String servicePackageName) {
-            mConnection = connection;
-            mServicePackageName = servicePackageName;
-        }
-
-    }
-
-    public static class SetBitrateEvent {
-
-        public int mode;
-
-    }
-
-    public static class HeadsetPluggedInEvent {
-
-    }
-
-    protected final Set<Query> mCorrespondingQueries
+    private final Set<Query> mCorrespondingQueries
             = Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
-    protected final ConcurrentHashMap<String, String> mCorrespondingRequestIds
+    private final ConcurrentHashMap<String, String> mCorrespondingRequestIds
             = new ConcurrentHashMap<>();
 
-    private Playlist mPlaylist;
-
-    private Playlist mQueue;
-
-    private int mQueueStartPos = -1;
-
-    private PlaylistEntry mCurrentEntry;
-
-    private int mCurrentIndex = -1;
+    private PlaybackManager mPlaybackManager;
 
     private TomahawkMediaPlayer mCurrentMediaPlayer;
 
+    private final Map<Class, TomahawkMediaPlayer> mMediaPlayers = new HashMap<>();
+
     private MediaNotification mNotification;
-
-    private PowerManager.WakeLock mWakeLock;
-
-    private int mRepeatingMode = NOT_REPEATING;
 
     private MediaSessionCompat mMediaSession;
 
@@ -211,7 +178,25 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onPlay() {
-            play();
+            Log.d(TAG, "play");
+            if (mPlaybackManager.getCurrentQuery() != null) {
+                if (mAudioBecomingNoisyReceiver == null) {
+                    mAudioBecomingNoisyReceiver = new AudioBecomingNoisyReceiver();
+                    registerReceiver(mAudioBecomingNoisyReceiver,
+                            new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+                }
+                mSuicideHandler.stop();
+                mSuicideHandler.reset();
+                mPluginServiceKillHandler.stop();
+                mPluginServiceKillHandler.reset();
+                mScrobbleHandler.start();
+                mPlayState = PlaybackStateCompat.STATE_PLAYING;
+                handlePlayState();
+
+                mNotification.startNotification();
+                mAudioFocusHelper.tryToGetAudioFocus();
+                updateMediaPlayState();
+            }
         }
 
         /**
@@ -219,7 +204,17 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onPause() {
-            pause();
+            Log.d(TAG, "pause");
+            if (mAudioBecomingNoisyReceiver != null) {
+                unregisterReceiver(mAudioBecomingNoisyReceiver);
+                mAudioBecomingNoisyReceiver = null;
+            }
+            mSuicideHandler.start();
+            mPluginServiceKillHandler.start();
+            mScrobbleHandler.stop();
+            mPlayState = PlaybackStateCompat.STATE_PAUSED;
+            handlePlayState();
+            updateMediaPlayState();
         }
 
         /**
@@ -227,7 +222,16 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onSkipToNext() {
-            next();
+            Log.d(TAG, "next");
+            int counter = 0;
+            PlaylistEntry entry = mPlaybackManager.getNextEntry();
+            while (entry != null && counter++ < mPlaybackManager.getPlaybackListSize()) {
+                setCurrentEntry(entry);
+                if (entry.getQuery().isPlayable()) {
+                    break;
+                }
+                entry = mPlaybackManager.getNextEntry(entry);
+            }
         }
 
         /**
@@ -235,7 +239,16 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onSkipToPrevious() {
-            previous();
+            Log.d(TAG, "previous");
+            int counter = 0;
+            PlaylistEntry entry = mPlaybackManager.getPreviousEntry();
+            while (entry != null && counter++ < mPlaybackManager.getPlaybackListSize()) {
+                if (entry.getQuery().isPlayable()) {
+                    setCurrentEntry(entry);
+                    break;
+                }
+                entry = mPlaybackManager.getPreviousEntry(entry);
+            }
         }
 
         /**
@@ -243,9 +256,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onFastForward() {
-            long duration = getCurrentQuery().getPreferredTrack().getDuration();
-            int newPos = (int) Math.min(duration, Math.max(0, getPosition() + 10000));
-            seekTo(newPos);
+            long duration = mPlaybackManager.getCurrentTrack().getDuration();
+            long newPos = Math.min(duration, Math.max(0, getPlaybackPosition() + 10000));
+            onSeekTo(newPos);
         }
 
         /**
@@ -253,9 +266,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onRewind() {
-            long duration = getCurrentQuery().getPreferredTrack().getDuration();
-            int newPos = (int) Math.min(duration, Math.max(0, getPosition() - 10000));
-            seekTo(newPos);
+            long duration = mPlaybackManager.getCurrentTrack().getDuration();
+            long newPos = Math.min(duration, Math.max(0, getPlaybackPosition() - 10000));
+            onSeekTo(newPos);
         }
 
         /**
@@ -263,7 +276,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onStop() {
-            pause();
+            onPause();
         }
 
         /**
@@ -273,27 +286,102 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onSeekTo(long pos) {
-            seekTo((int) pos);
+            Log.d(TAG, "seekTo " + pos);
+            final Query currentQuery = mPlaybackManager.getCurrentQuery();
+            if (currentQuery != null && currentQuery.getMediaPlayerClass() != null) {
+                TomahawkMediaPlayer mp =
+                        mMediaPlayers.get(currentQuery.getMediaPlayerClass());
+                if (mp.isPrepared(currentQuery)) {
+                    mp.seekTo(pos);
+                }
+            }
         }
 
         /**
          * Override to handle the item being rated.
-         *
-         * @param rating
          */
         @Override
         public void onSetRating(RatingCompat rating) {
             if (rating.getRatingStyle() == RatingCompat.RATING_HEART) {
-                CollectionManager.get().setLovedItem(getCurrentQuery(), rating.hasHeart());
-                updateMediaMetadata();
+                CollectionManager.get()
+                        .setLovedItem(mPlaybackManager.getCurrentQuery(), rating.hasHeart());
+                mPlaybackManagerCallback.onCurrentEntryChanged();
             }
         }
 
+        @Override
+        public void onCustomAction(String action, Bundle extras) {
+            if (ACTION_SET_PLAYLIST.equals(action)) {
+                Playlist playlist =
+                        Playlist.getByKey(extras.getString(TomahawkFragment.PLAYLIST));
+                if (playlist != mPlaybackManager.getPlaylist()) {
+                    if (playlist instanceof StationPlaylist) {
+                        setPlaylist((StationPlaylist) playlist);
+                    } else {
+                        PlaylistEntry entry = PlaylistEntry
+                                .getByKey(extras.getString(TomahawkFragment.PLAYLISTENTRY));
+                        setPlaylist(playlist, entry);
+                    }
+                }
+            } else if (ACTION_SET_CURRENT_ENTRY.equals(action)) {
+                PlaylistEntry entry =
+                        PlaylistEntry.getByKey(extras.getString(TomahawkFragment.PLAYLISTENTRY));
+                setCurrentEntry(entry);
+            } else if (ACTION_STOP_NOTIFICATION.equals(action)) {
+                mNotification.stopNotification();
+            } else if (ACTION_DELETE_ENTRY_IN_QUEUE.equals(action)) {
+                PlaylistEntry entry =
+                        PlaylistEntry.getByKey(extras.getString(TomahawkFragment.PLAYLISTENTRY));
+                mPlaybackManager.deleteFromQueue(entry);
+            } else if (ACTION_ADD_QUERY_TO_QUEUE.equals(action)) {
+                Query query = Query.getByKey(extras.getString(TomahawkFragment.QUERY));
+                mPlaybackManager.addToQueue(query);
+            } else if (ACTION_ADD_QUERIES_TO_QUEUE.equals(action)) {
+                List<String> queryKeys = extras.getStringArrayList(TomahawkFragment.QUERYARRAY);
+                List<Query> queries = new ArrayList<>();
+                for (String queryKey : queryKeys) {
+                    queries.add(Query.getByKey(queryKey));
+                }
+                mPlaybackManager.addToQueue(queries);
+            } else if (ACTION_SET_SHUFFLE_MODE.equals(action)) {
+                int shuffleMode = extras.getInt(EXTRAS_KEY_SHUFFLE_MODE);
+                Log.d(TAG, "setShuffleMode to " + shuffleMode);
+                mPlaybackManager.setShuffleMode(shuffleMode);
+            } else if (ACTION_SET_REPEAT_MODE.equals(action)) {
+                int repeatMode = extras.getInt(EXTRAS_KEY_REPEAT_MODE);
+                Log.d(TAG, "setRepeatMode to " + repeatMode);
+                mPlaybackManager.setRepeatMode(repeatMode);
+            }
+        }
     };
 
-    private boolean isNoisyReceiverRegistered = false;
+    private PlaybackManager.Callback mPlaybackManagerCallback = new PlaybackManager.Callback() {
+        @Override
+        public void onPlaylistChanged() {
+            resolveProximalQueries();
+            updateMediaQueue();
+        }
 
-    private BroadcastReceiver mAudioBecomingNoisyReceiver = new BroadcastReceiver() {
+        @Override
+        public void onCurrentEntryChanged() {
+            resolveProximalQueries();
+            updateMediaMetadata();
+        }
+
+        @Override
+        public void onShuffleModeChanged() {
+            updateMediaQueue();
+        }
+
+        @Override
+        public void onRepeatModeChanged() {
+            updateMediaQueue();
+        }
+    };
+
+    private AudioBecomingNoisyReceiver mAudioBecomingNoisyReceiver;
+
+    private class AudioBecomingNoisyReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -301,25 +389,14 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 // AudioManager tells us that the sound will be played through the speaker
                 Log.d(TAG, "Action audio becoming noisy, pausing ...");
                 // So we stop playback, if needed
-                pause();
+                mMediaSessionCallback.onPause();
             }
         }
-    };
-
-    // our AudioFocusHelper object, if it's available (it's available on SDK level >= 8)
-    // If not available, this will be null. Always check for null before using!
-    private AudioFocusHelper mAudioFocusHelper = null;
-
-    // do we have audio focus?
-    private enum AudioFocus {
-        NoFocusNoDuck,    // we don't have audio focus, and can't duck
-        NoFocusCanDuck,   // we don't have focus, but can play at a low volume ("ducking")
-        Focused           // we have full audio focus
     }
 
-    private AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
+    private PowerManager.WakeLock mWakeLock;
 
-    private final Map<Class, TomahawkMediaPlayer> mMediaPlayers = new HashMap<>();
+    private AudioFocusHelper mAudioFocusHelper = null;
 
     private final LruCache<Image, Bitmap> mMediaImageCache =
             new LruCache<Image, Bitmap>(MAX_ALBUM_ART_CACHE_SIZE) {
@@ -362,14 +439,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onPrepareLoad(Drawable drawable) {
         }
-
-    }
-
-    public class PlaybackServiceBinder extends Binder {
-
-        public PlaybackService getService() {
-            return PlaybackService.this;
-        }
     }
 
     private RemoteControllerConnection mRemoteControllerConnection;
@@ -388,38 +457,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     }
 
     /**
-     * The static {@link ServiceConnection} which calls methods in {@link
-     * PlaybackServiceConnectionListener} to let every depending object know, if the {@link
-     * PlaybackService} connects or disconnects.
-     */
-    public static class PlaybackServiceConnection implements ServiceConnection {
-
-        private final PlaybackServiceConnectionListener mPlaybackServiceConnectionListener;
-
-        public interface PlaybackServiceConnectionListener {
-
-            void setPlaybackService(PlaybackService ps);
-        }
-
-        public PlaybackServiceConnection(
-                PlaybackServiceConnectionListener playbackServiceConnectedListener) {
-            mPlaybackServiceConnectionListener = playbackServiceConnectedListener;
-        }
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-
-            PlaybackServiceBinder binder = (PlaybackServiceBinder) service;
-            mPlaybackServiceConnectionListener.setPlaybackService(binder.getService());
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mPlaybackServiceConnectionListener.setPlaybackService(null);
-        }
-    }
-
-    /**
      * Listens for incoming phone calls and handles playback.
      */
     private PhoneStateListener mPhoneCallListener = new PhoneStateListener() {
@@ -429,17 +466,18 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             switch (state) {
+                // TODO: Test and fix
                 case TelephonyManager.CALL_STATE_RINGING:
-                    if (isPlaying()) {
+                    if (mPlayState == PlaybackStateCompat.STATE_PLAYING) {
                         mStartCallTime = System.currentTimeMillis();
-                        pause();
+                        mMediaSessionCallback.onPause();
                     }
                     break;
 
                 case TelephonyManager.CALL_STATE_IDLE:
-                    if (mStartCallTime > 0 && (System.currentTimeMillis() - mStartCallTime
-                            < 30000)) {
-                        play();
+                    if (mStartCallTime > 0
+                            && (System.currentTimeMillis() - mStartCallTime < 30000)) {
+                        mMediaSessionCallback.onPlay();
                     }
 
                     mStartCallTime = 0L;
@@ -451,7 +489,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     private SuicideHandler mSuicideHandler = new SuicideHandler(this);
 
     // Stops this service if it doesn't have any bound services
-    private static class SuicideHandler extends DelayedHandler {
+    private static class SuicideHandler extends DelayedHandler<PlaybackService> {
 
         public SuicideHandler(PlaybackService service) {
             super(service, DELAY_SUICIDE);
@@ -468,7 +506,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private PluginServiceKillHandler mPluginServiceKillHandler = new PluginServiceKillHandler(this);
 
-    private static class PluginServiceKillHandler extends DelayedHandler {
+    private static class PluginServiceKillHandler extends DelayedHandler<PlaybackService> {
 
         public PluginServiceKillHandler(PlaybackService service) {
             super(service, DELAY_UNBIND_PLUGINSERVICES);
@@ -493,7 +531,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private ScrobbleHandler mScrobbleHandler = new ScrobbleHandler(this);
 
-    private static class ScrobbleHandler extends DelayedHandler {
+    private static class ScrobbleHandler extends DelayedHandler<PlaybackService> {
 
         public ScrobbleHandler(PlaybackService service) {
             super(service, DELAY_SCROBBLE);
@@ -506,62 +544,25 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 InfoSystem.get().sendNowPlayingPostStruct(
                         AuthenticatorManager.get().getAuthenticatorUtils(
                                 TomahawkApp.PLUGINNAME_HATCHET),
-                        getReferencedObject().getCurrentQuery()
-                );
+                        getReferencedObject().mPlaybackManager.getCurrentQuery());
             }
-        }
-    }
-
-    private static abstract class DelayedHandler extends WeakReferenceHandler<PlaybackService> {
-
-        private int mDelay;
-
-        private long mStartingTime = 0L;
-
-        private int mDelayReduction = 0;
-
-        public DelayedHandler(PlaybackService referencedObject, int delay) {
-            super(referencedObject);
-
-            mDelay = delay;
-        }
-
-        public abstract void handleMessage(Message msg);
-
-        public void reset() {
-            mDelayReduction = 0;
-        }
-
-        public void start() {
-            if (mDelay - mDelayReduction > 0) {
-                mStartingTime = System.currentTimeMillis();
-                removeCallbacksAndMessages(null);
-                Message message = obtainMessage();
-                sendMessageDelayed(message, mDelay - mDelayReduction);
-            }
-        }
-
-        public void stop() {
-            int delayReduction = (int) (System.currentTimeMillis() - mStartingTime);
-            if (delayReduction > 0) {
-                mDelayReduction += delayReduction;
-            }
-            removeCallbacksAndMessages(null);
         }
     }
 
     private TomahawkMediaPlayerCallback mMediaPlayerCallback = new TomahawkMediaPlayerCallback() {
         @Override
         public void onPrepared(Query query) {
-            if (query == getCurrentQuery()) {
+            if (query == mPlaybackManager.getCurrentQuery()) {
                 Log.d(TAG, "MediaPlayer successfully prepared the track '"
-                        + getCurrentQuery().getName() + "' by '"
-                        + getCurrentQuery().getArtist().getName()
-                        + "' resolved by Resolver " + getCurrentQuery()
+                        + mPlaybackManager.getCurrentQuery().getName() + "' by '"
+                        + mPlaybackManager.getCurrentQuery().getArtist().getName()
+                        + "' resolved by Resolver " + mPlaybackManager.getCurrentQuery()
                         .getPreferredTrackResult().getResolvedBy().getId());
+                mPlayState = PlaybackStateCompat.STATE_PLAYING;
+                updateMediaPlayState();
                 boolean allPlayersReleased = true;
                 for (TomahawkMediaPlayer mediaPlayer : mMediaPlayers.values()) {
-                    if (!mediaPlayer.isPrepared(getCurrentQuery())) {
+                    if (!mediaPlayer.isPrepared(mPlaybackManager.getCurrentQuery())) {
                         mediaPlayer.release();
                     } else {
                         allPlayersReleased = false;
@@ -587,12 +588,12 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
         @Override
         public void onCompletion(Query query) {
-            if (query == getCurrentQuery()) {
+            if (query == mPlaybackManager.getCurrentQuery()) {
                 Log.d(TAG, "onCompletion");
-                if (hasNextEntry()) {
-                    next();
+                if (mPlaybackManager.hasNextEntry()) {
+                    mMediaSessionCallback.onSkipToNext();
                 } else {
-                    pause();
+                    mMediaSessionCallback.onPause();
                 }
             }
         }
@@ -606,23 +607,33 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                     Toast.makeText(TomahawkApp.getContext(), message, Toast.LENGTH_LONG).show();
                 }
             });
-            giveUpAudioFocus();
-            if (hasNextEntry()) {
-                next();
+            mAudioFocusHelper.giveUpAudioFocus();
+            if (mPlaybackManager.hasNextEntry()) {
+                mMediaSessionCallback.onSkipToNext();
             } else {
-                pause();
+                mMediaSessionCallback.onPause();
             }
         }
     };
 
     @SuppressWarnings("unused")
     public void onEventMainThread(PipeLine.ResultsEvent event) {
-        if (getCurrentQuery() != null && getCurrentQuery() == event.mQuery) {
-            updateMediaMetadata();
-            EventBus.getDefault().post(new PlayingTrackChangedEvent());
+        Playlist playlist = mPlaybackManager.getPlaylist();
+        if (playlist instanceof StationPlaylist
+                && ((StationPlaylist) playlist).isCandidate(event.mQuery)
+                && event.mQuery.isPlayable()) {
+            mPlaybackManager.addToQueue(event.mQuery);
+            if (mPlaybackManager.getCurrentEntry() == null) {
+                setCurrentEntry(mPlaybackManager.getPlaylist().getEntryAtPos(0));
+                mMediaSessionCallback.onPlay();
+            }
+        }
+        Query currentQuery = mPlaybackManager.getCurrentQuery();
+        if (currentQuery != null && currentQuery == event.mQuery) {
+            mPlaybackManagerCallback.onCurrentEntryChanged();
             if (mCurrentMediaPlayer == null
-                    || !(mCurrentMediaPlayer.isPrepared(getCurrentQuery())
-                    || mCurrentMediaPlayer.isPreparing(getCurrentQuery()))) {
+                    || !(mCurrentMediaPlayer.isPrepared(currentQuery)
+                    || mCurrentMediaPlayer.isPreparing(currentQuery))) {
                 prepareCurrentQuery();
             }
         }
@@ -630,18 +641,31 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(InfoSystem.ResultsEvent event) {
-        if (getCurrentEntry() != null && getCurrentQuery().getCacheKey()
+        Query currentQuery = mPlaybackManager.getCurrentQuery();
+        if (currentQuery != null && currentQuery.getCacheKey()
                 .equals(mCorrespondingRequestIds.get(event.mInfoRequestData.getRequestId()))) {
-            updateMediaMetadata();
-            EventBus.getDefault().post(new PlayingTrackChangedEvent());
+            mPlaybackManagerCallback.onCurrentEntryChanged();
         }
     }
 
     @SuppressWarnings("unused")
     public void onEvent(CollectionManager.UpdatedEvent event) {
-        if (event.mUpdatedItemIds != null && getCurrentQuery() != null
-                && event.mUpdatedItemIds.contains(getCurrentQuery().getCacheKey())) {
-            updateMediaMetadata();
+        Query currentQuery = mPlaybackManager.getCurrentQuery();
+        if (event.mUpdatedItemIds != null && currentQuery != null
+                && event.mUpdatedItemIds.contains(currentQuery.getCacheKey())) {
+            mPlaybackManagerCallback.onCurrentEntryChanged();
+        }
+    }
+
+    public static class RequestServiceBindingEvent {
+
+        private ServiceConnection mConnection;
+
+        private String mServicePackageName;
+
+        public RequestServiceBindingEvent(ServiceConnection connection, String servicePackageName) {
+            mConnection = connection;
+            mServicePackageName = servicePackageName;
         }
     }
 
@@ -650,24 +674,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         Intent intent = new Intent(event.mServicePackageName + ".BindToService");
         intent.setPackage(event.mServicePackageName);
         bindService(intent, event.mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(SetBitrateEvent event) {
-        setBitrate(event.mode);
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(StationPlaylist.StationPlayableEvent event) {
-        if (mPlaylist == event.mStationPlaylist) {
-            setCurrentEntry(mPlaylist.getEntryAtPos(0));
-            play();
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void onEvent(HeadsetPluggedInEvent event) {
-        play();
     }
 
     @Override
@@ -705,13 +711,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             @Override
             public void onLostAudioFocus(boolean canDuck) {
                 if (!canDuck) {
-                    pause();
+                    mMediaSessionCallback.onPause();
                 }
             }
         });
 
-        mPlaylist = Playlist.fromEmptyList(IdGenerator.getLifetimeUniqueStringId(), false, "");
-        mQueue = Playlist.fromEmptyList(IdGenerator.getLifetimeUniqueStringId(), false, "");
+        mPlaybackManager = PlaybackManager.get(
+                IdGenerator.getSessionUniqueStringId(), mPlaybackManagerCallback);
 
         initMediaSession();
 
@@ -728,7 +734,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         ComponentName componentName = new ComponentName(this, MediaButtonReceiver.class);
         mMediaSession = new MediaSessionCompat(
                 getApplicationContext(), "Tomahawk", componentName, null);
-        setSessionToken(mMediaSession.getSessionToken());
         mMediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS |
                 MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
         Intent intent = new Intent(PlaybackService.this, TomahawkMainActivity.class);
@@ -739,7 +744,11 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         mMediaSession.setSessionActivity(pendingIntent);
         mMediaSession.setCallback(mMediaSessionCallback);
         mMediaSession.setRatingType(RatingCompat.RATING_HEART);
+        Bundle extras = new Bundle();
+        extras.putString(EXTRAS_KEY_PLAYBACKMANAGER, mPlaybackManager.getId());
+        mMediaSession.setExtras(extras);
         updateMediaPlayState();
+        setSessionToken(mMediaSession.getSessionToken());
     }
 
     @Override
@@ -751,14 +760,14 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     @Override
     public IBinder onBind(Intent intent) {
         Log.d(TAG, "Client has been bound to PlaybackService");
-        return new PlaybackServiceBinder();
+        return super.onBind(intent);
     }
 
     @Nullable
     @Override
-    public BrowserRoot onGetRoot(@NonNull String clientPackageName,
-            int clientUid, @Nullable Bundle rootHints) {
-        return null;
+    public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid,
+            @Nullable Bundle rootHints) {
+        return new BrowserRoot("", null);
     }
 
     @Override
@@ -769,7 +778,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     @Override
     public boolean onUnbind(Intent intent) {
         Log.d(TAG, "Client has been unbound from PlaybackService");
-        return false;
+        return super.onUnbind(intent);
     }
 
     @Override
@@ -778,7 +787,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
         EventBus.getDefault().unregister(this);
 
-        pause(true);
+        mMediaSessionCallback.onPause();
+        mNotification.stopNotification();
         releaseAllPlayers();
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
@@ -816,103 +826,34 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     }
 
     /**
-     * Start or pause playback (Doesn't dismiss notification on pause)
-     */
-    public void playPause() {
-        playPause(false);
-    }
-
-    /**
-     * Start or pause playback.
-     *
-     * @param dismissNotificationOnPause if true, dismiss notification on pause, otherwise don't
-     */
-    public void playPause(boolean dismissNotificationOnPause) {
-        if (mPlayState == PlaybackStateCompat.STATE_PLAYING) {
-            pause(dismissNotificationOnPause);
-        } else if (mPlayState == PlaybackStateCompat.STATE_PAUSED) {
-            play();
-        }
-    }
-
-    /**
-     * Initial start of playback. Acquires wakelock and creates a notification
-     */
-    public void play() {
-        Log.d(TAG, "play");
-        if (getCurrentQuery() != null) {
-            if (!isNoisyReceiverRegistered) {
-                registerReceiver(mAudioBecomingNoisyReceiver,
-                        new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
-                isNoisyReceiverRegistered = true;
-            }
-            mSuicideHandler.stop();
-            mPluginServiceKillHandler.stop();
-            mScrobbleHandler.start();
-            mPlayState = PlaybackStateCompat.STATE_PLAYING;
-            EventBus.getDefault().post(new PlayStateChangedEvent());
-            handlePlayState();
-
-            mNotification.startNotification();
-            tryToGetAudioFocus();
-            updateMediaPlayState();
-        }
-    }
-
-    /**
-     * Pause playback. (Doesn't dismiss notification on pause)
-     */
-    public void pause() {
-        pause(false);
-    }
-
-    /**
-     * Pause playback.
-     *
-     * @param dismissNotificationOnPause if true, dismiss notification on pause, otherwise don't
-     */
-    public void pause(boolean dismissNotificationOnPause) {
-        Log.d(TAG, "pause, dismissing Notification:" + dismissNotificationOnPause);
-        if (isNoisyReceiverRegistered) {
-            unregisterReceiver(mAudioBecomingNoisyReceiver);
-            isNoisyReceiverRegistered = false;
-        }
-        mSuicideHandler.start();
-        mPluginServiceKillHandler.start();
-        mScrobbleHandler.stop();
-        mPlayState = PlaybackStateCompat.STATE_PAUSED;
-        EventBus.getDefault().post(new PlayStateChangedEvent());
-        handlePlayState();
-        if (dismissNotificationOnPause) {
-            mNotification.stopNotification();
-        }
-        updateMediaPlayState();
-    }
-
-    /**
      * Update the TomahawkMediaPlayer so that it reflects the current playState
      */
-    public void handlePlayState() {
+    private void handlePlayState() {
         Log.d(TAG, "handlePlayState");
-        if (!isPreparing() && getCurrentQuery() != null
-                && getCurrentQuery().getMediaPlayerClass() != null) {
+        Query currentQuery = mPlaybackManager.getCurrentQuery();
+        if (currentQuery != null && currentQuery.getMediaPlayerClass() != null) {
             try {
-                TomahawkMediaPlayer mp = mMediaPlayers.get(getCurrentQuery().getMediaPlayerClass());
+                TomahawkMediaPlayer mp = mMediaPlayers.get(currentQuery.getMediaPlayerClass());
                 switch (mPlayState) {
                     case PlaybackStateCompat.STATE_PLAYING:
+                        // The service needs to continue running even after the bound client
+                        // (usually a MediaController) disconnects, otherwise the music playback
+                        // will stop. Calling startService(Intent) will keep the service running
+                        // until it is explicitly killed.
+                        startService(new Intent(getApplicationContext(), PlaybackService.class));
                         if (mWakeLock != null && mWakeLock.isHeld()) {
                             mWakeLock.acquire();
                         }
-                        if (mp.isPrepared(getCurrentQuery())) {
-                            if (!mp.isPlaying(getCurrentQuery())) {
+                        if (mp.isPrepared(currentQuery)) {
+                            if (!mp.isPlaying(currentQuery)) {
                                 mp.start();
                             }
-                        } else if (!isPreparing()) {
+                        } else if (mPlayState != PlaybackStateCompat.STATE_BUFFERING) {
                             prepareCurrentQuery();
                         }
                         break;
                     case PlaybackStateCompat.STATE_PAUSED:
-                        if (mp.isPlaying(getCurrentQuery()) && mp.isPrepared(getCurrentQuery())) {
+                        if (mp.isPlaying(currentQuery) && mp.isPrepared(currentQuery)) {
                             InfoSystem.get().sendPlaybackEntryPostStruct(
                                     AuthenticatorManager.get().getAuthenticatorUtils(
                                             TomahawkApp.PLUGINNAME_HATCHET)
@@ -925,187 +866,15 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                         break;
                 }
             } catch (IllegalStateException e1) {
-                Log.e(TAG,
-                        "handlePlayState IllegalStateException, msg:" + e1.getLocalizedMessage()
-                                + " , preparing=" + isPreparing()
+                Log.e(TAG, "handlePlayState IllegalStateException, msg: "
+                        + e1.getLocalizedMessage() + " , isPreparing: "
+                        + (mPlayState == PlaybackStateCompat.STATE_BUFFERING)
                 );
             }
         } else {
-            Log.d(TAG, "handlePlayState couldn't do anything, isPreparing" + isPreparing());
+            Log.d(TAG, "handlePlayState couldn't do anything, isPreparing: "
+                    + (mPlayState == PlaybackStateCompat.STATE_BUFFERING));
         }
-    }
-
-    /**
-     * Start playing the next Track.
-     */
-    public void next() {
-        Log.d(TAG, "next");
-        int counter = 0;
-        PlaylistEntry entry = getNextEntry();
-        while (entry != null && counter++ < getPlaybackListSize()) {
-            setCurrentEntry(entry);
-            if (entry.getQuery().isPlayable()) {
-                break;
-            }
-            entry = getNextEntry(entry);
-        }
-    }
-
-    /**
-     * Play the previous track.
-     */
-    public void previous() {
-        Log.d(TAG, "previous");
-        int counter = 0;
-        PlaylistEntry entry = getPreviousEntry();
-        while (entry != null && counter++ < getPlaybackListSize()) {
-            if (entry.getQuery().isPlayable()) {
-                setCurrentEntry(entry);
-                break;
-            }
-            entry = getPreviousEntry(entry);
-        }
-    }
-
-    public boolean isShuffled() {
-        return mPlaylist.isShuffled();
-    }
-
-    /**
-     * Set whether or not to enable shuffle mode on the current playlist.
-     */
-    public void setShuffled(boolean shuffled) {
-        Log.d(TAG, "setShuffled from " + mPlaylist.isShuffled() + " to " + shuffled);
-        if (mPlaylist.isShuffled() != shuffled) {
-            boolean isPlayingFromQueue = mQueue.getIndexOfEntry(mCurrentEntry) >= 0;
-            int currentIndex = -1;
-            if (!isPlayingFromQueue) {
-                currentIndex = mPlaylist.getIndexOfEntry(mCurrentEntry);
-            }
-            int newCurrentIndex;
-            if (shuffled) {
-                newCurrentIndex = mPlaylist.setShuffled(true, currentIndex);
-            } else {
-                newCurrentIndex = mPlaylist.setShuffled(false, currentIndex);
-            }
-            mCurrentIndex = newCurrentIndex;
-            if (mQueue.size() > 0) {
-                mQueueStartPos = mCurrentIndex + 1;
-            } else {
-                mQueueStartPos = -1;
-            }
-            if (getCurrentEntry() != null) {
-                resolveQueriesFromTo(mCurrentIndex, mCurrentIndex + 10);
-            }
-
-            EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
-        }
-    }
-
-    public int getRepeatingMode() {
-        return mRepeatingMode;
-    }
-
-    /**
-     * Set the repeat mode on the current playlist.
-     */
-    public void setRepeatingMode(int repeatingMode) {
-        Log.d(TAG, "setRepeatingMode to " + repeatingMode);
-        mRepeatingMode = repeatingMode;
-        EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
-    }
-
-    /**
-     * Returns whether this PlaybackService is currently playing media.
-     */
-    public boolean isPlaying() {
-        return mPlayState == PlaybackStateCompat.STATE_PLAYING;
-    }
-
-    /**
-     * @return Whether or not the mediaPlayer currently prepares a track
-     */
-    public boolean isPreparing() {
-        if (getCurrentQuery() != null && getCurrentQuery().getMediaPlayerClass() != null) {
-            TomahawkMediaPlayer mp = mMediaPlayers.get(getCurrentQuery().getMediaPlayerClass());
-            return mp.isPreparing(getCurrentQuery());
-        }
-        return false;
-    }
-
-    /**
-     * Get the current PlaylistEntry
-     */
-    public PlaylistEntry getCurrentEntry() {
-        return mCurrentEntry;
-    }
-
-    public PlaylistEntry getNextEntry() {
-        return getNextEntry(mCurrentEntry);
-    }
-
-    public PlaylistEntry getNextEntry(PlaylistEntry entry) {
-        if (mRepeatingMode == REPEAT_ONE) {
-            return entry;
-        }
-        int index = getPlaybackListIndex(entry);
-        PlaylistEntry nextEntry = getPlaybackListEntry(index + 1);
-        if (nextEntry == null && mRepeatingMode == REPEAT_ALL) {
-            nextEntry = getPlaybackListEntry(0);
-        }
-        return nextEntry;
-    }
-
-    public boolean hasNextEntry() {
-        return hasNextEntry(mCurrentEntry);
-    }
-
-    public boolean hasNextEntry(PlaylistEntry entry) {
-        return mRepeatingMode == REPEAT_ONE || getNextEntry(entry) != null;
-    }
-
-    public PlaylistEntry getPreviousEntry() {
-        return getPreviousEntry(mCurrentEntry);
-    }
-
-    public PlaylistEntry getPreviousEntry(PlaylistEntry entry) {
-        if (mRepeatingMode == REPEAT_ONE) {
-            return entry;
-        }
-        int index = getPlaybackListIndex(entry);
-        PlaylistEntry previousEntry = getPlaybackListEntry(index - 1);
-        if (previousEntry == null && mRepeatingMode == REPEAT_ALL) {
-            previousEntry = getPlaybackListEntry(getPlaybackListSize() - 1);
-        }
-        return previousEntry;
-    }
-
-    public boolean hasPreviousEntry() {
-        return hasPreviousEntry(mCurrentEntry);
-    }
-
-    public boolean hasPreviousEntry(PlaylistEntry entry) {
-        return mRepeatingMode == REPEAT_ONE || getPreviousEntry(entry) != null;
-    }
-
-    /**
-     * Get the current Query
-     */
-    public Query getCurrentQuery() {
-        if (mCurrentEntry != null) {
-            return mCurrentEntry.getQuery();
-        }
-        return null;
-    }
-
-    /**
-     * @return the currently playing Track item (contains all necessary meta-data)
-     */
-    public Track getCurrentTrack() {
-        if (getCurrentQuery() != null) {
-            return getCurrentQuery().getPreferredTrack();
-        }
-        return null;
     }
 
     /**
@@ -1113,39 +882,43 @@ public class PlaybackService extends MediaBrowserServiceCompat {
      */
     private void prepareCurrentQuery() {
         Log.d(TAG, "prepareCurrentQuery");
-        if (getCurrentQuery() != null) {
-            if (getCurrentQuery().isPlayable()) {
-                if (getCurrentQuery().getImage() == null) {
+        final Query currentQuery = mPlaybackManager.getCurrentQuery();
+        if (currentQuery != null) {
+            if (currentQuery.isPlayable()) {
+                if (currentQuery.getImage() == null) {
                     String requestId = InfoSystem.get().resolve(
-                            getCurrentQuery().getArtist(), false);
+                            currentQuery.getArtist(), false);
                     if (requestId != null) {
-                        mCorrespondingRequestIds.put(requestId, getCurrentQuery().getCacheKey());
+                        mCorrespondingRequestIds.put(requestId, currentQuery.getCacheKey());
                     }
-                    requestId = InfoSystem.get().resolve(getCurrentQuery().getAlbum());
+                    requestId = InfoSystem.get().resolve(currentQuery.getAlbum());
                     if (requestId != null) {
-                        mCorrespondingRequestIds.put(requestId, getCurrentQuery().getCacheKey());
+                        mCorrespondingRequestIds.put(requestId, currentQuery.getCacheKey());
                     }
                 }
 
                 TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_PLAYBACK) {
                     @Override
                     public void run() {
-                        if (isPlaying() && getCurrentQuery().getMediaPlayerClass() != null) {
+                        if (mPlayState == PlaybackStateCompat.STATE_PLAYING
+                                && currentQuery.getMediaPlayerClass() != null) {
                             TomahawkMediaPlayer mp =
-                                    mMediaPlayers.get(getCurrentQuery().getMediaPlayerClass());
-                            if (mp.prepare(getCurrentQuery(), mMediaPlayerCallback) == null) {
-                                boolean isNetworkAvailable = isNetworkAvailable();
+                                    mMediaPlayers.get(currentQuery.getMediaPlayerClass());
+                            mPlayState = PlaybackStateCompat.STATE_BUFFERING;
+                            updateMediaPlayState();
+                            if (mp.prepare(currentQuery, mMediaPlayerCallback) == null) {
+                                boolean isNetworkAvailable = NetworkUtils.isNetworkAvailable();
                                 if (isNetworkAvailable
-                                        && getCurrentQuery().getPreferredTrackResult() != null) {
-                                    getCurrentQuery().blacklistTrackResult(
-                                            getCurrentQuery().getPreferredTrackResult());
-                                    EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
+                                        && currentQuery.getPreferredTrackResult() != null) {
+                                    currentQuery.blacklistTrackResult(
+                                            currentQuery.getPreferredTrackResult());
+                                    mPlaybackManagerCallback.onCurrentEntryChanged();
                                 }
                                 if (!isNetworkAvailable
-                                        || getCurrentQuery().getPreferredTrackResult() == null) {
+                                        || currentQuery.getPreferredTrackResult() == null) {
                                     Log.e(TAG,
                                             "MediaPlayer was unable to prepare the track, jumping to next track");
-                                    next();
+                                    mMediaSessionCallback.onSkipToNext();
                                 } else {
                                     Log.d(TAG,
                                             "MediaPlayer blacklisted a result and tries to prepare again");
@@ -1159,81 +932,59 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 };
                 ThreadManager.get().executePlayback(r);
             } else {
-                next();
+                mMediaSessionCallback.onSkipToNext();
             }
         }
     }
 
-    public void setCurrentEntry(PlaylistEntry entry) {
+    private void setCurrentEntry(PlaylistEntry entry) {
         Log.d(TAG, "setCurrentEntry to " + entry.getId());
         releaseAllPlayers();
-        if (mCurrentEntry != null) {
-            deleteQueryInQueue(mCurrentEntry);
+        final PlaylistEntry currentEntry = mPlaybackManager.getCurrentEntry();
+        if (currentEntry != null) {
+            mPlaybackManager.deleteFromQueue(currentEntry);
         }
-        mCurrentEntry = entry;
-        mCurrentIndex = getPlaybackListIndex(mCurrentEntry);
+        mPlaybackManager.setCurrentEntry(entry);
         handlePlayState();
-        EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
-        onTrackChanged();
-        if (mPlaylist instanceof StationPlaylist && !hasNextEntry(getNextEntry())) {
-            ((StationPlaylist) mPlaylist).fillPlaylist(false);
+        Playlist currentPlaylist = mPlaybackManager.getPlaylist();
+        if (currentPlaylist instanceof StationPlaylist
+                && !mPlaybackManager.hasNextEntry(mPlaybackManager.getNextEntry())) {
+            ((StationPlaylist) currentPlaylist).fillPlaylist(false)
+                    .done(new DoneCallback<List<Query>>() {
+                        @Override
+                        public void onDone(List<Query> result) {
+                            for (Query query : result) {
+                                mCorrespondingQueries.add(query);
+                                PipeLine.get().resolve(query);
+                            }
+                        }
+                    });
         }
-    }
-
-    private void onTrackChanged() {
-        Log.d(TAG, "onTrackChanged");
-        EventBus.getDefault().post(new PlayingTrackChangedEvent());
-        if (getCurrentEntry() != null) {
-            resolveQueriesFromTo(mCurrentIndex, mCurrentIndex - 2 + 10);
-            updateMediaMetadata();
-        }
-    }
-
-    /**
-     * @return whether or not wi-fi is available
-     */
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(
-                Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
-    }
-
-    /**
-     * Get the current Playlist
-     */
-    public Playlist getPlaylist() {
-        return mPlaylist;
-    }
-
-    /**
-     * Get the current Queue
-     */
-    public Playlist getQueue() {
-        return mQueue;
     }
 
     /**
      * Set the current Playlist to playlist and set the current Track to the Playlist's current
      * Track.
      */
-    public void setPlaylist(StationPlaylist stationPlaylist) {
+    private void setPlaylist(StationPlaylist stationPlaylist) {
         Log.d(TAG, "setPlaylist - StationPlaylist");
         stationPlaylist.setPlayedTimeStamp(System.currentTimeMillis());
         DatabaseHelper.get().storeStation(stationPlaylist);
         releaseAllPlayers();
-        mRepeatingMode = NOT_REPEATING;
-        mPlaylist = stationPlaylist;
         int size = stationPlaylist.size();
         if (size > 0) {
-            setCurrentEntry(stationPlaylist.getEntryAtPos(size - 1));
+            mPlaybackManager.setPlaylist(stationPlaylist, stationPlaylist.getEntryAtPos(size - 1));
         } else {
-            stationPlaylist.fillPlaylist(true);
-        }
-        if (mQueue.size() > 0) {
-            mQueueStartPos = mCurrentIndex + 1;
-        } else {
-            mQueueStartPos = -1;
+            mPlaybackManager.setPlaylist(stationPlaylist);
+            stationPlaylist.fillPlaylist(true).done(new DoneCallback<List<Query>>() {
+                @Override
+                public void onDone(List<Query> result) {
+                    for (Query query : result) {
+                        mCorrespondingQueries.add(query);
+                        PipeLine.get().resolve(query);
+                    }
+                }
+            });
         }
     }
 
@@ -1241,137 +992,32 @@ public class PlaybackService extends MediaBrowserServiceCompat {
      * Set the current Playlist to playlist and set the current Track to the Playlist's current
      * Track.
      */
-    public void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
+    private void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
         Log.d(TAG, "setPlaylist - Playlist");
         releaseAllPlayers();
-        mRepeatingMode = NOT_REPEATING;
-        mPlaylist = playlist;
-        setCurrentEntry(currentEntry);
-        if (mQueue.size() > 0) {
-            mQueueStartPos = mCurrentIndex + 1;
-        } else {
-            mQueueStartPos = -1;
-        }
+        mPlaybackManager.setPlaylist(playlist, currentEntry);
     }
 
-    public int getQueueStartPos() {
-        return mQueueStartPos;
-    }
-
-    /**
-     * @param position int containing the position in the current playback list
-     * @return the {@link PlaylistEntry} which has been found at the given position
-     */
-    public PlaylistEntry getPlaybackListEntry(int position) {
-        if (position < mQueueStartPos) {
-            // The requested entry is positioned before the queue
-            return mPlaylist.getEntryAtPos(position);
-        } else {
-            if (position < mQueueStartPos + mQueue.size()) {
-                // Getting the entry from the queue
-                return mQueue.getEntryAtPos(position - mQueueStartPos);
-            } else {
-                // The requested entry is positioned after the queue
-                return mPlaylist.getEntryAtPos(position - mQueue.size());
-            }
-        }
-    }
-
-    /**
-     * @param entry The {@link PlaylistEntry} to get the index for
-     * @return an int containing the index of the given {@link PlaylistEntry} inside the current
-     * playback list
-     */
-    public int getPlaybackListIndex(PlaylistEntry entry) {
-        int index = mQueue.getIndexOfEntry(entry);
-        if (index >= 0) {
-            // Found entry in queue
-            return index + mQueueStartPos;
-        } else {
-            index = mPlaylist.getIndexOfEntry(entry);
-            if (index < 0) {
-                Log.e(TAG,
-                        "getPlaybackListIndex - Couldn't find given entry in mQueue or mPlaylist.");
-                return -1;
-            }
-            if (index < mQueueStartPos) {
-                // Found entry and its positioned before the queue
-                return index;
-            } else {
-                // Found entry and its positioned after the queue
-                return index + mQueue.size();
-            }
-        }
-    }
-
-    public int getPlaybackListSize() {
-        return mQueue.size() + mPlaylist.size();
-    }
-
-    /**
-     * Add given {@link org.tomahawk.libtomahawk.resolver.Query} to the Queue
-     */
-    public void addQueryToQueue(Query query) {
-        Log.d(TAG, "addQueryToQueue " + query.getName());
-        if (mQueue.size() == 0) {
-            mQueueStartPos = mCurrentIndex + 1;
-        }
-        mQueue.addQuery(0, query);
-        if (getCurrentEntry() == null) {
-            setCurrentEntry(getPlaybackListEntry(0));
-        } else {
-            EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
-            onTrackChanged();
-        }
-    }
-
-    /**
-     * Add given {@link List} of {@link org.tomahawk.libtomahawk.resolver.Query}s to the Queue
-     */
-    public void addQueriesToQueue(List<Query> queries) {
-        Log.d(TAG, "addQueriesToQueue count: " + queries.size());
-        for (Query query : queries) {
-            addQueryToQueue(query);
-        }
-    }
-
-    public void deleteQueryInQueue(PlaylistEntry entry) {
-        Log.d(TAG, "deleteQueryInQueue");
-        if (mQueue.deleteEntry(entry)) {
-            EventBus.getDefault().post(new PlayingPlaylistChangedEvent());
-            onTrackChanged();
+    private void releaseAllPlayers() {
+        for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
+            mp.release();
         }
     }
 
     /**
      * Returns the position of playback in the current Track.
      */
-    public int getPosition() {
-        int position = 0;
-        if (getCurrentQuery() != null && getCurrentQuery().getMediaPlayerClass() != null) {
+    private long getPlaybackPosition() {
+        long position = 0;
+        final Query currentQuery = mPlaybackManager.getCurrentQuery();
+        if (currentQuery != null && currentQuery.getMediaPlayerClass() != null) {
             try {
-                TomahawkMediaPlayer mp =
-                        mMediaPlayers.get(getCurrentQuery().getMediaPlayerClass());
-                position = mp.getPosition();
+                position = mMediaPlayers.get(currentQuery.getMediaPlayerClass()).getPosition();
             } catch (IllegalStateException e) {
-                Log.e(TAG, "getPosition: " + e.getClass() + ": " + e.getLocalizedMessage());
+                Log.e(TAG, "getPlaybackPosition: " + e.getClass() + ": " + e.getLocalizedMessage());
             }
         }
         return position;
-    }
-
-    /**
-     * Seeks to position msec
-     */
-    public void seekTo(int msec) {
-        Log.d(TAG, "seekTo " + msec);
-        if (getCurrentQuery() != null && getCurrentQuery().getMediaPlayerClass() != null) {
-            TomahawkMediaPlayer mp =
-                    mMediaPlayers.get(getCurrentQuery().getMediaPlayerClass());
-            if (mp.isPrepared(getCurrentQuery())) {
-                mp.seekTo(msec);
-            }
-        }
     }
 
     /**
@@ -1384,73 +1030,38 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             Log.e(TAG, "updateMediaMetadata failed - mMediaSession == null!");
             return;
         }
+
         updateMediaPlayState();
         mMediaSession.setActive(true);
 
         mMediaSession.setMetadata(buildMetadata());
         Log.d(TAG, "Setting lockscreen metadata to: "
-                + getCurrentQuery().getArtist().getPrettyName() + ", "
-                + getCurrentQuery().getPrettyName());
-
-        mMediaSession.setQueue(buildQueue());
-        if (mPlaylist != null) {
-            mMediaSession.setQueueTitle(mPlaylist.getName());
-        }
-    }
-
-    public void updateMediaPlayState() {
-        if (mMediaSession == null) {
-            Log.e(TAG, "updateMediaPlayState failed - mMediaSession == null!");
-            return;
-        }
-        long actions = PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID;
-        if (getCurrentQuery() != null) {
-            actions |= PlaybackStateCompat.ACTION_SET_RATING |
-                    PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM;
-        }
-        if (isPlaying()) {
-            actions |= PlaybackStateCompat.ACTION_PAUSE |
-                    PlaybackStateCompat.ACTION_SEEK_TO |
-                    PlaybackStateCompat.ACTION_FAST_FORWARD |
-                    PlaybackStateCompat.ACTION_REWIND;
-        } else {
-            actions |= PlaybackStateCompat.ACTION_PLAY;
-        }
-        if (hasNextEntry()) {
-            actions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
-        }
-        if (hasPreviousEntry()) {
-            actions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
-        }
-        Log.d(TAG, "updateMediaPlayState()");
-        PlaybackStateCompat playbackStateCompat = new PlaybackStateCompat.Builder()
-                .setActions(actions)
-                .setState(mPlayState, getPosition(), 1f, SystemClock.elapsedRealtime())
-                .build();
-        mMediaSession.setPlaybackState(playbackStateCompat);
+                + mPlaybackManager.getCurrentQuery().getArtist().getPrettyName() + ", "
+                + mPlaybackManager.getCurrentQuery().getPrettyName());
     }
 
     private MediaMetadataCompat buildMetadata() {
+        final Query currentQuery = mPlaybackManager.getCurrentQuery();
         MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
                 .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID,
-                        getCurrentEntry().getCacheKey())
+                        mPlaybackManager.getCurrentEntry().getCacheKey())
                 .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST,
-                        getCurrentQuery().getArtist().getPrettyName())
+                        currentQuery.getArtist().getPrettyName())
                 .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,
-                        getCurrentQuery().getArtist().getPrettyName())
+                        currentQuery.getArtist().getPrettyName())
                 .putString(MediaMetadataCompat.METADATA_KEY_TITLE,
-                        getCurrentQuery().getPrettyName())
+                        currentQuery.getPrettyName())
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
-                        getCurrentQuery().getPreferredTrack().getDuration())
+                        currentQuery.getPreferredTrack().getDuration())
                 .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING,
                         RatingCompat.newHeartRating(
-                                DatabaseHelper.get().isItemLoved(getCurrentQuery())));
+                                DatabaseHelper.get().isItemLoved(currentQuery)));
         Bitmap bitmap;
-        if (getCurrentQuery().getImage() == null) {
+        if (currentQuery.getImage() == null) {
             bitmap =
                     BitmapFactory.decodeResource(getResources(), R.drawable.album_placeholder_grid);
         } else {
-            bitmap = mMediaImageCache.get(getCurrentQuery().getImage());
+            bitmap = mMediaImageCache.get(currentQuery.getImage());
         }
         if (bitmap == null) {
             bitmap =
@@ -1459,31 +1070,76 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 @Override
                 public void run() {
                     if (mMediaImageTarget == null
-                            || mMediaImageTarget.mImageToLoad != getCurrentQuery().getImage()) {
-                        mMediaImageTarget = new MediaImageTarget(getCurrentQuery().getImage());
+                            || mMediaImageTarget.mImageToLoad != currentQuery.getImage()) {
+                        mMediaImageTarget = new MediaImageTarget(currentQuery.getImage());
                         ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
-                                getCurrentQuery().getImage(), mMediaImageTarget,
-                                Image.getLargeImageSize(), getCurrentQuery().hasArtistImage());
+                                currentQuery.getImage(), mMediaImageTarget,
+                                Image.getLargeImageSize(), currentQuery.hasArtistImage());
                     }
                 }
             });
         }
         builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
-        if (!TextUtils.isEmpty(getCurrentQuery().getAlbum().getPrettyName())) {
+        if (!TextUtils.isEmpty(currentQuery.getAlbum().getPrettyName())) {
             builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM,
-                    getCurrentQuery().getAlbum().getPrettyName());
+                    currentQuery.getAlbum().getPrettyName());
         }
         return builder.build();
     }
 
+    private void updateMediaPlayState() {
+        if (mMediaSession == null) {
+            Log.e(TAG, "updateMediaPlayState failed - mMediaSession == null!");
+            return;
+        }
+        long actions = 0L;
+        if (mPlaybackManager.getCurrentQuery() != null) {
+            actions |= PlaybackStateCompat.ACTION_SET_RATING;
+        }
+        if (mPlayState == PlaybackStateCompat.STATE_PLAYING) {
+            actions |= PlaybackStateCompat.ACTION_PAUSE |
+                    PlaybackStateCompat.ACTION_SEEK_TO |
+                    PlaybackStateCompat.ACTION_FAST_FORWARD |
+                    PlaybackStateCompat.ACTION_REWIND;
+        } else {
+            actions |= PlaybackStateCompat.ACTION_PLAY;
+        }
+        if (mPlaybackManager.hasNextEntry()) {
+            actions |= PlaybackStateCompat.ACTION_SKIP_TO_NEXT;
+        }
+        if (mPlaybackManager.hasPreviousEntry()) {
+            actions |= PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
+        }
+        Log.d(TAG, "updateMediaPlayState()");
+        Bundle extras = new Bundle();
+        extras.putInt(EXTRAS_KEY_REPEAT_MODE, mPlaybackManager.getRepeatMode());
+        extras.putInt(EXTRAS_KEY_SHUFFLE_MODE, mPlaybackManager.getShuffleMode());
+        PlaybackStateCompat playbackStateCompat = new PlaybackStateCompat.Builder()
+                .setActions(actions)
+                .setState(mPlayState, getPlaybackPosition(), 1f, SystemClock.elapsedRealtime())
+                .setExtras(extras)
+                .build();
+        mMediaSession.setPlaybackState(playbackStateCompat);
+    }
+
+    private void updateMediaQueue() {
+        if (mMediaSession == null) {
+            Log.e(TAG, "updateMediaQueue failed - mMediaSession == null!");
+            return;
+        }
+        updateMediaMetadata();
+        mMediaSession.setQueue(buildQueue());
+        mMediaSession.setQueueTitle(getString(R.string.mediabrowser_queue_title));
+    }
+
     private List<MediaSessionCompat.QueueItem> buildQueue() {
         List<MediaSessionCompat.QueueItem> queue = null;
-        if (mPlaylist != null) {
+        if (mPlaybackManager.getPlaylist() != null) {
             queue = new ArrayList<>();
-            int currentIndex = getPlaybackListIndex(getCurrentEntry());
+            int currentIndex = mPlaybackManager.getCurrentIndex();
             for (int i = Math.max(0, currentIndex - 10);
-                    i < Math.min(getPlaybackListSize(), currentIndex + 40); i++) {
-                PlaylistEntry entry = getPlaybackListEntry(i);
+                    i < Math.min(mPlaybackManager.getPlaybackListSize(), currentIndex + 40); i++) {
+                PlaylistEntry entry = mPlaybackManager.getPlaybackListEntry(i);
                 MediaDescriptionCompat.Builder descBuilder = new MediaDescriptionCompat.Builder();
                 descBuilder.setMediaId(entry.getCacheKey());
                 descBuilder.setTitle(entry.getQuery().getPrettyName());
@@ -1496,28 +1152,15 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         return queue;
     }
 
-    void tryToGetAudioFocus() {
-        if (mAudioFocus != AudioFocus.Focused && mAudioFocusHelper != null
-                && mAudioFocusHelper.requestFocus()) {
-            mAudioFocus = AudioFocus.Focused;
-        }
-    }
-
-    void giveUpAudioFocus() {
-        if (mAudioFocus == AudioFocus.Focused && mAudioFocusHelper != null
-                && mAudioFocusHelper.abandonFocus()) {
-            mAudioFocus = AudioFocus.NoFocusNoDuck;
-        }
-    }
-
-    private void resolveQueriesFromTo(int start, int end) {
+    private void resolveProximalQueries() {
         Set<Query> qs = new HashSet<>();
+        int start = Math.max(0, mPlaybackManager.getCurrentIndex() - 2);
+        int end = Math.min(mPlaybackManager.getPlaybackListSize(),
+                mPlaybackManager.getCurrentIndex() + 10);
         for (int i = start; i < end; i++) {
-            if (i >= 0 && i < getPlaybackListSize()) {
-                Query q = getPlaybackListEntry(i).getQuery();
-                if (!mCorrespondingQueries.contains(q)) {
-                    qs.add(q);
-                }
+            Query q = mPlaybackManager.getPlaybackListEntry(i).getQuery();
+            if (!mCorrespondingQueries.contains(q)) {
+                qs.add(q);
             }
         }
         if (!qs.isEmpty()) {
@@ -1526,13 +1169,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         }
     }
 
-    private void releaseAllPlayers() {
-        for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
-            mp.release();
-        }
-    }
-
-    public void setBitrate(int mode) {
+    private void setBitrate(int mode) {
         for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
             mp.setBitrate(mode);
         }

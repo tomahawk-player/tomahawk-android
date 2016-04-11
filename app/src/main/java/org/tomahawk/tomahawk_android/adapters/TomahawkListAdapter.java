@@ -40,10 +40,13 @@ import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.views.BiDirectionalFrame;
 
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -77,8 +80,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
     private final MultiColumnClickListener mClickListener;
 
     private final LayoutInflater mLayoutInflater;
-
-    private boolean mShowPlaystate = false;
 
     private PlaylistEntry mHighlightedPlaylistEntry;
 
@@ -177,14 +178,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         updateFooterSpacerHeight(listView);
     }
 
-    /**
-     * Set whether or not to highlight the currently playing {@link Query} and show the play/pause
-     * state
-     */
-    public void setShowPlaystate(boolean showPlaystate) {
-        this.mShowPlaystate = showPlaystate;
-    }
-
     public void setHighlightedItemIsPlaying(boolean highlightedItemIsPlaying) {
         mHighlightedItemIsPlaying = highlightedItemIsPlaying;
     }
@@ -223,13 +216,13 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
         boolean shouldBeHighlighted = false;
         if (o instanceof SocialAction) {
-            shouldBeHighlighted = mShowPlaystate && mHighlightedQuery != null
+            shouldBeHighlighted = mHighlightedQuery != null
                     && ((SocialAction) o).getQuery() == mHighlightedQuery;
         } else if (o instanceof PlaylistEntry) {
-            shouldBeHighlighted = mShowPlaystate && mHighlightedPlaylistEntry != null
+            shouldBeHighlighted = mHighlightedPlaylistEntry != null
                     && o == mHighlightedPlaylistEntry;
         } else if (o instanceof Query) {
-            shouldBeHighlighted = mShowPlaystate && mHighlightedQuery != null
+            shouldBeHighlighted = mHighlightedQuery != null
                     && o == mHighlightedQuery;
         }
 
@@ -462,7 +455,13 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                             swipeButtonListener = new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    mActivity.getPlaybackService().deleteQueryInQueue(entry);
+                                    Bundle extras = new Bundle();
+                                    extras.putString(TomahawkFragment.PLAYLISTENTRY,
+                                            entry.getCacheKey());
+                                    mActivity.getSupportMediaController().getTransportControls()
+                                            .sendCustomAction(
+                                                    PlaybackService.ACTION_DELETE_ENTRY_IN_QUEUE,
+                                                    extras);
                                     closeAllItems();
                                 }
                             };
@@ -470,7 +469,12 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                             swipeButtonListener = new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    mActivity.getPlaybackService().addQueryToQueue(query);
+                                    Bundle extras = new Bundle();
+                                    extras.putString(TomahawkFragment.QUERY, query.getCacheKey());
+                                    mActivity.getSupportMediaController().getTransportControls()
+                                            .sendCustomAction(
+                                                    PlaybackService.ACTION_ADD_QUERY_TO_QUEUE,
+                                                    extras);
                                     SharedPreferences preferences = PreferenceManager
                                             .getDefaultSharedPreferences(TomahawkApp.getContext());
                                     preferences.edit().putBoolean(
@@ -820,7 +824,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         mItemManager.setMode(mode);
     }
 
-    public void onPlayPositionChanged(long duration, int currentPosition) {
+    public void onPlayPositionChanged(long duration, long currentPosition) {
         if (mProgressBar != null) {
             mProgressBar.setProgress(
                     (int) ((float) currentPosition / duration * mProgressBar.getMax()));

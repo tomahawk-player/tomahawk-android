@@ -41,6 +41,7 @@ import org.tomahawk.tomahawk_android.adapters.ViewHolder;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.OnSizeChangedListener;
+import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PageIndicator;
 
@@ -50,6 +51,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
+import android.support.v4.media.session.MediaControllerCompat;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -61,6 +63,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import de.greenrobot.event.EventBus;
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 public class ContentHeaderFragment extends Fragment {
@@ -130,6 +133,11 @@ public class ContentHeaderFragment extends Fragment {
         public int mReceiverFragmentPage;
     }
 
+    public static class MediaControllerConnectedEvent {
+
+        public MediaControllerCompat mMediaController;
+    }
+
     private final SparseArray<ValueAnimator> mAnimators = new SparseArray<>();
 
     protected boolean mShowFakeFollowing = false;
@@ -153,6 +161,19 @@ public class ContentHeaderFragment extends Fragment {
     protected Collection mCollection;
 
     protected boolean mHideRemoveButton;
+
+    private MediaControllerCompat mMediaController;
+
+    private PlaybackManager mPlaybackManager;
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(MediaControllerConnectedEvent event) {
+        mMediaController = event.mMediaController;
+        String playbackManagerId = event.mMediaController.getExtras()
+                .getString(PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
+        mPlaybackManager = PlaybackManager.getByKey(playbackManagerId);
+        onMediaControllerConnected();
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -213,6 +234,13 @@ public class ContentHeaderFragment extends Fragment {
                         TomahawkFragment.CONTAINER_FRAGMENT_PAGE);
             }
         }
+
+        mMediaController = getActivity().getSupportMediaController();
+        if (mMediaController != null) {
+            String playbackManagerId = mMediaController.getExtras().getString(
+                    PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
+            mPlaybackManager = PlaybackManager.getByKey(playbackManagerId);
+        }
     }
 
     @Override
@@ -241,6 +269,31 @@ public class ContentHeaderFragment extends Fragment {
         super.onPause();
 
         ((TomahawkMainActivity) getActivity()).showGradientActionBar();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+
+        super.onStop();
+    }
+
+    protected void onMediaControllerConnected() {
+    }
+
+    public MediaControllerCompat getMediaController() {
+        return mMediaController;
+    }
+
+    public PlaybackManager getPlaybackManager() {
+        return mPlaybackManager;
     }
 
     public boolean isDynamicHeader() {
@@ -331,36 +384,41 @@ public class ContentHeaderFragment extends Fragment {
             ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
             imageView.setImageDrawable((ColorDrawable) item);
         } else if (mHeaderScrollableHeight > 0) {
-            View.OnClickListener moreButtonListener = new View.OnClickListener() {
+            View moreButton = getView().findViewById(R.id.more_button);
+            moreButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
                             mCollection.getId(), false, mHideRemoveButton);
                 }
-            };
+            });
+
             if (item instanceof Album) {
                 View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
                 v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
                 ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
                 ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
                         ((Album) item).getImage(), Image.getLargeImageSize(), false);
-                View moreButton = getView().findViewById(R.id.more_button);
-                moreButton.setOnClickListener(moreButtonListener);
                 View stationButton = getView().findViewById(R.id.station_button);
                 stationButton.setVisibility(View.VISIBLE);
                 stationButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        PlaybackService playbackService =
-                                ((TomahawkMainActivity) getActivity()).getPlaybackService();
-                        if (playbackService != null) {
-                            if (item != playbackService.getPlaylist()) {
+                        MediaControllerCompat controller =
+                                getActivity().getSupportMediaController();
+                        if (controller != null) {
+                            if (item != getPlaybackManager().getPlaylist()) {
                                 List<Artist> artists = new ArrayList<>();
                                 artists.add(((Album) item).getArtist());
                                 StationPlaylist stationPlaylist =
                                         StationPlaylist.get(artists, null, null);
-                                playbackService.setPlaylist(stationPlaylist);
-                                playbackService.play();
+                                Bundle extras = new Bundle();
+                                extras.putString(TomahawkFragment.PLAYLIST,
+                                        stationPlaylist.getCacheKey());
+                                controller.getTransportControls()
+                                        .sendCustomAction(PlaybackService.ACTION_SET_PLAYLIST,
+                                                extras);
+                                controller.getTransportControls().play();
                             }
                         }
                     }
@@ -371,23 +429,26 @@ public class ContentHeaderFragment extends Fragment {
                 ImageView imageView = (ImageView) v.findViewById(R.id.imageview1);
                 ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
                         ((Artist) item).getImage(), Image.getLargeImageSize(), true);
-                View moreButton = getView().findViewById(R.id.more_button);
-                moreButton.setOnClickListener(moreButtonListener);
                 View stationButton = getView().findViewById(R.id.station_button);
                 stationButton.setVisibility(View.VISIBLE);
                 stationButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        PlaybackService playbackService =
-                                ((TomahawkMainActivity) getActivity()).getPlaybackService();
-                        if (playbackService != null) {
-                            if (item != playbackService.getPlaylist()) {
+                        MediaControllerCompat controller =
+                                getActivity().getSupportMediaController();
+                        if (controller != null) {
+                            if (item != getPlaybackManager().getPlaylist()) {
                                 List<Artist> artists = new ArrayList<>();
                                 artists.add((Artist) item);
                                 StationPlaylist stationPlaylist =
                                         StationPlaylist.get(artists, null, null);
-                                playbackService.setPlaylist(stationPlaylist);
-                                playbackService.play();
+                                Bundle extras = new Bundle();
+                                extras.putString(TomahawkFragment.PLAYLIST,
+                                        stationPlaylist.getCacheKey());
+                                controller.getTransportControls()
+                                        .sendCustomAction(PlaybackService.ACTION_SET_PLAYLIST,
+                                                extras);
+                                controller.getTransportControls().play();
                             }
                         }
                     }
@@ -395,8 +456,6 @@ public class ContentHeaderFragment extends Fragment {
             } else if (item instanceof Playlist) {
                 ViewHolder.fillView(getView(), (Playlist) item,
                         mHeaderNonscrollableHeight + mHeaderScrollableHeight, isPagerFragment);
-                View moreButton = getView().findViewById(R.id.more_button);
-                moreButton.setOnClickListener(moreButtonListener);
             } else if (item instanceof Query) {
                 View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
                 v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;
@@ -404,8 +463,6 @@ public class ContentHeaderFragment extends Fragment {
                 ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView,
                         ((Query) item).getImage(), Image.getLargeImageSize(),
                         ((Query) item).hasArtistImage());
-                View moreButton = getView().findViewById(R.id.more_button);
-                moreButton.setOnClickListener(moreButtonListener);
             }
         } else {
             if (item == null) {

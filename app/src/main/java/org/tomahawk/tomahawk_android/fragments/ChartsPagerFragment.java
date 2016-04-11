@@ -139,8 +139,7 @@ public class ChartsPagerFragment extends PagerFragment {
                                 fragmentInfo.mClass = PlaylistEntriesFragment.class;
                                 Playlist pl = Playlist.get(
                                         provider.getScriptAccount().getMetaData().pluginName
-                                                + CHARTS_PLAYLIST_SUFFX + types.get(i).second,
-                                        false);
+                                                + CHARTS_PLAYLIST_SUFFX + types.get(i).second);
                                 pl.setFilled(true);
                                 pl.clear();
                                 for (JsonObject rawTrack : chartsResult.results) {

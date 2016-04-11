@@ -50,8 +50,6 @@ import android.util.Log;
 
 import java.util.List;
 
-import de.greenrobot.event.EventBus;
-
 public class MicroService extends Service {
 
     private static final String TAG = MicroService.class.getSimpleName();
@@ -101,7 +99,6 @@ public class MicroService extends Service {
                     //resume playback, if user has set the "resume on headset plugin" preference
                     context.startService(new Intent(PlaybackService.ACTION_PLAY, null, context,
                             PlaybackService.class));
-                    EventBus.getDefault().post(new PlaybackService.HeadsetPluggedInEvent());
                 }
             }
         }

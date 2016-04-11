@@ -62,8 +62,6 @@ import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.WelcomeFragment;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
-import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection;
-import org.tomahawk.tomahawk_android.services.PlaybackService.PlaybackServiceConnection.PlaybackServiceConnectionListener;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
@@ -72,12 +70,12 @@ import org.tomahawk.tomahawk_android.utils.PluginUtils;
 import org.tomahawk.tomahawk_android.utils.SearchViewStyle;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
-import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.accounts.AccountManager;
 import android.animation.Animator;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -93,10 +91,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.Message;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.MediaSessionCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -152,19 +156,51 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     protected final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
-    private final PlaybackServiceConnection mPlaybackServiceConnection
-            = new PlaybackServiceConnection(new PlaybackServiceConnectionListener() {
+    private MediaBrowserCompat mMediaBrowser;
+
+    private final MediaBrowserCompat.ConnectionCallback mConnectionCallback =
+            new MediaBrowserCompat.ConnectionCallback() {
+                @Override
+                public void onConnected() {
+                    Log.d(TAG, "MediaBrowser connected");
+                    try {
+                        MediaControllerCompat mediaController = new MediaControllerCompat(
+                                TomahawkMainActivity.this, mMediaBrowser.getSessionToken());
+                        setSupportMediaController(mediaController);
+                        mediaController.registerCallback(mMediaCallback);
+                        mPlaybackPanel.setMediaController(mediaController);
+                        ContentHeaderFragment.MediaControllerConnectedEvent event
+                                = new ContentHeaderFragment.MediaControllerConnectedEvent();
+                        EventBus.getDefault().post(event);
+                    } catch (RemoteException e) {
+                        Log.e(TAG, "could not connect media controller: ", e);
+                    }
+                }
+            };
+
+    private final MediaControllerCompat.Callback mMediaCallback
+            = new MediaControllerCompat.Callback() {
         @Override
-        public void setPlaybackService(PlaybackService ps) {
-            mPlaybackService = ps;
-            if (mPlaybackService != null) {
-                EventBus.getDefault().post(new PlaybackService.ReadyEvent());
-                mPlaybackPanel.update(mPlaybackService);
+        public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
+            Log.d(TAG, "onPlaybackstate changed" + state);
+            mPlaybackPanel.updatePlaybackState(state);
+            if (state.getState() == PlaybackStateCompat.STATE_PLAYING) {
+                showPanel();
             }
         }
-    });
 
-    private PlaybackService mPlaybackService;
+        @Override
+        public void onMetadataChanged(MediaMetadataCompat metadata) {
+            if (metadata != null) {
+                Log.d(TAG, "onMetadataChanged changed" + metadata);
+                mPlaybackPanel.updateMetadata(metadata);
+            }
+        }
+
+        @Override
+        public void onQueueChanged(List<MediaSessionCompat.QueueItem> queue) {
+        }
+    };
 
     private MenuItem mSearchItem;
 
@@ -200,7 +236,10 @@ public class TomahawkMainActivity extends AppCompatActivity {
         @Override
         public void run() {
             if (ThreadManager.get().isActive()
-                    || (mPlaybackService != null && mPlaybackService.isPreparing())
+                    || (getSupportMediaController() != null
+                    && getSupportMediaController().getPlaybackState() != null
+                    && getSupportMediaController().getPlaybackState().getState()
+                    == PlaybackStateCompat.STATE_BUFFERING)
                     || ((UserCollection) CollectionManager.get()
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION)).isWorking()) {
                 mSmoothProgressBar.setVisibility(View.VISIBLE);
@@ -216,33 +255,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
         public int mRequestid;
 
         public String mUrl;
-    }
-
-    private ProgressHandler mProgressHandler;
-
-    private static class ProgressHandler extends WeakReferenceHandler<TomahawkMainActivity> {
-
-        public ProgressHandler(TomahawkMainActivity referencedObject) {
-            super(referencedObject);
-        }
-
-        @Override
-        public void handleMessage(Message msg) {
-            TomahawkMainActivity activity = getReferencedObject();
-            if (activity != null && activity.mPlaybackService != null
-                    && activity.mPlaybackService.getCurrentTrack() != null) {
-                PlaybackService.PlayPositionChangedEvent event
-                        = new PlaybackService.PlayPositionChangedEvent();
-                event.currentPosition = activity.mPlaybackService.getPosition();
-                event.duration = activity.mPlaybackService.getCurrentTrack().getDuration();
-                if (activity.mPlaybackPanel != null) {
-                    activity.mPlaybackPanel.onPlayPositionChanged(event.duration,
-                            event.currentPosition);
-                }
-                EventBus.getDefault().post(event);
-                sendEmptyMessageDelayed(0, 500);
-            }
-        }
     }
 
     /**
@@ -411,7 +423,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 queries = new ArrayList<>();
                 query = Query.get(event.mResult.track, "", event.mResult.artist, false);
                 queries.add(query);
-                playlist = Playlist.fromQueryList(IdGenerator.getSessionUniqueStringId(), false,
+                playlist = Playlist.fromQueryList(IdGenerator.getSessionUniqueStringId(),
                         event.mResult.track + " - " + event.mResult.artist, "", queries);
                 playlist.setFilled(true);
                 bundle.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
@@ -439,7 +451,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                     queries.add(query);
                 }
                 playlist = Playlist.fromQueryList(IdGenerator.getLifetimeUniqueStringId(),
-                        false, event.mResult.title, null, queries);
+                        event.mResult.title, null, queries);
                 playlist.setFilled(true);
                 bundle.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
@@ -483,27 +495,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
                 mMenuDrawer.updateDrawer(this);
             }
-        }
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(PlaybackService.PlayingTrackChangedEvent event) {
-        mPlaybackPanel.update(mPlaybackService);
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventMainThread(PlaybackService.PlayStateChangedEvent event) {
-        if (mPlaybackService != null && mPlaybackService.getCurrentTrack() != null
-                && mPlaybackService.isPlaying()) {
-            if (mProgressHandler != null) {
-                mProgressHandler.sendEmptyMessage(0);
-            }
-            mPlaybackPanel.updatePlayPauseState(true);
-        } else {
-            if (mProgressHandler != null) {
-                mProgressHandler.removeCallbacksAndMessages(null);
-            }
-            mPlaybackPanel.updatePlayPauseState(false);
         }
     }
 
@@ -578,6 +569,9 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
         setContentView(R.layout.tomahawk_main_activity);
 
+        mMediaBrowser = new MediaBrowserCompat(this,
+                new ComponentName(this, PlaybackService.class), mConnectionCallback, null);
+
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
         mSmoothProgressBar = (SmoothProgressBar) findViewById(R.id.smoothprogressbar);
@@ -587,6 +581,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
         mSlidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
         mSlidingUpPanelLayout.setPanelSlideListener(mPanelSlideListener);
+        hidePanel();
 
         mPlaybackPanel = (PlaybackPanel) findViewById(R.id.playback_panel);
 
@@ -756,7 +751,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 List<Query> queries = new ArrayList<>();
                 queries.add(query);
                 Playlist playlist = Playlist.fromQueryList(
-                        IdGenerator.getSessionUniqueStringId(), false, "", "", queries);
+                        IdGenerator.getSessionUniqueStringId(), "", "", queries);
                 bundle.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
@@ -771,6 +766,10 @@ public class TomahawkMainActivity extends AppCompatActivity {
         super.onStart();
 
         EventBus.getDefault().register(this);
+
+        if (mMediaBrowser != null) {
+            mMediaBrowser.connect();
+        }
     }
 
     @Override
@@ -782,7 +781,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
         } else {
             mPlaybackPanel.setup(mSlidingUpPanelLayout.getPanelState()
                     == SlidingUpPanelLayout.PanelState.EXPANDED);
-            mPlaybackPanel.update(mPlaybackService);
             mPlaybackPanel.setVisibility(View.VISIBLE);
             if (mSlidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.EXPANDED) {
                 mPanelSlideListener.onPanelSlide(mSlidingUpPanelLayout, 1f);
@@ -794,14 +792,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
         if (mShouldShowAnimationHandler == null) {
             mShouldShowAnimationHandler = new Handler();
             mShouldShowAnimationHandler.post(mShouldShowAnimationRunnable);
-        }
-
-        if (mProgressHandler == null) {
-            mProgressHandler = new ProgressHandler(this);
-            if (mPlaybackService != null && mPlaybackService.getCurrentTrack() != null
-                    && mPlaybackService.isPlaying()) {
-                mProgressHandler.sendEmptyMessage(0);
-            }
         }
 
         if (mTomahawkMainReceiver == null) {
@@ -840,6 +830,13 @@ public class TomahawkMainActivity extends AppCompatActivity {
     public void onStop() {
         EventBus.getDefault().unregister(this);
 
+        if (mMediaBrowser != null) {
+            mMediaBrowser.disconnect();
+        }
+        if (getSupportMediaController() != null) {
+            getSupportMediaController().unregisterCallback(mMediaCallback);
+        }
+
         super.onStop();
     }
 
@@ -874,11 +871,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
             mRootViewsInitialized = true;
 
             mMenuDrawer.updateDrawer(this);
-
-            Intent intent = new Intent(TomahawkMainActivity.this,
-                    PlaybackService.class);
-            startService(intent);
-            bindService(intent, mPlaybackServiceConnection, Context.BIND_AUTO_CREATE);
 
             if (mSavedInstanceState == null) {
                 Bundle bundle = new Bundle();
@@ -940,11 +932,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
             unregisterReceiver(mTomahawkMainReceiver);
             mTomahawkMainReceiver = null;
         }
-
-        if (mProgressHandler != null) {
-            mProgressHandler.removeCallbacksAndMessages(null);
-            mProgressHandler = null;
-        }
     }
 
     @Override
@@ -954,15 +941,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
         if (getSupportActionBar() != null) {
             outState.putBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, !getSupportActionBar().isShowing());
         }
-    }
-
-    @Override
-    public void onDestroy() {
-        if (mPlaybackService != null) {
-            unbindService(mPlaybackServiceConnection);
-        }
-
-        super.onDestroy();
     }
 
     @Override
@@ -1076,10 +1054,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
         mMenuDrawer.closeDrawer();
     }
 
-    public PlaybackService getPlaybackService() {
-        return mPlaybackService;
-    }
-
     public void onHatchetLoggedInOut(boolean loggedIn) {
         if (loggedIn) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -1129,7 +1103,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
             mSlidingUpPanelLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             mPlaybackPanel.setup(mSlidingUpPanelLayout.getPanelState()
                     == SlidingUpPanelLayout.PanelState.EXPANDED);
-            mPlaybackPanel.update(mPlaybackService);
             showPlaybackPanel(true);
         }
     }

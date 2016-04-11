@@ -117,20 +117,6 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
         return inflater.inflate(R.layout.pagerfragment_layout, container, false);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onStop() {
-        EventBus.getDefault().unregister(this);
-
-        super.onStop();
-    }
-
     /**
      * This method will be invoked when the current page is scrolled, either as part of a
      * programmatically initiated smooth scroll or a user initiated touch scroll.

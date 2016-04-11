@@ -33,15 +33,36 @@ public class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener
 
     final AudioFocusable mFocusable;
 
+    // do we have audio focus?
+    private enum AudioFocus {
+        NoFocusNoDuck,    // we don't have audio focus, and can't duck
+        NoFocusCanDuck,   // we don't have focus, but can play at a low volume ("ducking")
+        Focused           // we have full audio focus
+    }
+
+    private AudioFocus mAudioFocus = AudioFocus.NoFocusNoDuck;
+
     public AudioFocusHelper(Context ctx, AudioFocusable focusable) {
         mAudioManager = (AudioManager) ctx.getSystemService(Context.AUDIO_SERVICE);
         mFocusable = focusable;
     }
 
+    public void tryToGetAudioFocus() {
+        if (mAudioFocus != AudioFocus.Focused && requestFocus()) {
+            mAudioFocus = AudioFocus.Focused;
+        }
+    }
+
+    public void giveUpAudioFocus() {
+        if (mAudioFocus == AudioFocus.Focused && abandonFocus()) {
+            mAudioFocus = AudioFocus.NoFocusNoDuck;
+        }
+    }
+
     /**
      * Requests audio focus. Returns whether request was successful or not.
      */
-    public boolean requestFocus() {
+    private boolean requestFocus() {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED ==
                 mAudioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC,
                         AudioManager.AUDIOFOCUS_GAIN);
@@ -50,7 +71,7 @@ public class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener
     /**
      * Abandons audio focus. Returns whether request was successful or not.
      */
-    public boolean abandonFocus() {
+    private boolean abandonFocus() {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == mAudioManager.abandonAudioFocus(this);
     }
 

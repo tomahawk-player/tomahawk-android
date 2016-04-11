@@ -31,12 +31,18 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
+import org.tomahawk.tomahawk_android.utils.PlaybackManager;
+import org.tomahawk.tomahawk_android.utils.ProgressBarUpdater;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.TransitionDrawable;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -50,8 +56,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class PlaybackPanel extends FrameLayout {
-
-    private PlaybackService mPlaybackService;
 
     public static final String COMPLETION_STRING_DEFAULT = "-:--";
 
@@ -91,9 +95,9 @@ public class PlaybackPanel extends FrameLayout {
 
     private boolean mAbortSeeking;
 
-    private FrameLayout mCircularProgressBarContainer;
+    private FrameLayout mPlayPauseButtonContainer;
 
-    private HoloCircularProgressBar mCircularProgressBar;
+    private HoloCircularProgressBar mPlayPauseButton;
 
     private ValueAnimator mStationContainerAnimation;
 
@@ -102,6 +106,14 @@ public class PlaybackPanel extends FrameLayout {
     private int mLastPlayTime = 0;
 
     private boolean mInitialized = false;
+
+    private MediaControllerCompat mMediaController;
+
+    private PlaybackManager mPlaybackManager;
+
+    private ProgressBarUpdater mProgressBarUpdater;
+
+    private long mCurrentDuration;
 
     public PlaybackPanel(Context context) {
         super(context);
@@ -132,10 +144,34 @@ public class PlaybackPanel extends FrameLayout {
         mPauseButton = (ImageView) findViewById(R.id.pause_button);
         mProgressBar = (ProgressBar) findViewById(R.id.progressbar);
         mProgressBarThumb = findViewById(R.id.progressbar_thumb);
-        mCircularProgressBarContainer =
+        mPlayPauseButtonContainer =
                 (FrameLayout) findViewById(R.id.circularprogressbar_container);
-        mCircularProgressBar = (HoloCircularProgressBar)
-                mCircularProgressBarContainer.findViewById(R.id.circularprogressbar);
+        mPlayPauseButton = (HoloCircularProgressBar)
+                mPlayPauseButtonContainer.findViewById(R.id.circularprogressbar);
+
+        mProgressBarUpdater = new ProgressBarUpdater(
+                new ProgressBarUpdater.UpdateProgressRunnable() {
+                    @Override
+                    public void updateProgress(PlaybackStateCompat playbackState, long duration) {
+                        if (playbackState == null) {
+                            return;
+                        }
+                        long currentPosition = playbackState.getPosition();
+                        if (playbackState.getState() != PlaybackStateCompat.STATE_PAUSED) {
+                            // Calculate the elapsed time between the last position update and now and unless
+                            // paused, we can assume (delta * speed) + current position is approximately the
+                            // latest position. This ensure that we do not repeatedly call the getPlaybackState()
+                            // on MediaControllerCompat.
+                            long timeDelta = SystemClock.elapsedRealtime() -
+                                    playbackState.getLastPositionUpdateTime();
+                            currentPosition += (int) timeDelta * playbackState.getPlaybackSpeed();
+                        }
+                        mProgressBar
+                                .setProgress((int) ((float) currentPosition / duration * 10000));
+                        mPlayPauseButton.setProgress((float) currentPosition / duration);
+                        mCurrentTimeTextView.setText(ViewUtils.durationToString(currentPosition));
+                    }
+                });
     }
 
     @Override
@@ -146,16 +182,24 @@ public class PlaybackPanel extends FrameLayout {
     public void setup(final boolean isPanelExpanded) {
         mInitialized = true;
 
-        mCircularProgressBar.setOnClickListener(new OnClickListener() {
+        mPlayPauseButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (mPlaybackService != null) {
-                    mPlaybackService.playPause(true);
+                if (mMediaController != null) {
+                    if (mMediaController.getPlaybackState().getState()
+                            == PlaybackStateCompat.STATE_PAUSED) {
+                        mMediaController.getTransportControls().play();
+                    } else if (mMediaController.getPlaybackState().getState()
+                            == PlaybackStateCompat.STATE_PLAYING) {
+                        mMediaController.getTransportControls().pause();
+                        mMediaController.getTransportControls()
+                                .sendCustomAction(PlaybackService.ACTION_STOP_NOTIFICATION, null);
+                    }
                 }
             }
         });
 
-        mCircularProgressBar.setOnLongClickListener(new OnLongClickListener() {
+        mPlayPauseButton.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
                 PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
@@ -168,7 +212,7 @@ public class PlaybackPanel extends FrameLayout {
                     AnimationUtils.fade(mTextViewContainer,
                             AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
                 }
-                AnimationUtils.fade(mCircularProgressBarContainer,
+                AnimationUtils.fade(mPlayPauseButtonContainer,
                         AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
                 AnimationUtils.fade(mResolverImageView,
                         AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
@@ -183,7 +227,7 @@ public class PlaybackPanel extends FrameLayout {
                 AnimationUtils.fade(mProgressBar,
                         AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
 
-                mCircularProgressBar.setOnTouchListener(new OnTouchListener() {
+                mPlayPauseButton.setOnTouchListener(new OnTouchListener() {
                     @Override
                     public boolean onTouch(View v, MotionEvent event) {
                         if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -192,7 +236,7 @@ public class PlaybackPanel extends FrameLayout {
                                 AnimationUtils.fade(mTextViewContainer,
                                         AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
                             }
-                            AnimationUtils.fade(mCircularProgressBarContainer,
+                            AnimationUtils.fade(mPlayPauseButtonContainer,
                                     AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
                             AnimationUtils.fade(mResolverImageView,
                                     AnimationUtils.DURATION_PLAYBACKSEEKMODE, true, true);
@@ -206,12 +250,11 @@ public class PlaybackPanel extends FrameLayout {
                                     AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
                             AnimationUtils.fade(mProgressBar,
                                     AnimationUtils.DURATION_PLAYBACKSEEKMODE, false, true);
-                            mCircularProgressBar.setOnTouchListener(null);
+                            mPlayPauseButton.setOnTouchListener(null);
                             if (!mAbortSeeking) {
                                 int seekTime = (int) ((mLastThumbPosition - mProgressBar.getX())
-                                        / mProgressBar.getWidth()
-                                        * mPlaybackService.getCurrentTrack().getDuration());
-                                mPlaybackService.seekTo(seekTime);
+                                        / mProgressBar.getWidth() * mCurrentDuration);
+                                mMediaController.getTransportControls().seekTo(seekTime);
                             }
                         } else if (event.getAction() == MotionEvent.ACTION_MOVE) {
                             float eventX = event.getX();
@@ -247,7 +290,7 @@ public class PlaybackPanel extends FrameLayout {
                             mProgressBarThumb.setX(finalX);
                             int seekTime = (int)
                                     ((finalX - mProgressBar.getX()) / mProgressBar.getWidth()
-                                            * mPlaybackService.getCurrentTrack().getDuration());
+                                            * mCurrentDuration);
                             mSeekTimeTextView.setText(ViewUtils.durationToString(seekTime));
                         }
                         return false;
@@ -260,70 +303,66 @@ public class PlaybackPanel extends FrameLayout {
         setupAnimations();
     }
 
-    public void update(PlaybackService playbackService) {
-        if (mInitialized) {
-            mPlaybackService = playbackService;
-            onPlayPositionChanged(0, 0);
-            updateTextViewCompleteTime();
-            updateText();
-            updateImageViews();
-            if (mPlaybackService != null) {
-                updatePlayPauseState(mPlaybackService.isPlaying());
-            }
+    public void setMediaController(MediaControllerCompat mediaController) {
+        mMediaController = mediaController;
+        String playbackManagerId = mediaController.getExtras()
+                .getString(PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
+        mPlaybackManager = PlaybackManager.getByKey(playbackManagerId);
+        if (mediaController.getMetadata() != null) {
+            updateMetadata(mediaController.getMetadata());
         }
+        updatePlaybackState(mediaController.getPlaybackState());
     }
 
-    public void updatePlayPauseState(boolean isPlaying) {
+    public void updateMetadata(MediaMetadataCompat metadata) {
+        mCurrentDuration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
+        mProgressBarUpdater.setCurrentDuration(mCurrentDuration);
+        mProgressBar.setProgress(0);
+        mPlayPauseButton.setProgress(0);
+        mCurrentTimeTextView.setText(ViewUtils.durationToString(0));
+        updateTextViewCompleteTime();
+        updateText();
+        updateImageViews();
+    }
+
+    public void updatePlaybackState(PlaybackStateCompat playbackState) {
         if (mInitialized) {
-            if (isPlaying) {
+            mProgressBarUpdater.setPlaybackState(mMediaController.getPlaybackState());
+            if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
                 mPauseButton.setVisibility(VISIBLE);
                 mPlayButton.setVisibility(GONE);
+                mProgressBarUpdater.scheduleSeekbarUpdate();
             } else {
                 mPauseButton.setVisibility(GONE);
                 mPlayButton.setVisibility(VISIBLE);
+                mProgressBarUpdater.stopSeekbarUpdate();
             }
+            // TODO: Properly indicate buffering state
         }
     }
 
     private void updateText() {
-        if (mPlaybackService != null && mPlaybackService.getCurrentQuery() != null) {
-            mArtistTextView.setText(mPlaybackService.getCurrentQuery().getArtist().getPrettyName());
-            mTrackTextView.setText(mPlaybackService.getCurrentQuery().getPrettyName());
-            if (mPlaybackService.getPlaylist() instanceof StationPlaylist) {
-                mStationContainer.setVisibility(VISIBLE);
-                mStationTextView.setText(mPlaybackService.getPlaylist().getName());
-                setupStationContainerAnimation();
-            } else {
-                mStationContainer.setVisibility(GONE);
-            }
-        }
-    }
-
-    /**
-     * Updates the position on seekbar and the related textviews
-     */
-    public void onPlayPositionChanged(long duration, int currentPosition) {
-        if (duration != 0) {
-            mCircularProgressBar.setProgress((float) currentPosition / duration);
-            mProgressBar.setProgress((int) ((float) currentPosition / duration * 10000));
-            mCurrentTimeTextView.setText(ViewUtils.durationToString(currentPosition));
+        mArtistTextView.setText(mPlaybackManager.getCurrentQuery().getArtist().getPrettyName());
+        mTrackTextView.setText(mPlaybackManager.getCurrentQuery().getPrettyName());
+        if (mPlaybackManager.getPlaylist() instanceof StationPlaylist) {
+            mStationContainer.setVisibility(VISIBLE);
+            mStationTextView.setText(mPlaybackManager.getPlaylist().getName());
+            setupStationContainerAnimation();
         } else {
-            mProgressBar.setProgress(0);
-            mCircularProgressBar.setProgress(0);
-            mCurrentTimeTextView.setText(ViewUtils.durationToString(0));
+            mStationContainer.setVisibility(GONE);
         }
+
     }
 
     private void updateImageViews() {
-        if (mPlaybackService != null && mPlaybackService.getCurrentQuery() != null) {
-            if (mPlaybackService.getCurrentQuery().getPreferredTrackResult() != null) {
-                Resolver resolver = mPlaybackService.getCurrentQuery().getPreferredTrackResult()
-                        .getResolvedBy();
-                if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(resolver.getId())) {
-                    resolver.loadIconWhite(mResolverImageView);
-                } else {
-                    resolver.loadIcon(mResolverImageView, false);
-                }
+        if (mPlaybackManager.getCurrentQuery() != null
+                && mPlaybackManager.getCurrentQuery().getPreferredTrackResult() != null) {
+            Resolver resolver =
+                    mPlaybackManager.getCurrentQuery().getPreferredTrackResult().getResolvedBy();
+            if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(resolver.getId())) {
+                resolver.loadIconWhite(mResolverImageView);
+            } else {
+                resolver.loadIcon(mResolverImageView, false);
             }
         }
     }
@@ -332,15 +371,12 @@ public class PlaybackPanel extends FrameLayout {
      * Updates the textview that shows the duration of the current track
      */
     private void updateTextViewCompleteTime() {
-        if (mCompletionTimeTextView != null) {
-            if (mPlaybackService != null
-                    && mPlaybackService.getCurrentTrack() != null
-                    && mPlaybackService.getCurrentTrack().getDuration() > 0) {
-                mCompletionTimeTextView.setText(ViewUtils.durationToString(
-                        mPlaybackService.getCurrentTrack().getDuration()));
-            } else {
-                mCompletionTimeTextView.setText(COMPLETION_STRING_DEFAULT);
-            }
+        if (mPlaybackManager.getCurrentTrack() != null
+                && mPlaybackManager.getCurrentTrack().getDuration() > 0) {
+            mCompletionTimeTextView.setText(
+                    ViewUtils.durationToString(mPlaybackManager.getCurrentTrack().getDuration()));
+        } else {
+            mCompletionTimeTextView.setText(COMPLETION_STRING_DEFAULT);
         }
     }
 

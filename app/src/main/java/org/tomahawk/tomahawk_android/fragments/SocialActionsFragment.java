@@ -33,13 +33,14 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.os.Bundle;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.AbsListView;
 
@@ -58,6 +59,8 @@ import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
  */
 public class SocialActionsFragment extends TomahawkFragment implements
         StickyListHeadersListView.OnHeaderClickListener {
+
+    private static final String TAG = SocialActionsFragment.class.getSimpleName();
 
     public static final int SHOW_MODE_SOCIALACTIONS = 0;
 
@@ -138,6 +141,10 @@ public class SocialActionsFragment extends TomahawkFragment implements
      */
     @Override
     public void onItemClick(View view, Object o) {
+        if (getMediaController() == null) {
+            Log.e(TAG, "onItemClick failed because getMediaController() is null");
+            return;
+        }
         final TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
 
         Object item = o;
@@ -153,20 +160,23 @@ public class SocialActionsFragment extends TomahawkFragment implements
         } else if (item instanceof Query && o instanceof SocialAction) {
             PlaylistEntry entry = mUser.getPlaylistEntry((SocialAction) o);
             if (entry.getQuery().isPlayable()) {
-                final PlaybackService playbackService = activity.getPlaybackService();
-                if (playbackService != null) {
-                    if (playbackService.getCurrentEntry() == entry) {
-                        playbackService.playPause();
-                    } else {
-                        Playlist playlist;
-                        if (mShowMode == SHOW_MODE_SOCIALACTIONS) {
-                            playlist = mUser.getSocialActionsPlaylist();
-                        } else {
-                            playlist = mUser.getFriendsFeedPlaylist();
-                        }
-                        playbackService.setPlaylist(playlist, entry);
-                        playbackService.play();
+                if (getPlaybackManager().getCurrentEntry() == entry) {
+                    // if the user clicked on an already playing track
+                    int playState = getMediaController().getPlaybackState().getState();
+                    if (playState == PlaybackStateCompat.STATE_PLAYING) {
+                        getMediaController().getTransportControls().pause();
+                    } else if (playState == PlaybackStateCompat.STATE_PAUSED) {
+                        getMediaController().getTransportControls().play();
                     }
+                } else {
+                    Playlist playlist;
+                    if (mShowMode == SHOW_MODE_SOCIALACTIONS) {
+                        playlist = mUser.getSocialActionsPlaylist();
+                    } else {
+                        playlist = mUser.getFriendsFeedPlaylist();
+                    }
+                    getPlaybackManager().setPlaylist(playlist, entry);
+                    getMediaController().getTransportControls().play();
                 }
             }
         } else if (item instanceof Album) {
