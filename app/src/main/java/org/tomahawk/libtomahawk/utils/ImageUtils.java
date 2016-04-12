@@ -1,5 +1,6 @@
 package org.tomahawk.libtomahawk.utils;
 
+import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 import com.squareup.picasso.Target;
@@ -27,6 +28,8 @@ public class ImageUtils {
 
     public static final String TAG = ImageUtils.class.getSimpleName();
 
+    private static final int BLURRED_IMAGE_TRANSITION_TIME = 500;
+
     /**
      * Load a {@link android.graphics.Bitmap} asynchronously
      *
@@ -52,22 +55,37 @@ public class ImageUtils {
      */
     public static void loadBlurredImageIntoImageView(Context context, ImageView imageView,
             Image image, int width, int placeHolderResId) {
+        loadBlurredImageIntoImageView(context, imageView, image, width, placeHolderResId, null);
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context   the context needed for fetching resources
+     * @param imageView the {@link ImageView}, which will be used to show the {@link
+     *                  android.graphics.Bitmap}
+     * @param image     the path to load the image from
+     * @param width     the width in density independent pixels to scale the image down to
+     */
+    public static void loadBlurredImageIntoImageView(Context context, ImageView imageView,
+            Image image, int width, int placeHolderResId, Callback callback) {
+        RequestCreator creator;
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(image, width);
-            RequestCreator creator = Picasso.with(context).load(
-                    ImageUtils.preparePathForPicasso(imagePath)).resize(width, width);
-            if (placeHolderResId > 0) {
-                creator.placeholder(placeHolderResId);
-                creator.error(placeHolderResId);
-            }
-            creator.transform(new BlurTransformation(context, 16));
-            creator.into(imageView);
+            creator = Picasso.with(context)
+                    .load(ImageUtils.preparePathForPicasso(imagePath))
+                    .resize(width, width)
+                    .transform(new BlurTransformation(context, 16));
         } else {
-            RequestCreator creator = Picasso.with(context).load(placeHolderResId)
-                    .placeholder(placeHolderResId)
-                    .error(placeHolderResId);
-            creator.into(imageView);
+            creator = Picasso.with(context).load(placeHolderResId);
         }
+        if (placeHolderResId > 0) {
+            creator.error(placeHolderResId);
+        }
+        if (callback != null) {
+            creator.noFade();
+        }
+        creator.into(imageView, callback);
     }
 
     /**

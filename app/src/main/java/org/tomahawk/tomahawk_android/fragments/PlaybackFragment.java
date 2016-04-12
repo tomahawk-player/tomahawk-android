@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.fragments;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.ValueAnimator;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.squareup.picasso.Callback;
 
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
@@ -40,6 +41,7 @@ import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 import org.tomahawk.tomahawk_android.views.AlbumArtViewPager;
 import org.tomahawk.tomahawk_android.views.PlaybackFragmentFrame;
 
+import android.animation.Animator;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -89,6 +91,8 @@ public class PlaybackFragment extends TomahawkFragment {
     private boolean mShouldShowSwipeHints = false;
 
     private int mOriginalViewPagerHeight;
+
+    private Image mCurrentBlurredImage;
 
     private final GestureDetector.SimpleOnGestureListener mGestureListener
             = new GestureDetector.SimpleOnGestureListener() {
@@ -333,7 +337,7 @@ public class PlaybackFragment extends TomahawkFragment {
     }
 
     @Override
-    public void onMediaControllerConnected(){
+    public void onMediaControllerConnected() {
         mAlbumArtSwipeAdapter.setPlaybackManager(getPlaybackManager());
 
     }
@@ -477,10 +481,56 @@ public class PlaybackFragment extends TomahawkFragment {
                 getView().findViewById(R.id.imageButton_shuffle).setClickable(true);
                 getView().findViewById(R.id.imageButton_repeat).setClickable(true);
 
-                ImageView bgImageView = (ImageView) getView().findViewById(R.id.background);
-                ImageUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(), bgImageView,
-                        getPlaybackManager().getCurrentQuery().getImage(),
-                        Image.getSmallImageSize(), R.color.playerview_default_bg);
+                if (mCurrentBlurredImage != getPlaybackManager().getCurrentQuery().getImage()) {
+                    mCurrentBlurredImage = getPlaybackManager().getCurrentQuery().getImage();
+                    ImageView bgImageView =
+                            (ImageView) getView().findViewById(R.id.background);
+                    ImageView bgAltImageView =
+                            (ImageView) getView().findViewById(R.id.background_alt);
+                    final ImageView imageViewToFadeIn;
+                    final ImageView imageViewToFadeOut;
+                    if (bgAltImageView.getAlpha() < bgImageView.getAlpha()) {
+                        imageViewToFadeIn = bgAltImageView;
+                        imageViewToFadeOut = bgImageView;
+                    } else {
+                        imageViewToFadeIn = bgImageView;
+                        imageViewToFadeOut = bgAltImageView;
+                    }
+                    Callback fadeCallback = new Callback() {
+                        @Override
+                        public void onSuccess() {
+                            AnimationUtils.fade(imageViewToFadeIn, imageViewToFadeIn.getAlpha(),
+                                    1f, AnimationUtils.DURATION_PLAYBACKFRAGMENT_BG, true, null);
+                            AnimationUtils.fade(imageViewToFadeOut, imageViewToFadeOut.getAlpha(),
+                                    0f, AnimationUtils.DURATION_PLAYBACKFRAGMENT_BG, false,
+                                    new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animation) {
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animation) {
+                                            imageViewToFadeOut.setImageDrawable(null);
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animation) {
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animation) {
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onError() {
+                        }
+                    };
+                    ImageUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(),
+                            imageViewToFadeIn, mCurrentBlurredImage, Image.getSmallImageSize(),
+                            R.color.playerview_default_bg, fadeCallback);
+                }
             } else {
                 // Make all buttons not clickable
                 getView().findViewById(R.id.imageButton_shuffle).setClickable(false);
