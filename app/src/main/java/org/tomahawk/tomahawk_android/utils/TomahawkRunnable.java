@@ -23,6 +23,8 @@ public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkR
 
     public static final int PRIORITY_IS_PLAYBACK = 1000;
 
+    public static final int PRIORITY_IS_NOTIFICATION = 500;
+
     public static final int PRIORITY_IS_VERYHIGH = 200;
 
     public static final int PRIORITY_IS_INFOSYSTEM_HIGH = 100;
