@@ -36,6 +36,8 @@ public class AnimationUtils {
 
     public static final int DURATION_PLAYBACKSEEKMODE_ABORT = 100;
 
+    public static final int DURATION_PLAYBACKFRAGMENT_BG = 500;
+
     public static void fade(final View view, int duration, final boolean isFadeIn) {
         fade(view, duration, isFadeIn, false);
     }
@@ -86,7 +88,9 @@ public class AnimationUtils {
                 }
                 view.setTag(R.id.animation_animator, animator);
                 animator.setDuration(duration);
-                animator.addListener(listener);
+                if (listener != null) {
+                    animator.addListener(listener);
+                }
                 animator.start();
             }
         }
