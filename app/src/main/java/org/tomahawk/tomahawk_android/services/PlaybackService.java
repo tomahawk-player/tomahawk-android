@@ -62,12 +62,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
@@ -170,6 +170,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     private MediaNotification mNotification;
 
     private MediaSessionCompat mMediaSession;
+
+    private Handler mCallbackHandler;
 
     private MediaSessionCompat.Callback mMediaSessionCallback = new MediaSessionCompat.Callback() {
 
@@ -389,7 +391,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 // AudioManager tells us that the sound will be played through the speaker
                 Log.d(TAG, "Action audio becoming noisy, pausing ...");
                 // So we stop playback, if needed
-                mMediaSessionCallback.onPause();
+                mMediaSession.getController().getTransportControls().pause();
             }
         }
     }
@@ -397,6 +399,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     private PowerManager.WakeLock mWakeLock;
 
     private AudioFocusHelper mAudioFocusHelper = null;
+
+    private Bitmap mCachedPlaceHolder;
 
     private final LruCache<Image, Bitmap> mMediaImageCache =
             new LruCache<Image, Bitmap>(MAX_ALBUM_ART_CACHE_SIZE) {
@@ -425,7 +429,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                         Log.e(TAG, "updateAlbumArt failed - mMediaSession == null!");
                         return;
                     }
-                    mMediaImageCache.put(mImageToLoad, bitmap.copy(bitmap.getConfig(), false));
+                    Bitmap copy = bitmap.copy(bitmap.getConfig(), false);
+                    if (mImageToLoad == null) {
+                        // Has to the placeHolder bitmap then
+                        mCachedPlaceHolder = copy;
+                    } else {
+                        mMediaImageCache.put(mImageToLoad, copy);
+                    }
                     mMediaSession.setMetadata(buildMetadata());
                     Log.d(TAG, "Setting lockscreen bitmap");
                 }
@@ -470,14 +480,14 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 case TelephonyManager.CALL_STATE_RINGING:
                     if (mPlayState == PlaybackStateCompat.STATE_PLAYING) {
                         mStartCallTime = System.currentTimeMillis();
-                        mMediaSessionCallback.onPause();
+                        mMediaSession.getController().getTransportControls().pause();
                     }
                     break;
 
                 case TelephonyManager.CALL_STATE_IDLE:
                     if (mStartCallTime > 0
                             && (System.currentTimeMillis() - mStartCallTime < 30000)) {
-                        mMediaSessionCallback.onPlay();
+                        mMediaSession.getController().getTransportControls().play();
                     }
 
                     mStartCallTime = 0L;
@@ -591,9 +601,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             if (query == mPlaybackManager.getCurrentQuery()) {
                 Log.d(TAG, "onCompletion");
                 if (mPlaybackManager.hasNextEntry()) {
-                    mMediaSessionCallback.onSkipToNext();
+                    mMediaSession.getController().getTransportControls().skipToNext();
                 } else {
-                    mMediaSessionCallback.onPause();
+                    mMediaSession.getController().getTransportControls().pause();
                 }
             }
         }
@@ -609,9 +619,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             });
             mAudioFocusHelper.giveUpAudioFocus();
             if (mPlaybackManager.hasNextEntry()) {
-                mMediaSessionCallback.onSkipToNext();
+                mMediaSession.getController().getTransportControls().skipToNext();
             } else {
-                mMediaSessionCallback.onPause();
+                mMediaSession.getController().getTransportControls().pause();
             }
         }
     };
@@ -625,7 +635,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             mPlaybackManager.addToQueue(event.mQuery);
             if (mPlaybackManager.getCurrentEntry() == null) {
                 setCurrentEntry(mPlaybackManager.getPlaylist().getEntryAtPos(0));
-                mMediaSessionCallback.onPlay();
+                mMediaSession.getController().getTransportControls().play();
             }
         }
         Query currentQuery = mPlaybackManager.getCurrentQuery();
@@ -711,14 +721,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             @Override
             public void onLostAudioFocus(boolean canDuck) {
                 if (!canDuck) {
-                    mMediaSessionCallback.onPause();
+                    mMediaSession.getController().getTransportControls().pause();
                 }
             }
         });
 
         mPlaybackManager = PlaybackManager.get(
                 IdGenerator.getSessionUniqueStringId(), mPlaybackManagerCallback);
-
         initMediaSession();
 
         try {
@@ -742,13 +751,20 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         PendingIntent pendingIntent = PendingIntent.getActivity(PlaybackService.this, 0,
                 intent, PendingIntent.FLAG_UPDATE_CURRENT);
         mMediaSession.setSessionActivity(pendingIntent);
-        mMediaSession.setCallback(mMediaSessionCallback);
+        HandlerThread thread = new HandlerThread("playbackservice_callback");
+        thread.start();
+        mCallbackHandler = new Handler(thread.getLooper());
+        mMediaSession.setCallback(mMediaSessionCallback, mCallbackHandler);
         mMediaSession.setRatingType(RatingCompat.RATING_HEART);
         Bundle extras = new Bundle();
         extras.putString(EXTRAS_KEY_PLAYBACKMANAGER, mPlaybackManager.getId());
         mMediaSession.setExtras(extras);
         updateMediaPlayState();
         setSessionToken(mMediaSession.getSessionToken());
+    }
+
+    public Handler getCallbackHandler() {
+        return mCallbackHandler;
     }
 
     @Override
@@ -787,7 +803,15 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
         EventBus.getDefault().unregister(this);
 
-        mMediaSessionCallback.onPause();
+        if (mAudioBecomingNoisyReceiver != null) {
+            unregisterReceiver(mAudioBecomingNoisyReceiver);
+            mAudioBecomingNoisyReceiver = null;
+        }
+        mScrobbleHandler.stop();
+        mPlayState = PlaybackStateCompat.STATE_PAUSED;
+        handlePlayState();
+        updateMediaPlayState();
+
         mNotification.stopNotification();
         releaseAllPlayers();
         if (mWakeLock.isHeld()) {
@@ -918,7 +942,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                                         || currentQuery.getPreferredTrackResult() == null) {
                                     Log.e(TAG,
                                             "MediaPlayer was unable to prepare the track, jumping to next track");
-                                    mMediaSessionCallback.onSkipToNext();
+                                    mMediaSession.getController().getTransportControls()
+                                            .skipToNext();
                                 } else {
                                     Log.d(TAG,
                                             "MediaPlayer blacklisted a result and tries to prepare again");
@@ -932,7 +957,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 };
                 ThreadManager.get().executePlayback(r);
             } else {
-                mMediaSessionCallback.onSkipToNext();
+                mMediaSession.getController().getTransportControls().skipToNext();
             }
         }
     }
@@ -1057,15 +1082,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                         RatingCompat.newHeartRating(
                                 DatabaseHelper.get().isItemLoved(currentQuery)));
         Bitmap bitmap;
-        if (currentQuery.getImage() == null) {
-            bitmap =
-                    BitmapFactory.decodeResource(getResources(), R.drawable.album_placeholder_grid);
-        } else {
+        if (currentQuery.getImage() != null) {
             bitmap = mMediaImageCache.get(currentQuery.getImage());
+        } else {
+            bitmap = mCachedPlaceHolder;
         }
         if (bitmap == null) {
-            bitmap =
-                    BitmapFactory.decodeResource(getResources(), R.drawable.album_placeholder_grid);
+            // Image is not in cache yet. We have to fetch it...
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
@@ -1074,12 +1097,14 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                         mMediaImageTarget = new MediaImageTarget(currentQuery.getImage());
                         ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
                                 currentQuery.getImage(), mMediaImageTarget,
-                                Image.getLargeImageSize(), currentQuery.hasArtistImage());
+                                Image.getLargeImageSize(), false);
                     }
                 }
             });
         }
-        builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
+        if (bitmap != null) {
+            builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
+        }
         if (!TextUtils.isEmpty(currentQuery.getAlbum().getPrettyName())) {
             builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM,
                     currentQuery.getAlbum().getPrettyName());

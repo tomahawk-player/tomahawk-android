@@ -93,12 +93,13 @@ public class MediaNotification {
 
     private boolean mStarted = false;
 
-    private final MediaControllerCompat.Callback mCb = new MediaControllerCompat.Callback() {
+    private final MediaControllerCompat.Callback mCallback = new MediaControllerCompat.Callback() {
         @Override
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
             mPlaybackState = state;
             Log.d(TAG, "Received new playback state");
             updateNotificationPlaybackState();
+            mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
         }
 
         @Override
@@ -173,7 +174,7 @@ public class MediaNotification {
      */
     public void startNotification() {
         if (!mStarted) {
-            mController.registerCallback(mCb);
+            mController.registerCallback(mCallback, mService.getCallbackHandler());
             IntentFilter filter = new IntentFilter();
             filter.addAction(ACTION_FAVORITE);
             filter.addAction(ACTION_UNFAVORITE);
@@ -198,7 +199,7 @@ public class MediaNotification {
      */
     public void stopNotification() {
         mStarted = false;
-        mController.unregisterCallback(mCb);
+        mController.unregisterCallback(mCallback);
         try {
             mService.unregisterReceiver(mActionReceiver);
         } catch (IllegalArgumentException ex) {
@@ -217,14 +218,14 @@ public class MediaNotification {
         if (mSessionToken == null && freshToken != null ||
                 mSessionToken != null && !mSessionToken.equals(freshToken)) {
             if (mController != null) {
-                mController.unregisterCallback(mCb);
+                mController.unregisterCallback(mCallback);
             }
             mSessionToken = freshToken;
             if (mSessionToken != null) {
                 mController = new MediaControllerCompat(mService, mSessionToken);
                 mTransportControls = mController.getTransportControls();
                 if (mStarted) {
-                    mController.registerCallback(mCb);
+                    mController.registerCallback(mCallback, mService.getCallbackHandler());
                 }
             }
         }
@@ -375,8 +376,6 @@ public class MediaNotification {
         if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PAUSED) {
             mService.stopForeground(false);
         }
-
-        mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
     }
 
 }

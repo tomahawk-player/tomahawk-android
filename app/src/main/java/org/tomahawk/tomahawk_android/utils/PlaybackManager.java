@@ -233,8 +233,9 @@ public class PlaybackManager extends Cacheable {
 
     public void deleteFromQueue(PlaylistEntry entry) {
         Log.d(TAG, "deleteFromQueue: " + entry.getQuery().getName());
-        mQueue.deleteEntry(entry);
-        mCallback.onPlaylistChanged();
+        if (mQueue.deleteEntry(entry)) {
+            mCallback.onPlaylistChanged();
+        }
     }
 
     public PlaylistEntry getNextEntry() {

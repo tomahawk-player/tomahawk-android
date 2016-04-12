@@ -59,12 +59,13 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
 
     private PlaybackStateCompat mPlaybackState;
 
+    private int mPageScrollState = ViewPager.SCROLL_STATE_IDLE;
+
+    private boolean mUpdateWhenIdle = false;
+
     private final ViewPager.OnPageChangeListener mOnPageChangeListener
             = new ViewPager.OnPageChangeListener() {
-        /**
-         * Is being called, whenever a new Page in our {@link AlbumArtSwipeAdapter} has been selected/
-         * swiped to
-         */
+
         @Override
         public void onPageSelected(int position) {
             if (position == mLastItem - 1) {
@@ -75,11 +76,18 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
         }
 
         @Override
-        public void onPageScrolled(int arg0, float arg1, int arg2) {
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         }
 
         @Override
-        public void onPageScrollStateChanged(int arg0) {
+        public void onPageScrollStateChanged(int state) {
+            int lastState = mPageScrollState;
+            mPageScrollState = state;
+            if (mUpdateWhenIdle && lastState != ViewPager.SCROLL_STATE_IDLE
+                    && state == ViewPager.SCROLL_STATE_IDLE) {
+                mUpdateWhenIdle = false;
+                updatePlaylist();
+            }
         }
     };
 
@@ -229,6 +237,10 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
      * {@link org.tomahawk.tomahawk_android.services.PlaybackService}
      */
     public void updatePlaylist() {
+        if (mPageScrollState != ViewPager.SCROLL_STATE_IDLE) {
+            mUpdateWhenIdle = true;
+            return;
+        }
         if (mMediaController != null && mPlaybackManager != null) {
             mPlaybackState = mMediaController.getPlaybackState();
             notifyDataSetChanged();
