@@ -163,7 +163,7 @@ public class Segment {
             return mPlaylist.size();
         } else if (mPlaybackManager != null) {
             return mPlaybackManager.getPlaybackListSize()
-                    - Math.max(1, mPlaybackManager.getCurrentIndex() + 1);
+                    - Math.max(0, mPlaybackManager.getCurrentIndex());
         } else {
             return mListItems.size();
         }
@@ -174,6 +174,9 @@ public class Segment {
     }
 
     public Object get(int location) {
+        if (mPlaybackManager != null) {
+            location = location + Math.max(0, mPlaybackManager.getCurrentIndex());
+        }
         if (mColumnCount > 1) {
             List<Object> list = new ArrayList<>();
             for (int i = location * mColumnCount; i < location * mColumnCount + mColumnCount; i++) {
@@ -228,8 +231,11 @@ public class Segment {
         return mVerticalPadding;
     }
 
-    public boolean isShowAsQueued() {
-        // TODO
+    public boolean isShowAsQueued(int position) {
+        if (mPlaybackManager != null) {
+            position = position + Math.max(0, mPlaybackManager.getCurrentIndex());
+            return mPlaybackManager.isPartOfQueue(position);
+        }
         return false;
     }
 
@@ -245,13 +251,18 @@ public class Segment {
         return mShowNumeration;
     }
 
-    public int getNumerationCorrection() {
-        return mNumerationCorrection;
-    }
-
     public void setShowNumeration(boolean showNumeration, int numerationCorrection) {
         mShowNumeration = showNumeration;
         mNumerationCorrection = numerationCorrection;
+    }
+
+    public int getNumeration(int position) {
+        if (mPlaybackManager == null) {
+            return position + mNumerationCorrection;
+        } else {
+            position = position + Math.max(0, mPlaybackManager.getCurrentIndex());
+            return mPlaybackManager.getNumeration(position);
+        }
     }
 
     public boolean isHideArtistName() {

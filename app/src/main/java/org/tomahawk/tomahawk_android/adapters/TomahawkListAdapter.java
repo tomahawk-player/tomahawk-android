@@ -231,8 +231,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             viewHolders = (List<ViewHolder>) convertView.getTag();
             view = convertView;
         }
-        int viewType = getViewType(o, getSegment(position),
-                mHeaderSpacerHeight > 0 && position == 0, position == getCount() - 1);
+        int viewType = getViewType(o, position, mHeaderSpacerHeight > 0 && position == 0,
+                position == getCount() - 1);
         int expectedViewHoldersCount = 1;
         if (o instanceof List) {
             expectedViewHoldersCount = 0;
@@ -392,16 +392,16 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                         || viewHolder.mLayoutId == R.layout.list_item_artist) {
                     String numerationString = null;
                     if (getSegment(position).isShowNumeration()) {
-                        numerationString = "" + (getPosInSegment(position) + i
-                                + getSegment(position).getNumerationCorrection());
+                        numerationString = "" +
+                                getSegment(position).getNumeration(getPosInSegment(position));
                     }
                     viewHolder.fillView((Artist) targetItem, numerationString);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_album
                         || viewHolder.mLayoutId == R.layout.list_item_album) {
                     String numerationString = null;
                     if (getSegment(position).isShowNumeration()) {
-                        numerationString = "" + (getPosInSegment(position) * viewHolders.size() + i
-                                + getSegment(position).getNumerationCorrection());
+                        numerationString = "" +
+                                getSegment(position).getNumeration(getPosInSegment(position));
                     }
                     viewHolder.fillView((Album) targetItem, mCollection, numerationString);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
@@ -435,10 +435,11 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                             coachMark.setVisibility(View.GONE);
                         }
                         String numerationString = null;
-                        if (!getSegment(position).isShowAsQueued() && getSegment(position)
-                                .isShowNumeration()) {
-                            numerationString = String.format("%02d", getPosInSegment(position)
-                                    + getSegment(position).getNumerationCorrection());
+                        boolean isShowAsQueued =
+                                getSegment(position).isShowAsQueued(getPosInSegment(position));
+                        if (!isShowAsQueued && getSegment(position).isShowNumeration()) {
+                            numerationString = String.format("%02d",
+                                    getSegment(position).getNumeration(getPosInSegment(position)));
                         }
                         final Query query;
                         final PlaylistEntry entry;
@@ -450,7 +451,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                             entry = null;
                         }
                         View.OnClickListener swipeButtonListener;
-                        boolean isShowAsQueued = getSegment(position).isShowAsQueued();
                         if (isShowAsQueued) {
                             swipeButtonListener = new View.OnClickListener() {
                                 @Override
@@ -658,8 +658,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         }
     }
 
-    private int getViewType(Object item, Segment segment, boolean isContentHeaderItem,
+    private int getViewType(Object item, int position, boolean isContentHeaderItem,
             boolean isFooter) {
+        Segment segment = getSegment(position);
         if (item instanceof List) {
             // We have a grid item
             // Don't display the socialAction item directly, but rather the item that is its target
@@ -712,7 +713,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             return R.layout.list_item_user;
         } else if (segment.isHideArtistName()) {
             return R.layout.list_item_numeration_track_duration;
-        } else if (segment.isShowNumeration() || segment.isShowAsQueued()) {
+        } else if (segment.isShowNumeration()
+                || segment.isShowAsQueued(getPosInSegment(position))) {
             return R.layout.list_item_numeration_track_artist;
         } else {
             return R.layout.list_item_track_artist;
