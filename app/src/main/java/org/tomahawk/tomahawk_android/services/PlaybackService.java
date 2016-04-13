@@ -963,13 +963,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     }
 
     private void setCurrentEntry(PlaylistEntry entry) {
-        Log.d(TAG, "setCurrentEntry to " + entry.getId());
+        Log.d(TAG, "setCurrentEntry to " + entry.getCacheKey());
         releaseAllPlayers();
-        final PlaylistEntry currentEntry = mPlaybackManager.getCurrentEntry();
-        if (currentEntry != null) {
-            mPlaybackManager.deleteFromQueue(currentEntry);
-        }
+        final PlaylistEntry lastEntry = mPlaybackManager.getCurrentEntry();
         mPlaybackManager.setCurrentEntry(entry);
+        if (lastEntry != null) {
+            mPlaybackManager.deleteFromQueue(lastEntry);
+        }
         handlePlayState();
         Playlist currentPlaylist = mPlaybackManager.getPlaylist();
         if (currentPlaylist instanceof StationPlaylist

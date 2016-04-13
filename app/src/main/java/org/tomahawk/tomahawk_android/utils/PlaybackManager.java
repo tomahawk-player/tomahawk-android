@@ -154,6 +154,25 @@ public class PlaybackManager extends Cacheable {
         }
     }
 
+    public boolean isPartOfQueue(int position) {
+        return position >= mQueueStartPos && position < mQueueStartPos + mQueue.size();
+    }
+
+    public int getNumeration(int position) {
+        int numeration;
+        if (position < mQueueStartPos) {
+            // Positioned before the queue
+            numeration = position;
+        } else if (position < mQueueStartPos + mQueue.size()) {
+            // From the queue
+            numeration = position - mQueueStartPos;
+        } else {
+            // Positioned after the queue
+            numeration = position - mQueue.size();
+        }
+        return numeration - mCurrentIndex;
+    }
+
     public int getPlaybackListSize() {
         return mQueue.size() + mPlaylist.size();
     }
@@ -164,11 +183,16 @@ public class PlaybackManager extends Cacheable {
 
     private void setCurrentEntry(PlaylistEntry currentEntry, boolean callback) {
         mCurrentEntry = currentEntry;
-        if (setCurrentIndex(getPlaybackListIndex(currentEntry))) {
+        if (mPlaylist.containsEntry(currentEntry)) {
+            // We have a PlaylistEntry that is not part of the Queue
+            mCurrentIndex = mPlaylist.getIndexOfEntry(currentEntry);
+            mQueueStartPos = mCurrentIndex + 1;
             if (callback) {
                 mCallback.onPlaylistChanged();
             }
         } else {
+            // We have a PlaylistEntry that is part of the Queue
+            mCurrentIndex = getPlaybackListIndex(currentEntry);
             if (callback) {
                 mCallback.onCurrentEntryChanged();
             }
@@ -177,19 +201,6 @@ public class PlaybackManager extends Cacheable {
 
     public PlaylistEntry getCurrentEntry() {
         return mCurrentEntry;
-    }
-
-    /**
-     * @return whether or not the whole playlist has been changed
-     */
-    private boolean setCurrentIndex(int currentIndex) {
-        mCurrentIndex = currentIndex;
-        if (!mQueue.containsEntry(getPlaybackListEntry(mCurrentIndex))) {
-            // We have a PlaylistEntry that is not part of the Queue
-            mQueueStartPos = mCurrentIndex + 1;
-            return true;
-        }
-        return false;
     }
 
     public int getCurrentIndex() {
@@ -318,7 +329,7 @@ public class PlaybackManager extends Cacheable {
                 mPlaylist.buildShuffledIndex(currentIndex);
                 if (entryNotInQueue) {
                     // current index is always 0 after shuffling
-                    setCurrentIndex(0);
+                    setCurrentEntry(getPlaybackListEntry(0));
                 }
             }
             mShuffleMode = shuffleMode;
