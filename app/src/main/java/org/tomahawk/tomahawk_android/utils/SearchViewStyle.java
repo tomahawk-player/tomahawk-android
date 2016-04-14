@@ -78,8 +78,6 @@ public class SearchViewStyle {
     // METHODS
     // ===========================================================
 
-    // TODO: add javadoc
-
     @SuppressWarnings("unchecked")
     public <T extends View> T getView(final int id) {
         if (id == 0) {
