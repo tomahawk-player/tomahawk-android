@@ -68,7 +68,7 @@ public class StringUtils {
      *
      * @param str                String to escape values in, may be null
      * @param escapeSingleQuotes escapes single quotes if <code>true</code>
-     * @param escapeForwardSlash TODO
+     * @param escapeForwardSlash escapes forward slashes if <code>true</code>
      * @return the escaped string
      */
     private static String escapeJavaStyleString(String str, boolean escapeSingleQuotes,
@@ -92,7 +92,7 @@ public class StringUtils {
      * @param out                write to receieve the escaped string
      * @param str                String to escape values in, may be null
      * @param escapeSingleQuote  escapes single quotes if <code>true</code>
-     * @param escapeForwardSlash TODO
+     * @param escapeForwardSlash escapes forward slashes if <code>true</code>
      * @throws IOException if an IOException occurs
      */
     private static void escapeJavaStyleString(Writer out, String str, boolean escapeSingleQuote,
