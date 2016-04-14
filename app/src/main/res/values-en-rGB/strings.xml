@@ -30,6 +30,10 @@
   <string name="create_playlist">Create playlist</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Title</string>
+  <string name="create_station">Create station</string>
+  <string name="create_station_search_hint">Search for artists/songs/genres</string>
+  <string name="genres">Genres</string>
+  <string name="moods">Moods</string>
   <string name="login_name_label">E-Mail/Username</string>
   <string name="login_username">Username</string>
   <string name="login_password">Password</string>
@@ -64,6 +68,10 @@
   <string name="preferences_app_version">App-Version</string>
   <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Share your ideas or ask for support.</string>
+  <string name="preferences_app_playstore_link">Rate the App</string>
+  <string name="preferences_app_playstore_link_text">Rate Tomahawk on the Google Play Store.</string>
+  <string name="preferences_app_website_link">Visit our Website</string>
+  <string name="preferences_app_website_link_text">Open tomahawk-player.org in your browser.</string>
   <string name="preferences_app_sendlog">Send Log</string>
   <string name="preferences_app_sendlog_text">Send your log file for debug purposes.</string>
   <string name="preferences_app_sendlog_dialog_text">Please briefly describe the issue you are having and provide an email so we can contact you if needed. Thanks!</string>
@@ -92,6 +100,7 @@
   <string name="drawer_title_charts">Charts</string>
   <string name="drawer_title_collection">Collection</string>
   <string name="drawer_title_playlists">Playlists</string>
+  <string name="drawer_title_stations">Stations</string>
   <string name="drawer_title_lovedtracks">Favourites</string>
   <string name="drawer_title_settings">Settings</string>
   <string name="drawer_header_cloudcollections">Cloud Collections</string>
@@ -232,4 +241,5 @@
   <string name="warn_old_plugin">The required plugin application is outdated and no longer compatible. Do you want to update it now?</string>
   <string name="warn_no_plugin">The required plugin application is no longer installed. Do you want to install it now?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">new</string>
 </resources>
