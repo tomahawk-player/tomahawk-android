@@ -20,17 +20,14 @@ package org.tomahawk.tomahawk_android.adapters;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
-import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 
 import android.content.res.Configuration;
-import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.media.session.MediaControllerCompat;
-import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -57,7 +54,9 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
 
     private PlaybackManager mPlaybackManager;
 
-    private PlaybackStateCompat mPlaybackState;
+    private int mSize = 0;
+
+    private int mRepeatMode = PlaybackManager.NOT_REPEATING;
 
     private int mPageScrollState = ViewPager.SCROLL_STATE_IDLE;
 
@@ -117,24 +116,22 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
     public Object instantiateItem(ViewGroup container, int position) {
         View view = LayoutInflater.from(mViewPager.getContext()).inflate(
                 org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
-        if (mPlaybackManager != null && mPlaybackManager.getPlaybackListSize() > 0
-                && mPlaybackState != null) {
-            Bundle playbackStateExtras = mPlaybackState.getExtras();
-            if (playbackStateExtras != null) {
-                if (mPlaybackState.getExtras().getInt(PlaybackService.EXTRAS_KEY_REPEAT_MODE)
-                        != PlaybackManager.NOT_REPEATING) {
-                    position = position % mPlaybackManager.getPlaybackListSize();
-                }
-                Query query = mPlaybackManager.getPlaybackListEntry(position).getQuery();
-                if (query != null) {
-                    ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
-                    boolean landscapeMode = mViewPager.getResources().getConfiguration().orientation
-                            == Configuration.ORIENTATION_LANDSCAPE;
-                    ImageUtils.loadImageIntoImageView(mViewPager.getContext(), imageView,
-                            query.getImage(), Image.getLargeImageSize(), landscapeMode,
-                            query.hasArtistImage());
-                }
+        if (mPlaybackManager != null && mSize > 0) {
+            if (mRepeatMode != PlaybackManager.NOT_REPEATING) {
+                position = position % mSize;
             }
+            Image image = null;
+            boolean hasArtistImage = false;
+            PlaylistEntry entry = mPlaybackManager.getPlaybackListEntry(position);
+            if (entry != null) {
+                image = entry.getQuery().getImage();
+                hasArtistImage = entry.getQuery().hasArtistImage();
+            }
+            ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
+            boolean landscapeMode = mViewPager.getResources().getConfiguration().orientation
+                    == Configuration.ORIENTATION_LANDSCAPE;
+            ImageUtils.loadImageIntoImageView(mViewPager.getContext(), imageView,
+                    image, Image.getLargeImageSize(), landscapeMode, hasArtistImage);
         }
         if (view != null) {
             container.addView(view);
@@ -148,15 +145,13 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
      */
     @Override
     public int getCount() {
-        if (mPlaybackManager == null || mPlaybackManager.getPlaybackListSize() == 0) {
+        if (mPlaybackManager == null || mSize == 0) {
             return 1;
         }
-        if (mPlaybackState.getExtras() != null
-                && mPlaybackState.getExtras().getInt(PlaybackService.EXTRAS_KEY_REPEAT_MODE)
-                != PlaybackManager.NOT_REPEATING) {
+        if (mRepeatMode != PlaybackManager.NOT_REPEATING) {
             return FAKE_INFINITY_COUNT;
         }
-        return mPlaybackManager.getPlaybackListSize();
+        return mSize;
     }
 
     /**
@@ -195,35 +190,27 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
      * @param smoothScroll boolean to determine whether or not to show a scrolling animation
      */
     private void setCurrentItem(PlaylistEntry entry, boolean smoothScroll) {
-        Bundle playbackStateExtras = mPlaybackState.getExtras();
-        if (playbackStateExtras != null) {
-            int position = mPlaybackManager.getPlaybackListIndex(entry);
-            if (playbackStateExtras.getInt(PlaybackService.EXTRAS_KEY_REPEAT_MODE)
-                    != PlaybackManager.NOT_REPEATING) {
-                position += mFakeInfinityOffset;
-            }
-            if (position != mViewPager.getCurrentItem()) {
-                if (playbackStateExtras.getInt(PlaybackService.EXTRAS_KEY_REPEAT_MODE)
-                        != PlaybackManager.NOT_REPEATING) {
-                    int currentItem = mViewPager.getCurrentItem();
-                    if (position == (currentItem % mPlaybackManager.getPlaybackListSize()) + 1
-                            || ((currentItem % mPlaybackManager.getPlaybackListSize())
-                            == mPlaybackManager.getPlaybackListSize() - 1 && position == 0)) {
-                        setCurrentViewPagerItem(mViewPager.getCurrentItem() + 1, smoothScroll);
-                    } else if (position
-                            == (currentItem % mPlaybackManager.getPlaybackListSize()) - 1
-                            || ((currentItem % mPlaybackManager.getPlaybackListSize()) == 0
-                            && position == mPlaybackManager.getPlaybackListSize() - 1)) {
-                        setCurrentViewPagerItem(mViewPager.getCurrentItem() - 1, smoothScroll);
-                    } else {
-                        setCurrentViewPagerItem(position, false);
-                    }
-                } else {
-                    setCurrentViewPagerItem(position, smoothScroll);
-                }
-            }
-            mLastItem = position;
+        int position = mPlaybackManager.getPlaybackListIndex(entry);
+        if (mRepeatMode != PlaybackManager.NOT_REPEATING) {
+            position += mFakeInfinityOffset;
         }
+        if (position != mViewPager.getCurrentItem()) {
+            if (mRepeatMode != PlaybackManager.NOT_REPEATING) {
+                int currentItem = mViewPager.getCurrentItem();
+                if (position == (currentItem % mSize) + 1
+                        || ((currentItem % mSize) == mSize - 1 && position == 0)) {
+                    setCurrentViewPagerItem(mViewPager.getCurrentItem() + 1, smoothScroll);
+                } else if (position == (currentItem % mSize) - 1
+                        || ((currentItem % mSize) == 0 && position == mSize - 1)) {
+                    setCurrentViewPagerItem(mViewPager.getCurrentItem() - 1, smoothScroll);
+                } else {
+                    setCurrentViewPagerItem(position, false);
+                }
+            } else {
+                setCurrentViewPagerItem(position, smoothScroll);
+            }
+        }
+        mLastItem = position;
     }
 
     private void setCurrentViewPagerItem(int position, boolean smoothScroll) {
@@ -242,11 +229,16 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
             return;
         }
         if (mMediaController != null && mPlaybackManager != null) {
-            mPlaybackState = mMediaController.getPlaybackState();
+            if (mMediaController.getPlaybackState().getExtras() != null) {
+                mRepeatMode = mMediaController.getPlaybackState().getExtras()
+                        .getInt(PlaybackService.EXTRAS_KEY_REPEAT_MODE);
+            } else {
+                mRepeatMode = PlaybackManager.NOT_REPEATING;
+            }
+            mSize = mPlaybackManager.getPlaybackListSize();
             notifyDataSetChanged();
-            int size = mPlaybackManager.getPlaybackListSize();
-            if (size > 0) {
-                mFakeInfinityOffset = size * ((FAKE_INFINITY_COUNT / 2) / size);
+            if (mSize > 0) {
+                mFakeInfinityOffset = mSize * ((FAKE_INFINITY_COUNT / 2) / mSize);
                 setCurrentItem(mPlaybackManager.getCurrentEntry(), false);
             }
         }

@@ -412,13 +412,7 @@ public class ContentHeaderFragment extends Fragment {
                                 artists.add(((Album) item).getArtist());
                                 StationPlaylist stationPlaylist =
                                         StationPlaylist.get(artists, null, null);
-                                Bundle extras = new Bundle();
-                                extras.putString(TomahawkFragment.PLAYLIST,
-                                        stationPlaylist.getCacheKey());
-                                controller.getTransportControls()
-                                        .sendCustomAction(PlaybackService.ACTION_SET_PLAYLIST,
-                                                extras);
-                                controller.getTransportControls().play();
+                                getPlaybackManager().setPlaylist(stationPlaylist);
                             }
                         }
                     }
@@ -442,13 +436,7 @@ public class ContentHeaderFragment extends Fragment {
                                 artists.add((Artist) item);
                                 StationPlaylist stationPlaylist =
                                         StationPlaylist.get(artists, null, null);
-                                Bundle extras = new Bundle();
-                                extras.putString(TomahawkFragment.PLAYLIST,
-                                        stationPlaylist.getCacheKey());
-                                controller.getTransportControls()
-                                        .sendCustomAction(PlaybackService.ACTION_SET_PLAYLIST,
-                                                extras);
-                                controller.getTransportControls().play();
+                                getPlaybackManager().setPlaylist(stationPlaylist);
                             }
                         }
                     }

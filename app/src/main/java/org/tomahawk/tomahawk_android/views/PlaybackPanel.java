@@ -342,9 +342,24 @@ public class PlaybackPanel extends FrameLayout {
     }
 
     private void updateText() {
-        mArtistTextView.setText(mPlaybackManager.getCurrentQuery().getArtist().getPrettyName());
-        mTrackTextView.setText(mPlaybackManager.getCurrentQuery().getPrettyName());
+        if (mPlaybackManager.getCurrentQuery() != null) {
+            mArtistTextView.setText(mPlaybackManager.getCurrentQuery().getArtist().getPrettyName());
+            mTrackTextView.setText(mPlaybackManager.getCurrentQuery().getPrettyName());
+        } else {
+            mArtistTextView.setText(null);
+            mTrackTextView.setText(null);
+        }
         if (mPlaybackManager.getPlaylist() instanceof StationPlaylist) {
+            if (mPlaybackManager.getCurrentQuery() == null) {
+                MediaMetadataCompat metadata = mMediaController.getMetadata();
+                if (metadata != null) {
+                    String displayTitle =
+                            metadata.getString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE);
+                    if (displayTitle != null) {
+                        mTrackTextView.setText(displayTitle);
+                    }
+                }
+            }
             mStationContainer.setVisibility(VISIBLE);
             mStationTextView.setText(mPlaybackManager.getPlaylist().getName());
             setupStationContainerAnimation();

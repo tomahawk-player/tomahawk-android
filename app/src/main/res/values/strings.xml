@@ -251,4 +251,5 @@
   <string name="playback_unfavorite">Remove from Favorites</string>
   <!-- Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this. -->
   <string name="mediabrowser_queue_title">Now Playing</string>
+  <string name="loading_station">Loading station:</string>
 </resources>

@@ -102,7 +102,6 @@ public class StationsFragment extends TomahawkFragment {
         if (item instanceof StationPlaylist) {
             if (item != getPlaybackManager().getPlaylist()) {
                 getPlaybackManager().setPlaylist((StationPlaylist) item);
-                getMediaController().getTransportControls().play();
             }
         } else if (item instanceof ListItemDrawable) {
             Intent i = new Intent(Intent.ACTION_VIEW);

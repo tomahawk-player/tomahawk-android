@@ -171,9 +171,10 @@ public class TomahawkMainActivity extends AppCompatActivity {
                         mPlaybackPanel.setMediaController(mediaController);
                         ContentHeaderFragment.MediaControllerConnectedEvent event
                                 = new ContentHeaderFragment.MediaControllerConnectedEvent();
+                        event.mMediaController = mediaController;
                         EventBus.getDefault().post(event);
                     } catch (RemoteException e) {
-                        Log.e(TAG, "could not connect media controller: ", e);
+                        Log.e(TAG, "Could not connect media controller: ", e);
                     }
                 }
             };
@@ -184,7 +185,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
         public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
             Log.d(TAG, "onPlaybackstate changed" + state);
             mPlaybackPanel.updatePlaybackState(state);
-            if (state.getState() == PlaybackStateCompat.STATE_PLAYING) {
+            if (state.getState() != PlaybackStateCompat.STATE_PAUSED) {
                 showPanel();
             }
         }

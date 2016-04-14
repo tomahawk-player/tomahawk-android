@@ -22,6 +22,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import org.jdeferred.DoneCallback;
+import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
@@ -86,7 +87,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.LruCache;
 import android.widget.Toast;
@@ -111,12 +111,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     public static final String ACTION_PLAY
             = "org.tomahawk.tomahawk_android.ACTION_PLAY";
-
-    public static final String ACTION_SET_PLAYLIST
-            = "org.tomahawk.tomahawk_android.SET_PLAYLIST";
-
-    public static final String ACTION_SET_CURRENT_ENTRY
-            = "org.tomahawk.tomahawk_android.SET_CURRENT_ENTRY";
 
     public static final String ACTION_STOP_NOTIFICATION
             = "org.tomahawk.tomahawk_android.STOP_NOTIFICATION";
@@ -226,13 +220,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         public void onSkipToNext() {
             Log.d(TAG, "next");
             int counter = 0;
-            PlaylistEntry entry = mPlaybackManager.getNextEntry();
-            while (entry != null && counter++ < mPlaybackManager.getPlaybackListSize()) {
-                setCurrentEntry(entry);
+            PlaylistEntry entry;
+            while ((entry = mPlaybackManager.getNextEntry()) != null
+                    && counter++ < mPlaybackManager.getPlaybackListSize()) {
                 if (entry.getQuery().isPlayable()) {
+                    mPlaybackManager.setCurrentEntry(entry);
                     break;
                 }
-                entry = mPlaybackManager.getNextEntry(entry);
             }
         }
 
@@ -243,13 +237,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         public void onSkipToPrevious() {
             Log.d(TAG, "previous");
             int counter = 0;
-            PlaylistEntry entry = mPlaybackManager.getPreviousEntry();
-            while (entry != null && counter++ < mPlaybackManager.getPlaybackListSize()) {
+            PlaylistEntry entry;
+            while ((entry = mPlaybackManager.getPreviousEntry()) != null
+                    && counter++ < mPlaybackManager.getPlaybackListSize()) {
                 if (entry.getQuery().isPlayable()) {
-                    setCurrentEntry(entry);
+                    mPlaybackManager.setCurrentEntry(entry);
                     break;
                 }
-                entry = mPlaybackManager.getPreviousEntry(entry);
             }
         }
 
@@ -304,32 +298,17 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onSetRating(RatingCompat rating) {
-            if (rating.getRatingStyle() == RatingCompat.RATING_HEART) {
-                CollectionManager.get()
-                        .setLovedItem(mPlaybackManager.getCurrentQuery(), rating.hasHeart());
+            if (rating.getRatingStyle() == RatingCompat.RATING_HEART
+                    && mPlaybackManager.getCurrentQuery() != null) {
+                CollectionManager.get().setLovedItem(
+                        mPlaybackManager.getCurrentQuery(), rating.hasHeart());
                 mPlaybackManagerCallback.onCurrentEntryChanged();
             }
         }
 
         @Override
         public void onCustomAction(String action, Bundle extras) {
-            if (ACTION_SET_PLAYLIST.equals(action)) {
-                Playlist playlist =
-                        Playlist.getByKey(extras.getString(TomahawkFragment.PLAYLIST));
-                if (playlist != mPlaybackManager.getPlaylist()) {
-                    if (playlist instanceof StationPlaylist) {
-                        setPlaylist((StationPlaylist) playlist);
-                    } else {
-                        PlaylistEntry entry = PlaylistEntry
-                                .getByKey(extras.getString(TomahawkFragment.PLAYLISTENTRY));
-                        setPlaylist(playlist, entry);
-                    }
-                }
-            } else if (ACTION_SET_CURRENT_ENTRY.equals(action)) {
-                PlaylistEntry entry =
-                        PlaylistEntry.getByKey(extras.getString(TomahawkFragment.PLAYLISTENTRY));
-                setCurrentEntry(entry);
-            } else if (ACTION_STOP_NOTIFICATION.equals(action)) {
+            if (ACTION_STOP_NOTIFICATION.equals(action)) {
                 mNotification.stopNotification();
             } else if (ACTION_DELETE_ENTRY_IN_QUEUE.equals(action)) {
                 PlaylistEntry entry =
@@ -360,12 +339,59 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     private PlaybackManager.Callback mPlaybackManagerCallback = new PlaybackManager.Callback() {
         @Override
         public void onPlaylistChanged() {
+            handlePlayState();
+            Playlist playlist = mPlaybackManager.getPlaylist();
+            if (playlist instanceof StationPlaylist) {
+                final StationPlaylist stationPlaylist = (StationPlaylist) playlist;
+                stationPlaylist.setPlayedTimeStamp(System.currentTimeMillis());
+                DatabaseHelper.get().storeStation(stationPlaylist);
+                if (stationPlaylist.size() == 0) {
+                    mPlayState = PlaybackStateCompat.STATE_BUFFERING;
+                    updateMediaPlayState();
+                    // station is empty, so we should fill it with some new tracks
+                    Promise<List<Query>, Throwable, Void> promise = stationPlaylist.fillPlaylist();
+                    if (promise != null) {
+                        Log.d(TAG, "onPlaylistChanged() - filling Station...");
+                        promise.done(new DoneCallback<List<Query>>() {
+                            @Override
+                            public void onDone(List<Query> result) {
+                                for (Query query : result) {
+                                    mCorrespondingQueries.add(query);
+                                    PipeLine.get().resolve(query);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
             resolveProximalQueries();
             updateMediaQueue();
         }
 
         @Override
         public void onCurrentEntryChanged() {
+            handlePlayState();
+            Playlist playlist = mPlaybackManager.getPlaylist();
+            if (playlist instanceof StationPlaylist) {
+                StationPlaylist stationPlaylist = (StationPlaylist) playlist;
+                if (!mPlaybackManager.hasNextEntry(mPlaybackManager.getNextEntry())) {
+                    // there's no track after the next one,
+                    // so we should fill the station with some new tracks
+                    Promise<List<Query>, Throwable, Void> promise = stationPlaylist.fillPlaylist();
+                    if (promise != null) {
+                        Log.d(TAG, "onCurrentEntryChanged() - filling Station...");
+                        promise.done(new DoneCallback<List<Query>>() {
+                            @Override
+                            public void onDone(List<Query> result) {
+                                for (Query query : result) {
+                                    mCorrespondingQueries.add(query);
+                                    PipeLine.get().resolve(query);
+                                }
+                            }
+                        });
+                    }
+                }
+            }
             resolveProximalQueries();
             updateMediaMetadata();
         }
@@ -551,10 +577,12 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         public void handleMessage(Message msg) {
             if (getReferencedObject() != null) {
                 Log.d(TAG, "Scrobbling delay has passed. Scrobbling...");
-                InfoSystem.get().sendNowPlayingPostStruct(
-                        AuthenticatorManager.get().getAuthenticatorUtils(
-                                TomahawkApp.PLUGINNAME_HATCHET),
-                        getReferencedObject().mPlaybackManager.getCurrentQuery());
+                if (getReferencedObject().mPlaybackManager.getCurrentQuery() != null) {
+                    InfoSystem.get().sendNowPlayingPostStruct(
+                            AuthenticatorManager.get().getAuthenticatorUtils(
+                                    TomahawkApp.PLUGINNAME_HATCHET),
+                            getReferencedObject().mPlaybackManager.getCurrentQuery());
+                }
             }
         }
     }
@@ -562,7 +590,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     private TomahawkMediaPlayerCallback mMediaPlayerCallback = new TomahawkMediaPlayerCallback() {
         @Override
         public void onPrepared(Query query) {
-            if (query == mPlaybackManager.getCurrentQuery()) {
+            if (query != null && query == mPlaybackManager.getCurrentQuery()) {
                 Log.d(TAG, "MediaPlayer successfully prepared the track '"
                         + mPlaybackManager.getCurrentQuery().getName() + "' by '"
                         + mPlaybackManager.getCurrentQuery().getArtist().getName()
@@ -598,7 +626,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
         @Override
         public void onCompletion(Query query) {
-            if (query == mPlaybackManager.getCurrentQuery()) {
+            if (query != null && query == mPlaybackManager.getCurrentQuery()) {
                 Log.d(TAG, "onCompletion");
                 if (mPlaybackManager.hasNextEntry()) {
                     mMediaSession.getController().getTransportControls().skipToNext();
@@ -627,14 +655,14 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     };
 
     @SuppressWarnings("unused")
-    public void onEventMainThread(PipeLine.ResultsEvent event) {
+    public void onEventAsync(PipeLine.ResultsEvent event) {
         Playlist playlist = mPlaybackManager.getPlaylist();
         if (playlist instanceof StationPlaylist
-                && ((StationPlaylist) playlist).isCandidate(event.mQuery)
-                && event.mQuery.isPlayable()) {
-            mPlaybackManager.addToQueue(event.mQuery);
-            if (mPlaybackManager.getCurrentEntry() == null) {
-                setCurrentEntry(mPlaybackManager.getPlaylist().getEntryAtPos(0));
+                && event.mQuery.isPlayable()
+                && ((StationPlaylist) playlist).removeCandidate(event.mQuery)) {
+            boolean wasNull = mPlaybackManager.getCurrentEntry() == null;
+            mPlaybackManager.addToPlaylist(event.mQuery);
+            if (wasNull) {
                 mMediaSession.getController().getTransportControls().play();
             }
         }
@@ -644,13 +672,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             if (mCurrentMediaPlayer == null
                     || !(mCurrentMediaPlayer.isPrepared(currentQuery)
                     || mCurrentMediaPlayer.isPreparing(currentQuery))) {
-                prepareCurrentQuery();
+                handlePlayState();
             }
         }
     }
 
     @SuppressWarnings("unused")
-    public void onEventMainThread(InfoSystem.ResultsEvent event) {
+    public void onEventAsync(InfoSystem.ResultsEvent event) {
         Query currentQuery = mPlaybackManager.getCurrentQuery();
         if (currentQuery != null && currentQuery.getCacheKey()
                 .equals(mCorrespondingRequestIds.get(event.mInfoRequestData.getRequestId()))) {
@@ -659,7 +687,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     }
 
     @SuppressWarnings("unused")
-    public void onEvent(CollectionManager.UpdatedEvent event) {
+    public void onEventAsync(CollectionManager.UpdatedEvent event) {
         Query currentQuery = mPlaybackManager.getCurrentQuery();
         if (event.mUpdatedItemIds != null && currentQuery != null
                 && event.mUpdatedItemIds.contains(currentQuery.getCacheKey())) {
@@ -872,7 +900,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                             if (!mp.isPlaying(currentQuery)) {
                                 mp.start();
                             }
-                        } else if (mPlayState != PlaybackStateCompat.STATE_BUFFERING) {
+                        } else {
                             prepareCurrentQuery();
                         }
                         break;
@@ -896,6 +924,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 );
             }
         } else {
+            releaseAllPlayers();
+            if (mWakeLock != null && mWakeLock.isHeld()) {
+                mWakeLock.release();
+            }
             Log.d(TAG, "handlePlayState couldn't do anything, isPreparing: "
                     + (mPlayState == PlaybackStateCompat.STATE_BUFFERING));
         }
@@ -962,67 +994,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         }
     }
 
-    private void setCurrentEntry(PlaylistEntry entry) {
-        Log.d(TAG, "setCurrentEntry to " + entry.getCacheKey());
-        releaseAllPlayers();
-        final PlaylistEntry lastEntry = mPlaybackManager.getCurrentEntry();
-        mPlaybackManager.setCurrentEntry(entry);
-        if (lastEntry != null) {
-            mPlaybackManager.deleteFromQueue(lastEntry);
-        }
-        handlePlayState();
-        Playlist currentPlaylist = mPlaybackManager.getPlaylist();
-        if (currentPlaylist instanceof StationPlaylist
-                && !mPlaybackManager.hasNextEntry(mPlaybackManager.getNextEntry())) {
-            ((StationPlaylist) currentPlaylist).fillPlaylist(false)
-                    .done(new DoneCallback<List<Query>>() {
-                        @Override
-                        public void onDone(List<Query> result) {
-                            for (Query query : result) {
-                                mCorrespondingQueries.add(query);
-                                PipeLine.get().resolve(query);
-                            }
-                        }
-                    });
-        }
-    }
-
-    /**
-     * Set the current Playlist to playlist and set the current Track to the Playlist's current
-     * Track.
-     */
-    private void setPlaylist(StationPlaylist stationPlaylist) {
-        Log.d(TAG, "setPlaylist - StationPlaylist");
-        stationPlaylist.setPlayedTimeStamp(System.currentTimeMillis());
-        DatabaseHelper.get().storeStation(stationPlaylist);
-        releaseAllPlayers();
-        int size = stationPlaylist.size();
-        if (size > 0) {
-            mPlaybackManager.setPlaylist(stationPlaylist, stationPlaylist.getEntryAtPos(size - 1));
-        } else {
-            mPlaybackManager.setPlaylist(stationPlaylist);
-            stationPlaylist.fillPlaylist(true).done(new DoneCallback<List<Query>>() {
-                @Override
-                public void onDone(List<Query> result) {
-                    for (Query query : result) {
-                        mCorrespondingQueries.add(query);
-                        PipeLine.get().resolve(query);
-                    }
-                }
-            });
-        }
-    }
-
-    /**
-     * Set the current Playlist to playlist and set the current Track to the Playlist's current
-     * Track.
-     */
-    private void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
-        Log.d(TAG, "setPlaylist - Playlist");
-        releaseAllPlayers();
-        mPlaybackManager.setPlaylist(playlist, currentEntry);
-    }
-
     private void releaseAllPlayers() {
         for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
             mp.release();
@@ -1060,54 +1031,68 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         mMediaSession.setActive(true);
 
         mMediaSession.setMetadata(buildMetadata());
-        Log.d(TAG, "Setting lockscreen metadata to: "
-                + mPlaybackManager.getCurrentQuery().getArtist().getPrettyName() + ", "
-                + mPlaybackManager.getCurrentQuery().getPrettyName());
+        if (mPlaybackManager.getCurrentQuery() != null) {
+            Log.d(TAG, "Setting media metadata to: "
+                    + mPlaybackManager.getCurrentQuery().getArtist().getPrettyName() + ", "
+                    + mPlaybackManager.getCurrentQuery().getPrettyName());
+        } else if (mPlaybackManager.getPlaylist() instanceof StationPlaylist) {
+            Log.d(TAG, "Setting media metadata to: " + getString(R.string.loading_station) + " "
+                    + mPlaybackManager.getPlaylist().getName());
+        } else {
+            Log.e(TAG, "Wasn't able to set media metadata");
+        }
     }
 
     private MediaMetadataCompat buildMetadata() {
         final Query currentQuery = mPlaybackManager.getCurrentQuery();
-        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder()
-                .putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID,
-                        mPlaybackManager.getCurrentEntry().getCacheKey())
-                .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST,
-                        currentQuery.getArtist().getPrettyName())
-                .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,
-                        currentQuery.getArtist().getPrettyName())
-                .putString(MediaMetadataCompat.METADATA_KEY_TITLE,
-                        currentQuery.getPrettyName())
-                .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
-                        currentQuery.getPreferredTrack().getDuration())
-                .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING,
-                        RatingCompat.newHeartRating(
-                                DatabaseHelper.get().isItemLoved(currentQuery)));
-        Bitmap bitmap;
-        if (currentQuery.getImage() != null) {
-            bitmap = mMediaImageCache.get(currentQuery.getImage());
-        } else {
-            bitmap = mCachedPlaceHolder;
-        }
-        if (bitmap == null) {
-            // Image is not in cache yet. We have to fetch it...
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    if (mMediaImageTarget == null
-                            || mMediaImageTarget.mImageToLoad != currentQuery.getImage()) {
-                        mMediaImageTarget = new MediaImageTarget(currentQuery.getImage());
-                        ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
-                                currentQuery.getImage(), mMediaImageTarget,
-                                Image.getLargeImageSize(), false);
+        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+
+        if (currentQuery != null) {
+            builder.putString(MediaMetadataCompat.METADATA_KEY_MEDIA_ID,
+                    mPlaybackManager.getCurrentEntry().getCacheKey())
+                    .putString(MediaMetadataCompat.METADATA_KEY_ALBUM_ARTIST,
+                            currentQuery.getArtist().getPrettyName())
+                    .putString(MediaMetadataCompat.METADATA_KEY_ARTIST,
+                            currentQuery.getArtist().getPrettyName())
+                    .putString(MediaMetadataCompat.METADATA_KEY_TITLE,
+                            currentQuery.getPrettyName())
+                    .putLong(MediaMetadataCompat.METADATA_KEY_DURATION,
+                            currentQuery.getPreferredTrack().getDuration())
+                    .putRating(MediaMetadataCompat.METADATA_KEY_USER_RATING,
+                            RatingCompat.newHeartRating(
+                                    DatabaseHelper.get().isItemLoved(currentQuery)));
+            if (!currentQuery.getAlbum().getName().isEmpty()) {
+                builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM,
+                        currentQuery.getAlbum().getPrettyName());
+            }
+            Bitmap bitmap;
+            if (currentQuery.getImage() != null) {
+                bitmap = mMediaImageCache.get(currentQuery.getImage());
+            } else {
+                bitmap = mCachedPlaceHolder;
+            }
+            if (bitmap == null) {
+                // Image is not in cache yet. We have to fetch it...
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mMediaImageTarget == null
+                                || mMediaImageTarget.mImageToLoad != currentQuery.getImage()) {
+                            mMediaImageTarget = new MediaImageTarget(currentQuery.getImage());
+                            ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
+                                    currentQuery.getImage(), mMediaImageTarget,
+                                    Image.getLargeImageSize(), false);
+                        }
                     }
-                }
-            });
-        }
-        if (bitmap != null) {
-            builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
-        }
-        if (!TextUtils.isEmpty(currentQuery.getAlbum().getPrettyName())) {
-            builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM,
-                    currentQuery.getAlbum().getPrettyName());
+                });
+            }
+            if (bitmap != null) {
+                builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
+            }
+        } else if (mPlaybackManager.getPlaylist() instanceof StationPlaylist) {
+            builder.putString(MediaMetadataCompat.METADATA_KEY_DISPLAY_TITLE,
+                    getString(R.string.loading_station) + " "
+                            + mPlaybackManager.getPlaylist().getName());
         }
         return builder.build();
     }
