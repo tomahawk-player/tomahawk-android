@@ -25,6 +25,7 @@ import com.squareup.picasso.Callback;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
@@ -310,10 +311,7 @@ public class PlaybackFragment extends TomahawkFragment {
                         getMediaController().getTransportControls().play();
                     }
                 } else {
-                    Bundle extras = new Bundle();
-                    extras.putString(PLAYLISTENTRY, entry.getCacheKey());
-                    getMediaController().getTransportControls()
-                            .sendCustomAction(PlaybackService.ACTION_SET_CURRENT_ENTRY, extras);
+                    getPlaybackManager().setCurrentEntry(entry);
                 }
             }
         }
@@ -475,66 +473,55 @@ public class PlaybackFragment extends TomahawkFragment {
      * Refresh the information in this fragment to reflect that of the given Track.
      */
     protected void refreshTrackInfo(MediaMetadataCompat metadata) {
-        if (getView() != null && metadata != null) {
-            if (getPlaybackManager().getCurrentQuery() != null) {
-                // Make all buttons clickable
-                getView().findViewById(R.id.imageButton_shuffle).setClickable(true);
-                getView().findViewById(R.id.imageButton_repeat).setClickable(true);
-
-                if (mCurrentBlurredImage != getPlaybackManager().getCurrentQuery().getImage()) {
-                    mCurrentBlurredImage = getPlaybackManager().getCurrentQuery().getImage();
-                    ImageView bgImageView =
-                            (ImageView) getView().findViewById(R.id.background);
-                    ImageView bgAltImageView =
-                            (ImageView) getView().findViewById(R.id.background_alt);
-                    final ImageView imageViewToFadeIn;
-                    final ImageView imageViewToFadeOut;
-                    if (bgAltImageView.getAlpha() < bgImageView.getAlpha()) {
-                        imageViewToFadeIn = bgAltImageView;
-                        imageViewToFadeOut = bgImageView;
-                    } else {
-                        imageViewToFadeIn = bgImageView;
-                        imageViewToFadeOut = bgAltImageView;
-                    }
-                    Callback fadeCallback = new Callback() {
-                        @Override
-                        public void onSuccess() {
-                            AnimationUtils.fade(imageViewToFadeIn, imageViewToFadeIn.getAlpha(),
-                                    1f, AnimationUtils.DURATION_PLAYBACKFRAGMENT_BG, true, null);
-                            AnimationUtils.fade(imageViewToFadeOut, imageViewToFadeOut.getAlpha(),
-                                    0f, AnimationUtils.DURATION_PLAYBACKFRAGMENT_BG, false,
-                                    new Animator.AnimatorListener() {
-                                        @Override
-                                        public void onAnimationStart(Animator animation) {
-                                        }
-
-                                        @Override
-                                        public void onAnimationEnd(Animator animation) {
-                                            imageViewToFadeOut.setImageDrawable(null);
-                                        }
-
-                                        @Override
-                                        public void onAnimationCancel(Animator animation) {
-                                        }
-
-                                        @Override
-                                        public void onAnimationRepeat(Animator animation) {
-                                        }
-                                    });
-                        }
-
-                        @Override
-                        public void onError() {
-                        }
-                    };
-                    ImageUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(),
-                            imageViewToFadeIn, mCurrentBlurredImage, Image.getSmallImageSize(),
-                            R.color.playerview_default_bg, fadeCallback);
+        if (getView() != null && metadata != null
+                && getPlaybackManager().getCurrentQuery() != null) {
+            if (mCurrentBlurredImage != getPlaybackManager().getCurrentQuery().getImage()) {
+                mCurrentBlurredImage = getPlaybackManager().getCurrentQuery().getImage();
+                ImageView bgImageView = (ImageView) getView().findViewById(R.id.background);
+                ImageView bgAltImageView = (ImageView) getView().findViewById(R.id.background_alt);
+                final ImageView imageViewToFadeIn;
+                final ImageView imageViewToFadeOut;
+                if (bgAltImageView.getAlpha() < bgImageView.getAlpha()) {
+                    imageViewToFadeIn = bgAltImageView;
+                    imageViewToFadeOut = bgImageView;
+                } else {
+                    imageViewToFadeIn = bgImageView;
+                    imageViewToFadeOut = bgAltImageView;
                 }
-            } else {
-                // Make all buttons not clickable
-                getView().findViewById(R.id.imageButton_shuffle).setClickable(false);
-                getView().findViewById(R.id.imageButton_repeat).setClickable(false);
+                Callback fadeCallback = new Callback() {
+                    @Override
+                    public void onSuccess() {
+                        AnimationUtils.fade(imageViewToFadeIn, imageViewToFadeIn.getAlpha(),
+                                1f, AnimationUtils.DURATION_PLAYBACKFRAGMENT_BG, true, null);
+                        AnimationUtils.fade(imageViewToFadeOut, imageViewToFadeOut.getAlpha(),
+                                0f, AnimationUtils.DURATION_PLAYBACKFRAGMENT_BG, false,
+                                new Animator.AnimatorListener() {
+                                    @Override
+                                    public void onAnimationStart(Animator animation) {
+                                    }
+
+                                    @Override
+                                    public void onAnimationEnd(Animator animation) {
+                                        imageViewToFadeOut.setImageDrawable(null);
+                                    }
+
+                                    @Override
+                                    public void onAnimationCancel(Animator animation) {
+                                    }
+
+                                    @Override
+                                    public void onAnimationRepeat(Animator animation) {
+                                    }
+                                });
+                    }
+
+                    @Override
+                    public void onError() {
+                    }
+                };
+                ImageUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(),
+                        imageViewToFadeIn, mCurrentBlurredImage, Image.getSmallImageSize(),
+                        R.color.playerview_default_bg, fadeCallback);
             }
         }
     }
@@ -545,18 +532,27 @@ public class PlaybackFragment extends TomahawkFragment {
     protected void refreshRepeatButtonState(PlaybackStateCompat playbackState) {
         if (getView() != null) {
             ImageButton imageButton = (ImageButton) getView().findViewById(R.id.imageButton_repeat);
-            if (imageButton != null && playbackState.getExtras() != null) {
-                int repeatMode =
-                        playbackState.getExtras().getInt(PlaybackService.EXTRAS_KEY_REPEAT_MODE);
-                if (repeatMode == PlaybackManager.REPEAT_ALL) {
-                    ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                            imageButton, R.drawable.repeat_all, R.color.tomahawk_red);
-                } else if (repeatMode == PlaybackManager.REPEAT_ONE) {
-                    ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                            imageButton, R.drawable.repeat_one, R.color.tomahawk_red);
-                } else if (repeatMode == PlaybackManager.NOT_REPEATING) {
-                    ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
-                            imageButton, R.drawable.repeat_all);
+            if (imageButton != null) {
+                if (playbackState.getExtras() != null
+                        && !(getPlaybackManager().getPlaylist() instanceof StationPlaylist)
+                        && getPlaybackManager().getCurrentEntry() != null) {
+                    imageButton.setAlpha(1f);
+                    imageButton.setClickable(true);
+                    int repeatMode = playbackState.getExtras()
+                            .getInt(PlaybackService.EXTRAS_KEY_REPEAT_MODE);
+                    if (repeatMode == PlaybackManager.REPEAT_ALL) {
+                        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                                imageButton, R.drawable.repeat_all, R.color.tomahawk_red);
+                    } else if (repeatMode == PlaybackManager.REPEAT_ONE) {
+                        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                                imageButton, R.drawable.repeat_one, R.color.tomahawk_red);
+                    } else if (repeatMode == PlaybackManager.NOT_REPEATING) {
+                        ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
+                                imageButton, R.drawable.repeat_all);
+                    }
+                } else {
+                    imageButton.setAlpha(0.2f);
+                    imageButton.setClickable(false);
                 }
             }
         }
@@ -567,15 +563,24 @@ public class PlaybackFragment extends TomahawkFragment {
      */
     protected void refreshShuffleButtonState(PlaybackStateCompat playbackState) {
         if (getView() != null) {
-            ImageButton imageButton = (ImageButton) getView()
-                    .findViewById(R.id.imageButton_shuffle);
-            if (imageButton != null && playbackState.getExtras() != null) {
-                int repeatMode =
-                        playbackState.getExtras().getInt(PlaybackService.EXTRAS_KEY_SHUFFLE_MODE);
-                if (repeatMode == PlaybackManager.SHUFFLED) {
-                    ImageUtils.setTint(imageButton.getDrawable(), R.color.tomahawk_red);
-                } else if (repeatMode == PlaybackManager.NOT_SHUFFLED) {
-                    ImageUtils.clearTint(imageButton.getDrawable());
+            ImageButton imageButton =
+                    (ImageButton) getView().findViewById(R.id.imageButton_shuffle);
+            if (imageButton != null) {
+                if (playbackState.getExtras() != null
+                        && !(getPlaybackManager().getPlaylist() instanceof StationPlaylist)
+                        && getPlaybackManager().getCurrentEntry() != null) {
+                    imageButton.setAlpha(1f);
+                    imageButton.setClickable(true);
+                    int repeatMode = playbackState.getExtras()
+                            .getInt(PlaybackService.EXTRAS_KEY_SHUFFLE_MODE);
+                    if (repeatMode == PlaybackManager.SHUFFLED) {
+                        ImageUtils.setTint(imageButton.getDrawable(), R.color.tomahawk_red);
+                    } else if (repeatMode == PlaybackManager.NOT_SHUFFLED) {
+                        ImageUtils.clearTint(imageButton.getDrawable());
+                    }
+                } else {
+                    imageButton.setAlpha(0.2f);
+                    imageButton.setClickable(false);
                 }
             }
         }

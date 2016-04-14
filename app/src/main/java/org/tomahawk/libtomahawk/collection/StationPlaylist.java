@@ -21,6 +21,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.infosystem.stations.ScriptPlaylistGenerator;
@@ -55,6 +56,8 @@ public class StationPlaylist extends Playlist {
     private long mCreatedTimeStamp = 0L;
 
     private long mPlayedTimeStamp = 0L;
+
+    private Deferred<List<Query>, Throwable, Void> mFillDeferred;
 
     private StationPlaylist(List<Artist> artists, List<Pair<Track, String>> tracks,
             List<String> genres) {
@@ -201,18 +204,29 @@ public class StationPlaylist extends Playlist {
         mPlayedTimeStamp = playedTimeStamp;
     }
 
-    public Promise<List<Query>, Throwable, Void> fillPlaylist(final boolean initial) {
+    public Promise<List<Query>, Throwable, Void> fillPlaylist() {
         final ScriptPlaylistGenerator generator =
                 ScriptPlaylistGeneratorManager.get().getDefaultPlaylistGenerator();
-        final ADeferredObject<List<Query>, Throwable, Void> deferred = new ADeferredObject<>();
+        if (mFillDeferred != null && mFillDeferred.isPending()) {
+            return null;
+        }
+        mFillDeferred = new ADeferredObject<>();
         if (generator != null) {
+            final List<Query> combinedResults = new ArrayList<>();
             final DoneCallback<ScriptPlaylistGeneratorResult> callback
                     = new DoneCallback<ScriptPlaylistGeneratorResult>() {
                 @Override
                 public void onDone(ScriptPlaylistGeneratorResult result) {
                     mSessionId = result.sessionId;
                     mCandidates.addAll(result.results);
-                    deferred.resolve(result.results);
+                    combinedResults.addAll(result.results);
+                }
+            };
+            final DoneCallback<ScriptPlaylistGeneratorResult> finishCallback
+                    = new DoneCallback<ScriptPlaylistGeneratorResult>() {
+                @Override
+                public void onDone(ScriptPlaylistGeneratorResult result) {
+                    mFillDeferred.resolve(combinedResults);
                 }
             };
             if (mSessionId == null) {
@@ -220,29 +234,19 @@ public class StationPlaylist extends Playlist {
                         .done(new DoneCallback<ScriptPlaylistGeneratorResult>() {
                             @Override
                             public void onDone(ScriptPlaylistGeneratorResult result) {
-                                generator.fillStation(mSessionId).done(callback);
-                                if (initial) {
-                                    generator.fillStation(mSessionId).done(callback);
-                                }
+                                generator.fillStation(mSessionId).done(callback)
+                                        .done(finishCallback);
                             }
                         });
             } else {
-                generator.fillStation(mSessionId).done(callback)
-                        .done(new DoneCallback<ScriptPlaylistGeneratorResult>() {
-                            @Override
-                            public void onDone(ScriptPlaylistGeneratorResult result) {
-                                if (initial) {
-                                    generator.fillStation(mSessionId).done(callback);
-                                }
-                            }
-                        });
+                generator.fillStation(mSessionId).done(callback).done(finishCallback);
             }
         }
-        return deferred;
+        return mFillDeferred;
     }
 
-    public boolean isCandidate(Query query) {
-        return mCandidates.contains(query);
+    public boolean removeCandidate(Query query) {
+        return mCandidates.remove(query);
     }
 
     public String toJson() {
