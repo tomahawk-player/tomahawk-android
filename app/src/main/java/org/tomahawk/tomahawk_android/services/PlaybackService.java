@@ -495,28 +495,29 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     /**
      * Listens for incoming phone calls and handles playback.
      */
-    private PhoneStateListener mPhoneCallListener = new PhoneStateListener() {
+    private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
 
-        private long mStartCallTime = 0L;
+        private boolean mShouldResume = false;
 
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
+            Log.d(TAG, "PhoneStateListener onCallStateChanged state: " + state);
             switch (state) {
-                // TODO: Test and fix
+                case TelephonyManager.CALL_STATE_OFFHOOK:
                 case TelephonyManager.CALL_STATE_RINGING:
-                    if (mPlayState == PlaybackStateCompat.STATE_PLAYING) {
-                        mStartCallTime = System.currentTimeMillis();
+                    if (mPlayState != PlaybackStateCompat.STATE_PAUSED) {
+                        Log.d(TAG, "PhoneStateListener pausing playback");
+                        mShouldResume = true;
                         mMediaSession.getController().getTransportControls().pause();
                     }
                     break;
 
                 case TelephonyManager.CALL_STATE_IDLE:
-                    if (mStartCallTime > 0
-                            && (System.currentTimeMillis() - mStartCallTime < 30000)) {
+                    if (mShouldResume) {
+                        Log.d(TAG, "PhoneStateListener resuming playback");
+                        mShouldResume = false;
                         mMediaSession.getController().getTransportControls().play();
                     }
-
-                    mStartCallTime = 0L;
                     break;
             }
         }
@@ -735,7 +736,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         // Initialize PhoneCallListener
         TelephonyManager telephonyManager =
                 (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        telephonyManager.listen(mPhoneCallListener, PhoneStateListener.LISTEN_CALL_STATE);
+        telephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
 
         // Initialize WakeLock
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
@@ -848,8 +849,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         mWakeLock = null;
         TelephonyManager telephonyManager =
                 (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        telephonyManager.listen(mPhoneCallListener, PhoneStateListener.LISTEN_NONE);
-        mPhoneCallListener = null;
+        telephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
+        mPhoneStateListener = null;
         mSuicideHandler.stop();
         mSuicideHandler = null;
         mPluginServiceKillHandler.stop();
