@@ -17,11 +17,11 @@
  */
 package org.tomahawk.tomahawk_android.views;
 
+import com.github.rahatarmanahmed.cpv.CircularProgressView;
 import com.nineoldandroids.animation.Keyframe;
 import com.nineoldandroids.animation.ObjectAnimator;
 import com.nineoldandroids.animation.PropertyValuesHolder;
 import com.nineoldandroids.animation.ValueAnimator;
-import com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar;
 
 import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.resolver.Resolver;
@@ -97,7 +97,7 @@ public class PlaybackPanel extends FrameLayout {
 
     private FrameLayout mPlayPauseButtonContainer;
 
-    private HoloCircularProgressBar mPlayPauseButton;
+    private CircularProgressView mPlayPauseButton;
 
     private ValueAnimator mStationContainerAnimation;
 
@@ -146,7 +146,7 @@ public class PlaybackPanel extends FrameLayout {
         mProgressBarThumb = findViewById(R.id.progressbar_thumb);
         mPlayPauseButtonContainer =
                 (FrameLayout) findViewById(R.id.circularprogressbar_container);
-        mPlayPauseButton = (HoloCircularProgressBar)
+        mPlayPauseButton = (CircularProgressView)
                 mPlayPauseButtonContainer.findViewById(R.id.circularprogressbar);
 
         mProgressBarUpdater = new ProgressBarUpdater(
@@ -168,7 +168,7 @@ public class PlaybackPanel extends FrameLayout {
                         }
                         mProgressBar
                                 .setProgress((int) ((float) currentPosition / duration * 10000));
-                        mPlayPauseButton.setProgress((float) currentPosition / duration);
+                        mPlayPauseButton.setProgress((float) currentPosition / duration * 1000);
                         mCurrentTimeTextView.setText(ViewUtils.durationToString(currentPosition));
                     }
                 });
@@ -317,8 +317,6 @@ public class PlaybackPanel extends FrameLayout {
     public void updateMetadata(MediaMetadataCompat metadata) {
         mCurrentDuration = metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION);
         mProgressBarUpdater.setCurrentDuration(mCurrentDuration);
-        mProgressBar.setProgress(0);
-        mPlayPauseButton.setProgress(0);
         mCurrentTimeTextView.setText(ViewUtils.durationToString(0));
         updateTextViewCompleteTime();
         updateText();
@@ -327,17 +325,33 @@ public class PlaybackPanel extends FrameLayout {
 
     public void updatePlaybackState(PlaybackStateCompat playbackState) {
         if (mInitialized) {
-            mProgressBarUpdater.setPlaybackState(mMediaController.getPlaybackState());
+            mProgressBarUpdater.setPlaybackState(playbackState);
             if (playbackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
+                if (mPlayPauseButton.isIndeterminate()) {
+                    mPlayPauseButton.setIndeterminate(false);
+                    mPlayPauseButton.setColor(getResources().getColor(android.R.color.white));
+                    mPlayPauseButton.resetAnimation();
+                }
                 mPauseButton.setVisibility(VISIBLE);
                 mPlayButton.setVisibility(GONE);
                 mProgressBarUpdater.scheduleSeekbarUpdate();
-            } else {
+            } else if (playbackState.getState() == PlaybackStateCompat.STATE_PAUSED) {
+                if (mPlayPauseButton.isIndeterminate()) {
+                    mPlayPauseButton.setIndeterminate(false);
+                    mPlayPauseButton.setColor(getResources().getColor(android.R.color.white));
+                    mPlayPauseButton.resetAnimation();
+                }
                 mPauseButton.setVisibility(GONE);
                 mPlayButton.setVisibility(VISIBLE);
                 mProgressBarUpdater.stopSeekbarUpdate();
+            } else if (playbackState.getState() == PlaybackStateCompat.STATE_BUFFERING) {
+                if (!mPlayPauseButton.isIndeterminate()) {
+                    mPlayPauseButton.setIndeterminate(true);
+                    mPlayPauseButton.setColor(getResources().getColor(R.color.tomahawk_red));
+                    mPlayPauseButton.startAnimation();
+                }
+                mProgressBarUpdater.stopSeekbarUpdate();
             }
-            // TODO: Properly indicate buffering state
         }
     }
 

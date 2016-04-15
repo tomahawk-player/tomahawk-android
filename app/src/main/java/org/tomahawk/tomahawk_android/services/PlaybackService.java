@@ -220,8 +220,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         public void onSkipToNext() {
             Log.d(TAG, "next");
             int counter = 0;
-            PlaylistEntry entry;
-            while ((entry = mPlaybackManager.getNextEntry()) != null
+            PlaylistEntry entry = mPlaybackManager.getCurrentEntry();
+            while ((entry = mPlaybackManager.getNextEntry(entry)) != null
                     && counter++ < mPlaybackManager.getPlaybackListSize()) {
                 if (entry.getQuery().isPlayable()) {
                     mPlaybackManager.setCurrentEntry(entry);
@@ -237,8 +237,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         public void onSkipToPrevious() {
             Log.d(TAG, "previous");
             int counter = 0;
-            PlaylistEntry entry;
-            while ((entry = mPlaybackManager.getPreviousEntry()) != null
+            PlaylistEntry entry = mPlaybackManager.getCurrentEntry();
+            while ((entry = mPlaybackManager.getPreviousEntry(entry)) != null
                     && counter++ < mPlaybackManager.getPlaybackListSize()) {
                 if (entry.getQuery().isPlayable()) {
                     mPlaybackManager.setCurrentEntry(entry);
@@ -289,6 +289,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                         mMediaPlayers.get(currentQuery.getMediaPlayerClass());
                 if (mp.isPrepared(currentQuery)) {
                     mp.seekTo(pos);
+                    updateMediaPlayState();
                 }
             }
         }

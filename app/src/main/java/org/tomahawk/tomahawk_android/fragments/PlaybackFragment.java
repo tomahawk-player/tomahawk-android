@@ -160,11 +160,6 @@ public class PlaybackFragment extends TomahawkFragment {
         }
     }
 
-    @SuppressWarnings("unused")
-    public void onEventMainThread(MediaControllerConnectedEvent event) {
-        refreshAll();
-    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -272,19 +267,19 @@ public class PlaybackFragment extends TomahawkFragment {
 
         setupAlbumArtAnimation();
 
-        if (getMediaController() != null) {
-            refreshAll();
-        }
+        refreshAll();
     }
 
     private void refreshAll() {
-        mAlbumArtSwipeAdapter.setMediaController(getMediaController());
-        mAlbumArtSwipeAdapter.setPlaybackManager(getPlaybackManager());
-        mAlbumArtSwipeAdapter.updatePlaylist();
-        refreshTrackInfo(getMediaController().getMetadata());
-        refreshRepeatButtonState(getMediaController().getPlaybackState());
-        refreshShuffleButtonState(getMediaController().getPlaybackState());
-        updateAdapter();
+        if (getMediaController() != null) {
+            mAlbumArtSwipeAdapter.setMediaController(getMediaController());
+            mAlbumArtSwipeAdapter.setPlaybackManager(getPlaybackManager());
+            mAlbumArtSwipeAdapter.updatePlaylist();
+            refreshTrackInfo(getMediaController().getMetadata());
+            refreshRepeatButtonState(getMediaController().getPlaybackState());
+            refreshShuffleButtonState(getMediaController().getPlaybackState());
+            updateAdapter();
+        }
     }
 
     /**
@@ -336,8 +331,7 @@ public class PlaybackFragment extends TomahawkFragment {
 
     @Override
     public void onMediaControllerConnected() {
-        mAlbumArtSwipeAdapter.setPlaybackManager(getPlaybackManager());
-
+        refreshAll();
     }
 
     @Override
@@ -368,8 +362,10 @@ public class PlaybackFragment extends TomahawkFragment {
     public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
         super.onPlaybackStateChanged(state);
 
-        refreshRepeatButtonState(state);
-        refreshShuffleButtonState(state);
+        if (getMediaController() != null) {
+            refreshRepeatButtonState(state);
+            refreshShuffleButtonState(state);
+        }
         if (mAlbumArtSwipeAdapter != null) {
             mAlbumArtSwipeAdapter.updatePlaylist();
         }

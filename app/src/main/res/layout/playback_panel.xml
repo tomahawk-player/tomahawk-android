@@ -22,6 +22,7 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:clickable="false">
@@ -92,14 +93,20 @@
         <FrameLayout android:id="@+id/circularprogressbar_container"
                      android:layout_width="@dimen/playback_panel_height"
                      android:layout_height="match_parent"
-                     android:paddingLeft="@dimen/padding_medium"
-                     android:paddingRight="@dimen/padding_medium">
+                     android:padding="@dimen/padding_medium">
 
-            <com.pascalwelsch.holocircularprogressbar.HoloCircularProgressBar
+            <com.github.rahatarmanahmed.cpv.CircularProgressView
                     android:id="@+id/circularprogressbar"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:background="@drawable/selectable_background_ring_tomahawk"/>
+                    android:layout_gravity="center"
+                    android:background="@drawable/selectable_background_ring_tomahawk"
+                    app:cpv_progress="500"
+                    app:cpv_maxProgress="1000"
+                    app:cpv_thickness="1.5dp"
+                    app:cpv_color="@android:color/white"
+                    app:cpv_bgThickness="1.5dp"
+                    app:cpv_bgColor="#777"/>
 
             <ImageView android:id="@+id/pause_button"
                        android:layout_width="18dp"
