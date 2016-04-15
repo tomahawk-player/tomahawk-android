@@ -11,7 +11,6 @@
         <item name="actionBarItemBackground">@drawable/selectable_background_tomahawk</item>
         <item name="popupMenuStyle">@style/PopupMenu.Tomahawk</item>
         <item name="actionBarStyle">@style/ActionBar.Solid.Tomahawk</item>
-        <item name="circularProgressBarStyle">@style/CircularProgressBarPlayButton</item>
         <item name="colorPrimary">@color/tomahawk_red</item>
         <item name="colorPrimaryDark">@color/tomahawk_red</item>
         <item name="colorAccent">@color/tomahawk_red</item>

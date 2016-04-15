@@ -49,6 +49,7 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
@@ -139,9 +140,21 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             new ProgressBarUpdater.UpdateProgressRunnable() {
                 @Override
                 public void updateProgress(PlaybackStateCompat playbackState, long duration) {
-                    if (mTomahawkListAdapter != null) {
-                        mTomahawkListAdapter
-                                .onPlayPositionChanged(duration, playbackState.getPosition());
+                    if (playbackState != null && mTomahawkListAdapter != null
+                            && mTomahawkListAdapter.getProgressBar() != null) {
+                        long currentPosition = playbackState.getPosition();
+                        if (playbackState.getState() != PlaybackStateCompat.STATE_PAUSED) {
+                            // Calculate the elapsed time between the last position update and now
+                            // and unless paused, we can assume (delta * speed) + current position
+                            // is approximately the latest position. This ensure that we do not
+                            // repeatedly call the getPlaybackState() on MediaControllerCompat.
+                            long timeDelta = SystemClock.elapsedRealtime() -
+                                    playbackState.getLastPositionUpdateTime();
+                            currentPosition += (int) timeDelta * playbackState.getPlaybackSpeed();
+                        }
+                        mTomahawkListAdapter.getProgressBar().setProgress(
+                                (int) ((float) currentPosition / duration
+                                        * mTomahawkListAdapter.getProgressBar().getMax()));
                     }
                 }
             });
@@ -554,6 +567,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             boolean isPlaying = playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
             mTomahawkListAdapter.setHighlightedItemIsPlaying(isPlaying);
             mTomahawkListAdapter.notifyDataSetChanged();
+            mProgressBarUpdater.setPlaybackState(playbackState);
             if (isPlaying) {
                 mProgressBarUpdater.scheduleSeekbarUpdate();
             } else {
@@ -565,6 +579,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected void onMetadataChanged(MediaMetadataCompat metadata) {
         if (mTomahawkListAdapter != null && metadata != null) {
             if (getPlaybackManager().getCurrentEntry() != null) {
+                mProgressBarUpdater.setCurrentDuration(
+                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
                 mTomahawkListAdapter.setHighlightedEntry(getPlaybackManager().getCurrentEntry());
                 mTomahawkListAdapter.setHighlightedQuery(getPlaybackManager().getCurrentQuery());
                 mTomahawkListAdapter.notifyDataSetChanged();

@@ -826,10 +826,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         mItemManager.setMode(mode);
     }
 
-    public void onPlayPositionChanged(long duration, long currentPosition) {
-        if (mProgressBar != null) {
-            mProgressBar.setProgress(
-                    (int) ((float) currentPosition / duration * mProgressBar.getMax()));
-        }
+    public ProgressBar getProgressBar() {
+        return mProgressBar;
     }
 }
