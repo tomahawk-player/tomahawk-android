@@ -1157,7 +1157,8 @@ public class DatabaseHelper {
                 new String[]{TomahawkSQLiteHelper.STATIONS_COLUMN_JSON,
                         TomahawkSQLiteHelper.STATIONS_COLUMN_CREATEDTIMESTAMP,
                         TomahawkSQLiteHelper.STATIONS_COLUMN_PLAYEDTIMESTAMP},
-                null, null, null, null, TomahawkSQLiteHelper.STATIONS_COLUMN_CREATEDTIMESTAMP);
+                null, null, null, null,
+                TomahawkSQLiteHelper.STATIONS_COLUMN_CREATEDTIMESTAMP + " DESC");
         cursor.moveToFirst();
         List<StationPlaylist> stations = new ArrayList<>();
         if (!cursor.isAfterLast()) {
