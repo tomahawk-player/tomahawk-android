@@ -48,10 +48,7 @@ public class StationsFragment extends TomahawkFragment {
 
     @SuppressWarnings("unused")
     public void onEventAsync(DatabaseHelper.PlaylistsUpdatedEvent event) {
-        if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-            mAdapterUpdateHandler.sendEmptyMessageDelayed(
-                    ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
-        }
+        scheduleUpdateAdapter();
     }
 
     @Override

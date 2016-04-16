@@ -236,7 +236,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     // Handler which reports the PipeLine's and InfoSystem's results in intervals
-    protected final Handler mAdapterUpdateHandler = new AdapterUpdateHandler(this);
+    private final Handler mAdapterUpdateHandler = new AdapterUpdateHandler(this);
 
     private static class AdapterUpdateHandler extends WeakReferenceHandler<TomahawkFragment> {
 
@@ -262,20 +262,14 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     @SuppressWarnings("unused")
     public void onEvent(PipeLine.ResultsEvent event) {
         if (mCorrespondingQueries.contains(event.mQuery)) {
-            if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-                mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
-                        ADAPTER_UPDATE_DELAY);
-            }
+            scheduleUpdateAdapter();
         }
     }
 
     @SuppressWarnings("unused")
     public void onEvent(InfoSystem.ResultsEvent event) {
         if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
-            if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-                mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
-                        ADAPTER_UPDATE_DELAY);
-            }
+            scheduleUpdateAdapter();
         }
     }
 
@@ -286,16 +280,10 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                     || (mAlbum != null && event.mUpdatedItemIds.contains(mAlbum.getCacheKey()))
                     || (mArtist != null && event.mUpdatedItemIds.contains(mArtist.getCacheKey()))
                     || (mQuery != null && event.mUpdatedItemIds.contains(mQuery.getCacheKey()))) {
-                if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-                    mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
-                            ADAPTER_UPDATE_DELAY);
-                }
+                scheduleUpdateAdapter();
             }
         } else {
-            if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-                mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
-                        ADAPTER_UPDATE_DELAY);
-            }
+            scheduleUpdateAdapter();
         }
     }
 
@@ -555,6 +543,13 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 }
             }
         });
+    }
+
+    protected void scheduleUpdateAdapter() {
+        if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
+            mAdapterUpdateHandler.sendEmptyMessageDelayed(ADAPTER_UPDATE_MSG,
+                    ADAPTER_UPDATE_DELAY);
+        }
     }
 
     /**

@@ -64,11 +64,8 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
     @SuppressWarnings("unused")
     public void onEvent(DatabaseHelper.PlaylistsUpdatedEvent event) {
         if (mPlaylist != null && mPlaylist.getId().equals(event.mPlaylistId)) {
-            if (!mAdapterUpdateHandler.hasMessages(ADAPTER_UPDATE_MSG)) {
-                mPlaylist = DatabaseHelper.get().getPlaylist(mPlaylist.getId());
-                mAdapterUpdateHandler.sendEmptyMessageDelayed(
-                        ADAPTER_UPDATE_MSG, ADAPTER_UPDATE_DELAY);
-            }
+            mPlaylist = DatabaseHelper.get().getPlaylist(mPlaylist.getId());
+            scheduleUpdateAdapter();
         }
     }
 

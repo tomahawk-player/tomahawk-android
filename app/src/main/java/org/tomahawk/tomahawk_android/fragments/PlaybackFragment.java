@@ -339,7 +339,7 @@ public class PlaybackFragment extends TomahawkFragment {
         super.onMetadataChanged(metadata);
 
         refreshTrackInfo(metadata);
-        updateAdapter();
+        scheduleUpdateAdapter();
     }
 
     @Override
@@ -347,7 +347,7 @@ public class PlaybackFragment extends TomahawkFragment {
         super.onQueueChanged(queue);
 
         forceResolveVisibleItems(false);
-        updateAdapter();
+        scheduleUpdateAdapter();
 
         if (getMediaController() != null) {
             refreshRepeatButtonState(getMediaController().getPlaybackState());
