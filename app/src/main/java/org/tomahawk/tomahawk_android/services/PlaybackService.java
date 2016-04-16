@@ -364,7 +364,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     private PlaybackManager.Callback mPlaybackManagerCallback = new PlaybackManager.Callback() {
         @Override
         public void onPlaylistChanged() {
-            handlePlayState();
             Playlist playlist = mPlaybackManager.getPlaylist();
             if (playlist instanceof StationPlaylist) {
                 final StationPlaylist stationPlaylist = (StationPlaylist) playlist;
@@ -389,8 +388,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                     }
                 }
             }
-            resolveProximalQueries();
-            updateMediaQueue();
+            onCurrentEntryChanged();
         }
 
         @Override
