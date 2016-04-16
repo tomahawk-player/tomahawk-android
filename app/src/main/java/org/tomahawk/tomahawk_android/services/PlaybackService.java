@@ -49,6 +49,7 @@ import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
 import org.tomahawk.tomahawk_android.utils.AudioFocusable;
 import org.tomahawk.tomahawk_android.utils.DelayedHandler;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
+import org.tomahawk.tomahawk_android.utils.MediaBrowserHelper;
 import org.tomahawk.tomahawk_android.utils.MediaNotification;
 import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -85,6 +86,7 @@ import android.support.v4.media.RatingCompat;
 import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.support.v4.util.SparseArrayCompat;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -167,6 +169,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private Handler mCallbackHandler;
 
+    private MediaBrowserHelper mMediaBrowserHelper;
+
+    private SparseArrayCompat<PlaylistEntry> mQueueMap = new SparseArrayCompat<>();
+
     private MediaSessionCompat.Callback mMediaSessionCallback = new MediaSessionCompat.Callback() {
 
         /**
@@ -211,6 +217,24 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             mPlayState = PlaybackStateCompat.STATE_PAUSED;
             handlePlayState();
             updateMediaPlayState();
+        }
+
+        /**
+         * Override to handle requests to play a specific mediaId that was
+         * provided by your app.
+         */
+        @Override
+        public void onPlayFromMediaId(String mediaId, Bundle extras) {
+            mMediaBrowserHelper.onPlayFromMediaId(mMediaSession, mPlaybackManager, mediaId, extras);
+        }
+
+        /**
+         * Override to handle requests to play an item with a given id from the
+         * play queue.
+         */
+        public void onSkipToQueueItem(long id) {
+            PlaylistEntry entry = mQueueMap.get((int) id);
+            mPlaybackManager.setCurrentEntry(entry);
         }
 
         /**
@@ -722,6 +746,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
         EventBus.getDefault().register(this);
 
+        mMediaBrowserHelper = new MediaBrowserHelper(this);
+
         mMediaPlayers.put(VLCMediaPlayer.class, new VLCMediaPlayer());
         mMediaPlayers.put(DeezerMediaPlayer.class, new DeezerMediaPlayer());
         mMediaPlayers.put(SpotifyMediaPlayer.class, new SpotifyMediaPlayer());
@@ -813,12 +839,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     @Override
     public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid,
             @Nullable Bundle rootHints) {
-        return new BrowserRoot("", null);
+        return mMediaBrowserHelper.onGetRoot(clientPackageName, clientUid, rootHints);
     }
 
     @Override
     public void onLoadChildren(@NonNull String parentId,
-            @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+            @NonNull final Result<List<MediaBrowserCompat.MediaItem>> result) {
+        mMediaBrowserHelper.onLoadChildren(parentId, result);
     }
 
     @Override
@@ -1159,6 +1186,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 MediaSessionCompat.QueueItem item =
                         new MediaSessionCompat.QueueItem(descBuilder.build(), i);
                 queue.add(item);
+                mQueueMap.put(i, entry);
             }
         }
         return queue;

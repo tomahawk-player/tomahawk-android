@@ -1,5 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="app_name" translate="false">Tomahawk</string>
   <string name="ok">OK</string>
   <string name="cancel">Cancel</string>
   <string name="login">Login</string>
@@ -251,5 +252,7 @@
   <string name="playback_unfavorite">Remove from Favorites</string>
   <!-- Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this. -->
   <string name="mediabrowser_queue_title">Now Playing</string>
+  <!-- Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this. -->
+  <string name="mediabrowser_shuffledplay">Shuffle &amp; Play</string>
   <string name="loading_station">Loading station:</string>
 </resources>
