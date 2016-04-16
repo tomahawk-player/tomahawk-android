@@ -1,15 +1,106 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ok">بسیار خوب</string>
+  <string name="cancel">انصراف</string>
+  <string name="login">ورود</string>
+  <string name="logout">خروج از برنامه</string>
+  <string name="register">ثبت نام</string>
+  <string name="register_and_login">ثبت نام  &amp; ورود</string>
+  <string name="rescan">اسکن مجدد</string>
+  <string name="internal_storage">حافظه داخلی</string>
+  <string name="tracks">آهنگ ها</string>
+  <string name="albums">آلبوم ها</string>
+  <string name="artists">خواننده ها</string>
+  <string name="users">کاربران</string>
+  <string name="top_hits">بیشترین بازدیدها</string>
+  <string name="top_albums">آلبوم های ویژه</string>
+  <string name="playlist_details">محتوای لیست پخش</string>
+  <string name="album_details">محتوای آلبوم</string>
+  <string name="search">جستجو</string>
+  <string name="playlist">لیست پخش</string>
+  <string name="shuffle_on_label">تصادفی روشن است</string>
+  <string name="shuffle_off_label">تصادفی خاموش است</string>
+  <string name="repeat_on_label">تکرار روشن است</string>
+  <string name="repeat_off_label">تکرار خاموش است</string>
+  <string name="unknown">ناشناخته</string>
+  <string name="no_track">بدون آهنگ</string>
+  <string name="save_playlist">ذخیره کردن لیست پخش جاری</string>
+  <string name="create_playlist">ساختن لیست پخش</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">عنوان</string>
+  <string name="create_station">ساختن ایستگاه</string>
+  <string name="create_station_search_hint">جستجو برای خواننده/آهنگ ها/دسته ها</string>
+  <string name="genres">دسته ها</string>
+  <string name="moods">حالت ها</string>
+  <string name="login_name_label">ایمیل/نام کاربری</string>
+  <string name="login_username">نام کاربری</string>
+  <string name="login_password">رمز عبور</string>
+  <string name="login_password_confirmation">تکرار رمز عبور</string>
+  <string name="account_email_label">ایمیل (اختیاری)</string>
+  <string name="error_field_required">این فیلد اجباری می باشد</string>
+  <string name="error_passwords_dont_match">رمز عبورها یکسان نمی باشند</string>
+  <string name="error_invalid_credentials">نام کاربری و یا رمز عبور اشتباه می باشند</string>
+  <string name="error_invalid_account">حساب کاربری توسط سرور رد شد.</string>
+  <string name="error_communication">اعتبار سنجی ممکن نمی باشد.لطفا ارتباط خود را چک کنید.</string>
+  <string name="error_simultaneous_streams">این عمل امکان پذیر نمی باشد، این حساب در جای دیگری در حال استفاده می باشد.</string>
+  <string name="error_account_expired">حساب شما منقضی شده است.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">به %1$s وارد شدید</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">از %1$s خارج شدید</string>
+  <string name="local_collection_pretty_name">مجموعه محلی</string>
+  <string name="local">محلی</string>
+  <string name="all">همه</string>
+  <string name="preferences_local_collection_text">برای اسکن رسانه های محلی باید دایرکتوری را انتخاب نمایید</string>
+  <string name="preferences_hatchet_text">همگام سازی اطلاعات شما با %1$s</string>
+  <string name="preferences_playback">پخش</string>
+  <string name="preferences_equalizer">اکولایزر</string>
+  <string name="preferences_equalizer_text">سفارشی کردن صدای خروجی</string>
+  <string name="preferences_playback_data">تغییر دادن همه چیز</string>
+  <string name="preferences_playback_data_text">تغییر دادن هر آهنگ برای هربرنامه پخش کنند موزیک در گوشی به %1$s.</string>
+  <string name="preferences_plug_and_play">اتصال برای پخش</string>
+  <string name="preferences_info">اطلاعات</string>
+  <string name="preferences_app_version">نسخه برنامه</string>
+  <string name="preferences_app_uservoice">بازخورد</string>
+  <string name="preferences_app_playstore_link">امتیاز دادن به برنامه</string>
+  <string name="preferences_app_website_link">از وبسایت ما دیدن کنید</string>
+  <string name="preferences_app_sendlog">ارسال گزارش</string>
+  <string name="preferences_app_sendlog_issue">مساله</string>
+  <string name="crash_dialog_ok_toast">متشکرم !</string>
+  <string name="context_menu_play">اجرا</string>
+  <string name="context_menu_add_to_queue">اضافه کردن به صف</string>
+  <string name="context_menu_add_to_playlist">اضافه کردن به لیست پخش</string>
+  <string name="context_menu_delete">حذف</string>
+  <string name="context_menu_removefromplaylist">حذف کردن از لیست پخش</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">حذف کردن از مجموعه</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">افزودن به مجموعه</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">مورد علاقه</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">حذف از مورد علاقه</string>
+  <string name="context_menu_share">به اشتراک گزاری</string>
+  <string name="drawer_title_charts">نمودارها</string>
+  <string name="drawer_title_collection">مجموعه</string>
+  <string name="drawer_title_playlists">لیست های پخش</string>
+  <string name="drawer_title_lovedtracks">علاقمندی ها</string>
+  <string name="drawer_title_settings">تنظیمات</string>
+  <string name="collection_dropdown_play_count">تعداد اجرا</string>
+  <string name="collection_dropdown_alpha_albums">آلبوم A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
+  <string name="history">تاریخچه</string>
+  <string name="preferences_bitrate_low">نرمال</string>
+  <string name="preferences_bitrate_medium">خوب</string>
+  <string name="preferences_bitrate_high">بهترین</string>
+  <string name="drawer_open">باز کردن منو</string>
+  <string name="drawer_close">بستن منو</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">در حال پیروی کردن</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">پیروی کردن</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">پیشنهاد کردن به دیگران برای پیروی کردن</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
@@ -19,12 +110,41 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="time_afewseconds">چند ثانیه قبل</string>
+  <string name="my_playlist">لیست پخش من</string>
+  <string name="music">موزیک</string>
+  <string name="biography">بیوگرافی</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
+  <string name="similar">شبیه</string>
   <!--Shown as a title for a list of songs in the search results view.-->
+  <string name="songs">آهنگ</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <string name="activity">فعالیت</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
+  <string name="followers">فالورها</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
+  <string name="following">در حال فالو کردن</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="resolver_config_redirect_button_text_log_into">ورود به</string>
+  <string name="resolver_config_redirect_button_text_log_out_of">خروج از</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">دانلود کردن پلاگین برای</string>
+  <string name="button_close">بستن</string>
+  <string name="view_album">مشاهده آلبوم</string>
+  <string name="connect">اتصال</string>
+  <string name="advanced">پیشرفته</string>
+  <string name="info">اطلاعات</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="next_page">بعدی</string>
+  <string name="welcome_fragment_explanation_title">شروع شدن</string>
+  <string name="welcome_fragment_setup_title">اتصال</string>
+  <string name="welcome_fragment_done_title">اتمام!</string>
+  <string name="welcome_fragment_done_heading">همه چیز تمام شد!</string>
+  <string name="install_plugin_title">نصب کردن پلاگین</string>
+  <string name="uninstall_plugin_title">حذف کردن پلاگین</string>
+  <string name="gmusic_info_text">انتخاب کردن یک حساب کاربری</string>
+  <string name="invalid_file">امکان باز کردن فایل وجود ندارد.</string>
+  <string name="unknown_album">البوم ناشناخته</string>
+  <string name="unknown_artist">خواننده ناشناخته</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">جدید</string>
 </resources>
