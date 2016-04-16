@@ -660,7 +660,6 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     private int getViewType(Object item, int position, boolean isContentHeaderItem,
             boolean isFooter) {
-        Segment segment = getSegment(position);
         if (item instanceof List) {
             // We have a grid item
             // Don't display the socialAction item directly, but rather the item that is its target
@@ -691,6 +690,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         if (item instanceof SocialAction && ((SocialAction) item).getTargetObject() != null) {
             item = ((SocialAction) item).getTargetObject();
         }
+        Segment segment = getSegment(position);
         if (isContentHeaderItem) {
             return R.layout.content_header_spacer;
         } else if (isFooter) {
@@ -711,10 +711,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             return R.layout.list_item_artist;
         } else if (item instanceof User) {
             return R.layout.list_item_user;
-        } else if (segment.isHideArtistName()) {
+        } else if (segment != null && segment.isHideArtistName()) {
             return R.layout.list_item_numeration_track_duration;
-        } else if (segment.isShowNumeration()
-                || segment.isShowAsQueued(getPosInSegment(position))) {
+        } else if (segment != null && (segment.isShowNumeration()
+                || segment.isShowAsQueued(getPosInSegment(position)))) {
             return R.layout.list_item_numeration_track_artist;
         } else {
             return R.layout.list_item_track_artist;
