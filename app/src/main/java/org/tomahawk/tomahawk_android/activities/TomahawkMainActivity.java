@@ -168,6 +168,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                                 TomahawkMainActivity.this, mMediaBrowser.getSessionToken());
                         setSupportMediaController(mediaController);
                         mediaController.registerCallback(mMediaCallback);
+                        mMediaCallback.onPlaybackStateChanged(mediaController.getPlaybackState());
                         mPlaybackPanel.setMediaController(mediaController);
                         ContentHeaderFragment.MediaControllerConnectedEvent event
                                 = new ContentHeaderFragment.MediaControllerConnectedEvent();
@@ -185,8 +186,10 @@ public class TomahawkMainActivity extends AppCompatActivity {
         public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
             Log.d(TAG, "onPlaybackstate changed" + state);
             mPlaybackPanel.updatePlaybackState(state);
-            if (state.getState() != PlaybackStateCompat.STATE_PAUSED) {
+            if (state.getState() != PlaybackStateCompat.STATE_NONE) {
                 showPanel();
+            } else {
+                hidePanel();
             }
         }
 
