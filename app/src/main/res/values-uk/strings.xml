@@ -219,4 +219,6 @@
   <string name="warn_old_plugin">Потрібна втулка застаріла й більше не сумісна. Ви бажаєте оновити її зараз?</string>
   <string name="warn_no_plugin">Потрібна втулка не встановлена. Ви волієте встановити її зараз?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
 </resources>
