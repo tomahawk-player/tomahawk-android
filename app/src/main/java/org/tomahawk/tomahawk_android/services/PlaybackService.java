@@ -774,7 +774,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
             @Override
             public void onLostAudioFocus(boolean canDuck) {
-                if (!canDuck) {
+                if (!canDuck && mMediaSession != null && mMediaSession.getController() != null) {
                     mMediaSession.getController().getTransportControls().pause();
                 }
             }
