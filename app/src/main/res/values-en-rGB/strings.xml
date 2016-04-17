@@ -242,4 +242,6 @@
   <string name="warn_no_plugin">The required plugin application is no longer installed. Do you want to install it now?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
   <string name="create_new">new</string>
+  <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
 </resources>

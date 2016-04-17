@@ -27,4 +27,6 @@
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
 </resources>

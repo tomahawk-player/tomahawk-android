@@ -231,4 +231,15 @@
   <string name="warn_no_plugin">必要なプラグイン アプリケーションがインストールされていません。今すぐインストールしますか?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
   <string name="create_new">新規</string>
+  <string name="playback_pause">一時停止</string>
+  <string name="playback_play">再生</string>
+  <string name="playback_previous">前のトラック</string>
+  <string name="playback_next">次のトラック</string>
+  <string name="playback_favorite">お気に入りに追加</string>
+  <string name="playback_unfavorite">お気に入りから削除</string>
+  <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">再生中</string>
+  <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">シャッフル &amp; 再生</string>
+  <string name="loading_station">ラジオ局の読み込み中:</string>
 </resources>

@@ -209,4 +209,6 @@
     <item quantity="other">Επιλέξτε μια λίστα αναπαραγωγής για να προσθέσετε τα %1$d τραγουδια:</item>
   </plurals>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
 </resources>

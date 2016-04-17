@@ -220,4 +220,6 @@
   <string name="warn_old_plugin">一个必需的插件应用已过期且不再兼容。你希望更新这个插件吗？</string>
   <string name="warn_no_plugin">一个必需的插件应用未安装。你希望安装这个插件吗？</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
 </resources>

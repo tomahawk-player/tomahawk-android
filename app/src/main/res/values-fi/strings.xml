@@ -242,4 +242,15 @@
   <string name="warn_no_plugin">Vaadittu liitännäissovellus ei ole enää asennettuna. Haluatko asentaa sen nyt?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
   <string name="create_new">uusi</string>
+  <string name="playback_pause">Tauko</string>
+  <string name="playback_play">Soita</string>
+  <string name="playback_previous">Edellinen kappale</string>
+  <string name="playback_next">Seuraava kappale</string>
+  <string name="playback_favorite">Lisää suosikkeihin</string>
+  <string name="playback_unfavorite">Poista suosikeista</string>
+  <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">Nyt soi</string>
+  <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">Sekoita &amp; soita</string>
+  <string name="loading_station">Ladataan asemaa:</string>
 </resources>
