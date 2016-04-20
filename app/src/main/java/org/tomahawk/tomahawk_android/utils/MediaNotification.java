@@ -98,15 +98,23 @@ public class MediaNotification {
         public void onPlaybackStateChanged(PlaybackStateCompat state) {
             mPlaybackState = state;
             Log.d(TAG, "Received new playback state");
-            updateNotificationPlaybackState();
-            mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+            if (mStarted) {
+                updateNotificationPlaybackState();
+                mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+            } else {
+                Log.d(TAG, "Couldn't update playback state because notification is stopped");
+            }
         }
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             mMetadata = metadata;
             Log.d(TAG, "Received new metadata ");
-            updateNotificationMetadata();
+            if (mStarted) {
+                updateNotificationMetadata();
+            } else {
+                Log.d(TAG, "Couldn't update playback state because notification is stopped");
+            }
         }
 
         @Override
