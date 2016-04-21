@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.utils;
 
 import org.apache.lucene.util.ArrayUtil;
 import org.tomahawk.tomahawk_android.R;
+import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 
 import android.app.PendingIntent;
@@ -293,6 +294,7 @@ public class MediaNotification {
                 .setColor(mNotificationColor)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                .setContentIntent(createContentIntent())
                 .setContentTitle(description.getTitle())
                 .setContentText(description.getSubtitle())
                 .setTicker(description.getTitle() + " - " + description.getSubtitle())
@@ -302,6 +304,13 @@ public class MediaNotification {
         updateNotificationPlaybackState();
 
         mService.startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
+    }
+
+    private PendingIntent createContentIntent() {
+        Intent intent = new Intent(mService, TomahawkMainActivity.class);
+        intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        return PendingIntent.getActivity(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private void updateFavoriteAction() {
