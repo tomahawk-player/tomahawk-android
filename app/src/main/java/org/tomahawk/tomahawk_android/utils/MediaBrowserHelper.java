@@ -29,7 +29,6 @@ import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -158,7 +157,7 @@ public class MediaBrowserHelper {
             ));
             result.sendResult(mediaItems);
         } else if (MEDIA_ID_COLLECTION_ALBUMS.equals(parentId)) {
-            CollectionManager.get().getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getAlbums(
+            CollectionManager.get().getUserCollection().getAlbums(
                     Collection.SORT_ALPHA).done(
                     new DoneCallback<CollectionCursor<Album>>() {
                         @Override
@@ -180,7 +179,7 @@ public class MediaBrowserHelper {
                         }
                     });
         } else if (MEDIA_ID_COLLECTION_ARTISTS.equals(parentId)) {
-            CollectionManager.get().getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION).getArtists(
+            CollectionManager.get().getUserCollection().getArtists(
                     Collection.SORT_ALPHA).done(
                     new DoneCallback<CollectionCursor<Artist>>() {
                         @Override
@@ -265,8 +264,7 @@ public class MediaBrowserHelper {
                 }
             });
         } else if (MEDIA_ID_SHUFFLEDPLAY_TRACKS.equals(mediaId)) {
-            CollectionManager.get().getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION)
-                    .getQueries(Collection.SORT_ALPHA).done(
+            CollectionManager.get().getUserCollection().getQueries(Collection.SORT_ALPHA).done(
                     new DoneCallback<Playlist>() {
                         @Override
                         public void onDone(Playlist collectionTracks) {
@@ -280,9 +278,7 @@ public class MediaBrowserHelper {
             String cacheKey = parts[1];
             if (MEDIA_ID_COLLECTION_ALBUMS.equals(leaf)) {
                 final Album album = Album.getByKey(cacheKey);
-                Collection userCollection = CollectionManager.get()
-                        .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                userCollection.getAlbumTracks(album).done(
+                CollectionManager.get().getUserCollection().getAlbumTracks(album).done(
                         new DoneCallback<Playlist>() {
                             @Override
                             public void onDone(Playlist albumTracks) {
@@ -290,10 +286,10 @@ public class MediaBrowserHelper {
                                     playbackManager.setPlaylist(albumTracks);
                                     transportControls.play();
                                 } else {
-                                    CollectionManager.get()
-                                            .getCollection(TomahawkApp.PLUGINNAME_HATCHET)
-                                            .getAlbumTracks(album)
-                                            .done(new DoneCallback<Playlist>() {
+                                    HatchetCollection hatchetCollection
+                                            = CollectionManager.get().getHatchetCollection();
+                                    hatchetCollection.getAlbumTracks(album).done(
+                                            new DoneCallback<Playlist>() {
                                                 @Override
                                                 public void onDone(Playlist albumTracks) {
                                                     if (albumTracks != null) {
@@ -308,9 +304,7 @@ public class MediaBrowserHelper {
                         });
             } else if (MEDIA_ID_COLLECTION_ARTISTS.equals(leaf)) {
                 final Artist artist = Artist.getByKey(cacheKey);
-                Collection userCollection = CollectionManager.get()
-                        .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                userCollection.getArtistTracks(artist).done(
+                CollectionManager.get().getUserCollection().getArtistTracks(artist).done(
                         new DoneCallback<Playlist>() {
                             @Override
                             public void onDone(Playlist artistTracks) {
@@ -319,8 +313,7 @@ public class MediaBrowserHelper {
                                     transportControls.play();
                                 } else {
                                     HatchetCollection hatchetCollection
-                                            = (HatchetCollection) CollectionManager.get()
-                                            .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+                                            = CollectionManager.get().getHatchetCollection();
                                     hatchetCollection.getArtistTopHits(artist).done(
                                             new DoneCallback<Playlist>() {
                                                 @Override

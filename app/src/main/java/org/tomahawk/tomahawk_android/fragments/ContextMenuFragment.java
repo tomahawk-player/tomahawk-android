@@ -203,8 +203,8 @@ public class ContextMenuFragment extends Fragment {
                 }
             }
             if (getArguments().containsKey(TomahawkFragment.COLLECTION_ID)) {
-                mCollection = CollectionManager.get()
-                        .getCollection(getArguments().getString(TomahawkFragment.COLLECTION_ID));
+                String collectionId = getArguments().getString(TomahawkFragment.COLLECTION_ID);
+                mCollection = CollectionManager.get().getCollection(collectionId);
             }
         }
     }
@@ -314,8 +314,7 @@ public class ContextMenuFragment extends Fragment {
         if (mAlbum != null || mArtist != null) {
             int drawableResId;
             int stringResId;
-            UserCollection userCollection = (UserCollection) CollectionManager.get()
-                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+            UserCollection userCollection = CollectionManager.get().getUserCollection();
             if ((mAlbum != null && userCollection.isLoved(mAlbum))
                     || (mArtist != null && userCollection.isLoved(mArtist))) {
                 drawableResId = R.drawable.ic_action_collection_underlined;

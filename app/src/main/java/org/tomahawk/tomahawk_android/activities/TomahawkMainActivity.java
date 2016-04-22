@@ -31,7 +31,6 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.DbCollection;
 import org.tomahawk.libtomahawk.collection.Playlist;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -244,8 +243,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
         public void run() {
             if (ThreadManager.get().isActive()
                     || mPlaybackState == PlaybackStateCompat.STATE_BUFFERING
-                    || ((UserCollection) CollectionManager.get()
-                    .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION)).isWorking()) {
+                    || CollectionManager.get().getUserCollection().isWorking()) {
                 mSmoothProgressBar.setVisibility(View.VISIBLE);
             } else {
                 mSmoothProgressBar.setVisibility(View.GONE);
@@ -565,9 +563,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
         PipeLine.get();
 
-        UserCollection userCollection = (UserCollection) CollectionManager.get()
-                .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        userCollection.loadMediaItems(false);
+        CollectionManager.get().getUserCollection().loadMediaItems(false);
 
         mSavedInstanceState = savedInstanceState;
 

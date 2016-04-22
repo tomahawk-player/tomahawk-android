@@ -230,8 +230,7 @@ public class ViewHolder {
 
     public void fillView(final Album album, Collection collection, String numerationString) {
         if (collection == null) {
-            collection =
-                    CollectionManager.get().getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+            collection = CollectionManager.get().getHatchetCollection();
         }
         TextView textView1 = (TextView) findViewById(R.id.textview1);
         if (numerationString != null) {
