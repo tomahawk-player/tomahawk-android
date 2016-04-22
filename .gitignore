@@ -19,6 +19,9 @@ obj/
 bin/
 gen/
 
+# capture hprofs
+captures
+
 # Local configuration file (sdk path, etc)
 local.properties
 
