@@ -18,10 +18,8 @@
 package org.tomahawk.tomahawk_android.dialogs;
 
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.resolver.UserCollectionStubResolver;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.views.DirectoryChooser;
 
 import android.app.AlertDialog;
@@ -68,9 +66,7 @@ public class DirectoryChooserConfigDialog extends ConfigDialog {
 
     @Override
     protected void onPositiveAction() {
-        UserCollection userCollection = (UserCollection) CollectionManager.get()
-                .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        userCollection.loadMediaItems(true);
+        CollectionManager.get().getUserCollection().loadMediaItems(true);
         dismiss();
     }
 

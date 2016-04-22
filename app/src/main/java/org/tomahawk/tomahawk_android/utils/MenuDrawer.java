@@ -23,7 +23,6 @@ import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.ScriptResolverCollection;
-import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -107,9 +106,7 @@ public class MenuDrawer extends DrawerLayout {
                 holder.id = HUB_ID_COLLECTION;
                 holder.title = getResources().getString(R.string.drawer_title_collection);
                 holder.iconResId = R.drawable.ic_action_collection;
-                UserCollection userCollection = (UserCollection) CollectionManager.get()
-                        .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-                holder.isLoading = !userCollection.isInitialized();
+                holder.isLoading = !CollectionManager.get().getUserCollection().isInitialized();
                 holders.add(holder);
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = HUB_ID_LOVEDTRACKS;

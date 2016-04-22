@@ -255,11 +255,10 @@ public class ContentHeaderFragment extends Fragment {
 
         if (getArguments() != null) {
             if (getArguments().containsKey(COLLECTION_ID)) {
-                mCollection = CollectionManager.get()
-                        .getCollection(getArguments().getString(COLLECTION_ID));
+                String collectionId = getArguments().getString(TomahawkFragment.COLLECTION_ID);
+                mCollection = CollectionManager.get().getCollection(collectionId);
             } else {
-                mCollection = CollectionManager.get()
-                        .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+                mCollection = CollectionManager.get().getHatchetCollection();
             }
         }
     }

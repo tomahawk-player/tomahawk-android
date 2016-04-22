@@ -138,8 +138,7 @@ public class HatchetInfoPlugin implements InfoPlugin {
      */
     private boolean getParseConvert(InfoRequestData infoRequestData) throws IOException {
         QueryParams params = infoRequestData.getQueryParams();
-        HatchetCollection hatchetCollection = (HatchetCollection) CollectionManager.get()
-                .getCollection(TomahawkApp.PLUGINNAME_HATCHET);
+        HatchetCollection hatchetCollection = CollectionManager.get().getHatchetCollection();
         Hatchet hatchet = mStore.getImplementation(infoRequestData.isBackgroundRequest());
 
         try {

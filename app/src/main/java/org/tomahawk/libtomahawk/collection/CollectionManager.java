@@ -200,6 +200,20 @@ public class CollectionManager {
         return mCollections.get(collectionId);
     }
 
+    /**
+     * Convenience method
+     */
+    public UserCollection getUserCollection() {
+        return (UserCollection) mCollections.get(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+    }
+
+    /**
+     * Convenience method
+     */
+    public HatchetCollection getHatchetCollection() {
+        return (HatchetCollection) mCollections.get(TomahawkApp.PLUGINNAME_HATCHET);
+    }
+
     public java.util.Collection<Collection> getCollections() {
         return mCollections.values();
     }
@@ -254,9 +268,7 @@ public class CollectionManager {
     }
 
     public void toggleLovedItem(final Artist artist) {
-        UserCollection userCollection =
-                (UserCollection) getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        boolean doSweetSweetLovin = !userCollection.isLoved(artist);
+        boolean doSweetSweetLovin = !getUserCollection().isLoved(artist);
         Log.d(TAG, "Hatchet sync - " + (doSweetSweetLovin ? "starred" : "unstarred") + " artist "
                 + artist.getName());
         final AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
@@ -266,10 +278,10 @@ public class CollectionManager {
             artists.add(artist);
             List<Long> lastModifieds = new ArrayList<>();
             lastModifieds.add(System.currentTimeMillis());
-            userCollection.addLovedArtists(artists, lastModifieds);
+            getUserCollection().addLovedArtists(artists, lastModifieds);
             InfoSystem.get().sendRelationshipPostStruct(hatchetAuthUtils, artist);
         } else {
-            userCollection.removeLoved(artist);
+            getUserCollection().removeLoved(artist);
             User.getSelf().done(new DoneCallback<User>() {
                 @Override
                 public void onDone(User result) {
@@ -291,9 +303,7 @@ public class CollectionManager {
     }
 
     public void toggleLovedItem(final Album album) {
-        UserCollection userCollection =
-                (UserCollection) getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
-        boolean doSweetSweetLovin = !userCollection.isLoved(album);
+        boolean doSweetSweetLovin = !getUserCollection().isLoved(album);
         Log.d(TAG, "Hatchet sync - " + (doSweetSweetLovin ? "starred" : "unstarred") + " album "
                 + album.getName() + " by " + album.getArtist().getName());
         final AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
@@ -303,10 +313,10 @@ public class CollectionManager {
             albums.add(album);
             List<Long> lastModifieds = new ArrayList<>();
             lastModifieds.add(System.currentTimeMillis());
-            userCollection.addLovedAlbums(albums, lastModifieds);
+            getUserCollection().addLovedAlbums(albums, lastModifieds);
             InfoSystem.get().sendRelationshipPostStruct(hatchetAuthUtils, album);
         } else {
-            userCollection.removeLoved(album);
+            getUserCollection().removeLoved(album);
             User.getSelf().done(new DoneCallback<User>() {
                 @Override
                 public void onDone(User result) {
@@ -591,8 +601,6 @@ public class CollectionManager {
             List<Album> fetchedAlbums = user.getStarredAlbums();
             Log.d(TAG, "Hatchet sync - received list of starred albums, count: "
                     + fetchedAlbums.size());
-            UserCollection userCollection =
-                    (UserCollection) getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
             List<Long> lastModifieds = new ArrayList<>();
             for (Album album : fetchedAlbums) {
                 Relationship relationship = user.getRelationship(album);
@@ -604,7 +612,7 @@ public class CollectionManager {
                     lastModifieds.add(relationship.getDate().getTime());
                 }
             }
-            userCollection.addLovedAlbums(fetchedAlbums, lastModifieds);
+            getUserCollection().addLovedAlbums(fetchedAlbums, lastModifieds);
         } else if (data.getType() == InfoRequestData.INFOREQUESTDATA_TYPE_USERS_LOVEDARTISTS) {
             List<User> results = data.getResultList(User.class);
             if (results == null || results.size() == 0) {
@@ -615,8 +623,6 @@ public class CollectionManager {
             List<Artist> fetchedArtists = user.getStarredArtists();
             Log.d(TAG, "Hatchet sync - received list of starred artists, count: "
                     + fetchedArtists.size());
-            UserCollection userCollection =
-                    (UserCollection) getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION);
             List<Long> lastModifieds = new ArrayList<>();
             for (Artist artist : fetchedArtists) {
                 Relationship relationship = user.getRelationship(artist);
@@ -628,7 +634,7 @@ public class CollectionManager {
                     lastModifieds.add(relationship.getDate().getTime());
                 }
             }
-            userCollection.addLovedArtists(fetchedArtists, lastModifieds);
+            getUserCollection().addLovedArtists(fetchedArtists, lastModifieds);
         }
     }
 
