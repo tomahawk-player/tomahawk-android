@@ -30,6 +30,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -183,6 +185,7 @@ public class MediaNotification {
      */
     public void startNotification() {
         if (!mStarted) {
+            Log.d(TAG, "Starting notification");
             mController.registerCallback(mCallback, mService.getCallbackHandler());
             IntentFilter filter = new IntentFilter();
             filter.addAction(ACTION_FAVORITE);
@@ -207,6 +210,7 @@ public class MediaNotification {
      * has no effect.
      */
     public void stopNotification() {
+        Log.d(TAG, "Stopping notification");
         mStarted = false;
         mController.unregisterCallback(mCallback);
         try {

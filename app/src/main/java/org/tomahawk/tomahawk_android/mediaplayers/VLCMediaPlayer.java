@@ -75,11 +75,20 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
                     Log.d(TAG, "onError()");
                     mPreparedQuery = null;
                     mPreparingQuery = null;
-                    mMediaPlayerCallback.onError("MediaPlayerEncounteredError");
+                    if (mMediaPlayerCallback != null) {
+                        mMediaPlayerCallback.onError("MediaPlayerEncounteredError");
+                    } else {
+                        Log.e(TAG, "Wasn't able to call onError because callback object is null");
+                    }
                     break;
                 case MediaPlayer.Event.EndReached:
                     Log.d(TAG, "onCompletion()");
-                    mMediaPlayerCallback.onCompletion(mPreparedQuery);
+                    if (mMediaPlayerCallback != null) {
+                        mMediaPlayerCallback.onCompletion(mPreparedQuery);
+                    } else {
+                        Log.e(TAG,
+                                "Wasn't able to call onCompletion because callback object is null");
+                    }
                     break;
             }
         }
@@ -115,9 +124,12 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     public void onEventAsync(PipeLine.StreamUrlEvent event) {
         Log.d(TAG, "Received stream url: " + event.mResult + ", " + event.mUrl);
         mTranslatedUrls.put(event.mResult, event.mUrl);
-        if (mPreparingQuery != null
+        if (mMediaPlayerCallback != null && mPreparingQuery != null
                 && event.mResult == mPreparingQuery.getPreferredTrackResult()) {
             prepare(mPreparingQuery);
+        } else {
+            Log.e(TAG, "Received stream url: Wasn't able to prepare: " + event.mResult + ", "
+                    + event.mUrl);
         }
     }
 
@@ -160,7 +172,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
      */
     private TomahawkMediaPlayer prepare(Query query) {
         Log.d(TAG, "prepare()");
-        release();
+        getMediaPlayerInstance().stop();
         mPreparedQuery = null;
         mPreparingQuery = query;
         Result result = query.getPreferredTrackResult();
@@ -199,6 +211,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
         mPreparedQuery = null;
         mPreparingQuery = null;
         getMediaPlayerInstance().stop();
+        mMediaPlayerCallback = null;
     }
 
     /**

@@ -72,16 +72,15 @@ public class PlaybackManager extends Cacheable {
         void onRepeatModeChanged();
     }
 
-    private PlaybackManager(String id, Callback callback) {
+    private PlaybackManager(String id) {
         super(PlaybackManager.class, id);
 
         mId = id;
-        mCallback = callback;
     }
 
-    public static PlaybackManager get(String id, Callback callback) {
+    public static PlaybackManager get(String id) {
         Cacheable cacheable = get(PlaybackManager.class, id);
-        return cacheable != null ? (PlaybackManager) cacheable : new PlaybackManager(id, callback);
+        return cacheable != null ? (PlaybackManager) cacheable : new PlaybackManager(id);
     }
 
     public static PlaybackManager getByKey(String id) {
@@ -90,6 +89,10 @@ public class PlaybackManager extends Cacheable {
 
     public String getId() {
         return mId;
+    }
+
+    public void setCallback(Callback callback) {
+        mCallback = callback;
     }
 
     public Playlist getPlaylist() {
@@ -101,6 +104,10 @@ public class PlaybackManager extends Cacheable {
     }
 
     public void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
+        if (mCallback == null) {
+            Log.e(TAG, "setPlaylist failed: " + playlist.getName());
+            return;
+        }
         mRepeatMode = NOT_REPEATING;
         mShuffleMode = NOT_SHUFFLED;
         mPlaylist = playlist;
@@ -185,6 +192,10 @@ public class PlaybackManager extends Cacheable {
     }
 
     private void setCurrentEntry(PlaylistEntry currentEntry, boolean callback) {
+        if (mCallback == null) {
+            Log.e(TAG, "setCurrentEntry failed: " + currentEntry.getQuery().getName());
+            return;
+        }
         PlaylistEntry lastEntry = mCurrentEntry;
         mCurrentEntry = currentEntry;
         boolean playlistChanged = false;
@@ -235,6 +246,10 @@ public class PlaybackManager extends Cacheable {
 
     public void addToPlaylist(Query query) {
         Log.d(TAG, "addToPlaylist: " + query.getName());
+        if (mCallback == null) {
+            Log.e(TAG, "addToPlaylist failed: " + query.getName());
+            return;
+        }
         mPlaylist.addQuery(mPlaylist.size(), query);
         if (getCurrentEntry() == null) {
             setCurrentEntry(getPlaybackListEntry(0), false);
@@ -244,6 +259,10 @@ public class PlaybackManager extends Cacheable {
 
     public void addToQueue(Query query) {
         Log.d(TAG, "addToQueue: " + query.getName());
+        if (mCallback == null) {
+            Log.e(TAG, "addToQueue failed: " + query.getName());
+            return;
+        }
         mQueue.addQuery(0, query);
         if (getCurrentEntry() == null) {
             setCurrentEntry(getPlaybackListEntry(0), false);
@@ -253,6 +272,10 @@ public class PlaybackManager extends Cacheable {
 
     public void addToQueue(List<Query> queries) {
         Log.d(TAG, "addToQueue: queries.size()= " + queries.size());
+        if (mCallback == null) {
+            Log.e(TAG, "addToQueue failed: queries.size()= " + queries.size());
+            return;
+        }
         int counter = 0;
         for (Query query : queries) {
             mQueue.addQuery(counter++, query);
@@ -265,6 +288,10 @@ public class PlaybackManager extends Cacheable {
 
     public void deleteFromQueue(PlaylistEntry entry) {
         Log.d(TAG, "deleteFromQueue: " + entry.getQuery().getName());
+        if (mCallback == null) {
+            Log.e(TAG, "deleteFromQueue failed: " + entry.getQuery().getName());
+            return;
+        }
         if (mQueue.deleteEntry(entry)) {
             mCallback.onPlaylistChanged();
         }
@@ -324,6 +351,10 @@ public class PlaybackManager extends Cacheable {
 
     public void setRepeatMode(int repeatingMode) {
         Log.d(TAG, "repeat from " + mRepeatMode + " to " + repeatingMode);
+        if (mCallback == null) {
+            Log.e(TAG, "setRepeatMode failed: " + repeatingMode);
+            return;
+        }
         if (mRepeatMode != repeatingMode) {
             mRepeatMode = repeatingMode;
             mCallback.onRepeatModeChanged();
@@ -339,6 +370,10 @@ public class PlaybackManager extends Cacheable {
      */
     public void setShuffleMode(int shuffleMode) {
         Log.d(TAG, "shuffle from " + mShuffleMode + " to " + shuffleMode);
+        if (mCallback == null) {
+            Log.e(TAG, "setShuffleMode failed: " + shuffleMode);
+            return;
+        }
         if (mShuffleMode != shuffleMode) {
             mShuffleMode = shuffleMode;
             if (mShuffleMode == SHUFFLED) {

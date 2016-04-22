@@ -71,7 +71,7 @@ public class AudioFocusHelper implements AudioManager.OnAudioFocusChangeListener
     /**
      * Abandons audio focus. Returns whether request was successful or not.
      */
-    private boolean abandonFocus() {
+    public boolean abandonFocus() {
         return AudioManager.AUDIOFOCUS_REQUEST_GRANTED == mAudioManager.abandonAudioFocus(this);
     }
 
