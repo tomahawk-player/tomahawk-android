@@ -780,8 +780,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             }
         });
 
-        mPlaybackManager = PlaybackManager.get(
-                IdGenerator.getSessionUniqueStringId(), mPlaybackManagerCallback);
+        mPlaybackManager = PlaybackManager.get(IdGenerator.getSessionUniqueStringId());
+        mPlaybackManager.setCallback(mPlaybackManagerCallback);
+
         initMediaSession();
 
         try {
@@ -857,6 +858,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         super.onDestroy();
 
         EventBus.getDefault().unregister(this);
+
+        mAudioFocusHelper.abandonFocus();
+
+        mPlaybackManager.setCallback(null);
 
         if (mAudioBecomingNoisyReceiver != null) {
             unregisterReceiver(mAudioBecomingNoisyReceiver);
