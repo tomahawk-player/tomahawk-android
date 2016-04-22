@@ -158,6 +158,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     private MediaBrowserCompat mMediaBrowser;
 
+    private int mPlaybackState = PlaybackStateCompat.STATE_NONE;
+
     private final MediaBrowserCompat.ConnectionCallback mConnectionCallback =
             new MediaBrowserCompat.ConnectionCallback() {
                 @Override
@@ -168,8 +170,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
                                 TomahawkMainActivity.this, mMediaBrowser.getSessionToken());
                         setSupportMediaController(mediaController);
                         mediaController.registerCallback(mMediaCallback);
-                        mMediaCallback.onPlaybackStateChanged(mediaController.getPlaybackState());
                         mPlaybackPanel.setMediaController(mediaController);
+                        mMediaCallback.onPlaybackStateChanged(mediaController.getPlaybackState());
                         ContentHeaderFragment.MediaControllerConnectedEvent event
                                 = new ContentHeaderFragment.MediaControllerConnectedEvent();
                         event.mMediaController = mediaController;
@@ -185,6 +187,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
         @Override
         public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
             Log.d(TAG, "onPlaybackstate changed" + state);
+            mPlaybackState = state.getState();
             mPlaybackPanel.updatePlaybackState(state);
             if (state.getState() != PlaybackStateCompat.STATE_NONE) {
                 showPanel();
@@ -240,10 +243,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
         @Override
         public void run() {
             if (ThreadManager.get().isActive()
-                    || (getSupportMediaController() != null
-                    && getSupportMediaController().getPlaybackState() != null
-                    && getSupportMediaController().getPlaybackState().getState()
-                    == PlaybackStateCompat.STATE_BUFFERING)
+                    || mPlaybackState == PlaybackStateCompat.STATE_BUFFERING
                     || ((UserCollection) CollectionManager.get()
                     .getCollection(TomahawkApp.PLUGINNAME_USERCOLLECTION)).isWorking()) {
                 mSmoothProgressBar.setVisibility(View.VISIBLE);
