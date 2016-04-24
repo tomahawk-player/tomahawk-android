@@ -6,6 +6,7 @@
   <string name="logout">Logga ut</string>
   <string name="register">Registrera</string>
   <string name="register_and_login">Registrera &amp; Logga in</string>
+  <string name="rescan">Omskanna nu</string>
   <string name="internal_storage">Intern lagring</string>
   <string name="tracks">Spår</string>
   <string name="albums">Album</string>
@@ -29,6 +30,10 @@
   <string name="create_playlist">Skapa spellista</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Titel</string>
+  <string name="create_station">Skapa station</string>
+  <string name="create_station_search_hint">Sök på artister/låtar/genre</string>
+  <string name="genres">Genre</string>
+  <string name="moods">Humör</string>
   <string name="login_name_label">E-post/Användarnamn</string>
   <string name="login_username">Användarnamn</string>
   <string name="login_password">Lösenord</string>
@@ -48,6 +53,7 @@
   <string name="local_collection_pretty_name">Enhetens samling</string>
   <string name="local">Lokalt</string>
   <string name="all">Alla</string>
+  <string name="preferences_local_collection_text">Välj</string>
   <string name="preferences_hatchet_text">Synkroniserar med %1$s.</string>
   <string name="preferences_playback">Uppspelning</string>
   <string name="preferences_equalizer">Equalizer</string>
@@ -59,10 +65,15 @@
   <string name="preferences_audio_quality_text">Önskad ljudkvalitet när inte uppkopplad på WIFI.</string>
   <string name="preferences_info">Info</string>
   <string name="preferences_app_version">App-Version</string>
-  <string name="preferences_app_uservoice">Återkoppling</string>
+  <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Dela dina idéer eller fråga efter hjälp.</string>
+  <string name="preferences_app_playstore_link">Betygsätt appen</string>
+  <string name="preferences_app_playstore_link_text">Betygsätt Tomahawk på Google Play Butik</string>
+  <string name="preferences_app_website_link">Besök vår Hemsida</string>
+  <string name="preferences_app_website_link_text">Öppna tomahawk-player.org I din webbläsare</string>
   <string name="preferences_app_sendlog">Skicka logg</string>
   <string name="preferences_app_sendlog_email">Din e-postadress</string>
+  <string name="preferences_app_sendlog_issue">Problem</string>
   <string name="crash_dialog_title">Tomahawk har kraschat</string>
   <string name="crash_dialog_text">Ett oväntat fel har inträffat och tvingat programmet att avslutas. Hjälp oss fixa det genom att skicka datan om felet, allt du behöver göra är att trycka OK.</string>
   <string name="crash_dialog_comment_prompt">Skriv din kommentar om felet (frivilligt):</string>
@@ -81,14 +92,17 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Ogilla</string>
   <string name="context_menu_share">Dela</string>
+  <string name="contest_menu_share_error">Du behöver logga in på Hatchet för att kunna dela denna spellista.</string>
   <string name="drawer_title_feed">Flöde</string>
+  <string name="drawer_title_charts">Topplistor</string>
   <string name="drawer_title_collection">Samling</string>
   <string name="drawer_title_playlists">Spellista</string>
+  <string name="drawer_title_stations">Stationer</string>
   <string name="drawer_title_lovedtracks">Favoriter</string>
   <string name="drawer_title_settings">Inställningar</string>
   <string name="drawer_header_cloudcollections">Molmsamlingar</string>
   <string name="collection_dropdown_recently_added">Nyligen tillagda</string>
-  <string name="collection_dropdown_alpha_artists">Artist A-Z</string>
+  <string name="collection_dropdown_alpha_artists">Artister A-Z</string>
   <string name="collection_dropdown_play_count">Antal spelningar</string>
   <string name="collection_dropdown_alpha_albums">Album A-Z</string>
   <string name="collection_dropdown_alpha">A-Z</string>
@@ -153,6 +167,7 @@
     <item quantity="one">en dag sedan</item>
     <item quantity="other">%1$d dagar sedan</item>
   </plurals>
+  <string name="users_playbacklog_suffix">%1$s\'s senaste spelat</string>
   <string name="users_favorites_suffix">%1$ss favoriter</string>
   <string name="users_playlist_suffix">%1$ss spellistor</string>
   <string name="my_playbacklog">Mina senaste spelningar</string>
@@ -188,6 +203,8 @@
   <string name="advanced">Avancerat</string>
   <string name="info">Information</string>
   <string name="slidinglayout_enqueue_coachmark">Tryck för att lägga till spåret till kön.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Dra upp för att se den nuvarande spellistan.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Dra ner för att stänga spelaren.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">Nästa</string>
   <string name="welcome_fragment_explanation_title">Kom igång</string>
@@ -196,11 +213,13 @@
   <string name="welcome_fragment_setup_title">Anslut</string>
   <string name="welcome_fragment_done_title">Färdig!</string>
   <string name="welcome_fragment_done_heading">Allt klart!</string>
+  <string name="welcome_fragment_done_text">Ha kul utforska appen och säg gärna vad du tycker!</string>
   <plurals name="add_to_playlist_headertext">
     <item quantity="one">Välj en spellista att lägga till %1$d spår till:</item>
     <item quantity="other">Välj en spellista att lägga till %1$d spår till:</item>
   </plurals>
   <string name="install_plugin_title">Plugin-installation</string>
+  <string name="install_plugin_warning">Du håller på att installera en Tomahawk plugin från en okänd källa. Detta kan vara en säkerhetsrisk.</string>
   <string name="install_plugin_warning2">Är du säker på att du vill installera detta plugin?</string>
   <string name="uninstall_plugin_title">Avinstallerar plugin</string>
   <string name="uninstall_plugin_warning">Är du säker på att du vill avinstallera detta plugin?</string>
@@ -209,6 +228,15 @@
   <string name="unknown_album">Okänt album</string>
   <string name="unknown_artist">Okänd artist</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">ny</string>
+  <string name="playback_pause">Paus</string>
+  <string name="playback_play">Spela</string>
+  <string name="playback_previous">Förra låten</string>
+  <string name="playback_next">Nästa låt</string>
+  <string name="playback_favorite">Lägg till i Favoriter</string>
+  <string name="playback_unfavorite">Ta bort från Favoriter</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">Spelas nu</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="loading_station">Laddar station: </string>
 </resources>
