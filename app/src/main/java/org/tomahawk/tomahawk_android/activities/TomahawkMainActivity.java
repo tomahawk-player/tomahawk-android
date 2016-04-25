@@ -127,8 +127,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     private final static String TAG = TomahawkMainActivity.class.getSimpleName();
 
-    public static final String SAVED_STATE_ACTION_BAR_HIDDEN = "saved_state_action_bar_hidden";
-
     public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
             = "show_playbackfragment_on_startup";
 
@@ -807,20 +805,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 new FragmentManager.OnBackStackChangedListener() {
                     @Override
                     public void onBackStackChanged() {
-                        Fragment lastFragment = getSupportFragmentManager().findFragmentByTag(
-                                FragmentUtils.FRAGMENT_TAG);
-                        if (lastFragment instanceof WelcomeFragment
-                                || lastFragment instanceof ContextMenuFragment) {
-                            if (mMenuDrawer != null) {
-                                mMenuDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
-                            }
-                            hideActionbar();
-                        } else {
-                            if (mMenuDrawer != null) {
-                                mMenuDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-                            }
-                            showActionBar(false);
-                        }
+                        updateActionBarState();
                     }
                 });
     }
@@ -903,14 +888,9 @@ public class TomahawkMainActivity extends AppCompatActivity {
                         });
                     }
                 });
-            } else {
-                boolean actionBarHidden = mSavedInstanceState
-                        .getBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, false);
-                if (actionBarHidden) {
-                    hideActionbar();
-                }
             }
         }
+        updateActionBarState();
 
         findViewById(R.id.splash_imageview).setVisibility(View.GONE);
         if (mRunAfterInit != null) {
@@ -930,15 +910,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
         if (mTomahawkMainReceiver != null) {
             unregisterReceiver(mTomahawkMainReceiver);
             mTomahawkMainReceiver = null;
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        if (getSupportActionBar() != null) {
-            outState.putBoolean(SAVED_STATE_ACTION_BAR_HIDDEN, !getSupportActionBar().isShowing());
         }
     }
 
@@ -1113,7 +1084,30 @@ public class TomahawkMainActivity extends AppCompatActivity {
         }
     }
 
-    public void showActionBar(boolean forced) {
+    public void updateActionBarState() {
+        boolean hideActionBar = mSlidingOffset > 0.5f;
+        boolean forced = true;
+        if (!hideActionBar) {
+            Fragment lastFragment =
+                    getSupportFragmentManager().findFragmentByTag(FragmentUtils.FRAGMENT_TAG);
+            hideActionBar = lastFragment instanceof WelcomeFragment
+                    || lastFragment instanceof ContextMenuFragment;
+            forced = false;
+        }
+        if (hideActionBar) {
+            if (mMenuDrawer != null) {
+                mMenuDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            }
+            hideActionbar();
+        } else {
+            if (mMenuDrawer != null) {
+                mMenuDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+            }
+            showActionBar(forced);
+        }
+    }
+
+    private void showActionBar(boolean forced) {
         if (forced || mSlidingUpPanelLayout.getPanelState()
                 == SlidingUpPanelLayout.PanelState.COLLAPSED
                 || mSlidingUpPanelLayout.getPanelState()
@@ -1127,7 +1121,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
         }
     }
 
-    public void hideActionbar() {
+    private void hideActionbar() {
         if (getSupportActionBar().isShowing()) {
             getSupportActionBar().hide();
         }
