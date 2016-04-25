@@ -173,7 +173,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
                         mMediaCallback.onPlaybackStateChanged(mediaController.getPlaybackState());
                         ContentHeaderFragment.MediaControllerConnectedEvent event
                                 = new ContentHeaderFragment.MediaControllerConnectedEvent();
-                        event.mMediaController = mediaController;
                         EventBus.getDefault().post(event);
                     } catch (RemoteException e) {
                         Log.e(TAG, "Could not connect media controller: ", e);

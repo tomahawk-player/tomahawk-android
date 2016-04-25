@@ -197,12 +197,34 @@ public abstract class TomahawkFragment extends TomahawkListFragment
         @Override
         public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
             Log.d(TAG, "onPlaybackstate changed" + state);
+            if (mTomahawkListAdapter != null) {
+                boolean isPlaying = state.getState() == PlaybackStateCompat.STATE_PLAYING;
+                mTomahawkListAdapter.setHighlightedItemIsPlaying(isPlaying);
+                mTomahawkListAdapter.notifyDataSetChanged();
+                mProgressBarUpdater.setPlaybackState(state);
+                if (isPlaying) {
+                    mProgressBarUpdater.scheduleSeekbarUpdate();
+                } else {
+                    mProgressBarUpdater.stopSeekbarUpdate();
+                }
+            }
             TomahawkFragment.this.onPlaybackStateChanged(state);
         }
 
         @Override
         public void onMetadataChanged(MediaMetadataCompat metadata) {
             Log.d(TAG, "onMetadataChanged changed" + metadata);
+            if (mTomahawkListAdapter != null && metadata != null) {
+                if (getPlaybackManager().getCurrentEntry() != null) {
+                    mProgressBarUpdater.setCurrentDuration(
+                            metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
+                    mTomahawkListAdapter
+                            .setHighlightedEntry(getPlaybackManager().getCurrentEntry());
+                    mTomahawkListAdapter
+                            .setHighlightedQuery(getPlaybackManager().getCurrentQuery());
+                    mTomahawkListAdapter.notifyDataSetChanged();
+                }
+            }
             TomahawkFragment.this.onMetadataChanged(metadata);
         }
 
@@ -440,23 +462,28 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart()");
-        MediaControllerCompat controller = getActivity().getSupportMediaController();
-        if (controller != null) {
-            onPlaybackStateChanged(controller.getPlaybackState());
-            onMetadataChanged(controller.getMetadata());
-            controller.registerCallback(mCallback);
-        } else {
-            Log.e(TAG, "Couldn't get MediaController object!");
-        }
+        onMediaControllerConnected();
     }
 
     @Override
     public void onStop() {
         super.onStop();
         Log.d(TAG, "onStop()");
-        MediaControllerCompat controller = getActivity().getSupportMediaController();
-        if (controller != null) {
-            controller.unregisterCallback(mCallback);
+        if (getMediaController() != null) {
+            getMediaController().unregisterCallback(mCallback);
+        }
+    }
+
+    @Override
+    public void onMediaControllerConnected() {
+        super.onMediaControllerConnected();
+        Log.d(TAG, "onMediaControllerConnected()");
+        if (getMediaController() != null) {
+            onPlaybackStateChanged(getMediaController().getPlaybackState());
+            onMetadataChanged(getMediaController().getMetadata());
+            getMediaController().registerCallback(mCallback);
+        } else {
+            Log.e(TAG, "Couldn't get MediaController object!");
         }
     }
 
@@ -558,29 +585,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     protected abstract void updateAdapter();
 
     protected void onPlaybackStateChanged(PlaybackStateCompat playbackState) {
-        if (mTomahawkListAdapter != null) {
-            boolean isPlaying = playbackState.getState() == PlaybackStateCompat.STATE_PLAYING;
-            mTomahawkListAdapter.setHighlightedItemIsPlaying(isPlaying);
-            mTomahawkListAdapter.notifyDataSetChanged();
-            mProgressBarUpdater.setPlaybackState(playbackState);
-            if (isPlaying) {
-                mProgressBarUpdater.scheduleSeekbarUpdate();
-            } else {
-                mProgressBarUpdater.stopSeekbarUpdate();
-            }
-        }
     }
 
     protected void onMetadataChanged(MediaMetadataCompat metadata) {
-        if (mTomahawkListAdapter != null && metadata != null) {
-            if (getPlaybackManager().getCurrentEntry() != null) {
-                mProgressBarUpdater.setCurrentDuration(
-                        metadata.getLong(MediaMetadataCompat.METADATA_KEY_DURATION));
-                mTomahawkListAdapter.setHighlightedEntry(getPlaybackManager().getCurrentEntry());
-                mTomahawkListAdapter.setHighlightedQuery(getPlaybackManager().getCurrentQuery());
-                mTomahawkListAdapter.notifyDataSetChanged();
-            }
-        }
     }
 
     protected void onQueueChanged(List<MediaSessionCompat.QueueItem> queue) {

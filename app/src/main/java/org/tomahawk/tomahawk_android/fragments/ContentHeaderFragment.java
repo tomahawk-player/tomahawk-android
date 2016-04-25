@@ -135,7 +135,6 @@ public class ContentHeaderFragment extends Fragment {
 
     public static class MediaControllerConnectedEvent {
 
-        public MediaControllerCompat mMediaController;
     }
 
     private final SparseArray<ValueAnimator> mAnimators = new SparseArray<>();
@@ -162,17 +161,16 @@ public class ContentHeaderFragment extends Fragment {
 
     protected boolean mHideRemoveButton;
 
-    private MediaControllerCompat mMediaController;
-
     private PlaybackManager mPlaybackManager;
 
     @SuppressWarnings("unused")
     public void onEventMainThread(MediaControllerConnectedEvent event) {
-        mMediaController = event.mMediaController;
-        String playbackManagerId = event.mMediaController.getExtras()
-                .getString(PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
-        mPlaybackManager = PlaybackManager.getByKey(playbackManagerId);
-        onMediaControllerConnected();
+        if (getMediaController() != null) {
+            String playbackManagerId = getMediaController().getExtras()
+                    .getString(PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
+            mPlaybackManager = PlaybackManager.getByKey(playbackManagerId);
+            onMediaControllerConnected();
+        }
     }
 
     @Override
@@ -235,9 +233,8 @@ public class ContentHeaderFragment extends Fragment {
             }
         }
 
-        mMediaController = getActivity().getSupportMediaController();
-        if (mMediaController != null) {
-            String playbackManagerId = mMediaController.getExtras().getString(
+        if (getMediaController() != null) {
+            String playbackManagerId = getMediaController().getExtras().getString(
                     PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
             mPlaybackManager = PlaybackManager.getByKey(playbackManagerId);
         }
@@ -288,7 +285,7 @@ public class ContentHeaderFragment extends Fragment {
     }
 
     public MediaControllerCompat getMediaController() {
-        return mMediaController;
+        return getActivity().getSupportMediaController();
     }
 
     public PlaybackManager getPlaybackManager() {
@@ -403,9 +400,7 @@ public class ContentHeaderFragment extends Fragment {
                 stationButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        MediaControllerCompat controller =
-                                getActivity().getSupportMediaController();
-                        if (controller != null) {
+                        if (getMediaController() != null) {
                             if (item != getPlaybackManager().getPlaylist()) {
                                 List<Artist> artists = new ArrayList<>();
                                 artists.add(((Album) item).getArtist());
@@ -427,9 +422,7 @@ public class ContentHeaderFragment extends Fragment {
                 stationButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        MediaControllerCompat controller =
-                                getActivity().getSupportMediaController();
-                        if (controller != null) {
+                        if (getMediaController() != null) {
                             if (item != getPlaybackManager().getPlaylist()) {
                                 List<Artist> artists = new ArrayList<>();
                                 artists.add((Artist) item);
