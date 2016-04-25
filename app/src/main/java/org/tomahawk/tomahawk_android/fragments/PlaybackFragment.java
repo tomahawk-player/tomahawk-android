@@ -271,7 +271,7 @@ public class PlaybackFragment extends TomahawkFragment {
     }
 
     private void refreshAll() {
-        if (getMediaController() != null) {
+        if (getMediaController() != null && mAlbumArtSwipeAdapter != null) {
             mAlbumArtSwipeAdapter.setMediaController(getMediaController());
             mAlbumArtSwipeAdapter.setPlaybackManager(getPlaybackManager());
             mAlbumArtSwipeAdapter.updatePlaylist();
@@ -331,21 +331,19 @@ public class PlaybackFragment extends TomahawkFragment {
 
     @Override
     public void onMediaControllerConnected() {
+        super.onMediaControllerConnected();
+
         refreshAll();
     }
 
     @Override
     public void onMetadataChanged(MediaMetadataCompat metadata) {
-        super.onMetadataChanged(metadata);
-
         refreshTrackInfo(metadata);
         scheduleUpdateAdapter();
     }
 
     @Override
     public void onQueueChanged(List<MediaSessionCompat.QueueItem> queue) {
-        super.onQueueChanged(queue);
-
         forceResolveVisibleItems(false);
         scheduleUpdateAdapter();
 
@@ -360,8 +358,6 @@ public class PlaybackFragment extends TomahawkFragment {
 
     @Override
     public void onPlaybackStateChanged(@NonNull PlaybackStateCompat state) {
-        super.onPlaybackStateChanged(state);
-
         if (getMediaController() != null) {
             refreshRepeatButtonState(state);
             refreshShuffleButtonState(state);
