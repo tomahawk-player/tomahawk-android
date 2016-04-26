@@ -281,11 +281,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
         @Override
         public void onPanelSlide(View view, float v) {
             mSlidingOffset = v;
-            if (v > 0.5f) {
-                hideActionbar();
-            } else if (v < 0.5f && v > 0f) {
-                showActionBar(true);
-            }
+            updateActionBarState(false);
             final View topPanel = mSlidingUpPanelLayout.findViewById(R.id.top_buttonpanel);
             if (v > 0.15f) {
                 AnimationUtils.fade(topPanel, 0f, 1f,
@@ -805,7 +801,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 new FragmentManager.OnBackStackChangedListener() {
                     @Override
                     public void onBackStackChanged() {
-                        updateActionBarState();
+                        updateActionBarState(true);
                     }
                 });
     }
@@ -890,7 +886,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 });
             }
         }
-        updateActionBarState();
+        updateActionBarState(false);
 
         findViewById(R.id.splash_imageview).setVisibility(View.GONE);
         if (mRunAfterInit != null) {
@@ -1084,10 +1080,10 @@ public class TomahawkMainActivity extends AppCompatActivity {
         }
     }
 
-    public void updateActionBarState() {
+    public void updateActionBarState(boolean checkCurrentFragment) {
         boolean hideActionBar = mSlidingOffset > 0.5f;
         boolean forced = true;
-        if (!hideActionBar) {
+        if (checkCurrentFragment && !hideActionBar) {
             Fragment lastFragment =
                     getSupportFragmentManager().findFragmentByTag(FragmentUtils.FRAGMENT_TAG);
             hideActionBar = lastFragment instanceof WelcomeFragment
