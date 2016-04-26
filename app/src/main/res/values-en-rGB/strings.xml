@@ -242,6 +242,15 @@
   <string name="warn_no_plugin">The required plugin application is no longer installed. Do you want to install it now?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
   <string name="create_new">new</string>
+  <string name="playback_pause">Pause</string>
+  <string name="playback_play">Play</string>
+  <string name="playback_previous">Previous Track</string>
+  <string name="playback_next">Next Track</string>
+  <string name="playback_favorite">Add to Favourites</string>
+  <string name="playback_unfavorite">Remove from Favourites</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">Now Playing</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">Shuffle &amp; Play</string>
+  <string name="loading_station">Loading station:</string>
 </resources>
