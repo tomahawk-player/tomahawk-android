@@ -337,7 +337,7 @@ Tomahawk.resolver.instance = SpotifyResolver;
 
 Tomahawk.PluginManager.registerPlugin('chartsProvider', {
 
-    _baseUrl: "https://spotifycharts.com/api/",
+    _baseUrl: "https://spotifycharts.com/",
 
     countryCodes: {
         defaultCode: "global",
@@ -434,24 +434,21 @@ Tomahawk.PluginManager.registerPlugin('chartsProvider', {
      *
      */
     charts: function (params) {
-        var url = this._baseUrl;
-        var options = {
-            data: {
-                country: params.countryCode,
-                recurrence: "daily",
-                date: "latest",
-                type: params.type
-            }
-        };
-        return Tomahawk.get(url, options).then(function (response) {
+        var url = this._baseUrl + params.type + "/" + params.countryCode + "/daily/latest/download";
+        return Tomahawk.get(url).then(function (response) {
+            var rows = response.split("\n");
             var parsedResults = [];
-            for (var i = 0; i < response.entries.items.length; i++) {
-                var entry = response.entries.items[i];
-                parsedResults.push({
-                    track: entry.track.name,
-                    artist: entry.track.artists[0].name,
-                    album: ""
-                });
+            for (var i = 1; i < rows.length; i++) {
+                if (rows[i]) {
+                    var columns = rows[i].split(",");
+                    if (columns && columns.length > 2) {
+                        parsedResults.push({
+                            track: columns[1].replace(/(^")|("$)/g, ""),
+                            artist: columns[2].replace(/(^")|("$)/g, ""),
+                            album: ""
+                        });
+                    }
+                }
             }
             return {
                 contentType: Tomahawk.UrlType.Track,
