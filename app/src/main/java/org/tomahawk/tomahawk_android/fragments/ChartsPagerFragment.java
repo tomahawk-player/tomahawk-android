@@ -17,6 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.fragments;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import org.jdeferred.DoneCallback;
@@ -46,9 +47,11 @@ public class ChartsPagerFragment extends PagerFragment {
 
     public static final String CHARTSPROVIDER_COUNTRYCODE = "chartsprovider_countrycode";
 
-    private static final String CHARTS_PLAYLIST_SUFFX = "_charts";
+    private static final String CHARTS_PLAYLIST_SUFFX = "_charts_";
 
     public static final int SHOW_MODE_CHARTS = 10;
+
+    private ScriptChartsProvider mChartsProvider;
 
     /**
      * Called, when this {@link ChartsPagerFragment}'s {@link View} has been created
@@ -57,12 +60,11 @@ public class ChartsPagerFragment extends PagerFragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        final ScriptChartsProvider provider;
         final String countryCode;
         if (getArguments().containsKey(CHARTSPROVIDER_ID)) {
             String chartsProviderId = getArguments().getString(CHARTSPROVIDER_ID);
-            provider = ScriptChartsManager.get().getScriptChartsProvider(chartsProviderId);
-            if (provider == null) {
+            mChartsProvider = ScriptChartsManager.get().getScriptChartsProvider(chartsProviderId);
+            if (mChartsProvider == null) {
                 getActivity().getSupportFragmentManager().popBackStack();
                 return;
             }
@@ -80,22 +82,21 @@ public class ChartsPagerFragment extends PagerFragment {
                     "No CHARTSPROVIDER_COUNTRYCODE provided to ChartsPagerFragment");
         }
 
-        showContentHeader(provider.getScriptAccount().getIconBackgroundPath());
+        showContentHeader(mChartsProvider.getScriptAccount().getIconBackgroundPath());
 
-        provider.getTypes().done(new DoneCallback<List<Pair<String, String>>>() {
+        mChartsProvider.getTypes().done(new DoneCallback<List<Pair<String, String>>>() {
             @Override
             public void onDone(List<Pair<String, String>> types) {
                 List<Promise> promises = new ArrayList<>();
                 for (Pair<String, String> type : types) {
-                    promises.add(provider.getCharts(countryCode, type.second));
+                    promises.add(mChartsProvider.getCharts(countryCode, type.second));
                 }
-                showCharts(provider, types, promises);
+                showCharts(types, promises);
             }
         });
     }
 
-    private void showCharts(final ScriptChartsProvider provider,
-            final List<Pair<String, String>> types, List<Promise> promises) {
+    private void showCharts(final List<Pair<String, String>> types, List<Promise> promises) {
         AndroidDeferredManager deferredManager = new AndroidDeferredManager();
         deferredManager.when(promises.toArray(new Promise[promises.size()])).done(
                 new DoneCallback<MultipleResults>() {
@@ -103,63 +104,84 @@ public class ChartsPagerFragment extends PagerFragment {
                     public void onDone(MultipleResults multipleResults) {
                         List<FragmentInfoList> fragmentInfoLists = new ArrayList<>();
                         for (int i = 0; i < multipleResults.size(); i++) {
-                            ScriptChartsResult chartsResult =
-                                    (ScriptChartsResult) multipleResults.get(i).getResult();
-                            FragmentInfoList fragmentInfoList = new FragmentInfoList();
-                            FragmentInfo fragmentInfo = new FragmentInfo();
-                            fragmentInfo.mBundle = getChildFragmentBundle();
-                            fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
-                                    SHOW_MODE_CHARTS);
-                            fragmentInfo.mTitle = types.get(i).first;
-                            if (chartsResult.contentType == PipeLine.URL_TYPE_ARTIST) {
-                                fragmentInfo.mClass = ArtistsFragment.class;
-                                ArrayList<String> artistKeys = new ArrayList<>();
-                                for (JsonObject rawArtist : chartsResult.results) {
-                                    String artistName =
-                                            rawArtist.get("artist").getAsString();
-                                    artistKeys.add(Artist.get(artistName).getCacheKey());
+                            Object object = multipleResults.get(i).getResult();
+                            if (object instanceof ScriptChartsResult) {
+                                ScriptChartsResult chartsResult = (ScriptChartsResult) object;
+                                FragmentInfoList fragmentInfoList = new FragmentInfoList();
+                                FragmentInfo fragmentInfo = new FragmentInfo();
+                                fragmentInfo.mBundle = getChildFragmentBundle();
+                                fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
+                                        SHOW_MODE_CHARTS);
+                                fragmentInfo.mTitle = types.get(i).first;
+                                if (chartsResult.contentType == PipeLine.URL_TYPE_ARTIST) {
+                                    fragmentInfo.mClass = ArtistsFragment.class;
+                                    ArrayList<String> artistKeys = parseArtistCharts(chartsResult);
+                                    fragmentInfo.mBundle.putStringArrayList(
+                                            TomahawkFragment.ARTISTARRAY, artistKeys);
+                                } else if (chartsResult.contentType == PipeLine.URL_TYPE_ALBUM) {
+                                    fragmentInfo.mClass = AlbumsFragment.class;
+                                    ArrayList<String> albumKeys = parseAlbumCharts(chartsResult);
+                                    fragmentInfo.mBundle.putStringArrayList(
+                                            TomahawkFragment.ALBUMARRAY, albumKeys);
+                                } else if (chartsResult.contentType == PipeLine.URL_TYPE_TRACK) {
+                                    fragmentInfo.mClass = PlaylistEntriesFragment.class;
+                                    Playlist pl =
+                                            parseTrackCharts(chartsResult, types.get(i).second);
+                                    fragmentInfo.mBundle.putString(
+                                            TomahawkFragment.PLAYLIST, pl.getCacheKey());
                                 }
-                                fragmentInfo.mBundle.putStringArrayList(
-                                        TomahawkFragment.ARTISTARRAY, artistKeys);
-                            } else if (chartsResult.contentType == PipeLine.URL_TYPE_ALBUM) {
-                                fragmentInfo.mClass = AlbumsFragment.class;
-                                ArrayList<String> albumKeys = new ArrayList<>();
-                                for (JsonObject rawAlbum : chartsResult.results) {
-                                    String artistName =
-                                            rawAlbum.get("artist").getAsString();
-                                    Artist artist = Artist.get(artistName);
-                                    String albumName =
-                                            rawAlbum.get("album").getAsString();
-                                    albumKeys.add(
-                                            Album.get(albumName, artist).getCacheKey());
-                                }
-                                fragmentInfo.mBundle.putStringArrayList(
-                                        TomahawkFragment.ALBUMARRAY, albumKeys);
-                            } else if (chartsResult.contentType == PipeLine.URL_TYPE_TRACK) {
-                                fragmentInfo.mClass = PlaylistEntriesFragment.class;
-                                Playlist pl = Playlist.get(
-                                        provider.getScriptAccount().getMetaData().pluginName
-                                                + CHARTS_PLAYLIST_SUFFX + types.get(i).second);
-                                pl.setFilled(true);
-                                pl.clear();
-                                for (JsonObject rawTrack : chartsResult.results) {
-                                    String artistName =
-                                            rawTrack.get("artist").getAsString();
-                                    String albumName =
-                                            rawTrack.get("album").getAsString();
-                                    String trackName =
-                                            rawTrack.get("track").getAsString();
-                                    pl.addQuery(pl.size(), Query.get(
-                                            trackName, albumName, artistName, false));
-                                }
-                                fragmentInfo.mBundle.putString(
-                                        TomahawkFragment.PLAYLIST, pl.getCacheKey());
+                                fragmentInfoList.addFragmentInfo(fragmentInfo);
+                                fragmentInfoLists.add(fragmentInfoList);
                             }
-                            fragmentInfoList.addFragmentInfo(fragmentInfo);
-                            fragmentInfoLists.add(fragmentInfoList);
                         }
                         setupPager(fragmentInfoLists, 0, null, 2);
                     }
                 });
+    }
+
+    private Playlist parseTrackCharts(ScriptChartsResult chartsResult, String type) {
+        Playlist pl = Playlist.get(mChartsProvider.getScriptAccount().getMetaData().pluginName
+                + CHARTS_PLAYLIST_SUFFX + type);
+        pl.setFilled(true);
+        pl.clear();
+        for (JsonObject rawTrack : chartsResult.results) {
+            JsonElement artist = rawTrack.get("artist");
+            JsonElement album = rawTrack.get("album");
+            JsonElement track = rawTrack.get("track");
+            if (artist != null && album != null && track != null) {
+                String artistName = artist.getAsString();
+                String albumName = album.getAsString();
+                String trackName = track.getAsString();
+                pl.addQuery(pl.size(), Query.get(trackName, albumName, artistName, false));
+            }
+        }
+        return pl;
+    }
+
+    private ArrayList<String> parseArtistCharts(ScriptChartsResult chartsResult) {
+        ArrayList<String> artistKeys = new ArrayList<>();
+        for (JsonObject rawArtist : chartsResult.results) {
+            JsonElement artist = rawArtist.get("artist");
+            if (artist != null) {
+                String artistName = artist.getAsString();
+                artistKeys.add(Artist.get(artistName).getCacheKey());
+            }
+        }
+        return artistKeys;
+    }
+
+    private ArrayList<String> parseAlbumCharts(ScriptChartsResult chartsResult) {
+        ArrayList<String> albumKeys = new ArrayList<>();
+        for (JsonObject rawAlbum : chartsResult.results) {
+            JsonElement artist = rawAlbum.get("artist");
+            JsonElement album = rawAlbum.get("album");
+            if (artist != null && album != null) {
+                String artistName = artist.getAsString();
+                Artist a = Artist.get(artistName);
+                String albumName = album.getAsString();
+                albumKeys.add(Album.get(albumName, a).getCacheKey());
+            }
+        }
+        return albumKeys;
     }
 }
