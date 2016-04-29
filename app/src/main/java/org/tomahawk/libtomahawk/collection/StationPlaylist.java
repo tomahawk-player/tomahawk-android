@@ -44,7 +44,7 @@ public class StationPlaylist extends Playlist {
 
     private String mSessionId;
 
-    private List<Artist> mArtists;
+    private List<Pair<Artist, String>> mArtists;
 
     private List<Pair<Track, String>> mTracks;
 
@@ -59,7 +59,7 @@ public class StationPlaylist extends Playlist {
 
     private Deferred<List<Query>, Throwable, Void> mFillDeferred;
 
-    private StationPlaylist(List<Artist> artists, List<Pair<Track, String>> tracks,
+    private StationPlaylist(List<Pair<Artist, String>> artists, List<Pair<Track, String>> tracks,
             List<String> genres) {
         super(getCacheKey(artists, tracks, genres));
 
@@ -69,11 +69,11 @@ public class StationPlaylist extends Playlist {
 
         String name = "";
         if (mArtists != null) {
-            for (Artist artist : mArtists) {
+            for (Pair<Artist, String> artist : mArtists) {
                 if (!name.isEmpty()) {
                     name += ", ";
                 }
-                name += artist.getPrettyName();
+                name += artist.first.getPrettyName();
             }
         }
         if (mTracks != null) {
@@ -97,13 +97,19 @@ public class StationPlaylist extends Playlist {
         mCreatedTimeStamp = System.currentTimeMillis();
     }
 
-    private static String getCacheKey(List<Artist> artists, List<Pair<Track, String>> tracks,
+    private static String getCacheKey(List<Pair<Artist, String>> artists,
+            List<Pair<Track, String>> tracks,
             List<String> genres) {
         String key = "station_";
         if (artists != null) {
-            Collections.sort(artists, new AlphaComparator());
-            for (Artist artist : artists) {
-                key += "♠" + artist.getCacheKey();
+            Collections.sort(artists, new Comparator<Pair<Artist, String>>() {
+                @Override
+                public int compare(Pair<Artist, String> lhs, Pair<Artist, String> rhs) {
+                    return lhs.first.getName().compareToIgnoreCase(rhs.first.getName());
+                }
+            });
+            for (Pair<Artist, String> artist : artists) {
+                key += "♠" + artist.first.getCacheKey();
             }
         }
         if (tracks != null) {
@@ -129,13 +135,19 @@ public class StationPlaylist extends Playlist {
     public static StationPlaylist get(String json) {
         JsonObject jsonObject = GsonHelper.get().fromJson(json, JsonObject.class);
 
-        List<Artist> artists = null;
+        List<Pair<Artist, String>> artists = null;
         if (jsonObject.has("artists") && jsonObject.get("artists").isJsonArray()) {
             artists = new ArrayList<>();
             for (JsonElement element : jsonObject.getAsJsonArray("artists")) {
                 if (element.isJsonObject()) {
                     JsonObject o = element.getAsJsonObject();
-                    artists.add(Artist.get(o.get("artist").getAsString()));
+                    Artist artist = Artist.get(o.get("artist").getAsString());
+                    JsonElement idElement = o.get(getIdKey());
+                    String id = "";
+                    if (idElement != null) {
+                        idElement.getAsString();
+                    }
+                    artists.add(new Pair<>(artist, id));
                 }
             }
         }
@@ -149,8 +161,12 @@ public class StationPlaylist extends Playlist {
                     Artist artist = Artist.get(o.get("artist").getAsString());
                     Album album = Album.get(o.get("album").getAsString(), artist);
                     Track track = Track.get(o.get("track").getAsString(), album, artist);
-                    String songId = o.get("songId").getAsString();
-                    tracks.add(new Pair<>(track, songId));
+                    JsonElement idElement = o.get(getIdKey());
+                    String id = "";
+                    if (idElement != null) {
+                        idElement.getAsString();
+                    }
+                    tracks.add(new Pair<>(track, id));
                 }
             }
         }
@@ -169,14 +185,14 @@ public class StationPlaylist extends Playlist {
         return get(artists, tracks, genres);
     }
 
-    public static StationPlaylist get(List<Artist> artists, List<Pair<Track, String>> tracks,
-            List<String> genres) {
+    public static StationPlaylist get(List<Pair<Artist, String>> artists,
+            List<Pair<Track, String>> tracks, List<String> genres) {
         Cacheable cacheable = get(Playlist.class, getCacheKey(artists, tracks, genres));
         return cacheable != null ? (StationPlaylist) cacheable
                 : new StationPlaylist(artists, tracks, genres);
     }
 
-    public List<Artist> getArtists() {
+    public List<Pair<Artist, String>> getArtists() {
         return mArtists;
     }
 
@@ -212,35 +228,15 @@ public class StationPlaylist extends Playlist {
         }
         mFillDeferred = new ADeferredObject<>();
         if (generator != null) {
-            final List<Query> combinedResults = new ArrayList<>();
-            final DoneCallback<ScriptPlaylistGeneratorResult> callback
-                    = new DoneCallback<ScriptPlaylistGeneratorResult>() {
-                @Override
-                public void onDone(ScriptPlaylistGeneratorResult result) {
-                    mSessionId = result.sessionId;
-                    mCandidates.addAll(result.results);
-                    combinedResults.addAll(result.results);
-                }
-            };
-            final DoneCallback<ScriptPlaylistGeneratorResult> finishCallback
-                    = new DoneCallback<ScriptPlaylistGeneratorResult>() {
-                @Override
-                public void onDone(ScriptPlaylistGeneratorResult result) {
-                    mFillDeferred.resolve(combinedResults);
-                }
-            };
-            if (mSessionId == null) {
-                generator.createStation(mArtists, mTracks, mGenres).done(callback)
-                        .done(new DoneCallback<ScriptPlaylistGeneratorResult>() {
-                            @Override
-                            public void onDone(ScriptPlaylistGeneratorResult result) {
-                                generator.fillStation(mSessionId).done(callback)
-                                        .done(finishCallback);
-                            }
-                        });
-            } else {
-                generator.fillStation(mSessionId).done(callback).done(finishCallback);
-            }
+            generator.fillPlaylist(mSessionId, mArtists, mTracks, mGenres)
+                    .done(new DoneCallback<ScriptPlaylistGeneratorResult>() {
+                        @Override
+                        public void onDone(ScriptPlaylistGeneratorResult result) {
+                            mSessionId = result.sessionId;
+                            mCandidates.addAll(result.results);
+                            mFillDeferred.resolve(result.results);
+                        }
+                    });
         }
         return mFillDeferred;
     }
@@ -254,9 +250,10 @@ public class StationPlaylist extends Playlist {
 
         if (mArtists != null) {
             JsonArray artists = new JsonArray();
-            for (Artist artist : mArtists) {
+            for (Pair<Artist, String> artist : mArtists) {
                 JsonObject o = new JsonObject();
-                o.addProperty("artist", artist.getName());
+                o.addProperty("artist", artist.first.getName());
+                o.addProperty(getIdKey(), artist.second);
                 artists.add(o);
             }
             json.add("artists", artists);
@@ -269,7 +266,7 @@ public class StationPlaylist extends Playlist {
                 o.addProperty("track", track.first.getName());
                 o.addProperty("artist", track.first.getArtist().getName());
                 o.addProperty("album", track.first.getAlbum().getName());
-                o.addProperty("songId", track.second);
+                o.addProperty(getIdKey(), track.second);
                 tracks.add(o);
             }
             json.add("tracks", tracks);
@@ -286,5 +283,9 @@ public class StationPlaylist extends Playlist {
         }
 
         return GsonHelper.get().toJson(json);
+    }
+
+    private static String getIdKey() {
+        return ScriptPlaylistGeneratorManager.get().getDefaultPlaylistGeneratorId() + "_id";
     }
 }

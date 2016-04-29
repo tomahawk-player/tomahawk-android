@@ -36,8 +36,6 @@ import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.util.Pair;
@@ -66,7 +64,9 @@ public class CreateStationDialog extends ConfigDialog {
 
     private EditText mSearchEditText;
 
-    private Map<Track, String> mSongIds = new ConcurrentHashMap<>();
+    private Map<Artist, String> mArtistIds = new ConcurrentHashMap<>();
+
+    private Map<Track, String> mTrackIds = new ConcurrentHashMap<>();
 
     private ClickListener mClickListener = new ClickListener();
 
@@ -75,13 +75,13 @@ public class CreateStationDialog extends ConfigDialog {
         @Override
         public void onItemClick(View view, Object item) {
             if (item instanceof Artist) {
-                List<Artist> artists = new ArrayList<>();
-                artists.add((Artist) item);
+                List<Pair<Artist, String>> artists = new ArrayList<>();
+                artists.add(new Pair<>((Artist) item, mArtistIds.get(item)));
                 StationPlaylist stationPlaylist = StationPlaylist.get(artists, null, null);
                 DatabaseHelper.get().storeStation(stationPlaylist);
             } else if (item instanceof Track) {
                 List<Pair<Track, String>> tracks = new ArrayList<>();
-                tracks.add(new Pair<>((Track) item, mSongIds.get(item)));
+                tracks.add(new Pair<>((Track) item, mTrackIds.get(item)));
                 StationPlaylist stationPlaylist = StationPlaylist.get(null, tracks, null);
                 DatabaseHelper.get().storeStation(stationPlaylist);
             } else if (item instanceof ListItemString) {
@@ -115,15 +115,7 @@ public class CreateStationDialog extends ConfigDialog {
 
         setDialogTitle(getString(R.string.create_station));
 
-        setStatusImage(R.drawable.ic_echonest);
-        setStatusImageClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_VIEW);
-                i.setData(Uri.parse("http://the.echonest.com/"));
-                startActivity(i);
-            }
-        });
+        setStatusImage(R.drawable.ic_action_station);
 
         hideConnectImage();
 
@@ -156,7 +148,12 @@ public class CreateStationDialog extends ConfigDialog {
                         mListView.setVisibility(View.VISIBLE);
                         List<Segment> segments = new ArrayList<>();
                         if (result.mArtists.size() > 0) {
-                            segments.add(new Segment.Builder(result.mArtists)
+                            List<Artist> artists = new ArrayList<>();
+                            for (Pair<Artist, String> pair : result.mArtists) {
+                                artists.add(pair.first);
+                                mArtistIds.put(pair.first, pair.second);
+                            }
+                            segments.add(new Segment.Builder(artists)
                                     .headerLayout(R.layout.single_line_list_header)
                                     .headerString(R.string.artists)
                                     .build());
@@ -171,7 +168,7 @@ public class CreateStationDialog extends ConfigDialog {
                             List<Track> tracks = new ArrayList<>();
                             for (Pair<Track, String> pair : result.mTracks) {
                                 tracks.add(pair.first);
-                                mSongIds.put(pair.first, pair.second);
+                                mTrackIds.put(pair.first, pair.second);
                             }
                             segments.add(new Segment.Builder(tracks)
                                     .headerLayout(R.layout.single_line_list_header)

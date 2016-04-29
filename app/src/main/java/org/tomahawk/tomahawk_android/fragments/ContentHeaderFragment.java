@@ -52,6 +52,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.media.session.MediaControllerCompat;
+import android.support.v4.util.Pair;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
@@ -402,8 +403,8 @@ public class ContentHeaderFragment extends Fragment {
                     public void onClick(View v) {
                         if (getMediaController() != null) {
                             if (item != getPlaybackManager().getPlaylist()) {
-                                List<Artist> artists = new ArrayList<>();
-                                artists.add(((Album) item).getArtist());
+                                List<Pair<Artist, String>> artists = new ArrayList<>();
+                                artists.add(new Pair<>(((Album) item).getArtist(), ""));
                                 StationPlaylist stationPlaylist =
                                         StationPlaylist.get(artists, null, null);
                                 getPlaybackManager().setPlaylist(stationPlaylist);
@@ -424,8 +425,8 @@ public class ContentHeaderFragment extends Fragment {
                     public void onClick(View v) {
                         if (getMediaController() != null) {
                             if (item != getPlaybackManager().getPlaylist()) {
-                                List<Artist> artists = new ArrayList<>();
-                                artists.add((Artist) item);
+                                List<Pair<Artist, String>> artists = new ArrayList<>();
+                                artists.add(new Pair<>((Artist) item, ""));
                                 StationPlaylist stationPlaylist =
                                         StationPlaylist.get(artists, null, null);
                                 getPlaybackManager().setPlaylist(stationPlaylist);

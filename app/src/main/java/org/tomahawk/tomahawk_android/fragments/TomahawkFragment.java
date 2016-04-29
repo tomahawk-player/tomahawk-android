@@ -663,8 +663,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     private void resolveItem(StationPlaylist stationPlaylist) {
         if (mResolvingItems.add(stationPlaylist)) {
             if (stationPlaylist.getArtists() != null) {
-                for (Artist artist : stationPlaylist.getArtists()) {
-                    resolveItem(artist);
+                for (Pair<Artist, String> pair : stationPlaylist.getArtists()) {
+                    resolveItem(pair.first);
                 }
             }
             if (stationPlaylist.getTracks() != null) {

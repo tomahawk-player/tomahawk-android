@@ -68,8 +68,10 @@ public class ScriptPlaylistGenerator implements ScriptPlugin {
                     for (JsonElement element : artists) {
                         if (element instanceof JsonObject) {
                             JsonElement artistName = ((JsonObject) element).get("artist");
+                            JsonElement id = ((JsonObject) element).get("id");
                             if (artistName != null) {
-                                result.mArtists.add(Artist.get(artistName.getAsString()));
+                                Artist artist = Artist.get(artistName.getAsString());
+                                result.mArtists.add(new Pair<>(artist, id.getAsString()));
                             }
                         }
                     }
@@ -94,12 +96,12 @@ public class ScriptPlaylistGenerator implements ScriptPlugin {
                             JsonElement artistName = ((JsonObject) element).get("artist");
                             JsonElement trackName = ((JsonObject) element).get("track");
                             JsonElement albumName = ((JsonObject) element).get("album");
-                            JsonElement songId = ((JsonObject) element).get("songId");
+                            JsonElement id = ((JsonObject) element).get("id");
                             if (artistName != null && trackName != null && albumName != null) {
                                 Artist artist = Artist.get(artistName.getAsString());
                                 Album album = Album.get(albumName.getAsString(), artist);
                                 Track track = Track.get(trackName.getAsString(), album, artist);
-                                result.mTracks.add(new Pair<>(track, songId.getAsString()));
+                                result.mTracks.add(new Pair<>(track, id.getAsString()));
                             }
                         }
                     }
@@ -132,14 +134,19 @@ public class ScriptPlaylistGenerator implements ScriptPlugin {
         return deferred;
     }
 
-    public Promise<ScriptPlaylistGeneratorResult, Throwable, Void> createStation(
-            List<Artist> artists, List<Pair<Track, String>> tracks, List<String> genres) {
+    public Promise<ScriptPlaylistGeneratorResult, Throwable, Void> fillPlaylist(String sessionId,
+            List<Pair<Artist, String>> artists, List<Pair<Track, String>> tracks,
+            List<String> genres) {
         Map<String, Object> args = new HashMap<>();
+        if (sessionId != null){
+            args.put("sessionId", sessionId);
+        }
         if (artists != null) {
             JsonArray jsonArtists = new JsonArray();
-            for (Artist artist : artists) {
+            for (Pair<Artist, String> artist : artists) {
                 JsonObject o = new JsonObject();
-                o.addProperty("artist", artist.getName());
+                o.addProperty("artist", artist.first.getName());
+                o.addProperty("id", artist.second);
                 jsonArtists.add(o);
             }
             args.put("artists", jsonArtists);
@@ -151,7 +158,7 @@ public class ScriptPlaylistGenerator implements ScriptPlugin {
                 o.addProperty("track", track.first.getName());
                 o.addProperty("artist", track.first.getArtist().getName());
                 o.addProperty("album", track.first.getAlbum().getName());
-                o.addProperty("songId", track.second);
+                o.addProperty("id", track.second);
                 jsonTracks.add(o);
             }
             args.put("tracks", jsonTracks);
@@ -165,25 +172,9 @@ public class ScriptPlaylistGenerator implements ScriptPlugin {
             }
             args.put("genres", jsonGenres);
         }
-        return createStation(args);
-    }
-
-    private Promise<ScriptPlaylistGeneratorResult, Throwable, Void> createStation(
-            Map<String, Object> args) {
-        return stationJob("createStation", args);
-    }
-
-    public Promise<ScriptPlaylistGeneratorResult, Throwable, Void> fillStation(String sessionId) {
-        Map<String, Object> args = new HashMap<>();
-        args.put("sessionId", sessionId);
-        return stationJob("fillStation", args);
-    }
-
-    private Promise<ScriptPlaylistGeneratorResult, Throwable, Void> stationJob(String methodName,
-            Map<String, Object> args) {
         final Deferred<ScriptPlaylistGeneratorResult, Throwable, Void> deferred =
                 new ADeferredObject<>();
-        ScriptJob.start(mScriptObject, methodName, args, new ScriptJob.ResultsObjectCallback() {
+        ScriptJob.start(mScriptObject, "fillPlaylist", args, new ScriptJob.ResultsObjectCallback() {
             @Override
             public void onReportResults(JsonObject results) {
                 deferred.resolve(parseResult(results));

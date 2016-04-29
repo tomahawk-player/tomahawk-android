@@ -17,6 +17,8 @@
  */
 package org.tomahawk.libtomahawk.infosystem.stations;
 
+import org.tomahawk.tomahawk_android.TomahawkApp;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,7 +68,11 @@ public class ScriptPlaylistGeneratorManager {
     }
 
     public ScriptPlaylistGenerator getDefaultPlaylistGenerator() {
-        return mPlaylistGeneratorMap.get("echonest");
+        return mPlaylistGeneratorMap.get(getDefaultPlaylistGeneratorId());
+    }
+
+    public String getDefaultPlaylistGeneratorId() {
+        return TomahawkApp.PLUGINNAME_SPOTIFY;
     }
 
 }
