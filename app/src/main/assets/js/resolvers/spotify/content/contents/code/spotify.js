@@ -33,23 +33,25 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
         timeout: 15
     },
 
-    clientId: "q3r9p989687p496no2s92p9r84s779qp",
+    _clientId: "q3r9p989687p496no2s92p9r84s779qp",
 
-    clientSecret: "789r9n607poo4s9no6998771s969o630",
+    _clientSecret: "789r9n607poo4s9no6998771s969o630",
 
-    redirectUri: "tomahawkspotifyresolver://callback",
+    _tokenEndPoint: "https://accounts.spotify.com/api/token",
 
-    storageKeyRefreshToken: "spotify_refresh_token",
+    _redirectUri: "tomahawkspotifyresolver://callback",
+
+    _storageKeyRefreshToken: "spotify_refresh_token",
 
     /**
      * Get the access token. Refresh when it is expired.
      */
     getAccessToken: function () {
         var that = this;
-        if (!this.getAccessTokenPromise || new Date().getTime() + 60000 > that.accessTokenExpires) {
+        if (!this._getAccessTokenPromise || new Date().getTime() + 60000 > that._clientCredsTokenExpires) {
             Tomahawk.log("Access token is not valid. We need to get a new one.");
-            this.getAccessTokenPromise = new RSVP.Promise(function (resolve, reject) {
-                var refreshToken = Tomahawk.localStorage.getItem(that.storageKeyRefreshToken);
+            this._getAccessTokenPromise = new RSVP.Promise(function (resolve, reject) {
+                var refreshToken = Tomahawk.localStorage.getItem(that._storageKeyRefreshToken);
                 if (!refreshToken) {
                     Tomahawk.log("Can't fetch new access token, because there's no stored refresh "
                         + "token. Are you logged in?");
@@ -62,8 +64,8 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 var settings = {
                     headers: {
                         "Authorization": "Basic "
-                        + Tomahawk.base64Encode(that._spell(that.clientId)
-                            + ":" + that._spell(that.clientSecret)),
+                        + Tomahawk.base64Encode(that._spell(that._clientId)
+                            + ":" + that._spell(that._clientSecret)),
                         "Content-Type": "application/x-www-form-urlencoded"
                     },
                     data: {
@@ -71,10 +73,10 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
                         "refresh_token": result
                     }
                 };
-                return Tomahawk.post("https://accounts.spotify.com/api/token", settings)
+                return Tomahawk.post(that._tokenEndPoint, settings)
                     .then(function (res) {
-                        that.accessToken = res.access_token;
-                        that.accessTokenExpires = new Date().getTime() + res.expires_in
+                        that._accessToken = res.access_token;
+                        that._clientCredsTokenExpires = new Date().getTime() + res.expires_in
                             * 1000;
                         Tomahawk.log("Received new access token!");
                         return {
@@ -83,16 +85,16 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     });
             });
         }
-        return this.getAccessTokenPromise;
+        return this._getAccessTokenPromise;
     },
 
     login: function () {
         Tomahawk.log("Starting login");
 
         var authUrl = "https://accounts.spotify.com/authorize";
-        authUrl += "?client_id=" + this._spell(this.clientId);
+        authUrl += "?client_id=" + this._spell(this._clientId);
         authUrl += "&response_type=code";
-        authUrl += "&redirect_uri=" + encodeURIComponent(this.redirectUri);
+        authUrl += "&redirect_uri=" + encodeURIComponent(this._redirectUri);
         authUrl
             += "&scope=playlist-read-private%20streaming%20user-read-private%20user-library-read";
         authUrl += "&show_dialog=true";
@@ -113,20 +115,20 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     var settings = {
                         headers: {
                             "Authorization": "Basic "
-                            + Tomahawk.base64Encode(that._spell(that.clientId)
-                                + ":" + that._spell(that.clientSecret)),
+                            + Tomahawk.base64Encode(that._spell(that._clientId)
+                                + ":" + that._spell(that._clientSecret)),
                             "Content-Type": "application/x-www-form-urlencoded"
                         },
                         data: {
                             grant_type: "authorization_code",
                             code: encodeURIComponent(that._getParameterByName(result.url, "code")),
-                            redirect_uri: encodeURIComponent(that.redirectUri)
+                            redirect_uri: encodeURIComponent(that._redirectUri)
                         }
                     };
 
-                    return Tomahawk.post("https://accounts.spotify.com/api/token", settings)
+                    return Tomahawk.post(that._tokenEndPoint, settings)
                         .then(function (response) {
-                            Tomahawk.localStorage.setItem(that.storageKeyRefreshToken,
+                            Tomahawk.localStorage.setItem(that._storageKeyRefreshToken,
                                 response.refresh_token);
                             Tomahawk.log("Received new refresh token!");
                             return TomahawkConfigTestResultType.Success;
@@ -136,12 +138,12 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
     },
 
     logout: function () {
-        Tomahawk.localStorage.removeItem(this.storageKeyRefreshToken);
+        Tomahawk.localStorage.removeItem(this._storageKeyRefreshToken);
         return TomahawkConfigTestResultType.Logout;
     },
 
     isLoggedIn: function () {
-        var refreshToken = Tomahawk.localStorage.getItem(this.storageKeyRefreshToken);
+        var refreshToken = Tomahawk.localStorage.getItem(this._storageKeyRefreshToken);
         return refreshToken !== null && refreshToken.length > 0;
     },
 
@@ -454,6 +456,288 @@ Tomahawk.PluginManager.registerPlugin('chartsProvider', {
                 contentType: Tomahawk.UrlType.Track,
                 results: parsedResults
             };
+        });
+    }
+
+});
+
+Tomahawk.PluginManager.registerPlugin('playlistGenerator', {
+
+    _clientCredsTokenExpires: 0,
+
+    _sessions: {},
+
+    /**
+     * If the user is logged into Spotify, this function returns the already available access token.
+     * Otherwise it fetches an access token through the Client Credentials auth flow.
+     */
+    _getAccessToken: function () {
+        var that = this;
+        return SpotifyResolver.getAccessToken().then(function (accessToken) {
+            // User is logged into Spotify. We'll use his accessToken
+            return accessToken;
+        }, function (error) {
+            // User is not logged into Spotify.
+            // We need to get a basic accessToken through the client credentials auth flow
+            if (!that._getAccessTokenPromise
+                || new Date().getTime() + 60000 > that._clientCredsTokenExpires) {
+                Tomahawk.log("ClientCreds access token is not valid. We need to get a new one.");
+                Tomahawk.log("Fetching new ClientCreds access token ...");
+                var options = {
+                    headers: {
+                        "Authorization": "Basic "
+                        + Tomahawk.base64Encode(SpotifyResolver._spell(SpotifyResolver._clientId)
+                            + ":" + SpotifyResolver._spell(SpotifyResolver._clientSecret)),
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    data: {
+                        grant_type: "client_credentials"
+                    }
+                };
+                that._getAccessTokenPromise =
+                    Tomahawk.post(SpotifyResolver._tokenEndPoint, options).then(function (res) {
+                        that._clientCredsTokenExpires = new Date().getTime() + res.expires_in * 1000;
+                        Tomahawk.log("Received new ClientCreds access token!");
+                        return {
+                            accessToken: res.access_token
+                        };
+                    });
+            }
+            return that._getAccessTokenPromise;
+        });
+    },
+
+    /**
+     * Fetch all available genres from the Spotify API
+     */
+    _genres: function () {
+        var that = this;
+        if (!that._genrePromise) {
+            that._genrePromise = that._getAccessToken().then(function (result) {
+                var url = "https://api.spotify.com/v1/recommendations/available-genre-seeds";
+                var settings = {
+                    headers: {
+                        Authorization: "Bearer " + result.accessToken
+                    }
+                };
+                return Tomahawk.get(url, settings).then(function (response) {
+                    return response.genres;
+                });
+            });
+        }
+        return that._genrePromise;
+    },
+
+    /**
+     * Searches the source for available playlist seeds like artists or songs. The results from this
+     * function are later being used as a seed to fill the playlist with tracks.
+     *
+     * @param params Example: {  query: "Queen rock you"  }
+     *
+     * @returns Example: {   artists: [ { artist: 'Queen', id: '123' },
+     *                                  { artist: 'Queens', id: '124' } ],
+     *                       albums:  [ { artist: 'Queen', album: 'Greatest Hits', id: '125' } ],
+     *                       tracks:  [ { artist: 'Queen', track: 'We will rock you', id: '126' } ],
+     *                       genres:  [ { name: 'Rock' },
+     *                                  { name: 'Alternative Rock' } ],
+     *                       moods:   [ { name: 'Happy' } ]   }
+     */
+    search: function (params) {
+        var that = this;
+        return that._getAccessToken().then(function (result) {
+            var promises = [];
+            var url = "https://api.spotify.com/v1/search";
+            var settings = {
+                data: {
+                    type: "track,artist",
+                    q: params.query
+                },
+                headers: {
+                    Authorization: "Bearer " + result.accessToken
+                }
+            };
+            promises.push(Tomahawk.get(url, settings).then(function (response) {
+                return {
+                    artists: response.artists.items.map(function (item) {
+                        return {
+                            artist: item.name,
+                            id: item.id
+                        };
+                    }),
+                    tracks: response.tracks.items.map(function (item) {
+                        return {
+                            artist: item.artists[0].name,
+                            album: item.album.name,
+                            track: item.name,
+                            id: item.id
+                        };
+                    })
+                };
+            }));
+            promises.push(that._genres().then(function (allGenres) {
+                // Search for genres by manually iterating through all available genres
+                return {
+                    genres: allGenres.filter(function (item) {
+                        return item.toLowerCase().indexOf(params.query) > -1;
+                    }).map(function (item) {
+                        return {
+                            name: item
+                        };
+                    })
+                };
+            }));
+            return RSVP.all(promises).then(function (results) {
+                return {
+                    artists: results[0].artists,
+                    albums: [],
+                    tracks: results[0].tracks,
+                    genres: results[1].genres,
+                    moods: []
+                };
+            });
+        });
+    },
+
+    /**
+     * Converts the given params to the format the Spotify API expects. If an artist or track
+     * doesn't yet have an id, fetch the id automagically.
+     */
+    _buildSettingsData: function (params) {
+        var artistIds = [];
+        var trackIds = [];
+        var genreIds = [];
+        var promises = [];
+        if (params.artists) {
+            for (var i = 0; i < params.artists.length; i++) {
+                var artist = params.artists[i];
+                if (artist.id) {
+                    artistIds.push(artist.id);
+                } else if (artist.artist) {
+                    // No artist id provided, so we have to search for it
+                    var queryParams = {
+                        query: artist.artist
+                    };
+                    promises.push(this.search(queryParams).then(function (result) {
+                        if (result.artists && result.artists.length > 0) {
+                            // Let's use the first result
+                            Tomahawk.log("Resolved artist to id: " + result.artists[0].id);
+                            artistIds.push(result.artists[0].id);
+                        }
+                    }));
+                }
+            }
+        } else if (params.tracks) {
+            for (var i = 0; i < params.tracks.length; i++) {
+                var track = params.tracks[i];
+                if (track.id) {
+                    trackIds.push(track.id);
+                } else if (track.track && track.artist) {
+                    // No artist id provided, so we have to search for it
+                    var queryParams = {
+                        query: "track:" + track.track + "%20artist:" + track.artist
+                    };
+                    promises.push(this.search(queryParams).then(function (result) {
+                        if (result.tracks && result.tracks.length > 0) {
+                            // Let's use the first result
+                            Tomahawk.log("Resolved track to id: " + result.tracks[0].id);
+                            trackIds.push(result.tracks[0].id);
+                        }
+                    }));
+                }
+            }
+        } else if (params.genres) {
+            genreIds = params.genres.map(function (item) {
+                return item.name;
+            });
+        }
+        return RSVP.all(promises).then(function () {
+            var result = {
+                limit: 100
+            };
+            if (artistIds.length > 0) {
+                result.seed_artists = artistIds;
+            }
+            if (trackIds.length > 0) {
+                result.seed_tracks = trackIds;
+            }
+            if (genreIds.length > 0) {
+                result.seed_genres = genreIds;
+            }
+            return result;
+        });
+    },
+
+    /**
+     * This function requests a new set of tracks from the Spotify API based on the
+     * artists/tracks/genres seeds that are given in the params object.
+     *
+     * @param params
+     *               Using params from a previous session:
+     *               Example: {   sessionId: "12476294"  }
+     *
+     *               Using params to create a new session:
+     *               Example: {   artists: [ { artist: 'Queen', id: '123' },
+     *                                       { artist: 'Queens', id: '124' } ],
+     *                            tracks:  [ { artist: 'Queen', track: 'We will rock you', id: '126' } ],
+     *                            genres:  [ { name: 'Rock' },
+     *                                       { name: 'Alternative Rock' } ]   }
+     *
+     * @returns Example: {   sessionId: "124252622",  // this id should be used in subsequent calls
+     *                       results: [
+     *                                  { artist: 'Queen',
+     *                                    track: 'We will rock you',
+     *                                    album: 'Greatest Hits' }
+     *                                  { artist: 'Queen',
+     *                                    track: 'We won't rock you',
+     *                                    album: 'Crappiest Hits' }
+     *                                ]
+     *                   }
+     */
+    fillPlaylist: function (params) {
+        var that = this;
+        return that._getAccessToken().then(function (result) {
+            var url = "https://api.spotify.com/v1/recommendations";
+            var settings = {
+                headers: {
+                    Authorization: "Bearer " + result.accessToken
+                }
+            };
+            var settingsDataPromise;
+            if (params.sessionId && that._sessions[params.sessionId]) {
+                // We can use the cached settingsData from the previous call
+                settingsDataPromise = RSVP.resolve(that._sessions[params.sessionId]);
+            } else {
+                // No cached settingsData available
+                settingsDataPromise = that._buildSettingsData(params);
+            }
+            return settingsDataPromise.then(function (settingsData) {
+                var sessionId = params.sessionId;
+                if (!sessionId) {
+                    sessionId = new Date().getTime();
+                }
+                // Cache the settingsData
+                that._sessions[sessionId] = settingsData;
+
+                settings.data = settingsData;
+                return Tomahawk.get(url, settings).then(function (response) {
+                    var results = [];
+                    if (response.tracks) {
+                        results = response.tracks.map(function (item) {
+                            return {
+                                artist: item.artists[0].name,
+                                album: item.album.name,
+                                track: item.name
+                            };
+                        });
+                    }
+                    Tomahawk.log("Filled playlist with sessionId: " + sessionId
+                        + ", resultCount: " + results.length);
+                    return {
+                        sessionId: sessionId,
+                        results: results
+                    };
+                });
+            });
         });
     }
 
