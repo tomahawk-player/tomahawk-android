@@ -356,6 +356,7 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
         mMediaPlayerCallback = callback;
         mPreparedQuery = null;
         mPreparingQuery = query;
+        mIsPlaying = false;
 
         String uri = getUri(query);
         mUriToQueryMap.put(uri, query);
@@ -390,7 +391,7 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
     public void seekTo(final long msec) {
         Log.d(TAG, "seekTo()");
         Bundle args = new Bundle();
-        args.putInt(MSG_SEEK_ARG_MS, (int)msec);
+        args.putInt(MSG_SEEK_ARG_MS, (int) msec);
         callService(MSG_SEEK, args);
 
         mFakePositionOffset = msec;
