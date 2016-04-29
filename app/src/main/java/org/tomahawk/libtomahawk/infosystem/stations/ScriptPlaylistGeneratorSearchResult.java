@@ -28,7 +28,7 @@ import java.util.List;
 
 public class ScriptPlaylistGeneratorSearchResult {
 
-    public List<Artist> mArtists = new ArrayList<>();
+    public List<Pair<Artist, String>> mArtists = new ArrayList<>();
 
     public List<Album> mAlbums = new ArrayList<>();
 

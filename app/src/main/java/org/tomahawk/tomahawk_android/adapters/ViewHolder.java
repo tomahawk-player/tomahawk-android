@@ -294,8 +294,8 @@ public class ViewHolder {
     public void fillView(StationPlaylist playlist) {
         ArrayList<Image> artistImages = new ArrayList<>();
         if (playlist.getArtists() != null) {
-            for (Artist artist : playlist.getArtists()) {
-                artistImages.add(artist.getImage());
+            for (Pair<Artist, String> pair : playlist.getArtists()) {
+                artistImages.add(pair.first.getImage());
             }
         }
         if (playlist.getTracks() != null) {

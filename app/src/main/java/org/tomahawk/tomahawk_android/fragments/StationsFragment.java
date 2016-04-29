@@ -137,9 +137,6 @@ public class StationsFragment extends TomahawkFragment {
                         .showAsGrid(R.integer.grid_column_count, R.dimen.padding_superlarge,
                                 R.dimen.padding_superlarge)
                         .build());
-                List echonestDrawable = new ArrayList();
-                echonestDrawable.add(new ListItemDrawable(R.drawable.ic_echonest_large));
-                segments.add(new Segment.Builder(echonestDrawable).build());
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
