@@ -200,7 +200,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                                 if (requestId != null) {
                                     mCorrespondingRequestIds.add(requestId);
                                 }
-                            } else {
+                            } else if (mPlaylist != null) {
                                 mPlaylist = DatabaseHelper.get().getPlaylist(mPlaylist.getId());
                                 updateAdapter();
                             }
