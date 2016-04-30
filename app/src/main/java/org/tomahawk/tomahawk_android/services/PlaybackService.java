@@ -157,6 +157,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     private final ConcurrentHashMap<String, String> mCorrespondingRequestIds
             = new ConcurrentHashMap<>();
 
+    private final Map<StationPlaylist, Set<Query>> mStationQueries = new ConcurrentHashMap<>();
+
     private PlaybackManager mPlaybackManager;
 
     private TomahawkMediaPlayer mCurrentMediaPlayer;
@@ -366,26 +368,14 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         public void onPlaylistChanged() {
             Playlist playlist = mPlaybackManager.getPlaylist();
             if (playlist instanceof StationPlaylist) {
-                final StationPlaylist stationPlaylist = (StationPlaylist) playlist;
+                StationPlaylist stationPlaylist = (StationPlaylist) playlist;
                 stationPlaylist.setPlayedTimeStamp(System.currentTimeMillis());
                 DatabaseHelper.get().storeStation(stationPlaylist);
                 if (stationPlaylist.size() == 0) {
                     mPlayState = PlaybackStateCompat.STATE_BUFFERING;
                     updateMediaPlayState();
                     // station is empty, so we should fill it with some new tracks
-                    Promise<List<Query>, Throwable, Void> promise = stationPlaylist.fillPlaylist();
-                    if (promise != null) {
-                        Log.d(TAG, "onPlaylistChanged() - filling Station...");
-                        promise.done(new DoneCallback<List<Query>>() {
-                            @Override
-                            public void onDone(List<Query> result) {
-                                for (Query query : result) {
-                                    mCorrespondingQueries.add(query);
-                                    PipeLine.get().resolve(query);
-                                }
-                            }
-                        });
-                    }
+                    fillStation(stationPlaylist);
                 }
             }
             onCurrentEntryChanged();
@@ -396,23 +386,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             handlePlayState();
             Playlist playlist = mPlaybackManager.getPlaylist();
             if (playlist instanceof StationPlaylist) {
-                StationPlaylist stationPlaylist = (StationPlaylist) playlist;
                 if (!mPlaybackManager.hasNextEntry(mPlaybackManager.getNextEntry())) {
                     // there's no track after the next one,
                     // so we should fill the station with some new tracks
-                    Promise<List<Query>, Throwable, Void> promise = stationPlaylist.fillPlaylist();
-                    if (promise != null) {
-                        Log.d(TAG, "onCurrentEntryChanged() - filling Station...");
-                        promise.done(new DoneCallback<List<Query>>() {
-                            @Override
-                            public void onDone(List<Query> result) {
-                                for (Query query : result) {
-                                    mCorrespondingQueries.add(query);
-                                    PipeLine.get().resolve(query);
-                                }
-                            }
-                        });
-                    }
+                    fillStation((StationPlaylist) playlist);
                 }
             }
             resolveProximalQueries();
@@ -429,6 +406,30 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             updateMediaQueue();
         }
     };
+
+    private void fillStation(final StationPlaylist stationPlaylist) {
+        Promise<List<Query>, Throwable, Void> promise = stationPlaylist.fillPlaylist(10);
+        if (promise != null) {
+            Log.d(TAG, "filling Station: " + stationPlaylist.getName());
+            promise.done(new DoneCallback<List<Query>>() {
+                @Override
+                public void onDone(List<Query> result) {
+                    Log.d(TAG, "found " + result.size() + " candidates to fill Station: "
+                            + stationPlaylist.getName());
+                    for (Query query : result) {
+                        mCorrespondingQueries.add(query);
+                        if (!mStationQueries.containsKey(stationPlaylist)) {
+                            Set<Query> querySet = Collections.newSetFromMap(
+                                    new ConcurrentHashMap<Query, Boolean>());
+                            mStationQueries.put(stationPlaylist, querySet);
+                        }
+                        mStationQueries.get(stationPlaylist).add(query);
+                        PipeLine.get().resolve(query);
+                    }
+                }
+            });
+        }
+    }
 
     private AudioBecomingNoisyReceiver mAudioBecomingNoisyReceiver;
 
@@ -681,9 +682,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     @SuppressWarnings("unused")
     public void onEventAsync(PipeLine.ResultsEvent event) {
         Playlist playlist = mPlaybackManager.getPlaylist();
-        if (playlist instanceof StationPlaylist
-                && event.mQuery.isPlayable()
-                && ((StationPlaylist) playlist).removeCandidate(event.mQuery)) {
+        if (playlist instanceof StationPlaylist && event.mQuery.isPlayable()
+                && mStationQueries.containsKey(playlist)
+                && mStationQueries.get(playlist).remove(event.mQuery)) {
             boolean wasNull = mPlaybackManager.getCurrentEntry() == null;
             mPlaybackManager.addToPlaylist(event.mQuery);
             if (wasNull) {
