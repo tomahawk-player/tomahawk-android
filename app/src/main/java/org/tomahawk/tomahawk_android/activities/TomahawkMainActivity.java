@@ -231,6 +231,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     private boolean mRootViewsInitialized;
 
+    private boolean mDestroyed;
+
     private Runnable mRunAfterInit;
 
     private Handler mShouldShowAnimationHandler;
@@ -868,17 +870,19 @@ public class TomahawkMainActivity extends AppCompatActivity {
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                FragmentUtils.addRootFragment(TomahawkMainActivity.this, user);
+                                if (!mDestroyed) {
+                                    FragmentUtils.addRootFragment(TomahawkMainActivity.this, user);
 
-                                SharedPreferences preferences =
-                                        PreferenceManager.getDefaultSharedPreferences(
-                                                TomahawkMainActivity.this);
-                                if (!preferences.getBoolean(
-                                        TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED,
-                                        false)) {
-                                    FragmentUtils.replace(
-                                            TomahawkMainActivity.this, WelcomeFragment.class,
-                                            null);
+                                    SharedPreferences preferences =
+                                            PreferenceManager.getDefaultSharedPreferences(
+                                                    TomahawkMainActivity.this);
+                                    if (!preferences.getBoolean(
+                                            TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED,
+                                            false)) {
+                                        FragmentUtils.replace(
+                                                TomahawkMainActivity.this, WelcomeFragment.class,
+                                                null);
+                                    }
                                 }
                             }
                         });
@@ -907,6 +911,12 @@ public class TomahawkMainActivity extends AppCompatActivity {
             unregisterReceiver(mTomahawkMainReceiver);
             mTomahawkMainReceiver = null;
         }
+    }
+
+    @Override
+    public void onDestroy() {
+        mDestroyed = true;
+        super.onDestroy();
     }
 
     @Override
