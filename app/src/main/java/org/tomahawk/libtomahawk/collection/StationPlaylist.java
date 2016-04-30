@@ -37,8 +37,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class StationPlaylist extends Playlist {
 
@@ -50,8 +48,7 @@ public class StationPlaylist extends Playlist {
 
     private List<String> mGenres;
 
-    private final Set<Query> mCandidates =
-            Collections.newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
+    private final List<Query> mCandidates = new ArrayList<>();
 
     private long mCreatedTimeStamp = 0L;
 
@@ -220,29 +217,40 @@ public class StationPlaylist extends Playlist {
         mPlayedTimeStamp = playedTimeStamp;
     }
 
-    public Promise<List<Query>, Throwable, Void> fillPlaylist() {
+    public Promise<List<Query>, Throwable, Void> fillPlaylist(final int limit) {
         final ScriptPlaylistGenerator generator =
                 ScriptPlaylistGeneratorManager.get().getDefaultPlaylistGenerator();
         if (mFillDeferred != null && mFillDeferred.isPending()) {
             return null;
         }
         mFillDeferred = new ADeferredObject<>();
-        if (generator != null) {
+        if (mCandidates.size() >= limit) {
+            // We got enough candidates in cache
+            List<Query> queries = new ArrayList<>();
+            for (int i = 0; i < limit; i++) {
+                queries.add(mCandidates.remove(0));
+            }
+            mFillDeferred.resolve(queries);
+        } else if (generator != null) {
             generator.fillPlaylist(mSessionId, mArtists, mTracks, mGenres)
                     .done(new DoneCallback<ScriptPlaylistGeneratorResult>() {
                         @Override
                         public void onDone(ScriptPlaylistGeneratorResult result) {
                             mSessionId = result.sessionId;
-                            mCandidates.addAll(result.results);
-                            mFillDeferred.resolve(result.results);
+                            List<Query> queries = new ArrayList<>();
+                            if (result.results != null) {
+                                int actualLimit = Math.min(result.results.size(), limit);
+                                for (int i = 0; i < actualLimit; i++) {
+                                    queries.add(result.results.remove(0));
+                                }
+                                // Add the rest to our candidate cache
+                                mCandidates.addAll(result.results);
+                            }
+                            mFillDeferred.resolve(queries);
                         }
                     });
         }
         return mFillDeferred;
-    }
-
-    public boolean removeCandidate(Query query) {
-        return mCandidates.remove(query);
     }
 
     public String toJson() {
