@@ -1015,6 +1015,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                                     prepareCurrentQuery();
                                 }
                             } else {
+                                if (mCurrentMediaPlayer != null) {
+                                    mCurrentMediaPlayer.release();
+                                }
                                 mCurrentMediaPlayer = mp;
                             }
                         }
