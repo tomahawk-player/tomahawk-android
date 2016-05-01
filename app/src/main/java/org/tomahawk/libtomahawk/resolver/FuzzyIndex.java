@@ -38,7 +38,6 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.tomahawk.libtomahawk.database.CollectionDb;
-import org.tomahawk.libtomahawk.database.CollectionDbManager;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.SharedPreferences;
@@ -63,7 +62,7 @@ public class FuzzyIndex {
 
     private final String mLastUpdateStorageKey;
 
-    private String mCollectionId;
+    private CollectionDb mCollectionDb;
 
     private String mLucenePath;
 
@@ -78,39 +77,36 @@ public class FuzzyIndex {
         public float score;
     }
 
-    public FuzzyIndex(String collectionId) {
-        Log.d(TAG, "FuzzyIndex constructor called: " + collectionId);
-        mCollectionId = collectionId;
-        mLucenePath = LUCENE_ROOT_FOLDER + collectionId;
-
-        CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(mCollectionId);
-
-        mLastUpdateStorageKey = mCollectionId + LAST_FUZZY_INDEX_UPDATE_SUFFIX;
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        long lastDbUpdate = collectionDb.getLastUpdated();
-        long lastIndexUpdate = preferences.getLong(mLastUpdateStorageKey, -2);
-        create(lastDbUpdate > lastIndexUpdate);
+    public FuzzyIndex(CollectionDb collectionDb) {
+        Log.d(TAG, "FuzzyIndex constructor called: " + collectionDb.getCollectionId());
+        mCollectionDb = collectionDb;
+        mLucenePath = LUCENE_ROOT_FOLDER + collectionDb.getCollectionId();
+        mLastUpdateStorageKey = collectionDb.getCollectionId() + LAST_FUZZY_INDEX_UPDATE_SUFFIX;
+        ensureIndex();
     }
 
     /**
-     * Tries to create a new fuzzy index
+     * Make sure that the FuzzyIndex contains all tracks that are stored in the CollectionDb.
      *
-     * @param recreate whether or not to wipe any previously existing index
-     * @return whether or not the creation has been successful
+     * @return whether or not the process has been successful
      */
-    public synchronized boolean create(boolean recreate) {
-        CollectionDb collectionDb = CollectionDbManager.get().getCollectionDb(mCollectionId);
-        Log.d(TAG, "create - using CollectionDb " + collectionDb.hashCode() + " with id "
-                + mCollectionId);
-        String[] fields = new String[]{CollectionDb.TABLE_TRACKS + "." + CollectionDb.ID,
-                CollectionDb.ARTISTS_ARTIST, CollectionDb.ALBUMS_ALBUM, CollectionDb.TRACKS_TRACK};
-        Cursor cursor = collectionDb.tracks(null, null, fields);
-        try {
-            Log.d(TAG, "create - recreate:" + recreate);
-            beginIndexing(recreate);
-            if (recreate) {
-                Log.d(TAG, "Adding tracks to index - count: " + cursor.getCount());
+    public synchronized void ensureIndex() {
+        Log.d(TAG, "addToIndex - using CollectionDb " + mCollectionDb.hashCode() + " with id "
+                + mCollectionDb.getCollectionId());
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
+        long lastDbUpdate = mCollectionDb.getLastUpdated();
+        long lastIndexUpdate = preferences.getLong(mLastUpdateStorageKey, -2);
+        Log.d(TAG, "addToIndex - recreate: " + (lastDbUpdate > lastIndexUpdate));
+        if (lastDbUpdate > lastIndexUpdate) {
+            Cursor cursor = null;
+            try {
+                String[] fields = new String[]{CollectionDb.TABLE_TRACKS + "." + CollectionDb.ID,
+                        CollectionDb.ARTISTS_ARTIST, CollectionDb.ALBUMS_ALBUM,
+                        CollectionDb.TRACKS_TRACK};
+                cursor = mCollectionDb.tracks(null, null, fields);
+                beginIndexing(true);
+                Log.d(TAG, "addToIndex - Adding tracks to index - count: " + cursor.getCount());
                 cursor.moveToFirst();
                 if (!cursor.isAfterLast()) {
                     do {
@@ -126,23 +122,18 @@ public class FuzzyIndex {
                         mLuceneWriter.addDocument(document);
                     } while (cursor.moveToNext());
                 }
-                SharedPreferences preferences =
-                        PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
                 preferences.edit().putLong(mLastUpdateStorageKey, System.currentTimeMillis())
                         .commit();
+            } catch (IOException e) {
+                Log.e(TAG, "addToIndex - " + e.getClass() + ": " + e.getLocalizedMessage());
+            } finally {
+                if (cursor != null) {
+                    cursor.close();
+                }
+                endIndexing();
             }
-        } catch (IOException e) {
-            Log.e(TAG, "create - " + e.getClass() + ": " + e.getLocalizedMessage());
-            close();
-            return false;
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-            endIndexing();
-            updateSearcherManager();
         }
-        return true;
+        updateSearcherManager();
     }
 
     private void updateSearcherManager() {

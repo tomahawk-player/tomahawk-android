@@ -120,8 +120,6 @@ public class UserCollection extends DbCollection {
 
     public UserCollection() {
         super(UserCollectionStubResolver.get());
-
-        initFuzzyIndex();
     }
 
     @Override
