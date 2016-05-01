@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.database;
 import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.DbCollection;
+import org.tomahawk.libtomahawk.resolver.FuzzyIndex;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
 import org.tomahawk.libtomahawk.utils.StringUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -224,6 +225,8 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     private String mCollectionId;
 
+    private FuzzyIndex mFuzzyIndex;
+
     public CollectionDb(Context context, String collectionId) {
         super(context, collectionId + DB_FILE_SUFFIX, null, DB_VERSION);
 
@@ -234,6 +237,12 @@ public class CollectionDb extends SQLiteOpenHelper {
 
         close();
         mDb = getWritableDatabase();
+
+        mFuzzyIndex = new FuzzyIndex(this);
+    }
+
+    public String getCollectionId() {
+        return mCollectionId;
     }
 
     @Override
@@ -404,12 +413,13 @@ public class CollectionDb extends SQLiteOpenHelper {
 
         mDb.setTransactionSuccessful();
         mDb.endTransaction();
-        ((DbCollection) CollectionManager.get().getCollection(mCollectionId)).setInitialized(true);
         Log.d(TAG, "Added " + tracks.size() + " tracks in " + (System.currentTimeMillis() - time)
                 + "ms");
         if (tracks.size() > 0) {
             storeNewRevision(String.valueOf(System.currentTimeMillis()), ACTION_ADDTRACKS);
         }
+        mFuzzyIndex.ensureIndex();
+        ((DbCollection) CollectionManager.get().getCollection(mCollectionId)).setInitialized(true);
     }
 
     private static Map<String, Integer> cursorToMap(Cursor cursor) {
@@ -882,6 +892,10 @@ public class CollectionDb extends SQLiteOpenHelper {
             result += keys[i];
         }
         return result;
+    }
+
+    public FuzzyIndex getFuzzyIndex() {
+        return mFuzzyIndex;
     }
 
 }

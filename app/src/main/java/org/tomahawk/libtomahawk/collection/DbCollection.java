@@ -52,8 +52,6 @@ public abstract class DbCollection extends Collection {
 
     private final static String TAG = DbCollection.class.getSimpleName();
 
-    private FuzzyIndex mFuzzyIndex;
-
     private Set<Query> mWaitingQueries = Collections
             .newSetFromMap(new ConcurrentHashMap<Query, Boolean>());
 
@@ -81,22 +79,10 @@ public abstract class DbCollection extends Collection {
         getCollectionId().done(new DoneCallback<String>() {
             @Override
             public void onDone(final String collectionId) {
-                InitializedEvent event = new InitializedEvent();
-                event.collectionId = collectionId;
-                EventBus.getDefault().post(event);
-            }
-        });
-    }
-
-    protected void initFuzzyIndex() {
-        getCollectionId().done(new DoneCallback<String>() {
-            @Override
-            public void onDone(final String collectionId) {
                 TomahawkRunnable r = new TomahawkRunnable(
                         TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
                     @Override
                     public void run() {
-                        mFuzzyIndex = new FuzzyIndex(collectionId);
                         for (Query query : mWaitingQueries) {
                             mWaitingQueries.remove(query);
                             resolve(query);
@@ -106,6 +92,9 @@ public abstract class DbCollection extends Collection {
                     }
                 };
                 ThreadManager.get().execute(r);
+                InitializedEvent event = new InitializedEvent();
+                event.collectionId = collectionId;
+                EventBus.getDefault().post(event);
             }
         });
     }
@@ -124,7 +113,8 @@ public abstract class DbCollection extends Collection {
         getCollectionId().done(new DoneCallback<String>() {
             @Override
             public void onDone(final String collectionId) {
-                if (mFuzzyIndex == null) {
+                final CollectionDb db = CollectionDbManager.get().getCollectionDb(collectionId);
+                if (db.getFuzzyIndex() == null) {
                     mWaitingQueries.add(query);
                     Log.d(TAG, collectionId + " - Added query to the waiting queue because the "
                             + "FuzzyIndex is still initializing.");
@@ -139,7 +129,7 @@ public abstract class DbCollection extends Collection {
                         @Override
                         public void run() {
                             List<FuzzyIndex.IndexResult> indexResults =
-                                    mFuzzyIndex.searchIndex(query);
+                                    db.getFuzzyIndex().searchIndex(query);
                             if (indexResults.size() > 0) {
                                 String[] ids = new String[indexResults.size()];
                                 for (int i = 0; i < indexResults.size(); i++) {
@@ -149,8 +139,7 @@ public abstract class DbCollection extends Collection {
                                 CollectionDb.WhereInfo whereInfo = new CollectionDb.WhereInfo();
                                 whereInfo.connection = "OR";
                                 whereInfo.where.put(CollectionDb.ID, ids);
-                                Cursor cursor = CollectionDbManager.get()
-                                        .getCollectionDb(collectionId).tracks(whereInfo, null);
+                                Cursor cursor = db.tracks(whereInfo, null);
                                 CollectionCursor<Result> collectionCursor = new CollectionCursor<>(
                                         cursor, Result.class, mResolver, null);
                                 ArrayList<Result> results = new ArrayList<>();

@@ -51,8 +51,6 @@ public class ScriptResolverCollection extends DbCollection implements ScriptPlug
 
         mScriptObject = object;
         mScriptAccount = account;
-
-        initFuzzyIndex();
     }
 
     @Override
