@@ -241,8 +241,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         Segment segment = new Segment.Builder(suggestions)
                                 .headerLayout(R.layout.list_header_socialaction_fake)
                                 .headerString(getString(R.string.suggest_users) + ":")
+                                .leftExtraPadding(extraPadding)
                                 .build();
-                        segment.setLeftExtraPadding(extraPadding);
                         segments.add(segment);
                     }
                     TreeMap<Date, List<SocialAction>> socialActionsList;
@@ -346,25 +346,23 @@ public class SocialActionsFragment extends TomahawkFragment implements
 
     private Segment toSegment(List<SocialAction> actions) {
         SocialAction first = actions.get(0);
-        Segment segment;
+        Segment.Builder builder;
         if (first.getTargetObject() instanceof Album
                 || first.getTargetObject() instanceof User
                 || first.getTargetObject() instanceof Artist
                 || first.getTargetObject() instanceof Playlist) {
-            segment = new Segment.Builder(actions)
+            builder = new Segment.Builder(actions)
                     .headerLayout(R.layout.list_header_socialaction)
                     .showAsGrid(R.integer.grid_column_count_feed,
-                            R.dimen.padding_superlarge, R.dimen.padding_small)
-                    .build();
+                            R.dimen.padding_superlarge, R.dimen.padding_small);
         } else {
-            segment = new Segment.Builder(actions)
-                    .headerLayout(R.layout.list_header_socialaction)
-                    .build();
+            builder = new Segment.Builder(actions)
+                    .headerLayout(R.layout.list_header_socialaction);
         }
         int extraPadding = TomahawkApp.getContext().getResources()
                 .getDimensionPixelSize(R.dimen.padding_medium)
                 + ViewUtils.convertDpToPixel(32);
-        segment.setLeftExtraPadding(extraPadding);
-        return segment;
+        builder.leftExtraPadding(extraPadding);
+        return builder.build();
     }
 }

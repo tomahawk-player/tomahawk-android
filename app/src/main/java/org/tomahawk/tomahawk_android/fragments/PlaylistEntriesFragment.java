@@ -167,16 +167,15 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 @Override
                 public void onDone(Playlist playlist) {
                     mCurrentPlaylist = playlist;
-                    Segment segment = new Segment.Builder(playlist)
+                    Segment.Builder builder = new Segment.Builder(playlist)
                             .headerLayout(R.layout.single_line_list_header)
-                            .headerString(mAlbum.getArtist().getPrettyName())
-                            .build();
+                            .headerString(mAlbum.getArtist().getPrettyName());
                     if (playlist != null && playlist.allFromOneArtist()) {
-                        segment.setHideArtistName(true);
-                        segment.setShowDuration(true);
+                        builder.hideArtistName(true);
+                        builder.showDuration(true);
                     }
-                    segment.setShowNumeration(true, 1);
-                    fillAdapter(segment);
+                    builder.showNumeration(true, 1);
+                    fillAdapter(builder.build());
                 }
             });
         } else if (mUser != null || mPlaylist != null) {
@@ -214,8 +213,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     builder.headerLayout(R.layout.single_line_list_header)
                             .headerString(R.string.playlist_details);
                 }
-                Segment segment = builder.build();
-                segment.setShowNumeration(true, 1);
+                Segment segment = builder.showNumeration(true, 1).build();
                 fillAdapter(segment);
                 showContentHeader(mCurrentPlaylist);
                 showFancyDropDown(0, mCurrentPlaylist.getName(), null, null);

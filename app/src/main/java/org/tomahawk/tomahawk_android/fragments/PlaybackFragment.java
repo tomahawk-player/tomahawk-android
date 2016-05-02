@@ -383,8 +383,9 @@ public class PlaybackFragment extends TomahawkFragment {
 
         if (getPlaybackManager() != null) {
             List<Segment> segments = new ArrayList<>();
-            Segment segment = new Segment.Builder(getPlaybackManager()).build();
-            segment.setShowNumeration(true, 0);
+            Segment segment = new Segment.Builder(getPlaybackManager())
+                    .showNumeration(true, 0)
+                    .build();
             segments.add(segment);
             fillAdapter(segments, mAlbumArtViewPager, null);
         }
