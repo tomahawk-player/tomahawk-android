@@ -165,10 +165,10 @@ public class AlbumsFragment extends TomahawkFragment {
                                         .headerLayout(R.layout.single_line_list_header)
                                         .headerString(mCollection.getName() + " "
                                                 + getString(R.string.tracks))
+                                        .showNumeration(true, 1)
+                                        .hideArtistName(true)
+                                        .showDuration(true)
                                         .build();
-                                segment.setShowNumeration(true, 1);
-                                segment.setHideArtistName(true);
-                                segment.setShowDuration(true);
                                 segments.add(0, segment);
 
                                 CollectionCursor<Album> cursor =
@@ -201,10 +201,10 @@ public class AlbumsFragment extends TomahawkFragment {
                                 Segment segment = new Segment.Builder(artistTophits)
                                         .headerLayout(R.layout.single_line_list_header)
                                         .headerString(R.string.top_hits)
+                                        .showNumeration(true, 1)
+                                        .hideArtistName(true)
+                                        .showDuration(true)
                                         .build();
-                                segment.setShowNumeration(true, 1);
-                                segment.setHideArtistName(true);
-                                segment.setShowDuration(true);
                                 segments.add(0, segment);
 
                                 CollectionCursor<Album> cursor =
@@ -262,8 +262,7 @@ public class AlbumsFragment extends TomahawkFragment {
                         R.dimen.padding_superlarge,
                         R.dimen.padding_superlarge);
             }
-            Segment segment = builder.build();
-            segment.setShowNumeration(true, 1);
+            Segment segment = builder.showNumeration(true, 1).build();
             fillAdapter(segment);
         } else if (mUser != null) {
             String id = mCollection.getId();

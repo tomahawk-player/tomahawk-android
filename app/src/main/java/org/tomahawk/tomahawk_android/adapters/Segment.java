@@ -124,6 +124,27 @@ public class Segment {
             return this;
         }
 
+        public Builder showDuration(boolean showDuration) {
+            mSegment.mShowDuration = showDuration;
+            return this;
+        }
+
+        public Builder showNumeration(boolean showNumeration, int numerationCorrection) {
+            mSegment.mShowNumeration = showNumeration;
+            mSegment.mNumerationCorrection = numerationCorrection;
+            return this;
+        }
+
+        public Builder hideArtistName(boolean hideArtistName) {
+            mSegment.mHideArtistName = hideArtistName;
+            return this;
+        }
+
+        public Builder leftExtraPadding(int leftExtraPadding) {
+            mSegment.mLeftExtraPadding = leftExtraPadding;
+            return this;
+        }
+
         public Segment build() {
             return mSegment;
         }
@@ -243,17 +264,8 @@ public class Segment {
         return mShowDuration;
     }
 
-    public void setShowDuration(boolean showDuration) {
-        mShowDuration = showDuration;
-    }
-
     public boolean isShowNumeration() {
         return mShowNumeration;
-    }
-
-    public void setShowNumeration(boolean showNumeration, int numerationCorrection) {
-        mShowNumeration = showNumeration;
-        mNumerationCorrection = numerationCorrection;
     }
 
     public int getNumeration(int position) {
@@ -269,15 +281,7 @@ public class Segment {
         return mHideArtistName;
     }
 
-    public void setHideArtistName(boolean hideArtistName) {
-        mHideArtistName = hideArtistName;
-    }
-
     public int getLeftExtraPadding() {
         return mLeftExtraPadding;
-    }
-
-    public void setLeftExtraPadding(int leftExtraPadding) {
-        mLeftExtraPadding = leftExtraPadding;
     }
 }

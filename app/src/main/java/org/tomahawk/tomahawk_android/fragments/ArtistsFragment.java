@@ -105,8 +105,7 @@ public class ArtistsFragment extends TomahawkFragment {
                         R.dimen.padding_superlarge,
                         R.dimen.padding_superlarge);
             }
-            Segment segment = builder.build();
-            segment.setShowNumeration(true, 1);
+            Segment segment = builder.showNumeration(true, 1).build();
             fillAdapter(segment);
         } else {
             mCollection.getArtists(getSortMode())
