@@ -100,12 +100,13 @@ public class ArtistsFragment extends TomahawkFragment {
 
         if (mArtistArray != null) {
             Segment.Builder builder = new Segment.Builder(mArtistArray);
-            if (mShowMode == ChartsPagerFragment.SHOW_MODE_CHARTS) {
+            if (mContainerFragmentClass == ChartsPagerFragment.class) {
                 builder.showAsGrid(R.integer.grid_column_count,
                         R.dimen.padding_superlarge,
-                        R.dimen.padding_superlarge);
+                        R.dimen.padding_superlarge)
+                        .showNumeration(true, 1);
             }
-            Segment segment = builder.showNumeration(true, 1).build();
+            Segment segment = builder.build();
             fillAdapter(segment);
         } else {
             mCollection.getArtists(getSortMode())

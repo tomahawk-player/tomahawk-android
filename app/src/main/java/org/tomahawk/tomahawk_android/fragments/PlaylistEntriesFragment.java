@@ -208,12 +208,14 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 });
             } else {
                 Segment.Builder builder = new Segment.Builder(mCurrentPlaylist);
-                if (mContainerFragmentClass != SearchPagerFragment.class
-                        && mShowMode != ChartsPagerFragment.SHOW_MODE_CHARTS) {
-                    builder.headerLayout(R.layout.single_line_list_header)
-                            .headerString(R.string.playlist_details);
+                if (mContainerFragmentClass != SearchPagerFragment.class) {
+                    builder.showNumeration(true, 1);
+                    if (mContainerFragmentClass != ChartsPagerFragment.class) {
+                        builder.headerLayout(R.layout.single_line_list_header)
+                                .headerString(R.string.playlist_details);
+                    }
                 }
-                Segment segment = builder.showNumeration(true, 1).build();
+                Segment segment = builder.build();
                 fillAdapter(segment);
                 showContentHeader(mCurrentPlaylist);
                 showFancyDropDown(0, mCurrentPlaylist.getName(), null, null);

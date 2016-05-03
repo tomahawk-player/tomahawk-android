@@ -49,8 +49,6 @@ public class ChartsPagerFragment extends PagerFragment {
 
     private static final String CHARTS_PLAYLIST_SUFFX = "_charts_";
 
-    public static final int SHOW_MODE_CHARTS = 10;
-
     private ScriptChartsProvider mChartsProvider;
 
     /**
@@ -110,8 +108,6 @@ public class ChartsPagerFragment extends PagerFragment {
                                 FragmentInfoList fragmentInfoList = new FragmentInfoList();
                                 FragmentInfo fragmentInfo = new FragmentInfo();
                                 fragmentInfo.mBundle = getChildFragmentBundle();
-                                fragmentInfo.mBundle.putInt(TomahawkFragment.SHOW_MODE,
-                                        SHOW_MODE_CHARTS);
                                 fragmentInfo.mTitle = types.get(i).first;
                                 if (chartsResult.contentType == PipeLine.URL_TYPE_ARTIST) {
                                     fragmentInfo.mClass = ArtistsFragment.class;
