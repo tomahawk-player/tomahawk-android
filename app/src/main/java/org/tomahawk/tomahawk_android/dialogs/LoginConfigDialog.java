@@ -17,8 +17,6 @@
  */
 package org.tomahawk.tomahawk_android.dialogs;
 
-import com.nineoldandroids.animation.ValueAnimator;
-
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.HatchetStubResolver;
@@ -49,8 +47,6 @@ public class LoginConfigDialog extends ConfigDialog {
 
     private HatchetLoginRegisterView mHatchetLoginRegisterView;
 
-    private ValueAnimator mAnimator;
-
     /**
      * Called when this {@link DialogFragment} is being created
      */
@@ -77,6 +73,7 @@ public class LoginConfigDialog extends ConfigDialog {
         } else {
             setStatus(PipeLine.get().getResolver(mAuthenticatorUtils.getId()));
         }
+        hideConnectImage();
         hideNegativeButton();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());

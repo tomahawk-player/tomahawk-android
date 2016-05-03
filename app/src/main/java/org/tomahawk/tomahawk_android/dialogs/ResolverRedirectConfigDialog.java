@@ -134,6 +134,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         setDialogTitle(mScriptResolver.getName());
         hideNegativeButton();
         setStatus(mScriptResolver);
+        hideConnectImage();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
