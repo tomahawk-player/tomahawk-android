@@ -156,6 +156,7 @@ public class ViewHolder {
             }
             setTextViewEnabled(durationTextView, query.isPlayable(), false);
         }
+        /*
         ImageView swipeMenuButton;
         if (showAsQueued) {
             swipeMenuButton = (ImageView) ensureInflation(R.id.swipe_menu_button_dequeue_stub,
@@ -179,6 +180,7 @@ public class ViewHolder {
             }
         }
         swipeMenuButton.setOnClickListener(swipeMenuButton1Listener);
+        */
     }
 
     public void fillView(Track track) {
