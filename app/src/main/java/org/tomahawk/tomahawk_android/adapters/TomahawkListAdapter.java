@@ -773,7 +773,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
     @Override
     public int getSwipeLayoutResourceId(int position) {
-        return R.id.swipelayout;
+        return 0;
     }
 
     @Override

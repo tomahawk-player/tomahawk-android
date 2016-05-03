@@ -18,105 +18,71 @@
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
 -->
-<com.daimajia.swipe.SwipeLayout
-        xmlns:swipe="http://schemas.android.com/apk/res-auto"
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/swipelayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        swipe:show_mode="lay_down"
-        android:background="@color/primary_background">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:id="@+id/mainclickarea"
+             android:layout_width="match_parent"
+             android:layout_height="@dimen/list_item_track_height"
+             android:paddingLeft="@dimen/padding_superlarge"
+             android:background="@color/primary_background">
 
-    <FrameLayout android:layout_width="wrap_content"
-                 android:layout_height="@dimen/list_item_track_height"
-                 android:background="@color/sliding_layout_background"
-                 android:clickable="true">
+    <LinearLayout android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:paddingRight="@dimen/padding_superlarge"
+                  android:baselineAligned="false"
+                  android:orientation="horizontal"
+                  android:descendantFocusability="afterDescendants"
+                  android:background="@drawable/selectable_background_tomahawk_opaque">
 
-        <ViewStub android:id="@+id/swipe_menu_button_enqueue_stub"
-                  android:inflatedId="@+id/swipe_menu_button_enqueue"
-                  android:layout="@layout/swipe_menu_button_enqueue"
-                  android:layout_width="@dimen/list_item_swipe_menu_button_size"
-                  android:layout_height="@dimen/list_item_swipe_menu_button_size"
-                  android:layout_marginLeft="@dimen/padding_small"
-                  android:layout_marginRight="@dimen/padding_megalarge"
-                  android:layout_gravity="center_vertical"/>
+        <ViewStub android:id="@+id/resolver_imageview_stub"
+                  android:inflatedId="@+id/resolver_imageview"
+                  android:layout="@layout/list_item_resolver_imageview"
+                  android:layout_width="@dimen/list_item_resolver_icon_size"
+                  android:layout_height="match_parent"
+                  android:layout_marginRight="@dimen/padding_large"/>
 
-        <ViewStub android:id="@+id/swipe_menu_button_dequeue_stub"
-                  android:inflatedId="@+id/swipe_menu_button_dequeue"
-                  android:layout="@layout/swipe_menu_button_dequeue"
-                  android:layout_width="@dimen/list_item_swipe_menu_button_size"
-                  android:layout_height="@dimen/list_item_swipe_menu_button_size"
-                  android:layout_marginLeft="@dimen/padding_small"
-                  android:layout_marginRight="@dimen/padding_megalarge"
-                  android:layout_gravity="center_vertical"/>
-
-    </FrameLayout>
-
-    <FrameLayout android:id="@+id/mainclickarea"
-                 android:layout_width="match_parent"
-                 android:layout_height="@dimen/list_item_track_height"
-                 android:paddingLeft="@dimen/padding_superlarge">
-
-        <LinearLayout android:layout_width="match_parent"
-                      android:layout_height="match_parent"
-                      android:paddingRight="@dimen/padding_superlarge"
-                      android:baselineAligned="false"
-                      android:orientation="horizontal"
-                      android:descendantFocusability="afterDescendants"
-                      android:background="@drawable/selectable_background_tomahawk_opaque">
-
-            <ViewStub android:id="@+id/resolver_imageview_stub"
-                      android:inflatedId="@+id/resolver_imageview"
-                      android:layout="@layout/list_item_resolver_imageview"
-                      android:layout_width="@dimen/list_item_resolver_icon_size"
-                      android:layout_height="match_parent"
-                      android:layout_marginRight="@dimen/padding_large"/>
-
-            <TextView android:id="@+id/numeration_textview"
-                      android:layout_width="wrap_content"
-                      android:layout_height="match_parent"
-                      android:minWidth="@dimen/row_height_medium"
-                      android:layout_gravity="center"
-                      android:paddingRight="@dimen/padding_small"
-                      android:gravity="center"
-                      android:singleLine="true"
-                      android:textSize="@dimen/text_size_small"
-                      android:textColor="@color/secondary_textcolor"/>
-
-            <TextView android:id="@+id/track_textview"
-                      android:layout_width="0dp"
-                      android:layout_height="match_parent"
-                      android:layout_weight="1"
-                      android:gravity="center_vertical"
-                      android:singleLine="true"
-                      android:textStyle="bold"
-                      android:textColor="@color/primary_textcolor"
-                      android:textSize="@dimen/text_size_medium"/>
-
-            <TextView android:id="@+id/duration_textview"
-                      android:layout_width="wrap_content"
-                      android:layout_height="match_parent"
-                      android:paddingLeft="@dimen/padding_small"
-                      android:gravity="center_vertical|right"
-                      android:singleLine="true"
-                      android:textColor="@color/secondary_textcolor"
-                      android:textSize="@dimen/text_size_medium"/>
-
-        </LinearLayout>
-
-        <FrameLayout android:id="@+id/progressbar_container"
-                     android:layout_width="match_parent"
-                     android:layout_height="wrap_content"
-                     android:paddingRight="@dimen/padding_superlarge"
-                     android:layout_gravity="bottom"/>
-
-        <ViewStub android:id="@+id/swipelayout_enqueue_coachmark_stub"
-                  android:inflatedId="@+id/swipelayout_enqueue_coachmark"
-                  android:layout="@layout/swipelayout_enqueue_coachmark"
+        <TextView android:id="@+id/numeration_textview"
                   android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:layout_gravity="right|center_vertical"/>
+                  android:layout_height="match_parent"
+                  android:minWidth="@dimen/row_height_medium"
+                  android:layout_gravity="center"
+                  android:paddingRight="@dimen/padding_small"
+                  android:gravity="center"
+                  android:singleLine="true"
+                  android:textSize="@dimen/text_size_small"
+                  android:textColor="@color/secondary_textcolor"/>
 
-    </FrameLayout>
+        <TextView android:id="@+id/track_textview"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent"
+                  android:layout_weight="1"
+                  android:gravity="center_vertical"
+                  android:singleLine="true"
+                  android:textStyle="bold"
+                  android:textColor="@color/primary_textcolor"
+                  android:textSize="@dimen/text_size_medium"/>
 
-</com.daimajia.swipe.SwipeLayout>
+        <TextView android:id="@+id/duration_textview"
+                  android:layout_width="wrap_content"
+                  android:layout_height="match_parent"
+                  android:paddingLeft="@dimen/padding_small"
+                  android:gravity="center_vertical|right"
+                  android:singleLine="true"
+                  android:textColor="@color/secondary_textcolor"
+                  android:textSize="@dimen/text_size_medium"/>
+
+    </LinearLayout>
+
+    <FrameLayout android:id="@+id/progressbar_container"
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:paddingRight="@dimen/padding_superlarge"
+                 android:layout_gravity="bottom"/>
+
+    <ViewStub android:id="@+id/swipelayout_enqueue_coachmark_stub"
+              android:inflatedId="@+id/swipelayout_enqueue_coachmark"
+              android:layout="@layout/swipelayout_enqueue_coachmark"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="right|center_vertical"/>
+
+</FrameLayout>
