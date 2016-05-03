@@ -118,17 +118,7 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
                 .findViewById(R.id.config_redirect_button_text);
         mRedirectButtonTextView.setTextColor(buttonTextColor);
 
-        if (PluginUtils.isPluginUpToDate(mScriptResolver.getId())) {
-            mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
-                    ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
-                    : getString(R.string.resolver_config_redirect_button_text_log_into));
-            mWarningTextView.setVisibility(View.GONE);
-        } else {
-            mRedirectButtonTextView.setText(
-                    getString(R.string.resolver_config_redirect_button_text_download_plugin));
-            mWarningTextView.setText(R.string.warn_closed_source_text);
-            mWarningTextView.setVisibility(View.VISIBLE);
-        }
+        updateTextViews();
 
         button.setOnClickListener(onClickListener);
         setDialogTitle(mScriptResolver.getName());
@@ -148,17 +138,21 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
         super.onResume();
 
         if (mScriptResolver != null) {
-            if (PluginUtils.isPluginUpToDate(mScriptResolver.getId())) {
-                mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
-                        ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
-                        : getString(R.string.resolver_config_redirect_button_text_log_into));
-                mWarningTextView.setVisibility(View.GONE);
-            } else {
-                mRedirectButtonTextView.setText(
-                        getString(R.string.resolver_config_redirect_button_text_download_plugin));
-                mWarningTextView.setText(R.string.warn_closed_source_text);
-                mWarningTextView.setVisibility(View.VISIBLE);
-            }
+            updateTextViews();
+        }
+    }
+
+    private void updateTextViews() {
+        if (PluginUtils.isPluginUpToDate(mScriptResolver.getId())) {
+            mRedirectButtonTextView.setText(mScriptResolver.isEnabled()
+                    ? getString(R.string.resolver_config_redirect_button_text_log_out_of)
+                    : getString(R.string.resolver_config_redirect_button_text_log_into));
+            mWarningTextView.setVisibility(View.GONE);
+        } else {
+            mRedirectButtonTextView.setText(
+                    getString(R.string.resolver_config_redirect_button_text_download_plugin));
+            mWarningTextView.setText(R.string.warn_closed_source_text);
+            mWarningTextView.setVisibility(View.VISIBLE);
         }
     }
 
