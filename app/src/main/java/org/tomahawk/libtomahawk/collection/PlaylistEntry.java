@@ -79,4 +79,10 @@ public class PlaylistEntry extends Cacheable {
     public Album getAlbum() {
         return mQuery.getAlbum();
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "( playlistId: " + mPlaylistId + ", entryId: " + mId
+                + ", " + mQuery.toShortString() + " )@" + Integer.toHexString(hashCode());
+    }
 }

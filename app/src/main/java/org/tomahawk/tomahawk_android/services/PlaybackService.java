@@ -367,6 +367,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onPlaylistChanged() {
             Playlist playlist = mPlaybackManager.getPlaylist();
+            Log.d(TAG, "Playlist has changed to: " + playlist);
             if (playlist instanceof StationPlaylist) {
                 StationPlaylist stationPlaylist = (StationPlaylist) playlist;
                 stationPlaylist.setPlayedTimeStamp(System.currentTimeMillis());
@@ -383,6 +384,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
         @Override
         public void onCurrentEntryChanged() {
+            Log.d(TAG, "Current entry has changed to: " + mPlaybackManager.getCurrentEntry());
             handlePlayState();
             Playlist playlist = mPlaybackManager.getPlaylist();
             if (playlist instanceof StationPlaylist) {
@@ -410,12 +412,11 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     private void fillStation(final StationPlaylist stationPlaylist) {
         Promise<List<Query>, Throwable, Void> promise = stationPlaylist.fillPlaylist(10);
         if (promise != null) {
-            Log.d(TAG, "filling Station: " + stationPlaylist.getName());
+            Log.d(TAG, "filling " + stationPlaylist);
             promise.done(new DoneCallback<List<Query>>() {
                 @Override
                 public void onDone(List<Query> result) {
-                    Log.d(TAG, "found " + result.size() + " candidates to fill Station: "
-                            + stationPlaylist.getName());
+                    Log.d(TAG, "found " + result.size() + " candidates to fill " + stationPlaylist);
                     for (Query query : result) {
                         mCorrespondingQueries.add(query);
                         if (!mStationQueries.containsKey(stationPlaylist)) {
@@ -616,10 +617,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onPrepared(Query query) {
             if (query != null && query == mPlaybackManager.getCurrentQuery()) {
-                Log.d(TAG, "MediaPlayer successfully prepared the track '"
-                        + mPlaybackManager.getCurrentQuery().getName() + "' by '"
-                        + mPlaybackManager.getCurrentQuery().getArtist().getName()
-                        + "' resolved by Resolver " + mPlaybackManager.getCurrentQuery()
+                Log.d(TAG, "MediaPlayer successfully prepared the track "
+                        + mPlaybackManager.getCurrentQuery() + " resolved by "
+                        + mPlaybackManager.getCurrentQuery()
                         .getPreferredTrackResult().getResolvedBy().getId());
                 mPlayState = PlaybackStateCompat.STATE_PLAYING;
                 updateMediaPlayState();
@@ -639,9 +639,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             } else {
                 String queryInfo;
                 if (query != null) {
-                    queryInfo = query.getName() + "' by '" + query.getArtist().getName()
-                            + "' resolved by Resolver "
-                            + query.getPreferredTrackResult().getResolvedBy().getId();
+                    queryInfo = mPlaybackManager.getCurrentQuery() + " resolved by "
+                            + mPlaybackManager.getCurrentQuery()
+                            .getPreferredTrackResult().getResolvedBy().getId();
                 } else {
                     queryInfo = "null";
                 }
@@ -1068,9 +1068,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
         mMediaSession.setMetadata(buildMetadata());
         if (mPlaybackManager.getCurrentQuery() != null) {
-            Log.d(TAG, "Setting media metadata to: "
-                    + mPlaybackManager.getCurrentQuery().getArtist().getPrettyName() + ", "
-                    + mPlaybackManager.getCurrentQuery().getPrettyName());
+            Log.d(TAG, "Setting media metadata to: " + mPlaybackManager.getCurrentQuery());
         } else if (mPlaybackManager.getPlaylist() instanceof StationPlaylist) {
             Log.d(TAG, "Setting media metadata to: " + getString(R.string.loading_station) + " "
                     + mPlaybackManager.getPlaylist().getName());

@@ -279,14 +279,6 @@ public class Playlist extends Cacheable implements AlphaComparable {
     }
 
     /**
-     * @return this {@link Playlist}'s name
-     */
-    @Override
-    public String toString() {
-        return mName;
-    }
-
-    /**
      * Return the current count of entries in the {@link Playlist}
      */
     public int size() {
@@ -455,5 +447,12 @@ public class Playlist extends Cacheable implements AlphaComparable {
                 }
             }
         }
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "( id: " + getId() + ", hatchetId: " + mHatchetId
+                + ", name: " + getName() + ", size: " + size() + " )@"
+                + Integer.toHexString(hashCode());
     }
 }

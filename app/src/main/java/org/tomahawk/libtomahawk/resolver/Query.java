@@ -420,4 +420,21 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
                 || TextUtils.isEmpty(getAlbum().getImage().getImagePath()))
                 && getArtist().getImage() != null;
     }
+
+    public String toShortString() {
+        String desc;
+        if (mIsFullTextQuery) {
+            desc = "fullTextQuery: '" + mFullTextQuery + "'";
+        } else {
+            desc = "basic: " + mBasicTrack.toShortString()
+                    + " - preferred: " + getPreferredTrack().toShortString();
+        }
+        return desc + ", resultCount: " + mTrackResults.size();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "( " + toShortString() + " )@"
+                + Integer.toHexString(hashCode());
+    }
 }

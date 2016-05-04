@@ -152,4 +152,15 @@ public class Track extends Cacheable implements AlphaComparable, ArtistAlphaComp
         mDiscNumber = discNumber;
     }
 
+    public String toShortString() {
+        return "'" + getName() + "'" + " by " + getArtist().toShortString() + " on "
+                + getAlbum().toShortString();
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "( " + toShortString() + " )@"
+                + Integer.toHexString(hashCode());
+    }
+
 }

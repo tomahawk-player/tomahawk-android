@@ -111,4 +111,14 @@ public class Album extends Cacheable implements AlphaComparable, ArtistAlphaComp
         mReleaseType = releaseType;
     }
 
+    public String toShortString() {
+        return "'" + getName() + "'";
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "( " + toShortString() + " by "
+                + getArtist().toShortString() + " )@" + Integer.toHexString(hashCode());
+    }
+
 }

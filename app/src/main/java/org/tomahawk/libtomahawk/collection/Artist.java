@@ -86,4 +86,14 @@ public class Artist extends Cacheable implements AlphaComparable {
     public void setBio(ListItemString bio) {
         mBio = bio;
     }
+
+    public String toShortString() {
+        return "'" + getName() + "'";
+    }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "( " + toShortString() + " )@"
+                + Integer.toHexString(hashCode());
+    }
 }

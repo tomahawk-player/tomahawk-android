@@ -248,8 +248,7 @@ public class MicroService extends Service {
                 AuthenticatorUtils utils = AuthenticatorManager.get()
                         .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                 InfoSystem.get().sendNowPlayingPostStruct(utils, Query.get(track, false));
-                Log.d(TAG, "Scrobbling track: '" + track.getName() + "' - '"
-                        + track.getArtist().getName() + "' - '" + track.getAlbum().getName());
+                Log.d(TAG, "Scrobbling "+track);
             }
         } else {
             Log.d(TAG, "Didn't scrobble track: '" + trackName + "' - '"

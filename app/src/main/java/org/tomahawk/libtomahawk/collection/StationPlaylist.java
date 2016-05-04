@@ -296,4 +296,10 @@ public class StationPlaylist extends Playlist {
     private static String getIdKey() {
         return ScriptPlaylistGeneratorManager.get().getDefaultPlaylistGeneratorId() + "_id";
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "( id: " + getId() + ", name: " + getName()
+                + ", size: " + size() + " )@" + Integer.toHexString(hashCode());
+    }
 }

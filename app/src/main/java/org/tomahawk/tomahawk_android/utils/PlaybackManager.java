@@ -105,7 +105,7 @@ public class PlaybackManager extends Cacheable {
 
     public void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
         if (mCallback == null) {
-            Log.e(TAG, "setPlaylist failed: " + playlist.getName());
+            Log.e(TAG, "setPlaylist failed: " + playlist);
             return;
         }
         mRepeatMode = NOT_REPEATING;
@@ -193,7 +193,7 @@ public class PlaybackManager extends Cacheable {
 
     private void setCurrentEntry(PlaylistEntry currentEntry, boolean callback) {
         if (mCallback == null) {
-            Log.e(TAG, "setCurrentEntry failed: " + currentEntry.getQuery().getName());
+            Log.e(TAG, "setCurrentEntry failed: " + currentEntry);
             return;
         }
         PlaylistEntry lastEntry = mCurrentEntry;
@@ -245,9 +245,9 @@ public class PlaybackManager extends Cacheable {
     }
 
     public void addToPlaylist(Query query) {
-        Log.d(TAG, "addToPlaylist: " + query.getName());
+        Log.d(TAG, "addToPlaylist: " + query);
         if (mCallback == null) {
-            Log.e(TAG, "addToPlaylist failed: " + query.getName());
+            Log.e(TAG, "addToPlaylist failed: " + query);
             return;
         }
         mPlaylist.addQuery(mPlaylist.size(), query);
@@ -258,9 +258,9 @@ public class PlaybackManager extends Cacheable {
     }
 
     public void addToQueue(Query query) {
-        Log.d(TAG, "addToQueue: " + query.getName());
+        Log.d(TAG, "addToQueue: " + query);
         if (mCallback == null) {
-            Log.e(TAG, "addToQueue failed: " + query.getName());
+            Log.e(TAG, "addToQueue failed: " + query);
             return;
         }
         mQueue.addQuery(0, query);
@@ -287,9 +287,9 @@ public class PlaybackManager extends Cacheable {
     }
 
     public void deleteFromQueue(PlaylistEntry entry) {
-        Log.d(TAG, "deleteFromQueue: " + entry.getQuery().getName());
+        Log.d(TAG, "deleteFromQueue: " + entry);
         if (mCallback == null) {
-            Log.e(TAG, "deleteFromQueue failed: " + entry.getQuery().getName());
+            Log.e(TAG, "deleteFromQueue failed: " + entry);
             return;
         }
         if (mQueue.deleteEntry(entry)) {
