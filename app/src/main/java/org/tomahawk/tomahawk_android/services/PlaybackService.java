@@ -227,6 +227,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onPlayFromMediaId(String mediaId, Bundle extras) {
+            if (mMediaSession == null) {
+                Log.e(TAG, "onPlayFromMediaId failed - mMediaSession == null!");
+                return;
+            }
             mMediaBrowserHelper.onPlayFromMediaId(mMediaSession, mPlaybackManager, mediaId, extras);
         }
 
@@ -527,6 +531,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onCallStateChanged(int state, String incomingNumber) {
             Log.d(TAG, "PhoneStateListener onCallStateChanged state: " + state);
+            if (mMediaSession == null) {
+                Log.e(TAG, "onCallStateChanged failed - mMediaSession == null!");
+                return;
+            }
             switch (state) {
                 case TelephonyManager.CALL_STATE_OFFHOOK:
                 case TelephonyManager.CALL_STATE_RINGING:
@@ -651,6 +659,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
         @Override
         public void onCompletion(Query query) {
+            if (mMediaSession == null) {
+                Log.e(TAG, "onCompletion failed - mMediaSession == null!");
+                return;
+            }
             if (query != null && query == mPlaybackManager.getCurrentQuery()) {
                 Log.d(TAG, "onCompletion");
                 if (mPlaybackManager.hasNextEntry()) {
@@ -671,6 +683,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 }
             });
             mAudioFocusHelper.giveUpAudioFocus();
+            if (mMediaSession == null) {
+                Log.e(TAG, "onError failed - mMediaSession == null!");
+                return;
+            }
             if (mPlaybackManager.hasNextEntry()) {
                 mMediaSession.getController().getTransportControls().skipToNext();
             } else {
@@ -688,7 +704,12 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             boolean wasNull = mPlaybackManager.getCurrentEntry() == null;
             mPlaybackManager.addToPlaylist(event.mQuery);
             if (wasNull) {
-                mMediaSession.getController().getTransportControls().play();
+                if (mMediaSession == null) {
+                    Log.e(TAG,
+                            "onEventAsync(PipeLine.ResultsEvent event) failed - mMediaSession == null!");
+                } else {
+                    mMediaSession.getController().getTransportControls().play();
+                }
             }
         }
         Query currentQuery = mPlaybackManager.getCurrentQuery();
@@ -989,6 +1010,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_PLAYBACK) {
                     @Override
                     public void run() {
+                        if (mMediaSession == null) {
+                            Log.e(TAG, "prepareCurrentQuery failed - mMediaSession == null!");
+                            return;
+                        }
                         if (mPlayState == PlaybackStateCompat.STATE_PLAYING
                                 && currentQuery.getMediaPlayerClass() != null) {
                             TomahawkMediaPlayer mp =
