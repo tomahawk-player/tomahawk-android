@@ -585,16 +585,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void handleMessage(Message msg) {
             if (getReferencedObject() != null) {
-                Log.d(TAG, "Unbinding from every PluginService...");
-                for (TomahawkMediaPlayer mp : getReferencedObject().mMediaPlayers.values()) {
-                    if (mp instanceof PluginMediaPlayer) {
-                        PluginMediaPlayer pmp = (PluginMediaPlayer) mp;
-                        if (pmp.isBound()) {
-                            pmp.setService(null);
-                            getReferencedObject().unbindService(pmp.getServiceConnection());
-                        }
-                    }
-                }
+                getReferencedObject().unbindPluginServices();
             }
         }
     }
@@ -917,7 +908,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         if (mRemoteControllerConnection != null) {
             unbindService(mRemoteControllerConnection);
         }
+        unbindPluginServices();
 
+        Log.d(TAG, "PlaybackService has been destroyed");
+    }
+
+    private void unbindPluginServices() {
+        Log.d(TAG, "Unbinding all PluginServices...");
         for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
             if (mp instanceof PluginMediaPlayer) {
                 PluginMediaPlayer pmp = (PluginMediaPlayer) mp;
@@ -927,8 +924,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 }
             }
         }
-
-        Log.d(TAG, "PlaybackService has been destroyed");
     }
 
     /**
