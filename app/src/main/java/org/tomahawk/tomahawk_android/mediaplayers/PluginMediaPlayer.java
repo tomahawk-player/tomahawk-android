@@ -224,7 +224,12 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
                     Log.d(TAG, "onPrepared() - uri: " + uri);
                     mp.mPreparedQuery = mp.mUriToQueryMap.get(uri);
                     mp.mPreparingQuery = null;
-                    mp.mMediaPlayerCallback.onPrepared(mp.mPreparedQuery);
+                    if (mp.mMediaPlayerCallback != null) {
+                        mp.mMediaPlayerCallback.onPrepared(mp.mPreparedQuery);
+                    } else {
+                        Log.e(TAG,
+                                "Wasn't able to call onPrepared because callback object is null");
+                    }
                     if (mp.mRestorePosition && mp.mPreparedUri != null
                             && mp.mPreparedUri.equals(uri)) {
                         mp.mRestorePosition = false;
@@ -255,12 +260,21 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
                     break;
                 case MSG_ONPLAYERENDOFTRACK:
                     Log.d(TAG, "onCompletion()");
-                    mp.mMediaPlayerCallback.onCompletion(mp.mPreparedQuery);
+                    if (mp.mMediaPlayerCallback != null) {
+                        mp.mMediaPlayerCallback.onCompletion(mp.mPreparedQuery);
+                    } else {
+                        Log.e(TAG,
+                                "Wasn't able to call onCompletion because callback object is null");
+                    }
                     break;
                 case MSG_ONERROR:
                     String message = msg.getData().getString(MSG_ONERROR_ARG_MESSAGE);
 
-                    mp.mMediaPlayerCallback.onError(message);
+                    if (mp.mMediaPlayerCallback != null) {
+                        mp.mMediaPlayerCallback.onError(message);
+                    } else {
+                        Log.e(TAG, "Wasn't able to call onError because callback object is null");
+                    }
                 default:
                     super.handleMessage(msg);
             }
@@ -408,6 +422,7 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
     public void release() {
         Log.d(TAG, "release()");
         pause();
+        mMediaPlayerCallback = null;
     }
 
     /**
