@@ -508,42 +508,41 @@ public class CollectionManager {
                 Playlist storedList = storedListsMap.remove(fetchedList.getHatchetId());
                 if (storedList == null) {
                     if (mShowAsDeletedPlaylistMap.contains(fetchedList.getHatchetId())) {
-                        Log.d(TAG, "Hatchet sync - playlist \"" + fetchedList.getName()
-                                + "\" didn't exist in database, but was marked as showAsDeleted so"
+                        Log.d(TAG, "Hatchet sync - " + fetchedList
+                                + " didn't exist in database, but was marked as showAsDeleted so"
                                 + " we don't store it.");
                     } else {
                         if (mShowAsCreatedPlaylistMap.contains(fetchedList.getHatchetId())) {
                             mShowAsCreatedPlaylistMap.remove(fetchedList.getHatchetId());
-                            Log.d(TAG, "Hatchet sync - playlist \"" + fetchedList.getName()
-                                    + "\" is no longer marked as showAsCreated, since it seems to "
-                                    + "have arrived on the server");
+                            Log.d(TAG, "Hatchet sync - " + fetchedList
+                                    + " is no longer marked as showAsCreated, since it seems to"
+                                    + " have arrived on the server");
                         }
-                        Log.d(TAG, "Hatchet sync - playlist \"" + fetchedList.getName()
-                                + "\" didn't exist in database ... storing and fetching entries");
+                        Log.d(TAG, "Hatchet sync - " + fetchedList + " didn't exist in database"
+                                + " ... storing and fetching entries");
                         DatabaseHelper.get().storePlaylist(fetchedList, false);
                         fetchHatchetPlaylistEntries(fetchedList.getId());
                     }
                 } else if (!storedList.getCurrentRevision()
                         .equals(fetchedList.getCurrentRevision())) {
-                    Log.d(TAG, "Hatchet sync - revision differed for playlist \""
-                            + fetchedList.getName() + "\" ... fetching entries");
+                    Log.d(TAG, "Hatchet sync - revision differed for " + fetchedList
+                            + " ... fetching entries");
                     fetchHatchetPlaylistEntries(storedList.getId());
                 } else if (!storedList.getName().equals(fetchedList.getName())) {
-                    Log.d(TAG, "Hatchet sync - title differed for playlist \""
-                            + storedList.getName() + "\", new name: \"" + fetchedList.getName()
-                            + "\" ... renaming");
+                    Log.d(TAG, "Hatchet sync - title differed for stored " + storedList
+                            + " and fetched " + fetchedList + " ... renaming");
                     DatabaseHelper.get().renamePlaylist(storedList, fetchedList.getName());
                 }
             }
             for (Playlist storedList : storedListsMap.values()) {
                 if (storedList.getHatchetId() == null
                         || !mShowAsCreatedPlaylistMap.contains(storedList.getHatchetId())) {
-                    Log.d(TAG, "Hatchet sync - playlist \"" + storedList.getName()
-                            + "\" doesn't exist on Hatchet ... deleting");
+                    Log.d(TAG, "Hatchet sync - " + storedList
+                            + " doesn't exist on Hatchet ... deleting");
                     DatabaseHelper.get().deletePlaylist(storedList.getId());
                 } else {
-                    Log.d(TAG, "Hatchet sync - playlist \"" + storedList.getName()
-                            + "\" doesn't exist on Hatchet, but we don't delete it since it's"
+                    Log.d(TAG, "Hatchet sync - " + storedList
+                            + " doesn't exist on Hatchet, but we don't delete it since it's"
                             + " marked as showAsCreated");
                 }
             }
@@ -554,10 +553,7 @@ public class CollectionManager {
                 if (results != null && results.size() > 0) {
                     Playlist filledList = results.get(0);
                     if (filledList != null) {
-                        Log.d(TAG, "Hatchet sync - received entry list for playlist \""
-                                + filledList.getName() + "\", hatchetId: "
-                                + filledList.getHatchetId() + ", count: "
-                                + filledList.size());
+                        Log.d(TAG, "Hatchet sync - received entry list for " + filledList);
                         DatabaseHelper.get().storePlaylist(filledList, false);
                         mResolvingHatchetIds.remove(filledList.getHatchetId());
                     }
@@ -605,8 +601,7 @@ public class CollectionManager {
             for (Album album : fetchedAlbums) {
                 Relationship relationship = user.getRelationship(album);
                 if (relationship == null) {
-                    Log.e(TAG, "Hatchet sync - couldn't find associated relationship for album '"
-                            + album.getName() + "'!");
+                    Log.e(TAG, "Hatchet sync - couldn't find associated relationship for " + album);
                     lastModifieds.add(Long.MAX_VALUE);
                 } else {
                     lastModifieds.add(relationship.getDate().getTime());
@@ -627,8 +622,8 @@ public class CollectionManager {
             for (Artist artist : fetchedArtists) {
                 Relationship relationship = user.getRelationship(artist);
                 if (relationship == null) {
-                    Log.e(TAG, "Hatchet sync - couldn't find associated relationship for artist '"
-                            + artist.getName() + "'!");
+                    Log.e(TAG,
+                            "Hatchet sync - couldn't find associated relationship for " + artist);
                     lastModifieds.add(Long.MAX_VALUE);
                 } else {
                     lastModifieds.add(relationship.getDate().getTime());
@@ -657,8 +652,7 @@ public class CollectionManager {
     }
 
     public void createPlaylist(Playlist playlist) {
-        Log.d(TAG, "Hatchet sync - creating playlist \"" + playlist.getName() + "\", id: "
-                + playlist.getId() + " with " + playlist.size() + " entries");
+        Log.d(TAG, "Hatchet sync - creating " + playlist);
         DatabaseHelper.get().storePlaylist(playlist, false);
         AuthenticatorUtils hatchetAuthUtils = AuthenticatorManager.get()
                 .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
