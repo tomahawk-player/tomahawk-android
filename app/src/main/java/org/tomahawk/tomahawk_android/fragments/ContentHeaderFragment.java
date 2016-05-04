@@ -408,6 +408,7 @@ public class ContentHeaderFragment extends Fragment {
                                 StationPlaylist stationPlaylist =
                                         StationPlaylist.get(artists, null, null);
                                 getPlaybackManager().setPlaylist(stationPlaylist);
+                                getMediaController().getTransportControls().play();
                             }
                         }
                     }
@@ -430,6 +431,7 @@ public class ContentHeaderFragment extends Fragment {
                                 StationPlaylist stationPlaylist =
                                         StationPlaylist.get(artists, null, null);
                                 getPlaybackManager().setPlaylist(stationPlaylist);
+                                getMediaController().getTransportControls().play();
                             }
                         }
                     }
