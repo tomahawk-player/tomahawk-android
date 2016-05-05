@@ -30,6 +30,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -102,6 +104,7 @@ public class MediaNotification {
             if (mStarted) {
                 updateNotificationPlaybackState();
                 mNotificationManager.notify(NOTIFICATION_ID, mNotificationBuilder.build());
+                Log.d(TAG, "Updated notification to new playback state. mStarted: " + mStarted);
             } else {
                 Log.d(TAG, "Couldn't update playback state because notification is stopped");
             }
@@ -182,25 +185,30 @@ public class MediaNotification {
      * called.
      */
     public void startNotification() {
-        if (!mStarted) {
-            Log.d(TAG, "Starting notification");
-            mController.registerCallback(mCallback, mService.getCallbackHandler());
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(ACTION_FAVORITE);
-            filter.addAction(ACTION_UNFAVORITE);
-            filter.addAction(ACTION_NEXT);
-            filter.addAction(ACTION_PAUSE);
-            filter.addAction(ACTION_PLAY);
-            filter.addAction(ACTION_PREV);
-            mService.registerReceiver(mActionReceiver, filter);
+        mService.getCallbackHandler().post(new Runnable() {
+            @Override
+            public void run() {
+                if (!mStarted) {
+                    Log.d(TAG, "Starting notification");
+                    mController.registerCallback(mCallback, mService.getCallbackHandler());
+                    IntentFilter filter = new IntentFilter();
+                    filter.addAction(ACTION_FAVORITE);
+                    filter.addAction(ACTION_UNFAVORITE);
+                    filter.addAction(ACTION_NEXT);
+                    filter.addAction(ACTION_PAUSE);
+                    filter.addAction(ACTION_PLAY);
+                    filter.addAction(ACTION_PREV);
+                    mService.registerReceiver(mActionReceiver, filter);
 
-            mMetadata = mController.getMetadata();
-            mPlaybackState = mController.getPlaybackState();
+                    mMetadata = mController.getMetadata();
+                    mPlaybackState = mController.getPlaybackState();
 
-            mStarted = true;
-            // The notification must be updated after setting started to true
-            updateNotificationMetadata();
-        }
+                    mStarted = true;
+                    // The notification must be updated after setting started to true
+                    updateNotificationMetadata();
+                }
+            }
+        });
     }
 
     /**
@@ -208,15 +216,20 @@ public class MediaNotification {
      * has no effect.
      */
     public void stopNotification() {
-        Log.d(TAG, "Stopping notification");
-        mStarted = false;
-        mController.unregisterCallback(mCallback);
-        try {
-            mService.unregisterReceiver(mActionReceiver);
-        } catch (IllegalArgumentException ex) {
-            // ignore if the receiver is not registered.
-        }
-        mService.stopForeground(true);
+        mService.getCallbackHandler().post(new Runnable() {
+            @Override
+            public void run() {
+                mStarted = false;
+                mController.unregisterCallback(mCallback);
+                try {
+                    mService.unregisterReceiver(mActionReceiver);
+                } catch (IllegalArgumentException ex) {
+                    // ignore if the receiver is not registered.
+                }
+                mService.stopForeground(true);
+                Log.d(TAG, "Stopped notification");
+            }
+        });
     }
 
     /**
@@ -306,6 +319,7 @@ public class MediaNotification {
         updateNotificationPlaybackState();
 
         mService.startForeground(NOTIFICATION_ID, mNotificationBuilder.build());
+        Log.d(TAG, "updateNotificationMetadata. Notification shown");
     }
 
     private PendingIntent createContentIntent() {
