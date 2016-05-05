@@ -886,7 +886,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         handlePlayState();
         mNotification.stopNotification();
 
-        releaseAllPlayers();
+        for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
+            mp.release();
+        }
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
         }
@@ -973,7 +975,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 );
             }
         } else {
-            releaseAllPlayers();
             if (mWakeLock != null && mWakeLock.isHeld()) {
                 mWakeLock.release();
             }
@@ -1035,7 +1036,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                                     prepareCurrentQuery();
                                 }
                             } else {
-                                if (mCurrentMediaPlayer != null) {
+                                if (mCurrentMediaPlayer != null && mCurrentMediaPlayer != mp) {
                                     mCurrentMediaPlayer.release();
                                 }
                                 mCurrentMediaPlayer = mp;
@@ -1047,12 +1048,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             } else {
                 mMediaSession.getController().getTransportControls().skipToNext();
             }
-        }
-    }
-
-    private void releaseAllPlayers() {
-        for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
-            mp.release();
         }
     }
 
