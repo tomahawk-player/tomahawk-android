@@ -27,6 +27,8 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
+import org.tomahawk.libtomahawk.infosystem.InfoSystem;
+import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
@@ -135,6 +137,13 @@ public class PlaybackFragment extends TomahawkFragment {
             return false;
         }
     };
+
+    @SuppressWarnings("unused")
+    public void onEventMainThread(InfoSystem.ResultsEvent event) {
+        if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
+            mAlbumArtSwipeAdapter.updatePlaylist();
+        }
+    }
 
     @SuppressWarnings("unused")
     public void onEventMainThread(TomahawkMainActivity.SlidingLayoutChangedEvent event) {
@@ -468,6 +477,12 @@ public class PlaybackFragment extends TomahawkFragment {
     protected void refreshTrackInfo(MediaMetadataCompat metadata) {
         if (getView() != null && metadata != null
                 && getPlaybackManager().getCurrentQuery() != null) {
+            if (getPlaybackManager().getPreviousEntry() != null) {
+                resolveImages(getPlaybackManager().getPreviousEntry().getQuery());
+            }
+            if (getPlaybackManager().getNextEntry() != null) {
+                resolveImages(getPlaybackManager().getNextEntry().getQuery());
+            }
             if (mCurrentBlurredImage != getPlaybackManager().getCurrentQuery().getImage()) {
                 mCurrentBlurredImage = getPlaybackManager().getCurrentQuery().getImage();
                 ImageView bgImageView = (ImageView) getView().findViewById(R.id.background);
@@ -515,6 +530,19 @@ public class PlaybackFragment extends TomahawkFragment {
                 ImageUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(),
                         imageViewToFadeIn, mCurrentBlurredImage, Image.getSmallImageSize(),
                         R.color.playerview_default_bg, fadeCallback);
+            }
+        }
+    }
+
+    private void resolveImages(Query query) {
+        if (query.getImage() == null) {
+            String requestId = InfoSystem.get().resolve(query.getArtist(), false);
+            if (requestId != null) {
+                mCorrespondingRequestIds.add(requestId);
+            }
+            requestId = InfoSystem.get().resolve(query.getAlbum());
+            if (requestId != null) {
+                mCorrespondingRequestIds.add(requestId);
             }
         }
     }
