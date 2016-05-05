@@ -197,9 +197,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 mPlayState = PlaybackStateCompat.STATE_PLAYING;
                 handlePlayState();
 
-                mNotification.startNotification();
                 mAudioFocusHelper.tryToGetAudioFocus();
                 updateMediaPlayState();
+                mNotification.startNotification();
             }
         }
 
@@ -881,11 +881,11 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             mAudioBecomingNoisyReceiver = null;
         }
         mScrobbleHandler.stop();
+
         mPlayState = PlaybackStateCompat.STATE_PAUSED;
         handlePlayState();
-        updateMediaPlayState();
-
         mNotification.stopNotification();
+
         releaseAllPlayers();
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
