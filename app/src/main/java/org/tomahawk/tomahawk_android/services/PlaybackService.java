@@ -145,6 +145,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private int mPlayState = PlaybackStateCompat.STATE_NONE;
 
+    private boolean mIsPreparing = false;
+
     private static final int DELAY_SCROBBLE = 15000;
 
     private static final int DELAY_UNBIND_PLUGINSERVICES = 1800000;
@@ -377,7 +379,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 stationPlaylist.setPlayedTimeStamp(System.currentTimeMillis());
                 DatabaseHelper.get().storeStation(stationPlaylist);
                 if (stationPlaylist.size() == 0) {
-                    mPlayState = PlaybackStateCompat.STATE_BUFFERING;
+                    mIsPreparing = true;
                     updateMediaPlayState();
                     // station is empty, so we should fill it with some new tracks
                     fillStation(stationPlaylist);
@@ -620,7 +622,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                         + mPlaybackManager.getCurrentQuery() + " resolved by "
                         + mPlaybackManager.getCurrentQuery()
                         .getPreferredTrackResult().getResolvedBy().getId());
-                mPlayState = PlaybackStateCompat.STATE_PLAYING;
+                mIsPreparing = false;
                 updateMediaPlayState();
                 boolean allPlayersReleased = true;
                 for (TomahawkMediaPlayer mediaPlayer : mMediaPlayers.values()) {
@@ -970,16 +972,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 }
             } catch (IllegalStateException e1) {
                 Log.e(TAG, "handlePlayState IllegalStateException, msg: "
-                        + e1.getLocalizedMessage() + " , isPreparing: "
-                        + (mPlayState == PlaybackStateCompat.STATE_BUFFERING)
-                );
+                        + e1.getLocalizedMessage() + " , isPreparing: " + mIsPreparing);
             }
         } else {
             if (mWakeLock != null && mWakeLock.isHeld()) {
                 mWakeLock.release();
             }
-            Log.d(TAG, "handlePlayState couldn't do anything, isPreparing: "
-                    + (mPlayState == PlaybackStateCompat.STATE_BUFFERING));
+            Log.d(TAG, "handlePlayState couldn't do anything, isPreparing: " + mIsPreparing);
         }
     }
 
@@ -1014,7 +1013,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                                 && currentQuery.getMediaPlayerClass() != null) {
                             TomahawkMediaPlayer mp =
                                     mMediaPlayers.get(currentQuery.getMediaPlayerClass());
-                            mPlayState = PlaybackStateCompat.STATE_BUFFERING;
+                            mIsPreparing = true;
                             updateMediaPlayState();
                             if (mp.prepare(currentQuery, mMediaPlayerCallback) == null) {
                                 boolean isNetworkAvailable = NetworkUtils.isNetworkAvailable();
@@ -1173,9 +1172,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         Bundle extras = new Bundle();
         extras.putInt(EXTRAS_KEY_REPEAT_MODE, mPlaybackManager.getRepeatMode());
         extras.putInt(EXTRAS_KEY_SHUFFLE_MODE, mPlaybackManager.getShuffleMode());
+        int playState = mIsPreparing ? PlaybackStateCompat.STATE_BUFFERING : mPlayState;
         PlaybackStateCompat playbackStateCompat = new PlaybackStateCompat.Builder()
                 .setActions(actions)
-                .setState(mPlayState, getPlaybackPosition(), 1f, SystemClock.elapsedRealtime())
+                .setState(playState, getPlaybackPosition(), 1f, SystemClock.elapsedRealtime())
                 .setExtras(extras)
                 .build();
         mMediaSession.setPlaybackState(playbackStateCompat);
