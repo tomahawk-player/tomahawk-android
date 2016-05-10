@@ -48,7 +48,7 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
      */
     getAccessToken: function () {
         var that = this;
-        if (!this._getAccessTokenPromise || new Date().getTime() + 60000 > that._clientCredsTokenExpires) {
+        if (!this._getAccessTokenPromise || new Date().getTime() + 60000 > that._accessTokenExpires) {
             Tomahawk.log("Access token is not valid. We need to get a new one.");
             this._getAccessTokenPromise = new RSVP.Promise(function (resolve, reject) {
                 var refreshToken = Tomahawk.localStorage.getItem(that._storageKeyRefreshToken);
@@ -76,8 +76,7 @@ var SpotifyResolver = Tomahawk.extend(Tomahawk.Resolver, {
                 return Tomahawk.post(that._tokenEndPoint, settings)
                     .then(function (res) {
                         that._accessToken = res.access_token;
-                        that._clientCredsTokenExpires = new Date().getTime() + res.expires_in
-                            * 1000;
+                        that._accessTokenExpires = new Date().getTime() + res.expires_in * 1000;
                         Tomahawk.log("Received new access token!");
                         return {
                             accessToken: res.access_token
