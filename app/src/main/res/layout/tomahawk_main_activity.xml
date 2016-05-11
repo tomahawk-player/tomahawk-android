@@ -98,12 +98,4 @@
             app:spb_mirror_mode="false"
             android:visibility="gone"/>
 
-    <ImageView android:id="@+id/splash_imageview"
-               android:layout_width="match_parent"
-               android:layout_height="match_parent"
-               android:layout_gravity="center"
-               android:scaleType="center"
-               android:src="@drawable/splash"
-               android:background="@color/primary_background"/>
-
 </FrameLayout>

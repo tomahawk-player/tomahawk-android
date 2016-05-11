@@ -227,13 +227,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     private View mActionBarBg;
 
-    private Bundle mSavedInstanceState;
-
-    private boolean mRootViewsInitialized;
-
     private boolean mDestroyed;
-
-    private Runnable mRunAfterInit;
 
     private Handler mShouldShowAnimationHandler;
 
@@ -560,8 +554,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
         CollectionManager.get().getUserCollection().loadMediaItems(false);
 
-        mSavedInstanceState = savedInstanceState;
-
         setContentView(R.layout.tomahawk_main_activity);
 
         mMediaBrowser = new MediaBrowserCompat(this,
@@ -618,12 +610,64 @@ public class TomahawkMainActivity extends AppCompatActivity {
                     .commit();
         }
 
-        mRunAfterInit = new Runnable() {
+        //Setup UserVoice
+        Config config = new Config("tomahawk.uservoice.com");
+        config.setForumId(224204);
+        config.setTopicId(62613);
+        UserVoice.init(config, TomahawkMainActivity.this);
+
+        //Resolve currently logged-in user
+        User.getSelf().done(new DoneCallback<User>() {
             @Override
-            public void run() {
-                handleIntent(getIntent());
+            public void onDone(User user) {
+                String requestId = InfoSystem.get().resolve(user);
+                if (requestId != null) {
+                    mCorrespondingRequestIds.add(requestId);
+                }
             }
-        };
+        });
+
+        //Ask for notification service access if hatchet user logged in
+        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
+                AuthenticatorManager.get().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
+        if (hatchetAuthUtils.isLoggedIn()) {
+            attemptAskAccess();
+        }
+
+        mMenuDrawer.updateDrawer(this);
+
+        Bundle bundle = new Bundle();
+        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                ContentHeaderFragment.MODE_HEADER_PLAYBACK);
+        Fragment fragment = Fragment.instantiate(TomahawkMainActivity.this,
+                PlaybackFragment.class.getName(), bundle);
+        getSupportFragmentManager().beginTransaction()
+                .add(R.id.playback_fragment_frame, fragment, null)
+                .commitAllowingStateLoss();
+        User.getSelf().done(new DoneCallback<User>() {
+            @Override
+            public void onDone(final User user) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (!mDestroyed) {
+                            FragmentUtils.addRootFragment(TomahawkMainActivity.this, user);
+
+                            SharedPreferences preferences = PreferenceManager
+                                    .getDefaultSharedPreferences(TomahawkMainActivity.this);
+                            if (!preferences.getBoolean(
+                                    TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED,
+                                    false)) {
+                                FragmentUtils.replace(TomahawkMainActivity.this,
+                                        WelcomeFragment.class, null);
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        handleIntent(getIntent());
     }
 
     @Override
@@ -640,12 +684,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
     protected void onNewIntent(final Intent intent) {
         super.onNewIntent(intent);
 
-        mRunAfterInit = new Runnable() {
-            @Override
-            public void run() {
-                handleIntent(intent);
-            }
-        };
+        handleIntent(intent);
     }
 
     private void handleIntent(Intent intent) {
@@ -806,6 +845,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                         updateActionBarState(true);
                     }
                 });
+        updateActionBarState(true);
     }
 
     @Override
@@ -820,82 +860,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
         }
 
         super.onStop();
-    }
-
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus) {
-        //Setup UserVoice
-        Config config = new Config("tomahawk.uservoice.com");
-        config.setForumId(224204);
-        config.setTopicId(62613);
-        UserVoice.init(config, TomahawkMainActivity.this);
-
-        //Resolve currently logged-in user
-        User.getSelf().done(new DoneCallback<User>() {
-            @Override
-            public void onDone(User user) {
-                String requestId = InfoSystem.get().resolve(user);
-                if (requestId != null) {
-                    mCorrespondingRequestIds.add(requestId);
-                }
-            }
-        });
-
-        //Ask for notification service access if hatchet user logged in
-        HatchetAuthenticatorUtils hatchetAuthUtils
-                = (HatchetAuthenticatorUtils) AuthenticatorManager.get()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        if (hatchetAuthUtils.isLoggedIn()) {
-            attemptAskAccess();
-        }
-
-        if (!mRootViewsInitialized) {
-            mRootViewsInitialized = true;
-
-            mMenuDrawer.updateDrawer(this);
-
-            if (mSavedInstanceState == null) {
-                Bundle bundle = new Bundle();
-                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                        ContentHeaderFragment.MODE_HEADER_PLAYBACK);
-                getSupportFragmentManager().beginTransaction()
-                        .add(R.id.playback_fragment_frame,
-                                Fragment.instantiate(TomahawkMainActivity.this,
-                                        PlaybackFragment.class.getName(), bundle),
-                                null)
-                        .commitAllowingStateLoss();
-                User.getSelf().done(new DoneCallback<User>() {
-                    @Override
-                    public void onDone(final User user) {
-                        new Handler(Looper.getMainLooper()).post(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!mDestroyed) {
-                                    FragmentUtils.addRootFragment(TomahawkMainActivity.this, user);
-
-                                    SharedPreferences preferences =
-                                            PreferenceManager.getDefaultSharedPreferences(
-                                                    TomahawkMainActivity.this);
-                                    if (!preferences.getBoolean(
-                                            TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED,
-                                            false)) {
-                                        FragmentUtils.replace(
-                                                TomahawkMainActivity.this, WelcomeFragment.class,
-                                                null);
-                                    }
-                                }
-                            }
-                        });
-                    }
-                });
-            }
-        }
-        updateActionBarState(false);
-
-        findViewById(R.id.splash_imageview).setVisibility(View.GONE);
-        if (mRunAfterInit != null) {
-            mRunAfterInit.run();
-        }
     }
 
     @Override
@@ -1090,6 +1054,15 @@ public class TomahawkMainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Disables the navigation drawer and hides the actionbar whenever WelcomeFragment or
+     * ContextMenuFragment is the currently shown Fragment or if the playback {@link
+     * SlidingUpPanelLayout} is more than half way expanded.
+     *
+     * @param checkCurrentFragment whether or not to check the current Fragment. This can be set to
+     *                             false to improve performance when this function is repeatedly
+     *                             being called in {@link TomahawkMainActivity#mPanelSlideListener}
+     */
     public void updateActionBarState(boolean checkCurrentFragment) {
         boolean hideActionBar = mSlidingOffset > 0.5f;
         boolean forced = true;
