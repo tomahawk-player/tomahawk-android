@@ -37,12 +37,15 @@ import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 
 /**
  * This class wraps all functionality that handles the switching of {@link Fragment}s, whenever the
  * user navigates to a new {@link Fragment}.
  */
 public class FragmentUtils {
+
+    private static final String TAG = FragmentUtils.class.getSimpleName();
 
     public static final String FRAGMENT_TAG = "the_ultimate_tag";
 
@@ -65,6 +68,8 @@ public class FragmentUtils {
             ft.add(R.id.content_viewer_frame,
                     Fragment.instantiate(activity, SocialActionsFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
+            Log.d(TAG,
+                    "Added " + SocialActionsFragment.class.getSimpleName() + " as root fragment.");
         } else {
             Bundle bundle = new Bundle();
             bundle.putString(TomahawkFragment.COLLECTION_ID,
@@ -74,6 +79,8 @@ public class FragmentUtils {
             ft.add(R.id.content_viewer_frame,
                     Fragment.instantiate(activity, CollectionPagerFragment.class.getName(), bundle),
                     FRAGMENT_TAG);
+            Log.d(TAG, "Added " + CollectionPagerFragment.class.getSimpleName()
+                    + " as root fragment.");
         }
         ft.commitAllowingStateLoss();
     }
@@ -112,6 +119,7 @@ public class FragmentUtils {
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commitAllowingStateLoss();
         activity.collapsePanel();
+        Log.d(TAG, "Current fragment is now " + clss.getSimpleName() + ", Bundle: " + bundle);
     }
 
     /**
@@ -130,6 +138,7 @@ public class FragmentUtils {
         ft.addToBackStack(FRAGMENT_TAG);
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commitAllowingStateLoss();
+        Log.d(TAG, "Added fragment " + clss.getSimpleName() + ", Bundle: " + bundle);
     }
 
     /**
