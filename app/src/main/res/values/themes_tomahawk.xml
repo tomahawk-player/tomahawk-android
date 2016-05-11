@@ -19,6 +19,9 @@
         <item name="android:windowEnableSplitTouch">false</item>
         <item name="android:splitMotionEvents">false</item>
 
+        <item name="android:windowBackground">@drawable/splash_centered</item>
+        <item name="android:windowNoTitle">true</item>
+
     </style>
 
     <style name="Theme.Tomahawk.Transparent.ActionBar" parent="@style/Theme.Tomahawk">
