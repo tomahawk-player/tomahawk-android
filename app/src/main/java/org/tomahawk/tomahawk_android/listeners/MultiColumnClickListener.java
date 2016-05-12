@@ -15,7 +15,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.tomahawk_android.utils;
+package org.tomahawk.tomahawk_android.listeners;
 
 import android.view.View;
 

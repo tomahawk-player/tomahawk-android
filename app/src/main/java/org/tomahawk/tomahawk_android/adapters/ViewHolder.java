@@ -37,7 +37,7 @@ import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
+import org.tomahawk.tomahawk_android.listeners.MultiColumnClickListener;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.content.res.Resources;

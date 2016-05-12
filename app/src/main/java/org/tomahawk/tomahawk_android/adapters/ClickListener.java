@@ -17,7 +17,7 @@
  */
 package org.tomahawk.tomahawk_android.adapters;
 
-import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
+import org.tomahawk.tomahawk_android.listeners.MultiColumnClickListener;
 
 import android.view.View;
 

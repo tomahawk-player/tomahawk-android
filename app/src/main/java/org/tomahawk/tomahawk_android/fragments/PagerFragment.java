@@ -24,6 +24,7 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
+import org.tomahawk.tomahawk_android.listeners.TomahawkPanelSlideListener;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.views.PageIndicator;
 import org.tomahawk.tomahawk_android.views.Selector;
@@ -99,7 +100,7 @@ public abstract class PagerFragment extends ContentHeaderFragment implements
     }
 
     @SuppressWarnings("unused")
-    public void onEventMainThread(TomahawkMainActivity.SlidingLayoutChangedEvent event) {
+    public void onEventMainThread(TomahawkPanelSlideListener.SlidingLayoutChangedEvent event) {
         switch (event.mSlideState) {
             case COLLAPSED:
             case EXPANDED:

@@ -15,7 +15,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.tomahawk.tomahawk_android.utils;
+package org.tomahawk.tomahawk_android.listeners;
 
 import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.infosystem.User;
@@ -32,6 +32,8 @@ import org.tomahawk.tomahawk_android.fragments.SocialActionsFragment;
 import org.tomahawk.tomahawk_android.fragments.StationsFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
 import org.tomahawk.tomahawk_android.fragments.UserPagerFragment;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.MenuDrawer;
 
 import android.os.Bundle;
 import android.os.Handler;

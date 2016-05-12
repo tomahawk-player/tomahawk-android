@@ -23,7 +23,7 @@ import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.utils.OnSizeChangedListener;
+import org.tomahawk.tomahawk_android.listeners.OnSizeChangedListener;
 
 import android.animation.Animator;
 import android.animation.ObjectAnimator;
