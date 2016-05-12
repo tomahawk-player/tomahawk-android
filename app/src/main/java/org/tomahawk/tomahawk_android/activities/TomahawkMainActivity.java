@@ -53,7 +53,6 @@ import org.tomahawk.tomahawk_android.dialogs.WarnOldPluginDialog;
 import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
 import org.tomahawk.tomahawk_android.fragments.ContextMenuFragment;
-import org.tomahawk.tomahawk_android.fragments.PlaybackFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
 import org.tomahawk.tomahawk_android.fragments.PreferenceAdvancedFragment;
 import org.tomahawk.tomahawk_android.fragments.PreferencePagerFragment;
@@ -466,14 +465,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
         mPlaybackPanel = (PlaybackPanel) findViewById(R.id.playback_panel);
 
         mSlidingUpPanelLayout = (SlidingUpPanelLayout) findViewById(R.id.sliding_layout);
-        Bundle bundle = new Bundle();
-        bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
-                ContentHeaderFragment.MODE_HEADER_PLAYBACK);
-        Fragment fragment = Fragment.instantiate(TomahawkMainActivity.this,
-                PlaybackFragment.class.getName(), bundle);
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.playback_fragment_frame, fragment, null)
-                .commitAllowingStateLoss();
+        FragmentUtils.addPlaybackFragment(this);
         mPanelSlideListener =
                 new TomahawkPanelSlideListener(this, mSlidingUpPanelLayout, mPlaybackPanel);
         mSlidingUpPanelLayout.setPanelSlideListener(mPanelSlideListener);
