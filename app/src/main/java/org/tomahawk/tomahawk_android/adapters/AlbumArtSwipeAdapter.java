@@ -30,6 +30,7 @@ import android.os.Parcelable;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,8 @@ import android.widget.ImageView;
  * org.tomahawk.tomahawk_android.fragments.PlaybackFragment}
  */
 public class AlbumArtSwipeAdapter extends PagerAdapter {
+
+    private static final String TAG = AlbumArtSwipeAdapter.class.getSimpleName();
 
     //Used to provide fake infinite swiping behaviour, if current Playlist is repeating
     private static final int FAKE_INFINITY_COUNT = 20000;
@@ -68,8 +71,12 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
         @Override
         public void onPageSelected(int position) {
             if (position == mLastItem - 1) {
+                Log.d(TAG, "Selected page is now " + position + ", was " + mLastItem
+                        + ". Skipping to previous track.");
                 mMediaController.getTransportControls().skipToPrevious();
             } else if (position == mLastItem + 1) {
+                Log.d(TAG, "Selected page is now " + position + ", was " + mLastItem
+                        + ". Skipping to next track.");
                 mMediaController.getTransportControls().skipToNext();
             }
         }

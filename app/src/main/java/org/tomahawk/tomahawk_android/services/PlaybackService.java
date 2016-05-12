@@ -241,6 +241,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          * play queue.
          */
         public void onSkipToQueueItem(long id) {
+            Log.d(TAG, "Skipping to queue item with id " + id);
             PlaylistEntry entry = mQueueMap.get((int) id);
             mPlaybackManager.setCurrentEntry(entry);
         }
@@ -284,6 +285,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onFastForward() {
+            Log.d(TAG, "fastForward");
             long duration = mPlaybackManager.getCurrentTrack().getDuration();
             long newPos = Math.min(duration, Math.max(0, getPlaybackPosition() + 10000));
             onSeekTo(newPos);
@@ -294,6 +296,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onRewind() {
+            Log.d(TAG, "rewind");
             long duration = mPlaybackManager.getCurrentTrack().getDuration();
             long newPos = Math.min(duration, Math.max(0, getPlaybackPosition() - 10000));
             onSeekTo(newPos);
@@ -989,7 +992,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         Log.d(TAG, "prepareCurrentQuery");
         final Query currentQuery = mPlaybackManager.getCurrentQuery();
         if (currentQuery != null) {
-            if (currentQuery.isPlayable()) {
+            if (!currentQuery.isPlayable()) {
+                Log.e(TAG, currentQuery + " isn't playable. Skipping to next track");
+                mMediaSession.getController().getTransportControls().skipToNext();
+            } else {
                 if (currentQuery.getImage() == null) {
                     String requestId = InfoSystem.get().resolve(
                             currentQuery.getArtist(), false);
@@ -1044,8 +1050,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                     }
                 };
                 ThreadManager.get().executePlayback(r);
-            } else {
-                mMediaSession.getController().getTransportControls().skipToNext();
             }
         }
     }
