@@ -32,7 +32,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
-import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
+import org.tomahawk.tomahawk_android.listeners.MultiColumnClickListener;
 
 import android.app.AlertDialog;
 import android.app.Dialog;

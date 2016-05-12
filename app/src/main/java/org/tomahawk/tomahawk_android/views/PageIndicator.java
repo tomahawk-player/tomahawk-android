@@ -23,7 +23,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkPagerAdapter;
 import org.tomahawk.tomahawk_android.fragments.PagerFragment;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
-import org.tomahawk.tomahawk_android.utils.OnSizeChangedListener;
+import org.tomahawk.tomahawk_android.listeners.OnSizeChangedListener;
 
 import android.content.Context;
 import android.graphics.ColorFilter;

@@ -37,6 +37,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.AlbumArtSwipeAdapter;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
+import org.tomahawk.tomahawk_android.listeners.TomahawkPanelSlideListener;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
@@ -146,7 +147,7 @@ public class PlaybackFragment extends TomahawkFragment {
     }
 
     @SuppressWarnings("unused")
-    public void onEventMainThread(TomahawkMainActivity.SlidingLayoutChangedEvent event) {
+    public void onEventMainThread(TomahawkPanelSlideListener.SlidingLayoutChangedEvent event) {
         if (event.mSlideState == SlidingUpPanelLayout.PanelState.EXPANDED
                 || event.mSlideState == SlidingUpPanelLayout.PanelState.COLLAPSED) {
             if (mAlbumArtSwipeAdapter != null) {

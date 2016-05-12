@@ -36,7 +36,7 @@ import org.tomahawk.tomahawk_android.dialogs.GMusicConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.LoginConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverRedirectConfigDialog;
-import org.tomahawk.tomahawk_android.utils.MultiColumnClickListener;
+import org.tomahawk.tomahawk_android.listeners.MultiColumnClickListener;
 
 import android.os.Bundle;
 import android.util.Log;
