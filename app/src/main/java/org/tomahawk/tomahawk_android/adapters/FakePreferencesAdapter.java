@@ -163,8 +163,7 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
             // After we've set up the correct view and viewHolder, we now can fill the View's
             // components with the correct data
             if (viewHolder.mLayoutId == R.layout.fake_preferences_checkbox) {
-                boolean preferenceState = mSharedPreferences
-                        .getBoolean(item.getStorageKey(), false);
+                boolean preferenceState = mSharedPreferences.getBoolean(item.storageKey, false);
                 CheckBox checkBox = (CheckBox) viewHolder.findViewById(R.id.checkbox1);
                 checkBox.setChecked(preferenceState);
             } else if (viewHolder.mLayoutId == R.layout.fake_preferences_spinner) {
@@ -179,15 +178,15 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                 adapter.setDropDownViewResource(R.layout.spinner_dropdown_textview);
                 Spinner spinner = (Spinner) viewHolder.findViewById(R.id.spinner1);
                 spinner.setAdapter(adapter);
-                String key = item.getStorageKey();
+                String key = item.storageKey;
                 spinner.setSelection(mSharedPreferences
                         .getInt(key, SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
                 spinner.setOnItemSelectedListener(new SpinnerListener(key));
             }
             TextView textView1 = (TextView) viewHolder.findViewById(R.id.textview1);
-            textView1.setText(item.getTitle());
+            textView1.setText(item.title);
             TextView textView2 = (TextView) viewHolder.findViewById(R.id.textview2);
-            textView2.setText(item.getSummary());
+            textView2.setText(item.summary);
         }
 
         // Finally we can return the correct view
@@ -221,9 +220,9 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
     }
 
     private int getViewType(FakePreferenceGroup.FakePreference item) {
-        if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
+        if (item.type == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
             return R.layout.fake_preferences_checkbox;
-        } else if (item.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER) {
+        } else if (item.type == FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER) {
             return R.layout.fake_preferences_spinner;
         }
         return R.layout.fake_preferences_plain;
