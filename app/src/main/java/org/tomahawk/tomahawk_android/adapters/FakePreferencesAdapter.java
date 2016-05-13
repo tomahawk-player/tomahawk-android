@@ -19,12 +19,10 @@ package org.tomahawk.tomahawk_android.adapters;
 
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 
-import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,8 +45,6 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
 
     private final LayoutInflater mLayoutInflater;
 
-    private final SharedPreferences mSharedPreferences;
-
     private final List<FakePreferenceGroup> mFakePreferenceGroups;
 
     private class SpinnerListener implements AdapterView.OnItemSelectedListener {
@@ -62,9 +58,8 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view,
                 int position, long id) {
-            if (mSharedPreferences.getInt(mKey,
-                    SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_MEDIUM) != position) {
-                SharedPreferences.Editor editor = mSharedPreferences.edit();
+            if (PreferenceUtils.getInt(mKey) != position) {
+                SharedPreferences.Editor editor = PreferenceUtils.edit();
                 editor.putInt(mKey, position);
                 editor.commit();
                 //TODO actually set bitrate
@@ -79,10 +74,9 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
     /**
      * Constructs a new {@link org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter}
      */
-    public FakePreferencesAdapter(Context context, LayoutInflater layoutInflater,
+    public FakePreferencesAdapter(LayoutInflater layoutInflater,
             List<FakePreferenceGroup> fakePreferenceGroups) {
         mLayoutInflater = layoutInflater;
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         mFakePreferenceGroups = fakePreferenceGroups;
     }
 
@@ -163,7 +157,7 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
             // After we've set up the correct view and viewHolder, we now can fill the View's
             // components with the correct data
             if (viewHolder.mLayoutId == R.layout.fake_preferences_checkbox) {
-                boolean preferenceState = mSharedPreferences.getBoolean(item.storageKey, false);
+                boolean preferenceState = PreferenceUtils.getBoolean(item.storageKey);
                 CheckBox checkBox = (CheckBox) viewHolder.findViewById(R.id.checkbox1);
                 checkBox.setChecked(preferenceState);
             } else if (viewHolder.mLayoutId == R.layout.fake_preferences_spinner) {
@@ -172,16 +166,13 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
                         .getStringArray(R.array.fake_preferences_items_bitrate)) {
                     list.add(headerString.toUpperCase());
                 }
-                ArrayAdapter<CharSequence> adapter =
-                        new ArrayAdapter<>(TomahawkApp.getContext(),
-                                R.layout.spinner_textview, list);
+                ArrayAdapter<CharSequence> adapter = new ArrayAdapter<>(
+                        TomahawkApp.getContext(), R.layout.spinner_textview, list);
                 adapter.setDropDownViewResource(R.layout.spinner_dropdown_textview);
                 Spinner spinner = (Spinner) viewHolder.findViewById(R.id.spinner1);
                 spinner.setAdapter(adapter);
-                String key = item.storageKey;
-                spinner.setSelection(mSharedPreferences
-                        .getInt(key, SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_MEDIUM));
-                spinner.setOnItemSelectedListener(new SpinnerListener(key));
+                spinner.setSelection(PreferenceUtils.getInt(item.storageKey));
+                spinner.setOnItemSelectedListener(new SpinnerListener(item.storageKey));
             }
             TextView textView1 = (TextView) viewHolder.findViewById(R.id.textview1);
             textView1.setText(item.title);
@@ -220,9 +211,9 @@ public class FakePreferencesAdapter extends StickyBaseAdapter {
     }
 
     private int getViewType(FakePreferenceGroup.FakePreference item) {
-        if (item.type == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
+        if (item.type == FakePreferenceGroup.TYPE_CHECKBOX) {
             return R.layout.fake_preferences_checkbox;
-        } else if (item.type == FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER) {
+        } else if (item.type == FakePreferenceGroup.TYPE_SPINNER) {
             return R.layout.fake_preferences_spinner;
         }
         return R.layout.fake_preferences_plain;

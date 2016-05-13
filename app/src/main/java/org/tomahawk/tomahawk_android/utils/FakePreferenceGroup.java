@@ -24,15 +24,13 @@ import java.util.ArrayList;
  */
 public class FakePreferenceGroup {
 
-    public static final int FAKEPREFERENCE_TYPE_CHECKBOX = 1;
+    public static final int TYPE_CHECKBOX = 1;
 
-    public static final int FAKEPREFERENCE_TYPE_PLAIN = 2;
+    public static final int TYPE_PLAIN = 2;
 
-    public static final int FAKEPREFERENCE_TYPE_SPINNER = 3;
+    public static final int TYPE_SPINNER = 3;
 
     private final ArrayList<FakePreference> mFakePreferences = new ArrayList<>();
-
-    private final String mHeader;
 
     /**
      * A {@link FakePreference} contains all information needed to provide the {@link
@@ -54,18 +52,6 @@ public class FakePreferenceGroup {
 
         // short summary text to describe this FakePreference to the user
         public String summary;
-
-        public FakePreference() {
-        }
-    }
-
-    /**
-     * Construct a {@link FakePreferenceGroup}
-     *
-     * @param header the header to be shown to the user
-     */
-    public FakePreferenceGroup(String header) {
-        mHeader = header;
     }
 
     /**
@@ -80,13 +66,6 @@ public class FakePreferenceGroup {
      */
     public ArrayList<FakePreference> getFakePreferences() {
         return mFakePreferences;
-    }
-
-    /**
-     * @return the header to be shown to the user
-     */
-    public String getHeader() {
-        return mHeader;
     }
 
 }

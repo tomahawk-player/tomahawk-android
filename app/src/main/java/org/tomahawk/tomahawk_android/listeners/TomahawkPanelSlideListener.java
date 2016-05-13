@@ -20,14 +20,12 @@ package org.tomahawk.tomahawk_android.listeners;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.animation.Animator;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.view.View;
 
 import de.greenrobot.event.EventBus;
@@ -135,10 +133,8 @@ public class TomahawkPanelSlideListener implements SlidingUpPanelLayout.PanelSli
 
     @Override
     public void onPanelExpanded(View view) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        preferences.edit().putBoolean(
-                TomahawkMainActivity.COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED, true)
+        PreferenceUtils.edit().putBoolean(
+                PreferenceUtils.COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED, true)
                 .apply();
         sendSlidingLayoutChangedEvent();
     }

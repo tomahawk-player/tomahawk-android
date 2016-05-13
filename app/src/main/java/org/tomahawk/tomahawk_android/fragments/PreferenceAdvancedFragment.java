@@ -23,6 +23,7 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.FakePreferencesAdapter;
 import org.tomahawk.tomahawk_android.utils.FakePreferenceGroup;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 
 import android.content.SharedPreferences;
 import android.os.Build;
@@ -43,29 +44,13 @@ import java.util.List;
 public class PreferenceAdvancedFragment extends TomahawkListFragment
         implements OnItemClickListener, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String TAG = PreferenceAdvancedFragment.class.getSimpleName();
+    public static final String PREFERENCE_ID_PREFBITRATE = "pref_bitrate";
 
-    public static final String FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE = "pref_bitrate";
+    public static final String PREFERENCE_ID_PLUGINTOPLAY = "plugin_to_play";
 
-    public static final String FAKEPREFERENCEFRAGMENT_ID_PLUGINTOPLAY = "plugin_to_play";
+    public static final String PREFERENCE_ID_SCROBBLEEVERYTHING = "scrobble_everything";
 
-    public static final String FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING = "scrobble_everything";
-
-    public static final String FAKEPREFERENCEFRAGMENT_ID_EQUALIZER = "mEqualizerValues";
-
-    public static final String FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE
-            = "org.tomahawk.tomahawk_android.prefbitrate";
-
-    public static final String FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING
-            = "org.tomahawk.tomahawk_android.scrobbleeverything";
-
-    public static final String FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY
-            = "org.tomahawk.tomahawk_android.plugintoplay";
-
-    public static final String FAKEPREFERENCEFRAGMENT_KEY_EQUALIZER
-            = "org.tomahawk.tomahawk_android.mEqualizerValues";
-
-    private SharedPreferences mSharedPreferences;
+    public static final String PREFERENCE_ID_EQUALIZER = "mEqualizerValues";
 
     /**
      * Called, when this {@link PreferenceAdvancedFragment}'s {@link android.view.View} has been
@@ -75,48 +60,45 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Fetch our SharedPreferences from the PreferenceManager
-        mSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        mSharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        PreferenceManager.getDefaultSharedPreferences(getActivity())
+                .registerOnSharedPreferenceChangeListener(this);
 
         // Set up the set of FakePreferences to be shown in this Fragment
         List<FakePreferenceGroup> fakePreferenceGroups = new ArrayList<>();
-        FakePreferenceGroup prefGroup = new FakePreferenceGroup(
-                getString(R.string.preferences_playback));
+        FakePreferenceGroup prefGroup = new FakePreferenceGroup();
 
         FakePreferenceGroup.FakePreference pref = new FakePreferenceGroup.FakePreference();
-        pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN;
-        pref.id = FAKEPREFERENCEFRAGMENT_ID_EQUALIZER;
-        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_EQUALIZER;
+        pref.type = FakePreferenceGroup.TYPE_PLAIN;
+        pref.id = PREFERENCE_ID_EQUALIZER;
         pref.title = getString(R.string.preferences_equalizer);
         pref.summary = getString(R.string.preferences_equalizer_text);
         prefGroup.addFakePreference(pref);
 
         pref = new FakePreferenceGroup.FakePreference();
-        pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX;
-        pref.id = FAKEPREFERENCEFRAGMENT_ID_PLUGINTOPLAY;
-        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY;
+        pref.type = FakePreferenceGroup.TYPE_CHECKBOX;
+        pref.id = PREFERENCE_ID_PLUGINTOPLAY;
+        pref.storageKey = PreferenceUtils.PLUG_IN_TO_PLAY;
         pref.title = getString(R.string.preferences_plug_and_play);
         pref.summary = getString(R.string.preferences_plug_and_play_text);
         prefGroup.addFakePreference(pref);
 
         pref = new FakePreferenceGroup.FakePreference();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN;
+            pref.type = FakePreferenceGroup.TYPE_PLAIN;
         } else {
-            pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX;
+            pref.type = FakePreferenceGroup.TYPE_CHECKBOX;
         }
-        pref.id = FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING;
-        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING;
+        pref.id = PREFERENCE_ID_SCROBBLEEVERYTHING;
+        pref.storageKey = PreferenceUtils.SCROBBLE_EVERYTHING;
         pref.title = getString(R.string.preferences_playback_data);
         pref.summary = getString(R.string.preferences_playback_data_text,
                 HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME);
         prefGroup.addFakePreference(pref);
 
         pref = new FakePreferenceGroup.FakePreference();
-        pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER;
-        pref.id = FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE;
-        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE;
+        pref.type = FakePreferenceGroup.TYPE_SPINNER;
+        pref.id = PREFERENCE_ID_PREFBITRATE;
+        pref.storageKey = PreferenceUtils.PREF_BITRATE;
         pref.title = getString(R.string.preferences_audio_quality);
         pref.summary = getString(R.string.preferences_audio_quality_text);
         prefGroup.addFakePreference(pref);
@@ -125,7 +107,7 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
 
         // Now we can push the complete set of FakePreferences into our FakePreferencesAdapter,
         // so that it can provide our ListView with the correct Views.
-        FakePreferencesAdapter fakePreferencesAdapter = new FakePreferencesAdapter(getActivity(),
+        FakePreferencesAdapter fakePreferencesAdapter = new FakePreferencesAdapter(
                 getActivity().getLayoutInflater(), fakePreferenceGroups);
         setListAdapter(fakePreferencesAdapter);
 
@@ -157,23 +139,22 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         FakePreferenceGroup.FakePreference fakePreference
                 = (FakePreferenceGroup.FakePreference) getListAdapter().getItem(position);
-        if (fakePreference.type == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
-            // if a FakePreference of type "FAKEPREFERENCE_TYPE_CHECKBOX" has been clicked,
+        if (fakePreference.type == FakePreferenceGroup.TYPE_CHECKBOX) {
+            // if a FakePreference of type "TYPE_CHECKBOX" has been clicked,
             // we edit the associated SharedPreference and toggle its boolean value
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
-            boolean preferenceState =
-                    mSharedPreferences.getBoolean(fakePreference.storageKey, false);
-            editor.putBoolean(fakePreference.storageKey, !preferenceState);
-            editor.commit();
-        } else if (fakePreference.type == FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN) {
-            if (fakePreference.id.equals(FAKEPREFERENCEFRAGMENT_ID_EQUALIZER)) {
+            boolean preferenceState = PreferenceUtils.getBoolean(fakePreference.storageKey);
+            PreferenceUtils.edit()
+                    .putBoolean(fakePreference.storageKey, !preferenceState)
+                    .commit();
+        } else if (fakePreference.type == FakePreferenceGroup.TYPE_PLAIN) {
+            if (fakePreference.id.equals(PREFERENCE_ID_EQUALIZER)) {
                 Bundle bundle = new Bundle();
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
                 FragmentUtils.replace((TomahawkMainActivity) getActivity(), EqualizerFragment.class,
                         bundle);
-            } else if (fakePreference.id.equals(FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING)) {
-                ((TomahawkMainActivity) getActivity()).askAccess();
+            } else if (fakePreference.id.equals(PREFERENCE_ID_SCROBBLEEVERYTHING)) {
+                PreferenceUtils.askAccess(getActivity());
             }
         }
     }

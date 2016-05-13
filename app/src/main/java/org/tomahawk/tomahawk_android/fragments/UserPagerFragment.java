@@ -26,10 +26,9 @@ import org.tomahawk.libtomahawk.infosystem.User;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.View;
 
@@ -37,9 +36,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class UserPagerFragment extends PagerFragment {
-
-    public static final String USERPAGER_SELECTOR_POSITION
-            = "org.tomahawk.tomahawk_android.userpager_selector_position";
 
     private User mUser;
 
@@ -158,9 +154,8 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfo.mBundle.putString(TomahawkFragment.USER, mUser.getCacheKey());
         fragmentInfo.mIconResId = R.drawable.ic_action_favorites;
         fragmentInfoList.addFragmentInfo(fragmentInfo);
-        SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(TomahawkApp.getContext());
-        fragmentInfoList.setCurrent(preferences.getInt(USERPAGER_SELECTOR_POSITION, 0));
+        fragmentInfoList.setCurrent(
+                PreferenceUtils.getInt(PreferenceUtils.USERPAGER_SELECTOR_POSITION));
         fragmentInfoLists.add(fragmentInfoList);
 
         fragmentInfoList = new FragmentInfoList();
@@ -184,7 +179,7 @@ public class UserPagerFragment extends PagerFragment {
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
-        setupPager(fragmentInfoLists, initialPage, USERPAGER_SELECTOR_POSITION, 1);
+        setupPager(fragmentInfoLists, initialPage, PreferenceUtils.USERPAGER_SELECTOR_POSITION, 1);
     }
 
     @Override

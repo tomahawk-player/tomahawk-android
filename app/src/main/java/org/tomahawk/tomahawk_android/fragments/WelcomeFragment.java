@@ -22,12 +22,11 @@ import org.tomahawk.libtomahawk.authentication.HatchetAuthenticatorUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.views.HatchetLoginRegisterView;
 import org.tomahawk.tomahawk_android.views.SimplePagerIndicator;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -166,10 +165,8 @@ public class WelcomeFragment extends Fragment {
             public void onClick(View v) {
                 int lastPage = mViewPager.getAdapter().getCount() - 1;
                 if (mViewPager.getCurrentItem() == lastPage) {
-                    SharedPreferences preferences =
-                            PreferenceManager.getDefaultSharedPreferences(getActivity());
-                    preferences.edit().putBoolean(
-                            TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED, true).apply();
+                    PreferenceUtils.edit().putBoolean(
+                            PreferenceUtils.COACHMARK_WELCOMEFRAGMENT_DISABLED, true).apply();
                     getActivity().getSupportFragmentManager().popBackStack();
                 } else {
                     mViewPager.setCurrentItem(mViewPager.getCurrentItem() + 1);

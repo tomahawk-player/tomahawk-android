@@ -41,8 +41,6 @@ public class AskAccessConfigDialog extends ConfigDialog {
 
     public final static String TAG = AskAccessConfigDialog.class.getSimpleName();
 
-    public static final String ASKED_FOR_ACCESS = "org.tomahawk.tomahawk_android.asked_for_access";
-
     /**
      * Called when this {@link android.support.v4.app.DialogFragment} is being created
      */

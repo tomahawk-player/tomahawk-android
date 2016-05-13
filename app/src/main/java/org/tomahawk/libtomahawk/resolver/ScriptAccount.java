@@ -42,13 +42,13 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
@@ -251,8 +251,7 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
 
     public void setConfig(Map<String, Object> config) {
         String rawJsonString = GsonHelper.get().toJson(config);
-        PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext())
-                .edit().putString(buildPreferenceKey(), rawJsonString).commit();
+        PreferenceUtils.edit().putString(buildPreferenceKey(), rawJsonString).commit();
         mScriptResolver.saveUserConfig();
     }
 
@@ -260,9 +259,11 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
      * @return the Map<String, String> containing the Config information of this resolver
      */
     public Map<String, Object> getConfig() {
-        String rawJsonString = PreferenceManager.getDefaultSharedPreferences(
-                TomahawkApp.getContext()).getString(buildPreferenceKey(), "");
-        Map<String, Object> result = GsonHelper.get().fromJson(rawJsonString, Map.class);
+        String rawJsonString = PreferenceUtils.getString(buildPreferenceKey());
+        Map<String, Object> result = null;
+        if (rawJsonString != null) {
+            result = GsonHelper.get().fromJson(rawJsonString, Map.class);
+        }
         if (result == null) {
             result = new HashMap<>();
         }

@@ -31,13 +31,12 @@ import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.CountryCodeSpinnerAdapter;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.views.Selector;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.util.Pair;
 import android.view.LayoutInflater;
@@ -59,12 +58,6 @@ import java.util.List;
 import de.greenrobot.event.EventBus;
 
 public class ChartsSelectorFragment extends Fragment {
-
-    public static final String CHARTS_COUNTRY_CODE
-            = "org.tomahawk.tomahawk_android.charts_country_code";
-
-    public static final String LAST_DISPLAYED_PROVIDER_ID =
-            "org.tomahawk.tomahawk_android.last_displayed_provider_id";
 
     private MenuItem mCountryCodePicker;
 
@@ -341,30 +334,26 @@ public class ChartsSelectorFragment extends Fragment {
         }
     }
 
+    private String getCountryCodeStorageKey(ScriptChartsProvider provider) {
+        return PreferenceUtils.CHARTS_COUNTRY_CODE
+                + provider.getScriptAccount().getMetaData().pluginName;
+    }
+
     private void storeCountryCode(ScriptChartsProvider provider, String countryCode) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        preferences.edit().putString(
-                CHARTS_COUNTRY_CODE + provider.getScriptAccount().getMetaData().pluginName,
-                countryCode).commit();
+        PreferenceUtils.edit()
+                .putString(getCountryCodeStorageKey(provider), countryCode).commit();
     }
 
     private String getStoredCountryCode(ScriptChartsProvider provider) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        return preferences.getString(
-                CHARTS_COUNTRY_CODE + provider.getScriptAccount().getMetaData().pluginName, null);
+        return PreferenceUtils.getString(getCountryCodeStorageKey(provider));
     }
 
     private void storeLastProviderId(String lastProviderId) {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        preferences.edit().putString(LAST_DISPLAYED_PROVIDER_ID, lastProviderId).commit();
+        PreferenceUtils.edit()
+                .putString(PreferenceUtils.LAST_DISPLAYED_PROVIDER_ID, lastProviderId).commit();
     }
 
     private String getLastProviderId() {
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        return preferences.getString(LAST_DISPLAYED_PROVIDER_ID, null);
+        return PreferenceUtils.getString(PreferenceUtils.LAST_DISPLAYED_PROVIDER_ID);
     }
 }

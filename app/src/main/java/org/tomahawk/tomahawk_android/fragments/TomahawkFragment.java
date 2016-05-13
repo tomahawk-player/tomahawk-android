@@ -37,20 +37,19 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.listeners.MultiColumnClickListener;
+import org.tomahawk.tomahawk_android.utils.FragmentUtils;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.utils.ProgressBarUpdater;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -760,9 +759,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (getDropdownPos(prefKey) != position) {
-                    SharedPreferences preferences = PreferenceManager
-                            .getDefaultSharedPreferences(TomahawkApp.getContext());
-                    preferences.edit().putInt(prefKey, position).commit();
+                    PreferenceUtils.edit().putInt(prefKey, position).commit();
                     updateAdapter();
                 }
             }
@@ -774,9 +771,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     protected int getDropdownPos(String prefKey) {
-        SharedPreferences preferences = PreferenceManager
-                .getDefaultSharedPreferences(TomahawkApp.getContext());
-        return preferences.getInt(prefKey, 0);
+        return PreferenceUtils.getInt(prefKey, 0);
     }
 
     private boolean shouldAutoResolve() {
