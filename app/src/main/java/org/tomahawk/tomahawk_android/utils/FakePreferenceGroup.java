@@ -42,49 +42,20 @@ public class FakePreferenceGroup {
     public static class FakePreference {
 
         // this FakePreference's type (Dialog, Checkbox, Plain or Spinner)
-        private final int type;
+        public int type;
 
         // the key to identify this FakePreference
-        private final String key;
+        public String id;
 
         // the key to store preferences with
-        private String storageKey;
+        public String storageKey;
 
-        private final String title;
+        public String title;
 
         // short summary text to describe this FakePreference to the user
-        private final String summary;
+        public String summary;
 
-        /**
-         * Construct a {@link FakePreference}
-         */
-        public FakePreference(int type, String key, String storageKey, String title,
-                String summary) {
-            this.type = type;
-            this.key = key;
-            this.storageKey = storageKey;
-            this.title = title;
-            this.summary = summary;
-        }
-
-        public int getType() {
-            return type;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public String getStorageKey() {
-            return storageKey;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public String getSummary() {
-            return summary;
+        public FakePreference() {
         }
     }
 

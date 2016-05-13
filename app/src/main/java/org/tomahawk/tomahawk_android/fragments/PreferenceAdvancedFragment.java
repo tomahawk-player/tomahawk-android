@@ -83,37 +83,44 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
         List<FakePreferenceGroup> fakePreferenceGroups = new ArrayList<>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
                 getString(R.string.preferences_playback));
-        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
-                FAKEPREFERENCEFRAGMENT_ID_EQUALIZER,
-                FAKEPREFERENCEFRAGMENT_KEY_EQUALIZER,
-                getString(R.string.preferences_equalizer),
-                getString(R.string.preferences_equalizer_text)));
-        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX,
-                FAKEPREFERENCEFRAGMENT_ID_PLUGINTOPLAY,
-                FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY,
-                getString(R.string.preferences_plug_and_play),
-                getString(R.string.preferences_plug_and_play_text)));
-        int scrobblePrefType;
+
+        FakePreferenceGroup.FakePreference pref = new FakePreferenceGroup.FakePreference();
+        pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN;
+        pref.id = FAKEPREFERENCEFRAGMENT_ID_EQUALIZER;
+        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_EQUALIZER;
+        pref.title = getString(R.string.preferences_equalizer);
+        pref.summary = getString(R.string.preferences_equalizer_text);
+        prefGroup.addFakePreference(pref);
+
+        pref = new FakePreferenceGroup.FakePreference();
+        pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX;
+        pref.id = FAKEPREFERENCEFRAGMENT_ID_PLUGINTOPLAY;
+        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY;
+        pref.title = getString(R.string.preferences_plug_and_play);
+        pref.summary = getString(R.string.preferences_plug_and_play_text);
+        prefGroup.addFakePreference(pref);
+
+        pref = new FakePreferenceGroup.FakePreference();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            scrobblePrefType = FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN;
+            pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN;
         } else {
-            scrobblePrefType = FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX;
+            pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX;
         }
-        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                scrobblePrefType,
-                FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING,
-                FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING,
-                getString(R.string.preferences_playback_data),
-                getString(R.string.preferences_playback_data_text,
-                        HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME)));
-        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER,
-                FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE,
-                FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE,
-                getString(R.string.preferences_audio_quality),
-                getString(R.string.preferences_audio_quality_text)));
+        pref.id = FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING;
+        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING;
+        pref.title = getString(R.string.preferences_playback_data);
+        pref.summary = getString(R.string.preferences_playback_data_text,
+                HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME);
+        prefGroup.addFakePreference(pref);
+
+        pref = new FakePreferenceGroup.FakePreference();
+        pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_SPINNER;
+        pref.id = FAKEPREFERENCEFRAGMENT_ID_PREFBITRATE;
+        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_PREFBITRATE;
+        pref.title = getString(R.string.preferences_audio_quality);
+        pref.summary = getString(R.string.preferences_audio_quality_text);
+        prefGroup.addFakePreference(pref);
+
         fakePreferenceGroups.add(prefGroup);
 
         // Now we can push the complete set of FakePreferences into our FakePreferencesAdapter,
@@ -150,23 +157,22 @@ public class PreferenceAdvancedFragment extends TomahawkListFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         FakePreferenceGroup.FakePreference fakePreference
                 = (FakePreferenceGroup.FakePreference) getListAdapter().getItem(position);
-        if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
+        if (fakePreference.type == FakePreferenceGroup.FAKEPREFERENCE_TYPE_CHECKBOX) {
             // if a FakePreference of type "FAKEPREFERENCE_TYPE_CHECKBOX" has been clicked,
             // we edit the associated SharedPreference and toggle its boolean value
             SharedPreferences.Editor editor = mSharedPreferences.edit();
-            boolean preferenceState = mSharedPreferences
-                    .getBoolean(fakePreference.getStorageKey(), false);
-            editor.putBoolean(fakePreference.getStorageKey(), !preferenceState);
+            boolean preferenceState =
+                    mSharedPreferences.getBoolean(fakePreference.storageKey, false);
+            editor.putBoolean(fakePreference.storageKey, !preferenceState);
             editor.commit();
-        } else if (fakePreference.getType() == FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN) {
-            String key = fakePreference.getKey();
-            if (key.equals(FAKEPREFERENCEFRAGMENT_ID_EQUALIZER)) {
+        } else if (fakePreference.type == FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN) {
+            if (fakePreference.id.equals(FAKEPREFERENCEFRAGMENT_ID_EQUALIZER)) {
                 Bundle bundle = new Bundle();
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_ACTIONBAR_FILLED);
                 FragmentUtils.replace((TomahawkMainActivity) getActivity(), EqualizerFragment.class,
                         bundle);
-            } else if (key.equals(FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING)) {
+            } else if (fakePreference.id.equals(FAKEPREFERENCEFRAGMENT_ID_SCROBBLEEVERYTHING)) {
                 ((TomahawkMainActivity) getActivity()).askAccess();
             }
         }

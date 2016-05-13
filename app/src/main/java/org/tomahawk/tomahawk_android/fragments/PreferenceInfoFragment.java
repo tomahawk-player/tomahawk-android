@@ -92,45 +92,56 @@ public class PreferenceInfoFragment extends TomahawkListFragment
         List<FakePreferenceGroup> fakePreferenceGroups = new ArrayList<>();
         FakePreferenceGroup prefGroup = new FakePreferenceGroup(
                 getString(R.string.preferences_info));
-        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
-                FAKEPREFERENCEFRAGMENT_ID_USERVOICE,
-                FAKEPREFERENCEFRAGMENT_KEY_USERVOICE,
-                getString(R.string.preferences_app_uservoice),
-                getString(R.string.preferences_app_uservoice_text)));
-        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
-                FAKEPREFERENCEFRAGMENT_ID_PLAYSTORELINK,
-                FAKEPREFERENCEFRAGMENT_KEY_PLAYSTORELINK,
-                getString(R.string.preferences_app_playstore_link),
-                getString(R.string.preferences_app_playstore_link_text)));
-        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
-                FAKEPREFERENCEFRAGMENT_ID_WEBSITELINK,
-                FAKEPREFERENCEFRAGMENT_KEY_WEBSITELINK,
-                getString(R.string.preferences_app_website_link),
-                getString(R.string.preferences_app_website_link_text)));
-        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
-                FAKEPREFERENCEFRAGMENT_ID_SENDLOG,
-                FAKEPREFERENCEFRAGMENT_KEY_SENDLOG,
-                getString(R.string.preferences_app_sendlog),
-                getString(R.string.preferences_app_sendlog_text)));
-        String versionName = "";
+
+        FakePreferenceGroup.FakePreference pref = new FakePreferenceGroup.FakePreference();
+        pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN;
+        pref.id = FAKEPREFERENCEFRAGMENT_ID_USERVOICE;
+        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_USERVOICE;
+        pref.title = getString(R.string.preferences_app_uservoice);
+        pref.summary = getString(R.string.preferences_app_uservoice_text);
+        prefGroup.addFakePreference(pref);
+
+        pref = new FakePreferenceGroup.FakePreference();
+        pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN;
+        pref.id = FAKEPREFERENCEFRAGMENT_ID_PLAYSTORELINK;
+        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_PLAYSTORELINK;
+        pref.title = getString(R.string.preferences_app_playstore_link);
+        pref.summary = getString(R.string.preferences_app_playstore_link_text);
+        prefGroup.addFakePreference(pref);
+
+        pref = new FakePreferenceGroup.FakePreference();
+        pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN;
+        pref.id = FAKEPREFERENCEFRAGMENT_ID_WEBSITELINK;
+        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_WEBSITELINK;
+        pref.title = getString(R.string.preferences_app_website_link);
+        pref.summary = getString(R.string.preferences_app_website_link_text);
+        prefGroup.addFakePreference(pref);
+
+        pref = new FakePreferenceGroup.FakePreference();
+        pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN;
+        pref.id = FAKEPREFERENCEFRAGMENT_ID_SENDLOG;
+        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_SENDLOG;
+        pref.title = getString(R.string.preferences_app_sendlog);
+        pref.summary = getString(R.string.preferences_app_sendlog_text);
+        prefGroup.addFakePreference(pref);
+
+        pref = new FakePreferenceGroup.FakePreference();
+        pref.type = FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN;
+        pref.id = FAKEPREFERENCEFRAGMENT_ID_APPVERSION;
+        pref.storageKey = FAKEPREFERENCEFRAGMENT_KEY_APPVERSION;
+        pref.title = getString(R.string.preferences_app_version);
+        pref.summary = "";
         try {
             if (getActivity().getPackageManager() != null) {
                 PackageInfo packageInfo = getActivity().getPackageManager()
                         .getPackageInfo(getActivity().getPackageName(), 0);
-                versionName = packageInfo.versionName;
+                pref.summary = packageInfo.versionName;
             }
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(TAG, "onViewCreated: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
-        prefGroup.addFakePreference(new FakePreferenceGroup.FakePreference(
-                FakePreferenceGroup.FAKEPREFERENCE_TYPE_PLAIN,
-                FAKEPREFERENCEFRAGMENT_ID_APPVERSION,
-                FAKEPREFERENCEFRAGMENT_KEY_APPVERSION,
-                getString(R.string.preferences_app_version), versionName));
+        prefGroup.addFakePreference(pref);
+
         fakePreferenceGroups.add(prefGroup);
 
         // Now we can push the complete set of FakePreferences into our FakePreferencesAdapter,
@@ -167,16 +178,16 @@ public class PreferenceInfoFragment extends TomahawkListFragment
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         FakePreferenceGroup.FakePreference fakePreference
                 = (FakePreferenceGroup.FakePreference) getListAdapter().getItem(position);
-        if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_USERVOICE)) {
+        if (fakePreference.id.equals(FAKEPREFERENCEFRAGMENT_ID_USERVOICE)) {
             UserVoice.launchUserVoice(getActivity());
-        } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_SENDLOG)) {
+        } else if (fakePreference.id.equals(FAKEPREFERENCEFRAGMENT_ID_SENDLOG)) {
             ConfigDialog dialog = new SendLogConfigDialog();
             dialog.show(getFragmentManager(), null);
-        } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_PLAYSTORELINK)) {
+        } else if (fakePreference.id.equals(FAKEPREFERENCEFRAGMENT_ID_PLAYSTORELINK)) {
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse("market://details?id=org.tomahawk.tomahawk_android"));
             startActivity(i);
-        } else if (fakePreference.getKey().equals(FAKEPREFERENCEFRAGMENT_ID_WEBSITELINK)) {
+        } else if (fakePreference.id.equals(FAKEPREFERENCEFRAGMENT_ID_WEBSITELINK)) {
             Intent i = new Intent(Intent.ACTION_VIEW);
             i.setData(Uri.parse("https://www.tomahawk-player.org/"));
             startActivity(i);
