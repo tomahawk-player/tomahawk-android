@@ -215,7 +215,7 @@
   <string name="next_page">Weiter</string>
   <string name="welcome_fragment_explanation_title">Einführung</string>
   <string name="welcome_fragment_explanation_heading">Musik ist überall.\nJetzt musst du es nicht mehr sein.</string>
-  <string name="welcome_fragment_explanation_text">Hör auf deiner Musik hinterherzujagen - nur um Dienste zu finden, die du nicht nutzt oder zu denen du keinen Zugang hast. Durch die Eingabe eines Namens oder eines Links zu einem Lied, Album oder zu einer Playlist sucht Tomahawk für dich die beste verfügbare Quelle heraus und spielt das Lied einfach ab.</string>
+  <string name="welcome_fragment_explanation_text">Hör auf deiner Musik hinterherzujagen - nur um Dienste zu finden, die du nicht nutzt oder zu denen du keinen Zugang hast. Durch die Eingabe eines Namens oder eines Links zu einem Lied, Album oder zu einer Playlist sucht Tomahawk für dich die beste verfügbare Quelle heraus und spielt die Musik einfach ab.</string>
   <string name="welcome_fragment_hatchet_title">Lust unter Leute zu kommen?</string>
   <string name="welcome_fragment_hatchet_text">Mit Hatchet kannst du endlich deine Musiksammlung an einem einzigen Ort haben. Teile deine Playlists und deine Lieblingslieder oder synchronisiere die App mit Tomahawk auf deinem Desktoprechner.</string>
   <string name="welcome_fragment_setup_title">Verbinden</string>
@@ -226,10 +226,10 @@
     <item quantity="one">Wähle eine Playlist aus, um %1$d Lied hinzuzufügen:</item>
     <item quantity="other">Wähle eine Playlist aus, um %1$d Lieder hinzuzufügen:</item>
   </plurals>
-  <string name="seeking_not_supported">Entschuldigung, dieser Auflöser unterstützt keine Suche.</string>
+  <string name="seeking_not_supported">Entschuldigung, dieser Resolver unterstützt kein Vor- und Zurückspulen.</string>
   <string name="install_plugin_title">Plugin Installation</string>
   <string name="install_plugin_warning">Du bist dabei ein Tomahawk-Plugin aus einer unbekannten Quelle zu installieren. Dies kann ein Sicherheitsrisiko sein.</string>
-  <string name="install_plugin_warning2">Möchtest du dieses Plugin wirklich hinzufügen?</string>
+  <string name="install_plugin_warning2">Möchtest du dieses Plugin wirklich installieren?</string>
   <string name="uninstall_plugin_title">Plugin entfernen</string>
   <string name="uninstall_plugin_warning">Möchtest du dieses Plugin wirklich entfernen?</string>
   <string name="gmusic_info_text">Wählen Sie ein Konto aus:</string>
@@ -247,10 +247,10 @@
   <string name="playback_previous">Vorheriger Titel</string>
   <string name="playback_next">Nächster Titel</string>
   <string name="playback_favorite">Zu den Favoriten hinzufügen</string>
-  <string name="playback_unfavorite">Von den Favoriten entfernen</string>
+  <string name="playback_unfavorite">Aus den Favoriten entfernen</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
-  <string name="mediabrowser_queue_title">Spielt gerade:</string>
+  <string name="mediabrowser_queue_title">Derzeitige Wiedergabe</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
-  <string name="mediabrowser_shuffledplay">Mischen &amp; Wiedergeben</string>
-  <string name="loading_station">Lade Sender:</string>
+  <string name="mediabrowser_shuffledplay">Zufallswiedergabe</string>
+  <string name="loading_station">Lade Station:</string>
 </resources>
