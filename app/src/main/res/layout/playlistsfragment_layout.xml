@@ -70,7 +70,8 @@
                   android:layout_height="@dimen/row_height_medium"
                   android:layout_gravity="center_horizontal"
                   android:orientation="horizontal"
-                  android:background="@drawable/selectable_background_button_white">
+                  android:background="@drawable/selectable_background_button_white"
+                  android:visibility="gone">
 
         <TextView android:id="@+id/single_line_list_menu_textview"
                   android:layout_width="wrap_content"
