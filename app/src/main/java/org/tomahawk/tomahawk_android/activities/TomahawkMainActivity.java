@@ -126,6 +126,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     private final static String TAG = TomahawkMainActivity.class.getSimpleName();
 
+    public static final String SAVED_PLAYBACK_STATE = "saved_playback_state";
+
     public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
             = "show_playbackfragment_on_startup";
 
@@ -446,6 +448,10 @@ public class TomahawkMainActivity extends AppCompatActivity {
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if (savedInstanceState != null) {
+            mPlaybackState = savedInstanceState.getInt(SAVED_PLAYBACK_STATE);
+        }
+
         PipeLine.get();
 
         CollectionManager.get().getUserCollection().loadMediaItems(false);
@@ -469,7 +475,11 @@ public class TomahawkMainActivity extends AppCompatActivity {
         mPanelSlideListener =
                 new TomahawkPanelSlideListener(this, mSlidingUpPanelLayout, mPlaybackPanel);
         mSlidingUpPanelLayout.setPanelSlideListener(mPanelSlideListener);
-        hidePanel();
+        if (mPlaybackState != PlaybackStateCompat.STATE_NONE) {
+            showPanel();
+        } else {
+            hidePanel();
+        }
 
         mActionBarBg = findViewById(R.id.action_bar_background);
 
@@ -766,6 +776,13 @@ public class TomahawkMainActivity extends AppCompatActivity {
             unregisterReceiver(mTomahawkMainReceiver);
             mTomahawkMainReceiver = null;
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt(SAVED_PLAYBACK_STATE, mPlaybackState);
+
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     @Override
