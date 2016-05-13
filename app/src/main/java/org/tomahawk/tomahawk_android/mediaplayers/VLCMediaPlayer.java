@@ -21,16 +21,13 @@ import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
-import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.fragments.EqualizerFragment;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 import org.videolan.libvlc.util.AndroidUtil;
 
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -96,12 +93,9 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
 
     public VLCMediaPlayer() {
         sMediaPlayer = new MediaPlayer(sLibVLC);
-        SharedPreferences pref =
-                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-        if (pref.getBoolean(EqualizerFragment.EQUALIZER_ENABLED_PREFERENCE_KEY, false)) {
+        if (PreferenceUtils.getBoolean(PreferenceUtils.EQUALIZER_ENABLED)) {
             MediaPlayer.Equalizer equalizer = MediaPlayer.Equalizer.create();
-            float[] bands = VariousUtils.getFloatArray(pref,
-                    EqualizerFragment.EQUALIZER_VALUES_PREFERENCE_KEY);
+            float[] bands = PreferenceUtils.getFloatArray(PreferenceUtils.EQUALIZER_VALUES);
             equalizer.setPreAmp(bands[0]);
             for (int i = 0; i < MediaPlayer.Equalizer.getBandCount(); i++) {
                 equalizer.setAmp(i, bands[i + 1]);

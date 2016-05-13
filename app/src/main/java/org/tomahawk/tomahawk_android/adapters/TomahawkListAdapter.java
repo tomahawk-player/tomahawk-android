@@ -38,16 +38,14 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
-import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.listeners.MultiColumnClickListener;
+import org.tomahawk.tomahawk_android.services.PlaybackService;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.views.BiDirectionalFrame;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -279,10 +277,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 viewHolders.add(viewHolder);
                 if (view instanceof SwipeLayout) {
                     mItemManager.initialize(view, position);
-                    final SharedPreferences preferences =
-                            PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-                    if (!preferences.getBoolean(
-                            TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED, false)) {
+                    if (!PreferenceUtils.getBoolean(
+                            PreferenceUtils.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED)) {
                         ((SwipeLayout) view).addSwipeListener(new SwipeLayout.SwipeListener() {
                             @Override
                             public void onStartOpen(SwipeLayout swipeLayout) {
@@ -290,9 +286,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
 
                             @Override
                             public void onOpen(SwipeLayout swipeLayout) {
-                                if (!preferences.getBoolean(
-                                        TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
-                                        false)) {
+                                if (!PreferenceUtils.getBoolean(
+                                        PreferenceUtils.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED)) {
                                     final View coachMark = ViewUtils.ensureInflation(
                                             swipeLayout, R.id.swipelayout_enqueue_coachmark_stub,
                                             R.id.swipelayout_enqueue_coachmark);
@@ -301,8 +296,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                                     closeButton.setOnClickListener(new View.OnClickListener() {
                                         @Override
                                         public void onClick(View v) {
-                                            preferences.edit().putBoolean(
-                                                    TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
+                                            PreferenceUtils.edit().putBoolean(
+                                                    PreferenceUtils.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
                                                     true).apply();
                                             coachMark.setVisibility(View.GONE);
                                         }
@@ -475,10 +470,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                                             .sendCustomAction(
                                                     PlaybackService.ACTION_ADD_QUERY_TO_QUEUE,
                                                     extras);
-                                    SharedPreferences preferences = PreferenceManager
-                                            .getDefaultSharedPreferences(TomahawkApp.getContext());
-                                    preferences.edit().putBoolean(
-                                            TomahawkMainActivity.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
+                                    PreferenceUtils.edit().putBoolean(
+                                            PreferenceUtils.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
                                             true).apply();
                                     closeAllItems();
                                 }

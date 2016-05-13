@@ -46,7 +46,6 @@ import org.tomahawk.libtomahawk.utils.parser.XspfParser;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.adapters.SuggestionSimpleCursorAdapter;
-import org.tomahawk.tomahawk_android.dialogs.AskAccessConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.GMusicConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.InstallPluginConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.WarnOldPluginDialog;
@@ -54,7 +53,6 @@ import org.tomahawk.tomahawk_android.fragments.ArtistPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.ContentHeaderFragment;
 import org.tomahawk.tomahawk_android.fragments.ContextMenuFragment;
 import org.tomahawk.tomahawk_android.fragments.PlaylistEntriesFragment;
-import org.tomahawk.tomahawk_android.fragments.PreferenceAdvancedFragment;
 import org.tomahawk.tomahawk_android.fragments.PreferencePagerFragment;
 import org.tomahawk.tomahawk_android.fragments.SearchPagerFragment;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
@@ -66,6 +64,7 @@ import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.MenuDrawer;
 import org.tomahawk.tomahawk_android.utils.PluginUtils;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.utils.SearchViewStyle;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
@@ -77,7 +76,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
@@ -85,12 +83,10 @@ import android.media.AudioManager;
 import android.media.MediaMetadataRetriever;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -130,19 +126,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     public static final String SHOW_PLAYBACKFRAGMENT_ON_STARTUP
             = "show_playbackfragment_on_startup";
-
-    public static final String COACHMARK_SEEK_DISABLED = "coachmark_seek_disabled";
-
-    public static final String COACHMARK_SEEK_TIMESTAMP = "coachmark_seek_timestamp";
-
-    public static final String COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED
-            = "coachmark_playbackfragment_navigation_disabled";
-
-    public static final String COACHMARK_WELCOMEFRAGMENT_DISABLED
-            = "coachmark_welcomefragment_disabled";
-
-    public static final String COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED
-            = "coachmark_swipelayout_enqueue_disabled";
 
     protected final HashSet<String> mCorrespondingRequestIds = new HashSet<>();
 
@@ -510,15 +493,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
         actionBar.setDisplayShowTitleEnabled(true);
         actionBar.setDisplayShowCustomEnabled(true);
 
-        // Set default preferences
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (!preferences.contains(
-                PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING)) {
-            preferences.edit().putBoolean(
-                    PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, true)
-                    .commit();
-        }
-
         //Setup UserVoice
         Config config = new Config("tomahawk.uservoice.com");
         config.setForumId(224204);
@@ -537,11 +511,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
         });
 
         //Ask for notification service access if hatchet user logged in
-        HatchetAuthenticatorUtils hatchetAuthUtils = (HatchetAuthenticatorUtils)
-                AuthenticatorManager.get().getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
-        if (hatchetAuthUtils.isLoggedIn()) {
-            attemptAskAccess();
-        }
+        PreferenceUtils.attemptAskAccess(this);
 
         mMenuDrawer.updateDrawer(this);
 
@@ -554,11 +524,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
                         if (!mDestroyed) {
                             FragmentUtils.addRootFragment(TomahawkMainActivity.this, user);
 
-                            SharedPreferences preferences = PreferenceManager
-                                    .getDefaultSharedPreferences(TomahawkMainActivity.this);
-                            if (!preferences.getBoolean(
-                                    TomahawkMainActivity.COACHMARK_WELCOMEFRAGMENT_DISABLED,
-                                    false)) {
+                            if (!PreferenceUtils.getBoolean(
+                                    PreferenceUtils.COACHMARK_WELCOMEFRAGMENT_DISABLED)) {
                                 FragmentUtils.replace(TomahawkMainActivity.this,
                                         WelcomeFragment.class, null);
                             }
@@ -904,9 +871,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     public void onHatchetLoggedInOut(boolean loggedIn) {
         if (loggedIn) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                attemptAskAccess();
-            }
+            PreferenceUtils.attemptAskAccess(this);
             User.getSelf().done(new DoneCallback<User>() {
                 @Override
                 public void onDone(User user) {
@@ -1021,9 +986,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
         if (forced || mSlidingUpPanelLayout.getPanelState()
                 != SlidingUpPanelLayout.PanelState.HIDDEN) {
             AnimationUtils.fade(mPlaybackPanel, AnimationUtils.DURATION_CONTEXTMENU, true);
-            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-            if (!preferences.getBoolean(COACHMARK_SEEK_DISABLED, false)
-                    && preferences.getLong(COACHMARK_SEEK_TIMESTAMP, 0) + 259200000
+            if (!PreferenceUtils.getBoolean(PreferenceUtils.COACHMARK_SEEK_DISABLED)
+                    && PreferenceUtils.getLong(PreferenceUtils.COACHMARK_SEEK_TIMESTAMP) + 259200000
                     < System.currentTimeMillis()) {
                 final View coachMark = ViewUtils.ensureInflation(mPlaybackPanel,
                         R.id.playbackpanel_seek_coachmark_stub, R.id.playbackpanel_seek_coachmark);
@@ -1035,8 +999,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
                             }
                         });
                 coachMark.setVisibility(View.VISIBLE);
-                preferences.edit().putLong(COACHMARK_SEEK_TIMESTAMP, System.currentTimeMillis())
-                        .apply();
+                PreferenceUtils.edit().putLong(PreferenceUtils.COACHMARK_SEEK_TIMESTAMP,
+                        System.currentTimeMillis()).apply();
             }
         }
     }
@@ -1060,31 +1024,5 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     public void showGradientActionBar() {
         findViewById(R.id.action_bar_background).setBackgroundResource(R.drawable.below_shadow);
-    }
-
-    /**
-     * Starts the AskAccessActivity in order to ask the user for permission to the notification
-     * listener, if the user hasn't been asked before and is logged into hatchet
-     */
-    public void attemptAskAccess() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
-                && !PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext())
-                .getBoolean(AskAccessConfigDialog.ASKED_FOR_ACCESS, false)) {
-            askAccess();
-        }
-    }
-
-    /**
-     * Starts the AskAccessActivity in order to ask the user for permission to the notification
-     * listener, if the user is logged into Hatchet and we don't already have access
-     */
-    public void askAccess() {
-        if (AuthenticatorManager.get()
-                .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET).isLoggedIn()) {
-            SharedPreferences preferences = PreferenceManager
-                    .getDefaultSharedPreferences(TomahawkApp.getContext());
-            preferences.edit().putBoolean(AskAccessConfigDialog.ASKED_FOR_ACCESS, true).commit();
-            new AskAccessConfigDialog().show(getSupportFragmentManager(), null);
-        }
     }
 }

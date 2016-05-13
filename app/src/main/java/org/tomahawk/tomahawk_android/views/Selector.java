@@ -20,17 +20,15 @@ package org.tomahawk.tomahawk_android.views;
 import org.tomahawk.libtomahawk.infosystem.charts.ScriptChartsManager;
 import org.tomahawk.libtomahawk.infosystem.charts.ScriptChartsProvider;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.fragments.ChartsPagerFragment;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentInfo;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.preference.PreferenceManager;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -123,11 +121,11 @@ public class Selector extends FrameLayout {
                         mSelectorListener.onSelectorItemSelected(position);
 
                         if (mSelectorPosStorageKey != null) {
-                            SharedPreferences preferences = PreferenceManager
-                                    .getDefaultSharedPreferences(TomahawkApp.getContext());
-                            int initialPos = preferences.getInt(mSelectorPosStorageKey, 0);
+                            int initialPos = PreferenceUtils.getInt(mSelectorPosStorageKey, 0);
                             if (initialPos != position) {
-                                preferences.edit().putInt(mSelectorPosStorageKey, position).apply();
+                                PreferenceUtils.edit()
+                                        .putInt(mSelectorPosStorageKey, position)
+                                        .apply();
                             }
                         }
                     }

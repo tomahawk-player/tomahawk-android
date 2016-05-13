@@ -32,19 +32,17 @@ import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.fragments.PreferenceAdvancedFragment;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -90,12 +88,8 @@ public class MicroService extends Service {
             if (Intent.ACTION_HEADSET_PLUG.equals(intent.getAction()) && intent
                     .hasExtra("state") && intent.getIntExtra("state", 0) == 1) {
                 Log.d(TAG, "Headset has been plugged in");
-                SharedPreferences prefs =
-                        PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                boolean playbackOnHeadsetInsert = prefs.getBoolean(
-                        PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_PLUGINTOPLAY, false);
 
-                if (playbackOnHeadsetInsert) {
+                if (PreferenceUtils.getBoolean(PreferenceUtils.PLUG_IN_TO_PLAY)) {
                     //resume playback, if user has set the "resume on headset plugin" preference
                     context.startService(new Intent(PlaybackService.ACTION_PLAY, null, context,
                             PlaybackService.class));
@@ -221,10 +215,7 @@ public class MicroService extends Service {
 
     public static void scrobbleTrack(String trackName, String artistName, String albumName,
             String albumArtistName) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(
-                TomahawkApp.getContext());
-        boolean scrobbleEverything = preferences.getBoolean(
-                PreferenceAdvancedFragment.FAKEPREFERENCEFRAGMENT_KEY_SCROBBLEEVERYTHING, false)
+        boolean scrobbleEverything = PreferenceUtils.getBoolean(PreferenceUtils.SCROBBLE_EVERYTHING)
                 || Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
         if (scrobbleEverything && !TextUtils.isEmpty(trackName) && (!TextUtils.isEmpty(artistName)
                 || !TextUtils.isEmpty(albumArtistName) || !TextUtils.isEmpty(albumName))) {
@@ -248,7 +239,7 @@ public class MicroService extends Service {
                 AuthenticatorUtils utils = AuthenticatorManager.get()
                         .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                 InfoSystem.get().sendNowPlayingPostStruct(utils, Query.get(track, false));
-                Log.d(TAG, "Scrobbling "+track);
+                Log.d(TAG, "Scrobbling " + track);
             }
         } else {
             Log.d(TAG, "Didn't scrobble track: '" + trackName + "' - '"

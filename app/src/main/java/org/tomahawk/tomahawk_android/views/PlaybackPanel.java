@@ -28,17 +28,16 @@ import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
-import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.PlaybackManager;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.utils.ProgressBarUpdater;
 
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.drawable.TransitionDrawable;
 import android.os.SystemClock;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaControllerCompat;
@@ -202,8 +201,8 @@ public class PlaybackPanel extends FrameLayout {
         mPlayPauseButton.setOnLongClickListener(new OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
-                PreferenceManager.getDefaultSharedPreferences(getContext()).edit()
-                        .putBoolean(TomahawkMainActivity.COACHMARK_SEEK_DISABLED, true)
+                PreferenceUtils.edit()
+                        .putBoolean(PreferenceUtils.COACHMARK_SEEK_DISABLED, true)
                         .apply();
                 View coachMark = ViewUtils.ensureInflation(PlaybackPanel.this,
                         R.id.playbackpanel_seek_coachmark_stub, R.id.playbackpanel_seek_coachmark);

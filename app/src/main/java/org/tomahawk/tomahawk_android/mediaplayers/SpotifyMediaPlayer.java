@@ -21,14 +21,13 @@ import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.ScriptJob;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
@@ -42,16 +41,6 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
     public static final String PACKAGE_NAME = "org.tomahawk.spotifyplugin";
 
     public static final int MIN_VERSION = 42;
-
-    // String tags used to store Spotify's preferred bitrate
-    private static final String SPOTIFY_PREF_BITRATE
-            = "org.tomahawk.tomahawk_android.spotify_pref_bitrate";
-
-    public static final int SPOTIFY_PREF_BITRATE_MODE_LOW = 0;
-
-    public static final int SPOTIFY_PREF_BITRATE_MODE_MEDIUM = 1;
-
-    public static final int SPOTIFY_PREF_BITRATE_MODE_HIGH = 2;
 
     public SpotifyMediaPlayer() {
         super(TomahawkApp.PLUGINNAME_SPOTIFY, PACKAGE_NAME);
@@ -102,14 +91,10 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
         NetworkInfo netInfo = conMan.getActiveNetworkInfo();
         if (netInfo != null && netInfo.getType() == ConnectivityManager.TYPE_WIFI) {
             Log.d(TAG, "Updating bitrate to HIGH, because we have a Wifi connection");
-            setBitrate(SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_HIGH);
+            setBitrate(PreferenceUtils.PREF_BITRATE_HIGH);
         } else {
             Log.d(TAG, "Updating bitrate to user setting, because we don't have a Wifi connection");
-            SharedPreferences preferences = PreferenceManager
-                    .getDefaultSharedPreferences(TomahawkApp.getContext());
-            int prefbitrate = preferences.getInt(
-                    SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE,
-                    SpotifyMediaPlayer.SPOTIFY_PREF_BITRATE_MODE_MEDIUM);
+            int prefbitrate = PreferenceUtils.getInt(PreferenceUtils.PREF_BITRATE);
             setBitrate(prefbitrate);
         }
     }

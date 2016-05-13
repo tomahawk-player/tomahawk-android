@@ -42,14 +42,13 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.PlaybackManager;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.views.AlbumArtViewPager;
 import org.tomahawk.tomahawk_android.views.PlaybackFragmentFrame;
 
 import android.animation.Animator;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -250,10 +249,8 @@ public class PlaybackFragment extends TomahawkFragment {
         TextView closeButtonText = (TextView) closeButton.findViewById(R.id.close_button_text);
         closeButtonText.setText(getString(R.string.button_close).toUpperCase());
 
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(getActivity());
-        if (!preferences.getBoolean(
-                TomahawkMainActivity.COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED, false)) {
+        if (!PreferenceUtils.getBoolean(
+                PreferenceUtils.COACHMARK_PLAYBACKFRAGMENT_NAVIGATION_DISABLED)) {
             final View coachMark = ViewUtils.ensureInflation(view,
                     R.id.playbackfragment_navigation_coachmark_stub,
                     R.id.playbackfragment_navigation_coachmark);

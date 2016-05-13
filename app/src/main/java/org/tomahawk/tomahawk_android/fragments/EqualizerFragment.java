@@ -16,16 +16,15 @@
  *****************************************************************************/
 package org.tomahawk.tomahawk_android.fragments;
 
-import org.tomahawk.libtomahawk.utils.VariousUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.views.EqualizerBar;
 import org.videolan.libvlc.MediaPlayer;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.MainThread;
 import android.support.v7.widget.SwitchCompat;
 import android.view.LayoutInflater;
@@ -45,12 +44,6 @@ import android.widget.Spinner;
 public class EqualizerFragment extends ContentHeaderFragment {
 
     public final static String TAG = EqualizerFragment.class.getSimpleName();
-
-    public final static String EQUALIZER_VALUES_PREFERENCE_KEY = "equalizer_values";
-
-    public final static String EQUALIZER_ENABLED_PREFERENCE_KEY = "equalizer_enabled";
-
-    public final static String EQUALIZER_PRESET_PREFERENCE_KEY = "equalizer_preset";
 
     private SwitchCompat mEnableButton;
 
@@ -157,10 +150,9 @@ public class EqualizerFragment extends ContentHeaderFragment {
         mBandsContainers.removeAllViews();
 
         if (mEnableButton.isChecked()) {
-            storeEqualizerSettings(getActivity(), mEqualizer,
-                    mEqualizerPresets.getSelectedItemPosition());
+            storeEqualizerSettings(mEqualizer, mEqualizerPresets.getSelectedItemPosition());
         } else {
-            storeEqualizerSettings(getActivity(), null, 0);
+            storeEqualizerSettings(null, 0);
         }
     }
 
@@ -173,7 +165,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
 
         final String[] presets = getEqualizerPresets();
 
-        mEqualizer = readEqualizerSettings(context);
+        mEqualizer = readEqualizerSettings();
         final boolean isEnabled = mEqualizer != null;
         if (mEqualizer == null) {
             mEqualizer = MediaPlayer.Equalizer.create();
@@ -196,7 +188,7 @@ public class EqualizerFragment extends ContentHeaderFragment {
                 android.R.layout.simple_spinner_dropdown_item, presets));
 
         // Set the default selection asynchronously to prevent a layout initialization bug.
-        final int equalizer_preset_pref = getEqualizerPreset(context);
+        final int equalizer_preset_pref = PreferenceUtils.getInt(PreferenceUtils.EQUALIZER_PRESET);
         mEqualizerPresets.post(new Runnable() {
             @Override
             public void run() {
@@ -226,11 +218,6 @@ public class EqualizerFragment extends ContentHeaderFragment {
         }
     }
 
-    public static int getEqualizerPreset(Context context) {
-        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        return pref.getInt(EQUALIZER_PRESET_PREFERENCE_KEY, 0);
-    }
-
     private static String[] getEqualizerPresets() {
         final int count = MediaPlayer.Equalizer.getPresetCount();
         final String[] presets = new String[count];
@@ -241,10 +228,9 @@ public class EqualizerFragment extends ContentHeaderFragment {
     }
 
     @MainThread
-    public static MediaPlayer.Equalizer readEqualizerSettings(Context context) {
-        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        if (pref.getBoolean(EQUALIZER_ENABLED_PREFERENCE_KEY, false)) {
-            final float[] bands = VariousUtils.getFloatArray(pref, EQUALIZER_VALUES_PREFERENCE_KEY);
+    public static MediaPlayer.Equalizer readEqualizerSettings() {
+        if (PreferenceUtils.getBoolean(PreferenceUtils.EQUALIZER_ENABLED)) {
+            final float[] bands = PreferenceUtils.getFloatArray(PreferenceUtils.EQUALIZER_VALUES);
             final int bandCount = MediaPlayer.Equalizer.getBandCount();
             if (bands.length != bandCount + 1) {
                 return null;
@@ -261,22 +247,20 @@ public class EqualizerFragment extends ContentHeaderFragment {
         }
     }
 
-    public static void storeEqualizerSettings(Context context, MediaPlayer.Equalizer eq,
-            int preset) {
-        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = pref.edit();
+    public static void storeEqualizerSettings(MediaPlayer.Equalizer eq, int preset) {
+        SharedPreferences.Editor editor = PreferenceUtils.edit();
         if (eq != null) {
-            editor.putBoolean(EQUALIZER_ENABLED_PREFERENCE_KEY, true);
+            editor.putBoolean(PreferenceUtils.EQUALIZER_ENABLED, true);
             final int bandCount = MediaPlayer.Equalizer.getBandCount();
             final float[] bands = new float[bandCount + 1];
             bands[0] = eq.getPreAmp();
             for (int i = 0; i < bandCount; ++i) {
                 bands[i + 1] = eq.getAmp(i);
             }
-            VariousUtils.putFloatArray(editor, EQUALIZER_VALUES_PREFERENCE_KEY, bands);
-            editor.putInt(EQUALIZER_PRESET_PREFERENCE_KEY, preset);
+            PreferenceUtils.putFloatArray(editor, PreferenceUtils.EQUALIZER_VALUES, bands);
+            editor.putInt(PreferenceUtils.EQUALIZER_PRESET, preset);
         } else {
-            editor.putBoolean(EQUALIZER_ENABLED_PREFERENCE_KEY, false);
+            editor.putBoolean(PreferenceUtils.EQUALIZER_ENABLED, false);
         }
         editor.apply();
     }

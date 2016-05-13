@@ -31,17 +31,16 @@ import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.MediaWrapper;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.utils.WeakReferenceHandler;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.util.AndroidUtil;
 import org.videolan.libvlc.util.Extensions;
 
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.ImageView;
@@ -173,9 +172,7 @@ public class UserCollection extends DbCollection {
         public void run() {
             Log.d(TAG, "Scanning for local tracks...");
             long time = System.currentTimeMillis();
-            SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-            Set<String> setDefaultDirs = preferences.getStringSet(HAS_SET_DEFAULTDIRS, null);
+            Set<String> setDefaultDirs = PreferenceUtils.getStringSet(HAS_SET_DEFAULTDIRS);
             if (setDefaultDirs == null) {
                 setDefaultDirs = new HashSet<>();
             }
@@ -186,7 +183,7 @@ public class UserCollection extends DbCollection {
                     setDefaultDirs.add(defaultDir);
                 }
             }
-            preferences.edit().putStringSet(HAS_SET_DEFAULTDIRS, setDefaultDirs).commit();
+            PreferenceUtils.edit().putStringSet(HAS_SET_DEFAULTDIRS, setDefaultDirs).commit();
 
             List<File> mediaDirs = DatabaseHelper.get().getMediaDirs(false);
             Stack<File> directories = new Stack<>();

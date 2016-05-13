@@ -23,15 +23,13 @@ import org.tomahawk.libtomahawk.collection.DbCollection;
 import org.tomahawk.libtomahawk.resolver.FuzzyIndex;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverTrack;
 import org.tomahawk.libtomahawk.utils.StringUtils;
-import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -268,10 +266,8 @@ public class CollectionDb extends SQLiteOpenHelper {
         }
         if (oldVersion < 5) {
             db.execSQL(CREATE_TABLE_REVISIONHISTORY);
-            SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
             long lastDbUpdate =
-                    preferences.getLong(mCollectionId + LAST_COLLECTION_DB_UPDATE_SUFFIX, -1);
+                    PreferenceUtils.getLong(mCollectionId + LAST_COLLECTION_DB_UPDATE_SUFFIX);
             if (lastDbUpdate > 0) {
                 storeNewRevision(db, String.valueOf(lastDbUpdate), ACTION_ADDTRACKS);
             }

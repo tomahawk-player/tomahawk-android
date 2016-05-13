@@ -39,10 +39,9 @@ import org.apache.lucene.store.FSDirectory;
 import org.apache.lucene.util.Version;
 import org.tomahawk.libtomahawk.database.CollectionDb;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 
-import android.content.SharedPreferences;
 import android.database.Cursor;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import java.io.File;
@@ -93,10 +92,8 @@ public class FuzzyIndex {
     public synchronized void ensureIndex() {
         Log.d(TAG, "addToIndex - using CollectionDb " + mCollectionDb.hashCode() + " with id "
                 + mCollectionDb.getCollectionId());
-        SharedPreferences preferences =
-                PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
         long lastDbUpdate = mCollectionDb.getLastUpdated();
-        long lastIndexUpdate = preferences.getLong(mLastUpdateStorageKey, -2);
+        long lastIndexUpdate = PreferenceUtils.getLong(mLastUpdateStorageKey, -2);
         Log.d(TAG, "addToIndex - recreate: " + (lastDbUpdate > lastIndexUpdate));
         if (lastDbUpdate > lastIndexUpdate) {
             Cursor cursor = null;
@@ -122,7 +119,7 @@ public class FuzzyIndex {
                         mLuceneWriter.addDocument(document);
                     } while (cursor.moveToNext());
                 }
-                preferences.edit().putLong(mLastUpdateStorageKey, System.currentTimeMillis())
+                PreferenceUtils.edit().putLong(mLastUpdateStorageKey, System.currentTimeMillis())
                         .commit();
             } catch (IOException e) {
                 Log.e(TAG, "addToIndex - " + e.getClass() + ": " + e.getLocalizedMessage());
@@ -225,9 +222,7 @@ public class FuzzyIndex {
         Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_47);
         IndexWriterConfig iwc = new IndexWriterConfig(Version.LUCENE_47, analyzer);
         if (recreate) {
-            SharedPreferences preferences =
-                    PreferenceManager.getDefaultSharedPreferences(TomahawkApp.getContext());
-            preferences.edit().putLong(mLastUpdateStorageKey, -2).commit();
+            PreferenceUtils.edit().putLong(mLastUpdateStorageKey, -2).commit();
             iwc.setOpenMode(IndexWriterConfig.OpenMode.CREATE);
         } else {
             iwc.setOpenMode(IndexWriterConfig.OpenMode.APPEND);
