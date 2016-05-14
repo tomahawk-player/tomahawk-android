@@ -34,7 +34,6 @@ import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
-import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
@@ -52,8 +51,6 @@ import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.MediaBrowserHelper;
 import org.tomahawk.tomahawk_android.utils.MediaNotification;
 import org.tomahawk.tomahawk_android.utils.PlaybackManager;
-import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -619,25 +616,14 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private TomahawkMediaPlayerCallback mMediaPlayerCallback = new TomahawkMediaPlayerCallback() {
         @Override
-        public void onPrepared(Query query) {
+        public void onPrepared(TomahawkMediaPlayer mediaPlayer, Query query) {
             if (query != null && query == mPlaybackManager.getCurrentQuery()) {
-                Log.d(TAG, "MediaPlayer successfully prepared the track "
+                Log.d(TAG, mediaPlayer + " successfully prepared the track "
                         + mPlaybackManager.getCurrentQuery() + " resolved by "
                         + mPlaybackManager.getCurrentQuery()
                         .getPreferredTrackResult().getResolvedBy().getId());
                 mIsPreparing = false;
                 updateMediaPlayState();
-                boolean allPlayersReleased = true;
-                for (TomahawkMediaPlayer mediaPlayer : mMediaPlayers.values()) {
-                    if (!mediaPlayer.isPrepared(mPlaybackManager.getCurrentQuery())) {
-                        mediaPlayer.release();
-                    } else {
-                        allPlayersReleased = false;
-                    }
-                }
-                if (allPlayersReleased) {
-                    prepareCurrentQuery();
-                }
                 mScrobbleHandler.reset();
                 handlePlayState();
             } else {
@@ -654,13 +640,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         }
 
         @Override
-        public void onCompletion(Query query) {
+        public void onCompletion(TomahawkMediaPlayer mediaPlayer, Query query) {
             if (mMediaSession == null) {
                 Log.e(TAG, "onCompletion failed - mMediaSession == null!");
                 return;
             }
             if (query != null && query == mPlaybackManager.getCurrentQuery()) {
-                Log.d(TAG, "onCompletion");
+                Log.d(TAG, "onCompletion - mediaPlayer: " + mediaPlayer + ", query: " + query);
                 if (mPlaybackManager.hasNextEntry()) {
                     mMediaSession.getController().getTransportControls().skipToNext();
                 } else {
@@ -670,8 +656,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         }
 
         @Override
-        public void onError(final String message) {
-            Log.e(TAG, "onError - " + message);
+        public void onError(TomahawkMediaPlayer mediaPlayer, final String message) {
+            Log.d(TAG, "onError - mediaPlayer: " + mediaPlayer + ", message: " + message);
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
@@ -952,16 +938,17 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                         if (mWakeLock != null && mWakeLock.isHeld()) {
                             mWakeLock.acquire();
                         }
-                        if (mp.isPrepared(currentQuery)) {
+                        if (mp.isPreparing(currentQuery) || mp.isPrepared(currentQuery)) {
                             if (!mp.isPlaying(currentQuery)) {
-                                mp.start();
+                                mp.play();
                             }
                         } else {
                             prepareCurrentQuery();
                         }
                         break;
                     case PlaybackStateCompat.STATE_PAUSED:
-                        if (mp.isPlaying(currentQuery) && mp.isPrepared(currentQuery)) {
+                        if (mp.isPlaying(currentQuery)
+                                && (mp.isPreparing(currentQuery) || mp.isPrepared(currentQuery))) {
                             InfoSystem.get().sendPlaybackEntryPostStruct(
                                     AuthenticatorManager.get().getAuthenticatorUtils(
                                             TomahawkApp.PLUGINNAME_HATCHET)
@@ -989,13 +976,18 @@ public class PlaybackService extends MediaBrowserServiceCompat {
      * This method sets the current track and prepares it for playback.
      */
     private void prepareCurrentQuery() {
+        if (mMediaSession == null) {
+            Log.e(TAG, "prepareCurrentQuery failed - mMediaSession == null!");
+            return;
+        }
         Log.d(TAG, "prepareCurrentQuery");
         final Query currentQuery = mPlaybackManager.getCurrentQuery();
         if (currentQuery != null) {
-            if (!currentQuery.isPlayable()) {
+            if (!currentQuery.isPlayable() || currentQuery.getMediaPlayerClass() == null) {
                 Log.e(TAG, currentQuery + " isn't playable. Skipping to next track");
                 mMediaSession.getController().getTransportControls().skipToNext();
             } else {
+                // Resolve images for current query
                 if (currentQuery.getImage() == null) {
                     String requestId = InfoSystem.get().resolve(
                             currentQuery.getArtist(), false);
@@ -1008,48 +1000,15 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                     }
                 }
 
-                TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_PLAYBACK) {
-                    @Override
-                    public void run() {
-                        if (mMediaSession == null) {
-                            Log.e(TAG, "prepareCurrentQuery failed - mMediaSession == null!");
-                            return;
-                        }
-                        if (mPlayState == PlaybackStateCompat.STATE_PLAYING
-                                && currentQuery.getMediaPlayerClass() != null) {
-                            TomahawkMediaPlayer mp =
-                                    mMediaPlayers.get(currentQuery.getMediaPlayerClass());
-                            mIsPreparing = true;
-                            updateMediaPlayState();
-                            if (mp.prepare(currentQuery, mMediaPlayerCallback) == null) {
-                                boolean isNetworkAvailable = NetworkUtils.isNetworkAvailable();
-                                if (isNetworkAvailable
-                                        && currentQuery.getPreferredTrackResult() != null) {
-                                    currentQuery.blacklistTrackResult(
-                                            currentQuery.getPreferredTrackResult());
-                                    mPlaybackManagerCallback.onCurrentEntryChanged();
-                                }
-                                if (!isNetworkAvailable
-                                        || currentQuery.getPreferredTrackResult() == null) {
-                                    Log.e(TAG,
-                                            "MediaPlayer was unable to prepare the track, jumping to next track");
-                                    mMediaSession.getController().getTransportControls()
-                                            .skipToNext();
-                                } else {
-                                    Log.d(TAG,
-                                            "MediaPlayer blacklisted a result and tries to prepare again");
-                                    prepareCurrentQuery();
-                                }
-                            } else {
-                                if (mCurrentMediaPlayer != null && mCurrentMediaPlayer != mp) {
-                                    mCurrentMediaPlayer.release();
-                                }
-                                mCurrentMediaPlayer = mp;
-                            }
-                        }
-                    }
-                };
-                ThreadManager.get().executePlayback(r);
+                mIsPreparing = true;
+                updateMediaPlayState();
+
+                TomahawkMediaPlayer mp = mMediaPlayers.get(currentQuery.getMediaPlayerClass());
+                mp.prepare(currentQuery, mMediaPlayerCallback);
+                if (mCurrentMediaPlayer != null && mCurrentMediaPlayer != mp) {
+                    mCurrentMediaPlayer.release();
+                }
+                mCurrentMediaPlayer = mp;
             }
         }
     }

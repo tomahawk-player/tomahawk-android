@@ -21,13 +21,13 @@ import org.tomahawk.libtomahawk.resolver.Query;
 
 public interface TomahawkMediaPlayer {
 
-    void start();
+    void play();
 
     void pause();
 
     void seekTo(long msec);
 
-    TomahawkMediaPlayer prepare(Query query, TomahawkMediaPlayerCallback callback);
+    void prepare(Query query, TomahawkMediaPlayerCallback callback);
 
     void release();
 

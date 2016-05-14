@@ -73,7 +73,8 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
                     mPreparedQuery = null;
                     mPreparingQuery = null;
                     if (mMediaPlayerCallback != null) {
-                        mMediaPlayerCallback.onError("MediaPlayerEncounteredError");
+                        mMediaPlayerCallback.onError(
+                                VLCMediaPlayer.this, "MediaPlayerEncounteredError");
                     } else {
                         Log.e(TAG, "Wasn't able to call onError because callback object is null");
                     }
@@ -81,7 +82,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
                 case MediaPlayer.Event.EndReached:
                     Log.d(TAG, "onCompletion()");
                     if (mMediaPlayerCallback != null) {
-                        mMediaPlayerCallback.onCompletion(mPreparedQuery);
+                        mMediaPlayerCallback.onCompletion(VLCMediaPlayer.this, mPreparedQuery);
                     } else {
                         Log.e(TAG,
                                 "Wasn't able to call onCompletion because callback object is null");
@@ -131,7 +132,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
      * Start playing the previously prepared {@link org.tomahawk.libtomahawk.collection.Track}
      */
     @Override
-    public void start() throws IllegalStateException {
+    public void play() throws IllegalStateException {
         Log.d(TAG, "play()");
         if (!getMediaPlayerInstance().isPlaying()) {
             getMediaPlayerInstance().play();
@@ -164,7 +165,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     /**
      * Prepare the given url
      */
-    private TomahawkMediaPlayer prepare(Query query) {
+    private void prepare(Query query) {
         Log.d(TAG, "prepare()");
         getMediaPlayerInstance().stop();
         mPreparedQuery = null;
@@ -176,7 +177,7 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
         } else {
             if (result.getResolvedBy() instanceof ScriptResolver) {
                 ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
-                return this;
+                return;
             } else {
                 path = result.getPath();
             }
@@ -185,18 +186,17 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
         getMediaPlayerInstance().setMedia(media);
         mPreparedQuery = mPreparingQuery;
         mPreparingQuery = null;
-        mMediaPlayerCallback.onPrepared(mPreparedQuery);
+        mMediaPlayerCallback.onPrepared(this, mPreparedQuery);
         Log.d(TAG, "onPrepared()");
-        return this;
     }
 
     /**
      * Prepare the given url
      */
     @Override
-    public TomahawkMediaPlayer prepare(Query query, TomahawkMediaPlayerCallback callback) {
+    public void prepare(Query query, TomahawkMediaPlayerCallback callback) {
         mMediaPlayerCallback = callback;
-        return prepare(query);
+        prepare(query);
     }
 
     @Override

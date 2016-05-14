@@ -24,18 +24,18 @@ public interface TomahawkMediaPlayerCallback {
     /**
      * Called as soon as a {@link Query} has been prepared
      */
-    void onPrepared(Query query);
+    void onPrepared(TomahawkMediaPlayer mediaPlayer, Query query);
 
     /**
      * Called if playback of the currently prepared {@link Query} has finished.
      */
-    void onCompletion(Query query);
+    void onCompletion(TomahawkMediaPlayer mediaPlayer, Query query);
 
     /**
      * Called whenever an error occurred.
      *
      * @param message String containing error details
      */
-    void onError(String message);
+    void onError(TomahawkMediaPlayer mediaPlayer, String message);
 
 }
