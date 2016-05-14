@@ -225,7 +225,7 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
                     mp.mPreparedQuery = mp.mUriToQueryMap.get(uri);
                     mp.mPreparingQuery = null;
                     if (mp.mMediaPlayerCallback != null) {
-                        mp.mMediaPlayerCallback.onPrepared(mp.mPreparedQuery);
+                        mp.mMediaPlayerCallback.onPrepared(mp, mp.mPreparedQuery);
                     } else {
                         Log.e(TAG,
                                 "Wasn't able to call onPrepared because callback object is null");
@@ -261,7 +261,7 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
                 case MSG_ONPLAYERENDOFTRACK:
                     Log.d(TAG, "onCompletion()");
                     if (mp.mMediaPlayerCallback != null) {
-                        mp.mMediaPlayerCallback.onCompletion(mp.mPreparedQuery);
+                        mp.mMediaPlayerCallback.onCompletion(mp, mp.mPreparedQuery);
                     } else {
                         Log.e(TAG,
                                 "Wasn't able to call onCompletion because callback object is null");
@@ -271,7 +271,7 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
                     String message = msg.getData().getString(MSG_ONERROR_ARG_MESSAGE);
 
                     if (mp.mMediaPlayerCallback != null) {
-                        mp.mMediaPlayerCallback.onError(message);
+                        mp.mMediaPlayerCallback.onError(mp, message);
                     } else {
                         Log.e(TAG, "Wasn't able to call onError because callback object is null");
                     }
@@ -365,7 +365,7 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
      *                 report certain callbacks back to the {@link PlaybackService}
      */
     @Override
-    public TomahawkMediaPlayer prepare(Query query, TomahawkMediaPlayerCallback callback) {
+    public void prepare(Query query, TomahawkMediaPlayerCallback callback) {
         Log.d(TAG, "prepare()");
         mMediaPlayerCallback = callback;
         mPreparedQuery = null;
@@ -375,14 +375,13 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
         String uri = getUri(query);
         mUriToQueryMap.put(uri, query);
         prepare(uri);
-        return this;
     }
 
     /**
      * Start playing the previously prepared {@link Query}
      */
     @Override
-    public void start() {
+    public void play() {
         Log.d(TAG, "play()");
         mIsPlaying = true;
         callService(MSG_PLAY);
