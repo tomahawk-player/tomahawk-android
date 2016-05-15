@@ -329,18 +329,25 @@ public class PipeLine {
                     @Override
                     public void run() {
                         if (query != null) {
+                            boolean shouldReport = false;
                             for (Result r : results) {
                                 if (r != null) {
                                     float trackScore = query.howSimilar(r);
                                     if (trackScore > (query.isFullTextQuery() ? FULLTEXT_MINSCORE
                                             : MINSCORE)) {
+                                        Result before = query.getPreferredTrackResult();
                                         query.addTrackResult(r, trackScore);
+                                        if (before != query.getPreferredTrackResult()) {
+                                            shouldReport = true;
+                                        }
                                     }
                                 }
                             }
-                            ResultsEvent event = new ResultsEvent();
-                            event.mQuery = query;
-                            EventBus.getDefault().post(event);
+                            if (shouldReport) {
+                                ResultsEvent event = new ResultsEvent();
+                                event.mQuery = query;
+                                EventBus.getDefault().post(event);
+                            }
                         }
                     }
                 }
