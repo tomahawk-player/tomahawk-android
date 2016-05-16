@@ -965,6 +965,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                         + e1.getLocalizedMessage() + " , isPreparing: " + mIsPreparing);
             }
         } else {
+            for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
+                mp.release();
+            }
             if (mWakeLock != null && mWakeLock.isHeld()) {
                 mWakeLock.release();
             }
