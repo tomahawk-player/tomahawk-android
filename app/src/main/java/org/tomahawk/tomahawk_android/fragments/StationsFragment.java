@@ -58,23 +58,21 @@ public class StationsFragment extends TomahawkFragment {
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
-        view.findViewById(R.id.create_new_button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showCreateDialog();
-            }
-        });
-    }
-
-    @Override
     public void onResume() {
         super.onResume();
 
         if (mContainerFragmentClass == null) {
             getActivity().setTitle(getString(R.string.drawer_title_stations).toUpperCase());
+            if (getView() != null) {
+                View newButton = getView().findViewById(R.id.create_new_button);
+                newButton.setVisibility(View.VISIBLE);
+                newButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showCreateDialog();
+                    }
+                });
+            }
         }
         updateAdapter();
     }
