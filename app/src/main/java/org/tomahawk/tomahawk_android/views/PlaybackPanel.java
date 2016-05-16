@@ -114,6 +114,14 @@ public class PlaybackPanel extends FrameLayout {
 
     private long mCurrentDuration;
 
+    private OnLayoutChangeListener mStationLayoutChangeListener = new OnLayoutChangeListener() {
+        @Override
+        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
+                int oldTop, int oldRight, int oldBottom) {
+            setupStationContainerAnimation();
+        }
+    };
+
     public PlaybackPanel(Context context) {
         super(context);
         inflate(getContext(), R.layout.playback_panel, this);
@@ -131,6 +139,7 @@ public class PlaybackPanel extends FrameLayout {
         mPanelContainer = findViewById(R.id.panel_container);
         mStationContainer = findViewById(R.id.station_container);
         mStationContainerInner = findViewById(R.id.station_container_inner);
+        mStationContainerInner.addOnLayoutChangeListener(mStationLayoutChangeListener);
         mArtistNameButton = (FrameLayout) mTextViewContainer.findViewById(R.id.artist_name_button);
         mArtistTextView = (TextView) mArtistNameButton.findViewById(R.id.artist_textview);
         mTrackTextView = (TextView) mTextViewContainer.findViewById(R.id.track_textview);
@@ -375,9 +384,8 @@ public class PlaybackPanel extends FrameLayout {
             }
             mStationContainer.setVisibility(VISIBLE);
             mStationTextView.setText(mPlaybackManager.getPlaylist().getName());
-            setupStationContainerAnimation();
         } else {
-            mStationContainer.setVisibility(GONE);
+            mStationContainer.setVisibility(INVISIBLE);
         }
 
     }
@@ -461,8 +469,6 @@ public class PlaybackPanel extends FrameLayout {
                 animator.setCurrentPlayTime(mLastPlayTime);
                 mAnimators.add(animator);
 
-                setupStationContainerAnimation();
-
                 // Setup mTextViewContainer backgroundColor alpha animation
                 Keyframe kfColor1 = Keyframe.ofInt(0f, 0x0);
                 Keyframe kfColor2 = Keyframe.ofInt(0.5f, 0x0);
@@ -492,6 +498,8 @@ public class PlaybackPanel extends FrameLayout {
                 animator.setInterpolator(new LinearInterpolator());
                 animator.setCurrentPlayTime(mLastPlayTime);
                 mAnimators.add(animator);
+
+                setupStationContainerAnimation();
             }
         });
     }
