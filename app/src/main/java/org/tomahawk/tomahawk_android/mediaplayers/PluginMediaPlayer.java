@@ -241,9 +241,11 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
                     mp.mPreparedUri = uri;
                     break;
                 case MSG_ONPLAY:
+                    mp.mIsPlaying = true;
                     mp.mPositionTimeStamp = System.currentTimeMillis();
                     break;
                 case MSG_ONPAUSE:
+                    mp.mIsPlaying = false;
                     mp.mPositionOffset =
                             (int) (System.currentTimeMillis() - mp.mPositionTimeStamp)
                                     + mp.mPositionOffset;
@@ -383,7 +385,6 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
     @Override
     public void play() {
         Log.d(TAG, "play()");
-        mIsPlaying = true;
         callService(MSG_PLAY);
     }
 
@@ -393,7 +394,6 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
     @Override
     public void pause() {
         Log.d(TAG, "pause()");
-        mIsPlaying = false;
         callService(MSG_PAUSE);
     }
 
