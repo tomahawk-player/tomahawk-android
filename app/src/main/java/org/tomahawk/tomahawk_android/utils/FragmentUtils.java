@@ -150,7 +150,7 @@ public class FragmentUtils {
         FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
         ft.replace(containerResId, Fragment.instantiate(activity, clss.getName(), bundle), tag);
         if (containerResId == R.id.content_viewer_frame) {
-            ft.addToBackStack(tag);
+            ft.addToBackStack(clss.getName());
         }
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commitAllowingStateLoss();
@@ -172,7 +172,7 @@ public class FragmentUtils {
         FragmentTransaction ft = activity.getSupportFragmentManager().beginTransaction();
         ft.add(containerResId, Fragment.instantiate(activity, clss.getName(), bundle),
                 FRAGMENT_TAG);
-        ft.addToBackStack(FRAGMENT_TAG);
+        ft.addToBackStack(clss.getName());
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.commitAllowingStateLoss();
         Log.d(TAG, "Added fragment " + clss.getSimpleName() + ", Bundle: " + bundle);
