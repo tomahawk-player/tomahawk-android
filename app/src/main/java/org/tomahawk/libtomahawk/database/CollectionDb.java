@@ -276,7 +276,6 @@ public class CollectionDb extends SQLiteOpenHelper {
 
     public synchronized void addTracks(List<ScriptResolverTrack> tracks) {
         long time = System.currentTimeMillis();
-        mDb.beginTransaction();
 
         // Check if we want to store the album as a compilation album (with artist "Various Artists")
         Map<String, Set<String>> albumArtists = new HashMap<>();
@@ -309,17 +308,18 @@ public class CollectionDb extends SQLiteOpenHelper {
             }
         }
 
-        Map<String, Long> mArtistLastModifiedMap = new HashMap<>();
+        Map<String, Long> artistLastModifiedMap = new HashMap<>();
         // First we insert all artists and albumArtists
+        mDb.beginTransaction();
         for (ScriptResolverTrack track : tracks) {
             if (albumArtists.get(track.album).size() > 1) {
                 ContentValues values = new ContentValues();
                 values.put(ARTISTS_ARTIST, Artist.COMPILATION_ARTIST.getName());
                 values.put(ARTISTS_ARTISTDISAMBIGUATION, "");
                 String artistKey = Artist.COMPILATION_ARTIST.getName() + "♠" + "";
-                Long lastModified = mArtistLastModifiedMap.get(artistKey);
+                Long lastModified = artistLastModifiedMap.get(artistKey);
                 if (lastModified == null || lastModified < track.lastModified) {
-                    mArtistLastModifiedMap.put(artistKey, track.lastModified);
+                    artistLastModifiedMap.put(artistKey, track.lastModified);
                     lastModified = track.lastModified;
                 }
                 values.put(ARTISTS_LASTMODIFIED, lastModified);
@@ -330,9 +330,9 @@ public class CollectionDb extends SQLiteOpenHelper {
             values.put(ARTISTS_ARTIST, track.artist);
             values.put(ARTISTS_ARTISTDISAMBIGUATION, track.artistDisambiguation);
             String artistKey = track.artist + "♠" + track.artistDisambiguation;
-            Long lastModified = mArtistLastModifiedMap.get(artistKey);
+            Long lastModified = artistLastModifiedMap.get(artistKey);
             if (lastModified == null || lastModified < track.lastModified) {
-                mArtistLastModifiedMap.put(artistKey, track.lastModified);
+                artistLastModifiedMap.put(artistKey, track.lastModified);
                 lastModified = track.lastModified;
             }
             values.put(ARTISTS_LASTMODIFIED, lastModified);
@@ -344,13 +344,16 @@ public class CollectionDb extends SQLiteOpenHelper {
             values.put(ALBUMARTISTS_LASTMODIFIED, lastModified);
             mDb.insert(TABLE_ALBUMARTISTS, null, values);
         }
+        mDb.setTransactionSuccessful();
+        mDb.endTransaction();
 
         Cursor cursor = mDb.query(TABLE_ARTISTS,
                 new String[]{ID, ARTISTS_ARTIST, ARTISTS_ARTISTDISAMBIGUATION},
                 null, null, null, null, null);
         Map<String, Integer> cachedArtists = cursorToMap(cursor);
 
-        Map<String, Long> mAlbumLastModifiedMap = new HashMap<>();
+        Map<String, Long> albumLastModifiedMap = new HashMap<>();
+        mDb.beginTransaction();
         for (ScriptResolverTrack track : tracks) {
             ContentValues values = new ContentValues();
             values.put(ALBUMS_ALBUM, track.album);
@@ -365,21 +368,24 @@ public class CollectionDb extends SQLiteOpenHelper {
             values.put(ALBUMS_ALBUMARTISTID, albumArtistId);
             values.put(ALBUMS_IMAGEPATH, track.imagePath);
             String artistKey = track.album + "♠" + albumArtistId;
-            Long lastModified = mAlbumLastModifiedMap.get(artistKey);
+            Long lastModified = albumLastModifiedMap.get(artistKey);
             if (lastModified == null || lastModified < track.lastModified) {
-                mAlbumLastModifiedMap.put(artistKey, track.lastModified);
+                albumLastModifiedMap.put(artistKey, track.lastModified);
                 lastModified = track.lastModified;
             }
             values.put(ALBUMS_LASTMODIFIED, lastModified);
             values.put(ALBUMS_TYPE, TYPE_DEFAULT);
             mDb.insert(TABLE_ALBUMS, null, values);
         }
+        mDb.setTransactionSuccessful();
+        mDb.endTransaction();
 
         cursor = mDb.query(TABLE_ALBUMS,
                 new String[]{ID, ALBUMS_ALBUM, ALBUMS_ALBUMARTISTID},
                 null, null, null, null, null);
         Map<String, Integer> cachedAlbums = cursorToMap(cursor);
 
+        mDb.beginTransaction();
         for (ScriptResolverTrack track : tracks) {
             ContentValues values = new ContentValues();
             int albumArtistId;
@@ -406,9 +412,9 @@ public class CollectionDb extends SQLiteOpenHelper {
             values.put(TRACKS_LASTMODIFIED, track.lastModified);
             mDb.insert(TABLE_TRACKS, null, values);
         }
-
         mDb.setTransactionSuccessful();
         mDb.endTransaction();
+
         Log.d(TAG, "Added " + tracks.size() + " tracks in " + (System.currentTimeMillis() - time)
                 + "ms");
         if (tracks.size() > 0) {
