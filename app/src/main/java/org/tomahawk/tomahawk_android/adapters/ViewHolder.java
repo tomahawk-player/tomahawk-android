@@ -243,8 +243,13 @@ public class ViewHolder {
         TextView textView2 = (TextView) findViewById(R.id.textview2);
         textView2.setText(album.getArtist().getPrettyName());
         ImageView imageView1 = (ImageView) findViewById(R.id.imageview1);
-        ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView1,
-                album.getImage(), Image.getSmallImageSize(), false);
+        if (album.getImage() != null) {
+            ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView1,
+                    album.getImage(), Image.getSmallImageSize(), false);
+        } else {
+            ImageUtils.loadImageIntoImageView(TomahawkApp.getContext(), imageView1,
+                    album.getArtist().getImage(), Image.getSmallImageSize(), false);
+        }
         final TextView textView3 = (TextView) findViewById(R.id.textview3);
         textView3.setVisibility(View.INVISIBLE);
         collection.getAlbumTrackCount(album).done(new DoneCallback<Integer>() {
