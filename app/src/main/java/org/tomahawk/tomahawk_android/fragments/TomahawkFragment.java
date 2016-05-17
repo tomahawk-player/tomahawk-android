@@ -729,6 +729,7 @@ public abstract class TomahawkFragment extends TomahawkListFragment
                 }
             }
         }
+        resolveItem(album.getArtist());
     }
 
     private void resolveItem(Artist artist) {
