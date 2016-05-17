@@ -20,6 +20,7 @@ package org.tomahawk.libtomahawk.resolver;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.DbCollection;
+import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
@@ -246,18 +247,20 @@ public class PipeLine {
                 if (!mLoadingPlugins.isEmpty()) {
                     mWaitingQueries.add(q);
                 } else {
-                    for (Resolver resolver : mResolvers) {
+                    for (ScriptResolver resolver : mResolvers) {
                         if (shouldResolve(resolver, q, forceOnlyLocal)) {
                             resolver.resolve(q);
                         }
                     }
-                }
-                if (!forceOnlyLocal && !q.isOnlyLocal()) {
                     for (Collection collection : CollectionManager.get().getCollections()) {
-                        if (collection instanceof DbCollection) {
+                        if (!(collection instanceof UserCollection)
+                                && shouldResolve(collection, q, forceOnlyLocal)) {
                             ((DbCollection) collection).resolve(q);
                         }
                     }
+                }
+                if (shouldResolve(CollectionManager.get().getUserCollection(), q, forceOnlyLocal)) {
+                    CollectionManager.get().getUserCollection().resolve(q);
                 }
             }
         };
@@ -268,18 +271,16 @@ public class PipeLine {
     /**
      * Method to determine if a given Resolver should resolve the query or not
      */
+    public boolean shouldResolve(Collection collection, Query q, boolean forceOnlyLocal) {
+        return !forceOnlyLocal && !q.isOnlyLocal() && collection instanceof DbCollection
+                || collection instanceof UserCollection;
+    }
+
+    /**
+     * Method to determine if a given Resolver should resolve the query or not
+     */
     public boolean shouldResolve(Resolver resolver, Query q, boolean forceOnlyLocal) {
-        if (!forceOnlyLocal && !q.isOnlyLocal()) {
-            if (resolver instanceof ScriptResolver) {
-                ScriptResolver scriptResolver = ((ScriptResolver) resolver);
-                return scriptResolver.isEnabled();
-            } else {
-                return true;
-            }
-        } else if (resolver instanceof UserCollectionStubResolver) {
-            return true;
-        }
-        return false;
+        return !forceOnlyLocal && !q.isOnlyLocal() && resolver.isEnabled();
     }
 
     /**
