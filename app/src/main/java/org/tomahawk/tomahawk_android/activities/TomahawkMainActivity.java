@@ -88,7 +88,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaMetadataCompat;
@@ -940,11 +939,14 @@ public class TomahawkMainActivity extends AppCompatActivity {
         boolean hideActionBar = mPanelSlideListener.getSlidingOffset() > 0.5f;
         boolean forced = true;
         if (checkCurrentFragment && !hideActionBar) {
-            Fragment lastFragment =
-                    getSupportFragmentManager().findFragmentByTag(FragmentUtils.FRAGMENT_TAG);
-            hideActionBar = lastFragment instanceof WelcomeFragment
-                    || lastFragment instanceof ContextMenuFragment;
             forced = false;
+            int size = getSupportFragmentManager().getBackStackEntryCount();
+            if (size > 0) {
+                String clssName =
+                        getSupportFragmentManager().getBackStackEntryAt(size - 1).getName();
+                hideActionBar = WelcomeFragment.class.getName().equals(clssName)
+                        || ContextMenuFragment.class.getName().equals(clssName);
+            }
         }
         if (hideActionBar) {
             if (mMenuDrawer != null) {
