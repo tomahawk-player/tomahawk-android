@@ -83,12 +83,7 @@ public abstract class DbCollection extends Collection {
                         TomahawkRunnable.PRIORITY_IS_DATABASEACTION) {
                     @Override
                     public void run() {
-                        for (Query query : mWaitingQueries) {
-                            mWaitingQueries.remove(query);
-                            resolve(query);
-                        }
-                        Log.d(TAG, collectionId
-                                + " - Fuzzy index initialized. Resolving all waiting queries.");
+                        invokeWaitingJobs();
                     }
                 };
                 ThreadManager.get().execute(r);
@@ -114,16 +109,11 @@ public abstract class DbCollection extends Collection {
             @Override
             public void onDone(final String collectionId) {
                 final CollectionDb db = CollectionDbManager.get().getCollectionDb(collectionId);
-                if (db.getFuzzyIndex() == null) {
+                if (!mInitialized) {
                     mWaitingQueries.add(query);
                     Log.d(TAG, collectionId + " - Added query to the waiting queue because the "
                             + "FuzzyIndex is still initializing.");
                 } else {
-                    // Always make sure that no queries are waiting to be resolved
-                    for (Query query : mWaitingQueries) {
-                        mWaitingQueries.remove(query);
-                        resolve(query);
-                    }
                     TomahawkRunnable r = new TomahawkRunnable(
                             TomahawkRunnable.PRIORITY_IS_RESOLVING) {
                         @Override
@@ -155,6 +145,14 @@ public abstract class DbCollection extends Collection {
                 }
             }
         });
+    }
+
+    private synchronized void invokeWaitingJobs() {
+        Log.d(TAG, "Resolving " + mWaitingQueries.size() + " waiting queries");
+        for (Query query : mWaitingQueries) {
+            resolve(query);
+        }
+        mWaitingQueries.clear();
     }
 
     @Override
