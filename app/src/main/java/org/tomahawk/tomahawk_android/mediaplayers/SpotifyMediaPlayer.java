@@ -42,6 +42,8 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
 
     public static final int MIN_VERSION = 42;
 
+    public static final String CURRENT_VERSION_NAME = "0.51";
+
     public SpotifyMediaPlayer() {
         super(TomahawkApp.PLUGINNAME_SPOTIFY, PACKAGE_NAME);
     }
@@ -49,10 +51,10 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
     public static String getPluginDownloadLink() {
         if (Build.CPU_ABI.equals("x86")) {
             return "http://download.tomahawk-player.org/android-plugins/"
-                    + "tomahawk-android-spotify-x86-release-" + MIN_VERSION + ".apk";
+                    + "tomahawk-android-spotify-x86-release-" + CURRENT_VERSION_NAME + ".apk";
         } else {
             return "http://download.tomahawk-player.org/android-plugins/"
-                    + "tomahawk-android-spotify-armv7a-release-" + MIN_VERSION + ".apk";
+                    + "tomahawk-android-spotify-armv7a-release-" + CURRENT_VERSION_NAME + ".apk";
         }
     }
 
