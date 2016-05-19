@@ -102,7 +102,7 @@ public class ViewHolder {
     }
 
     public void fillView(Query query, String numerationString, boolean showAsPlaying,
-            View.OnClickListener swipeMenuButton1Listener, boolean showAsQueued) {
+            boolean showAsQueued, View.OnClickListener dequeueButtonListener) {
         TextView trackNameTextView = (TextView) findViewById(R.id.track_textview);
         trackNameTextView.setText(query.getPrettyName());
         setTextViewEnabled(trackNameTextView, query.isPlayable(), false);
@@ -111,13 +111,11 @@ public class ViewHolder {
                 R.id.resolver_imageview);
         TextView numerationTextView = (TextView) findViewById(R.id.numeration_textview);
         if (showAsQueued) {
-            if (numerationTextView != null) {
-                numerationTextView.setVisibility(View.GONE);
-            }
-            if (resolverImageView != null) {
-                resolverImageView.setVisibility(View.VISIBLE);
-                ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), resolverImageView,
-                        R.drawable.ic_action_queue_red);
+            ImageView dequeueImageView = (ImageView) findViewById(R.id.dequeue_imageview);
+            if (dequeueButtonListener != null && dequeueImageView != null) {
+                ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), dequeueImageView,
+                        R.drawable.ic_navigation_close, R.color.tomahawk_red);
+                dequeueImageView.setOnClickListener(dequeueButtonListener);
             }
         } else if (showAsPlaying) {
             if (numerationTextView != null) {
@@ -141,12 +139,12 @@ public class ViewHolder {
             }
         }
         if (mLayoutId == R.layout.list_item_numeration_track_artist
-                || mLayoutId == R.layout.list_item_track_artist) {
+                || mLayoutId == R.layout.list_item_track_artist
+                || mLayoutId == R.layout.list_item_track_artist_queued) {
             TextView artistNameTextView = (TextView) findViewById(R.id.artist_textview);
             artistNameTextView.setText(query.getArtist().getPrettyName());
             setTextViewEnabled(artistNameTextView, query.isPlayable(), false);
-        }
-        if (mLayoutId == R.layout.list_item_numeration_track_duration) {
+        } else if (mLayoutId == R.layout.list_item_numeration_track_duration) {
             TextView durationTextView = (TextView) findViewById(R.id.duration_textview);
             if (query.getPreferredTrack().getDuration() > 0) {
                 durationTextView.setText(ViewUtils.durationToString(
@@ -156,31 +154,6 @@ public class ViewHolder {
             }
             setTextViewEnabled(durationTextView, query.isPlayable(), false);
         }
-        /*
-        ImageView swipeMenuButton;
-        if (showAsQueued) {
-            swipeMenuButton = (ImageView) ensureInflation(R.id.swipe_menu_button_dequeue_stub,
-                    R.id.swipe_menu_button_dequeue);
-            swipeMenuButton.setVisibility(View.VISIBLE);
-            swipeMenuButton.setImageResource(R.drawable.ic_navigation_close);
-            ImageUtils.setTint(swipeMenuButton.getDrawable(), R.color.tomahawk_red);
-            ImageView swipeMenuButtonEnqueue =
-                    (ImageView) findViewById(R.id.swipe_menu_button_enqueue);
-            if (swipeMenuButtonEnqueue != null) {
-                swipeMenuButtonEnqueue.setVisibility(View.GONE);
-            }
-        } else {
-            swipeMenuButton = (ImageView) ensureInflation(R.id.swipe_menu_button_enqueue_stub,
-                    R.id.swipe_menu_button_enqueue);
-            swipeMenuButton.setVisibility(View.VISIBLE);
-            ImageView swipeMenuButtonDequeue =
-                    (ImageView) findViewById(R.id.swipe_menu_button_dequeue);
-            if (swipeMenuButtonDequeue != null) {
-                swipeMenuButtonDequeue.setVisibility(View.GONE);
-            }
-        }
-        swipeMenuButton.setOnClickListener(swipeMenuButton1Listener);
-        */
     }
 
     public void fillView(Track track) {

@@ -420,12 +420,13 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                     viewHolder.fillView((ListItemDrawable) targetItem);
                 } else if (viewHolder.mLayoutId == R.layout.list_item_track_artist
                         || viewType == R.layout.list_item_numeration_track_artist
-                        || viewType == R.layout.list_item_numeration_track_duration) {
+                        || viewType == R.layout.list_item_numeration_track_duration
+                        || viewType == R.layout.list_item_track_artist_queued) {
                     if (targetItem instanceof Track) {
                         viewHolder.fillView((Track) targetItem);
                     } else {
-                        View coachMark = viewHolder
-                                .findViewById(R.id.swipelayout_enqueue_coachmark);
+                        View coachMark =
+                                viewHolder.findViewById(R.id.swipelayout_enqueue_coachmark);
                         if (coachMark != null) {
                             coachMark.setVisibility(View.GONE);
                         }
@@ -445,9 +446,10 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                             query = (Query) targetItem;
                             entry = null;
                         }
-                        View.OnClickListener swipeButtonListener;
-                        if (isShowAsQueued) {
-                            swipeButtonListener = new View.OnClickListener() {
+
+                        View.OnClickListener dequeueListener = null;
+                        if (mHighlightedPlaylistEntry != entry) {
+                            dequeueListener = new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
                                     Bundle extras = new Bundle();
@@ -457,30 +459,12 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                                             .sendCustomAction(
                                                     PlaybackService.ACTION_DELETE_ENTRY_IN_QUEUE,
                                                     extras);
-                                    closeAllItems();
-                                }
-                            };
-                        } else {
-                            swipeButtonListener = new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-                                    Bundle extras = new Bundle();
-                                    extras.putString(TomahawkFragment.QUERY, query.getCacheKey());
-                                    mActivity.getSupportMediaController().getTransportControls()
-                                            .sendCustomAction(
-                                                    PlaybackService.ACTION_ADD_QUERY_TO_QUEUE,
-                                                    extras);
-                                    PreferenceUtils.edit().putBoolean(
-                                            PreferenceUtils.COACHMARK_SWIPELAYOUT_ENQUEUE_DISABLED,
-                                            true).apply();
-                                    closeAllItems();
                                 }
                             };
                         }
                         viewHolder.fillView(query, numerationString,
-                                mHighlightedItemIsPlaying && shouldBeHighlighted,
-                                swipeButtonListener,
-                                isShowAsQueued);
+                                mHighlightedItemIsPlaying && shouldBeHighlighted, isShowAsQueued,
+                                dequeueListener);
 
                         FrameLayout progressBarContainer = (FrameLayout) viewHolder
                                 .findViewById(R.id.progressbar_container);
@@ -706,8 +690,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
             return R.layout.list_item_user;
         } else if (segment != null && segment.isHideArtistName()) {
             return R.layout.list_item_numeration_track_duration;
-        } else if (segment != null && (segment.isShowNumeration()
-                || segment.isShowAsQueued(getPosInSegment(position)))) {
+        } else if (segment != null && segment.isShowAsQueued(getPosInSegment(position))) {
+            return R.layout.list_item_track_artist_queued;
+        } else if (segment != null && segment.isShowNumeration()) {
             return R.layout.list_item_numeration_track_artist;
         } else {
             return R.layout.list_item_track_artist;
