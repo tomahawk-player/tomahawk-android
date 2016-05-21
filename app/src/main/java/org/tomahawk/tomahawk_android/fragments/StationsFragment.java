@@ -129,12 +129,20 @@ public class StationsFragment extends TomahawkFragment {
         User.getSelf().done(new DoneCallback<User>() {
             @Override
             public void onDone(User user) {
-                List playlists = new ArrayList();
-                playlists.addAll(DatabaseHelper.get().getStations());
                 final List<Segment> segments = new ArrayList<>();
-                segments.add(new Segment.Builder(playlists)
+                List myStations = new ArrayList();
+                myStations.addAll(DatabaseHelper.get().getStations());
+                segments.add(new Segment.Builder(myStations)
                         .showAsGrid(R.integer.grid_column_count, R.dimen.padding_superlarge,
                                 R.dimen.padding_superlarge)
+                        .headerLayout(R.layout.single_line_list_header)
+                        .headerString(R.string.my_stations)
+                        .build());
+                segments.add(new Segment.Builder(getSuggestedStations())
+                        .showAsGrid(R.integer.grid_column_count, R.dimen.padding_superlarge,
+                                R.dimen.padding_superlarge)
+                        .headerLayout(R.layout.single_line_list_header)
+                        .headerString(R.string.suggested_stations)
                         .build());
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
@@ -153,6 +161,21 @@ public class StationsFragment extends TomahawkFragment {
                 });
             }
         });
+    }
+
+    private List getSuggestedStations() {
+        List suggestedStations = new ArrayList();
+        String[] suggestedGenres = new String[]{"acoustic", "alternative", "club", "dance",
+                "drum-and-bass", "dubstep", "electronic", "funk", "goth", "grunge", "happy",
+                "hard-rock", "heavy-metal", "hip-hop", "house", "indie", "j-pop", "jazz", "k-pop",
+                "metal", "party", "pop", "punk-rock", "r-n-b", "reggae", "rock-n-roll", "romance",
+                "singer-songwriter", "soul", "techno", "trance", "trip-hop", "world-music"};
+        for (String suggestedGenre : suggestedGenres) {
+            ArrayList<String> genres = new ArrayList<>();
+            genres.add(suggestedGenre);
+            suggestedStations.add(StationPlaylist.get(null, null, genres));
+        }
+        return suggestedStations;
     }
 
 }
