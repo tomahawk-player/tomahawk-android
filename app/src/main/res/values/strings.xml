@@ -255,4 +255,6 @@
   <!-- Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this. -->
   <string name="mediabrowser_shuffledplay">Shuffle &amp; Play</string>
   <string name="loading_station">Loading station:</string>
+  <string name="suggested_stations">Suggested Stations</string>
+  <string name="my_stations">My Stations</string>
 </resources>
