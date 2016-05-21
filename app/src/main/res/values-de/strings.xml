@@ -253,4 +253,6 @@
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
   <string name="mediabrowser_shuffledplay">Zufallswiedergabe</string>
   <string name="loading_station">Lade Station:</string>
+  <string name="suggested_stations">Vorgeschlagene Stationen</string>
+  <string name="my_stations">Meine Stationen</string>
 </resources>
