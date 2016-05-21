@@ -253,4 +253,6 @@
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
   <string name="mediabrowser_shuffledplay">Sekoita &amp; soita</string>
   <string name="loading_station">Ladataan asemaa:</string>
+  <string name="suggested_stations">Ehdotetut asemat</string>
+  <string name="my_stations">Asemani</string>
 </resources>
