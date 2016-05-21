@@ -42,7 +42,7 @@ public class SpotifyMediaPlayer extends PluginMediaPlayer {
 
     public static final int MIN_VERSION = 42;
 
-    public static final String CURRENT_VERSION_NAME = "0.52";
+    public static final String CURRENT_VERSION_NAME = "0.53";
 
     public SpotifyMediaPlayer() {
         super(TomahawkApp.PLUGINNAME_SPOTIFY, PACKAGE_NAME);
