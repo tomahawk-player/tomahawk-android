@@ -242,4 +242,6 @@
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
   <string name="mediabrowser_shuffledplay">シャッフル &amp; 再生</string>
   <string name="loading_station">ラジオ局の読み込み中:</string>
+  <string name="suggested_stations">推奨のラジオ局</string>
+  <string name="my_stations">マイ ラジオ局</string>
 </resources>
