@@ -232,7 +232,7 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                                     for (int i = 0; i < mCurrentPlaylist.getTopArtistNames().length
                                             && i < 5; i++) {
                                         String artistName = mCurrentPlaylist.getTopArtistNames()[i];
-                                        if (mResolvingTopArtistNames.contains(artistName)) {
+                                        if (!mResolvingTopArtistNames.contains(artistName)) {
                                             String requestId = InfoSystem.get()
                                                     .resolve(Artist.get(artistName), false);
                                             if (requestId != null) {

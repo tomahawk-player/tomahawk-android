@@ -653,6 +653,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 queries.add(query);
                 Playlist playlist = Playlist.fromQueryList(
                         IdGenerator.getSessionUniqueStringId(), "", "", queries);
+                playlist.setFilled(true);
+                playlist.setName(artistName + " - " + trackName);
                 bundle.putString(TomahawkFragment.PLAYLIST, playlist.getCacheKey());
                 bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                         ContentHeaderFragment.MODE_HEADER_DYNAMIC);
