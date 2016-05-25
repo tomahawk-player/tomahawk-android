@@ -317,6 +317,9 @@ public class PlaybackManager extends Cacheable {
     }
 
     public PlaylistEntry getNextEntry(PlaylistEntry entry) {
+        if (entry == null) {
+            return null;
+        }
         if (mRepeatMode == REPEAT_ONE) {
             return entry;
         }
@@ -341,6 +344,9 @@ public class PlaybackManager extends Cacheable {
     }
 
     public PlaylistEntry getPreviousEntry(PlaylistEntry entry) {
+        if (entry == null) {
+            return null;
+        }
         if (mRepeatMode == REPEAT_ONE) {
             return entry;
         }

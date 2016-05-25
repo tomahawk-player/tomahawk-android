@@ -380,10 +380,11 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 if (stationPlaylist.getPlaylist() == null) {
                     DatabaseHelper.get().storeStation(stationPlaylist);
                 }
-                if (stationPlaylist.size() == 0) {
+                if (!mPlaybackManager.hasNextEntry(mPlaybackManager.getNextEntry())) {
+                    // there's no track after the next one,
+                    // so we should fill the station with some new tracks
                     mIsPreparing = true;
                     updateMediaPlayState();
-                    // station is empty, so we should fill it with some new tracks
                     fillStation(stationPlaylist);
                 }
             }
