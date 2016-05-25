@@ -377,7 +377,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             if (playlist instanceof StationPlaylist) {
                 StationPlaylist stationPlaylist = (StationPlaylist) playlist;
                 stationPlaylist.setPlayedTimeStamp(System.currentTimeMillis());
-                DatabaseHelper.get().storeStation(stationPlaylist);
+                if (stationPlaylist.getPlaylist() == null) {
+                    DatabaseHelper.get().storeStation(stationPlaylist);
+                }
                 if (stationPlaylist.size() == 0) {
                     mIsPreparing = true;
                     updateMediaPlayState();
