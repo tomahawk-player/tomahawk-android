@@ -223,6 +223,10 @@ public class StationPlaylist extends Playlist {
         return mGenres;
     }
 
+    public Playlist getPlaylist() {
+        return mPlaylist;
+    }
+
     public void setCreatedTimeStamp(long createdTimeStamp) {
         mCreatedTimeStamp = createdTimeStamp;
     }
