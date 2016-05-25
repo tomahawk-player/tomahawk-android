@@ -21,12 +21,14 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
+import org.jdeferred.AlwaysCallback;
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.infosystem.stations.ScriptPlaylistGenerator;
 import org.tomahawk.libtomahawk.infosystem.stations.ScriptPlaylistGeneratorManager;
 import org.tomahawk.libtomahawk.infosystem.stations.ScriptPlaylistGeneratorResult;
+import org.tomahawk.libtomahawk.infosystem.stations.ScriptPlaylistGeneratorSearchResult;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
@@ -41,6 +43,8 @@ import java.util.List;
 public class StationPlaylist extends Playlist {
 
     private String mSessionId;
+
+    private Playlist mPlaylist;
 
     private List<Pair<Artist, String>> mArtists;
 
@@ -94,9 +98,22 @@ public class StationPlaylist extends Playlist {
         mCreatedTimeStamp = System.currentTimeMillis();
     }
 
+    private StationPlaylist(Playlist playlist) {
+        super(getCacheKey(playlist));
+
+        mPlaylist = playlist;
+
+        setName(mPlaylist.getName());
+
+        mCreatedTimeStamp = System.currentTimeMillis();
+    }
+
+    private static String getCacheKey(Playlist playlist) {
+        return "station_" + playlist.getCacheKey();
+    }
+
     private static String getCacheKey(List<Pair<Artist, String>> artists,
-            List<Pair<Track, String>> tracks,
-            List<String> genres) {
+            List<Pair<Track, String>> tracks, List<String> genres) {
         String key = "station_";
         if (artists != null) {
             Collections.sort(artists, new Comparator<Pair<Artist, String>>() {
@@ -189,6 +206,11 @@ public class StationPlaylist extends Playlist {
                 : new StationPlaylist(artists, tracks, genres);
     }
 
+    public static StationPlaylist get(Playlist playlist) {
+        Cacheable cacheable = get(Playlist.class, getCacheKey(playlist));
+        return cacheable != null ? (StationPlaylist) cacheable : new StationPlaylist(playlist);
+    }
+
     public List<Pair<Artist, String>> getArtists() {
         return mArtists;
     }
@@ -224,32 +246,39 @@ public class StationPlaylist extends Playlist {
             return null;
         }
         mFillDeferred = new ADeferredObject<>();
-        if (mCandidates.size() >= limit) {
-            // We got enough candidates in cache
-            List<Query> queries = new ArrayList<>();
-            for (int i = 0; i < limit; i++) {
-                queries.add(mCandidates.remove(0));
-            }
-            mFillDeferred.resolve(queries);
-        } else if (generator != null) {
-            generator.fillPlaylist(mSessionId, mArtists, mTracks, mGenres)
-                    .done(new DoneCallback<ScriptPlaylistGeneratorResult>() {
-                        @Override
-                        public void onDone(ScriptPlaylistGeneratorResult result) {
-                            mSessionId = result.sessionId;
-                            List<Query> queries = new ArrayList<>();
-                            if (result.results != null) {
-                                int actualLimit = Math.min(result.results.size(), limit);
-                                for (int i = 0; i < actualLimit; i++) {
-                                    queries.add(result.results.remove(0));
+        pickSeedsFromPlaylist().done(new DoneCallback<List<Pair<Track, String>>>() {
+            @Override
+            public void onDone(List<Pair<Track, String>> result) {
+                mTracks = result;
+
+                if (mCandidates.size() >= limit) {
+                    // We got enough candidates in cache
+                    List<Query> queries = new ArrayList<>();
+                    for (int i = 0; i < limit; i++) {
+                        queries.add(mCandidates.remove(0));
+                    }
+                    mFillDeferred.resolve(queries);
+                } else if (generator != null) {
+                    generator.fillPlaylist(mSessionId, mArtists, mTracks, mGenres)
+                            .done(new DoneCallback<ScriptPlaylistGeneratorResult>() {
+                                @Override
+                                public void onDone(ScriptPlaylistGeneratorResult result) {
+                                    mSessionId = result.sessionId;
+                                    List<Query> queries = new ArrayList<>();
+                                    if (result.results != null) {
+                                        int actualLimit = Math.min(result.results.size(), limit);
+                                        for (int i = 0; i < actualLimit; i++) {
+                                            queries.add(result.results.remove(0));
+                                        }
+                                        // Add the rest to our candidate cache
+                                        mCandidates.addAll(result.results);
+                                    }
+                                    mFillDeferred.resolve(queries);
                                 }
-                                // Add the rest to our candidate cache
-                                mCandidates.addAll(result.results);
-                            }
-                            mFillDeferred.resolve(queries);
-                        }
-                    });
-        }
+                            });
+                }
+            }
+        });
         return mFillDeferred;
     }
 
@@ -291,6 +320,64 @@ public class StationPlaylist extends Playlist {
         }
 
         return GsonHelper.get().toJson(json);
+    }
+
+    private Promise<List<Pair<Track, String>>, Void, Throwable> pickSeedsFromPlaylist() {
+        ADeferredObject<List<Pair<Track, String>>, Void, Throwable> deferred
+                = new ADeferredObject<>();
+        if (mPlaylist == null || mTracks != null) {
+            deferred.resolve(null);
+        } else if (mPlaylist.size() < 5) {
+            // No need to pick random tracks, we use all of them anyways
+            List<Pair<Track, String>> tracks = new ArrayList<>();
+            for (PlaylistEntry entry : mPlaylist.getEntries()) {
+                // Let the js resolver fetch the track ids for us
+                tracks.add(new Pair<>(entry.getQuery().getBasicTrack(), ""));
+            }
+            deferred.resolve(tracks);
+        } else {
+            pickSeedsFromPlaylist(deferred, new ArrayList<Integer>(),
+                    new ArrayList<Pair<Track, String>>(), 10);
+        }
+        return deferred;
+    }
+
+    private void pickSeedsFromPlaylist(
+            final ADeferredObject<List<Pair<Track, String>>, Void, Throwable> deferred,
+            final List<Integer> pickedIndexes, final List<Pair<Track, String>> tracks,
+            int attemptCount) {
+        if (attemptCount-- < 0 || tracks.size() >= 5) {
+            deferred.resolve(tracks);
+            return;
+        }
+        int size = mPlaylist.size();
+        int randomIndex = (int) (Math.random() * size);
+        while (pickedIndexes.contains(randomIndex)) {
+            if (randomIndex + 1 < size) {
+                randomIndex++;
+            } else {
+                randomIndex = 0;
+            }
+        }
+        pickedIndexes.add(randomIndex);
+        PlaylistEntry entry = mPlaylist.getEntryAtPos(randomIndex);
+        Track candidate = entry.getQuery().getBasicTrack();
+        ScriptPlaylistGenerator generator =
+                ScriptPlaylistGeneratorManager.get().getDefaultPlaylistGenerator();
+        final int finalAttemptCount = attemptCount;
+        generator.search("track:" + candidate.getName()
+                + "%20artist:" + candidate.getArtist().getName()).always(
+                new AlwaysCallback<ScriptPlaylistGeneratorSearchResult, Throwable>() {
+                    @Override
+                    public void onAlways(Promise.State state,
+                            ScriptPlaylistGeneratorSearchResult resolved, Throwable rejected) {
+                        if (resolved != null && resolved.mTracks != null
+                                && resolved.mTracks.size() > 0) {
+                            tracks.add(resolved.mTracks.get(0));
+                        }
+                        pickSeedsFromPlaylist(deferred, pickedIndexes, tracks, finalAttemptCount);
+                    }
+                });
     }
 
     private static String getIdKey() {

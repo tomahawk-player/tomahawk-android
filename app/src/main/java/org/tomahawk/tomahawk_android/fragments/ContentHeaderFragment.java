@@ -38,9 +38,9 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.adapters.ViewHolder;
+import org.tomahawk.tomahawk_android.listeners.OnSizeChangedListener;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
-import org.tomahawk.tomahawk_android.listeners.OnSizeChangedListener;
 import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 import org.tomahawk.tomahawk_android.views.FancyDropDown;
 import org.tomahawk.tomahawk_android.views.PageIndicator;
@@ -439,6 +439,21 @@ public class ContentHeaderFragment extends Fragment {
             } else if (item instanceof Playlist) {
                 ViewHolder.fillView(getView(), (Playlist) item,
                         mHeaderNonscrollableHeight + mHeaderScrollableHeight, isPagerFragment);
+                View stationButton = getView().findViewById(R.id.station_button);
+                stationButton.setVisibility(View.VISIBLE);
+                stationButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (getMediaController() != null) {
+                            if (item != getPlaybackManager().getPlaylist()) {
+                                StationPlaylist stationPlaylist =
+                                        StationPlaylist.get((Playlist) item);
+                                getPlaybackManager().setPlaylist(stationPlaylist);
+                                getMediaController().getTransportControls().play();
+                            }
+                        }
+                    }
+                });
             } else if (item instanceof Query) {
                 View v = ViewUtils.ensureInflation(getView(), gridOneStubId, gridOneResId);
                 v.getLayoutParams().height = mHeaderNonscrollableHeight + mHeaderScrollableHeight;

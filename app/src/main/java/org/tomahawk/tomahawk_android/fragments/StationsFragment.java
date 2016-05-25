@@ -163,7 +163,7 @@ public class StationsFragment extends TomahawkFragment {
         });
     }
 
-    private List getSuggestedStations() {
+    private static List getSuggestedStations() {
         List suggestedStations = new ArrayList();
         String[] suggestedGenres = new String[]{"acoustic", "alternative", "club", "dance",
                 "drum-and-bass", "dubstep", "electronic", "funk", "goth", "grunge", "happy",
