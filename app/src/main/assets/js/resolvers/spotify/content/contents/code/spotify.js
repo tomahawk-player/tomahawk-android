@@ -654,13 +654,13 @@ Tomahawk.PluginManager.registerPlugin('playlistGenerator', {
                 limit: 100
             };
             if (artistIds.length > 0) {
-                result.seed_artists = artistIds;
+                result.seed_artists = artistIds.join(',');
             }
             if (trackIds.length > 0) {
-                result.seed_tracks = trackIds;
+                result.seed_tracks = trackIds.join(',');
             }
             if (genreIds.length > 0) {
-                result.seed_genres = genreIds;
+                result.seed_genres = genreIds.join(',');
             }
             return result;
         });
