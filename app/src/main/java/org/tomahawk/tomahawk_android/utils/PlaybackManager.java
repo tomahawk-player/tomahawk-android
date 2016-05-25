@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.utils;
 import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.resolver.Query;
 
@@ -101,6 +102,14 @@ public class PlaybackManager extends Cacheable {
 
     public void setPlaylist(Playlist playlist) {
         setPlaylist(playlist, null);
+    }
+
+    public void setPlaylist(StationPlaylist playlist) {
+        PlaylistEntry currentEntry = null;
+        if (playlist.size() > 0) {
+            currentEntry = playlist.getEntryAtPos(playlist.size() - 1);
+        }
+        setPlaylist(playlist, currentEntry);
     }
 
     public void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
