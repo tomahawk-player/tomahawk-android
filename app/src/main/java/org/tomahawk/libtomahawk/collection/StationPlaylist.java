@@ -250,11 +250,9 @@ public class StationPlaylist extends Playlist {
             return null;
         }
         mFillDeferred = new ADeferredObject<>();
-        pickSeedsFromPlaylist().done(new DoneCallback<List<Pair<Track, String>>>() {
+        pickSeedsFromPlaylist().done(new DoneCallback<Void>() {
             @Override
-            public void onDone(List<Pair<Track, String>> result) {
-                mTracks = result;
-
+            public void onDone(Void result) {
                 if (mCandidates.size() >= limit) {
                     // We got enough candidates in cache
                     List<Query> queries = new ArrayList<>();
@@ -326,10 +324,10 @@ public class StationPlaylist extends Playlist {
         return GsonHelper.get().toJson(json);
     }
 
-    private Promise<List<Pair<Track, String>>, Void, Throwable> pickSeedsFromPlaylist() {
-        ADeferredObject<List<Pair<Track, String>>, Void, Throwable> deferred
-                = new ADeferredObject<>();
+    private Promise<Void, Void, Throwable> pickSeedsFromPlaylist() {
+        ADeferredObject<Void, Void, Throwable> deferred = new ADeferredObject<>();
         if (mPlaylist == null || mTracks != null) {
+            // No need to do anything
             deferred.resolve(null);
         } else if (mPlaylist.size() < 5) {
             // No need to pick random tracks, we use all of them anyways
@@ -338,7 +336,8 @@ public class StationPlaylist extends Playlist {
                 // Let the js resolver fetch the track ids for us
                 tracks.add(new Pair<>(entry.getQuery().getBasicTrack(), ""));
             }
-            deferred.resolve(tracks);
+            mTracks = tracks;
+            deferred.resolve(null);
         } else {
             pickSeedsFromPlaylist(deferred, new ArrayList<Integer>(),
                     new ArrayList<Pair<Track, String>>(), 10);
@@ -346,12 +345,12 @@ public class StationPlaylist extends Playlist {
         return deferred;
     }
 
-    private void pickSeedsFromPlaylist(
-            final ADeferredObject<List<Pair<Track, String>>, Void, Throwable> deferred,
+    private void pickSeedsFromPlaylist(final ADeferredObject<Void, Void, Throwable> deferred,
             final List<Integer> pickedIndexes, final List<Pair<Track, String>> tracks,
             int attemptCount) {
         if (attemptCount-- < 0 || tracks.size() >= 5) {
-            deferred.resolve(tracks);
+            mTracks = tracks;
+            deferred.resolve(null);
             return;
         }
         int size = mPlaylist.size();
