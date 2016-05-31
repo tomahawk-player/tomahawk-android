@@ -30,6 +30,9 @@
   <string name="create_playlist">Crear lista de reproducción</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Título</string>
+  <string name="create_station">Crear estación</string>
+  <string name="create_station_search_hint">Búsqueda de artistas/canciones/géneros</string>
+  <string name="genres">Géneros</string>
   <string name="login_name_label">Usuario o correo electrónico</string>
   <string name="login_username">Nombre de usuario</string>
   <string name="login_password">Contraseña</string>
@@ -64,6 +67,10 @@
   <string name="preferences_app_version">Versión de la aplicación</string>
   <string name="preferences_app_uservoice">Comentarios</string>
   <string name="preferences_app_uservoice_text">Comparta ideas o pida ayuda</string>
+  <string name="preferences_app_playstore_link">Califica la aplicación</string>
+  <string name="preferences_app_playstore_link_text">Califica de Tomahawk en la tienda de Google Play.</string>
+  <string name="preferences_app_website_link">Visita nuestro sitio web</string>
+  <string name="preferences_app_website_link_text">Abra tomahawk-player.org en su navegador.</string>
   <string name="preferences_app_sendlog">Enviar registros</string>
   <string name="preferences_app_sendlog_text">Envíe su archivo de registro para ayudar a corregir errores.</string>
   <string name="preferences_app_sendlog_dialog_text">Describa brevemente el problema que ha experimentado y proporcione una dirección de correo electrónico para que podamos contactar con usted si es necesario. ¡Gracias!</string>
@@ -92,6 +99,7 @@
   <string name="drawer_title_charts">Gráficas</string>
   <string name="drawer_title_collection">Colección</string>
   <string name="drawer_title_playlists">Listas de reproducción</string>
+  <string name="drawer_title_stations">Estaciones</string>
   <string name="drawer_title_lovedtracks">Favoritos</string>
   <string name="drawer_title_settings">Configuración</string>
   <string name="drawer_header_cloudcollections">Colecciones en línea</string>
@@ -232,6 +240,17 @@
   <string name="warn_old_plugin">La aplicación plug-in requerida está obsoleta y ya no es compatible. ¿Quieres actualizar ahora?</string>
   <string name="warn_no_plugin">La aplicación plug-in requerida no se encuentra instalada. ¿Quieres instalarla ahora?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">nueva</string>
+  <string name="playback_pause">Pausar</string>
+  <string name="playback_play">Reproducir</string>
+  <string name="playback_previous">Pista anterior</string>
+  <string name="playback_next">Siguiente pista</string>
+  <string name="playback_favorite">Añadir a favoritos</string>
+  <string name="playback_unfavorite">Remover de favoritos</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">Reproduciendo ahora</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="loading_station">Cargando estación:</string>
+  <string name="suggested_stations">Estaciones sugeridas</string>
+  <string name="my_stations">Mis estaciones</string>
 </resources>
