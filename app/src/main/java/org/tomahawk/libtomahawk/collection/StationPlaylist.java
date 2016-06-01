@@ -159,7 +159,7 @@ public class StationPlaylist extends Playlist {
                     JsonElement idElement = o.get(getIdKey());
                     String id = "";
                     if (idElement != null) {
-                        idElement.getAsString();
+                        id = idElement.getAsString();
                     }
                     artists.add(new Pair<>(artist, id));
                 }
@@ -178,7 +178,7 @@ public class StationPlaylist extends Playlist {
                     JsonElement idElement = o.get(getIdKey());
                     String id = "";
                     if (idElement != null) {
-                        idElement.getAsString();
+                        id = idElement.getAsString();
                     }
                     tracks.add(new Pair<>(track, id));
                 }
