@@ -391,8 +391,8 @@ Tomahawk.retrievedMetadata = function (metadataId, metadata, error) {
 var shouldDoNativeRequest = function (options) {
     var extraHeaders = options.headers;
     return (extraHeaders && (extraHeaders.hasOwnProperty("Referer")
-        || extraHeaders.hasOwnProperty("referer")
-        || extraHeaders.hasOwnProperty("User-Agent")));
+    || extraHeaders.hasOwnProperty("referer")
+    || extraHeaders.hasOwnProperty("User-Agent")));
 };
 
 /**
@@ -415,7 +415,12 @@ var doRequest = function(options) {
                 return this.responseHeaders;
             };
             xhr.getResponseHeader = function (header) {
-                return this.responseHeaders[header.toLowerCase()];
+                for(key in xhr.responseHeaders) {
+                    if(key.toLowerCase() === header.toLowerCase()) {
+                        return xhr.responseHeaders[key];
+                    }
+                }
+                return null;
             };
 
             return xhr;
@@ -502,34 +507,34 @@ Tomahawk.ajax = function (url, settings) {
     }
 
     return doRequest(settings).then(function (xhr) {
-            if (settings.rawResponse) {
-                return xhr;
-            }
-            var responseText = xhr.responseText;
-            var contentType;
-            if (settings.dataType === 'json') {
-                contentType = 'application/json';
-            } else if (settings.dataType === 'xml') {
-                contentType = 'text/xml';
-            } else if (typeof xhr.getResponseHeader !== 'undefined') {
-                contentType = xhr.getResponseHeader('Content-Type');
-            } else if (xhr.hasOwnProperty('contentType')) {
-                contentType = xhr['contentType'];
-            } else {
-                contentType = 'text/html';
-            }
+        if (settings.rawResponse) {
+            return xhr;
+        }
+        var responseText = xhr.responseText;
+        var contentType;
+        if (settings.dataType === 'json') {
+            contentType = 'application/json';
+        } else if (settings.dataType === 'xml') {
+            contentType = 'text/xml';
+        } else if (typeof xhr.getResponseHeader !== 'undefined') {
+            contentType = xhr.getResponseHeader('Content-Type');
+        } else if (xhr.hasOwnProperty('contentType')) {
+            contentType = xhr['contentType'];
+        } else {
+            contentType = 'text/html';
+        }
 
-            if (~contentType.indexOf('application/json')) {
-                return JSON.parse(responseText);
-            }
+        if (~contentType.indexOf('application/json')) {
+            return JSON.parse(responseText);
+        }
 
-            if (~contentType.indexOf('text/xml')) {
-                var domParser = new DOMParser();
-                return domParser.parseFromString(responseText, "text/xml");
-            }
+        if (~contentType.indexOf('text/xml')) {
+            var domParser = new DOMParser();
+            return domParser.parseFromString(responseText, "text/xml");
+        }
 
-            return xhr.responseText;
-        });
+        return xhr.responseText;
+    });
 };
 
 Tomahawk.post = function (url, settings) {
@@ -1763,7 +1768,7 @@ Tomahawk.Collection = {
 
     getStreamUrl: function(params) {
         if(this.resolver) {
-          return this.resolver.getStreamUrl(params);
+            return this.resolver.getStreamUrl(params);
         }
 
         return params;
