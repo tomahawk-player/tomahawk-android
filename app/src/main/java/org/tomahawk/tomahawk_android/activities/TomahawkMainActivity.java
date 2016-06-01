@@ -355,7 +355,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(DbCollection.InitializedEvent event) {
-        mMenuDrawer.updateDrawer(this);
+        MenuDrawer.updateDrawer(mMenuDrawer, this);
     }
 
     @SuppressWarnings("unused")
@@ -364,19 +364,19 @@ public class TomahawkMainActivity extends AppCompatActivity {
             if (event.mInfoRequestData != null
                     && event.mInfoRequestData.getType()
                     == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
-                mMenuDrawer.updateDrawer(this);
+                MenuDrawer.updateDrawer(mMenuDrawer, this);
             }
         }
     }
 
     @SuppressWarnings("unused")
     public void onEventMainThread(CollectionManager.AddedEvent event) {
-        mMenuDrawer.updateDrawer(this);
+        MenuDrawer.updateDrawer(mMenuDrawer, this);
     }
 
     @SuppressWarnings("unused")
     public void onEventMainThread(HatchetAuthenticatorUtils.UserLoginEvent event) {
-        mMenuDrawer.updateDrawer(this);
+        MenuDrawer.updateDrawer(mMenuDrawer, this);
     }
 
     @SuppressWarnings("unused")
@@ -466,24 +466,26 @@ public class TomahawkMainActivity extends AppCompatActivity {
         mActionBarBg = findViewById(R.id.action_bar_background);
 
         mMenuDrawer = (MenuDrawer) findViewById(R.id.drawer_layout);
-        mDrawerToggle = new ActionBarDrawerToggle(this, mMenuDrawer, R.string.drawer_open,
-                R.string.drawer_close) {
+        if (mMenuDrawer != null) {
+            mDrawerToggle = new ActionBarDrawerToggle(this, mMenuDrawer, R.string.drawer_open,
+                    R.string.drawer_close) {
 
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                getSupportActionBar().setTitle(mTitle);
-            }
-
-            /** Called when a drawer has settled in a completely open state. */
-            public void onDrawerOpened(View drawerView) {
-                getSupportActionBar().setTitle(mDrawerTitle);
-                if (mSearchItem != null) {
-                    MenuItemCompat.collapseActionView(mSearchItem);
+                /** Called when a drawer has settled in a completely closed state. */
+                public void onDrawerClosed(View view) {
+                    getSupportActionBar().setTitle(mTitle);
                 }
-            }
-        };
-        // Set the drawer toggle as the DrawerListener
-        mMenuDrawer.addDrawerListener(mDrawerToggle);
+
+                /** Called when a drawer has settled in a completely open state. */
+                public void onDrawerOpened(View drawerView) {
+                    getSupportActionBar().setTitle(mDrawerTitle);
+                    if (mSearchItem != null) {
+                        MenuItemCompat.collapseActionView(mSearchItem);
+                    }
+                }
+            };
+            // Set the drawer toggle as the DrawerListener
+            mMenuDrawer.addDrawerListener(mDrawerToggle);
+        }
 
         // set customization variables on the ActionBar
         final ActionBar actionBar = getSupportActionBar();
@@ -512,7 +514,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
         //Ask for notification service access if hatchet user logged in
         PreferenceUtils.attemptAskAccess(this);
 
-        mMenuDrawer.updateDrawer(this);
+        MenuDrawer.updateDrawer(mMenuDrawer, this);
 
         User.getSelf().done(new DoneCallback<User>() {
             @Override
@@ -867,7 +869,9 @@ public class TomahawkMainActivity extends AppCompatActivity {
     }
 
     public void closeDrawer() {
-        mMenuDrawer.closeDrawer();
+        if (mMenuDrawer != null) {
+            mMenuDrawer.closeDrawer();
+        }
     }
 
     public void onHatchetLoggedInOut(boolean loggedIn) {
@@ -883,7 +887,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 }
             });
         }
-        mMenuDrawer.updateDrawer(this);
+        MenuDrawer.updateDrawer(mMenuDrawer, this);
     }
 
     @Override
