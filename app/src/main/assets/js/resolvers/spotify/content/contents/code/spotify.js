@@ -633,7 +633,7 @@ Tomahawk.PluginManager.registerPlugin('playlistGenerator', {
                 } else if (track.track && track.artist) {
                     // No artist id provided, so we have to search for it
                     var queryParams = {
-                        query: "track:" + track.track + "%20artist:" + track.artist
+                        query: "track:" + track.track + " artist:" + track.artist
                     };
                     promises.push(this.search(queryParams).then(function (result) {
                         if (result.tracks && result.tracks.length > 0) {
