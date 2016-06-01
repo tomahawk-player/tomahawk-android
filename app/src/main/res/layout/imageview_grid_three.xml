@@ -40,7 +40,7 @@
                    android:layout_weight="1"
                    android:scaleType="centerCrop"
                    android:adjustViewBounds="true"
-                   android:src="@drawable/album_placeholder_grid"/>
+                   android:src="@drawable/album_placeholder"/>
 
     </LinearLayout>
 
@@ -56,7 +56,7 @@
                    android:layout_weight="1"
                    android:scaleType="centerCrop"
                    android:adjustViewBounds="true"
-                   android:src="@drawable/album_placeholder_grid"/>
+                   android:src="@drawable/album_placeholder"/>
 
         <ImageView android:id="@+id/imageview3"
                    android:layout_width="0dp"
@@ -65,7 +65,7 @@
                    android:layout_marginLeft="5dp"
                    android:scaleType="centerCrop"
                    android:adjustViewBounds="true"
-                   android:src="@drawable/album_placeholder_grid"/>
+                   android:src="@drawable/album_placeholder"/>
 
     </LinearLayout>
 

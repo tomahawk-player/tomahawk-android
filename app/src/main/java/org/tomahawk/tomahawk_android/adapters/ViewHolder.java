@@ -430,7 +430,7 @@ public class ViewHolder {
             } else {
                 ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(),
                         (ImageView) v.findViewById(R.id.imageview1),
-                        R.drawable.album_placeholder_grid);
+                        R.drawable.album_placeholder);
             }
         }
         if (height > 0) {
