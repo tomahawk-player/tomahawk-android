@@ -30,6 +30,10 @@
   <string name="create_playlist">创建播放列表</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">名称</string>
+  <string name="create_station">创建电台</string>
+  <string name="create_station_search_hint">搜索艺术家/歌曲/风格</string>
+  <string name="genres">风格</string>
+  <string name="moods">情绪</string>
   <string name="login_name_label">邮箱/用户名</string>
   <string name="login_username">用户名</string>
   <string name="login_password">密码</string>
@@ -64,6 +68,10 @@
   <string name="preferences_app_version">软件版本</string>
   <string name="preferences_app_uservoice">反馈</string>
   <string name="preferences_app_uservoice_text">分享您的想法或获取帮助</string>
+  <string name="preferences_app_playstore_link">评价此APP</string>
+  <string name="preferences_app_playstore_link_text">在 Google Play 商店对 Tomahawk 评分。</string>
+  <string name="preferences_app_website_link">访问我们的网站</string>
+  <string name="preferences_app_website_link_text">在浏览器中打开 tomahawk-player.org 。</string>
   <string name="preferences_app_sendlog">发送日志</string>
   <string name="preferences_app_sendlog_text">发送日志，用于诊断。</string>
   <string name="preferences_app_sendlog_dialog_text">请简单描述您遇到的问题并留下您的邮箱，以便我们想更进一步了解问题信息时联系您。</string>
@@ -89,9 +97,11 @@
   <string name="context_menu_share">分享</string>
   <string name="contest_menu_share_error">你必须登陆到 Hatchet 才能分享此播放列表。</string>
   <string name="drawer_title_feed">订阅</string>
+  <string name="drawer_title_charts">榜单</string>
   <string name="drawer_title_collection">收藏</string>
   <string name="drawer_title_playlists">播放列表</string>
-  <string name="drawer_title_lovedtracks">喜欢的</string>
+  <string name="drawer_title_stations">电台</string>
+  <string name="drawer_title_lovedtracks">收藏</string>
   <string name="drawer_title_settings">设置</string>
   <string name="drawer_header_cloudcollections">云收藏</string>
   <string name="collection_dropdown_recently_added">最近添加</string>
@@ -152,10 +162,10 @@
     <item quantity="other">%1$d 天前</item>
   </plurals>
   <string name="users_playbacklog_suffix">%1$s 最近播放的</string>
-  <string name="users_favorites_suffix">%1$s 喜欢的</string>
+  <string name="users_favorites_suffix">%1$s 的收藏</string>
   <string name="users_playlist_suffix">%1$s 的播放列表</string>
   <string name="my_playbacklog">最近播放的</string>
-  <string name="my_favorites">我喜欢的</string>
+  <string name="my_favorites">我的收藏</string>
   <string name="my_playlist">我的播放列表</string>
   <string name="music">音乐</string>
   <string name="biography">简介</string>
@@ -190,7 +200,7 @@
   <string name="slidinglayout_enqueue_coachmark">轻击添加曲目到播放队列。</string>
   <string name="playbackfragment_navigation_coachmark_down">上拉显示当前播放列表。</string>
   <string name="playbackfragment_navigation_coachmark_up">下拉关闭播放控制栏。</string>
-  <string name="playbackfragment_navigation_coachmark_center">左/右滑跳到上首/下首歌曲。长按打开文本菜单。双击添加为喜欢。</string>
+  <string name="playbackfragment_navigation_coachmark_center">左/右滑跳到上首/下首歌曲。长按打开文本菜单。双击添加到收藏。</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">下一首</string>
   <string name="welcome_fragment_explanation_title">入门指南</string>
@@ -220,6 +230,18 @@
   <string name="warn_old_plugin">一个必需的插件应用已过期且不再兼容。你希望更新这个插件吗？</string>
   <string name="warn_no_plugin">一个必需的插件应用未安装。你希望安装这个插件吗？</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">新建</string>
+  <string name="playback_pause">暂停</string>
+  <string name="playback_play">播放</string>
+  <string name="playback_previous">上个曲目</string>
+  <string name="playback_next">下个曲目</string>
+  <string name="playback_favorite">添加到收藏</string>
+  <string name="playback_unfavorite">从收藏中移除</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">正在播放</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">随机播放</string>
+  <string name="loading_station">载入电台中:</string>
+  <string name="suggested_stations">推荐的电台</string>
+  <string name="my_stations">我的电台</string>
 </resources>
