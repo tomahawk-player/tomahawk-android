@@ -29,7 +29,7 @@
                android:layout_weight="1"
                android:scaleType="centerCrop"
                android:adjustViewBounds="true"
-               android:src="@drawable/album_placeholder_grid"/>
+               android:src="@drawable/album_placeholder"/>
 
     <ImageView android:id="@+id/imageview2"
                android:layout_width="0dp"
@@ -38,6 +38,6 @@
                android:layout_marginLeft="5dp"
                android:scaleType="centerCrop"
                android:adjustViewBounds="true"
-               android:src="@drawable/album_placeholder_grid"/>
+               android:src="@drawable/album_placeholder"/>
 
 </org.tomahawk.tomahawk_android.ui.widgets.SquareWidthLinearLayout>

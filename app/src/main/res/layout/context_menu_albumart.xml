@@ -8,7 +8,7 @@
                android:layout_width="match_parent"
                android:layout_height="wrap_content"
                android:adjustViewBounds="true"
-               android:src="@drawable/album_placeholder_grid"/>
+               android:src="@drawable/album_placeholder"/>
 
     <View android:layout_width="match_parent"
           android:layout_height="match_parent"

@@ -111,8 +111,8 @@ public class ImageUtils {
      */
     public static void loadImageIntoImageView(Context context, ImageView imageView, Image image,
             int width, boolean fit, boolean isArtistImage) {
-        int placeHolder = isArtistImage ? R.drawable.artist_placeholder_grid
-                : R.drawable.album_placeholder_grid;
+        int placeHolder = isArtistImage ? R.drawable.artist_placeholder
+                : R.drawable.album_placeholder;
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(image, width);
             RequestCreator creator = Picasso.with(context).load(
@@ -238,8 +238,8 @@ public class ImageUtils {
      */
     public static void loadImageIntoBitmap(Context context, Image image, Target target, int width,
             boolean isArtistImage) {
-        int placeHolder = isArtistImage ? R.drawable.artist_placeholder_grid
-                : R.drawable.album_placeholder_grid;
+        int placeHolder = isArtistImage ? R.drawable.artist_placeholder
+                : R.drawable.album_placeholder;
         if (image != null && !TextUtils.isEmpty(image.getImagePath())) {
             String imagePath = buildImagePath(image, width);
             Picasso.with(context).load(ImageUtils.preparePathForPicasso(imagePath))

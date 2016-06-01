@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <color android:color="#d8d8d8"/>
+    </item>
+
+    <item>
+        <inset
+                android:drawable="@drawable/artist_placeholder_star"
+                android:insetTop="135dp"
+                android:insetLeft="135dp"
+                android:insetRight="135dp"
+                android:insetBottom="135dp">
+        </inset>
+    </item>
+</layer-list>

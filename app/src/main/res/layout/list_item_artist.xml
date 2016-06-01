@@ -35,7 +35,7 @@
                android:layout_height="@dimen/row_height_verylarge"
                android:layout_gravity="center"
                android:scaleType="centerCrop"
-               android:src="@drawable/album_placeholder_grid"/>
+               android:src="@drawable/album_placeholder"/>
 
     <TextView android:id="@+id/textview1"
               android:layout_width="0dp"
