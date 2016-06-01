@@ -31,6 +31,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkMenuAdapter;
 import org.tomahawk.tomahawk_android.listeners.MenuDrawerListener;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.widget.DrawerLayout;
@@ -58,9 +59,7 @@ public class MenuDrawer extends DrawerLayout {
 
     public static final String HUB_ID_SETTINGS = "settings";
 
-    private StickyListHeadersListView mDrawerList;
-
-    private TomahawkMenuAdapter mTomahawkMenuAdapter;
+    public StickyListHeadersListView mDrawerList;
 
     public MenuDrawer(Context context) {
         super(context);
@@ -74,7 +73,21 @@ public class MenuDrawer extends DrawerLayout {
         super(context, attrs, defStyle);
     }
 
-    public void updateDrawer(final TomahawkMainActivity activity) {
+    public static void updateDrawer(MenuDrawer menuDrawer, TomahawkMainActivity activity) {
+        if (menuDrawer != null) {
+            menuDrawer.mDrawerList =
+                    (StickyListHeadersListView) menuDrawer.findViewById(R.id.left_drawer);
+            updateDrawer(menuDrawer.mDrawerList, menuDrawer, activity);
+        } else {
+            // App is running on a large landscape device (probably tablet)
+            StickyListHeadersListView drawerList =
+                    (StickyListHeadersListView) activity.findViewById(R.id.left_drawer);
+            updateDrawer(drawerList, null, activity);
+        }
+    }
+
+    private static void updateDrawer(final StickyListHeadersListView drawerList,
+            final MenuDrawer menuDrawer, final TomahawkMainActivity activity) {
         User.getSelf().done(new DoneCallback<User>() {
             @Override
             public void onDone(User user) {
@@ -82,10 +95,10 @@ public class MenuDrawer extends DrawerLayout {
                         = (HatchetAuthenticatorUtils) AuthenticatorManager.get()
                         .getAuthenticatorUtils(TomahawkApp.PLUGINNAME_HATCHET);
                 // Set up the TomahawkMenuAdapter. Give it its set of menu item texts and icons to display
-                mDrawerList = (StickyListHeadersListView) findViewById(R.id.left_drawer);
                 final ArrayList<TomahawkMenuAdapter.ResourceHolder> holders = new ArrayList<>();
                 TomahawkMenuAdapter.ResourceHolder holder
                         = new TomahawkMenuAdapter.ResourceHolder();
+                Resources resources = activity.getResources();
                 if (authenticatorUtils.isLoggedIn()) {
                     holder.id = HUB_ID_USERPAGE;
                     holder.title = user.getName();
@@ -94,39 +107,39 @@ public class MenuDrawer extends DrawerLayout {
                     holders.add(holder);
                     holder = new TomahawkMenuAdapter.ResourceHolder();
                     holder.id = HUB_ID_FEED;
-                    holder.title = getResources().getString(R.string.drawer_title_feed);
+                    holder.title = resources.getString(R.string.drawer_title_feed);
                     holder.iconResId = R.drawable.ic_action_dashboard;
                     holders.add(holder);
                 }
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = HUB_ID_CHARTS;
-                holder.title = getResources().getString(R.string.drawer_title_charts);
+                holder.title = resources.getString(R.string.drawer_title_charts);
                 holder.iconResId = R.drawable.ic_action_charts;
                 holders.add(holder);
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = HUB_ID_COLLECTION;
-                holder.title = getResources().getString(R.string.drawer_title_collection);
+                holder.title = resources.getString(R.string.drawer_title_collection);
                 holder.iconResId = R.drawable.ic_action_collection;
                 holder.isLoading = !CollectionManager.get().getUserCollection().isInitialized();
                 holders.add(holder);
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = HUB_ID_LOVEDTRACKS;
-                holder.title = getResources().getString(R.string.drawer_title_lovedtracks);
+                holder.title = resources.getString(R.string.drawer_title_lovedtracks);
                 holder.iconResId = R.drawable.ic_action_favorites;
                 holders.add(holder);
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = HUB_ID_PLAYLISTS;
-                holder.title = getResources().getString(R.string.drawer_title_playlists);
+                holder.title = resources.getString(R.string.drawer_title_playlists);
                 holder.iconResId = R.drawable.ic_action_playlist;
                 holders.add(holder);
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = HUB_ID_STATIONS;
-                holder.title = getResources().getString(R.string.drawer_title_stations);
+                holder.title = resources.getString(R.string.drawer_title_stations);
                 holder.iconResId = R.drawable.ic_action_station;
                 holders.add(holder);
                 holder = new TomahawkMenuAdapter.ResourceHolder();
                 holder.id = HUB_ID_SETTINGS;
-                holder.title = getResources().getString(R.string.drawer_title_settings);
+                holder.title = resources.getString(R.string.drawer_title_settings);
                 holder.iconResId = R.drawable.ic_action_settings;
                 holders.add(holder);
                 for (Collection collection : CollectionManager.get().getCollections()) {
@@ -142,17 +155,17 @@ public class MenuDrawer extends DrawerLayout {
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @Override
                     public void run() {
-                        if (mDrawerList.getAdapter() == null) {
-                            mTomahawkMenuAdapter = new TomahawkMenuAdapter(holders);
-                            mDrawerList.setAdapter(mTomahawkMenuAdapter);
+                        if (drawerList.getAdapter() == null) {
+                            drawerList.setAdapter(new TomahawkMenuAdapter(holders));
                         } else {
-                            mTomahawkMenuAdapter.setResourceHolders(holders);
+                            ((TomahawkMenuAdapter) drawerList.getAdapter())
+                                    .setResourceHolders(holders);
                         }
                     }
                 });
 
-                mDrawerList.setOnItemClickListener(
-                        new MenuDrawerListener(activity, mDrawerList, MenuDrawer.this));
+                drawerList.setOnItemClickListener(
+                        new MenuDrawerListener(activity, drawerList, menuDrawer));
             }
         });
     }
