@@ -286,7 +286,11 @@ public class ContentHeaderFragment extends Fragment {
     }
 
     public MediaControllerCompat getMediaController() {
-        return getActivity().getSupportMediaController();
+        if (getActivity() != null) {
+            return getActivity().getSupportMediaController();
+        }
+        Log.e(TAG, "getActivity() was null, couldn't get MediaController!");
+        return null;
     }
 
     public PlaybackManager getPlaybackManager() {
