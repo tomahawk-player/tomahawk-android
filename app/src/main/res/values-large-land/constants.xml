@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <item name="grid_column_count" type="integer">4</item>
-    <item name="grid_column_count_feed" type="integer">6</item>
+    <item name="grid_column_count" type="integer">5</item>
+    <item name="grid_column_count_feed" type="integer">8</item>
     <bool name="set_headers_sticky">true</bool>
 
 </resources>
