@@ -387,16 +387,16 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                         || viewHolder.mLayoutId == R.layout.list_item_artist) {
                     String numerationString = null;
                     if (getSegment(position).isShowNumeration()) {
-                        numerationString = "" +
-                                getSegment(position).getNumeration(getPosInSegment(position));
+                        int pos = getPosInSegment(position) * viewHolders.size() + i;
+                        numerationString = "" + getSegment(position).getNumeration(pos);
                     }
                     viewHolder.fillView((Artist) targetItem, numerationString);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_album
                         || viewHolder.mLayoutId == R.layout.list_item_album) {
                     String numerationString = null;
                     if (getSegment(position).isShowNumeration()) {
-                        numerationString = "" +
-                                getSegment(position).getNumeration(getPosInSegment(position));
+                        int pos = getPosInSegment(position) * viewHolders.size() + i;
+                        numerationString = "" + getSegment(position).getNumeration(pos);
                     }
                     viewHolder.fillView((Album) targetItem, mCollection, numerationString);
                 } else if (viewHolder.mLayoutId == R.layout.grid_item_resolver) {
@@ -434,8 +434,9 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                         boolean isShowAsQueued =
                                 getSegment(position).isShowAsQueued(getPosInSegment(position));
                         if (!isShowAsQueued && getSegment(position).isShowNumeration()) {
+                            int pos = getPosInSegment(position) * viewHolders.size() + i;
                             numerationString = String.format("%02d",
-                                    getSegment(position).getNumeration(getPosInSegment(position)));
+                                    getSegment(position).getNumeration(pos));
                         }
                         final Query query;
                         final PlaylistEntry entry;
