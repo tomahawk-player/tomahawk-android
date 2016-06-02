@@ -113,7 +113,12 @@ public class PlaybackFragment extends TomahawkFragment {
         @Override
         public boolean onDoubleTap(MotionEvent e) {
             if (getMediaController() == null) {
-                Log.d(TAG, "onDoubleTap failed because getMediaController() is null");
+                Log.e(TAG, "onDoubleTap failed because getMediaController() is null");
+                return false;
+            }
+            if (getPlaybackManager().getCurrentQuery() == null) {
+                Log.e(TAG, "onDoubleTap failed because getPlaybackManager().getCurrentQuery()"
+                        + " is null");
                 return false;
             }
             final ImageView imageView =
