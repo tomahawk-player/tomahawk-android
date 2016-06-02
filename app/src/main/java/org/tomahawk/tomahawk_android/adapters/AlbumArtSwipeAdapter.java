@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.adapters;
 import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -121,24 +122,36 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
      */
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        View view = LayoutInflater.from(mViewPager.getContext()).inflate(
-                org.tomahawk.tomahawk_android.R.layout.album_art_view_pager_item, container, false);
-        if (mPlaybackManager != null && mSize > 0) {
-            if (mRepeatMode != PlaybackManager.NOT_REPEATING) {
-                position = position % mSize;
-            }
+        LayoutInflater inflater = LayoutInflater.from(mViewPager.getContext());
+        View view = inflater.inflate(R.layout.album_art_view_pager_item, container, false);
+        if (mPlaybackManager != null) {
             Image image = null;
-            boolean hasArtistImage = false;
-            PlaylistEntry entry = mPlaybackManager.getPlaybackListEntry(position);
-            if (entry != null) {
-                image = entry.getQuery().getImage();
-                hasArtistImage = entry.getQuery().hasArtistImage();
+            boolean isArtistImage = false;
+            if (mSize > 0) {
+                if (mRepeatMode != PlaybackManager.NOT_REPEATING) {
+                    position = position % mSize;
+                }
+                PlaylistEntry entry = mPlaybackManager.getPlaybackListEntry(position);
+                if (entry != null) {
+                    image = entry.getQuery().getImage();
+                    isArtistImage = entry.getQuery().hasArtistImage();
+                }
+            } else if (mPlaybackManager.getPlaylist() instanceof StationPlaylist) {
+                StationPlaylist station = (StationPlaylist) mPlaybackManager.getPlaylist();
+                if (station.getArtists() != null && station.getArtists().size() > 0) {
+                    image = station.getArtists().get(0).first.getImage();
+                    isArtistImage = true;
+                }
+                if (image == null && station.getTracks() != null
+                        && station.getTracks().size() > 0) {
+                    image = station.getTracks().get(0).first.getImage();
+                }
             }
             ImageView imageView = (ImageView) view.findViewById(R.id.album_art_image);
             boolean landscapeMode = mViewPager.getResources().getConfiguration().orientation
                     == Configuration.ORIENTATION_LANDSCAPE;
             ImageUtils.loadImageIntoImageView(mViewPager.getContext(), imageView,
-                    image, Image.getLargeImageSize(), landscapeMode, hasArtistImage);
+                    image, Image.getLargeImageSize(), landscapeMode, isArtistImage);
         }
         if (view != null) {
             container.addView(view);
