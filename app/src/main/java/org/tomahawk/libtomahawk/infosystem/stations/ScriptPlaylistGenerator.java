@@ -138,7 +138,7 @@ public class ScriptPlaylistGenerator implements ScriptPlugin {
             List<Pair<Artist, String>> artists, List<Pair<Track, String>> tracks,
             List<String> genres) {
         Map<String, Object> args = new HashMap<>();
-        if (sessionId != null){
+        if (sessionId != null) {
             args.put("sessionId", sessionId);
         }
         if (artists != null) {
@@ -178,6 +178,11 @@ public class ScriptPlaylistGenerator implements ScriptPlugin {
             @Override
             public void onReportResults(JsonObject results) {
                 deferred.resolve(parseResult(results));
+            }
+        }, new ScriptJob.FailureCallback() {
+            @Override
+            public void onReportFailure(String errormessage) {
+                deferred.reject(new Throwable("Error while loading station: " + errormessage));
             }
         });
         return deferred;

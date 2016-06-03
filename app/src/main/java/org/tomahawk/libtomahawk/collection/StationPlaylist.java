@@ -24,6 +24,7 @@ import com.google.gson.JsonObject;
 import org.jdeferred.AlwaysCallback;
 import org.jdeferred.Deferred;
 import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.infosystem.stations.ScriptPlaylistGenerator;
 import org.tomahawk.libtomahawk.infosystem.stations.ScriptPlaylistGeneratorManager;
@@ -275,7 +276,18 @@ public class StationPlaylist extends Playlist {
                                         // Add the rest to our candidate cache
                                         mCandidates.addAll(result.results);
                                     }
-                                    mFillDeferred.resolve(queries);
+                                    if (queries.size() == 0) {
+                                        mFillDeferred.reject(
+                                                new Throwable("Couldn't find suitable tracks"));
+                                    } else {
+                                        mFillDeferred.resolve(queries);
+                                    }
+                                }
+                            })
+                            .fail(new FailCallback<Throwable>() {
+                                @Override
+                                public void onFail(Throwable result) {
+                                    mFillDeferred.reject(result);
                                 }
                             });
                 }
