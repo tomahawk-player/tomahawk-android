@@ -23,6 +23,8 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
+import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
@@ -165,29 +167,35 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     /**
      * Prepare the given url
      */
-    private void prepare(Query query) {
+    private void prepare(final Query query) {
         Log.d(TAG, "prepare()");
-        getMediaPlayerInstance().stop();
-        mPreparedQuery = null;
-        mPreparingQuery = query;
-        Result result = query.getPreferredTrackResult();
-        String path;
-        if (mTranslatedUrls.get(result) != null) {
-            path = mTranslatedUrls.remove(result);
-        } else {
-            if (result.getResolvedBy() instanceof ScriptResolver) {
-                ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
-                return;
-            } else {
-                path = result.getPath();
+        TomahawkRunnable r = new TomahawkRunnable(1) {
+            @Override
+            public void run() {
+                getMediaPlayerInstance().stop();
+                mPreparedQuery = null;
+                mPreparingQuery = query;
+                Result result = query.getPreferredTrackResult();
+                String path;
+                if (mTranslatedUrls.get(result) != null) {
+                    path = mTranslatedUrls.remove(result);
+                } else {
+                    if (result.getResolvedBy() instanceof ScriptResolver) {
+                        ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
+                        return;
+                    } else {
+                        path = result.getPath();
+                    }
+                }
+                Media media = new Media(sLibVLC, AndroidUtil.LocationToUri(path));
+                getMediaPlayerInstance().setMedia(media);
+                mPreparedQuery = mPreparingQuery;
+                mPreparingQuery = null;
+                mMediaPlayerCallback.onPrepared(VLCMediaPlayer.this, mPreparedQuery);
+                Log.d(TAG, "onPrepared()");
             }
-        }
-        Media media = new Media(sLibVLC, AndroidUtil.LocationToUri(path));
-        getMediaPlayerInstance().setMedia(media);
-        mPreparedQuery = mPreparingQuery;
-        mPreparingQuery = null;
-        mMediaPlayerCallback.onPrepared(this, mPreparedQuery);
-        Log.d(TAG, "onPrepared()");
+        };
+        ThreadManager.get().executePlayback(r);
     }
 
     /**
