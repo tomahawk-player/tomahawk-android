@@ -112,7 +112,7 @@ public class UserCollectionStubResolver implements Resolver {
      */
     @Override
     public int getWeight() {
-        return 0;
+        return 110;
     }
 
     @Override
