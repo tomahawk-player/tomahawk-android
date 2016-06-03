@@ -21,8 +21,6 @@ import android.support.annotation.NonNull;
 
 public abstract class TomahawkRunnable implements Runnable, Comparable<TomahawkRunnable> {
 
-    public static final int PRIORITY_IS_PLAYBACK = 1000;
-
     public static final int PRIORITY_IS_NOTIFICATION = 500;
 
     public static final int PRIORITY_IS_VERYHIGH = 200;
