@@ -22,6 +22,7 @@ import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Target;
 
 import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
@@ -436,6 +437,18 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                         mStationQueries.get(stationPlaylist).add(query);
                         PipeLine.get().resolve(query);
                     }
+                }
+            });
+            promise.fail(new FailCallback<Throwable>() {
+                @Override
+                public void onFail(final Throwable result) {
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(TomahawkApp.getContext(), result.getMessage(),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
                 }
             });
         }
