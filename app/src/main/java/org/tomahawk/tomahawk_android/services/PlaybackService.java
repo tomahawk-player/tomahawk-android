@@ -395,6 +395,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onCurrentEntryChanged() {
             Log.d(TAG, "Current entry has changed to: " + mPlaybackManager.getCurrentEntry());
+            if (mPlaybackManager.getCurrentEntry() == null) {
+                mNotification.stopNotification();
+            }
             handlePlayState();
             Playlist playlist = mPlaybackManager.getPlaylist();
             if (playlist instanceof StationPlaylist) {
