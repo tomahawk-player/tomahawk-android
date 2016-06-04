@@ -90,16 +90,20 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
     },
 
     testConfig: function (config) {
-        return this._getLoginPromise(config, true).then(function (resp) {
-            var appConfigRe = /amznMusic.appConfig *?= *?({.*});/g;
-            if (appConfigRe.exec(resp) != null) {
-                return Tomahawk.ConfigTestResultType.Success;
-            } else {
-                return Tomahawk.ConfigTestResultType.InvalidCredentials;
-            }
-        }, function (error) {
-            return "Internal error.";
-        });
+        var that = this;
+        return that._get(that.api_location + "gp/dmusic/cloudplayer/forceSignOut").then(
+            function () {
+                return that._getLoginPromise(config, true).then(function (resp) {
+                    var appConfigRe = /amznMusic.appConfig *?= *?({.*});/g;
+                    if (appConfigRe.exec(resp) != null) {
+                        return Tomahawk.ConfigTestResultType.Success;
+                    } else {
+                        return Tomahawk.ConfigTestResultType.InvalidCredentials;
+                    }
+                }, function (error) {
+                    return "Internal error.";
+                });
+            });
     },
 
     _request: function(url, method, options, use_csrf_headers){
@@ -143,8 +147,11 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
         var domains = ['.com', '.de', '.co.uk'];
 
         this.api_location = 'https://www.amazon' + domains[this._region] + '/';
+        var that = this;
 
-        return this._login(config);
+        return this._get(this.api_location + "gp/dmusic/cloudplayer/forceSignOut").then(function(resp){
+            return that._login(config);
+        });
     },
 
     _convertTrack: function (entry) {
