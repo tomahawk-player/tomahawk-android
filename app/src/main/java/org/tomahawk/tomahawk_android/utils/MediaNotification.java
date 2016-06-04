@@ -160,6 +160,7 @@ public class MediaNotification {
         mNotificationColor = mService.getResources().getColor(R.color.notification_bg);
 
         mNotificationManager = NotificationManagerCompat.from(mService);
+        stopNotification();
 
         String pkg = mService.getPackageName();
         mIntents.put(R.drawable.ic_action_favorites_small, PendingIntent.getBroadcast(mService, 100,
@@ -218,7 +219,9 @@ public class MediaNotification {
             @Override
             public void run() {
                 mStarted = false;
-                mController.unregisterCallback(mCallback);
+                if (mController != null) {
+                    mController.unregisterCallback(mCallback);
+                }
                 try {
                     mService.unregisterReceiver(mActionReceiver);
                 } catch (IllegalArgumentException ex) {
@@ -404,7 +407,7 @@ public class MediaNotification {
         // Make sure that the notification can be dismissed by the user when we are not playing:
         mNotificationBuilder
                 .setOngoing(mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING);
-        if (mPlaybackState.getState() == PlaybackStateCompat.STATE_PAUSED) {
+        if (mPlaybackState.getState() != PlaybackStateCompat.STATE_PLAYING) {
             mService.stopForeground(false);
         }
     }
