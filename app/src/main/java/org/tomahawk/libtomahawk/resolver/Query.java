@@ -257,8 +257,10 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
     }
 
     public Result getPreferredTrackResult() {
-        if (mTrackResults.size() > 0) {
-            return mTrackResults.first();
+        for (Result trackResult : mTrackResults) {
+            if (trackResult.getResolvedBy().isEnabled()) {
+                return trackResult;
+            }
         }
         return null;
     }
