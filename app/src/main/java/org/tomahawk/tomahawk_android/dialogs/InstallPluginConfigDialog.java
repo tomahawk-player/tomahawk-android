@@ -62,18 +62,9 @@ public class InstallPluginConfigDialog extends ConfigDialog {
 
         addScrollingViewToFrame(R.layout.config_install_plugin);
         setDialogTitle(getString(R.string.install_plugin_title));
-        hideConnectImage();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
-    }
-
-    @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-    }
-
-    @Override
-    protected void onConfigTestResult(Object component, int type, String message) {
     }
 
     @Override
@@ -120,11 +111,6 @@ public class InstallPluginConfigDialog extends ConfigDialog {
                 }
             }
         }).start();
-        dismiss();
-    }
-
-    @Override
-    protected void onNegativeAction() {
         dismiss();
     }
 }

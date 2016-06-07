@@ -259,7 +259,7 @@ public class ViewHolder {
         if (!(resolver instanceof ScriptResolver) ||
                 ((ScriptResolver) resolver).getScriptAccount().getMetaData()
                         .manifest.iconWhite != null) {
-            resolver.loadIconWhite(imageView2);
+            resolver.loadIconWhite(imageView2, 0);
         } else {
             resolver.loadIcon(imageView2, !resolver.isEnabled());
         }

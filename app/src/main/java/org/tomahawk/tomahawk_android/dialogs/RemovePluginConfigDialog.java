@@ -54,18 +54,9 @@ public class RemovePluginConfigDialog extends ConfigDialog {
         TextView headerTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
         headerTextView.setText(R.string.uninstall_plugin_warning);
         setDialogTitle(getString(R.string.uninstall_plugin_title));
-        hideConnectImage();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
-    }
-
-    @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-    }
-
-    @Override
-    protected void onConfigTestResult(Object component, int type, String message) {
     }
 
     @Override
@@ -79,11 +70,6 @@ public class RemovePluginConfigDialog extends ConfigDialog {
             Log.d(TAG, "onPositiveAction: " + e.getClass() + ": " + e.getLocalizedMessage());
         }
         PipeLine.get().removeResolver(mScriptResolver);
-        dismiss();
-    }
-
-    @Override
-    protected void onNegativeAction() {
         dismiss();
     }
 }

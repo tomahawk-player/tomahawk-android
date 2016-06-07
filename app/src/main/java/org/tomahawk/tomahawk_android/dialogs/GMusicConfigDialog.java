@@ -38,6 +38,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -88,6 +89,26 @@ public class GMusicConfigDialog extends ConfigDialog {
         }
     }
 
+    private View.OnClickListener mEnableButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (!mScriptResolver.isEnabled()) {
+                final Account account = mAccountMap.get(mRadioGroup.getCheckedRadioButtonId());
+
+                if (account != null) {
+                    Log.d(TAG, "Account " + account.name + " selected. Getting auth token ...");
+                    startLoadingAnimation();
+                    fetchToken(account);
+                } else {
+                    Log.e(TAG, "Account was null");
+                }
+            } else {
+                mScriptResolver.setEnabled(false);
+                onResolverStateUpdated(mScriptResolver);
+            }
+        }
+    };
+
     /**
      * Called when this {@link android.support.v4.app.DialogFragment} is being created
      */
@@ -123,46 +144,29 @@ public class GMusicConfigDialog extends ConfigDialog {
                 mRadioGroup.check(radioButton.getId());
             }
         }
+        showEnableButton(mEnableButtonListener);
+        onResolverStateUpdated(mScriptResolver);
+
+        hideNegativeButton();
 
         setDialogTitle(mScriptResolver.getName());
-        setStatus(mScriptResolver);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
     }
 
     @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-    }
-
-    @Override
     protected void onConfigTestResult(Object component, int type, String message) {
-        if (mScriptResolver == component && mScriptResolver.isConfigTestable()) {
-            if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
-                mScriptResolver.setEnabled(true);
-                dismiss();
-            } else {
-                mScriptResolver.setEnabled(false);
-            }
+        if (mScriptResolver == component) {
+            mScriptResolver.setEnabled(
+                    type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
+            onResolverStateUpdated(mScriptResolver);
             stopLoadingAnimation();
         }
     }
 
     @Override
     protected void onPositiveAction() {
-        final Account account = mAccountMap.get(mRadioGroup.getCheckedRadioButtonId());
-
-        if (account != null) {
-            Log.d(TAG, "Account " + account.name + " selected. Getting auth token ...");
-            startLoadingAnimation();
-            fetchToken(account);
-        } else {
-            Log.e(TAG, "Account was null");
-        }
-    }
-
-    @Override
-    protected void onNegativeAction() {
         dismiss();
     }
 

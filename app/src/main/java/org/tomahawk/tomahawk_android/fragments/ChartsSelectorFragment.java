@@ -252,7 +252,7 @@ public class ChartsSelectorFragment extends Fragment {
             ScriptChartsProvider provider =
                     ScriptChartsManager.get().getScriptChartsProvider(chartsProviderId);
             populateCountryCodeSpinner(provider, true);
-            provider.getScriptAccount().loadIconWhite(imageView);
+            provider.getScriptAccount().loadIconWhite(imageView, 0);
             textView.setText(info.mTitle.toUpperCase());
             textView.setVisibility(View.GONE);
 

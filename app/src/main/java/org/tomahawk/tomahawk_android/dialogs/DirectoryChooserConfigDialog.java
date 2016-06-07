@@ -47,8 +47,7 @@ public class DirectoryChooserConfigDialog extends ConfigDialog {
         directoryChooser.setup();
 
         setDialogTitle(getString(R.string.local_collection_pretty_name));
-        setStatus(UserCollectionStubResolver.get());
-        hideConnectImage();
+        onResolverStateUpdated(UserCollectionStubResolver.get());
         setPositiveButtonText(R.string.rescan);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
@@ -56,23 +55,8 @@ public class DirectoryChooserConfigDialog extends ConfigDialog {
     }
 
     @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-        // We don't care about this since we don't offer a checkbox in a DirectoryChooserConfigDialog
-    }
-
-    @Override
-    protected void onConfigTestResult(Object component, int type, String message) {
-        // We don't care about this since we don't offer a checkbox in a DirectoryChooserConfigDialog
-    }
-
-    @Override
     protected void onPositiveAction() {
         CollectionManager.get().getUserCollection().loadMediaItems(true);
-        dismiss();
-    }
-
-    @Override
-    protected void onNegativeAction() {
         dismiss();
     }
 }

@@ -47,7 +47,7 @@ public interface Resolver {
     /**
      * Load this resolver's white icon into the given ImageView
      */
-    void loadIconWhite(ImageView imageView);
+    void loadIconWhite(ImageView imageView, int tintColorResId);
 
     /**
      * Load this resolver's icon background into the given ImageView

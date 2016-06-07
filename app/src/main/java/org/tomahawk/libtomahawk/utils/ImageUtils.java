@@ -32,8 +32,11 @@ import org.tomahawk.tomahawk_android.utils.CropCircleTransformation;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -197,6 +200,40 @@ public class ImageUtils {
             creator.transform(new ColorTintTransformation(colorResId));
         }
         creator.error(R.drawable.ic_alert_error).into(imageView);
+    }
+
+    /**
+     * Load a {@link android.graphics.Bitmap} asynchronously
+     *
+     * @param context    the context needed for fetching resources
+     * @param view       the {@link View}, which will be used to show the {@link
+     *                   android.graphics.Bitmap} in its background
+     * @param path       the path to the image
+     * @param colorResId the color with which to tint the imageview drawable
+     */
+    public static void loadDrawableIntoView(final Context context, final View view,
+            final String path, int colorResId) {
+        RequestCreator creator = Picasso.with(context).load(path);
+        if (colorResId > 0) {
+            creator.transform(new ColorTintTransformation(colorResId));
+        }
+        Target target = new Target() {
+            @Override
+            public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
+                view.setBackgroundDrawable(new BitmapDrawable(context.getResources(), bitmap));
+            }
+
+            @Override
+            public void onBitmapFailed(Drawable errorDrawable) {
+                Log.d(TAG, "loadDrawableIntoView onBitmapFailed for path: " + path);
+            }
+
+            @Override
+            public void onPrepareLoad(Drawable placeHolderDrawable) {
+            }
+        };
+        view.setTag(target);
+        creator.error(R.drawable.ic_alert_error).into(target);
     }
 
     /**

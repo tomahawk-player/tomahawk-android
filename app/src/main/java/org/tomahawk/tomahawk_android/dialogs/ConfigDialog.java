@@ -22,15 +22,14 @@ import org.tomahawk.libtomahawk.resolver.Resolver;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
-import org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox;
 
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -62,13 +61,11 @@ public abstract class ConfigDialog extends DialogFragment {
 
     private ImageView mStatusImageView;
 
-    private ConfigCheckbox mEnableCheckbox;
-
     private ImageView mRemoveButton;
 
     protected SmoothProgressBar mProgressBar;
 
-    private boolean mResolverEnabled;
+    private Resolver mResolver;
 
     //So that the user can login by pressing "Enter" or something similar on his keyboard
     protected final TextView.OnEditorActionListener mOnKeyboardEnterListener
@@ -101,6 +98,7 @@ public abstract class ConfigDialog extends DialogFragment {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(AuthenticatorManager.ConfigTestResultEvent event) {
+        onResolverStateUpdated(mResolver);
         onConfigTestResult(event.mComponent, event.mType, event.mMessage);
     }
 
@@ -126,8 +124,6 @@ public abstract class ConfigDialog extends DialogFragment {
         mNegativeButton.setOnClickListener(mNegativeButtonListener);
         mStatusImageView = (ImageView) mDialogView
                 .findViewById(R.id.config_dialog_status_imageview);
-        mEnableCheckbox = (ConfigCheckbox) mDialogView
-                .findViewById(R.id.config_dialog_enable_checkbox);
         mProgressBar = (SmoothProgressBar) mDialogView
                 .findViewById(R.id.smoothprogressbar);
         mRemoveButton = (ImageView) mDialogView
@@ -174,74 +170,75 @@ public abstract class ConfigDialog extends DialogFragment {
         return view;
     }
 
-    protected abstract void onEnabledCheckedChange(boolean checked);
-
-    protected abstract void onConfigTestResult(Object component, int type, String message);
+    protected void onConfigTestResult(Object component, int type, String message) {
+    }
 
     protected abstract void onPositiveAction();
 
-    protected abstract void onNegativeAction();
-
-    protected void onRemoveAction() {
+    private void onNegativeAction() {
+        dismiss();
     }
 
     protected void hideNegativeButton() {
         mNegativeButton.setVisibility(View.GONE);
     }
 
-    protected void hideStatusImage() {
-        mStatusImageView.setVisibility(View.GONE);
-    }
-
-    protected void hideConnectImage() {
-        mEnableCheckbox.setVisibility(View.GONE);
-    }
-
-    protected void showRemoveButton() {
-        ImageUtils.setTint(mRemoveButton.getDrawable(), R.color.tomahawk_red);
-        mRemoveButton.setVisibility(View.VISIBLE);
-        mRemoveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onRemoveAction();
-            }
-        });
-    }
-
-    protected void setConnectImageViewClickable() {
-        mEnableCheckbox.setChecked(mResolverEnabled);
-        mEnableCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                onEnabledCheckedChange(isChecked);
-            }
-        });
-        mEnableCheckbox.setEnabled(true);
-    }
-
-    protected void setStatus(Resolver resolver) {
-        mResolverEnabled = resolver.isEnabled();
+    protected void onResolverStateUpdated(Resolver resolver) {
+        mResolver = resolver;
         if (!(resolver instanceof ScriptResolver) ||
                 ((ScriptResolver) resolver).getScriptAccount().getMetaData()
                         .manifest.iconBackground != null) {
-            resolver.loadIconBackground(mHeaderBackground, false);
+            resolver.loadIconBackground(mHeaderBackground, !resolver.isEnabled());
+        } else {
+            int color;
+            if (resolver.isEnabled()) {
+                color = android.R.color.black;
+            } else {
+                color = R.color.disabled_resolver;
+            }
+            mHeaderBackground.setImageDrawable(new ColorDrawable(getResources().getColor(color)));
         }
         if (!(resolver instanceof ScriptResolver) ||
                 ((ScriptResolver) resolver).getScriptAccount().getMetaData()
                         .manifest.iconWhite != null) {
-            resolver.loadIconWhite(mStatusImageView);
+            resolver.loadIconWhite(mStatusImageView, 0);
         } else {
             resolver.loadIcon(mStatusImageView, false);
         }
-        mEnableCheckbox.setChecked(resolver.isEnabled());
+
+        View button = getDialogView().findViewById(R.id.config_enable_button);
+        if (button != null) {
+            ImageView buttonImage =
+                    (ImageView) button.findViewById(R.id.config_enable_button_image);
+            TextView buttonText = (TextView) button.findViewById(R.id.config_enable_button_text);
+            if (resolver.isEnabled()) {
+                button.setBackgroundResource(R.drawable.selectable_background_tomahawk_red_filled);
+                resolver.loadIconWhite(buttonImage, 0);
+                buttonText.setText(R.string.resolver_config_enable_button_disable);
+                buttonText.setTextColor(
+                        getResources().getColor(R.color.primary_textcolor_inverted));
+            } else {
+                button.setBackgroundResource(R.drawable.selectable_background_tomahawk_red);
+                resolver.loadIconWhite(buttonImage, R.color.tomahawk_red);
+                buttonText.setText(R.string.resolver_config_enable_button_enable);
+                buttonText.setTextColor(getResources().getColor(R.color.tomahawk_red));
+            }
+        }
+    }
+
+    protected void showEnableButton(View.OnClickListener onClickListener) {
+        View button = addScrollingViewToFrame(R.layout.config_enable_button);
+        button.setOnClickListener(onClickListener);
+    }
+
+    protected void showRemoveButton(View.OnClickListener onClickListener) {
+        ImageUtils.setTint(mRemoveButton.getDrawable(), R.color.tomahawk_red);
+        mRemoveButton.setVisibility(View.VISIBLE);
+        mRemoveButton.setOnClickListener(onClickListener);
     }
 
     protected void setStatusImage(int drawableResId) {
         mStatusImageView.setImageResource(drawableResId);
-    }
-
-    protected void setStatusImageClickListener(View.OnClickListener clickListener) {
-        mStatusImageView.setOnClickListener(clickListener);
     }
 
     protected void setDialogTitle(String title) {

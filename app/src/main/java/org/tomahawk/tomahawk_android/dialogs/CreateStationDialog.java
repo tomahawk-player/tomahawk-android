@@ -117,21 +117,9 @@ public class CreateStationDialog extends ConfigDialog {
 
         setStatusImage(R.drawable.ic_action_station);
 
-        hideConnectImage();
-
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
-    }
-
-    @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-        // We don't care about this since we don't offer a checkbox in a DirectoryChooserConfigDialog
-    }
-
-    @Override
-    protected void onConfigTestResult(Object component, int type, String message) {
-        // We don't care about this since we don't offer a checkbox in a DirectoryChooserConfigDialog
     }
 
     @Override
@@ -207,10 +195,5 @@ public class CreateStationDialog extends ConfigDialog {
                         mListView.setAdapter(mAdapter);
                     }
                 });
-    }
-
-    @Override
-    protected void onNegativeAction() {
-        dismiss();
     }
 }

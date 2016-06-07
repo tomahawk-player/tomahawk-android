@@ -33,7 +33,7 @@ import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
 import org.tomahawk.tomahawk_android.dialogs.ConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.DirectoryChooserConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.GMusicConfigDialog;
-import org.tomahawk.tomahawk_android.dialogs.LoginConfigDialog;
+import org.tomahawk.tomahawk_android.dialogs.HatchetLoginDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverRedirectConfigDialog;
 import org.tomahawk.tomahawk_android.listeners.MultiColumnClickListener;
@@ -168,7 +168,7 @@ public class PreferenceConnectFragment extends TomahawkListFragment
                     dialog = new DirectoryChooserConfigDialog();
                     break;
                 case TomahawkApp.PLUGINNAME_HATCHET:
-                    dialog = new LoginConfigDialog();
+                    dialog = new HatchetLoginDialog();
                     break;
                 case TomahawkApp.PLUGINNAME_GMUSIC:
                     dialog = new GMusicConfigDialog();

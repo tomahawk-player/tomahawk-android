@@ -165,8 +165,8 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
     }
 
     @Override
-    public void loadIconWhite(ImageView imageView) {
-        mScriptAccount.loadIconWhite(imageView);
+    public void loadIconWhite(ImageView imageView, int tintColorResId) {
+        mScriptAccount.loadIconWhite(imageView, tintColorResId);
     }
 
     @Override

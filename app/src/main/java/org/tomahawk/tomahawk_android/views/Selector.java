@@ -108,7 +108,7 @@ public class Selector extends FrameLayout {
                             .getString(ChartsPagerFragment.CHARTSPROVIDER_ID);
                     ScriptChartsProvider provider =
                             ScriptChartsManager.get().getScriptChartsProvider(chartsProviderId);
-                    provider.getScriptAccount().loadIconWhite(imageView);
+                    provider.getScriptAccount().loadIconWhite(imageView, 0);
                 } else {
                     imageView.setImageResource(mFragmentInfos.get(i).mIconResId);
                 }

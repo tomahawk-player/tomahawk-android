@@ -67,9 +67,9 @@ public class UserCollectionStubResolver implements Resolver {
     }
 
     @Override
-    public void loadIconWhite(ImageView imageView) {
+    public void loadIconWhite(ImageView imageView, int tintColorResId) {
         ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                R.drawable.ic_hardware_smartphone);
+                R.drawable.ic_hardware_smartphone, tintColorResId);
     }
 
     @Override

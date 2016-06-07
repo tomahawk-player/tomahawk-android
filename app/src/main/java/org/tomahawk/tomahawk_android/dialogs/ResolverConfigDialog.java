@@ -38,6 +38,7 @@ import android.text.Html;
 import android.text.InputType;
 import android.text.method.LinkMovementMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -58,6 +59,18 @@ public class ResolverConfigDialog extends ConfigDialog {
     private ScriptResolver mScriptResolver;
 
     private final ArrayList<ConfigFieldView> mConfigFieldViews = new ArrayList<>();
+
+    private View.OnClickListener mEnableButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            if (!mScriptResolver.isEnabled()) {
+                saveConfig();
+            } else {
+                mScriptResolver.setEnabled(false);
+            }
+            onResolverStateUpdated(mScriptResolver);
+        }
+    };
 
     /**
      * Called when this {@link android.support.v4.app.DialogFragment} is being created
@@ -145,11 +158,19 @@ public class ResolverConfigDialog extends ConfigDialog {
                     }
                 }
             }
-        } else {
-            hideNegativeButton();
         }
         if (mScriptResolver.getScriptAccount().isManuallyInstalled()) {
-            showRemoveButton();
+            showRemoveButton(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    RemovePluginConfigDialog dialog = new RemovePluginConfigDialog();
+                    Bundle args = new Bundle();
+                    args.putString(TomahawkFragment.PREFERENCEID, mScriptResolver.getId());
+                    dialog.setArguments(args);
+                    dialog.show(getFragmentManager(), null);
+                    dismiss();
+                }
+            });
         }
         if (lastEditText != null) {
             lastEditText.setOnEditorActionListener(mOnKeyboardEnterListener);
@@ -158,11 +179,12 @@ public class ResolverConfigDialog extends ConfigDialog {
             ViewUtils.showSoftKeyboard(showKeyboardEditText);
         }
         setDialogTitle(mScriptResolver.getName());
-        if (!mScriptResolver.isConfigTestable()) {
-            setConnectImageViewClickable();
-        }
 
-        setStatus(mScriptResolver);
+        showEnableButton(mEnableButtonListener);
+        onResolverStateUpdated(mScriptResolver);
+
+        hideNegativeButton();
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
@@ -177,55 +199,22 @@ public class ResolverConfigDialog extends ConfigDialog {
             config.put(configFieldView.getConfigFieldId(), configFieldView.getValue());
         }
         mScriptResolver.setConfig(config);
-        if (mScriptResolver.isConfigTestable()) {
-            mScriptResolver.testConfig(config);
-        }
-    }
-
-    @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-        if (mScriptResolver.isEnabled() != checked) {
-            mScriptResolver.setEnabled(checked);
-
-            setStatus(mScriptResolver);
-        }
+        mScriptResolver.testConfig(config);
+        startLoadingAnimation();
     }
 
     @Override
     protected void onConfigTestResult(Object component, int type, String message) {
-        if (mScriptResolver == component && mScriptResolver.isConfigTestable()) {
-            if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
-                mScriptResolver.setEnabled(true);
-                dismiss();
-            } else {
-                mScriptResolver.setEnabled(false);
-            }
+        if (mScriptResolver == component) {
+            mScriptResolver.setEnabled(
+                    type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS);
+            onResolverStateUpdated(mScriptResolver);
             stopLoadingAnimation();
         }
     }
 
     @Override
     protected void onPositiveAction() {
-        saveConfig();
-        if (mScriptResolver.isConfigTestable()) {
-            startLoadingAnimation();
-        } else {
-            dismiss();
-        }
-    }
-
-    @Override
-    protected void onNegativeAction() {
-        dismiss();
-    }
-
-    @Override
-    protected void onRemoveAction() {
-        RemovePluginConfigDialog dialog = new RemovePluginConfigDialog();
-        Bundle args = new Bundle();
-        args.putString(TomahawkFragment.PREFERENCEID, mScriptResolver.getId());
-        dialog.setArguments(args);
-        dialog.show(getFragmentManager(), null);
         dismiss();
     }
 }
