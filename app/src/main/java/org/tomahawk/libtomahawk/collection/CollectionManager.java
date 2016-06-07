@@ -64,18 +64,11 @@ public class CollectionManager {
 
     }
 
-    public static class AddedEvent {
+    public static class AddedOrRemovedEvent {
 
         public Collection mCollection;
 
     }
-
-    public static class RemovedEvent {
-
-        public Collection mCollection;
-
-    }
-
 
     public static class UpdatedEvent {
 
@@ -184,14 +177,14 @@ public class CollectionManager {
 
     public void addCollection(Collection collection) {
         mCollections.put(collection.getId(), collection);
-        AddedEvent event = new AddedEvent();
+        AddedOrRemovedEvent event = new AddedOrRemovedEvent();
         event.mCollection = collection;
         EventBus.getDefault().post(event);
     }
 
     public void removeCollection(Collection collection) {
         mCollections.remove(collection.getId());
-        RemovedEvent event = new RemovedEvent();
+        AddedOrRemovedEvent event = new AddedOrRemovedEvent();
         event.mCollection = collection;
         EventBus.getDefault().post(event);
     }
