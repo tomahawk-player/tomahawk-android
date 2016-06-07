@@ -80,20 +80,10 @@ public class SendLogConfigDialog extends ConfigDialog {
         ViewUtils.showSoftKeyboard(mEmailEditText);
 
         setDialogTitle(getString(R.string.preferences_app_sendlog));
-        hideConnectImage();
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
-    }
-
-    @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-        // We don't care about this since we don't offer a checkbox in a LoginConfigDialog
-    }
-
-    @Override
-    protected void onConfigTestResult(Object component, int type, String message) {
     }
 
     @Override
@@ -135,10 +125,5 @@ public class SendLogConfigDialog extends ConfigDialog {
                     Toast.LENGTH_LONG).show();
             dismiss();
         }
-    }
-
-    @Override
-    protected void onNegativeAction() {
-        dismiss();
     }
 }

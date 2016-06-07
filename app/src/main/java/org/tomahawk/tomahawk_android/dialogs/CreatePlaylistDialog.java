@@ -83,8 +83,7 @@ public class CreatePlaylistDialog extends ConfigDialog {
         //Set the textview's text to the proper title
         setDialogTitle(getString(R.string.create_playlist));
 
-        hideStatusImage();
-        hideConnectImage();
+        setStatusImage(R.drawable.ic_action_playlist);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
@@ -113,21 +112,8 @@ public class CreatePlaylistDialog extends ConfigDialog {
     }
 
     @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-    }
-
-    @Override
-    protected void onConfigTestResult(Object component, int type, String message) {
-    }
-
-    @Override
     protected void onPositiveAction() {
         savePlaylist();
-        dismiss();
-    }
-
-    @Override
-    protected void onNegativeAction() {
         dismiss();
     }
 }

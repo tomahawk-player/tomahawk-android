@@ -38,16 +38,6 @@
                       android:paddingLeft="@dimen/padding_superlarge"
                       android:paddingRight="@dimen/padding_superlarge">
 
-            <org.tomahawk.tomahawk_android.ui.widgets.ConfigCheckbox
-                    android:id="@+id/config_dialog_enable_checkbox"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="-8dp"
-                    android:layout_marginRight="@dimen/padding_small"
-                    android:layout_gravity="center"
-                    android:checked="false"
-                    android:enabled="false"/>
-
             <TextView android:id="@+id/config_dialog_title_textview"
                       android:layout_width="0dp"
                       android:layout_height="match_parent"

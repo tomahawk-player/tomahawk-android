@@ -49,19 +49,10 @@ public class AskAccessConfigDialog extends ConfigDialog {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         addScrollingViewToFrame(R.layout.config_ask_access);
         setDialogTitle(HatchetAuthenticatorUtils.HATCHET_PRETTY_NAME);
-        setStatus(HatchetStubResolver.get());
-        hideConnectImage();
+        onResolverStateUpdated(HatchetStubResolver.get());
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
-    }
-
-    @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-    }
-
-    @Override
-    protected void onConfigTestResult(Object component, int type, String message) {
     }
 
     @Override
@@ -79,11 +70,6 @@ public class AskAccessConfigDialog extends ConfigDialog {
                 }
             });
         }
-        dismiss();
-    }
-
-    @Override
-    protected void onNegativeAction() {
         dismiss();
     }
 }

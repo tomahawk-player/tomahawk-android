@@ -39,9 +39,9 @@ import android.widget.TextView;
  * username and password, and provides button for cancel/logout and ok/login, depending on whether
  * or not the user is logged in.
  */
-public class LoginConfigDialog extends ConfigDialog {
+public class HatchetLoginDialog extends ConfigDialog {
 
-    public final static String TAG = LoginConfigDialog.class.getSimpleName();
+    public final static String TAG = HatchetLoginDialog.class.getSimpleName();
 
     private AuthenticatorUtils mAuthenticatorUtils;
 
@@ -69,11 +69,10 @@ public class LoginConfigDialog extends ConfigDialog {
 
         setDialogTitle(mAuthenticatorUtils.getPrettyName());
         if (TomahawkApp.PLUGINNAME_HATCHET.equals(mAuthenticatorUtils.getId())) {
-            setStatus(HatchetStubResolver.get());
+            onResolverStateUpdated(HatchetStubResolver.get());
         } else {
-            setStatus(PipeLine.get().getResolver(mAuthenticatorUtils.getId()));
+            onResolverStateUpdated(PipeLine.get().getResolver(mAuthenticatorUtils.getId()));
         }
-        hideConnectImage();
         hideNegativeButton();
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
@@ -85,11 +84,6 @@ public class LoginConfigDialog extends ConfigDialog {
     }
 
     @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-        // We don't care about this since we don't offer a checkbox in a LoginConfigDialog
-    }
-
-    @Override
     protected void onConfigTestResult(Object component, int type, String message) {
         mHatchetLoginRegisterView.onConfigTestResult(component, type, message);
     }
@@ -97,9 +91,5 @@ public class LoginConfigDialog extends ConfigDialog {
     @Override
     protected void onPositiveAction() {
         dismiss();
-    }
-
-    @Override
-    protected void onNegativeAction() {
     }
 }

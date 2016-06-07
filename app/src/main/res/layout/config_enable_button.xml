@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*   == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2014, Enno Gottschalk <mrmaffen@googlemail.com>
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/config_enable_button"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:layout_gravity="center_horizontal"
+              android:background="@drawable/selectable_background_tomahawk_red"
+              android:padding="@dimen/padding_small"
+              android:layout_margin="@dimen/padding_medium">
+
+    <TextView android:id="@+id/config_enable_button_text"
+              android:layout_width="0dp"
+              android:layout_height="wrap_content"
+              android:layout_weight="1"
+              android:layout_gravity="center_vertical"
+              android:paddingRight="@dimen/padding_small"
+              android:textSize="@dimen/text_size_medium"
+              android:textColor="@color/tomahawk_red"
+              android:text="@string/resolver_config_enable_button_enable"/>
+
+    <ImageView android:id="@+id/config_enable_button_image"
+               android:layout_width="@dimen/row_height_medium"
+               android:layout_height="@dimen/row_height_medium"
+               android:layout_gravity="center_vertical"
+               android:src="@drawable/ic_hatchet_white"/>
+
+</LinearLayout>

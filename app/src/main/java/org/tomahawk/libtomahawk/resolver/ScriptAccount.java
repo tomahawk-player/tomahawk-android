@@ -276,9 +276,9 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
                 grayOut ? R.color.disabled_resolver : 0);
     }
 
-    public void loadIconWhite(ImageView imageView) {
+    public void loadIconWhite(ImageView imageView, int tintColorResId) {
         ImageUtils.loadDrawableIntoImageView(TomahawkApp.getContext(), imageView,
-                mPath + "/content/" + mMetaData.manifest.iconWhite);
+                mPath + "/content/" + mMetaData.manifest.iconWhite, tintColorResId);
     }
 
     public String getIconBackgroundPath() {

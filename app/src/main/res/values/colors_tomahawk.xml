@@ -37,7 +37,7 @@
     <color name="navdrawer_background">#BB000000</color>
     <color name="coach_mark_background">#CC000000</color>
     <color name="disabled">#FF999999</color>
-    <color name="disabled_resolver">#33FFFFFF</color>
+    <color name="disabled_resolver">#55FFFFFF</color>
     <color name="primary_textcolor">#FF222222</color>
     <color name="secondary_textcolor">#FF777777</color>
     <color name="primary_textcolor_inverted">#FFffffff</color>

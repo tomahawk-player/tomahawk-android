@@ -58,19 +58,10 @@ public class WarnOldPluginDialog extends ConfigDialog {
         TextView textview = (TextView) addScrollingViewToFrame(R.layout.config_textview);
         textview.setText(message);
         setDialogTitle(getString(android.R.string.dialog_alert_title));
-        setStatus(mScriptResolver);
-        hideConnectImage();
+        onResolverStateUpdated(mScriptResolver);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
-    }
-
-    @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-    }
-
-    @Override
-    protected void onConfigTestResult(Object component, int type, String message) {
     }
 
     @Override
@@ -80,11 +71,6 @@ public class WarnOldPluginDialog extends ConfigDialog {
         args.putString(TomahawkFragment.PREFERENCEID, mScriptResolver.getId());
         dialog.setArguments(args);
         dialog.show(getFragmentManager(), null);
-        dismiss();
-    }
-
-    @Override
-    protected void onNegativeAction() {
         dismiss();
     }
 }

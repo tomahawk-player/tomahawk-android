@@ -103,28 +103,19 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
 
         mWarningTextView = (TextView) addScrollingViewToFrame(R.layout.config_textview);
 
-        int buttonBackgroundResId = R.drawable.selectable_background_tomahawk_rectangle_gray;
-        int buttonTextColor = getResources().getColor(R.color.primary_textcolor);
-        View.OnClickListener onClickListener = new RedirectButtonListener();
-
-        View buttonLayout = addScrollingViewToFrame(R.layout.config_redirect_button);
-        LinearLayout button = ((LinearLayout) buttonLayout
-                .findViewById(R.id.config_redirect_button));
-        button.setBackgroundResource(buttonBackgroundResId);
-        ImageView buttonImage = (ImageView) buttonLayout
-                .findViewById(R.id.config_redirect_button_image);
-        mScriptResolver.loadIcon(buttonImage, false);
-        mRedirectButtonTextView = (TextView) button
-                .findViewById(R.id.config_redirect_button_text);
-        mRedirectButtonTextView.setTextColor(buttonTextColor);
+        View buttonLayout = addScrollingViewToFrame(R.layout.config_enable_button);
+        LinearLayout button = (LinearLayout) buttonLayout.findViewById(R.id.config_enable_button);
+        button.setOnClickListener(new RedirectButtonListener());
+        ImageView buttonImage =
+                (ImageView) buttonLayout.findViewById(R.id.config_enable_button_image);
+        mScriptResolver.loadIconWhite(buttonImage, 0);
+        mRedirectButtonTextView = (TextView) button.findViewById(R.id.config_enable_button_text);
 
         updateTextViews();
 
-        button.setOnClickListener(onClickListener);
         setDialogTitle(mScriptResolver.getName());
         hideNegativeButton();
-        setStatus(mScriptResolver);
-        hideConnectImage();
+        onResolverStateUpdated(mScriptResolver);
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(getDialogView());
         return builder.create();
@@ -157,11 +148,6 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
     }
 
     @Override
-    protected void onEnabledCheckedChange(boolean checked) {
-        // We don't care about this since we don't offer a checkbox
-    }
-
-    @Override
     protected void onConfigTestResult(Object component, int type, String message) {
         if (mScriptResolver == component) {
             if (type == AuthenticatorManager.CONFIG_TEST_RESULT_TYPE_SUCCESS) {
@@ -177,10 +163,6 @@ public class ResolverRedirectConfigDialog extends ConfigDialog {
 
     @Override
     protected void onPositiveAction() {
-        getDialog().cancel();
-    }
-
-    @Override
-    protected void onNegativeAction() {
+        dismiss();
     }
 }
