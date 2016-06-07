@@ -82,8 +82,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
 
     private boolean mStopped;
 
-    private boolean mConfigTestable;
-
     private final Set<String> mWaitingUrlLookups =
             Collections.newSetFromMap(new ConcurrentHashMap<String, Boolean>());
 
@@ -119,13 +117,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
         mScriptAccount = account;
         mScriptAccount.setScriptResolver(this);
 
-        if (mScriptAccount.getMetaData().staticCapabilities != null) {
-            for (String capability : mScriptAccount.getMetaData().staticCapabilities) {
-                if (capability.equals("configTestable")) {
-                    mConfigTestable = true;
-                }
-            }
-        }
         mInitialized = false;
         mStopped = true;
         mId = mScriptAccount.getMetaData().pluginName;
@@ -436,10 +427,6 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
         config.put(ScriptAccount.ENABLED_KEY, enabled);
         setConfig(config);
         EventBus.getDefault().post(new EnabledStateChangedEvent());
-    }
-
-    public boolean isConfigTestable() {
-        return mConfigTestable;
     }
 
     public void testConfig(Map<String, Object> config) {
