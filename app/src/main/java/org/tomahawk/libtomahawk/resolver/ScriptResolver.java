@@ -123,15 +123,14 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
         if (getConfig().get(ScriptAccount.ENABLED_KEY) != null) {
             mEnabled = (Boolean) getConfig().get(ScriptAccount.ENABLED_KEY);
         } else {
-            if (TomahawkApp.PLUGINNAME_JAMENDO.equals(mId)
-                    || TomahawkApp.PLUGINNAME_SOUNDCLOUD.equals(mId)) {
-                setEnabled(true);
-            } else {
-                setEnabled(false);
-            }
+            // Enable soundcloud and jamendo by default
+            mEnabled = TomahawkApp.PLUGINNAME_JAMENDO.equals(mId)
+                    || TomahawkApp.PLUGINNAME_SOUNDCLOUD.equals(mId);
         }
         settings();
-        init();
+        if (mEnabled) {
+            init();
+        }
     }
 
     /**
@@ -426,6 +425,13 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
         Map<String, Object> config = getConfig();
         config.put(ScriptAccount.ENABLED_KEY, enabled);
         setConfig(config);
+        if (mEnabled) {
+            // Re-init so that all plugins are being registered again
+            settings();
+            init();
+        } else {
+            mScriptAccount.unregisterAllPlugins();
+        }
         EventBus.getDefault().post(new EnabledStateChangedEvent());
     }
 

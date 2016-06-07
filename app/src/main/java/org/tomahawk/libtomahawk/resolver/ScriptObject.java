@@ -17,6 +17,10 @@
  */
 package org.tomahawk.libtomahawk.resolver;
 
+import com.google.gson.JsonObject;
+
+import org.tomahawk.libtomahawk.utils.GsonHelper;
+
 import java.lang.ref.WeakReference;
 
 public class ScriptObject {
@@ -56,6 +60,12 @@ public class ScriptObject {
 
     public void setScriptPlugin(ScriptPlugin scriptPlugin) {
         mScriptPlugin = new WeakReference<>(scriptPlugin);
+    }
+
+    public String toJson() {
+        JsonObject object = new JsonObject();
+        object.addProperty("id", mId);
+        return GsonHelper.get().toJson(object);
     }
 
 }

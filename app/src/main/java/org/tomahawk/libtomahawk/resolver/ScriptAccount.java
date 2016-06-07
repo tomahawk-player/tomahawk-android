@@ -300,17 +300,23 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
     }
 
     public void unregisterAllPlugins() {
+        //TODO: Uncomment this once we can get rid of Tomahawk.resolver.instance completely
+        /*
         for (String objectId : mResolverPluginFactory.getScriptPlugins().keySet()) {
+            String json = mObjects.get(objectId).toJson();
             evaluateJavaScript("Tomahawk.PluginManager.unregisterPlugin('"
-                    + ScriptObject.TYPE_RESOLVER + "', " + objectId + ");");
+                    + ScriptObject.TYPE_RESOLVER + "', " + json + ");");
         }
+        */
         for (String objectId : mCollectionPluginFactory.getScriptPlugins().keySet()) {
+            String json = mObjects.get(objectId).toJson();
             evaluateJavaScript("Tomahawk.PluginManager.unregisterPlugin('"
-                    + ScriptObject.TYPE_COLLECTION + "', " + objectId + ");");
+                    + ScriptObject.TYPE_COLLECTION + "', " + json + ");");
         }
         for (String objectId : mInfoPluginFactory.getScriptPlugins().keySet()) {
+            String json = mObjects.get(objectId).toJson();
             evaluateJavaScript("Tomahawk.PluginManager.unregisterPlugin('"
-                    + ScriptObject.TYPE_INFOPLUGIN + "', " + objectId + ");");
+                    + ScriptObject.TYPE_INFOPLUGIN + "', " + json + ");");
         }
     }
 

@@ -370,7 +370,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
     }
 
     @SuppressWarnings("unused")
-    public void onEventMainThread(CollectionManager.AddedEvent event) {
+    public void onEventMainThread(CollectionManager.AddedOrRemovedEvent event) {
         MenuDrawer.updateDrawer(mMenuDrawer, this);
     }
 
