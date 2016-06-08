@@ -184,6 +184,8 @@
   <string name="following">フォロー</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">フォロワー: %1$d, フォロー中: %2$d</string>
+  <string name="resolver_config_enable_button_enable">有効</string>
+  <string name="resolver_config_enable_button_disable">無効</string>
   <string name="resolver_config_redirect_button_text_log_into">ログインする</string>
   <string name="resolver_config_redirect_button_text_log_out_of">ログアウトする</string>
   <string name="resolver_config_redirect_button_text_download_plugin">プラグインのダウンロード...</string>
