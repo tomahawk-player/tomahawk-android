@@ -194,6 +194,8 @@
   <string name="following">Seuraamassa</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">Seuraajia: %1$d, Seuraa: %2$d</string>
+  <string name="resolver_config_enable_button_enable">Ota käyttöön</string>
+  <string name="resolver_config_enable_button_disable">Poista käytöstä</string>
   <string name="resolver_config_redirect_button_text_log_into">Kirjaudu\npalveluun</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Kirjaudu ulos\npalvelusta</string>
   <string name="resolver_config_redirect_button_text_download_plugin">Lataa lisäosa\npalvelulle</string>
