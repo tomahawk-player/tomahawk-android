@@ -1,6 +1,7 @@
 package org.tomahawk.tomahawk_android.mediaplayers;
 
 import android.media.MediaPlayer;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import org.tomahawk.libtomahawk.resolver.PipeLine;
@@ -87,8 +88,8 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                             AndroidMediaPlayer.this, "MediaPlayerEncounteredError");
                 }
 
-                // Media media = new Media(sLibVLC, AndroidUtil.LocationToUri(path));
-               // getMediaPlayerInstance().setMedia(media);
+                sMediaPlayer.setOnCompletionListener(new CompletionListener());
+
                 mPreparedQuery = mPreparingQuery;
                 mPreparingQuery = null;
                 callback.onPrepared(AndroidMediaPlayer.this, mPreparedQuery);
@@ -146,5 +147,17 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
     @Override
     public boolean isPrepared(Query query) {
         return mPreparedQuery != null && mPreparedQuery == query;
+    }
+
+    private class CompletionListener implements MediaPlayer.OnCompletionListener {
+        public void onCompletion(MediaPlayer mp) {
+            Log.d(TAG, "onCompletion()");
+            if (mMediaPlayerCallback != null) {
+                mMediaPlayerCallback.onCompletion(AndroidMediaPlayer.this, mPreparedQuery);
+            } else {
+                Log.e(TAG,
+                        "Wasn't able to call onCompletion because callback object is null");
+            }
+        }
     }
 }
