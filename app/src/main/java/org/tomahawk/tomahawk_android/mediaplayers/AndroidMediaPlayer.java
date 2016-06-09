@@ -80,6 +80,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
                 try {
                     sMediaPlayer.setDataSource(path);
+                    sMediaPlayer.prepare();
                 } catch (IOException e) {
                     e.printStackTrace();
                     callback.onError(
