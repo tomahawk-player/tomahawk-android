@@ -337,6 +337,11 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 CollectionManager.get().setLovedItem(
                         mPlaybackManager.getCurrentQuery(), rating.hasHeart());
                 mPlaybackManagerCallback.onCurrentEntryChanged();
+            } else if (rating.getRatingStyle() == RatingCompat.RATING_THUMB_UP_DOWN
+                    && mPlaybackManager.getCurrentQuery() != null) {
+                CollectionManager.get().setLovedItem(
+                        mPlaybackManager.getCurrentQuery(), rating.isThumbUp());
+                mPlaybackManagerCallback.onCurrentEntryChanged();
             }
         }
 
