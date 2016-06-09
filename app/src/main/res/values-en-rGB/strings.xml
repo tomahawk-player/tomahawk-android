@@ -194,6 +194,8 @@
   <string name="following">Following</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">Followers: %1$d, Following: %2$d</string>
+  <string name="resolver_config_enable_button_enable">Enable</string>
+  <string name="resolver_config_enable_button_disable">Disable</string>
   <string name="resolver_config_redirect_button_text_log_into">Log into</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Log out of</string>
   <string name="resolver_config_redirect_button_text_download_plugin">Download Plugin for</string>
