@@ -22,10 +22,14 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.support.v8.renderscript.Allocation;
 import android.support.v8.renderscript.Element;
+import android.support.v8.renderscript.RSRuntimeException;
 import android.support.v8.renderscript.RenderScript;
 import android.support.v8.renderscript.ScriptIntrinsicBlur;
+import android.util.Log;
 
 public class BlurTransformation implements Transformation {
+
+    private static String TAG = BlurTransformation.class.getSimpleName();
 
     private static int MAX_RADIUS = 25;
 
@@ -67,9 +71,8 @@ public class BlurTransformation implements Transformation {
             canvas.drawBitmap(source, 0, 0, paint);
 
             RenderScript rs = RenderScript.create(mContext);
-            Allocation input = Allocation
-                    .createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE,
-                            Allocation.USAGE_SCRIPT);
+            Allocation input = Allocation.createFromBitmap(rs, bitmap,
+                    Allocation.MipmapControl.MIPMAP_NONE, Allocation.USAGE_SCRIPT);
             Allocation output = Allocation.createTyped(rs, input.getType());
             ScriptIntrinsicBlur blur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
 
@@ -82,8 +85,8 @@ public class BlurTransformation implements Transformation {
             rs.destroy();
 
             return bitmap;
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (RSRuntimeException e) {
+            Log.e(TAG, "transform - ", e);
             return source;
         }
     }
