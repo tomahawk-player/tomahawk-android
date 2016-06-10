@@ -1,13 +1,14 @@
 package org.tomahawk.tomahawk_android.mediaplayers;
 
+import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.provider.MediaStore;
 import android.util.Log;
 
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
@@ -24,7 +25,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     private static final String TAG = AndroidMediaPlayer.class.getSimpleName();
 
-    private static MediaPlayer sMediaPlayer = null;
+    private static MediaPlayer sMediaPlayer = new MediaPlayer();
 
     private Query mPreparedQuery;
 
@@ -40,19 +41,16 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
     }
     @Override
     public void play() {
-        if (sMediaPlayer != null)
             sMediaPlayer.start();
     }
 
     @Override
     public void pause() {
-        if (sMediaPlayer != null)
             sMediaPlayer.pause();
     }
 
     @Override
     public void seekTo(long msec) {
-        if (sMediaPlayer != null)
             sMediaPlayer.seekTo((int)msec);
     }
 
@@ -77,7 +75,17 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                         path = result.getPath();
                     }
                 }
-                sMediaPlayer = new MediaPlayer();
+                sMediaPlayer.reset();
+
+                sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+                try {
+                    String finalUrl = NetworkUtils.getFinalURL(path);
+                    if (finalUrl != null)
+                        path = finalUrl;
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
                 try {
                     sMediaPlayer.setDataSource(path);
@@ -114,17 +122,12 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     @Override
     public void release() {
-        if (sMediaPlayer != null)
-            sMediaPlayer.release();
-        sMediaPlayer = null;
+        sMediaPlayer.release();
     }
 
     @Override
     public long getPosition() {
-        if (sMediaPlayer != null)
-            return sMediaPlayer.getCurrentPosition();
-        else
-            return 0;
+        return sMediaPlayer.getCurrentPosition();
     }
 
     @Override
@@ -134,9 +137,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     @Override
     public boolean isPlaying(Query query) {
-        if (sMediaPlayer != null)
-            return sMediaPlayer.isPlaying();
-        return false;
+        return sMediaPlayer.isPlaying();
     }
 
     @Override
