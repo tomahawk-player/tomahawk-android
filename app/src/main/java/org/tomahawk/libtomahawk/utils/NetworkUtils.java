@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.Proxy;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -130,6 +132,21 @@ public class NetworkUtils {
                 TomahawkApp.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+    }
+
+    public static String getFinalURL(String url) throws IOException {
+        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
+        con.setInstanceFollowRedirects(false);
+        //Pretend we are a Browser, not Android something
+        con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
+        con.connect();
+        con.getInputStream();
+
+        if (con.getResponseCode() == HttpURLConnection.HTTP_MOVED_PERM || con.getResponseCode() == HttpURLConnection.HTTP_MOVED_TEMP) {
+            String redirectUrl = con.getHeaderField("Location");
+            return getFinalURL(redirectUrl);
+        }
+        return url;
     }
 
     public static boolean isWifiAvailable() {
