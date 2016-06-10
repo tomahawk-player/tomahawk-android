@@ -449,9 +449,8 @@ public class ContentHeaderFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if (getMediaController() != null) {
-                            if (item != getPlaybackManager().getPlaylist()) {
-                                StationPlaylist stationPlaylist =
-                                        StationPlaylist.get((Playlist) item);
+                            StationPlaylist stationPlaylist = StationPlaylist.get((Playlist) item);
+                            if (stationPlaylist != getPlaybackManager().getPlaylist()) {
                                 getPlaybackManager().setPlaylist(stationPlaylist);
                                 getMediaController().getTransportControls().play();
                             }
