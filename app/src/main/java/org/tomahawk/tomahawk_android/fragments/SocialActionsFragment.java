@@ -227,6 +227,9 @@ public class SocialActionsFragment extends TomahawkFragment implements
         if (!mIsResumed) {
             return;
         }
+        if (mShowMode == SHOW_MODE_DASHBOARD && !getResources().getBoolean(R.bool.is_landscape)) {
+            setAreHeadersSticky(true);
+        }
         TomahawkRunnable r = new TomahawkRunnable(TomahawkRunnable.PRIORITY_IS_VERYHIGH) {
             @Override
             public void run() {
@@ -257,10 +260,6 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         segments.add(segment);
                     }
                     fillAdapter(segments);
-                    if (mShowMode == SHOW_MODE_DASHBOARD
-                            && !getResources().getBoolean(R.bool.is_landscape)) {
-                        setAreHeadersSticky(true);
-                    }
                 }
             }
         };
