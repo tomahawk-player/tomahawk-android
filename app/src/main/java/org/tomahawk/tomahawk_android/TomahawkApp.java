@@ -69,6 +69,8 @@ public class TomahawkApp extends Application {
 
     public final static String PLUGINNAME_GMUSIC = "gmusic";
 
+    public final static String PLUGINNAME_AMZN = "amazon";
+
     private static Context sApplicationContext;
 
     @Override
