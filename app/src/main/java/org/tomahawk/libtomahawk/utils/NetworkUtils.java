@@ -1,17 +1,20 @@
 package org.tomahawk.libtomahawk.utils;
 
 import com.squareup.okhttp.Credentials;
+import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 
 import java.io.IOException;
 import java.net.CookieManager;
@@ -61,6 +64,9 @@ public class NetworkUtils {
             Map<String, String> extraHeaders, final String username, final String password,
             String data, boolean followRedirects, CookieManager cookieManager) throws IOException {
         OkHttpClient client = new OkHttpClient();
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
+        client.networkInterceptors().add(loggingInterceptor);
         if (cookieManager != null) {
             client.setCookieHandler(cookieManager);
         }
