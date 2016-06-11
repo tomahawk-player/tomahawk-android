@@ -30,6 +30,10 @@
   <string name="create_playlist">Vytvořil seznam skladeb</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Název</string>
+  <string name="create_station">Vytvořil stanici</string>
+  <string name="create_station_search_hint">Hledat umělce/písně/žánry</string>
+  <string name="genres">Žánry</string>
+  <string name="moods">Nálady</string>
   <string name="login_name_label">E-Mail/Uživatelské jméno</string>
   <string name="login_username">Uživatelské jméno</string>
   <string name="login_password">Heslo</string>
@@ -65,6 +69,10 @@
   <string name="preferences_app_version">Verze</string>
   <string name="preferences_app_uservoice">Zpětná vazba</string>
   <string name="preferences_app_uservoice_text">Sdílejte své myšlenky a požádejte o podporu.</string>
+  <string name="preferences_app_playstore_link">Hodnotit aplikaci</string>
+  <string name="preferences_app_playstore_link_text">Hodnoťte Tomahawk na Google Play Store.</string>
+  <string name="preferences_app_website_link">Navštivte naše stránky</string>
+  <string name="preferences_app_website_link_text">Otevřete tomahawk-player.org v prohlížeči.</string>
   <string name="preferences_app_sendlog">Poslat záznam</string>
   <string name="preferences_app_sendlog_text">Poslat váš soubor se záznamem pro účely ladění.</string>
   <string name="preferences_app_sendlog_dialog_text">Popište, prosím, krátce vaše potíže a poskytněte adresu elektronické pošty, abychom se s v případě potřeby vámi mohli spojit. Díky!</string>
@@ -90,8 +98,10 @@
   <string name="context_menu_share">Sdílet</string>
   <string name="contest_menu_share_error">Musíte se přihlásit k Hatchet, abyste mohl sdílet tento seznam skladeb.</string>
   <string name="drawer_title_feed">Kanál</string>
+  <string name="drawer_title_charts">Grafy</string>
   <string name="drawer_title_collection">Sbírka</string>
   <string name="drawer_title_playlists">Seznamy skladeb</string>
+  <string name="drawer_title_stations">Stanice</string>
   <string name="drawer_title_lovedtracks">Oblíbené</string>
   <string name="drawer_title_settings">Nastavení</string>
   <string name="drawer_header_cloudcollections">Sbírky na serveru</string>
@@ -195,6 +205,8 @@
   <string name="following">Sleduje</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">Sledující: %1$d, sleduje: %2$d</string>
+  <string name="resolver_config_enable_button_enable">Povolit</string>
+  <string name="resolver_config_enable_button_disable">Zakázat</string>
   <string name="resolver_config_redirect_button_text_log_into">Přihlásit se</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Odhlásit se</string>
   <string name="resolver_config_redirect_button_text_download_plugin">Stáhnout přídavný modul pro</string>
@@ -241,6 +253,18 @@ Vy teď nemusíte.</string>
   <string name="unknown_artist">Neznámý umělec</string>
   <string name="notification_settings_activity_not_found">Na vašem zařízení se nepodařilo najít nastavení aplikace. Dejte, prosím, Tomahawku přístup k vašemu oznamování v nastavení systému.</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">nový</string>
+  <string name="playback_pause">Pozastavit</string>
+  <string name="playback_play">Přehrát</string>
+  <string name="playback_previous">Předchozí skladba</string>
+  <string name="playback_next">Další skladba</string>
+  <string name="playback_favorite">Přidat do oblíbených</string>
+  <string name="playback_unfavorite">Odstranit z oblíbených</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">Nyní hraje</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">Zamíchat a přehrát</string>
+  <string name="loading_station">Nahrání stanice:</string>
+  <string name="suggested_stations">Navržení stanice</string>
+  <string name="my_stations">Moje stanice</string>
 </resources>
