@@ -1,7 +1,6 @@
 package org.tomahawk.libtomahawk.utils;
 
 import com.squareup.okhttp.Credentials;
-import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
@@ -14,7 +13,6 @@ import org.tomahawk.tomahawk_android.TomahawkApp;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 
 import java.io.IOException;
 import java.net.CookieManager;
