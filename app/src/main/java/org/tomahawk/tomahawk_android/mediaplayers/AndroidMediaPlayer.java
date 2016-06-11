@@ -25,7 +25,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     private static final String TAG = AndroidMediaPlayer.class.getSimpleName();
 
-    private static MediaPlayer sMediaPlayer = new MediaPlayer();
+    private static MediaPlayer sMediaPlayer = null;
 
     private Query mPreparedQuery;
 
@@ -41,16 +41,19 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
     }
     @Override
     public void play() {
+        if (sMediaPlayer != null)
             sMediaPlayer.start();
     }
 
     @Override
     public void pause() {
+        if (sMediaPlayer != null)
             sMediaPlayer.pause();
     }
 
     @Override
     public void seekTo(long msec) {
+        if (sMediaPlayer != null)
             sMediaPlayer.seekTo((int)msec);
     }
 
@@ -75,7 +78,8 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                         path = result.getPath();
                     }
                 }
-                sMediaPlayer.reset();
+                release();
+                sMediaPlayer = new MediaPlayer();
 
                 sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
@@ -122,12 +126,15 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     @Override
     public void release() {
-        sMediaPlayer.release();
+        if (sMediaPlayer != null)
+            sMediaPlayer.release();
     }
 
     @Override
     public long getPosition() {
-        return sMediaPlayer.getCurrentPosition();
+        if (sMediaPlayer != null)
+            return sMediaPlayer.getCurrentPosition();
+        return 0;
     }
 
     @Override
@@ -137,7 +144,9 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     @Override
     public boolean isPlaying(Query query) {
-        return sMediaPlayer.isPlaying();
+        if (sMediaPlayer != null)
+            return sMediaPlayer.isPlaying();
+        return false;
     }
 
     @Override
