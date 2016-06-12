@@ -71,14 +71,18 @@ public class AlbumArtSwipeAdapter extends PagerAdapter {
 
         @Override
         public void onPageSelected(int position) {
-            if (position == mLastItem - 1) {
-                Log.d(TAG, "Selected page is now " + position + ", was " + mLastItem
-                        + ". Skipping to previous track.");
-                mMediaController.getTransportControls().skipToPrevious();
-            } else if (position == mLastItem + 1) {
-                Log.d(TAG, "Selected page is now " + position + ", was " + mLastItem
-                        + ". Skipping to next track.");
-                mMediaController.getTransportControls().skipToNext();
+            if (mMediaController != null) {
+                if (position == mLastItem - 1) {
+                    Log.d(TAG, "Selected page is now " + position + ", was " + mLastItem
+                            + ". Skipping to previous track.");
+                    mMediaController.getTransportControls().skipToPrevious();
+                } else if (position == mLastItem + 1) {
+                    Log.d(TAG, "Selected page is now " + position + ", was " + mLastItem
+                            + ". Skipping to next track.");
+                    mMediaController.getTransportControls().skipToNext();
+                }
+            } else {
+                Log.e(TAG, "Couldn't skip to next/previous track. mMediaController is null");
             }
         }
 
