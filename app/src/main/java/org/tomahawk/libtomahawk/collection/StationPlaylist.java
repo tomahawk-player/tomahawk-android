@@ -250,7 +250,8 @@ public class StationPlaylist extends Playlist {
         if (mFillDeferred != null && mFillDeferred.isPending()) {
             return null;
         }
-        mFillDeferred = new ADeferredObject<>();
+        final Deferred<List<Query>, Throwable, Void> fillDeferred = new ADeferredObject<>();
+        mFillDeferred = fillDeferred;
         pickSeedsFromPlaylist().done(new DoneCallback<Void>() {
             @Override
             public void onDone(Void result) {
@@ -260,7 +261,7 @@ public class StationPlaylist extends Playlist {
                     for (int i = 0; i < limit; i++) {
                         queries.add(mCandidates.remove(0));
                     }
-                    mFillDeferred.resolve(queries);
+                    fillDeferred.resolve(queries);
                 } else if (generator != null) {
                     generator.fillPlaylist(mSessionId, mArtists, mTracks, mGenres)
                             .done(new DoneCallback<ScriptPlaylistGeneratorResult>() {
@@ -277,17 +278,17 @@ public class StationPlaylist extends Playlist {
                                         mCandidates.addAll(result.results);
                                     }
                                     if (queries.size() == 0) {
-                                        mFillDeferred.reject(
+                                        fillDeferred.reject(
                                                 new Throwable("Couldn't find suitable tracks"));
                                     } else {
-                                        mFillDeferred.resolve(queries);
+                                        fillDeferred.resolve(queries);
                                     }
                                 }
                             })
                             .fail(new FailCallback<Throwable>() {
                                 @Override
                                 public void onFail(Throwable result) {
-                                    mFillDeferred.reject(result);
+                                    fillDeferred.reject(result);
                                 }
                             });
                 }
