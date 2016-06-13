@@ -6,6 +6,7 @@ import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
+import com.squareup.okhttp.logging.HttpLoggingInterceptor;
 
 import org.tomahawk.tomahawk_android.TomahawkApp;
 
@@ -63,6 +64,9 @@ public class NetworkUtils {
             Map<String, String> extraHeaders, final String username, final String password,
             String data, boolean followRedirects, CookieManager cookieManager) throws IOException {
         OkHttpClient client = new OkHttpClient();
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
+        client.networkInterceptors().add(loggingInterceptor);
         if (cookieManager != null) {
             client.setCookieHandler(cookieManager);
         }
