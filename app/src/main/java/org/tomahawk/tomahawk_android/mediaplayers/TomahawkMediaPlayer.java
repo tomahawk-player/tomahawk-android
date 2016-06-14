@@ -29,6 +29,8 @@ public interface TomahawkMediaPlayer {
 
     void prepare(Query query, TomahawkMediaPlayerCallback callback);
 
+    void tryPrepareNext(Query query);
+
     void release();
 
     long getPosition();

@@ -641,6 +641,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private TomahawkMediaPlayerCallback mMediaPlayerCallback = new TomahawkMediaPlayerCallback() {
         @Override
+        public void onBufferingComplete(TomahawkMediaPlayer mediaPlayer) {
+            PlaylistEntry entry = mPlaybackManager.getNextEntry();
+            TomahawkMediaPlayer mp = mMediaPlayers.get(
+                    entry.getQuery().getPreferredTrackResult().getMediaPlayerClass());
+            mp.tryPrepareNext(entry.getQuery());
+        }
+        @Override
         public void onPrepared(TomahawkMediaPlayer mediaPlayer, Query query) {
             if (query != null && query == mPlaybackManager.getCurrentQuery()) {
                 Log.d(TAG, mediaPlayer + " successfully prepared the track "
