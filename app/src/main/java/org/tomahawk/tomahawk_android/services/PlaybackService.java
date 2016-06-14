@@ -683,6 +683,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onError(TomahawkMediaPlayer mediaPlayer, final String message) {
             Log.d(TAG, "onError - mediaPlayer: " + mediaPlayer + ", message: " + message);
+            if (mMediaSession != null &&
+                    mPlaybackManager.getCurrentQuery().getPreferredTrackResult().getFallbackMediaPlayerClass()
+                            != null) {
+                mPlaybackManager.getCurrentQuery().getPreferredTrackResult().switchToFallbackMediaPlayerClass();
+                prepareCurrentQuery();
+                return;
+            }
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
