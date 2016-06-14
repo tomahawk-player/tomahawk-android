@@ -245,8 +245,6 @@ public class StationPlaylist extends Playlist {
     }
 
     public Promise<List<Query>, Throwable, Void> fillPlaylist(final int limit) {
-        final ScriptPlaylistGenerator generator =
-                ScriptPlaylistGeneratorManager.get().getDefaultPlaylistGenerator();
         if (mFillDeferred != null && mFillDeferred.isPending()) {
             return null;
         }
@@ -255,6 +253,8 @@ public class StationPlaylist extends Playlist {
         pickSeedsFromPlaylist().done(new DoneCallback<Void>() {
             @Override
             public void onDone(Void result) {
+                ScriptPlaylistGenerator generator =
+                        ScriptPlaylistGeneratorManager.get().getDefaultPlaylistGenerator();
                 if (mCandidates.size() >= limit) {
                     // We got enough candidates in cache
                     List<Query> queries = new ArrayList<>();
@@ -378,22 +378,25 @@ public class StationPlaylist extends Playlist {
         pickedIndexes.add(randomIndex);
         PlaylistEntry entry = mPlaylist.getEntryAtPos(randomIndex);
         Track candidate = entry.getQuery().getBasicTrack();
+        final int finalAttemptCount = attemptCount;
         ScriptPlaylistGenerator generator =
                 ScriptPlaylistGeneratorManager.get().getDefaultPlaylistGenerator();
-        final int finalAttemptCount = attemptCount;
-        generator.search("track:" + candidate.getName()
-                + "%20artist:" + candidate.getArtist().getName()).always(
-                new AlwaysCallback<ScriptPlaylistGeneratorSearchResult, Throwable>() {
-                    @Override
-                    public void onAlways(Promise.State state,
-                            ScriptPlaylistGeneratorSearchResult resolved, Throwable rejected) {
-                        if (resolved != null && resolved.mTracks != null
-                                && resolved.mTracks.size() > 0) {
-                            tracks.add(resolved.mTracks.get(0));
+        if (generator != null) {
+            generator.search("track:" + candidate.getName()
+                    + "%20artist:" + candidate.getArtist().getName()).always(
+                    new AlwaysCallback<ScriptPlaylistGeneratorSearchResult, Throwable>() {
+                        @Override
+                        public void onAlways(Promise.State state,
+                                ScriptPlaylistGeneratorSearchResult resolved, Throwable rejected) {
+                            if (resolved != null && resolved.mTracks != null
+                                    && resolved.mTracks.size() > 0) {
+                                tracks.add(resolved.mTracks.get(0));
+                            }
+                            pickSeedsFromPlaylist(deferred, pickedIndexes, tracks,
+                                    finalAttemptCount);
                         }
-                        pickSeedsFromPlaylist(deferred, pickedIndexes, tracks, finalAttemptCount);
-                    }
-                });
+                    });
+        }
     }
 
     private static String getIdKey() {
