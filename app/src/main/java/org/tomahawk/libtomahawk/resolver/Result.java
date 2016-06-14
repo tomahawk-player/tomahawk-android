@@ -34,6 +34,8 @@ public class Result extends Cacheable {
 
     private Class mMediaPlayerClass;
 
+    private Class mFallbackMediaPlayerClass;
+
     private Artist mArtist;
 
     private Album mAlbum;
@@ -73,18 +75,21 @@ public class Result extends Cacheable {
             isResolved = true;
         }
         mResolvedBy = resolvedBy;
+        mFallbackMediaPlayerClass = null;
         if (TomahawkApp.PLUGINNAME_SPOTIFY.equals(mResolvedBy.getId())) {
             mMediaPlayerClass = SpotifyMediaPlayer.class;
         } else if (TomahawkApp.PLUGINNAME_DEEZER.equals(mResolvedBy.getId())) {
             mMediaPlayerClass = DeezerMediaPlayer.class;
         } else if (TomahawkApp.PLUGINNAME_AMZN.equals(mResolvedBy.getId())) {
             mMediaPlayerClass = AndroidMediaPlayer.class;
-        } else {
+        } else if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(mResolvedBy.getId())) {
+            mIsLocal = true;
             mMediaPlayerClass = VLCMediaPlayer.class;
-            if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(mResolvedBy.getId())) {
-                mIsLocal = true;
-            }
+        } else {
+            mMediaPlayerClass = AndroidMediaPlayer.class;
+            mFallbackMediaPlayerClass = VLCMediaPlayer.class;
         }
+
         mArtist = track.getArtist();
         mAlbum = track.getAlbum();
         mTrack = track;
@@ -129,6 +134,14 @@ public class Result extends Cacheable {
         return mMediaPlayerClass;
     }
 
+    public Class getFallbackMediaPlayerClass() {
+        return mFallbackMediaPlayerClass;
+    }
+
+    public void switchToFallbackMediaPlayerClass() {
+        mMediaPlayerClass = mFallbackMediaPlayerClass;
+        mFallbackMediaPlayerClass = null;
+    }
     /**
      * @return the {@link Track} associated with this {@link Result}
      */
