@@ -47,6 +47,7 @@ import org.tomahawk.tomahawk_android.views.AlbumArtViewPager;
 import org.tomahawk.tomahawk_android.views.PlaybackFragmentFrame;
 
 import android.animation.Animator;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -530,9 +531,15 @@ public class PlaybackFragment extends TomahawkFragment {
                     public void onError() {
                     }
                 };
-                ImageUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(),
-                        imageViewToFadeIn, mCurrentBlurredImage, Image.getSmallImageSize(),
-                        R.color.playerview_default_bg, fadeCallback);
+                if (mCurrentBlurredImage != null) {
+                    ImageUtils.loadBlurredImageIntoImageView(TomahawkApp.getContext(),
+                            imageViewToFadeIn, mCurrentBlurredImage, Image.getSmallImageSize(),
+                            0, fadeCallback);
+                } else {
+                    imageViewToFadeIn.setImageDrawable(new ColorDrawable(
+                            getResources().getColor(R.color.playerview_default_bg)));
+                    fadeCallback.onSuccess();
+                }
             }
         }
     }
