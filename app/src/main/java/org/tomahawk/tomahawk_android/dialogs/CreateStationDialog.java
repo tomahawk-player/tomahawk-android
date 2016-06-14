@@ -31,8 +31,8 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.adapters.Segment;
 import org.tomahawk.tomahawk_android.adapters.TomahawkListAdapter;
-import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
 import org.tomahawk.tomahawk_android.listeners.MultiColumnClickListener;
+import org.tomahawk.tomahawk_android.ui.widgets.ConfigEdittext;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -128,72 +128,74 @@ public class CreateStationDialog extends ConfigDialog {
         startLoadingAnimation();
         ScriptPlaylistGenerator generator =
                 ScriptPlaylistGeneratorManager.get().getDefaultPlaylistGenerator();
-        generator.search(mSearchEditText.getText().toString())
-                .done(new DoneCallback<ScriptPlaylistGeneratorSearchResult>() {
-                    @Override
-                    public void onDone(ScriptPlaylistGeneratorSearchResult result) {
-                        stopLoadingAnimation();
-                        mListView.setVisibility(View.VISIBLE);
-                        List<Segment> segments = new ArrayList<>();
-                        if (result.mArtists.size() > 0) {
-                            List<Artist> artists = new ArrayList<>();
-                            for (Pair<Artist, String> pair : result.mArtists) {
-                                artists.add(pair.first);
-                                mArtistIds.put(pair.first, pair.second);
+        if (generator != null) {
+            generator.search(mSearchEditText.getText().toString())
+                    .done(new DoneCallback<ScriptPlaylistGeneratorSearchResult>() {
+                        @Override
+                        public void onDone(ScriptPlaylistGeneratorSearchResult result) {
+                            stopLoadingAnimation();
+                            mListView.setVisibility(View.VISIBLE);
+                            List<Segment> segments = new ArrayList<>();
+                            if (result.mArtists.size() > 0) {
+                                List<Artist> artists = new ArrayList<>();
+                                for (Pair<Artist, String> pair : result.mArtists) {
+                                    artists.add(pair.first);
+                                    mArtistIds.put(pair.first, pair.second);
+                                }
+                                segments.add(new Segment.Builder(artists)
+                                        .headerLayout(R.layout.single_line_list_header)
+                                        .headerString(R.string.artists)
+                                        .build());
                             }
-                            segments.add(new Segment.Builder(artists)
-                                    .headerLayout(R.layout.single_line_list_header)
-                                    .headerString(R.string.artists)
-                                    .build());
-                        }
-                        if (result.mAlbums.size() > 0) {
-                            segments.add(new Segment.Builder(result.mAlbums)
-                                    .headerLayout(R.layout.single_line_list_header)
-                                    .headerString(R.string.albums)
-                                    .build());
-                        }
-                        if (result.mTracks.size() > 0) {
-                            List<Track> tracks = new ArrayList<>();
-                            for (Pair<Track, String> pair : result.mTracks) {
-                                tracks.add(pair.first);
-                                mTrackIds.put(pair.first, pair.second);
+                            if (result.mAlbums.size() > 0) {
+                                segments.add(new Segment.Builder(result.mAlbums)
+                                        .headerLayout(R.layout.single_line_list_header)
+                                        .headerString(R.string.albums)
+                                        .build());
                             }
-                            segments.add(new Segment.Builder(tracks)
-                                    .headerLayout(R.layout.single_line_list_header)
-                                    .headerString(R.string.songs)
-                                    .build());
-                        }
-                        if (result.mGenres.size() > 0) {
-                            List<ListItemString> genres = new ArrayList<>();
-                            for (String genre : result.mGenres) {
-                                genres.add(new ListItemString(genre));
+                            if (result.mTracks.size() > 0) {
+                                List<Track> tracks = new ArrayList<>();
+                                for (Pair<Track, String> pair : result.mTracks) {
+                                    tracks.add(pair.first);
+                                    mTrackIds.put(pair.first, pair.second);
+                                }
+                                segments.add(new Segment.Builder(tracks)
+                                        .headerLayout(R.layout.single_line_list_header)
+                                        .headerString(R.string.songs)
+                                        .build());
                             }
-                            segments.add(new Segment.Builder(genres)
-                                    .headerLayout(R.layout.single_line_list_header)
-                                    .headerString(R.string.genres)
-                                    .build());
-                        }
-                        if (result.mMoods.size() > 0) {
-                            List<ListItemString> moods = new ArrayList<>();
-                            for (String mood : result.mMoods) {
-                                moods.add(new ListItemString(mood));
+                            if (result.mGenres.size() > 0) {
+                                List<ListItemString> genres = new ArrayList<>();
+                                for (String genre : result.mGenres) {
+                                    genres.add(new ListItemString(genre));
+                                }
+                                segments.add(new Segment.Builder(genres)
+                                        .headerLayout(R.layout.single_line_list_header)
+                                        .headerString(R.string.genres)
+                                        .build());
                             }
-                            segments.add(new Segment.Builder(moods)
-                                    .headerLayout(R.layout.single_line_list_header)
-                                    .headerString(R.string.moods)
-                                    .build());
-                        }
+                            if (result.mMoods.size() > 0) {
+                                List<ListItemString> moods = new ArrayList<>();
+                                for (String mood : result.mMoods) {
+                                    moods.add(new ListItemString(mood));
+                                }
+                                segments.add(new Segment.Builder(moods)
+                                        .headerLayout(R.layout.single_line_list_header)
+                                        .headerString(R.string.moods)
+                                        .build());
+                            }
 
-                        if (mAdapter == null) {
-                            mAdapter = new TomahawkListAdapter(
-                                    (TomahawkMainActivity) getActivity(),
-                                    LayoutInflater.from(getContext()), segments, mListView,
-                                    mClickListener);
-                        } else {
-                            mAdapter.setSegments(segments, mListView);
+                            if (mAdapter == null) {
+                                mAdapter = new TomahawkListAdapter(
+                                        (TomahawkMainActivity) getActivity(),
+                                        LayoutInflater.from(getContext()), segments, mListView,
+                                        mClickListener);
+                            } else {
+                                mAdapter.setSegments(segments, mListView);
+                            }
+                            mListView.setAdapter(mAdapter);
                         }
-                        mListView.setAdapter(mAdapter);
-                    }
-                });
+                    });
+        }
     }
 }
