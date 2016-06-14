@@ -38,4 +38,9 @@ public interface TomahawkMediaPlayerCallback {
      */
     void onError(TomahawkMediaPlayer mediaPlayer, String message);
 
+    /**
+     * Called when track is fully buffered
+     */
+    void onBufferingComplete(TomahawkMediaPlayer mediaPlayer);
+
 }

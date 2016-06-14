@@ -13,6 +13,8 @@ import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
@@ -25,7 +27,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     private static final String TAG = AndroidMediaPlayer.class.getSimpleName();
 
-    private static MediaPlayer sMediaPlayer = null;
+    private static HashMap<Query, MediaPlayer> mMediaPlayers = new HashMap<>();
 
     private Query mPreparedQuery;
 
@@ -39,28 +41,107 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
     public AndroidMediaPlayer() {
         EventBus.getDefault().register(this);
     }
+
     @Override
     public void play() {
-        if (sMediaPlayer != null)
+        MediaPlayer sMediaPlayer = mMediaPlayers.get(mPreparedQuery);
+        if (sMediaPlayer != null && !sMediaPlayer.isPlaying())
             sMediaPlayer.start();
     }
 
     @Override
     public void pause() {
+        MediaPlayer sMediaPlayer = mMediaPlayers.get(mPreparedQuery);
         if (sMediaPlayer != null)
             sMediaPlayer.pause();
     }
 
     @Override
     public void seekTo(long msec) {
+        MediaPlayer sMediaPlayer = mMediaPlayers.get(mPreparedQuery);
         if (sMediaPlayer != null)
             sMediaPlayer.seekTo((int)msec);
+    }
+
+    @Override
+    public void tryPrepareNext(final Query query) {
+        Log.d(TAG, "tryPrepareNext()");
+        if (mPreparingQuery != null && mMediaPlayers.containsKey(mPreparingQuery))
+            mMediaPlayers.remove(mPreparingQuery);
+        mPreparingQuery = query;
+        Result result = query.getPreferredTrackResult();
+        String path;
+        if (mTranslatedUrls.get(result) != null) {
+            path = mTranslatedUrls.remove(result);
+        } else {
+            if (result.getResolvedBy() instanceof ScriptResolver) {
+                ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
+                return;
+            } else {
+                path = result.getPath();
+            }
+        }
+
+        MediaPlayer sMediaPlayer = new MediaPlayer();
+        mMediaPlayers.put(query, sMediaPlayer);
+
+        sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+        try {
+            String finalUrl = NetworkUtils.getFinalURL(path);
+            if (finalUrl != null)
+                path = finalUrl;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            sMediaPlayer.setDataSource(path);
+            sMediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+            mMediaPlayers.put(mPreparingQuery, null);
+            return;
+        }
+
+        sMediaPlayer.setOnCompletionListener(new CompletionListener());
+        sMediaPlayer.setOnBufferingUpdateListener(new BufferingUpdateListener());
+
+        MediaPlayer currentMediaPlayer = mMediaPlayers.get(mPreparedQuery);
+        if (currentMediaPlayer != null)
+            currentMediaPlayer.setNextMediaPlayer(sMediaPlayer);
+        mPreparingQuery = null;
+        Log.d(TAG, "Prepared next track for playback");
     }
 
     @Override
     public void prepare(final Query query, final TomahawkMediaPlayerCallback callback) {
         Log.d(TAG, "prepare()");
         mMediaPlayerCallback = callback;
+        // Since this one is supposedly the one we want to play lets do some cleanup work
+        final Iterator mapIter = mMediaPlayers.keySet().iterator();
+        while(mapIter.hasNext()) {
+            Query q = (Query)mapIter.next();
+            if (!q.equals(query)) {
+                MediaPlayer mp = mMediaPlayers.get(q);
+                if (mp != null)
+                    mp.release();
+                mapIter.remove();
+            }
+        }
+        if (mMediaPlayers.containsKey(query)) {
+            MediaPlayer mediaPlayer = mMediaPlayers.get(query);
+            if (mediaPlayer == null) {
+                mMediaPlayers.remove(query);
+                callback.onError(AndroidMediaPlayer.this, "MediaPlayerEncounteredError");
+            } else {
+                mPreparingQuery = null;
+                mPreparedQuery = query;
+                callback.onPrepared(AndroidMediaPlayer.this, mPreparedQuery);
+                Log.d(TAG, "onPrepared()");
+            }
+            return;
+        }
         TomahawkRunnable r = new TomahawkRunnable(1) {
             @Override
             public void run() {
@@ -79,7 +160,9 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                     }
                 }
                 release();
-                sMediaPlayer = new MediaPlayer();
+
+                MediaPlayer sMediaPlayer = new MediaPlayer();
+                mMediaPlayers.put(query, sMediaPlayer);
 
                 sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
@@ -101,6 +184,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                 }
 
                 sMediaPlayer.setOnCompletionListener(new CompletionListener());
+                sMediaPlayer.setOnBufferingUpdateListener(new BufferingUpdateListener());
 
                 mPreparedQuery = mPreparingQuery;
                 mPreparingQuery = null;
@@ -117,7 +201,10 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
         mTranslatedUrls.put(event.mResult, event.mUrl);
         if (mMediaPlayerCallback != null && mPreparingQuery != null
                 && event.mResult == mPreparingQuery.getPreferredTrackResult()) {
-            prepare(mPreparingQuery, mMediaPlayerCallback);
+            if (mPreparedQuery == null)
+                prepare(mPreparingQuery, mMediaPlayerCallback);
+            else
+                tryPrepareNext(mPreparingQuery);
         } else {
             Log.e(TAG, "Received stream url: Wasn't able to prepare: " + event.mResult + ", "
                     + event.mUrl);
@@ -126,12 +213,16 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     @Override
     public void release() {
-        if (sMediaPlayer != null)
+        MediaPlayer sMediaPlayer = mMediaPlayers.remove(mPreparedQuery);
+        if (sMediaPlayer != null) {
             sMediaPlayer.release();
+        }
+        mPreparedQuery = null;
     }
 
     @Override
     public long getPosition() {
+        MediaPlayer sMediaPlayer = mMediaPlayers.get(mPreparedQuery);
         if (sMediaPlayer != null)
             return sMediaPlayer.getCurrentPosition();
         return 0;
@@ -144,6 +235,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     @Override
     public boolean isPlaying(Query query) {
+        MediaPlayer sMediaPlayer = mMediaPlayers.get(mPreparedQuery);
         if (sMediaPlayer != null)
             return sMediaPlayer.isPlaying();
         return false;
@@ -164,9 +256,20 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
             Log.d(TAG, "onCompletion()");
             if (mMediaPlayerCallback != null) {
                 mMediaPlayerCallback.onCompletion(AndroidMediaPlayer.this, mPreparedQuery);
+                mp.release();
+                mPreparedQuery = null;
             } else {
                 Log.e(TAG,
                         "Wasn't able to call onCompletion because callback object is null");
+            }
+        }
+    }
+
+    private class BufferingUpdateListener implements MediaPlayer.OnBufferingUpdateListener {
+        public void onBufferingUpdate(MediaPlayer mp, int percent) {
+            if (mMediaPlayerCallback != null && percent == 100 && mp == mMediaPlayers.get(mPreparedQuery)) {
+                mMediaPlayerCallback.onBufferingComplete(AndroidMediaPlayer.this);
+                mp.setOnBufferingUpdateListener(null);
             }
         }
     }

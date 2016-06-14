@@ -359,6 +359,16 @@ public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
 
     public abstract void prepare(String uri);
 
+
+    /**
+     * Try to prepare the given {@link Query} for playback with seamless transition
+     * Supposedly its going to be the next track
+     *
+     * @param query    the {@link Query} that should be prepared for playback
+     */
+    public void tryPrepareNext(Query query) {
+
+    }
     /**
      * Prepare the given {@link Query} for playback
      *
