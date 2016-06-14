@@ -152,6 +152,7 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'com.squareup.okhttp:okhttp:2.7.2'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.7.2'
+    compile 'com.squareup.okhttp:logging-interceptor:2.7.2'
     compile 'com.github.castorflex.smoothprogressbar:library:1.1.0'
     compile 'de.mrmaffen:vlc-android-sdk:1.9.8'
     compile 'org.apache.lucene:lucene-core:4.7.2'
