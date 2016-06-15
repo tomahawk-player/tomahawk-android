@@ -14,6 +14,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,6 +29,8 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
     private static final String TAG = AndroidMediaPlayer.class.getSimpleName();
 
     private static HashMap<Query, MediaPlayer> mMediaPlayers = new HashMap<>();
+
+    private static HashSet<MediaPlayer> mBufferedMediaPlayers = new HashSet<>();
 
     private Query mPreparedQuery;
 
@@ -138,10 +141,13 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                 mPreparingQuery = null;
                 mPreparedQuery = query;
                 callback.onPrepared(AndroidMediaPlayer.this, mPreparedQuery);
+                if (mBufferedMediaPlayers.contains(mediaPlayer))
+                    mMediaPlayerCallback.onBufferingComplete(AndroidMediaPlayer.this);
                 Log.d(TAG, "onPrepared()");
             }
             return;
         }
+        mBufferedMediaPlayers.clear();
         TomahawkRunnable r = new TomahawkRunnable(1) {
             @Override
             public void run() {
@@ -216,6 +222,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
         MediaPlayer sMediaPlayer = mMediaPlayers.remove(mPreparedQuery);
         if (sMediaPlayer != null) {
             sMediaPlayer.release();
+            mBufferedMediaPlayers.remove(sMediaPlayer);
         }
         mPreparedQuery = null;
     }
@@ -267,8 +274,11 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     private class BufferingUpdateListener implements MediaPlayer.OnBufferingUpdateListener {
         public void onBufferingUpdate(MediaPlayer mp, int percent) {
-            if (mMediaPlayerCallback != null && percent == 100 && mp == mMediaPlayers.get(mPreparedQuery)) {
-                mMediaPlayerCallback.onBufferingComplete(AndroidMediaPlayer.this);
+            if (percent == 100) {
+                if (mMediaPlayerCallback != null && mp == mMediaPlayers.get(mPreparedQuery)) {
+                    mMediaPlayerCallback.onBufferingComplete(AndroidMediaPlayer.this);
+                }
+                mBufferedMediaPlayers.add(mp);
                 mp.setOnBufferingUpdateListener(null);
             }
         }
