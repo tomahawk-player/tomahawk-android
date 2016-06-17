@@ -118,6 +118,7 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
         }
 
         options.headers['User-Agent'] = 'Mozilla/6.0 (X11; Ubuntu; Linux x86_64; rv:40.0) Gecko/20100101 Firefox/40.0';
+        options.headers['Accept-Language'] = 'en-US,*';
 
         if (method == 'POST')
             return Tomahawk.post( url, options);
