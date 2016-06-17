@@ -22,6 +22,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.Cacheable;
 import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.tomahawk_android.TomahawkApp;
+import org.tomahawk.tomahawk_android.mediaplayers.AndroidMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
@@ -76,6 +77,8 @@ public class Result extends Cacheable {
             mMediaPlayerClass = SpotifyMediaPlayer.class;
         } else if (TomahawkApp.PLUGINNAME_DEEZER.equals(mResolvedBy.getId())) {
             mMediaPlayerClass = DeezerMediaPlayer.class;
+        } else if (TomahawkApp.PLUGINNAME_AMZN.equals(mResolvedBy.getId())) {
+            mMediaPlayerClass = AndroidMediaPlayer.class;
         } else {
             mMediaPlayerClass = VLCMediaPlayer.class;
             if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(mResolvedBy.getId())) {

@@ -39,6 +39,7 @@ import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.mediaplayers.AndroidMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.PluginMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
@@ -774,6 +775,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
         mMediaBrowserHelper = new MediaBrowserHelper(this);
 
+        mMediaPlayers.put(AndroidMediaPlayer.class, new AndroidMediaPlayer());
         mMediaPlayers.put(VLCMediaPlayer.class, new VLCMediaPlayer());
         mMediaPlayers.put(DeezerMediaPlayer.class, new DeezerMediaPlayer());
         mMediaPlayers.put(SpotifyMediaPlayer.class, new SpotifyMediaPlayer());
