@@ -643,7 +643,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onBufferingComplete(TomahawkMediaPlayer mediaPlayer) {
             PlaylistEntry entry = mPlaybackManager.getNextEntry();
-            if (entry != null ) {
+            if (entry != null && entry.getQuery().getPreferredTrackResult() != null ) {
                 TomahawkMediaPlayer mp = mMediaPlayers.get(
                         entry.getQuery().getPreferredTrackResult().getMediaPlayerClass());
                 mp.tryPrepareNext(entry.getQuery());
