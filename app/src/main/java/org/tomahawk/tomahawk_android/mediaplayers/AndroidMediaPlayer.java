@@ -84,18 +84,10 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                 sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
                 try {
-                    String finalUrl = NetworkUtils.getFinalURL(path);
-                    if (finalUrl != null)
-                        path = finalUrl;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                try {
                     sMediaPlayer.setDataSource(path);
                     sMediaPlayer.prepare();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "prepare - ", e);
                     callback.onError(
                             AndroidMediaPlayer.this, "MediaPlayerEncounteredError");
                 }
