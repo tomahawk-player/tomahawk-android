@@ -94,14 +94,6 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                 sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
                 try {
-                    String finalUrl = NetworkUtils.getFinalURL(path);
-                    if (finalUrl != null)
-                        path = finalUrl;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                try {
                     sMediaPlayer.setDataSource(path);
                     sMediaPlayer.prepare();
                 } catch (IOException e) {
@@ -114,7 +106,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                 sMediaPlayer.setOnBufferingUpdateListener(new BufferingUpdateListener());
 
                 MediaPlayer currentMediaPlayer = mMediaPlayers.get(mPreparedQuery);
-                if (currentMediaPlayer != null)
+                if (currentMediaPlayer != null && currentMediaPlayer != sMediaPlayer)
                     currentMediaPlayer.setNextMediaPlayer(sMediaPlayer);
                 mPreparingQuery = null;
                 Log.d(TAG, "Prepared next track for playback");
@@ -138,8 +130,9 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                     Query q = (Query)mapIter.next();
                     if (!q.equals(query)) {
                         MediaPlayer mp = mMediaPlayers.get(q);
-                        if (mp != null)
+                        if (mp != null) {
                             mp.release();
+                        }
                         mapIter.remove();
                     }
                 }
@@ -224,7 +217,6 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
             sMediaPlayer.release();
             mBufferedMediaPlayers.remove(sMediaPlayer);
         }
-        mPreparedQuery = null;
     }
 
     @Override
@@ -263,8 +255,6 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
             Log.d(TAG, "onCompletion()");
             if (mMediaPlayerCallback != null) {
                 mMediaPlayerCallback.onCompletion(AndroidMediaPlayer.this, mPreparedQuery);
-                mp.release();
-                mPreparedQuery = null;
             } else {
                 Log.e(TAG,
                         "Wasn't able to call onCompletion because callback object is null");
