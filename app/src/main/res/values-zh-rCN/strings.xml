@@ -184,6 +184,8 @@
   <string name="following">在关注</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">粉丝：%1$d，关注：%2$d</string>
+  <string name="resolver_config_enable_button_enable">启用</string>
+  <string name="resolver_config_enable_button_disable">禁用</string>
   <string name="resolver_config_redirect_button_text_log_into">登录到</string>
   <string name="resolver_config_redirect_button_text_log_out_of">注销</string>
   <string name="resolver_config_redirect_button_text_download_plugin">下载插件：</string>
