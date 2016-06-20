@@ -301,9 +301,9 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                 ScriptJob.start(mScriptObject, "_adapter_search", args, callback);
             } else {
                 HashMap<String, Object> args = new HashMap<>();
-                args.put("artist", query.getArtist().getName());
-                args.put("album", query.getAlbum().getName());
-                args.put("track", query.getName());
+                args.put("artist", query.getBasicTrack().getArtist().getName());
+                args.put("album", query.getBasicTrack().getAlbum().getName());
+                args.put("track", query.getBasicTrack().getName());
                 ScriptJob.start(mScriptObject, "_adapter_resolve", args, callback);
             }
         } else {

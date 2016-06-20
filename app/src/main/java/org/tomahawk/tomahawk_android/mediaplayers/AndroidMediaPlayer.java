@@ -1,16 +1,34 @@
+/* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2016, Enno Gottschalk <mrmaffen@googlemail.com>
+ *   Copyright 2016, Anton Romanov
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.tomahawk.tomahawk_android.mediaplayers;
-
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.util.Log;
 
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
-import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
+
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.support.v4.media.session.PlaybackStateCompat;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -20,10 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
 
-
-/**
- * Created by Anton Romanov on 6/7/16.
- */
 public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     private static final String TAG = AndroidMediaPlayer.class.getSimpleName();
@@ -36,10 +50,23 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     private Query mPreparingQuery;
 
-    private final ConcurrentHashMap<Result, String> mTranslatedUrls
-            = new ConcurrentHashMap<>();
+    private int mPlayState = PlaybackStateCompat.STATE_NONE;
+
+    private final ConcurrentHashMap<Result, String> mTranslatedUrls = new ConcurrentHashMap<>();
 
     private TomahawkMediaPlayerCallback mMediaPlayerCallback;
+
+    private class CompletionListener implements MediaPlayer.OnCompletionListener {
+
+        public void onCompletion(MediaPlayer mp) {
+            Log.d(TAG, "onCompletion()");
+            if (mMediaPlayerCallback != null) {
+                mMediaPlayerCallback.onCompletion(AndroidMediaPlayer.this, mPreparedQuery);
+            } else {
+                Log.e(TAG, "Wasn't able to call onCompletion because callback object is null");
+            }
+        }
+    }
 
     public AndroidMediaPlayer() {
         EventBus.getDefault().register(this);
@@ -178,8 +205,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                     sMediaPlayer.prepare();
                 } catch (IOException e) {
                     Log.e(TAG, "prepare - ", e);
-                    callback.onError(
-                            AndroidMediaPlayer.this, "MediaPlayerEncounteredError");
+                    callback.onError(AndroidMediaPlayer.this, "MediaPlayerEncounteredError");
                 }
 
                 sMediaPlayer.setOnCompletionListener(new CompletionListener());
@@ -224,12 +250,12 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
         MediaPlayer sMediaPlayer = mMediaPlayers.get(mPreparedQuery);
         if (sMediaPlayer != null)
             return sMediaPlayer.getCurrentPosition();
+        }
         return 0;
     }
 
     @Override
     public void setBitrate(int mode) {
-
     }
 
     @Override
@@ -248,18 +274,6 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
     @Override
     public boolean isPrepared(Query query) {
         return mPreparedQuery != null && mPreparedQuery == query;
-    }
-
-    private class CompletionListener implements MediaPlayer.OnCompletionListener {
-        public void onCompletion(MediaPlayer mp) {
-            Log.d(TAG, "onCompletion()");
-            if (mMediaPlayerCallback != null) {
-                mMediaPlayerCallback.onCompletion(AndroidMediaPlayer.this, mPreparedQuery);
-            } else {
-                Log.e(TAG,
-                        "Wasn't able to call onCompletion because callback object is null");
-            }
-        }
     }
 
     private class BufferingUpdateListener implements MediaPlayer.OnBufferingUpdateListener {
