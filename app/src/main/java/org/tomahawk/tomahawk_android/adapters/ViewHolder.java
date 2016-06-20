@@ -224,7 +224,6 @@ public class ViewHolder {
                     album.getArtist().getImage(), Image.getSmallImageSize(), false);
         }
         final TextView textView3 = (TextView) findViewById(R.id.textview3);
-        textView3.setVisibility(View.INVISIBLE);
         collection.getAlbumTrackCount(album).done(new DoneCallback<Integer>() {
             @Override
             public void onDone(Integer trackCount) {
@@ -232,6 +231,8 @@ public class ViewHolder {
                     textView3.setVisibility(View.VISIBLE);
                     textView3.setText(TomahawkApp.getContext().getResources().getQuantityString(
                             R.plurals.songs_with_count, trackCount, trackCount));
+                } else {
+                    textView3.setVisibility(View.INVISIBLE);
                 }
             }
         });
