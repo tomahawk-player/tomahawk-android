@@ -298,10 +298,10 @@ public class CollectionDb extends SQLiteOpenHelper {
             if (track.track == null) {
                 track.track = "";
             }
-            Set<String> artists = albumArtists.get(track.album);
+            Set<String> artists = albumArtists.get(track.album + "♠" + track.albumArtist);
             if (artists == null) {
                 artists = new HashSet<>();
-                albumArtists.put(track.album, artists);
+                albumArtists.put(track.album + "♠" + track.albumArtist, artists);
             }
             if (artists.size() < 2) {
                 artists.add(track.artist);
@@ -312,7 +312,7 @@ public class CollectionDb extends SQLiteOpenHelper {
         // First we insert all artists and albumArtists
         mDb.beginTransaction();
         for (ScriptResolverTrack track : tracks) {
-            if (albumArtists.get(track.album).size() > 1) {
+            if (albumArtists.get(track.album + "♠" + track.albumArtist).size() > 1) {
                 ContentValues values = new ContentValues();
                 values.put(ARTISTS_ARTIST, Artist.COMPILATION_ARTIST.getName());
                 values.put(ARTISTS_ARTISTDISAMBIGUATION, "");
@@ -358,7 +358,7 @@ public class CollectionDb extends SQLiteOpenHelper {
             ContentValues values = new ContentValues();
             values.put(ALBUMS_ALBUM, track.album);
             int albumArtistId;
-            if (albumArtists.get(track.album).size() == 1) {
+            if (albumArtists.get(track.album + "♠" + track.albumArtist).size() == 1) {
                 albumArtistId = cachedArtists.get(
                         concatKeys(track.artist, track.artistDisambiguation));
             } else {
@@ -389,7 +389,7 @@ public class CollectionDb extends SQLiteOpenHelper {
         for (ScriptResolverTrack track : tracks) {
             ContentValues values = new ContentValues();
             int albumArtistId;
-            if (albumArtists.get(track.album).size() == 1) {
+            if (albumArtists.get(track.album + "♠" + track.albumArtist).size() == 1) {
                 albumArtistId = cachedArtists.get(
                         concatKeys(track.artist, track.artistDisambiguation));
             } else {
