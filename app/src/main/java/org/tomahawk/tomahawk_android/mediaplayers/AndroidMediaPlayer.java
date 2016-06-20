@@ -1,26 +1,38 @@
+/* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
+ *
+ *   Copyright 2016, Anton Romanov
+ *
+ *   Tomahawk is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   Tomahawk is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   You should have received a copy of the GNU General Public License
+ *   along with Tomahawk. If not, see <http://www.gnu.org/licenses/>.
+ */
 package org.tomahawk.tomahawk_android.mediaplayers;
-
-import android.media.AudioManager;
-import android.media.MediaPlayer;
-import android.util.Log;
 
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
 import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
-import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
+
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.util.Log;
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import de.greenrobot.event.EventBus;
 
-
-/**
- * Created by Anton Romanov on 6/7/16.
- */
 public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     private static final String TAG = AndroidMediaPlayer.class.getSimpleName();
@@ -36,25 +48,41 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     private TomahawkMediaPlayerCallback mMediaPlayerCallback;
 
+    private class CompletionListener implements MediaPlayer.OnCompletionListener {
+
+        public void onCompletion(MediaPlayer mp) {
+            Log.d(TAG, "onCompletion()");
+            if (mMediaPlayerCallback != null) {
+                mMediaPlayerCallback.onCompletion(AndroidMediaPlayer.this, mPreparedQuery);
+            } else {
+                Log.e(TAG, "Wasn't able to call onCompletion because callback object is null");
+            }
+        }
+    }
+
     public AndroidMediaPlayer() {
         EventBus.getDefault().register(this);
     }
+
     @Override
     public void play() {
-        if (sMediaPlayer != null)
+        if (sMediaPlayer != null) {
             sMediaPlayer.start();
+        }
     }
 
     @Override
     public void pause() {
-        if (sMediaPlayer != null)
+        if (sMediaPlayer != null) {
             sMediaPlayer.pause();
+        }
     }
 
     @Override
     public void seekTo(long msec) {
-        if (sMediaPlayer != null)
-            sMediaPlayer.seekTo((int)msec);
+        if (sMediaPlayer != null) {
+            sMediaPlayer.seekTo((int) msec);
+        }
     }
 
     @Override
@@ -88,8 +116,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                     sMediaPlayer.prepare();
                 } catch (IOException e) {
                     Log.e(TAG, "prepare - ", e);
-                    callback.onError(
-                            AndroidMediaPlayer.this, "MediaPlayerEncounteredError");
+                    callback.onError(AndroidMediaPlayer.this, "MediaPlayerEncounteredError");
                 }
 
                 sMediaPlayer.setOnCompletionListener(new CompletionListener());
@@ -118,27 +145,26 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     @Override
     public void release() {
-        if (sMediaPlayer != null)
+        if (sMediaPlayer != null) {
             sMediaPlayer.release();
+        }
     }
 
     @Override
     public long getPosition() {
-        if (sMediaPlayer != null)
+        if (sMediaPlayer != null) {
             return sMediaPlayer.getCurrentPosition();
+        }
         return 0;
     }
 
     @Override
     public void setBitrate(int mode) {
-
     }
 
     @Override
     public boolean isPlaying(Query query) {
-        if (sMediaPlayer != null)
-            return sMediaPlayer.isPlaying();
-        return false;
+        return sMediaPlayer != null && sMediaPlayer.isPlaying();
     }
 
     @Override
@@ -149,17 +175,5 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
     @Override
     public boolean isPrepared(Query query) {
         return mPreparedQuery != null && mPreparedQuery == query;
-    }
-
-    private class CompletionListener implements MediaPlayer.OnCompletionListener {
-        public void onCompletion(MediaPlayer mp) {
-            Log.d(TAG, "onCompletion()");
-            if (mMediaPlayerCallback != null) {
-                mMediaPlayerCallback.onCompletion(AndroidMediaPlayer.this, mPreparedQuery);
-            } else {
-                Log.e(TAG,
-                        "Wasn't able to call onCompletion because callback object is null");
-            }
-        }
     }
 }
