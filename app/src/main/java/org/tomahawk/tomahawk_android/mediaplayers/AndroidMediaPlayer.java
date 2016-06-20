@@ -1,5 +1,6 @@
 /* == This file is part of Tomahawk Player - <http://tomahawk-player.org> ===
  *
+ *   Copyright 2016, Enno Gottschalk <mrmaffen@googlemail.com>
  *   Copyright 2016, Anton Romanov
  *
  *   Tomahawk is free software: you can redistribute it and/or modify
@@ -26,6 +27,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import java.io.IOException;
@@ -43,8 +45,9 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     private Query mPreparingQuery;
 
-    private final ConcurrentHashMap<Result, String> mTranslatedUrls
-            = new ConcurrentHashMap<>();
+    private int mPlayState = PlaybackStateCompat.STATE_NONE;
+
+    private final ConcurrentHashMap<Result, String> mTranslatedUrls = new ConcurrentHashMap<>();
 
     private TomahawkMediaPlayerCallback mMediaPlayerCallback;
 
@@ -66,16 +69,14 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     @Override
     public void play() {
-        if (sMediaPlayer != null) {
-            sMediaPlayer.start();
-        }
+        mPlayState = PlaybackStateCompat.STATE_PLAYING;
+        handlePlayState();
     }
 
     @Override
     public void pause() {
-        if (sMediaPlayer != null) {
-            sMediaPlayer.pause();
-        }
+        mPlayState = PlaybackStateCompat.STATE_PAUSED;
+        handlePlayState();
     }
 
     @Override
@@ -123,6 +124,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
                 mPreparedQuery = mPreparingQuery;
                 mPreparingQuery = null;
+                handlePlayState();
                 callback.onPrepared(AndroidMediaPlayer.this, mPreparedQuery);
                 Log.d(TAG, "onPrepared()");
             }
@@ -175,5 +177,17 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
     @Override
     public boolean isPrepared(Query query) {
         return mPreparedQuery != null && mPreparedQuery == query;
+    }
+
+    private void handlePlayState() {
+        if (sMediaPlayer != null && mPreparedQuery != null) {
+            if (mPlayState == PlaybackStateCompat.STATE_PAUSED
+                    && sMediaPlayer.isPlaying()) {
+                sMediaPlayer.pause();
+            } else if (mPlayState == PlaybackStateCompat.STATE_PLAYING
+                    && !sMediaPlayer.isPlaying()) {
+                sMediaPlayer.start();
+            }
+        }
     }
 }
