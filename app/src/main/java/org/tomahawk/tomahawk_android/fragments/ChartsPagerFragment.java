@@ -136,10 +136,7 @@ public class ChartsPagerFragment extends PagerFragment {
     }
 
     private Playlist parseTrackCharts(ScriptChartsResult chartsResult, String type) {
-        Playlist pl = Playlist.get(mChartsProvider.getScriptAccount().getMetaData().pluginName
-                + CHARTS_PLAYLIST_SUFFX + type);
-        pl.setFilled(true);
-        pl.clear();
+        List<Query> queries = new ArrayList<>();
         for (JsonObject rawTrack : chartsResult.results) {
             JsonElement artist = rawTrack.get("artist");
             JsonElement album = rawTrack.get("album");
@@ -148,9 +145,14 @@ public class ChartsPagerFragment extends PagerFragment {
                 String artistName = artist.getAsString();
                 String albumName = album.getAsString();
                 String trackName = track.getAsString();
-                pl.addQuery(pl.size(), Query.get(trackName, albumName, artistName, false));
+                queries.add(Query.get(trackName, albumName, artistName, false));
             }
         }
+        String id = mChartsProvider.getScriptAccount().getMetaData().pluginName
+                + CHARTS_PLAYLIST_SUFFX + type;
+        String name = mChartsProvider.getScriptAccount().getMetaData().pluginName + "_" + type;
+        Playlist pl = Playlist.fromQueryList(id, name, null, queries);
+        pl.setFilled(true);
         return pl;
     }
 
