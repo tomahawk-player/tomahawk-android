@@ -309,17 +309,14 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     @Override
     public boolean isPreparing(Query query) {
-        MediaPlayerWrap sMediaPlayer = mMediaPlayers.get(query);
-        if (sMediaPlayer != null)
-            return sMediaPlayer.getPlayBackState() == STATE_NONE;
-        return false;
+        return query == mPreparingQuery;
     }
 
     @Override
     public boolean isPrepared(Query query) {
         MediaPlayerWrap sMediaPlayer = mMediaPlayers.get(query);
         if (sMediaPlayer != null)
-            return sMediaPlayer.getPlayBackState() != STATE_NONE;
+            return sMediaPlayer.getPlayBackState() != STATE_NONE && query == mPreparedQuery;
         return false;
     }
 
