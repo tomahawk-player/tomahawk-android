@@ -1,14 +1,77 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ok">Oké</string>
+  <string name="cancel">Mégsem</string>
+  <string name="login">Bejelentkezés</string>
+  <string name="logout">Kijelentkezés</string>
+  <string name="rescan">Újravizsgálás most</string>
+  <string name="internal_storage">Belső tárhely</string>
+  <string name="tracks">Számok</string>
+  <string name="albums">Albumok</string>
+  <string name="artists">Szerzők</string>
+  <string name="users">Felhasználók</string>
+  <string name="top_albums">Top Albumok</string>
+  <string name="album_details">Album részletek</string>
+  <string name="search">Keresés</string>
+  <string name="playlist">Lejátszási lista</string>
+  <string name="repeat_on_label">Ismétlés be</string>
+  <string name="repeat_off_label">Ismétlés ki</string>
+  <string name="unknown">ismeretlen</string>
+  <string name="save_playlist">Jelenlegi lista mentése</string>
+  <string name="create_playlist">Lejátszási lista létrehozása</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Cím</string>
+  <string name="create_station_search_hint">Keress előadót/számot/műfajt</string>
+  <string name="genres">Műfajok</string>
+  <string name="login_name_label">E-Mail/Felhasználónév</string>
+  <string name="login_username">Felhasználónév</string>
+  <string name="login_password">Jelszó</string>
+  <string name="login_password_confirmation">Jelszó megerősítése</string>
+  <string name="account_email_label">E-Mail (választható)</string>
+  <string name="error_field_required">Ezen mező kitöltése kötelező</string>
+  <string name="error_passwords_dont_match">Jelszó nem egyezik</string>
+  <string name="error_invalid_credentials">Hibás felhasználónév vagy jelszó</string>
+  <string name="error_simultaneous_streams">Akció nem elérhető, a felhasználód már máshol használatban van.</string>
+  <string name="error_account_expired">A felhasználód lejárt</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="local_collection_pretty_name">Helyi válogatás</string>
+  <string name="local">Helyi</string>
+  <string name="all">Összes</string>
+  <string name="preferences_plug_and_play">Dugd be a lejátszáshoz</string>
+  <string name="preferences_plug_and_play_text">Fülhallgató csatlakoztatása után autómatikus indítás</string>
+  <string name="preferences_audio_quality">Preferált audió minőség</string>
+  <string name="preferences_info">Információ</string>
+  <string name="preferences_app_version">Alakalmazásverzió</string>
+  <string name="preferences_app_uservoice">Visszajelzés</string>
+  <string name="preferences_app_playstore_link">Értékeld az alkalmazást</string>
+  <string name="preferences_app_website_link">Látogasd meg weboldalunkat</string>
+  <string name="preferences_app_sendlog_email">Az e-mail címed</string>
+  <string name="crash_dialog_ok_toast">Köszönjük!</string>
+  <string name="context_menu_play">Lejátszás</string>
+  <string name="context_menu_add_to_queue">Add a sorhoz</string>
+  <string name="context_menu_add_to_playlist">Add a listához</string>
+  <string name="context_menu_delete">Törlés</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">Szeret</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">Mégsem szeret</string>
+  <string name="context_menu_share">Megosztás</string>
+  <string name="drawer_title_playlists">Lejátszási lista</string>
+  <string name="drawer_title_lovedtracks">Kedvencek</string>
+  <string name="drawer_title_settings">Beállítások</string>
+  <string name="collection_dropdown_alpha_artists">Előadók A-Z</string>
+  <string name="collection_dropdown_alpha_albums">Albumok A-Z</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
+  <string name="history">Előzmények</string>
+  <string name="preferences_bitrate_low">Normális</string>
+  <string name="preferences_bitrate_medium">Jó</string>
+  <string name="preferences_bitrate_high">Legjobb</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Követés</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
@@ -19,12 +82,18 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="music">Zene</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
+  <string name="similar">Hasonló</string>
   <!--Shown as a title for a list of songs in the search results view.-->
+  <string name="songs">Számok</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <string name="activity">Tevékenység </string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="resolver_config_enable_button_enable">Engedélyez</string>
+  <string name="button_close">Bezár</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
