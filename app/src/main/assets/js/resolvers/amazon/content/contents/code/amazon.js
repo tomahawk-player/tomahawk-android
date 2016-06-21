@@ -427,7 +427,7 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
         return this._post(this.api_location + 'cirrus/', {
             data: _query
         }, true).then( function (response) {
-            var serverVersion = response.getGlobalLastUpdatedDateResponse.getGlobalLastUpdatedDateResult.date;
+            var serverVersion = response.getGlobalLastUpdatedDateResponse.getGlobalLastUpdatedDateResult.date.toString();
             if( currentVersion != serverVersion ) {
                 Tomahawk.log('Server-side library updated, syncing');
                 amazonCollection.wipe({id: amazonCollection.settings.id}).then(function () {
