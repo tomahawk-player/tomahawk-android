@@ -465,7 +465,7 @@ public class DatabaseHelper {
                 entries.add(entry);
                 tracksCursor.moveToNext();
             }
-            Playlist playlist = Playlist.fromEntriesList(playlistId,
+            Playlist playlist = Playlist.fromEntryList(playlistId,
                     playlistsCursor.getString(0), playlistsCursor.getString(1), entries);
             playlist.setHatchetId(playlistsCursor.getString(2));
             playlist.setFilled(true);

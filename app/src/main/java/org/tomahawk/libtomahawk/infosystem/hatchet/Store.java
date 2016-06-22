@@ -500,7 +500,7 @@ public class Store {
                             List<PlaylistEntry> entries = storeRecords((JsonObject) rawEntries,
                                     PlaylistEntry.class, isBackgroundRequest);
                             if (entries != null) {
-                                playlist = Playlist.fromEntriesList(id, null, null, entries);
+                                playlist = Playlist.fromEntryList(id, null, null, entries);
                                 playlist.setFilled(true);
                             }
                         }
@@ -513,7 +513,7 @@ public class Store {
                                         PlaylistEntry.class, isBackgroundRequest);
                                 entries.add(entry);
                             }
-                            playlist = Playlist.fromEntriesList(id, null, null, entries);
+                            playlist = Playlist.fromEntryList(id, null, null, entries);
                             playlist.setFilled(true);
                         }
                     }
@@ -583,7 +583,7 @@ public class Store {
                         PlaylistEntry e = PlaylistEntry.get(id, logEntry.getQuery(), entryId);
                         entries.add(e);
                     }
-                    Playlist playlist = Playlist.fromEntriesList(id, "Playbacklog", null, entries);
+                    Playlist playlist = Playlist.fromEntryList(id, "Playbacklog", null, entries);
                     playlist.setHatchetId(id);
                     playlist.setFilled(true);
                     mCache.put(Playlist.class, id, playlist);

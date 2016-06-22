@@ -113,13 +113,17 @@ public class PlaybackManager extends Cacheable {
     }
 
     public void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
-        if (mCallback == null) {
+        if (mCallback == null || playlist == null) {
             Log.e(TAG, "setPlaylist failed: " + playlist);
             return;
         }
         mRepeatMode = NOT_REPEATING;
         mShuffleMode = NOT_SHUFFLED;
-        mPlaylist = playlist;
+        if (playlist instanceof StationPlaylist) {
+            mPlaylist = playlist;
+        } else {
+            mPlaylist = playlist.copy(Playlist.get("playback_playlist"));
+        }
         if (currentEntry == null) {
             currentEntry = playlist.getEntryAtPos(0);
         }

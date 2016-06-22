@@ -86,6 +86,34 @@ public class Playlist extends Cacheable implements AlphaComparable {
         mId = id;
     }
 
+    public Playlist copy(Playlist destination) {
+        destination.mName = mName;
+        destination.mCursor = mCursor.copy();
+        for (PlaylistEntry entry : mAddedEntries) {
+            destination.mAddedEntries.add(entry);
+        }
+        for (PlaylistEntry key : mCachedEntries.keySet()) {
+            destination.mCachedEntries.put(key, mCachedEntries.get(key));
+        }
+        for (Index index : mIndex) {
+            destination.mIndex.add(index);
+        }
+        for (Index index : mShuffledIndex) {
+            destination.mShuffledIndex.add(index);
+        }
+        destination.mHatchetId = mHatchetId;
+        destination.mCurrentRevision = mCurrentRevision;
+        if (mTopArtistNames != null) {
+            destination.mTopArtistNames = mTopArtistNames.clone();
+        } else {
+            destination.mTopArtistNames = null;
+        }
+        destination.mCount = mCount;
+        destination.mIsFilled = mIsFilled;
+        destination.mUserId = mUserId;
+        return destination;
+    }
+
     /**
      * Returns the {@link Playlist} with the given parameters. If none exists in our static {@link
      * ConcurrentHashMap} yet, construct and add it.
@@ -102,7 +130,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromEntriesList(String id, String name, String currentRevision,
+    public static Playlist fromEntryList(String id, String name, String currentRevision,
             List<PlaylistEntry> entries) {
         CollectionCursor<PlaylistEntry> cursor =
                 new CollectionCursor<>(entries, PlaylistEntry.class);
@@ -142,21 +170,13 @@ public class Playlist extends Cacheable implements AlphaComparable {
      *
      * @return a reference to the constructed {@link Playlist}
      */
-    public static Playlist fromCursor(String id, String name, String currentRevision,
+    private static Playlist fromCursor(String id, String name, String currentRevision,
             CollectionCursor<PlaylistEntry> cursor) {
         Playlist pl = Playlist.get(id);
         pl.setName(name);
         pl.setCurrentRevision(currentRevision);
         pl.setCursor(cursor);
         return pl;
-    }
-
-    public void clear() {
-        mAddedEntries.clear();
-        mCachedEntries.clear();
-        mIndex.clear();
-        mShuffledIndex.clear();
-        mCursor = null;
     }
 
     public void setCursor(CollectionCursor<PlaylistEntry> cursor) {
@@ -168,6 +188,7 @@ public class Playlist extends Cacheable implements AlphaComparable {
         mAddedEntries.clear();
         mCachedEntries.clear();
         mIndex.clear();
+        mShuffledIndex.clear();
         for (int i = 0; i < mCursor.size(); i++) {
             mIndex.add(new Index(i, false));
         }
