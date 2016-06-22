@@ -219,7 +219,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                         callback.onPrepared(AndroidMediaPlayer.this, mPreparedQuery);
                         if (mediaPlayer.getBuffered() == 100)
                             mMediaPlayerCallback.onBufferingComplete(AndroidMediaPlayer.this);
-                        Log.d(TAG, "onPrepared()");
+                        Log.d(TAG, "onPrepared() for pre-prepared track");
                     }
                     return;
                 }
