@@ -392,8 +392,16 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
                 that.logged_in = 1;
                 that.api_location = 'https://' + that._appConfig['serverName'] + '/';
                 amazonCollection.settings['description'] = that._appConfig['customerName'];
-                that._checkForLibraryUpdates();
                 Tomahawk.PluginManager.registerPlugin("collection", amazonCollection);
+                that._checkForLibraryUpdates().then(function(){
+                    amazonCollection.addTracks({
+                        id: amazonCollection.settings.id,
+                        tracks: []
+                    });
+                }, function (error) {
+                    Tomahawk.PluginManager.unregisterPlugin("collection", amazonCollection);
+                    Tomahawk.log("Failed updating Library:" + error);
+                });
                 Tomahawk.log(that.settings.name + " successfully logged in.");
             },
             function (error) {
