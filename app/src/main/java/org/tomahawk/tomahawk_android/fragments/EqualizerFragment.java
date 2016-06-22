@@ -58,10 +58,14 @@ public class EqualizerFragment extends ContentHeaderFragment {
     private final OnItemSelectedListener mPresetListener = new OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            mEqualizer = MediaPlayer.Equalizer.createFromPreset(pos);
             mPreAmpSeekBar.setProgress((int) mEqualizer.getPreAmp() + 20);
             for (int i = 0; i < MediaPlayer.Equalizer.getBandCount(); ++i) {
                 EqualizerBar bar = (EqualizerBar) mBandsContainers.getChildAt(i);
                 bar.setValue(mEqualizer.getAmp(i));
+            }
+            if (mEnableButton.isChecked()) {
+                VLCMediaPlayer.getMediaPlayerInstance().setEqualizer(mEqualizer);
             }
         }
 
