@@ -141,6 +141,10 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
         }
     }
 
+    @Override
+    public void tryPrepareNext(Query query) {
+
+    }
     /**
      * Pause playing the current {@link org.tomahawk.libtomahawk.collection.Track}
      */

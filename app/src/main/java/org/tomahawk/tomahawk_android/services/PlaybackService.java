@@ -641,6 +641,15 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private TomahawkMediaPlayerCallback mMediaPlayerCallback = new TomahawkMediaPlayerCallback() {
         @Override
+        public void onBufferingComplete(TomahawkMediaPlayer mediaPlayer) {
+            PlaylistEntry entry = mPlaybackManager.getNextEntry();
+            if (entry != null && entry.getQuery().getPreferredTrackResult() != null ) {
+                TomahawkMediaPlayer mp = mMediaPlayers.get(
+                        entry.getQuery().getPreferredTrackResult().getMediaPlayerClass());
+                mp.tryPrepareNext(entry.getQuery());
+            }
+        }
+        @Override
         public void onPrepared(TomahawkMediaPlayer mediaPlayer, Query query) {
             if (query != null && query == mPlaybackManager.getCurrentQuery()) {
                 Log.d(TAG, mediaPlayer + " successfully prepared the track "
@@ -683,6 +692,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onError(TomahawkMediaPlayer mediaPlayer, final String message) {
             Log.d(TAG, "onError - mediaPlayer: " + mediaPlayer + ", message: " + message);
+            if (mMediaSession != null &&
+                    mPlaybackManager.getCurrentQuery().getPreferredTrackResult().getFallbackMediaPlayerClass()
+                            != null) {
+                mPlaybackManager.getCurrentQuery().getPreferredTrackResult().switchToFallbackMediaPlayerClass();
+                prepareCurrentQuery();
+                return;
+            }
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
                 public void run() {
