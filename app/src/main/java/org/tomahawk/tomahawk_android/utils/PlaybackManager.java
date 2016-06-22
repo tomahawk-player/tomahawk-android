@@ -113,7 +113,7 @@ public class PlaybackManager extends Cacheable {
     }
 
     public void setPlaylist(Playlist playlist, PlaylistEntry currentEntry) {
-        if (mCallback == null) {
+        if (mCallback == null || playlist == null) {
             Log.e(TAG, "setPlaylist failed: " + playlist);
             return;
         }
