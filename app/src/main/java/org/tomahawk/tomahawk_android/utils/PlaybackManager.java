@@ -119,7 +119,11 @@ public class PlaybackManager extends Cacheable {
         }
         mRepeatMode = NOT_REPEATING;
         mShuffleMode = NOT_SHUFFLED;
-        mPlaylist = playlist;
+        if (playlist instanceof StationPlaylist) {
+            mPlaylist = playlist;
+        } else {
+            mPlaylist = playlist.copy(Playlist.get("playback_playlist"));
+        }
         if (currentEntry == null) {
             currentEntry = playlist.getEntryAtPos(0);
         }

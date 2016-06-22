@@ -27,6 +27,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CollectionCursor<T> {
@@ -74,10 +75,30 @@ public class CollectionCursor<T> {
         mClass = clss;
     }
 
+    public CollectionCursor<T> copy() {
+        CollectionCursor<T> copy;
+        if (mCursor != null) {
+            copy = new CollectionCursor<>(mCursor, mClass, mResolver, mPlaylist);
+            SparseArray<T> cacheCopy = mCursorCache.clone();
+            copy.setCursorCache(cacheCopy);
+        } else {
+            List<T> itemsCopy = new ArrayList<>();
+            for (T item : mItems) {
+                itemsCopy.add(item);
+            }
+            copy = new CollectionCursor<>(itemsCopy, mClass);
+        }
+        return copy;
+    }
+
     public void close() {
         if (mCursor != null) {
             mCursor.close();
         }
+    }
+
+    public void setCursorCache(SparseArray<T> cursorCache) {
+        mCursorCache = cursorCache;
     }
 
     public T get(int location) {

@@ -86,6 +86,34 @@ public class Playlist extends Cacheable implements AlphaComparable {
         mId = id;
     }
 
+    public Playlist copy(Playlist destination) {
+        destination.mName = mName;
+        destination.mCursor = mCursor.copy();
+        for (PlaylistEntry entry : mAddedEntries) {
+            destination.mAddedEntries.add(entry);
+        }
+        for (PlaylistEntry key : mCachedEntries.keySet()) {
+            destination.mCachedEntries.put(key, mCachedEntries.get(key));
+        }
+        for (Index index : mIndex) {
+            destination.mIndex.add(index);
+        }
+        for (Index index : mShuffledIndex) {
+            destination.mShuffledIndex.add(index);
+        }
+        destination.mHatchetId = mHatchetId;
+        destination.mCurrentRevision = mCurrentRevision;
+        if (mTopArtistNames != null) {
+            destination.mTopArtistNames = mTopArtistNames.clone();
+        } else {
+            destination.mTopArtistNames = null;
+        }
+        destination.mCount = mCount;
+        destination.mIsFilled = mIsFilled;
+        destination.mUserId = mUserId;
+        return destination;
+    }
+
     /**
      * Returns the {@link Playlist} with the given parameters. If none exists in our static {@link
      * ConcurrentHashMap} yet, construct and add it.
