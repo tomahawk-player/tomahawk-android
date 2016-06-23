@@ -194,6 +194,18 @@ public class SearchPagerFragment extends PagerFragment {
         List<FragmentInfoList> fragmentInfoLists = new ArrayList<>();
         FragmentInfoList fragmentInfoList = new FragmentInfoList();
         FragmentInfo fragmentInfo = new FragmentInfo();
+        fragmentInfo.mClass = PlaylistEntriesFragment.class;
+        fragmentInfo.mTitle = getString(R.string.songs);
+        fragmentInfo.mBundle = getChildFragmentBundle();
+        if (mTrackResultPlaylist != null) {
+            fragmentInfo.mBundle.putString(
+                    TomahawkFragment.PLAYLIST, mTrackResultPlaylist.getCacheKey());
+        }
+        fragmentInfoList.addFragmentInfo(fragmentInfo);
+        fragmentInfoLists.add(fragmentInfoList);
+
+        fragmentInfoList = new FragmentInfoList();
+        fragmentInfo = new FragmentInfo();
         fragmentInfo.mClass = ArtistsFragment.class;
         fragmentInfo.mTitle = getString(R.string.artists);
         fragmentInfo.mBundle = getChildFragmentBundle();
@@ -207,18 +219,6 @@ public class SearchPagerFragment extends PagerFragment {
         fragmentInfo.mTitle = getString(R.string.albums);
         fragmentInfo.mBundle = getChildFragmentBundle();
         fragmentInfo.mBundle.putStringArrayList(TomahawkFragment.ALBUMARRAY, mAlbumIds);
-        fragmentInfoList.addFragmentInfo(fragmentInfo);
-        fragmentInfoLists.add(fragmentInfoList);
-
-        fragmentInfoList = new FragmentInfoList();
-        fragmentInfo = new FragmentInfo();
-        fragmentInfo.mClass = PlaylistEntriesFragment.class;
-        fragmentInfo.mTitle = getString(R.string.songs);
-        fragmentInfo.mBundle = getChildFragmentBundle();
-        if (mTrackResultPlaylist != null) {
-            fragmentInfo.mBundle.putString(
-                    TomahawkFragment.PLAYLIST, mTrackResultPlaylist.getCacheKey());
-        }
         fragmentInfoList.addFragmentInfo(fragmentInfo);
         fragmentInfoLists.add(fragmentInfoList);
 
