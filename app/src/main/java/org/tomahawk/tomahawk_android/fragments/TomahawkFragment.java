@@ -776,7 +776,9 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     private boolean shouldAutoResolve() {
-        return mContainerFragmentClass != SearchPagerFragment.class && (mCollection == null
+        return mContainerFragmentClass == null
+                || !mContainerFragmentClass.equals(SearchPagerFragment.class.getName())
+                && (mCollection == null
                 || mCollection.getId().equals(TomahawkApp.PLUGINNAME_HATCHET)
                 || mCollection.getId().equals(TomahawkApp.PLUGINNAME_USERCOLLECTION));
     }
