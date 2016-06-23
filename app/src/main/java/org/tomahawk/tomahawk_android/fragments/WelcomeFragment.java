@@ -48,8 +48,6 @@ public class WelcomeFragment extends Fragment {
 
     public final static String TAG = WelcomeFragment.class.getSimpleName();
 
-    private final static String CURRENT_PAGE = "current_page";
-
     private ViewPager mViewPager;
 
     private TextView mPositiveButton;
@@ -76,10 +74,17 @@ public class WelcomeFragment extends Fragment {
                 case 1:
                     v = inflater.inflate(R.layout.welcome_fragment_page_setup, container,
                             false);
+
+                    Bundle args = new Bundle();
+                    args.putString(TomahawkFragment.CONTAINER_FRAGMENT_CLASSNAME,
+                            WelcomeFragment.class.getName());
+                    args.putInt(TomahawkFragment.CONTAINER_FRAGMENT_PAGE, position);
+                    args.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                            TomahawkFragment.MODE_HEADER_NONE);
+                    Fragment fragment = Fragment.instantiate(
+                            activity, PreferenceConnectFragment.class.getName(), args);
                     FragmentTransaction ft = getChildFragmentManager().beginTransaction();
-                    ft.add(R.id.welcome_fragment_page_setup_container,
-                            Fragment.instantiate(activity,
-                                    PreferenceConnectFragment.class.getName(), null));
+                    ft.add(R.id.welcome_fragment_page_setup_container, fragment);
                     ft.commitAllowingStateLoss();
                     break;
                 case 2:

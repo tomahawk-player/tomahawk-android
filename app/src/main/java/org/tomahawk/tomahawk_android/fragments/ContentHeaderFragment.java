@@ -95,6 +95,8 @@ public class ContentHeaderFragment extends Fragment {
 
     public static final int MODE_HEADER_STATIC_CHARTS = 7;
 
+    public static final int MODE_HEADER_NONE = 8;
+
     public static final int ANIM_BUTTON_ID = 0;
 
     public static final int ANIM_FANCYDROPDOWN_ID = 1;
@@ -220,6 +222,8 @@ public class ContentHeaderFragment extends Fragment {
                 case MODE_HEADER_PLAYBACK:
                     mHeaderNonscrollableHeight = res.getDimensionPixelSize(
                             R.dimen.header_clear_space_nonscrollable_playback);
+                    break;
+                case MODE_HEADER_NONE:
                     break;
                 default:
                     throw new RuntimeException("Missing or invalid ContentHeaderFragment mode");

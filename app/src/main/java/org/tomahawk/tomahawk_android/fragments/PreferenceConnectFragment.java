@@ -100,7 +100,10 @@ public class PreferenceConnectFragment extends TomahawkListFragment
         // Add all resolver grid items
         List<Resolver> resolvers = new ArrayList<>();
         resolvers.add(UserCollectionStubResolver.get());
-        resolvers.add(HatchetStubResolver.get());
+        if (mContainerFragmentClass == null
+                || !mContainerFragmentClass.equals(WelcomeFragment.class.getName())) {
+            resolvers.add(HatchetStubResolver.get());
+        }
         List<ScriptResolver> scriptResolvers = PipeLine.get().getScriptResolvers();
         Collections.sort(scriptResolvers, new Comparator<ScriptResolver>() {
             @Override
