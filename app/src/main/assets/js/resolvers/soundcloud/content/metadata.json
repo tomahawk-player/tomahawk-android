@@ -1,9 +1,9 @@
 {
 	"name": "SoundCloud",
 	"pluginName": "soundcloud",
-	"author": "Thierry Göckel",
+	"author": "Thierry Göckel, Enno Gottschalk",
 	"email": "thierry@strayrayday.lu",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"website": "http://gettomahawk.com",
 	"description": "Resolves to playable tracks on SoundCloud, including live, cover and remixed versions if specified.",
 	"type": "resolver/javascript",
