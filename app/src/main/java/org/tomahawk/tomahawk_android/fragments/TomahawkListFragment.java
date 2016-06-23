@@ -62,7 +62,7 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         }
     };
 
-    protected Class mContainerFragmentClass;
+    protected String mContainerFragmentClass;
 
     /**
      * Get a stored list scroll position, if present
@@ -79,21 +79,8 @@ public abstract class TomahawkListFragment extends ContentHeaderFragment impleme
         }
 
         if (getArguments() != null) {
-            if (getArguments().containsKey(TomahawkFragment.CONTAINER_FRAGMENT_CLASSNAME)) {
-                String fragmentName = getArguments().getString(
-                        TomahawkFragment.CONTAINER_FRAGMENT_CLASSNAME);
-                if (ArtistPagerFragment.class.getName().equals(fragmentName)) {
-                    mContainerFragmentClass = ArtistPagerFragment.class;
-                } else if (SearchPagerFragment.class.getName().equals(fragmentName)) {
-                    mContainerFragmentClass = SearchPagerFragment.class;
-                } else if (UserPagerFragment.class.getName().equals(fragmentName)) {
-                    mContainerFragmentClass = UserPagerFragment.class;
-                } else if (CollectionPagerFragment.class.getName().equals(fragmentName)) {
-                    mContainerFragmentClass = CollectionPagerFragment.class;
-                } else if (ChartsPagerFragment.class.getName().equals(fragmentName)) {
-                    mContainerFragmentClass = ChartsPagerFragment.class;
-                }
-            }
+            mContainerFragmentClass =
+                    getArguments().getString(TomahawkFragment.CONTAINER_FRAGMENT_CLASSNAME);
         }
     }
 

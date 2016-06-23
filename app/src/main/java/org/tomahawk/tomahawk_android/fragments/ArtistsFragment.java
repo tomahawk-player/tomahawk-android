@@ -100,7 +100,8 @@ public class ArtistsFragment extends TomahawkFragment {
 
         if (mArtistArray != null) {
             Segment.Builder builder = new Segment.Builder(mArtistArray);
-            if (mContainerFragmentClass == ChartsPagerFragment.class) {
+            if (mContainerFragmentClass != null
+                    && mContainerFragmentClass.equals(ChartsPagerFragment.class.getName())) {
                 builder.showAsGrid(R.integer.grid_column_count,
                         R.dimen.padding_superlarge,
                         R.dimen.padding_superlarge)

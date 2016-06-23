@@ -208,9 +208,11 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                 });
             } else {
                 Segment.Builder builder = new Segment.Builder(mCurrentPlaylist);
-                if (mContainerFragmentClass != SearchPagerFragment.class) {
+                if (mContainerFragmentClass == null
+                        || !mContainerFragmentClass.equals(SearchPagerFragment.class.getName())) {
                     builder.showNumeration(true, 1);
-                    if (mContainerFragmentClass != ChartsPagerFragment.class) {
+                    if (mContainerFragmentClass == null || !mContainerFragmentClass
+                            .equals(ChartsPagerFragment.class.getName())) {
                         builder.headerLayout(R.layout.single_line_list_header)
                                 .headerString(R.string.playlist_details);
                     }
