@@ -194,11 +194,11 @@ public class PlaybackPanel extends FrameLayout {
             @Override
             public void onClick(View v) {
                 if (mMediaController != null) {
-                    if (mMediaController.getPlaybackState().getState()
-                            == PlaybackStateCompat.STATE_PAUSED) {
+                    int playState = mMediaController.getPlaybackState().getState();
+                    if (playState == PlaybackStateCompat.STATE_PAUSED
+                            || playState == PlaybackStateCompat.STATE_NONE) {
                         mMediaController.getTransportControls().play();
-                    } else if (mMediaController.getPlaybackState().getState()
-                            == PlaybackStateCompat.STATE_PLAYING) {
+                    } else if (playState == PlaybackStateCompat.STATE_PLAYING) {
                         mMediaController.getTransportControls().pause();
                         mMediaController.getTransportControls()
                                 .sendCustomAction(PlaybackService.ACTION_STOP_NOTIFICATION, null);

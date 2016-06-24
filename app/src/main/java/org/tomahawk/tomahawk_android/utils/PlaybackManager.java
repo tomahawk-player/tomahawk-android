@@ -52,7 +52,7 @@ public class PlaybackManager extends Cacheable {
     private Playlist mQueue =
             Playlist.fromEmptyList(IdGenerator.getLifetimeUniqueStringId(), "");
 
-    private int mQueueStartPos = -1;
+    private int mQueueStartPos = 0;
 
     private PlaylistEntry mCurrentEntry;
 
@@ -215,7 +215,11 @@ public class PlaybackManager extends Cacheable {
         boolean currentEntryChanged = false;
         if (currentEntry == null) {
             mCurrentIndex = 0;
-            mQueueStartPos = mCurrentIndex + 1;
+            if (mPlaylist.size() > 0) {
+                mQueueStartPos = mCurrentIndex + 1;
+            } else {
+                mQueueStartPos = 0;
+            }
             if (callback) {
                 playlistChanged = true;
             }

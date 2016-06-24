@@ -63,6 +63,7 @@ import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.MenuDrawer;
+import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 import org.tomahawk.tomahawk_android.utils.PluginUtils;
 import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.utils.SearchViewStyle;
@@ -160,8 +161,15 @@ public class TomahawkMainActivity extends AppCompatActivity {
             Log.d(TAG, "onPlaybackstate changed" + state);
             mPlaybackState = state.getState();
             mPlaybackPanel.updatePlaybackState(state);
-            if (state.getState() != PlaybackStateCompat.STATE_NONE) {
-                showPanel();
+            if (getSupportMediaController() != null) {
+                String playbackManagerId = getSupportMediaController().getExtras().getString(
+                        PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
+                PlaybackManager playbackManager = PlaybackManager.getByKey(playbackManagerId);
+                if (playbackManager != null && playbackManager.getCurrentEntry() != null) {
+                    showPanel();
+                } else {
+                    hidePanel();
+                }
             } else {
                 hidePanel();
             }
