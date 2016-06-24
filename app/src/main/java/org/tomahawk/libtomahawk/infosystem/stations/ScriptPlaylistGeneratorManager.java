@@ -50,13 +50,12 @@ public class ScriptPlaylistGeneratorManager {
     }
 
     public void addPlaylistGenerator(ScriptPlaylistGenerator generator) {
-        mPlaylistGeneratorMap
-                .put(generator.getScriptAccount().getMetaData().pluginName, generator);
+        mPlaylistGeneratorMap.put(generator.getScriptAccount().getName(), generator);
         EventBus.getDefault().post(new GeneratorAddedEvent());
     }
 
     public void removePlaylistGenerator(ScriptPlaylistGenerator generator) {
-        mPlaylistGeneratorMap.remove(generator.getScriptAccount().getMetaData().pluginName);
+        mPlaylistGeneratorMap.remove(generator.getScriptAccount().getName());
     }
 
     public Map<String, ScriptPlaylistGenerator> getAllPlaylistGenerator() {

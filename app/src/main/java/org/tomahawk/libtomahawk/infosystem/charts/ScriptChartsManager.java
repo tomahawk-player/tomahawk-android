@@ -47,13 +47,12 @@ public class ScriptChartsManager {
     }
 
     public void addScriptChartsProvider(ScriptChartsProvider provider) {
-        mScriptChartsProviderMap
-                .put(provider.getScriptAccount().getMetaData().pluginName, provider);
+        mScriptChartsProviderMap.put(provider.getScriptAccount().getName(), provider);
         EventBus.getDefault().post(new ProviderAddedEvent());
     }
 
     public void removeScriptChartsProvider(ScriptChartsProvider provider) {
-        mScriptChartsProviderMap.remove(provider.getScriptAccount().getMetaData().pluginName);
+        mScriptChartsProviderMap.remove(provider.getScriptAccount().getName());
     }
 
     public Map<String, ScriptChartsProvider> getAllScriptChartsProvider() {

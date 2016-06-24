@@ -148,9 +148,8 @@ public class ChartsPagerFragment extends PagerFragment {
                 queries.add(Query.get(trackName, albumName, artistName, false));
             }
         }
-        String id = mChartsProvider.getScriptAccount().getMetaData().pluginName
-                + CHARTS_PLAYLIST_SUFFX + type;
-        String name = mChartsProvider.getScriptAccount().getMetaData().pluginName + "_" + type;
+        String id = mChartsProvider.getScriptAccount().getName() + CHARTS_PLAYLIST_SUFFX + type;
+        String name = mChartsProvider.getScriptAccount().getName() + "_" + type;
         Playlist pl = Playlist.fromQueryList(id, name, null, queries);
         pl.setFilled(true);
         return pl;

@@ -296,7 +296,7 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
     }
 
     private String buildPreferenceKey() {
-        return mMetaData.pluginName + "_" + CONFIG;
+        return mName + "_" + CONFIG;
     }
 
     public void unregisterAllPlugins() {
@@ -560,9 +560,9 @@ public class ScriptAccount implements ScriptWebViewClient.WebViewClientReadyList
     public java.net.CookieManager getCookieManager(boolean isTestingConfig) {
         String cookieContextId;
         if (isTestingConfig) {
-            cookieContextId = mMetaData.pluginName + "_testConfig";
+            cookieContextId = mName + "_testConfig";
         } else {
-            cookieContextId = mMetaData.pluginName;
+            cookieContextId = mName;
         }
         return NetworkUtils.getCookieManager(cookieContextId);
     }
