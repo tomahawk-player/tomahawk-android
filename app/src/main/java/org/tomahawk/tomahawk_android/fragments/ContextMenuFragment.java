@@ -28,6 +28,7 @@ import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.StationPlaylist;
+import org.tomahawk.libtomahawk.collection.Track;
 import org.tomahawk.libtomahawk.collection.UserCollection;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
@@ -44,6 +45,7 @@ import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.BlurTransformation;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
+import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 import org.tomahawk.tomahawk_android.utils.ShareUtils;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
@@ -54,6 +56,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -310,6 +313,12 @@ public class ContextMenuFragment extends Fragment {
             setupAddToPlaylistButton(view, queries);
         }
 
+        // set up "Create station" context menu item
+        if (mAlbum != null || mArtist != null || mPlaylist != null || mPlaylistEntry != null
+                || mQuery != null) {
+            setupCreateStationButton(view, mAlbum, mArtist, mPlaylist, mPlaylistEntry, mQuery);
+        }
+
         // set up "Add to collection" context menu item
         if (mAlbum != null || mArtist != null) {
             int drawableResId;
@@ -506,6 +515,52 @@ public class ContextMenuFragment extends Fragment {
                 }
             });
         }
+    }
+
+    private void setupCreateStationButton(View view, final Album album, final Artist artist,
+            final Playlist playlist, final PlaylistEntry entry, final Query query) {
+        View v = ViewUtils.ensureInflation(view, R.id.context_menu_createstation_stub,
+                R.id.context_menu_createstation);
+        TextView textView = (TextView) v.findViewById(R.id.textview);
+        ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
+        imageView.setImageResource(R.drawable.ic_action_station);
+        textView.setText(R.string.context_menu_create_station);
+        v.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager().popBackStack();
+                if (getActivity().getSupportMediaController() != null) {
+                    String playbackManagerId = getActivity().getSupportMediaController().getExtras()
+                            .getString(PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
+                    PlaybackManager playbackManager = PlaybackManager.getByKey(playbackManagerId);
+                    StationPlaylist stationPlaylist = null;
+                    if (album != null) {
+                        List<Pair<Artist, String>> artists = new ArrayList<>();
+                        artists.add(new Pair<>(album.getArtist(), ""));
+                        stationPlaylist = StationPlaylist.get(artists, null, null);
+                    } else if (artist != null) {
+                        List<Pair<Artist, String>> artists = new ArrayList<>();
+                        artists.add(new Pair<>(artist, ""));
+                        stationPlaylist = StationPlaylist.get(artists, null, null);
+                    } else if (playlist != null) {
+                        stationPlaylist = StationPlaylist.get(playlist);
+                    } else if (entry != null || query != null) {
+                        List<Pair<Track, String>> tracks = new ArrayList<>();
+                        if (query != null) {
+                            tracks.add(new Pair<>(query.getBasicTrack(), ""));
+                        } else {
+                            tracks.add(new Pair<>(entry.getQuery().getBasicTrack(), ""));
+                        }
+                        stationPlaylist = StationPlaylist.get(null, tracks, null);
+                    }
+                    if (stationPlaylist != null
+                            && stationPlaylist != playbackManager.getPlaylist()) {
+                        playbackManager.setPlaylist(stationPlaylist);
+                        getActivity().getSupportMediaController().getTransportControls().play();
+                    }
+                }
+            }
+        });
     }
 
     /**

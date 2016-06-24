@@ -85,6 +85,7 @@
   <string name="context_menu_play">Play</string>
   <string name="context_menu_add_to_queue">Add to Queue</string>
   <string name="context_menu_add_to_playlist">Add to Playlist</string>
+  <string name="context_menu_create_station">Create Station</string>
   <string name="context_menu_delete">Delete</string>
   <string name="context_menu_removefromplaylist">Remove from Playlist</string>
   <!-- Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection) -->
