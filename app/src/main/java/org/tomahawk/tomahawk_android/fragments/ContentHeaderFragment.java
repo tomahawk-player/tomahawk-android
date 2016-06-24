@@ -410,11 +410,11 @@ public class ContentHeaderFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if (getMediaController() != null) {
-                            if (item != getPlaybackManager().getPlaylist()) {
-                                List<Pair<Artist, String>> artists = new ArrayList<>();
-                                artists.add(new Pair<>(((Album) item).getArtist(), ""));
-                                StationPlaylist stationPlaylist =
-                                        StationPlaylist.get(artists, null, null);
+                            List<Pair<Artist, String>> artists = new ArrayList<>();
+                            artists.add(new Pair<>(((Album) item).getArtist(), ""));
+                            StationPlaylist stationPlaylist =
+                                    StationPlaylist.get(artists, null, null);
+                            if (stationPlaylist != getPlaybackManager().getPlaylist()) {
                                 getPlaybackManager().setPlaylist(stationPlaylist);
                                 getMediaController().getTransportControls().play();
                             }
@@ -433,11 +433,11 @@ public class ContentHeaderFragment extends Fragment {
                     @Override
                     public void onClick(View v) {
                         if (getMediaController() != null) {
-                            if (item != getPlaybackManager().getPlaylist()) {
-                                List<Pair<Artist, String>> artists = new ArrayList<>();
-                                artists.add(new Pair<>((Artist) item, ""));
-                                StationPlaylist stationPlaylist =
-                                        StationPlaylist.get(artists, null, null);
+                            List<Pair<Artist, String>> artists = new ArrayList<>();
+                            artists.add(new Pair<>((Artist) item, ""));
+                            StationPlaylist stationPlaylist =
+                                    StationPlaylist.get(artists, null, null);
+                            if (stationPlaylist != getPlaybackManager().getPlaylist()) {
                                 getPlaybackManager().setPlaylist(stationPlaylist);
                                 getMediaController().getTransportControls().play();
                             }
