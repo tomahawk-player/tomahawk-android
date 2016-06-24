@@ -38,6 +38,8 @@ import org.tomahawk.tomahawk_android.dialogs.ResolverConfigDialog;
 import org.tomahawk.tomahawk_android.dialogs.ResolverRedirectConfigDialog;
 import org.tomahawk.tomahawk_android.listeners.MultiColumnClickListener;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -174,7 +176,13 @@ public class PreferenceConnectFragment extends TomahawkListFragment
                     dialog = new HatchetLoginDialog();
                     break;
                 case TomahawkApp.PLUGINNAME_GMUSIC:
-                    dialog = new GMusicConfigDialog();
+                    AccountManager accountManager = AccountManager.get(TomahawkApp.getContext());
+                    Account[] accounts = accountManager.getAccountsByType("com.google");
+                    if (accounts != null && accounts.length > 0) {
+                        dialog = new GMusicConfigDialog();
+                    } else {
+                        dialog = new ResolverConfigDialog();
+                    }
                     break;
                 default:
                     dialog = new ResolverConfigDialog();
