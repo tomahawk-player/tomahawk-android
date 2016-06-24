@@ -465,7 +465,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                         }
                         viewHolder.fillView(query, numerationString,
                                 mHighlightedItemIsPlaying && shouldBeHighlighted, isShowAsQueued,
-                                dequeueListener);
+                                dequeueListener, getSegment(position).isShowResolverIcon());
 
                         FrameLayout progressBarContainer = (FrameLayout) viewHolder
                                 .findViewById(R.id.progressbar_container);
@@ -694,6 +694,8 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
         } else if (segment != null && segment.isShowAsQueued(getPosInSegment(position))) {
             return R.layout.list_item_track_artist_queued;
         } else if (segment != null && segment.isShowNumeration()) {
+            return R.layout.list_item_numeration_track_artist;
+        } else if (segment != null && segment.isShowResolverIcon()) {
             return R.layout.list_item_numeration_track_artist;
         } else {
             return R.layout.list_item_track_artist;

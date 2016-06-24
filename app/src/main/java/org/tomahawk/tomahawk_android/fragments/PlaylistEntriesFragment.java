@@ -216,6 +216,8 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                         builder.headerLayout(R.layout.single_line_list_header)
                                 .headerString(R.string.playlist_details);
                     }
+                } else if (mContainerFragmentClass.equals(SearchPagerFragment.class.getName())) {
+                    builder.showResolverIcon(true);
                 }
                 Segment segment = builder.build();
                 fillAdapter(segment);

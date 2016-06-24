@@ -102,7 +102,8 @@ public class ViewHolder {
     }
 
     public void fillView(Query query, String numerationString, boolean showAsPlaying,
-            boolean showAsQueued, View.OnClickListener dequeueButtonListener) {
+            boolean showAsQueued, View.OnClickListener dequeueButtonListener,
+            boolean showResolverIcon) {
         TextView trackNameTextView = (TextView) findViewById(R.id.track_textview);
         trackNameTextView.setText(query.getPrettyName());
         setTextViewEnabled(trackNameTextView, query.isPlayable(), false);
@@ -117,7 +118,7 @@ public class ViewHolder {
                         R.drawable.ic_navigation_close, R.color.tomahawk_red);
                 dequeueImageView.setOnClickListener(dequeueButtonListener);
             }
-        } else if (showAsPlaying) {
+        } else if (showAsPlaying || showResolverIcon) {
             if (numerationTextView != null) {
                 numerationTextView.setVisibility(View.GONE);
             }

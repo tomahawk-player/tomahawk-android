@@ -60,6 +60,8 @@ public class Segment {
 
     private boolean mHideArtistName;
 
+    private boolean mShowResolverIcon;
+
     private int mLeftExtraPadding;
 
     public static class Builder {
@@ -142,6 +144,11 @@ public class Segment {
 
         public Builder leftExtraPadding(int leftExtraPadding) {
             mSegment.mLeftExtraPadding = leftExtraPadding;
+            return this;
+        }
+
+        public Builder showResolverIcon(boolean showResolverIcon) {
+            mSegment.mShowResolverIcon = showResolverIcon;
             return this;
         }
 
@@ -266,6 +273,10 @@ public class Segment {
 
     public boolean isShowNumeration() {
         return mShowNumeration;
+    }
+
+    public boolean isShowResolverIcon() {
+        return mShowResolverIcon;
     }
 
     public int getNumeration(int position) {
