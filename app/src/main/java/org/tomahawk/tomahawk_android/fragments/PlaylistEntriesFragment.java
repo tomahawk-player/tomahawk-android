@@ -108,6 +108,8 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     } else {
                         CollectionManager.get().fetchPlaylists();
                     }
+                } else {
+                    mHideRemoveButton = true;
                 }
                 updateAdapter();
             }
