@@ -119,7 +119,7 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
 
         mInitialized = false;
         mStopped = true;
-        mId = mScriptAccount.getMetaData().pluginName;
+        mId = mScriptAccount.getName();
         if (getConfig().get(ScriptAccount.ENABLED_KEY) != null) {
             mEnabled = (Boolean) getConfig().get(ScriptAccount.ENABLED_KEY);
         } else {
