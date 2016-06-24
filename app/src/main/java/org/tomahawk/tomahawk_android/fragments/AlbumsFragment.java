@@ -67,6 +67,7 @@ public class AlbumsFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
+        mHideRemoveButton = true;
         if (mContainerFragmentClass == null) {
             getActivity().setTitle("");
         }
