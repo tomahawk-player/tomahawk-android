@@ -148,7 +148,11 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
     @Override
     public void release() {
         if (sMediaPlayer != null) {
-            sMediaPlayer.stop();
+            try {
+                sMediaPlayer.stop();
+            } catch (IllegalStateException e) {
+                //ignored
+            }
             sMediaPlayer.release();
         }
     }
