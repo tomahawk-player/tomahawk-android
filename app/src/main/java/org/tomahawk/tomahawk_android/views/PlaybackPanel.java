@@ -527,6 +527,14 @@ public class PlaybackPanel extends FrameLayout {
         mAnimators.add(mStationContainerAnimation);
     }
 
+    public void hideStationContainer() {
+        AnimationUtils.fade(mStationContainer, AnimationUtils.DURATION_PLAYBACKTOPPANEL, false);
+    }
+
+    public void showStationContainer() {
+        AnimationUtils.fade(mStationContainer, AnimationUtils.DURATION_PLAYBACKTOPPANEL, true);
+    }
+
     public void animate(int position) {
         mLastPlayTime = position;
         for (ValueAnimator animator : mAnimators) {
