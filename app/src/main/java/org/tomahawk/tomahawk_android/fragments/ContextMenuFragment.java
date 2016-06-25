@@ -136,6 +136,7 @@ public class ContextMenuFragment extends Fragment {
         if (mFromPlaybackFragment) {
             setupPlaybackTextViews(view, activity.getPlaybackPanel());
             activity.getPlaybackPanel().showButtons();
+            activity.getPlaybackPanel().hideStationContainer();
         } else {
             setupTextViews(view);
             setupAlbumArt(view);
@@ -148,6 +149,7 @@ public class ContextMenuFragment extends Fragment {
         TomahawkMainActivity activity = (TomahawkMainActivity) getActivity();
         if (mFromPlaybackFragment) {
             activity.getPlaybackPanel().hideButtons();
+            activity.getPlaybackPanel().showStationContainer();
         } else {
             activity.showPlaybackPanel(false);
         }

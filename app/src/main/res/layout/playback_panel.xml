@@ -160,8 +160,8 @@
         <FrameLayout android:id="@+id/station_container"
                      android:layout_width="match_parent"
                      android:layout_height="@dimen/playback_panel_height"
-                     android:layout_marginLeft="@dimen/playback_panel_height"
-                     android:layout_marginRight="@dimen/playback_panel_height">
+                     android:layout_marginLeft="84dp"
+                     android:layout_marginRight="84dp">
 
             <LinearLayout android:id="@+id/station_container_inner"
                           android:layout_width="wrap_content"
@@ -178,7 +178,8 @@
                           android:layout_marginLeft="@dimen/padding_verysmall"
                           android:gravity="center"
                           android:textSize="@dimen/text_size_micro"
-                          android:textColor="@color/primary_textcolor_inverted"/>
+                          android:textColor="@color/primary_textcolor_inverted"
+                          android:singleLine="true"/>
 
             </LinearLayout>
 
