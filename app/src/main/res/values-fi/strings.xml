@@ -84,6 +84,7 @@
   <string name="context_menu_play">Soita</string>
   <string name="context_menu_add_to_queue">Lisää jonoon</string>
   <string name="context_menu_add_to_playlist">Lisää soittolistaan</string>
+  <string name="context_menu_create_station">Luo asema</string>
   <string name="context_menu_delete">Poista</string>
   <string name="context_menu_removefromplaylist">Poista soittolistalta</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->

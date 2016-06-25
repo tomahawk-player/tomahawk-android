@@ -84,6 +84,7 @@
   <string name="context_menu_play">再生</string>
   <string name="context_menu_add_to_queue">キューに追加</string>
   <string name="context_menu_add_to_playlist">プレイリストに追加</string>
+  <string name="context_menu_create_station">ラジオ局を作成</string>
   <string name="context_menu_delete">削除</string>
   <string name="context_menu_removefromplaylist">プレイリストから削除</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
