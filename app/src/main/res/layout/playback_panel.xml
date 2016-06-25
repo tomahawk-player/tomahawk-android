@@ -160,8 +160,8 @@
         <FrameLayout android:id="@+id/station_container"
                      android:layout_width="match_parent"
                      android:layout_height="@dimen/playback_panel_height"
-                     android:layout_marginLeft="84dp"
-                     android:layout_marginRight="84dp">
+                     android:layout_marginLeft="@dimen/playback_panel_height"
+                     android:layout_marginRight="@dimen/playback_panel_height">
 
             <LinearLayout android:id="@+id/station_container_inner"
                           android:layout_width="wrap_content"

@@ -20,8 +20,7 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
              android:layout_height="@dimen/playback_panel_height"
-             android:layout_gravity="center_vertical|bottom"
-             android:layout_marginBottom="@dimen/playback_panel_height">
+             android:layout_marginTop="@dimen/playback_panel_height">
 
     <ViewStub android:id="@+id/view_album_button_stub"
               android:layout="@layout/context_menu_button_white_micro"
