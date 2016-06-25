@@ -31,6 +31,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.DbCollection;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -165,7 +166,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 String playbackManagerId = getSupportMediaController().getExtras().getString(
                         PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
                 PlaybackManager playbackManager = PlaybackManager.getByKey(playbackManagerId);
-                if (playbackManager != null && playbackManager.getCurrentEntry() != null) {
+                if (playbackManager != null && (playbackManager.getCurrentEntry() != null
+                        || playbackManager.getPlaylist() instanceof StationPlaylist)) {
                     showPanel();
                 } else {
                     hidePanel();
