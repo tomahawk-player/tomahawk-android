@@ -84,6 +84,7 @@
   <string name="context_menu_play">播放</string>
   <string name="context_menu_add_to_queue">添加到队列</string>
   <string name="context_menu_add_to_playlist">添加到播放列表</string>
+  <string name="context_menu_create_station">创建电台</string>
   <string name="context_menu_delete">删除</string>
   <string name="context_menu_removefromplaylist">从播放列表中移除</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
