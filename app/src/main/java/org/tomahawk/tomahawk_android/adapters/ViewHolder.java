@@ -87,14 +87,14 @@ public class ViewHolder {
         }
     }
 
-    public void setMainClickListener(Object item, MultiColumnClickListener listener) {
+    public void setMainClickListener(Object item, Segment segment, MultiColumnClickListener listener) {
         if (mMainClickListener == null || item != mMainClickListener.getItem()
                 || listener != mMainClickListener.getListener()) {
             View view = findViewById(R.id.mainclickarea);
             if (view == null) {
                 view = mRootView;
             }
-            ClickListener clickListener = new ClickListener(item, listener);
+            ClickListener clickListener = new ClickListener(item, segment, listener);
             view.setOnClickListener(clickListener);
             view.setOnLongClickListener(clickListener);
             mMainClickListener = clickListener;

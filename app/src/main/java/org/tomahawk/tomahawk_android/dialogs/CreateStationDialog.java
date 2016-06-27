@@ -73,7 +73,7 @@ public class CreateStationDialog extends ConfigDialog {
     private class ClickListener implements MultiColumnClickListener {
 
         @Override
-        public void onItemClick(View view, Object item) {
+        public void onItemClick(View view, Object item, Segment segment) {
             if (item instanceof Artist) {
                 List<Pair<Artist, String>> artists = new ArrayList<>();
                 artists.add(new Pair<>((Artist) item, mArtistIds.get(item)));
@@ -94,7 +94,7 @@ public class CreateStationDialog extends ConfigDialog {
         }
 
         @Override
-        public boolean onItemLongClick(View view, Object item) {
+        public boolean onItemLongClick(View view, Object item, Segment segment) {
             return false;
         }
     }

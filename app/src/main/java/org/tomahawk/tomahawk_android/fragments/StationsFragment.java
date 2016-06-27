@@ -89,7 +89,7 @@ public class StationsFragment extends TomahawkFragment {
      * @param item the Object which corresponds to the click
      */
     @Override
-    public void onItemClick(View view, Object item) {
+    public void onItemClick(View view, Object item, Segment segment) {
         if (getMediaController() == null) {
             Log.e(TAG, "onItemClick failed because getMediaController() is null");
             return;
@@ -112,8 +112,11 @@ public class StationsFragment extends TomahawkFragment {
      * @param item the Object which corresponds to the long-click
      */
     @Override
-    public boolean onItemLongClick(View view, Object item) {
-        return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item, null,
+    public boolean onItemLongClick(View view, Object item, Segment segment) {
+        String myStationsString = getString(R.string.my_stations);
+        return segment != null && segment.getHeaderString() != null
+                && segment.getHeaderString().equals(myStationsString)
+                && FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item, null,
                 false, mHideRemoveButton);
     }
 

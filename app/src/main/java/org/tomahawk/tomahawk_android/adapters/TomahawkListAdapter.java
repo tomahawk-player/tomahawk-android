@@ -486,7 +486,7 @@ public class TomahawkListAdapter extends StickyBaseAdapter implements
                 }
 
                 //Set up the click listeners
-                viewHolder.setMainClickListener(item, mClickListener);
+                viewHolder.setMainClickListener(item, getSegment(position), mClickListener);
             }
         }
         return view;

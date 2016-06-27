@@ -25,21 +25,24 @@ public class ClickListener implements View.OnClickListener, View.OnLongClickList
 
     private final Object mItem;
 
+    private final Segment mSegment;
+
     private final MultiColumnClickListener mListener;
 
-    public ClickListener(Object item, MultiColumnClickListener listener) {
+    public ClickListener(Object item, Segment segment, MultiColumnClickListener listener) {
         mItem = item;
         mListener = listener;
+        mSegment = segment;
     }
 
     @Override
     public void onClick(View view) {
-        mListener.onItemClick(view, mItem);
+        mListener.onItemClick(view, mItem, mSegment);
     }
 
     @Override
     public boolean onLongClick(View view) {
-        return mListener.onItemLongClick(view, mItem);
+        return mListener.onItemLongClick(view, mItem, mSegment);
     }
 
     public Object getItem() {

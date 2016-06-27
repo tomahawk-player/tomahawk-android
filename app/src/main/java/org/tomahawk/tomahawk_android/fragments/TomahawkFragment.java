@@ -487,15 +487,16 @@ public abstract class TomahawkFragment extends TomahawkListFragment
     }
 
     @Override
-    public abstract void onItemClick(View view, Object item);
+    public abstract void onItemClick(View view, Object item, Segment segment);
 
     /**
      * Called every time an item inside a ListView or GridView is long-clicked
      *
      * @param item the Object which corresponds to the long-click
+     * @param segment
      */
     @Override
-    public boolean onItemLongClick(View view, Object item) {
+    public boolean onItemLongClick(View view, Object item, Segment segment) {
         return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item,
                 mCollection.getId(), false, mHideRemoveButton);
     }
