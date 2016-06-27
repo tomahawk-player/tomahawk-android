@@ -409,9 +409,12 @@ public class HatchetLoginRegisterView extends LinearLayout {
     public void updateButtonTexts() {
         if (mAuthenticatorUtils.isLoggedIn()) {
             mLoginButton.setTextColor(getResources().getColor(R.color.primary_textcolor_inverted));
+            mLoginButton.setBackgroundResource(
+                    R.drawable.selectable_background_tomahawk_red_filled);
             mLoginButton.setText(R.string.logout);
         } else {
             mLoginButton.setTextColor(getResources().getColor(R.color.tomahawk_red));
+            mLoginButton.setBackgroundResource(R.drawable.selectable_background_tomahawk_red);
             switch (mViewPager.getCurrentItem()) {
                 case 0:
                     mLoginButton.setText(R.string.login);
