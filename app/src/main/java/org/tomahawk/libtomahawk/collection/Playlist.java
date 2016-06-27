@@ -281,13 +281,6 @@ public class Playlist extends Cacheable implements AlphaComparable {
         mName = name == null ? "" : name;
     }
 
-    /**
-     * Set this {@link Playlist}'s {@link Query}s
-     */
-    public void setEntries(List<PlaylistEntry> entries) {
-        mCursor = new CollectionCursor<>(entries, PlaylistEntry.class);
-    }
-
     private PlaylistEntry getEntry(Index index) {
         PlaylistEntry entry;
         if (index.fromMergedItems) {
@@ -306,6 +299,10 @@ public class Playlist extends Cacheable implements AlphaComparable {
         return mIndex.size();
     }
 
+    /**
+     * Return all PlaylistEntries in the {@link Playlist}. This is a very costly operation and
+     * should only be done if absolutely necessary. Consider using {@link #getEntryAtPos(int)}.
+     */
     public List<PlaylistEntry> getEntries() {
         return getEntries(false);
     }

@@ -157,7 +157,8 @@ public class ChartsSelectorFragment extends Fragment {
                                 fragmentInfo.mBundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
                                         ContentHeaderFragment.MODE_HEADER_STATIC_CHARTS);
                                 fragmentInfo.mBundle.putString(
-                                        ChartsPagerFragment.CHARTSPROVIDER_ID, metaData.pluginName);
+                                        ChartsPagerFragment.CHARTSPROVIDER_ID,
+                                        providers.get(i).getScriptAccount().getName());
 
                                 String countryCode = getStoredCountryCode(providers.get(i));
                                 if (countryCode == null) {
@@ -335,8 +336,7 @@ public class ChartsSelectorFragment extends Fragment {
     }
 
     private String getCountryCodeStorageKey(ScriptChartsProvider provider) {
-        return PreferenceUtils.CHARTS_COUNTRY_CODE
-                + provider.getScriptAccount().getMetaData().pluginName;
+        return PreferenceUtils.CHARTS_COUNTRY_CODE + provider.getScriptAccount().getName();
     }
 
     private void storeCountryCode(ScriptChartsProvider provider, String countryCode) {

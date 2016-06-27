@@ -1,22 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="ok">Gerai</string>
-  <string name="cancel">Atšaukti</string>
+  <string name="cancel">Atsisakyti</string>
   <string name="login">Prisijungti</string>
   <string name="logout">Atsijungti</string>
   <string name="register">Registruotis</string>
-  <string name="register_and_login">Registruotis ir Prisijungti</string>
+  <string name="register_and_login">Registruotis ir prisijungti</string>
   <string name="rescan">Peržvelgti iš naujo dabar</string>
-  <string name="internal_storage">Vidinė Talpykla</string>
+  <string name="internal_storage">Vidinė talpykla</string>
   <string name="tracks">Takeliai</string>
   <string name="albums">Albumai</string>
   <string name="artists">Atlikėjai</string>
   <string name="users">Naudotojai</string>
-  <string name="top_hits">Populiariausi Takeliai</string>
-  <string name="top_albums">Populiariausi Albumai</string>
+  <string name="top_hits">Populiariausi takeliai</string>
+  <string name="top_albums">Populiariausi albumai</string>
   <string name="other_releases">Kitos laidos</string>
-  <string name="playlist_details">Išsamiau apie Grojaraštį</string>
-  <string name="album_details">Išsamiau apie Albumą</string>
+  <string name="playlist_details">Išsamiau apie grojaraštį</string>
+  <string name="album_details">Išsamiau apie albumą</string>
   <string name="search">Paieška</string>
   <string name="playlist">Grojaraštis</string>
   <string name="shuffle_on_label">Maišymas įjungtas</string>
@@ -25,18 +25,19 @@
   <string name="repeat_off_label">Kartojimas išjungtas</string>
   <string name="unknown">nežinoma</string>
   <string name="no_track">nėra takelio</string>
-  <string name="save_playlist">Išsaugoti dabartinį grojaraštį</string>
+  <string name="save_playlist">Įrašyti dabartinį grojaraštį</string>
   <string name="create_playlist">Sukurti grojaraštį</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Pavadinimas</string>
-  <string name="login_name_label">El. paštas/Vartotojo vardas</string>
-  <string name="login_username">Vartotojo vardas</string>
+  <string name="genres">Žanrai</string>
+  <string name="login_name_label">El. paštas/Naudotojo vardas</string>
+  <string name="login_username">Naudotojo vardas</string>
   <string name="login_password">Slaptažodis</string>
   <string name="login_password_confirmation">Slaptažodžio patvirtinimas</string>
   <string name="account_email_label">El. paštas (nebūtina)</string>
   <string name="error_field_required">Šis laukas yra būtinas</string>
   <string name="error_passwords_dont_match">Slaptažodžiai nesutampa</string>
-  <string name="error_invalid_credentials">Neteisingas vartotojo vardas ar slaptažodis.</string>
+  <string name="error_invalid_credentials">Neteisingas naudotojo vardas ar slaptažodis.</string>
   <string name="error_invalid_account">Serveris atmetė paskyrą.</string>
   <string name="error_communication">Neįmanoma nustatyti tapatybę. Prašome patikrinti savo ryšį.</string>
   <string name="error_simultaneous_streams">Veiksmas neleidžiamas, paskyra yra naudojama kitur.</string>
@@ -45,31 +46,34 @@
   <string name="auth_logged_in">Prisijungta prie %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="auth_logged_out">Atsijungta nuo %1$s</string>
-  <string name="local_collection_pretty_name">Vietinė Kolekcija</string>
+  <string name="local_collection_pretty_name">Vietinė kolekcija</string>
   <string name="preferences_local_collection_text">Pasirinkite katalogus, kurie turėtų būti peržvelgiami, ieškant vietinės medijos.</string>
   <string name="preferences_hatchet_text">Sinchronizuoti duomenis su %1$s.</string>
   <string name="preferences_equalizer">Glodintuvas</string>
   <string name="preferences_info">Informacija</string>
-  <string name="preferences_app_version">Programos Versija</string>
+  <string name="preferences_app_version">Programos versija</string>
   <string name="preferences_app_uservoice">Atsiliepimai</string>
   <string name="preferences_app_uservoice_text">Pasidalinkite savo idėjomis arba paprašykite palaikymo.</string>
-  <string name="preferences_app_sendlog">Siųsti Žurnalą</string>
+  <string name="preferences_app_website_link">Aplankyti mūsų svetainę</string>
+  <string name="preferences_app_website_link_text">Atverti tomahawk-player.org jūsų naršyklėje.</string>
+  <string name="preferences_app_sendlog">Siųsti žurnalą</string>
+  <string name="preferences_app_sendlog_text">Siųsti jūsų žurnalo failą derinimo tikslais.</string>
   <string name="preferences_app_sendlog_dialog_text">Prašome trumpai aprašyti problemą, su kuria susiduriate, ir suteikti savo el. pašto adresą, kad, jei būtina, galėtume su jumis susisiekti. Ačiū!</string>
   <string name="preferences_app_sendlog_email">Jūsų el. pašto adresas</string>
   <string name="preferences_app_sendlog_issue">Problema</string>
   <string name="crash_dialog_title">Tomahawk užstrigo</string>
-  <string name="crash_dialog_text">Įvyko netikėta klaida, kuri privertė programą baigti darbą. Prašome mums padėti, išsiunčiant klaidos duomenis, viskas ką jums reikia padaryti, tai nuspausti OK.</string>
+  <string name="crash_dialog_text">Įvyko netikėta klaida, kuri privertė programą baigti darbą. Prašome mums padėti, išsiunčiant klaidos duomenis, viskas ką jums reikia padaryti, tai nuspausti Gerai.</string>
   <string name="crash_dialog_comment_prompt">Žemiau, galite pridėti savo, su problema susijusius, komentarus:</string>
   <string name="crash_dialog_ok_toast">Ačiū !</string>
   <string name="context_menu_play">Groti</string>
-  <string name="context_menu_add_to_queue">Pridėti į Eilę</string>
-  <string name="context_menu_add_to_playlist">Pridėti į Grojaraštį</string>
+  <string name="context_menu_add_to_queue">Pridėti į eilę</string>
+  <string name="context_menu_add_to_playlist">Pridėti į grojaraštį</string>
   <string name="context_menu_delete">Ištrinti</string>
-  <string name="context_menu_removefromplaylist">Šalinti iš Grojaraščio</string>
+  <string name="context_menu_removefromplaylist">Šalinti iš grojaraščio</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
-  <string name="context_menu_removefromcollection">Pašalinti iš Kolekcijos</string>
+  <string name="context_menu_removefromcollection">Pašalinti iš kolekcijos</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
-  <string name="context_menu_addtocollection">Pridėti į Kolekciją</string>
+  <string name="context_menu_addtocollection">Pridėti į kolekciją</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_share">Dalintis</string>
@@ -77,46 +81,57 @@
   <string name="drawer_title_collection">Kolekcija</string>
   <string name="drawer_title_playlists">Grojaraščiai</string>
   <string name="drawer_title_settings">Nustatymai</string>
-  <string name="drawer_header_cloudcollections">Debesies Kolekcijos</string>
-  <string name="collection_dropdown_recently_added">Paskiausiai Pridėti</string>
+  <string name="drawer_header_cloudcollections">Debesijos kolekcijos</string>
+  <string name="collection_dropdown_recently_added">Paskiausiai pridėti</string>
   <string name="collection_dropdown_alpha_artists">Atlikėjai A-Ž</string>
   <string name="collection_dropdown_alpha_albums">Albumai A-Ž</string>
   <string name="collection_dropdown_alpha">A-Ž</string>
-  <string name="history">Žurnalas</string>
-  <string name="drawer_open">Atidaryti naršymo stalčių</string>
-  <string name="drawer_close">Uždaryti naršymo stalčių</string>
+  <string name="history">Istorija</string>
+  <string name="drawer_open">Atverti naršymo stalčių</string>
+  <string name="drawer_close">Užverti naršymo stalčių</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Sekate</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Sekti</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">Siūlomi sekti žmonės</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">%1$s dabar seka</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">%1$s pakomentavo</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s pagal %2$s</string>
+  <string name="time_afewseconds">prieš keletą sekundžių</string>
   <string name="music">Muzika</string>
   <string name="biography">Biografija</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Dainos</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <plurals name="songs_with_count">
+    <item quantity="one">%1$d daina</item>
+    <item quantity="few">%1$d dainos</item>
+    <item quantity="other">%1$d dainų</item>
+  </plurals>
   <string name="activity">Veikla</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Sekėjai</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Seka</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="resolver_config_enable_button_enable">Įjungti</string>
+  <string name="resolver_config_enable_button_disable">Išjungti</string>
   <string name="resolver_config_redirect_button_text_log_into">Prisijungti prie</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Atsijungti nuo</string>
-  <string name="ask_access_activity_header">Norite automatiškai išsaugoti duomenis apie visus takelius, kuriuos grojate per Hatchet?</string>
-  <string name="button_close">Uždaryti</string>
-  <string name="view_album">Žiūrėti Albumą</string>
+  <string name="ask_access_activity_header">Norite automatiškai įrašyti duomenis apie visus takelius, kuriuos grojate per Hatchet?</string>
+  <string name="button_close">Užverti</string>
+  <string name="view_album">Žiūrėti albumą</string>
   <string name="connect_headertext">Pasirinkite paslaugas, kuriomis norite naudotis. Tomahawk veikia geriau, kuomet yra aktyvuota daugiau paslaugų.</string>
   <string name="info">Informacija</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
@@ -128,6 +143,18 @@
   <string name="unknown_album">Nežinomas albumas</string>
   <string name="unknown_artist">Nežinomas atlikėjas</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">naujas</string>
+  <string name="playback_pause">Pristabdyti</string>
+  <string name="playback_play">Groti</string>
+  <string name="playback_previous">Ankstesnis takelis</string>
+  <string name="playback_next">Kitas takelis</string>
+  <string name="playback_favorite">Pridėti į mėgstamus</string>
+  <string name="playback_unfavorite">Šalinti iš mėgstamų</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">Dabar grojama</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">Maišyti ir groti</string>
+  <string name="loading_station">Įkeliama stotis:</string>
+  <string name="suggested_stations">Siūlomos stotys</string>
+  <string name="my_stations">Mano stotys</string>
 </resources>

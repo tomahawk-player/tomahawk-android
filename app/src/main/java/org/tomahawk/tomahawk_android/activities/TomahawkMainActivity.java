@@ -31,6 +31,7 @@ import org.tomahawk.libtomahawk.collection.Artist;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
 import org.tomahawk.libtomahawk.collection.DbCollection;
 import org.tomahawk.libtomahawk.collection.Playlist;
+import org.tomahawk.libtomahawk.collection.StationPlaylist;
 import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.database.TomahawkSQLiteHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoRequestData;
@@ -63,6 +64,7 @@ import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.MenuDrawer;
+import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 import org.tomahawk.tomahawk_android.utils.PluginUtils;
 import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.utils.SearchViewStyle;
@@ -160,8 +162,16 @@ public class TomahawkMainActivity extends AppCompatActivity {
             Log.d(TAG, "onPlaybackstate changed" + state);
             mPlaybackState = state.getState();
             mPlaybackPanel.updatePlaybackState(state);
-            if (state.getState() != PlaybackStateCompat.STATE_NONE) {
-                showPanel();
+            if (getSupportMediaController() != null) {
+                String playbackManagerId = getSupportMediaController().getExtras().getString(
+                        PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
+                PlaybackManager playbackManager = PlaybackManager.getByKey(playbackManagerId);
+                if (playbackManager != null && (playbackManager.getCurrentEntry() != null
+                        || playbackManager.getPlaylist() instanceof StationPlaylist)) {
+                    showPanel();
+                } else {
+                    hidePanel();
+                }
             } else {
                 hidePanel();
             }

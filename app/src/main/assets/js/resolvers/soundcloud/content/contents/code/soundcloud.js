@@ -214,7 +214,6 @@ var SoundcloudResolver = Tomahawk.extend(Tomahawk.Resolver, {
             }
         };
         return Tomahawk.get(url, settings).then(function (response) {
-            var promises = [];
             var results = [];
             for (var i = 0; i < response.length; i++) {
                 // Make sure that we only include covers/remixes and live versions if the user wants
@@ -224,7 +223,7 @@ var SoundcloudResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     continue;
                 }
 
-                var candidate = {
+                var result = {
                     mimetype: "audio/mpeg",
                     bitrate: 128,
                     duration: response[i].duration / 1000,
@@ -232,81 +231,24 @@ var SoundcloudResolver = Tomahawk.extend(Tomahawk.Resolver, {
                     url: response[i].stream_url + ".json?client_id=" + that.soundcloudClientId
                 };
                 if (response[i].permalink_url) {
-                    candidate.linkUrl = response[i].permalink_url;
+                    result.linkUrl = response[i].permalink_url;
                 }
 
                 var guessedMetaData = that._guessMetaData(response[i].title);
                 if (guessedMetaData) {
-                    candidate.track = guessedMetaData.track;
-                    candidate.artist = guessedMetaData.artist;
-
-                    // We guessed the track and artist name of the track. Now we need to make sure
-                    // that they are not accidentally interchanged.
-                    var url = "https://developer.echonest.com/api/v4/artist/extract";
-                    var settingsArtist = {
-                        data: {
-                            api_key: that.echonestClientId,
-                            format: "json",
-                            results: 1,
-                            bucket: ["hotttnesss", "familiarity"],
-                            text: candidate.artist
-                        }
-                    };
-                    var settingsTrack = {
-                        data: {
-                            api_key: that.echonestClientId,
-                            format: "json",
-                            results: 1,
-                            bucket: ["hotttnesss", "familiarity"],
-                            text: candidate.track
-                        }
-                    };
-                    (function (candidate) {
-                        promises.push(RSVP.all([
-                            Tomahawk.get(url, settingsArtist),
-                            Tomahawk.get(url, settingsTrack)
-                        ]).then(function (responses) {
-                            // We have the results from Echonest and can now determine whether the
-                            // assumed track name is more likely to be the artist name. If that's
-                            // the case we simply swap them and voila.
-                            var scoreArtist = 0;
-                            var scoreTrack = 0;
-                            if (responses[0] && responses[0].response.artists
-                                && responses[0].response.artists.length > 0) {
-                                scoreArtist = responses[0].response.artists[0].hotttnesss
-                                    + responses[0].response.artists[0].familiarity;
-                            }
-                            if (responses[1] && responses[1].response.artists
-                                && responses[1].response.artists.length > 0) {
-                                scoreTrack = responses[1].response.artists[0].hotttnesss
-                                    + responses[1].response.artists[0].familiarity;
-                            }
-                            if (scoreTrack > scoreArtist) {
-                                var track = candidate.track;
-                                candidate.track = candidate.artist;
-                                candidate.artist = track;
-                            }
-                            return candidate;
-                        }));
-                    })(candidate);
+                    result.track = guessedMetaData.track;
+                    result.artist = guessedMetaData.artist;
                 } else if (response[i].user.username) {
                     // We weren't able to guess the artist and track name, so we assume the username
                     // as the artist name. No further check with Echonest needed since it's very
                     // unlikely that the username actually is the name of the track and not of the
                     // artist.
-                    candidate.track = response[i].title;
-                    candidate.artist = response[i].user.username;
-                    results.push(candidate);
+                    result.track = response[i].title;
+                    result.artist = response[i].user.username;
                 }
+                results.push(result);
             }
-            return RSVP.allSettled(promises).then(function (responses) {
-                for (var i = 0; i < responses.length; i++) {
-                    if (responses[i].state == 'fulfilled') {
-                        results.push(responses[i].value);
-                    }
-                }
-                return results;
-            });
+            return results;
         });
     },
 

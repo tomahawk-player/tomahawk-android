@@ -178,7 +178,8 @@
                           android:layout_marginLeft="@dimen/padding_verysmall"
                           android:gravity="center"
                           android:textSize="@dimen/text_size_micro"
-                          android:textColor="@color/primary_textcolor_inverted"/>
+                          android:textColor="@color/primary_textcolor_inverted"
+                          android:singleLine="true"/>
 
             </LinearLayout>
 

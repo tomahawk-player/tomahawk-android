@@ -651,6 +651,11 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         }
         @Override
         public void onPrepared(TomahawkMediaPlayer mediaPlayer, Query query) {
+            if (mediaPlayer != mCurrentMediaPlayer) {
+                Log.d(TAG,
+                        "Ignoring onPrepared call, because it hasn't been invoked by mCurrentMediaPlayer");
+                return;
+            }
             if (query != null && query == mPlaybackManager.getCurrentQuery()) {
                 Log.d(TAG, mediaPlayer + " successfully prepared the track "
                         + mPlaybackManager.getCurrentQuery() + " resolved by "
@@ -675,6 +680,11 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
         @Override
         public void onCompletion(TomahawkMediaPlayer mediaPlayer, Query query) {
+            if (mediaPlayer != mCurrentMediaPlayer) {
+                Log.d(TAG,
+                        "Ignoring onCompletion call, because it hasn't been invoked by mCurrentMediaPlayer");
+                return;
+            }
             if (mMediaSession == null) {
                 Log.e(TAG, "onCompletion failed - mMediaSession == null!");
                 return;
@@ -692,6 +702,11 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onError(TomahawkMediaPlayer mediaPlayer, final String message) {
             Log.d(TAG, "onError - mediaPlayer: " + mediaPlayer + ", message: " + message);
+            if (mediaPlayer != mCurrentMediaPlayer) {
+                Log.d(TAG,
+                        "Ignoring onError call, because it hasn't been invoked by mCurrentMediaPlayer");
+                return;
+            }
             if (mMediaSession != null &&
                     mPlaybackManager.getCurrentQuery().getPreferredTrackResult().getFallbackMediaPlayerClass()
                             != null) {

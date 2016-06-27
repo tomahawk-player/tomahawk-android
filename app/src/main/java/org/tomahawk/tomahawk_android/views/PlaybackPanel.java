@@ -194,11 +194,11 @@ public class PlaybackPanel extends FrameLayout {
             @Override
             public void onClick(View v) {
                 if (mMediaController != null) {
-                    if (mMediaController.getPlaybackState().getState()
-                            == PlaybackStateCompat.STATE_PAUSED) {
+                    int playState = mMediaController.getPlaybackState().getState();
+                    if (playState == PlaybackStateCompat.STATE_PAUSED
+                            || playState == PlaybackStateCompat.STATE_NONE) {
                         mMediaController.getTransportControls().play();
-                    } else if (mMediaController.getPlaybackState().getState()
-                            == PlaybackStateCompat.STATE_PLAYING) {
+                    } else if (playState == PlaybackStateCompat.STATE_PLAYING) {
                         mMediaController.getTransportControls().pause();
                         mMediaController.getTransportControls()
                                 .sendCustomAction(PlaybackService.ACTION_STOP_NOTIFICATION, null);
@@ -425,8 +425,10 @@ public class PlaybackPanel extends FrameLayout {
                 Resources resources = TomahawkApp.getContext().getResources();
                 int panelHeight = resources.getDimensionPixelSize(
                         R.dimen.playback_panel_height);
-                int padding = resources.getDimensionPixelSize(
+                int paddingSmall = resources.getDimensionPixelSize(
                         R.dimen.padding_small);
+                int paddingLarge = resources.getDimensionPixelSize(
+                        R.dimen.padding_large);
                 int panelBottom = resources.getDimensionPixelSize(
                         R.dimen.playback_clear_space_bottom);
                 int headerClearSpace = resources.getDimensionPixelSize(
@@ -438,14 +440,15 @@ public class PlaybackPanel extends FrameLayout {
                         getHeight() - mTextViewContainer.getHeight() / 2 - panelHeight / 2);
                 Keyframe kfY1 = Keyframe.ofFloat(0.5f,
                         isLandscape ?
-                                getHeight() - mTextViewContainer.getHeight() / 2 - panelHeight / 2
-                                : getHeight() + padding - panelBottom);
+                                getHeight() + paddingLarge - panelBottom - mTextViewContainer
+                                        .getHeight()
+                                : getHeight() + paddingSmall - panelBottom);
                 Keyframe kfY2 = Keyframe.ofFloat(1f,
                         headerClearSpace / 2 - mTextViewContainer.getHeight() / 2);
                 PropertyValuesHolder pvhY =
                         PropertyValuesHolder.ofKeyframe("y", kfY0, kfY1, kfY2);
                 Keyframe kfScale0 = Keyframe.ofFloat(0f, 1f);
-                Keyframe kfScale1 = Keyframe.ofFloat(0.5f, isLandscape ? 1f : 1.5f);
+                Keyframe kfScale1 = Keyframe.ofFloat(0.5f, isLandscape ? 1.25f : 1.5f);
                 Keyframe kfScale2 = Keyframe.ofFloat(1f, isLandscape ? 1.25f : 1.5f);
                 PropertyValuesHolder pvhScaleY =
                         PropertyValuesHolder.ofKeyframe("scaleY", kfScale0, kfScale1, kfScale2);
@@ -471,7 +474,7 @@ public class PlaybackPanel extends FrameLayout {
 
                 // Setup mTextViewContainer backgroundColor alpha animation
                 Keyframe kfColor1 = Keyframe.ofInt(0f, 0x0);
-                Keyframe kfColor2 = Keyframe.ofInt(0.5f, 0x0);
+                Keyframe kfColor2 = Keyframe.ofInt(0.5f, isLandscape ? 0xFF : 0x0);
                 Keyframe kfColor3 = Keyframe.ofInt(1f, 0xFF);
                 PropertyValuesHolder pvhColor = PropertyValuesHolder
                         .ofKeyframe("color", kfColor1, kfColor2, kfColor3);
@@ -505,16 +508,20 @@ public class PlaybackPanel extends FrameLayout {
     }
 
     public void setupStationContainerAnimation() {
-        int resolverIconSize = getResources().getDimensionPixelSize(
+        Resources resources = TomahawkApp.getContext().getResources();
+        int resolverIconSize = resources.getDimensionPixelSize(
                 R.dimen.playback_panel_resolver_icon_size);
+        int padding = resources.getDimensionPixelSize(
+                R.dimen.padding_small);
 
         // Setup mStationContainer animation
         Keyframe kfX0 = Keyframe.ofFloat(0f,
                 mStationContainer.getWidth() - resolverIconSize);
         Keyframe kfX1 = Keyframe.ofFloat(0.5f,
-                mStationContainer.getWidth() / 2 - mStationContainerInner.getWidth() / 2);
+                Math.max(resolverIconSize + padding,
+                        mStationContainer.getWidth() / 2 - mStationContainerInner.getWidth() / 2));
         Keyframe kfX2 = Keyframe.ofFloat(1f,
-                mStationContainer.getWidth() / 2 - mStationContainerInner.getWidth() / 2);
+                mStationContainer.getWidth() - resolverIconSize);
         PropertyValuesHolder pvhX = PropertyValuesHolder.ofKeyframe("x", kfX0, kfX1, kfX2);
         ValueAnimator animator = ObjectAnimator
                 .ofPropertyValuesHolder(mStationContainerInner, pvhX).setDuration(20000);
@@ -525,6 +532,20 @@ public class PlaybackPanel extends FrameLayout {
         }
         mStationContainerAnimation = animator;
         mAnimators.add(mStationContainerAnimation);
+    }
+
+    public void hideStationContainer() {
+        if (mPlaybackManager.getPlaylist() instanceof StationPlaylist) {
+            AnimationUtils
+                    .fade(mStationContainer, AnimationUtils.DURATION_PLAYBACKTOPPANEL, false, true);
+        }
+    }
+
+    public void showStationContainer() {
+        if (mPlaybackManager.getPlaylist() instanceof StationPlaylist) {
+            AnimationUtils
+                    .fade(mStationContainer, AnimationUtils.DURATION_PLAYBACKTOPPANEL, true, true);
+        }
     }
 
     public void animate(int position) {

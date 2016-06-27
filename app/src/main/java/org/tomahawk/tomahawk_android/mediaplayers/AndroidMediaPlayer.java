@@ -247,7 +247,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                 try {
                     sMediaPlayer.setDataSource(path);
                     sMediaPlayer.prepare();
-                } catch (IOException e) {
+                } catch (IOException | IllegalStateException e) {
                     Log.e(TAG, "prepare - ", e);
                     callback.onError(AndroidMediaPlayer.this, "MediaPlayerEncounteredError");
                 }

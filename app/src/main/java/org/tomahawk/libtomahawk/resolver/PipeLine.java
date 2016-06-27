@@ -330,12 +330,13 @@ public class PipeLine {
                     @Override
                     public void run() {
                         if (query != null) {
-                            boolean shouldReport = false;
+                            boolean shouldReport = query.isFullTextQuery();
                             for (Result r : results) {
                                 if (r != null) {
                                     float trackScore = query.howSimilar(r);
-                                    if (trackScore > (query.isFullTextQuery() ? FULLTEXT_MINSCORE
-                                            : MINSCORE)) {
+                                    float goalScore = query.isFullTextQuery()
+                                            ? FULLTEXT_MINSCORE : MINSCORE;
+                                    if (trackScore > goalScore) {
                                         Result before = query.getPreferredTrackResult();
                                         query.addTrackResult(r, trackScore);
                                         if (before != query.getPreferredTrackResult()) {

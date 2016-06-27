@@ -17,6 +17,8 @@
  */
 package org.tomahawk.tomahawk_android.listeners;
 
+import org.tomahawk.tomahawk_android.adapters.Segment;
+
 import android.view.View;
 
 public interface MultiColumnClickListener {
@@ -24,16 +26,18 @@ public interface MultiColumnClickListener {
     /**
      * Called every time an item inside a ListView or GridView is clicked
      *
-     * @param view the clicked view
-     * @param item the Object which corresponds to the click
+     * @param view    the clicked view
+     * @param item    the Object which corresponds to the click
+     * @param segment the {@link Segment} which contains the clicked item
      */
-    void onItemClick(View view, Object item);
+    void onItemClick(View view, Object item, Segment segment);
 
     /**
      * Called every time an item inside a ListView or GridView is long-clicked
      *
-     * @param view the clicked view
-     * @param item the Object which corresponds to the long-click
+     * @param view    the clicked view
+     * @param item    the Object which corresponds to the long-click
+     * @param segment the {@link Segment} which contains the clicked item
      */
-    boolean onItemLongClick(View view, Object item);
+    boolean onItemLongClick(View view, Object item, Segment segment);
 }

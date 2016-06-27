@@ -87,14 +87,14 @@ public class ViewHolder {
         }
     }
 
-    public void setMainClickListener(Object item, MultiColumnClickListener listener) {
+    public void setMainClickListener(Object item, Segment segment, MultiColumnClickListener listener) {
         if (mMainClickListener == null || item != mMainClickListener.getItem()
                 || listener != mMainClickListener.getListener()) {
             View view = findViewById(R.id.mainclickarea);
             if (view == null) {
                 view = mRootView;
             }
-            ClickListener clickListener = new ClickListener(item, listener);
+            ClickListener clickListener = new ClickListener(item, segment, listener);
             view.setOnClickListener(clickListener);
             view.setOnLongClickListener(clickListener);
             mMainClickListener = clickListener;
@@ -102,7 +102,8 @@ public class ViewHolder {
     }
 
     public void fillView(Query query, String numerationString, boolean showAsPlaying,
-            boolean showAsQueued, View.OnClickListener dequeueButtonListener) {
+            boolean showAsQueued, View.OnClickListener dequeueButtonListener,
+            boolean showResolverIcon) {
         TextView trackNameTextView = (TextView) findViewById(R.id.track_textview);
         trackNameTextView.setText(query.getPrettyName());
         setTextViewEnabled(trackNameTextView, query.isPlayable(), false);
@@ -117,7 +118,7 @@ public class ViewHolder {
                         R.drawable.ic_navigation_close, R.color.tomahawk_red);
                 dequeueImageView.setOnClickListener(dequeueButtonListener);
             }
-        } else if (showAsPlaying) {
+        } else if (showAsPlaying || showResolverIcon) {
             if (numerationTextView != null) {
                 numerationTextView.setVisibility(View.GONE);
             }

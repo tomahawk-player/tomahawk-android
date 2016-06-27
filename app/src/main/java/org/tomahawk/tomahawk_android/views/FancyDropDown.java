@@ -20,6 +20,7 @@ package org.tomahawk.tomahawk_android.views;
 import org.tomahawk.libtomahawk.collection.Collection;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Resolver;
+import org.tomahawk.libtomahawk.resolver.UserCollectionStubResolver;
 import org.tomahawk.libtomahawk.utils.ViewUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -287,8 +288,7 @@ public class FancyDropDown extends FrameLayout {
                 dropDownItemInfo.mText = TomahawkApp.getContext().getString(R.string.all);
             } else if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(collection.getId())) {
                 dropDownItemInfo.mText = TomahawkApp.getContext().getString(R.string.local);
-                dropDownItemInfo.mResolver = PipeLine.get()
-                        .getResolver(TomahawkApp.PLUGINNAME_USERCOLLECTION);
+                dropDownItemInfo.mResolver = UserCollectionStubResolver.get();
             } else {
                 Resolver resolver = PipeLine.get().getResolver(collection.getId());
                 dropDownItemInfo.mText = resolver.getId();

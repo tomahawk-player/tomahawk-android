@@ -97,12 +97,12 @@ public class PlaylistsFragment extends TomahawkFragment {
 
     /**
      * Called every time an item inside a ListView or GridView is clicked
-     *
-     * @param view the clicked view
+     *  @param view the clicked view
      * @param item the Object which corresponds to the click
+     * @param segment
      */
     @Override
-    public void onItemClick(View view, Object item) {
+    public void onItemClick(View view, Object item, Segment segment) {
         if (item instanceof Playlist) {
             String playlistId = ((Playlist) item).getId();
             if (mQueryArray != null) {
@@ -145,9 +145,10 @@ public class PlaylistsFragment extends TomahawkFragment {
      * Called every time an item inside a ListView or GridView is long-clicked
      *
      * @param item the Object which corresponds to the long-click
+     * @param segment
      */
     @Override
-    public boolean onItemLongClick(View view, Object item) {
+    public boolean onItemLongClick(View view, Object item, Segment segment) {
         return FragmentUtils.showContextMenu((TomahawkMainActivity) getActivity(), item, null,
                 false, mHideRemoveButton);
     }

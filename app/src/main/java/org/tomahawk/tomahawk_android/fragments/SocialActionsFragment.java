@@ -135,12 +135,12 @@ public class SocialActionsFragment extends TomahawkFragment implements
 
     /**
      * Called every time an item inside a ListView or GridView is clicked
-     *
-     * @param view the clicked view
+     *  @param view the clicked view
      * @param o    the Object which corresponds to the click
+     * @param segment
      */
     @Override
-    public void onItemClick(View view, Object o) {
+    public void onItemClick(View view, Object o, Segment segment) {
         if (getMediaController() == null) {
             Log.e(TAG, "onItemClick failed because getMediaController() is null");
             return;

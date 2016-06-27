@@ -38,12 +38,12 @@ public class BiographyFragment extends TomahawkFragment {
 
     /**
      * Called every time an item inside a ListView or GridView is clicked
-     *
-     * @param view the clicked view
+     *  @param view the clicked view
      * @param item the Object which corresponds to the click
+     * @param segment
      */
     @Override
-    public void onItemClick(View view, Object item) {
+    public void onItemClick(View view, Object item, Segment segment) {
     }
 
     /**

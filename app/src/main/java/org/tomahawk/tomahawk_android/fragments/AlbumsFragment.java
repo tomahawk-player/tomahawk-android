@@ -67,6 +67,7 @@ public class AlbumsFragment extends TomahawkFragment {
     public void onResume() {
         super.onResume();
 
+        mHideRemoveButton = true;
         if (mContainerFragmentClass == null) {
             getActivity().setTitle("");
         }
@@ -75,12 +76,12 @@ public class AlbumsFragment extends TomahawkFragment {
 
     /**
      * Called every time an item inside a ListView or GridView is clicked
-     *
-     * @param view the clicked view
+     *  @param view the clicked view
      * @param item the Object which corresponds to the click
+     * @param segment
      */
     @Override
-    public void onItemClick(View view, final Object item) {
+    public void onItemClick(View view, final Object item, Segment segment) {
         if (getMediaController() == null) {
             Log.e(TAG, "onItemClick failed because getMediaController() is null");
             return;

@@ -108,6 +108,8 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                     } else {
                         CollectionManager.get().fetchPlaylists();
                     }
+                } else {
+                    mHideRemoveButton = true;
                 }
                 updateAdapter();
             }
@@ -119,12 +121,12 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
 
     /**
      * Called every time an item inside a ListView or GridView is clicked
-     *
-     * @param view the clicked view
+     *  @param view the clicked view
      * @param item the Object which corresponds to the click
+     * @param segment
      */
     @Override
-    public void onItemClick(View view, Object item) {
+    public void onItemClick(View view, Object item, Segment segment) {
         if (getMediaController() == null) {
             Log.e(TAG, "onItemClick failed because getMediaController() is null");
             return;
@@ -216,6 +218,8 @@ public class PlaylistEntriesFragment extends TomahawkFragment {
                         builder.headerLayout(R.layout.single_line_list_header)
                                 .headerString(R.string.playlist_details);
                     }
+                } else if (mContainerFragmentClass.equals(SearchPagerFragment.class.getName())) {
+                    builder.showResolverIcon(true);
                 }
                 Segment segment = builder.build();
                 fillAdapter(segment);
