@@ -15,8 +15,8 @@ android {
         targetSdkVersion 22
         renderscriptTargetApi 20
         renderscriptSupportModeEnabled true
-        versionName '0.971'
-        versionCode 971
+        versionName '0.98'
+        versionCode 980
     }
 
     lintOptions {
