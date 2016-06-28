@@ -53,6 +53,7 @@ import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.MediaBrowserHelper;
 import org.tomahawk.tomahawk_android.utils.MediaNotification;
 import org.tomahawk.tomahawk_android.utils.PlaybackManager;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 
 import android.app.PendingIntent;
 import android.app.Service;
@@ -315,16 +316,22 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          * @param pos New position to move to, in milliseconds.
          */
         @Override
-        public void onSeekTo(long pos) {
+        public void onSeekTo(final long pos) {
             Log.d(TAG, "seekTo " + pos);
             final Query currentQuery = mPlaybackManager.getCurrentQuery();
             if (currentQuery != null && currentQuery.getMediaPlayerClass() != null) {
-                TomahawkMediaPlayer mp =
+                final TomahawkMediaPlayer mp =
                         mMediaPlayers.get(currentQuery.getMediaPlayerClass());
-                if (mp.isPrepared(currentQuery)) {
-                    mp.seekTo(pos);
-                    updateMediaPlayState();
-                }
+                Runnable r = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (mp.isPrepared(currentQuery)) {
+                            mp.seekTo(pos);
+                            updateMediaPlayState();
+                        }
+                    }
+                };
+                ThreadManager.get().executePlayback(mp, r);
             }
         }
 
@@ -734,14 +741,20 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 }
             }
         }
-        Query currentQuery = mPlaybackManager.getCurrentQuery();
+        final Query currentQuery = mPlaybackManager.getCurrentQuery();
         if (currentQuery != null && currentQuery == event.mQuery) {
             mPlaybackManagerCallback.onCurrentEntryChanged();
-            if (mCurrentMediaPlayer == null
-                    || !(mCurrentMediaPlayer.isPrepared(currentQuery)
-                    || mCurrentMediaPlayer.isPreparing(currentQuery))) {
-                handlePlayState();
-            }
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    if (mCurrentMediaPlayer == null
+                            || !(mCurrentMediaPlayer.isPrepared(currentQuery)
+                            || mCurrentMediaPlayer.isPreparing(currentQuery))) {
+                        handlePlayState();
+                    }
+                }
+            };
+            ThreadManager.get().executePlayback(mCurrentMediaPlayer, r);
         }
     }
 
@@ -918,9 +931,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         handlePlayState();
         mNotification.stopNotification();
 
-        for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
-            mp.release();
-        }
+        releaseAllPlayers();
         if (mWakeLock.isHeld()) {
             mWakeLock.release();
         }
@@ -965,50 +976,49 @@ public class PlaybackService extends MediaBrowserServiceCompat {
      */
     private void handlePlayState() {
         Log.d(TAG, "handlePlayState");
-        Query currentQuery = mPlaybackManager.getCurrentQuery();
+        final Query currentQuery = mPlaybackManager.getCurrentQuery();
         if (currentQuery != null && currentQuery.getMediaPlayerClass() != null) {
-            try {
-                TomahawkMediaPlayer mp = mMediaPlayers.get(currentQuery.getMediaPlayerClass());
-                switch (mPlayState) {
-                    case PlaybackStateCompat.STATE_PLAYING:
-                        // The service needs to continue running even after the bound client
-                        // (usually a MediaController) disconnects, otherwise the music playback
-                        // will stop. Calling startService(Intent) will keep the service running
-                        // until it is explicitly killed.
-                        startService(new Intent(getApplicationContext(), PlaybackService.class));
-                        if (mWakeLock != null && mWakeLock.isHeld()) {
-                            mWakeLock.acquire();
-                        }
-                        if (mp.isPreparing(currentQuery) || mp.isPrepared(currentQuery)) {
-                            if (!mp.isPlaying(currentQuery)) {
-                                mp.play();
+            final TomahawkMediaPlayer mp = mMediaPlayers.get(currentQuery.getMediaPlayerClass());
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    switch (mPlayState) {
+                        case PlaybackStateCompat.STATE_PLAYING:
+                            // The service needs to continue running even after the bound client
+                            // (usually a MediaController) disconnects, otherwise the music playback
+                            // will stop. Calling startService(Intent) will keep the service running
+                            // until it is explicitly killed.
+                            startService(new Intent(getApplicationContext(),
+                                    PlaybackService.class));
+                            if (mWakeLock != null && mWakeLock.isHeld()) {
+                                mWakeLock.acquire();
                             }
-                        } else {
-                            prepareCurrentQuery();
-                        }
-                        break;
-                    case PlaybackStateCompat.STATE_PAUSED:
-                        if (mp.isPlaying(currentQuery)
-                                && (mp.isPreparing(currentQuery) || mp.isPrepared(currentQuery))) {
-                            InfoSystem.get().sendPlaybackEntryPostStruct(
-                                    AuthenticatorManager.get().getAuthenticatorUtils(
-                                            TomahawkApp.PLUGINNAME_HATCHET)
-                            );
-                            mp.pause();
-                        }
-                        if (mWakeLock != null && mWakeLock.isHeld()) {
-                            mWakeLock.release();
-                        }
-                        break;
+                            if (mp.isPreparing(currentQuery) || mp.isPrepared(currentQuery)) {
+                                if (!mp.isPlaying(currentQuery)) {
+                                    mp.play();
+                                }
+                            } else {
+                                prepareCurrentQuery();
+                            }
+                            break;
+                        case PlaybackStateCompat.STATE_PAUSED:
+                            if (mp.isPlaying(currentQuery) && (mp.isPreparing(currentQuery)
+                                    || mp.isPrepared(currentQuery))) {
+                                InfoSystem.get().sendPlaybackEntryPostStruct(
+                                        AuthenticatorManager.get().getAuthenticatorUtils(
+                                                TomahawkApp.PLUGINNAME_HATCHET));
+                                mp.pause();
+                            }
+                            if (mWakeLock != null && mWakeLock.isHeld()) {
+                                mWakeLock.release();
+                            }
+                            break;
+                    }
                 }
-            } catch (IllegalStateException e1) {
-                Log.e(TAG, "handlePlayState IllegalStateException, msg: "
-                        + e1.getLocalizedMessage() + " , isPreparing: " + mIsPreparing);
-            }
+            };
+            ThreadManager.get().executePlayback(mp, r);
         } else {
-            for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
-                mp.release();
-            }
+            releaseAllPlayers();
             if (mWakeLock != null && mWakeLock.isHeld()) {
                 mWakeLock.release();
             }
@@ -1064,11 +1074,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         long position = 0;
         final Query currentQuery = mPlaybackManager.getCurrentQuery();
         if (currentQuery != null && currentQuery.getMediaPlayerClass() != null) {
-            try {
-                position = mMediaPlayers.get(currentQuery.getMediaPlayerClass()).getPosition();
-            } catch (IllegalStateException e) {
-                Log.e(TAG, "getPlaybackPosition: " + e.getClass() + ": " + e.getLocalizedMessage());
-            }
+            position = mMediaPlayers.get(currentQuery.getMediaPlayerClass()).getPosition();
         }
         return position;
     }
@@ -1236,9 +1242,27 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         }
     }
 
-    private void setBitrate(int mode) {
-        for (TomahawkMediaPlayer mp : mMediaPlayers.values()) {
-            mp.setBitrate(mode);
+    private void setBitrate(final int mode) {
+        for (final TomahawkMediaPlayer mp : mMediaPlayers.values()) {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    mp.setBitrate(mode);
+                }
+            };
+            ThreadManager.get().executePlayback(mp, r);
+        }
+    }
+
+    private void releaseAllPlayers() {
+        for (final TomahawkMediaPlayer mp : mMediaPlayers.values()) {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    mp.release();
+                }
+            };
+            ThreadManager.get().executePlayback(mp, r);
         }
     }
 }

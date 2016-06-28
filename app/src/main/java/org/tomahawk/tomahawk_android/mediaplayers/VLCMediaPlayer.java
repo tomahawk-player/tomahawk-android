@@ -17,14 +17,11 @@
  */
 package org.tomahawk.tomahawk_android.mediaplayers;
 
-import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.utils.PreferenceUtils;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.videolan.libvlc.LibVLC;
 import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
@@ -33,14 +30,11 @@ import org.videolan.libvlc.util.AndroidUtil;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.concurrent.ConcurrentHashMap;
-
-import de.greenrobot.event.EventBus;
 
 /**
  * This class wraps a libvlc mediaplayer instance.
  */
-public class VLCMediaPlayer implements TomahawkMediaPlayer {
+public class VLCMediaPlayer extends TomahawkMediaPlayer {
 
     private static final String TAG = VLCMediaPlayer.class.getSimpleName();
 
@@ -62,35 +56,40 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
 
     private Query mPreparingQuery;
 
-    private final ConcurrentHashMap<Result, String> mTranslatedUrls
-            = new ConcurrentHashMap<>();
-
     private class MediaPlayerListener implements MediaPlayer.EventListener {
 
         @Override
-        public void onEvent(MediaPlayer.Event event) {
-            switch (event.type) {
-                case MediaPlayer.Event.EncounteredError:
-                    Log.d(TAG, "onError()");
-                    mPreparedQuery = null;
-                    mPreparingQuery = null;
-                    if (mMediaPlayerCallback != null) {
-                        mMediaPlayerCallback.onError(
-                                VLCMediaPlayer.this, "MediaPlayerEncounteredError");
-                    } else {
-                        Log.e(TAG, "Wasn't able to call onError because callback object is null");
+        public void onEvent(final MediaPlayer.Event event) {
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    switch (event.type) {
+                        case MediaPlayer.Event.EncounteredError:
+                            Log.d(TAG, "MediaPlayer.Event.EncounteredError");
+                            mPreparedQuery = null;
+                            mPreparingQuery = null;
+                            if (mMediaPlayerCallback != null) {
+                                mMediaPlayerCallback.onError(
+                                        VLCMediaPlayer.this, "LibVLC encountered an error");
+                            } else {
+                                Log.e(TAG, "Wasn't able to call onError because callback"
+                                        + " object is null");
+                            }
+                            break;
+                        case MediaPlayer.Event.EndReached:
+                            Log.d(TAG, "MediaPlayer.Event.EndReached");
+                            if (mMediaPlayerCallback != null) {
+                                mMediaPlayerCallback.onCompletion(
+                                        VLCMediaPlayer.this, mPreparedQuery);
+                            } else {
+                                Log.e(TAG, "Wasn't able to call onCompletion because callback"
+                                        + " object is null");
+                            }
+                            break;
                     }
-                    break;
-                case MediaPlayer.Event.EndReached:
-                    Log.d(TAG, "onCompletion()");
-                    if (mMediaPlayerCallback != null) {
-                        mMediaPlayerCallback.onCompletion(VLCMediaPlayer.this, mPreparedQuery);
-                    } else {
-                        Log.e(TAG,
-                                "Wasn't able to call onCompletion because callback object is null");
-                    }
-                    break;
-            }
+                }
+            };
+            ThreadManager.get().executePlayback(VLCMediaPlayer.this, r);
         }
     }
 
@@ -106,7 +105,6 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
             sMediaPlayer.setEqualizer(equalizer);
         }
         sMediaPlayer.setEventListener(new MediaPlayerListener());
-        EventBus.getDefault().register(this);
     }
 
     public static LibVLC getLibVlcInstance() {
@@ -115,19 +113,6 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
 
     public static MediaPlayer getMediaPlayerInstance() {
         return sMediaPlayer;
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventAsync(PipeLine.StreamUrlEvent event) {
-        Log.d(TAG, "Received stream url: " + event.mResult + ", " + event.mUrl);
-        mTranslatedUrls.put(event.mResult, event.mUrl);
-        if (mMediaPlayerCallback != null && mPreparingQuery != null
-                && event.mResult == mPreparingQuery.getPreferredTrackResult()) {
-            prepare(mPreparingQuery);
-        } else {
-            Log.e(TAG, "Received stream url: Wasn't able to prepare: " + event.mResult + ", "
-                    + event.mUrl);
-        }
     }
 
     /**
@@ -167,44 +152,24 @@ public class VLCMediaPlayer implements TomahawkMediaPlayer {
     /**
      * Prepare the given url
      */
-    private void prepare(final Query query) {
+    @Override
+    public void prepare(Query query, TomahawkMediaPlayerCallback callback) {
         Log.d(TAG, "prepare()");
-        TomahawkRunnable r = new TomahawkRunnable(1) {
+        mMediaPlayerCallback = callback;
+        getMediaPlayerInstance().stop();
+        mPreparedQuery = null;
+        mPreparingQuery = query;
+        getStreamUrl(query.getPreferredTrackResult()).done(new DoneCallback<String>() {
             @Override
-            public void run() {
-                getMediaPlayerInstance().stop();
-                mPreparedQuery = null;
-                mPreparingQuery = query;
-                Result result = query.getPreferredTrackResult();
-                String path;
-                if (mTranslatedUrls.get(result) != null) {
-                    path = mTranslatedUrls.remove(result);
-                } else {
-                    if (result.getResolvedBy() instanceof ScriptResolver) {
-                        ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
-                        return;
-                    } else {
-                        path = result.getPath();
-                    }
-                }
-                Media media = new Media(sLibVLC, AndroidUtil.LocationToUri(path));
+            public void onDone(String url) {
+                Media media = new Media(sLibVLC, AndroidUtil.LocationToUri(url));
                 getMediaPlayerInstance().setMedia(media);
                 mPreparedQuery = mPreparingQuery;
                 mPreparingQuery = null;
                 mMediaPlayerCallback.onPrepared(VLCMediaPlayer.this, mPreparedQuery);
                 Log.d(TAG, "onPrepared()");
             }
-        };
-        ThreadManager.get().executePlayback(r);
-    }
-
-    /**
-     * Prepare the given url
-     */
-    @Override
-    public void prepare(Query query, TomahawkMediaPlayerCallback callback) {
-        mMediaPlayerCallback = callback;
-        prepare(query);
+        });
     }
 
     @Override

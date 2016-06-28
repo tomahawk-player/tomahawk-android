@@ -18,11 +18,13 @@
 package org.tomahawk.tomahawk_android.utils;
 
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +51,8 @@ public class ThreadManager {
 
     private final ThreadPoolExecutor mThreadPool;
 
-    private final ThreadPoolExecutor mPlaybackThreadPool;
+    private final ConcurrentHashMap<TomahawkMediaPlayer, ThreadPoolExecutor> mPlaybackThreadPools
+            = new ConcurrentHashMap<>();
 
     private final Map<Query, Collection<TomahawkRunnable>> mQueryRunnableMap;
 
@@ -57,8 +60,6 @@ public class ThreadManager {
         mQueryRunnableMap = new ConcurrentHashMap<>();
         mThreadPool = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES,
                 KEEP_ALIVE_TIME, KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
-        mPlaybackThreadPool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME,
-                KEEP_ALIVE_TIME_UNIT, new PriorityBlockingQueue<Runnable>());
     }
 
     public static ThreadManager get() {
@@ -91,14 +92,22 @@ public class ThreadManager {
         return success;
     }
 
-    public void executePlayback(TomahawkRunnable r) {
-        mPlaybackThreadPool.execute(r);
+    public void executePlayback(TomahawkMediaPlayer mp, Runnable r) {
+        ThreadPoolExecutor pool = mPlaybackThreadPools.get(mp);
+        if (pool == null) {
+            pool = new ThreadPoolExecutor(1, 1, KEEP_ALIVE_TIME,
+                    KEEP_ALIVE_TIME_UNIT, new LinkedBlockingQueue<Runnable>());
+            mPlaybackThreadPools.put(mp, pool);
+        }
+        pool.execute(r);
     }
 
     public boolean isActive() {
-        return mThreadPool.getActiveCount() > 0
-                || mThreadPool.getQueue().size() > 0
-                || mPlaybackThreadPool.getActiveCount() > 0
-                || mPlaybackThreadPool.getQueue().size() > 0;
+        for (ThreadPoolExecutor pool : mPlaybackThreadPools.values()) {
+            if (pool.getActiveCount() > 0 || pool.getQueue().size() > 0) {
+                return true;
+            }
+        }
+        return mThreadPool.getActiveCount() > 0 || mThreadPool.getQueue().size() > 0;
     }
 }

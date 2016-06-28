@@ -73,13 +73,6 @@ public class PipeLine {
         public Query mQuery;
     }
 
-    public static class StreamUrlEvent {
-
-        public Result mResult;
-
-        public String mUrl;
-    }
-
     public static class UrlResultsEvent {
 
         public Resolver mResolver;
