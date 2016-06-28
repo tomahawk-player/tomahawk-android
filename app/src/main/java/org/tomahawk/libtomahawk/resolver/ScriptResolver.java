@@ -24,6 +24,7 @@ import com.google.gson.reflect.TypeToken;
 
 import com.squareup.okhttp.Response;
 
+import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorUtils;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverAccessTokenResult;
@@ -31,6 +32,7 @@ import org.tomahawk.libtomahawk.resolver.models.ScriptResolverConfigUiField;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverSettings;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverStreamUrlResult;
 import org.tomahawk.libtomahawk.resolver.models.ScriptResolverUrlResult;
+import org.tomahawk.libtomahawk.utils.ADeferredObject;
 import org.tomahawk.libtomahawk.utils.GsonHelper;
 import org.tomahawk.libtomahawk.utils.NetworkUtils;
 import org.tomahawk.tomahawk_android.TomahawkApp;
@@ -311,7 +313,8 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
         }
     }
 
-    public void getStreamUrl(final Result result) {
+    public Promise<String, Throwable, Void> getStreamUrl(final Result result) {
+        final ADeferredObject<String, Throwable, Void> deferred = new ADeferredObject<>();
         if (result != null) {
             HashMap<String, Object> args = new HashMap<>();
             args.put("url", result.getPath());
@@ -322,22 +325,20 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                         public void onReportResults(ScriptResolverStreamUrlResult results) {
                             Response response = null;
                             try {
-                                PipeLine.StreamUrlEvent event = new PipeLine.StreamUrlEvent();
-                                event.mResult = result;
                                 if (results.headers != null) {
                                     // If headers are given we first have to resolve the url that
                                     // the call is being redirected to
                                     response = NetworkUtils.httpRequest("GET",
                                             results.url, results.headers, null, null, null, false,
                                             null);
-                                    event.mUrl = response.header("Location");
+                                    deferred.resolve(response.header("Location"));
                                 } else {
-                                    event.mUrl = results.url;
+                                    deferred.resolve(results.url);
                                 }
-                                EventBus.getDefault().post(event);
                             } catch (IOException e) {
                                 Log.e(TAG, "reportStreamUrl: " + e.getClass() + ": " + e
                                         .getLocalizedMessage());
+                                deferred.reject(e);
                             } finally {
                                 if (response != null) {
                                     try {
@@ -349,8 +350,16 @@ public class ScriptResolver implements Resolver, ScriptPlugin {
                                 }
                             }
                         }
+                    }, new ScriptJob.FailureCallback() {
+                        @Override
+                        public void onReportFailure(String errormessage) {
+                            deferred.reject(new Throwable(errormessage));
+                        }
                     });
+        } else {
+            deferred.reject(new Throwable("result is null"));
         }
+        return deferred;
     }
 
     public void login() {

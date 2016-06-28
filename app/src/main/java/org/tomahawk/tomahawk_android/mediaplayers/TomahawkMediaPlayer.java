@@ -17,28 +17,78 @@
  */
 package org.tomahawk.tomahawk_android.mediaplayers;
 
+import org.jdeferred.DoneCallback;
+import org.jdeferred.FailCallback;
+import org.jdeferred.Promise;
+import org.jdeferred.impl.DeferredObject;
 import org.tomahawk.libtomahawk.resolver.Query;
+import org.tomahawk.libtomahawk.resolver.Result;
+import org.tomahawk.libtomahawk.resolver.ScriptResolver;
+import org.tomahawk.tomahawk_android.utils.ThreadManager;
 
-public interface TomahawkMediaPlayer {
+import java.util.concurrent.ConcurrentHashMap;
 
-    void play();
+public abstract class TomahawkMediaPlayer {
 
-    void pause();
+    public abstract void play();
 
-    void seekTo(long msec);
+    public abstract void pause();
 
-    void prepare(Query query, TomahawkMediaPlayerCallback callback);
+    public abstract void seekTo(long msec);
 
-    void release();
+    public abstract void prepare(Query query, TomahawkMediaPlayerCallback callback);
 
-    long getPosition();
+    public abstract void release();
 
-    void setBitrate(int mode);
+    public abstract long getPosition();
 
-    boolean isPlaying(Query query);
+    public abstract void setBitrate(int mode);
 
-    boolean isPreparing(Query query);
+    public abstract boolean isPlaying(Query query);
 
-    boolean isPrepared(Query query);
+    public abstract boolean isPreparing(Query query);
+
+    public abstract boolean isPrepared(Query query);
+
+    private final ConcurrentHashMap<Result, String> mTranslatedUrls = new ConcurrentHashMap<>();
+
+    public Promise<String, Throwable, Void> getStreamUrl(Result result) {
+        final DeferredObject<String, Throwable, Void> deferred = new DeferredObject<>();
+        if (mTranslatedUrls.get(result) != null) {
+            deferred.resolve(mTranslatedUrls.remove(result));
+        } else {
+            if (result.getResolvedBy() instanceof ScriptResolver) {
+                ScriptResolver resolver = (ScriptResolver) result.getResolvedBy();
+                resolver.getStreamUrl(result)
+                        .done(new DoneCallback<String>() {
+                            @Override
+                            public void onDone(final String url) {
+                                Runnable r = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        deferred.resolve(url);
+                                    }
+                                };
+                                ThreadManager.get().executePlayback(TomahawkMediaPlayer.this, r);
+                            }
+                        })
+                        .fail(new FailCallback<Throwable>() {
+                            @Override
+                            public void onFail(final Throwable result) {
+                                Runnable r = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        deferred.reject(result);
+                                    }
+                                };
+                                ThreadManager.get().executePlayback(TomahawkMediaPlayer.this, r);
+                            }
+                        });
+            } else {
+                deferred.resolve(result.getPath());
+            }
+        }
+        return deferred;
+    }
 
 }

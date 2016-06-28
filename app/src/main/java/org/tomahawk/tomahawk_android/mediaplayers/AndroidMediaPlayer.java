@@ -18,12 +18,9 @@
  */
 package org.tomahawk.tomahawk_android.mediaplayers;
 
-import org.tomahawk.libtomahawk.resolver.PipeLine;
+import org.jdeferred.DoneCallback;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.resolver.Result;
-import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
-import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -31,11 +28,8 @@ import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentHashMap;
 
-import de.greenrobot.event.EventBus;
-
-public class AndroidMediaPlayer implements TomahawkMediaPlayer {
+public class AndroidMediaPlayer extends TomahawkMediaPlayer {
 
     private static final String TAG = AndroidMediaPlayer.class.getSimpleName();
 
@@ -47,24 +41,25 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
 
     private int mPlayState = PlaybackStateCompat.STATE_NONE;
 
-    private final ConcurrentHashMap<Result, String> mTranslatedUrls = new ConcurrentHashMap<>();
-
     private TomahawkMediaPlayerCallback mMediaPlayerCallback;
 
     private class CompletionListener implements MediaPlayer.OnCompletionListener {
 
         public void onCompletion(MediaPlayer mp) {
-            Log.d(TAG, "onCompletion()");
-            if (mMediaPlayerCallback != null) {
-                mMediaPlayerCallback.onCompletion(AndroidMediaPlayer.this, mPreparedQuery);
-            } else {
-                Log.e(TAG, "Wasn't able to call onCompletion because callback object is null");
-            }
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "onCompletion()");
+                    if (mMediaPlayerCallback != null) {
+                        mMediaPlayerCallback.onCompletion(AndroidMediaPlayer.this, mPreparedQuery);
+                    } else {
+                        Log.e(TAG,
+                                "Wasn't able to call onCompletion because callback object is null");
+                    }
+                }
+            };
+            ThreadManager.get().executePlayback(AndroidMediaPlayer.this, r);
         }
-    }
-
-    public AndroidMediaPlayer() {
-        EventBus.getDefault().register(this);
     }
 
     @Override
@@ -90,30 +85,18 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
     public void prepare(final Query query, final TomahawkMediaPlayerCallback callback) {
         Log.d(TAG, "prepare()");
         mMediaPlayerCallback = callback;
-        TomahawkRunnable r = new TomahawkRunnable(1) {
+        mPreparedQuery = null;
+        mPreparingQuery = query;
+        getStreamUrl(query.getPreferredTrackResult()).done(new DoneCallback<String>() {
             @Override
-            public void run() {
-                mPreparedQuery = null;
-                mPreparingQuery = query;
-                Result result = query.getPreferredTrackResult();
-                String path;
-                if (mTranslatedUrls.get(result) != null) {
-                    path = mTranslatedUrls.remove(result);
-                } else {
-                    if (result.getResolvedBy() instanceof ScriptResolver) {
-                        ((ScriptResolver) result.getResolvedBy()).getStreamUrl(result);
-                        return;
-                    } else {
-                        path = result.getPath();
-                    }
-                }
+            public void onDone(String url) {
                 release();
                 sMediaPlayer = new MediaPlayer();
 
                 sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
                 try {
-                    sMediaPlayer.setDataSource(path);
+                    sMediaPlayer.setDataSource(url);
                     sMediaPlayer.prepare();
                 } catch (IOException | IllegalStateException e) {
                     Log.e(TAG, "prepare - ", e);
@@ -128,21 +111,7 @@ public class AndroidMediaPlayer implements TomahawkMediaPlayer {
                 callback.onPrepared(AndroidMediaPlayer.this, mPreparedQuery);
                 Log.d(TAG, "onPrepared()");
             }
-        };
-        ThreadManager.get().executePlayback(r);
-    }
-
-    @SuppressWarnings("unused")
-    public void onEventAsync(PipeLine.StreamUrlEvent event) {
-        Log.d(TAG, "Received stream url: " + event.mResult + ", " + event.mUrl);
-        mTranslatedUrls.put(event.mResult, event.mUrl);
-        if (mMediaPlayerCallback != null && mPreparingQuery != null
-                && event.mResult == mPreparingQuery.getPreferredTrackResult()) {
-            prepare(mPreparingQuery, mMediaPlayerCallback);
-        } else {
-            Log.e(TAG, "Received stream url: Wasn't able to prepare: " + event.mResult + ", "
-                    + event.mUrl);
-        }
+        });
     }
 
     @Override

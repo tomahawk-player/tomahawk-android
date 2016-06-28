@@ -39,7 +39,7 @@ import java.util.Map;
 
 import de.greenrobot.event.EventBus;
 
-public abstract class PluginMediaPlayer implements TomahawkMediaPlayer {
+public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
 
     private static final String TAG = PluginMediaPlayer.class.getSimpleName();
 
