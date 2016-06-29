@@ -435,7 +435,7 @@ public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
         Log.d(TAG, "release()");
         mPreparedQuery = null;
         mPreparingQuery = null;
-        pause();
+        callService(MSG_PAUSE);
         mMediaPlayerCallback = null;
     }
 
