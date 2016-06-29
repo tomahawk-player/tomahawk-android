@@ -1058,11 +1058,11 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 updateMediaPlayState();
 
                 TomahawkMediaPlayer mp = mMediaPlayers.get(currentQuery.getMediaPlayerClass());
-                mp.prepare(currentQuery, mMediaPlayerCallback);
                 if (mCurrentMediaPlayer != null && mCurrentMediaPlayer != mp) {
                     mCurrentMediaPlayer.release();
                 }
                 mCurrentMediaPlayer = mp;
+                mp.prepare(currentQuery, mMediaPlayerCallback);
             }
         }
     }
