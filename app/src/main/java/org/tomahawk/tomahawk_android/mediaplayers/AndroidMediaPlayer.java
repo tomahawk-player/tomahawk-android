@@ -79,7 +79,11 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
     @Override
     public void seekTo(long msec) {
         if (sMediaPlayer != null) {
-            sMediaPlayer.seekTo((int) msec);
+            try {
+                sMediaPlayer.seekTo((int) msec);
+            } catch (IllegalStateException e) {
+                //ignored
+            }
         }
     }
 
@@ -152,7 +156,11 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
     @Override
     public long getPosition() {
         if (sMediaPlayer != null) {
-            return sMediaPlayer.getCurrentPosition();
+            try {
+                return sMediaPlayer.getCurrentPosition();
+            } catch (IllegalStateException e) {
+                //ignored
+            }
         }
         return 0;
     }
@@ -163,7 +171,12 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
 
     @Override
     public boolean isPlaying(Query query) {
-        return sMediaPlayer != null && sMediaPlayer.isPlaying();
+        try {
+            return sMediaPlayer != null && sMediaPlayer.isPlaying();
+        } catch (IllegalStateException e) {
+            //ignored
+        }
+        return false;
     }
 
     @Override
@@ -178,12 +191,16 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
 
     private void handlePlayState() {
         if (sMediaPlayer != null && mPreparedQuery != null) {
-            if (mPlayState == PlaybackStateCompat.STATE_PAUSED
-                    && sMediaPlayer.isPlaying()) {
-                sMediaPlayer.pause();
-            } else if (mPlayState == PlaybackStateCompat.STATE_PLAYING
-                    && !sMediaPlayer.isPlaying()) {
-                sMediaPlayer.start();
+            try {
+                if (mPlayState == PlaybackStateCompat.STATE_PAUSED
+                        && sMediaPlayer.isPlaying()) {
+                    sMediaPlayer.pause();
+                } else if (mPlayState == PlaybackStateCompat.STATE_PLAYING
+                        && !sMediaPlayer.isPlaying()) {
+                    sMediaPlayer.start();
+                }
+            } catch (IllegalStateException e) {
+                //ignored
             }
         }
     }
