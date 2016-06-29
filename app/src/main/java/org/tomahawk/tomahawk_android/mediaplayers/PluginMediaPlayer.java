@@ -30,6 +30,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -118,6 +119,8 @@ public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
     private TomahawkMediaPlayerCallback mMediaPlayerCallback;
 
     private boolean mIsPlaying;
+
+    private int mPlayState = PlaybackStateCompat.STATE_NONE;
 
     private Query mPreparedQuery;
 
@@ -235,6 +238,7 @@ public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
                             Log.e(TAG,
                                     "Wasn't able to call onPrepared because callback object is null");
                         }
+                        mp.handlePlayState();
                         if (mp.mRestorePosition && mp.mPreparedUri != null
                                 && mp.mPreparedUri.equals(uri)) {
                             mp.mRestorePosition = false;
@@ -392,7 +396,8 @@ public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
     @Override
     public void play() {
         Log.d(TAG, "play()");
-        callService(MSG_PLAY);
+        mPlayState = PlaybackStateCompat.STATE_PLAYING;
+        handlePlayState();
     }
 
     /**
@@ -401,7 +406,8 @@ public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
     @Override
     public void pause() {
         Log.d(TAG, "pause()");
-        callService(MSG_PAUSE);
+        mPlayState = PlaybackStateCompat.STATE_PAUSED;
+        handlePlayState();
     }
 
     /**
@@ -466,6 +472,16 @@ public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
     @Override
     public boolean isPrepared(Query query) {
         return mPreparedQuery == query;
+    }
+
+    private void handlePlayState() {
+        if (mPreparedQuery != null) {
+            if (mPlayState == PlaybackStateCompat.STATE_PAUSED && mIsPlaying) {
+                callService(MSG_PAUSE);
+            } else if (mPlayState == PlaybackStateCompat.STATE_PLAYING && !mIsPlaying) {
+                callService(MSG_PLAY);
+            }
+        }
     }
 
 }
