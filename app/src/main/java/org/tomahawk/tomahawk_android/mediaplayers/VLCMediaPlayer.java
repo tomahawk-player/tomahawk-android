@@ -27,6 +27,7 @@ import org.videolan.libvlc.Media;
 import org.videolan.libvlc.MediaPlayer;
 import org.videolan.libvlc.util.AndroidUtil;
 
+import android.support.v4.media.session.PlaybackStateCompat;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -57,6 +58,8 @@ public class VLCMediaPlayer extends TomahawkMediaPlayer {
     private Query mPreparingQuery;
 
     private Query mActuallyPreparingQuery;
+
+    private int mPlayState = PlaybackStateCompat.STATE_NONE;
 
     private class MediaPlayerListener implements MediaPlayer.EventListener {
 
@@ -123,9 +126,8 @@ public class VLCMediaPlayer extends TomahawkMediaPlayer {
     @Override
     public void play() throws IllegalStateException {
         Log.d(TAG, "play()");
-        if (!getMediaPlayerInstance().isPlaying()) {
-            getMediaPlayerInstance().play();
-        }
+        mPlayState = PlaybackStateCompat.STATE_PLAYING;
+        handlePlayState();
     }
 
     /**
@@ -134,9 +136,8 @@ public class VLCMediaPlayer extends TomahawkMediaPlayer {
     @Override
     public void pause() throws IllegalStateException {
         Log.d(TAG, "pause()");
-        if (getMediaPlayerInstance().isPlaying()) {
-            getMediaPlayerInstance().pause();
-        }
+        mPlayState = PlaybackStateCompat.STATE_PAUSED;
+        handlePlayState();
     }
 
     /**
@@ -172,6 +173,7 @@ public class VLCMediaPlayer extends TomahawkMediaPlayer {
                     mPreparedQuery = mPreparingQuery;
                     mPreparingQuery = null;
                     mMediaPlayerCallback.onPrepared(VLCMediaPlayer.this, mPreparedQuery);
+                    handlePlayState();
                     Log.d(TAG, "onPrepared()");
                 }
             }
@@ -216,5 +218,17 @@ public class VLCMediaPlayer extends TomahawkMediaPlayer {
     @Override
     public boolean isPrepared(Query query) {
         return mPreparedQuery != null && mPreparedQuery == query;
+    }
+
+    private void handlePlayState() {
+        if (mPreparedQuery != null) {
+            if (mPlayState == PlaybackStateCompat.STATE_PAUSED
+                    && getMediaPlayerInstance().isPlaying()) {
+                getMediaPlayerInstance().pause();
+            } else if (mPlayState == PlaybackStateCompat.STATE_PLAYING
+                    && !getMediaPlayerInstance().isPlaying()) {
+                getMediaPlayerInstance().play();
+            }
+        }
     }
 }
