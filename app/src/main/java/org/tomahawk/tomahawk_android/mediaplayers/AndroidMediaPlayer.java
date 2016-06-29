@@ -90,6 +90,13 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
         mPreparedQuery = null;
         mPreparingQuery = query;
         mActuallyPreparingQuery = query;
+        if (sMediaPlayer != null) {
+            try {
+                sMediaPlayer.stop();
+            } catch (IllegalStateException e) {
+                //ignored
+            }
+        }
         getStreamUrl(query.getPreferredTrackResult()).done(new DoneCallback<String>() {
             @Override
             public void onDone(String url) {

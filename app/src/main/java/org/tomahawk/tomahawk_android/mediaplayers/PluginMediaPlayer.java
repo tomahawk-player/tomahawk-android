@@ -379,7 +379,7 @@ public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
         mPreparedQuery = null;
         mPreparingQuery = query;
         mActuallyPreparingQuery = query;
-        mIsPlaying = false;
+        callService(MSG_PAUSE);
 
         String uri = getUri(query);
         mUriToQueryMap.put(uri, query);
