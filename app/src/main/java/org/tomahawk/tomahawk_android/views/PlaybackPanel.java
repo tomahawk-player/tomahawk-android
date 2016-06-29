@@ -393,6 +393,7 @@ public class PlaybackPanel extends FrameLayout {
     private void updateImageViews() {
         if (mPlaybackManager.getCurrentQuery() != null
                 && mPlaybackManager.getCurrentQuery().getPreferredTrackResult() != null) {
+            mResolverImageView.setVisibility(VISIBLE);
             Resolver resolver =
                     mPlaybackManager.getCurrentQuery().getPreferredTrackResult().getResolvedBy();
             if (TomahawkApp.PLUGINNAME_USERCOLLECTION.equals(resolver.getId())) {
@@ -400,6 +401,8 @@ public class PlaybackPanel extends FrameLayout {
             } else {
                 resolver.loadIcon(mResolverImageView, false);
             }
+        } else {
+            mResolverImageView.setVisibility(INVISIBLE);
         }
     }
 
