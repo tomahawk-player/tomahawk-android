@@ -123,6 +123,8 @@ public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
 
     private Query mPreparingQuery;
 
+    private Query mActuallyPreparingQuery;
+
     private boolean mShowFakePosition = false;
 
     private final DisableFakePositionHandler mDisableFakePositionHandler
@@ -222,23 +224,27 @@ public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
                 case MSG_ONPREPARED:
                     String uri = msg.getData().getString(MSG_ONPREPARED_ARG_URI);
                     Log.d(TAG, "onPrepared() - uri: " + uri);
-                    mp.mPreparedQuery = mp.mUriToQueryMap.get(uri);
-                    mp.mPreparingQuery = null;
-                    if (mp.mMediaPlayerCallback != null) {
-                        mp.mMediaPlayerCallback.onPrepared(mp, mp.mPreparedQuery);
-                    } else {
-                        Log.e(TAG,
-                                "Wasn't able to call onPrepared because callback object is null");
+                    if (mp.mPreparingQuery != null
+                            && mp.mActuallyPreparingQuery == mp.mPreparingQuery) {
+                        mp.mActuallyPreparingQuery = null;
+                        mp.mPreparedQuery = mp.mUriToQueryMap.get(uri);
+                        mp.mPreparingQuery = null;
+                        if (mp.mMediaPlayerCallback != null) {
+                            mp.mMediaPlayerCallback.onPrepared(mp, mp.mPreparedQuery);
+                        } else {
+                            Log.e(TAG,
+                                    "Wasn't able to call onPrepared because callback object is null");
+                        }
+                        if (mp.mRestorePosition && mp.mPreparedUri != null
+                                && mp.mPreparedUri.equals(uri)) {
+                            mp.mRestorePosition = false;
+                            mp.seekTo(mp.mPositionOffset);
+                        } else {
+                            mp.mPositionOffset = 0;
+                            mp.mPositionTimeStamp = System.currentTimeMillis();
+                        }
+                        mp.mPreparedUri = uri;
                     }
-                    if (mp.mRestorePosition && mp.mPreparedUri != null
-                            && mp.mPreparedUri.equals(uri)) {
-                        mp.mRestorePosition = false;
-                        mp.seekTo(mp.mPositionOffset);
-                    } else {
-                        mp.mPositionOffset = 0;
-                        mp.mPositionTimeStamp = System.currentTimeMillis();
-                    }
-                    mp.mPreparedUri = uri;
                     break;
                 case MSG_ONPLAY:
                     mp.mIsPlaying = true;
@@ -372,6 +378,7 @@ public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
         mMediaPlayerCallback = callback;
         mPreparedQuery = null;
         mPreparingQuery = query;
+        mActuallyPreparingQuery = query;
         mIsPlaying = false;
 
         String uri = getUri(query);
