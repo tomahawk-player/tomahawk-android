@@ -39,6 +39,8 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
 
     private Query mPreparingQuery;
 
+    private Query mActuallyPreparingQuery;
+
     private int mPlayState = PlaybackStateCompat.STATE_NONE;
 
     private TomahawkMediaPlayerCallback mMediaPlayerCallback;
@@ -87,36 +89,40 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
         mMediaPlayerCallback = callback;
         mPreparedQuery = null;
         mPreparingQuery = query;
+        mActuallyPreparingQuery = query;
         getStreamUrl(query.getPreferredTrackResult()).done(new DoneCallback<String>() {
             @Override
             public void onDone(String url) {
-                if (sMediaPlayer != null) {
-                    try {
-                        sMediaPlayer.stop();
-                    } catch (IllegalStateException e) {
-                        //ignored
+                if (mPreparingQuery != null && mActuallyPreparingQuery == mPreparingQuery) {
+                    mActuallyPreparingQuery = null;
+                    if (sMediaPlayer != null) {
+                        try {
+                            sMediaPlayer.stop();
+                        } catch (IllegalStateException e) {
+                            //ignored
+                        }
+                        sMediaPlayer.release();
                     }
-                    sMediaPlayer.release();
+                    sMediaPlayer = new MediaPlayer();
+
+                    sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+                    try {
+                        sMediaPlayer.setDataSource(url);
+                        sMediaPlayer.prepare();
+                    } catch (IOException | IllegalStateException e) {
+                        Log.e(TAG, "prepare - ", e);
+                        callback.onError(AndroidMediaPlayer.this, "MediaPlayerEncounteredError");
+                    }
+
+                    sMediaPlayer.setOnCompletionListener(new CompletionListener());
+
+                    mPreparedQuery = mPreparingQuery;
+                    mPreparingQuery = null;
+                    handlePlayState();
+                    callback.onPrepared(AndroidMediaPlayer.this, mPreparedQuery);
+                    Log.d(TAG, "onPrepared()");
                 }
-                sMediaPlayer = new MediaPlayer();
-
-                sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-                try {
-                    sMediaPlayer.setDataSource(url);
-                    sMediaPlayer.prepare();
-                } catch (IOException | IllegalStateException e) {
-                    Log.e(TAG, "prepare - ", e);
-                    callback.onError(AndroidMediaPlayer.this, "MediaPlayerEncounteredError");
-                }
-
-                sMediaPlayer.setOnCompletionListener(new CompletionListener());
-
-                mPreparedQuery = mPreparingQuery;
-                mPreparingQuery = null;
-                handlePlayState();
-                callback.onPrepared(AndroidMediaPlayer.this, mPreparedQuery);
-                Log.d(TAG, "onPrepared()");
             }
         });
     }

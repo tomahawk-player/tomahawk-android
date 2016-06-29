@@ -56,6 +56,8 @@ public class VLCMediaPlayer extends TomahawkMediaPlayer {
 
     private Query mPreparingQuery;
 
+    private Query mActuallyPreparingQuery;
+
     private class MediaPlayerListener implements MediaPlayer.EventListener {
 
         @Override
@@ -159,15 +161,19 @@ public class VLCMediaPlayer extends TomahawkMediaPlayer {
         getMediaPlayerInstance().stop();
         mPreparedQuery = null;
         mPreparingQuery = query;
+        mActuallyPreparingQuery = query;
         getStreamUrl(query.getPreferredTrackResult()).done(new DoneCallback<String>() {
             @Override
             public void onDone(String url) {
-                Media media = new Media(sLibVLC, AndroidUtil.LocationToUri(url));
-                getMediaPlayerInstance().setMedia(media);
-                mPreparedQuery = mPreparingQuery;
-                mPreparingQuery = null;
-                mMediaPlayerCallback.onPrepared(VLCMediaPlayer.this, mPreparedQuery);
-                Log.d(TAG, "onPrepared()");
+                if (mPreparingQuery != null && mActuallyPreparingQuery == mPreparingQuery) {
+                    mActuallyPreparingQuery = null;
+                    Media media = new Media(sLibVLC, AndroidUtil.LocationToUri(url));
+                    getMediaPlayerInstance().setMedia(media);
+                    mPreparedQuery = mPreparingQuery;
+                    mPreparingQuery = null;
+                    mMediaPlayerCallback.onPrepared(VLCMediaPlayer.this, mPreparedQuery);
+                    Log.d(TAG, "onPrepared()");
+                }
             }
         });
     }
