@@ -122,7 +122,8 @@ public class PlaybackManager extends Cacheable {
         if (playlist instanceof StationPlaylist) {
             mPlaylist = playlist;
         } else {
-            mPlaylist = playlist.copy(Playlist.get("playback_playlist"));
+            mPlaylist = playlist.copy(
+                    Playlist.get("playback_playlist" + IdGenerator.getSessionUniqueStringId()));
         }
         if (currentEntry == null) {
             currentEntry = playlist.getEntryAtPos(0);
