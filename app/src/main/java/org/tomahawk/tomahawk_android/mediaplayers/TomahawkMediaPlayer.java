@@ -26,8 +26,6 @@ import org.tomahawk.libtomahawk.resolver.Result;
 import org.tomahawk.libtomahawk.resolver.ScriptResolver;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 public abstract class TomahawkMediaPlayer {
 
     public abstract void play();
@@ -50,43 +48,37 @@ public abstract class TomahawkMediaPlayer {
 
     public abstract boolean isPrepared(Query query);
 
-    private final ConcurrentHashMap<Result, String> mTranslatedUrls = new ConcurrentHashMap<>();
-
     public Promise<String, Throwable, Void> getStreamUrl(Result result) {
         final DeferredObject<String, Throwable, Void> deferred = new DeferredObject<>();
-        if (mTranslatedUrls.get(result) != null) {
-            deferred.resolve(mTranslatedUrls.remove(result));
+        if (result.getResolvedBy() instanceof ScriptResolver) {
+            ScriptResolver resolver = (ScriptResolver) result.getResolvedBy();
+            resolver.getStreamUrl(result)
+                    .done(new DoneCallback<String>() {
+                        @Override
+                        public void onDone(final String url) {
+                            Runnable r = new Runnable() {
+                                @Override
+                                public void run() {
+                                    deferred.resolve(url);
+                                }
+                            };
+                            ThreadManager.get().executePlayback(TomahawkMediaPlayer.this, r);
+                        }
+                    })
+                    .fail(new FailCallback<Throwable>() {
+                        @Override
+                        public void onFail(final Throwable result) {
+                            Runnable r = new Runnable() {
+                                @Override
+                                public void run() {
+                                    deferred.reject(result);
+                                }
+                            };
+                            ThreadManager.get().executePlayback(TomahawkMediaPlayer.this, r);
+                        }
+                    });
         } else {
-            if (result.getResolvedBy() instanceof ScriptResolver) {
-                ScriptResolver resolver = (ScriptResolver) result.getResolvedBy();
-                resolver.getStreamUrl(result)
-                        .done(new DoneCallback<String>() {
-                            @Override
-                            public void onDone(final String url) {
-                                Runnable r = new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        deferred.resolve(url);
-                                    }
-                                };
-                                ThreadManager.get().executePlayback(TomahawkMediaPlayer.this, r);
-                            }
-                        })
-                        .fail(new FailCallback<Throwable>() {
-                            @Override
-                            public void onFail(final Throwable result) {
-                                Runnable r = new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        deferred.reject(result);
-                                    }
-                                };
-                                ThreadManager.get().executePlayback(TomahawkMediaPlayer.this, r);
-                            }
-                        });
-            } else {
-                deferred.resolve(result.getPath());
-            }
+            deferred.resolve(result.getPath());
         }
         return deferred;
     }
