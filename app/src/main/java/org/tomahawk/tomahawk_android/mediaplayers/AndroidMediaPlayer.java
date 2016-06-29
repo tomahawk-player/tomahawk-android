@@ -90,7 +90,14 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
         getStreamUrl(query.getPreferredTrackResult()).done(new DoneCallback<String>() {
             @Override
             public void onDone(String url) {
-                release();
+                if (sMediaPlayer != null) {
+                    try {
+                        sMediaPlayer.stop();
+                    } catch (IllegalStateException e) {
+                        //ignored
+                    }
+                    sMediaPlayer.release();
+                }
                 sMediaPlayer = new MediaPlayer();
 
                 sMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
@@ -116,6 +123,8 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
 
     @Override
     public void release() {
+        mPreparedQuery = null;
+        mPreparingQuery = null;
         if (sMediaPlayer != null) {
             try {
                 sMediaPlayer.stop();
@@ -124,6 +133,7 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
             }
             sMediaPlayer.release();
         }
+        mMediaPlayerCallback = null;
     }
 
     @Override

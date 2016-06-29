@@ -420,6 +420,8 @@ public abstract class PluginMediaPlayer extends TomahawkMediaPlayer {
     @Override
     public void release() {
         Log.d(TAG, "release()");
+        mPreparedQuery = null;
+        mPreparingQuery = null;
         pause();
         mMediaPlayerCallback = null;
     }
