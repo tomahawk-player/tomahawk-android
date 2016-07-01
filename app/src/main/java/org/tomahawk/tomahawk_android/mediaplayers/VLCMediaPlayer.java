@@ -57,8 +57,6 @@ public class VLCMediaPlayer extends TomahawkMediaPlayer {
 
     private Query mPreparingQuery;
 
-    private Query mActuallyPreparingQuery;
-
     private int mPlayState = PlaybackStateCompat.STATE_NONE;
 
     private class MediaPlayerListener implements MediaPlayer.EventListener {
@@ -156,25 +154,28 @@ public class VLCMediaPlayer extends TomahawkMediaPlayer {
      * Prepare the given url
      */
     @Override
-    public void prepare(Query query, TomahawkMediaPlayerCallback callback) {
-        Log.d(TAG, "prepare()");
+    public void prepare(final Query query, TomahawkMediaPlayerCallback callback) {
+        Log.d(TAG, "prepare() query: " + query);
         mMediaPlayerCallback = callback;
         getMediaPlayerInstance().stop();
         mPreparedQuery = null;
         mPreparingQuery = query;
-        mActuallyPreparingQuery = query;
         getStreamUrl(query.getPreferredTrackResult()).done(new DoneCallback<String>() {
             @Override
             public void onDone(String url) {
-                if (mPreparingQuery != null && mActuallyPreparingQuery == mPreparingQuery) {
-                    mActuallyPreparingQuery = null;
+                Log.d(TAG, "Received stream url: " + url + " for query: " + query);
+                if (mPreparingQuery != null && mPreparingQuery == query) {
+                    Log.d(TAG, "Starting to prepare stream url: " + url + " for query: " + query);
                     Media media = new Media(sLibVLC, AndroidUtil.LocationToUri(url));
                     getMediaPlayerInstance().setMedia(media);
                     mPreparedQuery = mPreparingQuery;
                     mPreparingQuery = null;
                     mMediaPlayerCallback.onPrepared(VLCMediaPlayer.this, mPreparedQuery);
                     handlePlayState();
-                    Log.d(TAG, "onPrepared()");
+                    Log.d(TAG, "onPrepared() url: " + url + " for query: " + query);
+                } else {
+                    Log.d(TAG, "Ignoring stream url: " + url + " for query: " + query
+                            + ", because preparing query is: " + mPreparingQuery);
                 }
             }
         });
