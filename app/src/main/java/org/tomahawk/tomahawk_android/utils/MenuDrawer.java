@@ -36,12 +36,15 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.widget.DrawerLayout;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import java.util.ArrayList;
 
 import se.emilsjolander.stickylistheaders.StickyListHeadersListView;
 
 public class MenuDrawer extends DrawerLayout {
+
+    private final static String TAG = MenuDrawer.class.getSimpleName();
 
     public static final String HUB_ID_USERPAGE = "userpage";
 
@@ -75,11 +78,12 @@ public class MenuDrawer extends DrawerLayout {
 
     public static void updateDrawer(MenuDrawer menuDrawer, TomahawkMainActivity activity) {
         if (menuDrawer != null) {
+            Log.d(TAG, "updateDrawer - App is NOT running on a large landscape device");
             menuDrawer.mDrawerList =
                     (StickyListHeadersListView) menuDrawer.findViewById(R.id.left_drawer);
             updateDrawer(menuDrawer.mDrawerList, menuDrawer, activity);
         } else {
-            // App is running on a large landscape device (probably tablet)
+            Log.d(TAG, "updateDrawer - App is running on a large landscape device");
             StickyListHeadersListView drawerList =
                     (StickyListHeadersListView) activity.findViewById(R.id.left_drawer);
             updateDrawer(drawerList, null, activity);
