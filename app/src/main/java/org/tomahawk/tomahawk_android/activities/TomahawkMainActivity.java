@@ -524,8 +524,6 @@ public class TomahawkMainActivity extends AppCompatActivity {
         //Ask for notification service access if hatchet user logged in
         PreferenceUtils.attemptAskAccess(this);
 
-        MenuDrawer.updateDrawer(mMenuDrawer, this);
-
         User.getSelf().done(new DoneCallback<User>() {
             @Override
             public void onDone(final User user) {
@@ -690,6 +688,8 @@ public class TomahawkMainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
+
+        MenuDrawer.updateDrawer(mMenuDrawer, this);
 
         if (mSlidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
             mPlaybackPanel.setVisibility(View.GONE);
