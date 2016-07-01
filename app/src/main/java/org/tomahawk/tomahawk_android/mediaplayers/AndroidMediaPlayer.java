@@ -39,8 +39,6 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
 
     private Query mPreparingQuery;
 
-    private Query mActuallyPreparingQuery;
-
     private int mPlayState = PlaybackStateCompat.STATE_NONE;
 
     private TomahawkMediaPlayerCallback mMediaPlayerCallback;
@@ -89,11 +87,10 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
 
     @Override
     public void prepare(final Query query, final TomahawkMediaPlayerCallback callback) {
-        Log.d(TAG, "prepare()");
+        Log.d(TAG, "prepare() query: " + query);
         mMediaPlayerCallback = callback;
         mPreparedQuery = null;
         mPreparingQuery = query;
-        mActuallyPreparingQuery = query;
         if (sMediaPlayer != null) {
             try {
                 sMediaPlayer.stop();
@@ -104,8 +101,9 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
         getStreamUrl(query.getPreferredTrackResult()).done(new DoneCallback<String>() {
             @Override
             public void onDone(String url) {
-                if (mPreparingQuery != null && mActuallyPreparingQuery == mPreparingQuery) {
-                    mActuallyPreparingQuery = null;
+                Log.d(TAG, "Received stream url: " + url + " for query: " + query);
+                if (mPreparingQuery != null && mPreparingQuery == query) {
+                    Log.d(TAG, "Starting to prepare stream url: " + url + " for query: " + query);
                     if (sMediaPlayer != null) {
                         try {
                             sMediaPlayer.stop();
@@ -132,7 +130,10 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
                     mPreparingQuery = null;
                     handlePlayState();
                     callback.onPrepared(AndroidMediaPlayer.this, mPreparedQuery);
-                    Log.d(TAG, "onPrepared()");
+                    Log.d(TAG, "onPrepared() url: " + url + " for query: " + query);
+                } else {
+                    Log.d(TAG, "Ignoring stream url: " + url + " for query: " + query
+                            + ", because preparing query is: " + mPreparingQuery);
                 }
             }
         });
@@ -140,6 +141,7 @@ public class AndroidMediaPlayer extends TomahawkMediaPlayer {
 
     @Override
     public void release() {
+        Log.d(TAG, "release");
         mPreparedQuery = null;
         mPreparingQuery = null;
         if (sMediaPlayer != null) {
