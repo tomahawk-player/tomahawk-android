@@ -27,9 +27,13 @@
   <string name="unknown">onbekend</string>
   <string name="no_track">geen nummer</string>
   <string name="save_playlist">De huidige afspeellijst opslaan</string>
-  <string name="create_playlist">Afspeellijst creeëren</string>
+  <string name="create_playlist">Afspeellijst creëren</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Titel</string>
+  <string name="create_station">Station creëren</string>
+  <string name="create_station_search_hint">Zoeken naar artiesten/nummers/genres</string>
+  <string name="genres">Genres</string>
+  <string name="moods">Stemmingen</string>
   <string name="login_name_label">E-mailadres/gebruikersnaam</string>
   <string name="login_username">Gebruikersnaam</string>
   <string name="login_password">Wachtwoord</string>
@@ -64,6 +68,10 @@
   <string name="preferences_app_version">App-versie.</string>
   <string name="preferences_app_uservoice">Feedback</string>
   <string name="preferences_app_uservoice_text">Ideeen met ons delen or om ondersteuning vragen.</string>
+  <string name="preferences_app_playstore_link">Deze app waarderen</string>
+  <string name="preferences_app_playstore_link_text">Waardeer Tomahawk in de Google Play Store.</string>
+  <string name="preferences_app_website_link">Bezoek onze website</string>
+  <string name="preferences_app_website_link_text">Open tomahawk-player.org in uw webbrowser.</string>
   <string name="preferences_app_sendlog">Log versturen</string>
   <string name="preferences_app_sendlog_text">Verstuur uw logbestand voor foutopsporingsdoeleinden</string>
   <string name="preferences_app_sendlog_dialog_text">Omschrijf het probleem dat u ervaart en geef een e-mailadres op zodat we contact op kunnen nemen indien nodig. Bedankt!</string>
@@ -76,6 +84,7 @@
   <string name="context_menu_play">Afspelen</string>
   <string name="context_menu_add_to_queue">Aan wachtrij toevoegen</string>
   <string name="context_menu_add_to_playlist">Aan afspeellijst toevoegen</string>
+  <string name="context_menu_create_station">Station creëren</string>
   <string name="context_menu_delete">Verwijderen</string>
   <string name="context_menu_removefromplaylist">Verwijderen uit afspeellijst</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
@@ -89,8 +98,10 @@
   <string name="context_menu_share">Delen</string>
   <string name="contest_menu_share_error">U dient in te loggen bij Hatchet om deze afspeellijst te kunnen delen.</string>
   <string name="drawer_title_feed">Feed</string>
+  <string name="drawer_title_charts">Toplijsten</string>
   <string name="drawer_title_collection">Collectie</string>
   <string name="drawer_title_playlists">Afspeellijsten</string>
+  <string name="drawer_title_stations">Stations</string>
   <string name="drawer_title_lovedtracks">Favorieten</string>
   <string name="drawer_title_settings">Instellingen</string>
   <string name="drawer_header_cloudcollections">Cloud-verzamelingen</string>
@@ -114,16 +125,52 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s volgt nu</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
+  <plurals name="socialaction_type_love_track">
+    <item quantity="one">%1$s vond  nummer leuk</item>
+    <item quantity="other">%1$s vond %2$d nummers leuk</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
+  <plurals name="socialaction_type_collected_track">
+    <item quantity="one">%1$s heeft een nummer verzameld</item>
+    <item quantity="other">%1$s heeft %2$d nummers verzameld</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
+  <plurals name="socialaction_type_collected_album">
+    <item quantity="one">%1$s heeft een album verzameld</item>
+    <item quantity="other">%1$s heeft %2$d albums verzameld</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
+  <plurals name="socialaction_type_collected_artist">
+    <item quantity="one">%1$s heeft een artiest verzameld</item>
+    <item quantity="other">%1$s heeft %2$d artiesten verzameld</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
   <string name="socialaction_type_createcomment">%1$s heeft gereageerd op</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
+  <plurals name="socialaction_type_latchon">
+    <item quantity="one">%1$s luisterde mee met een vriend</item>
+    <item quantity="other">%1$s luisterde mee met %2$d vrienden</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
+  <plurals name="socialaction_type_createplaylist">
+    <item quantity="one">%1$s creërde een afspeellijst</item>
+    <item quantity="other">%1$s creërde %2$d afspeellijsten</item>
+  </plurals>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s van %2$s</string>
   <string name="time_afewseconds">een paar seconden geleden</string>
+  <plurals name="time_minute">
+    <item quantity="one">een minuut geleden</item>
+    <item quantity="other">%1$d minuten geleden</item>
+  </plurals>
+  <plurals name="time_hour">
+    <item quantity="one">een uur geleden</item>
+    <item quantity="other">%1$d uur geleden</item>
+  </plurals>
+  <plurals name="time_day">
+    <item quantity="one">een dag geleden</item>
+    <item quantity="other">%1$d dagen geleden</item>
+  </plurals>
   <string name="users_playbacklog_suffix">%1$s heeft recent afgespeeld</string>
   <string name="users_favorites_suffix">%1$s\'s favorieten</string>
   <string name="users_playlist_suffix">%1$s\'s afspeellijst</string>
@@ -137,6 +184,10 @@
   <!--Shown as a title for a list of songs in the search results view.-->
   <string name="songs">Nummers</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <plurals name="songs_with_count">
+    <item quantity="one">%1$d nummer</item>
+    <item quantity="other">%1$d nummers</item>
+  </plurals>
   <string name="activity">Activiteit</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
   <string name="followers">Volgers</string>
@@ -144,6 +195,8 @@
   <string name="following">Volgend</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">Volgers: %1$d, Volgend: %2$d</string>
+  <string name="resolver_config_enable_button_enable">Inschakelen</string>
+  <string name="resolver_config_enable_button_disable">Uitschakelen</string>
   <string name="resolver_config_redirect_button_text_log_into">Aanmelden bij</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Afmelden bij</string>
   <string name="resolver_config_redirect_button_text_download_plugin">Plug-in downloaden voor</string>
@@ -172,6 +225,10 @@
   <string name="welcome_fragment_done_title">Afgerond!</string>
   <string name="welcome_fragment_done_heading">Alles is afgerond!</string>
   <string name="welcome_fragment_done_text">Veel plezier met het ontdekken van de app en vergeet niet om uw mening te laten horen aan ons!</string>
+  <plurals name="add_to_playlist_headertext">
+    <item quantity="one">Kies een afspeellijst om %1$d nummer aan toe te voegen:</item>
+    <item quantity="other">Kies een afspeellijst om %1$d nummers aan toe te voegen:</item>
+  </plurals>
   <string name="seeking_not_supported">Onze excuses, deze resolver ondersteunt spoelen niet.</string>
   <string name="install_plugin_title">Plug-in-installatie</string>
   <string name="install_plugin_warning">U staat op het punt om een Tomahawk-plug-in te installeren uit een onbekende bron. Dit kan een beveiligingsrisico met zich mee brengen.</string>
@@ -182,7 +239,23 @@
   <string name="invalid_file">Het bestand kan niet worden geopend.</string>
   <string name="unknown_album">Onbekend album</string>
   <string name="unknown_artist">Onbekende artiest</string>
+  <string name="notification_settings_activity_not_found">De Instellingen-app kan niet worden gevonden op uw apparaat. Geef Tomahawk toestemming voor meldingen in uw Systeeminstellingen.</string>
+  <string name="warn_closed_source_text">Waarschuwing: u staat op het punt om een plug-in te downloaden die gesloten-bron-onderdelen bevat.</string>
+  <string name="warn_old_plugin">De vereiste plug-in-applicatie is verouderd en niet meer compatibel. Wilt u deze nu bijwerken?</string>
+  <string name="warn_no_plugin">De vereiste plug-in-applicatie is niet meer geïnstalleerd. Wilt u deze nu installeren?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">nieuw</string>
+  <string name="playback_pause">Pauzeren</string>
+  <string name="playback_play">Afspelen</string>
+  <string name="playback_previous">Vorig nummer</string>
+  <string name="playback_next">Volgend nummer</string>
+  <string name="playback_favorite">Toevoegen aan favorieten</string>
+  <string name="playback_unfavorite">Verwijderen uit favorieten</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">Nu aan het afspelen</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">Willekeurig &amp; afspelen</string>
+  <string name="loading_station">Bezig met laden van station:</string>
+  <string name="suggested_stations">Aanbevolen stations</string>
+  <string name="my_stations">Mijn stations</string>
 </resources>
