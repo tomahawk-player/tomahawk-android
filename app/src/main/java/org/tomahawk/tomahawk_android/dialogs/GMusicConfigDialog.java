@@ -186,12 +186,16 @@ public class GMusicConfigDialog extends ConfigDialog {
                 } catch (GooglePlayServicesAvailabilityException e) {
                     Log.d(TAG, "GooglePlayServicesAvailabilityException: "
                             + e.getLocalizedMessage());
-                    GoogleApiAvailability.getInstance().showErrorDialogFragment(getActivity(),
-                            e.getConnectionStatusCode(), REQUEST_CODE_PLAY_SERVICES_ERROR);
+                    if (getActivity() != null) {
+                        GoogleApiAvailability.getInstance().showErrorDialogFragment(getActivity(),
+                                e.getConnectionStatusCode(), REQUEST_CODE_PLAY_SERVICES_ERROR);
+                    }
                 } catch (UserRecoverableAuthException e) {
                     Log.d(TAG, "UserRecoverableAuthException: " + e.getLocalizedMessage());
-                    getActivity().startActivityForResult(e.getIntent(),
-                            REQUEST_CODE_RECOVERABLE_ERROR);
+                    if (getActivity() != null) {
+                        getActivity().startActivityForResult(e.getIntent(),
+                                REQUEST_CODE_RECOVERABLE_ERROR);
+                    }
                 } catch (GoogleAuthException e) {
                     Log.d(TAG, "GoogleAuthException: " + e.getLocalizedMessage());
                 } catch (IOException e) {
