@@ -402,7 +402,7 @@ public class Query extends Cacheable implements AlphaComparable, ArtistAlphaComp
     }
 
     public Album getAlbum() {
-        if (mIsFetchedViaHatchet) {
+        if (mIsFetchedViaHatchet && !mBasicTrack.getAlbum().getName().isEmpty()) {
             return mBasicTrack.getAlbum();
         }
         return getPreferredTrack().getAlbum();
