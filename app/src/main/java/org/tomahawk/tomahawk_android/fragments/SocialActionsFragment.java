@@ -135,9 +135,9 @@ public class SocialActionsFragment extends TomahawkFragment implements
 
     /**
      * Called every time an item inside a ListView or GridView is clicked
-     *  @param view the clicked view
+     *
+     * @param view the clicked view
      * @param o    the Object which corresponds to the click
-     * @param segment
      */
     @Override
     public void onItemClick(View view, Object o, Segment segment) {
@@ -243,7 +243,8 @@ public class SocialActionsFragment extends TomahawkFragment implements
                         suggestions.addAll(mSuggestedUsers);
                         Segment segment = new Segment.Builder(suggestions)
                                 .headerLayout(R.layout.list_header_socialaction_fake)
-                                .headerString(getString(R.string.suggest_users) + ":")
+                                .headerString(TomahawkApp.getContext().getString(
+                                        R.string.suggest_users) + ":")
                                 .leftExtraPadding(extraPadding)
                                 .build();
                         segments.add(segment);
