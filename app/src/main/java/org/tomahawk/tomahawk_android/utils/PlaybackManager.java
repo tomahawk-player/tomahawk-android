@@ -212,8 +212,8 @@ public class PlaybackManager extends Cacheable {
         }
         PlaylistEntry lastEntry = mCurrentEntry;
         mCurrentEntry = currentEntry;
-        boolean playlistChanged = false;
-        boolean currentEntryChanged = false;
+        // Delete the last entry from the queue
+        boolean playlistChanged = mQueue.deleteEntry(lastEntry);
         if (currentEntry == null) {
             mCurrentIndex = 0;
             if (mPlaylist.size() > 0) {
@@ -221,28 +221,22 @@ public class PlaybackManager extends Cacheable {
             } else {
                 mQueueStartPos = 0;
             }
-            if (callback) {
-                playlistChanged = true;
-            }
+            playlistChanged = true;
         } else if (mPlaylist.containsEntry(currentEntry)) {
             // We have a PlaylistEntry that is not part of the Queue
             mCurrentIndex = mPlaylist.getIndexOfEntry(currentEntry, mShuffleMode == SHUFFLED);
             mQueueStartPos = mCurrentIndex + 1;
-            if (callback) {
-                playlistChanged = true;
-            }
+            playlistChanged = true;
         } else {
             // We have a PlaylistEntry that is part of the Queue
-            mCurrentIndex = getPlaybackListIndex(currentEntry);
-            if (callback) {
-                currentEntryChanged = true;
-            }
+            mCurrentIndex = mQueue.getIndexOfEntry(currentEntry) + mQueueStartPos;
         }
-        // Delete the last entry from the queue
-        if ((mQueue.deleteEntry(lastEntry) || playlistChanged) && callback) {
-            mCallback.onPlaylistChanged();
-        } else if (currentEntryChanged) {
-            mCallback.onCurrentEntryChanged();
+        if (callback) {
+            if (playlistChanged) {
+                mCallback.onPlaylistChanged();
+            } else {
+                mCallback.onCurrentEntryChanged();
+            }
         }
     }
 
@@ -287,9 +281,9 @@ public class PlaybackManager extends Cacheable {
             Log.e(TAG, "addToQueue failed: " + query);
             return;
         }
-        mQueue.addQuery(0, query);
+        mQueue.addQuery(mQueue.size(), query);
         if (getCurrentEntry() == null) {
-            setCurrentEntry(getPlaybackListEntry(0), false);
+            setCurrentEntry(mQueue.getEntryAtPos(0), false);
         }
         mCallback.onPlaylistChanged();
     }
