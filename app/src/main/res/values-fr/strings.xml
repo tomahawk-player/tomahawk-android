@@ -30,6 +30,10 @@
   <string name="create_playlist">Créer une playlist</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Titre</string>
+  <string name="create_station">Créer une radio</string>
+  <string name="create_station_search_hint">Rechercher par artistes/chansons/genres</string>
+  <string name="genres">Genres</string>
+  <string name="moods">Ambiances</string>
   <string name="login_name_label">E-mail/Nom d\'utilisateur</string>
   <string name="login_username">Nom d\'utilisateur</string>
   <string name="login_password">Mot de passe</string>
@@ -64,6 +68,10 @@
   <string name="preferences_app_version">Version de l\'application</string>
   <string name="preferences_app_uservoice">Retours</string>
   <string name="preferences_app_uservoice_text">Donnez-nous vos idées ou demandez de l\'aide.</string>
+  <string name="preferences_app_playstore_link">Noter l\'application</string>
+  <string name="preferences_app_playstore_link_text">Noter Tomahawk sur le Google Play Store.</string>
+  <string name="preferences_app_website_link">Visitez notre site web</string>
+  <string name="preferences_app_website_link_text">Ouvrir tomahawk-player.org dans votre navigateur.</string>
   <string name="preferences_app_sendlog">Envoyer les logs</string>
   <string name="preferences_app_sendlog_text">Envoyer vos logs pour aider à corriger le problème.</string>
   <string name="preferences_app_sendlog_dialog_text">Décrivez brièvement le problème que vous rencontrez et donnez une adresse e-mail afin que nous puissions vous contacter si besoin. Merci !</string>
@@ -76,6 +84,7 @@
   <string name="context_menu_play">Jouer</string>
   <string name="context_menu_add_to_queue">Ajouter à la file</string>
   <string name="context_menu_add_to_playlist">Ajouter à la playlist</string>
+  <string name="context_menu_create_station">Créer une radio</string>
   <string name="context_menu_delete">Supprimer</string>
   <string name="context_menu_removefromplaylist">Retirer de la playlist</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
@@ -87,9 +96,12 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Supprimer des favoris</string>
   <string name="context_menu_share">Partager</string>
+  <string name="contest_menu_share_error">Vous devez vous connecter à Hatchet pour partager cette playlist.</string>
   <string name="drawer_title_feed">Flux</string>
+  <string name="drawer_title_charts">Charts</string>
   <string name="drawer_title_collection">Collection</string>
   <string name="drawer_title_playlists">Playlists</string>
+  <string name="drawer_title_stations">Radios</string>
   <string name="drawer_title_lovedtracks">Favoris</string>
   <string name="drawer_title_settings">Paramètres</string>
   <string name="drawer_header_cloudcollections">Collections du cloud</string>
@@ -162,6 +174,9 @@
   <string name="users_playbacklog_suffix">%1$s\'s a récemment écouté</string>
   <string name="users_favorites_suffix">Favoris de %1$s</string>
   <string name="users_playlist_suffix">Listes de lecture de %1$s</string>
+  <string name="my_playbacklog">Mes titres récemment joués</string>
+  <string name="my_favorites">Mes favoris</string>
+  <string name="my_playlist">Ma playlist</string>
   <string name="music">Musique</string>
   <string name="biography">Biographie</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -180,6 +195,8 @@
   <string name="following">Abonnés</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">Abonnés : %1$d, Abonnements : %2$d</string>
+  <string name="resolver_config_enable_button_enable">Activer</string>
+  <string name="resolver_config_enable_button_disable">Désactiver</string>
   <string name="resolver_config_redirect_button_text_log_into">Se connecter à</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Se déconnecter de</string>
   <string name="resolver_config_redirect_button_text_download_plugin">Télécharger l\'extension pour</string>
@@ -222,7 +239,23 @@
   <string name="invalid_file">Fichier impossible à ouvrir.</string>
   <string name="unknown_album">Album inconnu</string>
   <string name="unknown_artist">Artiste inconnu</string>
+  <string name="notification_settings_activity_not_found">Impossible d\'accéder aux paramètres de votre appareil. Merci d\'autoriser l\'accès à vos notifications dans vos paramètres systême.</string>
+  <string name="warn_closed_source_text">Attention : Vous êtes sur le point de télécharger un plugin contenant des sources propriétaires.</string>
+  <string name="warn_old_plugin">Le plugin requis est obsolète ou plus compatible. Souhaitez-vous le mettre à jour ?</string>
+  <string name="warn_no_plugin">Le plugin requis n\'est plus installé. Souhaitez-vous l\'installer maintenant ?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">nouveau</string>
+  <string name="playback_pause">Pause</string>
+  <string name="playback_play">Lecture</string>
+  <string name="playback_previous">Piste précédente</string>
+  <string name="playback_next">Piste suivante</string>
+  <string name="playback_favorite">Ajouter aux favoris</string>
+  <string name="playback_unfavorite">Retirer des favoris</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">En cours de lecture</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">Lectures &amp;amp: aléatoire</string>
+  <string name="loading_station">Chargement de la radio :</string>
+  <string name="suggested_stations">Radios suggérées</string>
+  <string name="my_stations">Mes radios</string>
 </resources>
