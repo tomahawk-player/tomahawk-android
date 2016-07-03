@@ -397,7 +397,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 if (!mPlaybackManager.hasNextEntry(mPlaybackManager.getNextEntry())) {
                     // there's no track after the next one,
                     // so we should fill the station with some new tracks
-                    mIsPreparing = true;
+                    if (mPlaybackManager.getCurrentEntry() == null) {
+                        mIsPreparing = true;
+                    }
                     updateMediaPlayState();
                     fillStation(stationPlaylist);
                 }
