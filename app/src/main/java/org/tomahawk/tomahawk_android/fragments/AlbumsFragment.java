@@ -76,9 +76,9 @@ public class AlbumsFragment extends TomahawkFragment {
 
     /**
      * Called every time an item inside a ListView or GridView is clicked
-     *  @param view the clicked view
+     *
+     * @param view the clicked view
      * @param item the Object which corresponds to the click
-     * @param segment
      */
     @Override
     public void onItemClick(View view, final Object item, Segment segment) {
@@ -165,7 +165,8 @@ public class AlbumsFragment extends TomahawkFragment {
                                 Segment segment = new Segment.Builder(artistTracks)
                                         .headerLayout(R.layout.single_line_list_header)
                                         .headerString(mCollection.getName() + " "
-                                                + getString(R.string.tracks))
+                                                + TomahawkApp.getContext().getString(
+                                                R.string.tracks))
                                         .showNumeration(true, 1)
                                         .hideArtistName(true)
                                         .showDuration(true)
@@ -177,7 +178,8 @@ public class AlbumsFragment extends TomahawkFragment {
                                 segment = new Segment.Builder(cursor)
                                         .headerLayout(R.layout.single_line_list_header)
                                         .headerString(mCollection.getName() + " "
-                                                + getString(R.string.albums))
+                                                + TomahawkApp.getContext().getString(
+                                                R.string.albums))
                                         .showAsGrid(R.integer.grid_column_count,
                                                 R.dimen.padding_superlarge,
                                                 R.dimen.padding_superlarge)
