@@ -84,6 +84,7 @@
   <string name="context_menu_play">Abspielen</string>
   <string name="context_menu_add_to_queue">Zur Warteschlange hinzufügen</string>
   <string name="context_menu_add_to_playlist">Zu Playlist hinzufügen</string>
+  <string name="context_menu_create_station">Station erstellen</string>
   <string name="context_menu_delete">Löschen</string>
   <string name="context_menu_removefromplaylist">Aus der Playlist entfernen</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
@@ -194,6 +195,8 @@
   <string name="following">Folgt</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">Followers: %1$d, Folgen: %2$d</string>
+  <string name="resolver_config_enable_button_enable">Aktivieren</string>
+  <string name="resolver_config_enable_button_disable">Deaktivieren</string>
   <string name="resolver_config_redirect_button_text_log_into">Anmelden bei</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Abmelden von</string>
   <string name="resolver_config_redirect_button_text_download_plugin">Lade Plugin herunter für</string>
