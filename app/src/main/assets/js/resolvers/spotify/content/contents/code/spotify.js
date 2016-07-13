@@ -577,7 +577,7 @@ Tomahawk.PluginManager.registerPlugin('playlistGenerator', {
                 // Search for genres by manually iterating through all available genres
                 return {
                     genres: allGenres.filter(function (item) {
-                        return item.toLowerCase().indexOf(params.query) > -1;
+                        return item.toLowerCase().indexOf(params.query.toLowerCase()) > -1;
                     }).map(function (item) {
                         return {
                             name: item
