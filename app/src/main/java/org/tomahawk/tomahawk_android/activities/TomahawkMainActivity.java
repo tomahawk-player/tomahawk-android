@@ -63,6 +63,7 @@ import org.tomahawk.tomahawk_android.services.PlaybackService;
 import org.tomahawk.tomahawk_android.utils.AnimationUtils;
 import org.tomahawk.tomahawk_android.utils.FragmentUtils;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
+import org.tomahawk.tomahawk_android.utils.MediaPlayIntentHandler;
 import org.tomahawk.tomahawk_android.utils.MenuDrawer;
 import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 import org.tomahawk.tomahawk_android.utils.PluginUtils;
@@ -73,6 +74,7 @@ import org.tomahawk.tomahawk_android.utils.TomahawkRunnable;
 import org.tomahawk.tomahawk_android.views.PlaybackPanel;
 
 import android.accounts.AccountManager;
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -89,6 +91,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.media.MediaBrowserCompat;
@@ -565,6 +568,27 @@ public class TomahawkMainActivity extends AppCompatActivity {
     }
 
     private void handleIntent(Intent intent) {
+        if (MediaStore.INTENT_ACTION_MEDIA_PLAY_FROM_SEARCH.equals(intent.getAction())) {
+            intent.setAction(null);
+            String playbackManagerId = getSupportMediaController().getExtras().getString(
+                    PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
+            PlaybackManager playbackManager = PlaybackManager.getByKey(playbackManagerId);
+            MediaPlayIntentHandler intentHandler = new MediaPlayIntentHandler(
+                    getSupportMediaController().getTransportControls(), playbackManager);
+            intentHandler.mediaPlayFromSearch(intent.getExtras());
+        }
+        if ("com.google.android.gms.actions.SEARCH_ACTION".equals(intent.getAction())) {
+            intent.setAction(null);
+            String query = intent.getStringExtra(SearchManager.QUERY);
+            if (query != null && !query.isEmpty()) {
+                DatabaseHelper.get().addEntryToSearchHistory(query);
+                Bundle bundle = new Bundle();
+                bundle.putString(TomahawkFragment.QUERY_STRING, query);
+                bundle.putInt(TomahawkFragment.CONTENT_HEADER_MODE,
+                        ContentHeaderFragment.MODE_HEADER_STATIC);
+                FragmentUtils.replace(TomahawkMainActivity.this, SearchPagerFragment.class, bundle);
+            }
+        }
         if (SHOW_PLAYBACKFRAGMENT_ON_STARTUP.equals(intent.getAction())) {
             intent.setAction(null);
             // if this Activity is being shown after the user clicked the notification

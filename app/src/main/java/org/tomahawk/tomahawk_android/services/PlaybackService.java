@@ -52,6 +52,7 @@ import org.tomahawk.tomahawk_android.utils.DelayedHandler;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.MediaBrowserHelper;
 import org.tomahawk.tomahawk_android.utils.MediaNotification;
+import org.tomahawk.tomahawk_android.utils.MediaPlayIntentHandler;
 import org.tomahawk.tomahawk_android.utils.PlaybackManager;
 import org.tomahawk.tomahawk_android.utils.ThreadManager;
 
@@ -221,6 +222,19 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             mPlayState = PlaybackStateCompat.STATE_PAUSED;
             handlePlayState();
             updateMediaPlayState();
+        }
+
+        /**
+         * Override to handle requests to begin playback from a search query. An
+         * empty query indicates that the app may play any music. The
+         * implementation should attempt to make a smart choice about what to
+         * play.
+         */
+        public void onPlayFromSearch(String query, Bundle extras) {
+            Log.d(TAG, "onPlayFromSearch: " + query + ", " + extras);
+            MediaPlayIntentHandler intentHandler = new MediaPlayIntentHandler(
+                    mMediaSession.getController().getTransportControls(), mPlaybackManager);
+            intentHandler.mediaPlayFromSearch(extras);
         }
 
         /**
