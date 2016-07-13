@@ -531,6 +531,9 @@
         <meta-data android:name="com.google.android.gms.car.application"
                    android:resource="@xml/automotive_app_desc"/>
 
+        <meta-data android:name="com.google.android.gms.version"
+                   android:value="@integer/google_play_services_version"/>
+
         <meta-data android:name="com.google.android.gms.car.notification.SmallIcon"
                    android:resource="@drawable/ic_notification"/>
 
