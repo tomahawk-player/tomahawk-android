@@ -424,6 +424,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             }
             resolveProximalQueries();
             updateMediaMetadata();
+            updateMediaQueue();
         }
 
         @Override
@@ -802,6 +803,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         super.onCreate();
 
         EventBus.getDefault().register(this);
+
+        PipeLine.get();
 
         mMediaBrowserHelper = new MediaBrowserHelper(this);
 
@@ -1211,7 +1214,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         if (mPlaybackManager.getPlaylist() != null) {
             queue = new ArrayList<>();
             int currentIndex = mPlaybackManager.getCurrentIndex();
-            for (int i = Math.max(0, currentIndex - 10);
+            for (int i = Math.max(0, currentIndex - 1);
                     i < Math.min(mPlaybackManager.getPlaybackListSize(), currentIndex + 40); i++) {
                 PlaylistEntry entry = mPlaybackManager.getPlaybackListEntry(i);
                 MediaDescriptionCompat.Builder descBuilder = new MediaDescriptionCompat.Builder();
