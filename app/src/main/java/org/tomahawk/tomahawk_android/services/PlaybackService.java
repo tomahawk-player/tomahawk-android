@@ -86,8 +86,6 @@ import android.support.v4.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.util.SparseArrayCompat;
-import android.telephony.PhoneStateListener;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.util.LruCache;
 import android.widget.Toast;
@@ -621,41 +619,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         }
     }
 
-    /**
-     * Listens for incoming phone calls and handles playback.
-     */
-    private PhoneStateListener mPhoneStateListener = new PhoneStateListener() {
-
-        private boolean mShouldResume = false;
-
-        @Override
-        public void onCallStateChanged(int state, String incomingNumber) {
-            Log.d(TAG, "PhoneStateListener onCallStateChanged state: " + state);
-            if (mMediaSession == null) {
-                Log.e(TAG, "onCallStateChanged failed - mMediaSession == null!");
-                return;
-            }
-            switch (state) {
-                case TelephonyManager.CALL_STATE_OFFHOOK:
-                case TelephonyManager.CALL_STATE_RINGING:
-                    if (mPlayState != PlaybackStateCompat.STATE_PAUSED) {
-                        Log.d(TAG, "PhoneStateListener pausing playback");
-                        mShouldResume = true;
-                        mMediaSession.getController().getTransportControls().pause();
-                    }
-                    break;
-
-                case TelephonyManager.CALL_STATE_IDLE:
-                    if (mShouldResume) {
-                        Log.d(TAG, "PhoneStateListener resuming playback");
-                        mShouldResume = false;
-                        mMediaSession.getController().getTransportControls().play();
-                    }
-                    break;
-            }
-        }
-    };
-
     private SuicideHandler mSuicideHandler = new SuicideHandler(this);
 
     // Stops this service if it doesn't have any bound services
@@ -884,11 +847,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                     mRemoteControllerConnection, Context.BIND_AUTO_CREATE);
         }
 
-        // Initialize PhoneCallListener
-        TelephonyManager telephonyManager =
-                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        telephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_CALL_STATE);
-
         // Initialize WakeLock
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
@@ -993,10 +951,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             mWakeLock.release();
         }
         mWakeLock = null;
-        TelephonyManager telephonyManager =
-                (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        telephonyManager.listen(mPhoneStateListener, PhoneStateListener.LISTEN_NONE);
-        mPhoneStateListener = null;
         mSuicideHandler.stop();
         mSuicideHandler = null;
         mPluginServiceKillHandler.stop();
