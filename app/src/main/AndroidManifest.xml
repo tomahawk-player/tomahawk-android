@@ -23,8 +23,6 @@
           package="org.tomahawk.tomahawk_android">
 
     <uses-permission android:name="android.permission.INTERNET"/>
-    <!-- Play/pause playback when a phone call is incoming -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <!-- Keep wifi from getting disabled while streaming music -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <!-- Add the log output to the crash report -->
