@@ -46,8 +46,6 @@ import org.tomahawk.tomahawk_android.mediaplayers.SpotifyMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.TomahawkMediaPlayerCallback;
 import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
-import org.tomahawk.tomahawk_android.utils.AudioFocusHelper;
-import org.tomahawk.tomahawk_android.utils.AudioFocusable;
 import org.tomahawk.tomahawk_android.utils.DelayedHandler;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.MediaBrowserHelper;
@@ -142,6 +140,15 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     public static final String EXTRAS_KEY_SHUFFLE_MODE
             = "org.tomahawk.tomahawk_android.SHUFFLE_MODE";
 
+    // we don't have audio focus, and can't duck (play at a low volume)
+    private static final int AUDIO_NO_FOCUS_NO_DUCK = 0;
+
+    // we don't have focus, but can duck (play at a low volume)
+    private static final int AUDIO_NO_FOCUS_CAN_DUCK = 1;
+
+    // we have full audio focus
+    private static final int AUDIO_FOCUSED = 2;
+
     private static final int MAX_ALBUM_ART_CACHE_SIZE = 5 * 1024 * 1024;
 
     private int mPlayState = PlaybackStateCompat.STATE_NONE;
@@ -178,6 +185,38 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private SparseArrayCompat<PlaylistEntry> mQueueMap = new SparseArrayCompat<>();
 
+    private boolean mPlayOnFocusGain;
+
+    private int mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK;
+
+    private AudioManager mAudioManager;
+
+    private AudioManager.OnAudioFocusChangeListener mFocusChangeListener
+            = new AudioManager.OnAudioFocusChangeListener() {
+        @Override
+        public void onAudioFocusChange(int focusChange) {
+            Log.d(TAG, "onAudioFocusChange. focusChange= " + focusChange);
+            if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
+                // We have gained focus
+                mAudioFocus = AUDIO_FOCUSED;
+                if (mPlayState == PlaybackStateCompat.STATE_PAUSED) {
+                    play(true);
+                }
+            } else if (focusChange == AudioManager.AUDIOFOCUS_LOSS ||
+                    focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT ||
+                    focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
+                // We have lost focus
+                mAudioFocus = focusChange == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK
+                        ? AUDIO_NO_FOCUS_CAN_DUCK : AUDIO_NO_FOCUS_NO_DUCK;
+                if (mPlayState == PlaybackStateCompat.STATE_PLAYING) {
+                    pause(true);
+                }
+            } else {
+                Log.e(TAG, "onAudioFocusChange: Ignoring unsupported focusChange: " + focusChange);
+            }
+        }
+    };
+
     private MediaSessionCompat.Callback mMediaSessionCallback = new MediaSessionCompat.Callback() {
 
         /**
@@ -185,25 +224,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onPlay() {
-            Log.d(TAG, "play");
-            if (mPlaybackManager.getCurrentQuery() != null) {
-                if (mAudioBecomingNoisyReceiver == null) {
-                    mAudioBecomingNoisyReceiver = new AudioBecomingNoisyReceiver();
-                    registerReceiver(mAudioBecomingNoisyReceiver,
-                            new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
-                }
-                mSuicideHandler.stop();
-                mSuicideHandler.reset();
-                mPluginServiceKillHandler.stop();
-                mPluginServiceKillHandler.reset();
-                mScrobbleHandler.start();
-                mPlayState = PlaybackStateCompat.STATE_PLAYING;
-                handlePlayState();
-
-                mAudioFocusHelper.tryToGetAudioFocus();
-                updateMediaPlayState();
-                mNotification.startNotification();
-            }
+            play(false);
         }
 
         /**
@@ -211,17 +232,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
          */
         @Override
         public void onPause() {
-            Log.d(TAG, "pause");
-            if (mAudioBecomingNoisyReceiver != null) {
-                unregisterReceiver(mAudioBecomingNoisyReceiver);
-                mAudioBecomingNoisyReceiver = null;
-            }
-            mSuicideHandler.start();
-            mPluginServiceKillHandler.start();
-            mScrobbleHandler.stop();
-            mPlayState = PlaybackStateCompat.STATE_PAUSED;
-            handlePlayState();
-            updateMediaPlayState();
+            pause(false);
         }
 
         /**
@@ -397,6 +408,46 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         }
     };
 
+    public void play(boolean onAudioFocusGain) {
+        Log.d(TAG, "play");
+        if (onAudioFocusGain && !mPlayOnFocusGain) {
+            return;
+        }
+        if (mPlaybackManager.getCurrentQuery() != null) {
+            if (mAudioBecomingNoisyReceiver == null) {
+                mAudioBecomingNoisyReceiver = new AudioBecomingNoisyReceiver();
+                registerReceiver(mAudioBecomingNoisyReceiver,
+                        new IntentFilter(AudioManager.ACTION_AUDIO_BECOMING_NOISY));
+            }
+            mSuicideHandler.stop();
+            mSuicideHandler.reset();
+            mPluginServiceKillHandler.stop();
+            mPluginServiceKillHandler.reset();
+            mScrobbleHandler.start();
+            mPlayState = PlaybackStateCompat.STATE_PLAYING;
+            handlePlayState();
+
+            tryToGetAudioFocus();
+            updateMediaPlayState();
+            mNotification.startNotification();
+        }
+    }
+
+    public void pause(boolean onAudioFocusLost) {
+        Log.d(TAG, "pause");
+        mPlayOnFocusGain = onAudioFocusLost;
+        if (mAudioBecomingNoisyReceiver != null) {
+            unregisterReceiver(mAudioBecomingNoisyReceiver);
+            mAudioBecomingNoisyReceiver = null;
+        }
+        mSuicideHandler.start();
+        mPluginServiceKillHandler.start();
+        mScrobbleHandler.stop();
+        mPlayState = PlaybackStateCompat.STATE_PAUSED;
+        handlePlayState();
+        updateMediaPlayState();
+    }
+
     private PlaybackManager.Callback mPlaybackManagerCallback = new PlaybackManager.Callback() {
         @Override
         public void onPlaylistChanged() {
@@ -503,8 +554,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     }
 
     private PowerManager.WakeLock mWakeLock;
-
-    private AudioFocusHelper mAudioFocusHelper = null;
 
     private Bitmap mCachedPlaceHolder;
 
@@ -728,7 +777,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                     Toast.makeText(TomahawkApp.getContext(), message, Toast.LENGTH_LONG).show();
                 }
             });
-            mAudioFocusHelper.giveUpAudioFocus();
+            giveUpAudioFocus();
             if (mMediaSession == null) {
                 Log.e(TAG, "onError failed - mMediaSession == null!");
                 return;
@@ -844,18 +893,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, TAG);
 
-        mAudioFocusHelper = new AudioFocusHelper(getApplicationContext(), new AudioFocusable() {
-            @Override
-            public void onGainedAudioFocus() {
-            }
-
-            @Override
-            public void onLostAudioFocus(boolean canDuck) {
-                if (!canDuck && mMediaSession != null && mMediaSession.getController() != null) {
-                    mMediaSession.getController().getTransportControls().pause();
-                }
-            }
-        });
+        mAudioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
 
         mPlaybackManager = PlaybackManager.get(IdGenerator.getSessionUniqueStringId());
         mPlaybackManager.setCallback(mPlaybackManagerCallback);
@@ -936,7 +974,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
         EventBus.getDefault().unregister(this);
 
-        mAudioFocusHelper.abandonFocus();
+        giveUpAudioFocus();
 
         mPlaybackManager.setCallback(null);
 
@@ -1282,6 +1320,33 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 }
             };
             ThreadManager.get().executePlayback(mp, r);
+        }
+    }
+
+    /**
+     * Try to get the system audio focus.
+     */
+    private void tryToGetAudioFocus() {
+        Log.d(TAG, "tryToGetAudioFocus");
+        if (mAudioFocus != AUDIO_FOCUSED) {
+            int result = mAudioManager.requestAudioFocus(mFocusChangeListener,
+                    AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN);
+            if (result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                mAudioFocus = AUDIO_FOCUSED;
+            }
+        }
+    }
+
+    /**
+     * Give up the audio focus.
+     */
+    private void giveUpAudioFocus() {
+        Log.d(TAG, "giveUpAudioFocus");
+        if (mAudioFocus == AUDIO_FOCUSED) {
+            if (mAudioManager.abandonAudioFocus(mFocusChangeListener)
+                    == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
+                mAudioFocus = AUDIO_NO_FOCUS_NO_DUCK;
+            }
         }
     }
 }
