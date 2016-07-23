@@ -15,8 +15,11 @@ android {
         targetSdkVersion 22
         renderscriptTargetApi 20
         renderscriptSupportModeEnabled true
-        versionName '0.984'
-        versionCode 984
+        def version = readVersionName()
+        def code = Integer.parseInt(version.replaceAll('([\\d\\.]*).*', '$1').replaceAll('\\.', ''))
+        println("version code: $code")
+        versionName version
+        versionCode code
     }
 
     lintOptions {
@@ -37,28 +40,12 @@ android {
         exclude 'META-INF/ASL2.0'
     }
 
-    /*
-     * Tries to get the version name from the latest Git tag
-     */
-    def getNewVersionName = { ->
-        try {
-            boolean isChanged = 'git diff --cached'.execute([], projectDir).text.length() > 0 ||
-                    'git diff'.execute([], projectDir).text.length() > 0
-            return 'git describe --tags'.execute([], projectDir).text.replace('\n', '') +
-                    (isChanged ? "_modified" : "")
-        }
-        catch (IOException e) {
-            logger.error("Wasn't able to get version tag: " + e.getMessage());
-            return defaultConfig.versionName + "_nogit"
-        }
-    }
-
     applicationVariants.all { variant ->
         variant.outputs.each { output ->
             def outputFile = output.outputFile
             if (outputFile != null && outputFile.name.endsWith('.apk')) {
                 def fileName = outputFile.name.
-                        replace(".apk", "-" + getNewVersionName() + ".apk")
+                        replace(".apk", "-" + defaultConfig.versionName + ".apk")
                 output.outputFile = new File(outputFile.parent, fileName)
             }
         }
@@ -85,35 +72,35 @@ android {
             ndk {
                 abiFilter "armeabi-v7a"
             }
-            versionName getNewVersionName() + "_armv7a"
+            versionName defaultConfig.versionName + "_armv7a"
             versionCode Integer.parseInt("2$defaultConfig.versionCode")
         }
         armv8a {
             ndk {
                 abiFilter "arm64-v8a"
             }
-            versionName getNewVersionName() + "_armv8a"
+            versionName defaultConfig.versionName + "_armv8a"
             versionCode Integer.parseInt("3$defaultConfig.versionCode")
         }
         mips {
             ndk {
                 abiFilter "mips"
             }
-            versionName getNewVersionName() + "_mips"
+            versionName defaultConfig.versionName + "_mips"
             versionCode Integer.parseInt("4$defaultConfig.versionCode")
         }
         x86 {
             ndk {
                 abiFilter "x86"
             }
-            versionName getNewVersionName() + "_x86"
+            versionName defaultConfig.versionName + "_x86"
             versionCode Integer.parseInt("6$defaultConfig.versionCode")
         }
         x86_64 {
             ndk {
                 abiFilter "x86_64"
             }
-            versionName getNewVersionName() + "_x86_64"
+            versionName defaultConfig.versionName + "_x86_64"
             versionCode Integer.parseInt("7$defaultConfig.versionCode")
         }
     }

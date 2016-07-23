@@ -1,0 +1,73 @@
+/**
+ * Copyright 2016 Avinash Ananth Narayan R
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+buildscript {
+    dependencies {
+        //noinspection GradleDynamicVersion
+        classpath "org.eclipse.jgit:org.eclipse.jgit:4.1.1.+"
+    }
+    repositories {
+        jcenter()
+    }
+}
+/* source: https://gist.githubusercontent.com/Avinash-Bhat/12fc59b3d96cb427e5e9*/
+import org.eclipse.jgit.api.Git
+import org.eclipse.jgit.revwalk.RevWalk
+import org.eclipse.jgit.storage.file.FileRepositoryBuilder
+
+import static org.eclipse.jgit.lib.Constants.MASTER
+
+def gitRepo = new FileRepositoryBuilder()
+        .readEnvironment()
+        .findGitDir()
+        .build()
+def git = Git.wrap(gitRepo)
+
+ext.readVersionCode = {
+    def walk = new RevWalk(gitRepo)
+    def masterRef = gitRepo.getRef(MASTER)
+    if (masterRef == null) {
+        return 1;
+    }
+    def head = walk.parseCommit(masterRef.getObjectId())
+    try {
+        def count = 0
+        while (head != null) {
+            count++
+            def parents = head.getParents()
+            if (parents != null && parents.length > 0) {
+                head = walk.parseCommit(parents[0])
+            } else {
+                head = null
+            }
+        }
+        walk.dispose()
+        println("using version code: $count")
+        return count
+    } finally {
+        walk.close()
+    }
+}
+
+ext.readVersionName = {
+    try {
+        def tag = git.describe().setLong(false).call()
+        def clean = git.status().call().isClean()
+        def version = tag + (clean ? '' : '-dirty')
+        println("using version name: $version")
+        return version
+    } catch (ignore) {
+        return "1.0"
+    }
+}
