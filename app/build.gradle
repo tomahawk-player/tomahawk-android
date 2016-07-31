@@ -45,7 +45,7 @@ android {
             def outputFile = output.outputFile
             if (outputFile != null && outputFile.name.endsWith('.apk')) {
                 def fileName = outputFile.name.
-                        replace(".apk", "-" + defaultConfig.versionName + ".apk")
+                        replace(".apk", "-" + project.ext.getNewVersionName() + ".apk")
                 output.outputFile = new File(outputFile.parent, fileName)
             }
         }
@@ -67,42 +67,49 @@ android {
         }
     }
 
-    productFlavors {
-        armv7a {
-            ndk {
-                abiFilter "armeabi-v7a"
-            }
-            versionName defaultConfig.versionName + "_armv7a"
-            versionCode Integer.parseInt("2$defaultConfig.versionCode")
+    splits {
+        abi {
+            enable true
+            reset()
+            include 'armeabi-v7a', 'arm64-v8a', 'mips', 'x86', 'x86_64'
+            universalApk true
         }
-        armv8a {
-            ndk {
-                abiFilter "arm64-v8a"
-            }
-            versionName defaultConfig.versionName + "_armv8a"
-            versionCode Integer.parseInt("3$defaultConfig.versionCode")
-        }
-        mips {
-            ndk {
-                abiFilter "mips"
-            }
-            versionName defaultConfig.versionName + "_mips"
-            versionCode Integer.parseInt("4$defaultConfig.versionCode")
-        }
-        x86 {
-            ndk {
-                abiFilter "x86"
-            }
-            versionName defaultConfig.versionName + "_x86"
-            versionCode Integer.parseInt("6$defaultConfig.versionCode")
-        }
-        x86_64 {
-            ndk {
-                abiFilter "x86_64"
-            }
-            versionName defaultConfig.versionName + "_x86_64"
-            versionCode Integer.parseInt("7$defaultConfig.versionCode")
-        }
+    }
+}
+
+/*
+ * Tries to get the version name from the latest Git tag
+ */
+ext.getNewVersionName = { ->
+    try {
+        boolean isChanged = 'git diff --cached'.execute([], projectDir).text.length() > 0 ||
+                'git diff'.execute([], projectDir).text.length() > 0
+        return 'git describe --tags'.execute([], projectDir).text.replace('\n', '') +
+                (isChanged ? "_modified" : "")
+    }
+    catch (IOException e) {
+        logger.error("Wasn't able to get version tag: " + e.getMessage());
+        return defaultConfig.versionName + "_nogit"
+    }
+}
+
+// map for the version code
+ext.versionCodes = ['armeabi-v7a': 2, 'arm64-v8a': 3, 'mips': 4, 'x86': 6, 'x86_64': 7]
+ext.versionNames = ['armeabi-v7a': '_armv7a', 'arm64-v8a': '_armv8a', 'mips': '_mips',
+                    'x86'        : '_x86', 'x86_64': '_x86_64']
+
+android.applicationVariants.all { variant ->
+    // assign different version code for each output
+    variant.outputs.each { output ->
+        output.versionCodeOverride =
+                project.ext.versionCodes.
+                        get(output.getFilter(com.android.build.OutputFile.ABI), 0) * 1000 +
+                        android.defaultConfig.versionCode
+    }
+    // assign different version name for each output
+    variant.outputs.each { output ->
+        output.versionNameOverride = project.ext.getNewVersionName() +
+                project.ext.versionNames.get(output.getFilter(com.android.build.OutputFile.ABI), 0)
     }
 }
 
@@ -125,8 +132,8 @@ if (propFile.canRead()) {
 dependencies {
     compile fileTree(dir: "libs", include: ["*.jar"])
     compile(name: 'circularprogressview-debug', ext: 'aar')
-    compile 'com.android.support:appcompat-v7:23.4.0'
-    compile 'com.android.support:support-v4:23.4.0'
+    compile 'com.android.support:appcompat-v7:24.1.1'
+    compile 'com.android.support:support-v4:24.1.1'
     compile 'se.emilsjolander:stickylistheaders:2.7.0'
     compile('ch.acra:acra:4.7.0') {
         transitive = false
