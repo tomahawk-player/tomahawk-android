@@ -28,9 +28,13 @@ import org.eclipse.jgit.storage.file.FileRepositoryBuilder
 
 import static org.eclipse.jgit.lib.Constants.MASTER
 
+def gitFile = projectDir;
+if (gitFile == null) {
+    gitFile = new File("").getAbsoluteFile()
+}
 def gitRepo = new FileRepositoryBuilder()
         .readEnvironment()
-        .findGitDir()
+        .findGitDir(gitFile)
         .build()
 def git = Git.wrap(gitRepo)
 
