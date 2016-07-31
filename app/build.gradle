@@ -15,11 +15,15 @@ android {
         targetSdkVersion 22
         renderscriptTargetApi 20
         renderscriptSupportModeEnabled true
-        def version = readVersionName()
-        def code = Integer.parseInt(version.replaceAll('([\\d\\.]*).*', '$1').replaceAll('\\.', ''))
-        println("version code: $code")
-        versionName version
+        def name = readVersionName()
+        def parts = name.split("[\\._-]")
+        def code = parts[0] + parts[1]
+        code = String.format("%-5s", code.substring(0, Math.min(5, code.size()))).replace(' ', '0')
+        code = Integer.parseInt(code)
+        versionName name
         versionCode code
+        println("Using version name: $name")
+        println("Using version code: $code")
     }
 
     lintOptions {
@@ -45,7 +49,7 @@ android {
             def outputFile = output.outputFile
             if (outputFile != null && outputFile.name.endsWith('.apk')) {
                 def fileName = outputFile.name.
-                        replace(".apk", "-" + project.ext.getNewVersionName() + ".apk")
+                        replace(".apk", "-" + defaultConfig.versionName + ".apk")
                 output.outputFile = new File(outputFile.parent, fileName)
             }
         }
@@ -77,39 +81,25 @@ android {
     }
 }
 
-/*
- * Tries to get the version name from the latest Git tag
- */
-ext.getNewVersionName = { ->
-    try {
-        boolean isChanged = 'git diff --cached'.execute([], projectDir).text.length() > 0 ||
-                'git diff'.execute([], projectDir).text.length() > 0
-        return 'git describe --tags'.execute([], projectDir).text.replace('\n', '') +
-                (isChanged ? "_modified" : "")
-    }
-    catch (IOException e) {
-        logger.error("Wasn't able to get version tag: " + e.getMessage());
-        return defaultConfig.versionName + "_nogit"
-    }
-}
-
 // map for the version code
 ext.versionCodes = ['armeabi-v7a': 2, 'arm64-v8a': 3, 'mips': 4, 'x86': 6, 'x86_64': 7]
-ext.versionNames = ['armeabi-v7a': '_armv7a', 'arm64-v8a': '_armv8a', 'mips': '_mips',
-                    'x86'        : '_x86', 'x86_64': '_x86_64']
 
 android.applicationVariants.all { variant ->
     // assign different version code for each output
     variant.outputs.each { output ->
         output.versionCodeOverride =
                 project.ext.versionCodes.
-                        get(output.getFilter(com.android.build.OutputFile.ABI), 0) * 1000 +
+                        get(output.getFilter(com.android.build.OutputFile.ABI), 9) * 100000 +
                         android.defaultConfig.versionCode
+        println("Using version name: $output.versionCodeOverride")
     }
     // assign different version name for each output
     variant.outputs.each { output ->
-        output.versionNameOverride = project.ext.getNewVersionName() +
-                project.ext.versionNames.get(output.getFilter(com.android.build.OutputFile.ABI), 0)
+        def suffix = "_universal"
+        if (output.getFilter(com.android.build.OutputFile.ABI) != null) {
+            suffix = "_" + output.getFilter(com.android.build.OutputFile.ABI)
+        }
+        output.versionNameOverride = android.defaultConfig.versionName + suffix
     }
 }
 

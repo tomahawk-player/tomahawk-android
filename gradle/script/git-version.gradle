@@ -57,7 +57,6 @@ ext.readVersionCode = {
             }
         }
         walk.dispose()
-        println("using version code: $count")
         return count
     } finally {
         walk.close()
@@ -68,10 +67,9 @@ ext.readVersionName = {
     try {
         def tag = git.describe().setLong(false).call()
         def clean = git.status().call().isClean()
-        def version = tag + (clean ? '' : '-dirty')
-        println("using version name: $version")
+        def version = tag + (clean ? '' : '_modified')
         return version
     } catch (ignore) {
-        return "1.0"
+        return "1.0_nogit"
     }
 }
