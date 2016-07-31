@@ -897,7 +897,12 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        MediaButtonReceiver.handleIntent(mMediaSession, intent);
+        if (intent != null && ACTION_STOP_NOTIFICATION.equals(intent.getAction())) {
+            mMediaSession.getController().getTransportControls().pause();
+            mNotification.stopNotification();
+        } else {
+            MediaButtonReceiver.handleIntent(mMediaSession, intent);
+        }
         return START_STICKY;
     }
 
