@@ -30,6 +30,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.media.MediaDescriptionCompat;
@@ -306,7 +307,8 @@ public class MediaNotification {
                 .setStyle(new NotificationCompat.MediaStyle()
                         .setShowActionsInCompactView(ArrayUtil.toIntArray(showInCompact))
                         .setMediaSession(mSessionToken)
-                        .setShowCancelButton(true))
+                        .setShowCancelButton(true)
+                        .setCancelButtonIntent(createCancelIntent()))
                 .setColor(mNotificationColor)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -328,6 +330,12 @@ public class MediaNotification {
         intent.setAction(TomahawkMainActivity.SHOW_PLAYBACKFRAGMENT_ON_STARTUP);
         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         return PendingIntent.getActivity(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+    }
+
+    private PendingIntent createCancelIntent() {
+        Intent intent = new Intent(mService, PlaybackService.class);
+        intent.setAction(PlaybackService.ACTION_STOP_NOTIFICATION);
+        return PendingIntent.getService(mService, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     private void updateFavoriteAction() {
@@ -385,7 +393,8 @@ public class MediaNotification {
                     + "Ignoring request to update state!");
             return;
         }
-        if (mPlaybackState.getPosition() >= 0 &&
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.KITKAT &&
+                mPlaybackState.getPosition() >= 0 &&
                 mPlaybackState.getState() == PlaybackStateCompat.STATE_PLAYING) {
             Log.d(TAG, "updateNotificationPlaybackState. updating playback position to " +
                     (System.currentTimeMillis() - mPlaybackState.getPosition()) / 1000
