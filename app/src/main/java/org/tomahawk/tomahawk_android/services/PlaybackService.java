@@ -18,15 +18,11 @@
  */
 package org.tomahawk.tomahawk_android.services;
 
-import com.squareup.picasso.Picasso;
-import com.squareup.picasso.Target;
-
 import org.jdeferred.DoneCallback;
 import org.jdeferred.FailCallback;
 import org.jdeferred.Promise;
 import org.tomahawk.libtomahawk.authentication.AuthenticatorManager;
 import org.tomahawk.libtomahawk.collection.CollectionManager;
-import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.libtomahawk.collection.Playlist;
 import org.tomahawk.libtomahawk.collection.PlaylistEntry;
 import org.tomahawk.libtomahawk.collection.StationPlaylist;
@@ -34,11 +30,11 @@ import org.tomahawk.libtomahawk.database.DatabaseHelper;
 import org.tomahawk.libtomahawk.infosystem.InfoSystem;
 import org.tomahawk.libtomahawk.resolver.PipeLine;
 import org.tomahawk.libtomahawk.resolver.Query;
-import org.tomahawk.libtomahawk.utils.ImageUtils;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.TomahawkApp;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.fragments.TomahawkFragment;
+import org.tomahawk.tomahawk_android.listeners.MediaImageLoadedListener;
 import org.tomahawk.tomahawk_android.mediaplayers.AndroidMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.DeezerMediaPlayer;
 import org.tomahawk.tomahawk_android.mediaplayers.PluginMediaPlayer;
@@ -49,6 +45,7 @@ import org.tomahawk.tomahawk_android.mediaplayers.VLCMediaPlayer;
 import org.tomahawk.tomahawk_android.utils.DelayedHandler;
 import org.tomahawk.tomahawk_android.utils.IdGenerator;
 import org.tomahawk.tomahawk_android.utils.MediaBrowserHelper;
+import org.tomahawk.tomahawk_android.utils.MediaImageHelper;
 import org.tomahawk.tomahawk_android.utils.MediaNotification;
 import org.tomahawk.tomahawk_android.utils.MediaPlayIntentHandler;
 import org.tomahawk.tomahawk_android.utils.PlaybackManager;
@@ -63,7 +60,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
 import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -87,7 +83,6 @@ import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.support.v4.util.SparseArrayCompat;
 import android.util.Log;
-import android.util.LruCache;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -146,8 +141,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     // we have full audio focus
     private static final int AUDIO_FOCUSED = 2;
-
-    private static final int MAX_ALBUM_ART_CACHE_SIZE = 5 * 1024 * 1024;
 
     private int mPlayState = PlaybackStateCompat.STATE_NONE;
 
@@ -211,6 +204,15 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 }
             } else {
                 Log.e(TAG, "onAudioFocusChange: Ignoring unsupported focusChange: " + focusChange);
+            }
+        }
+    };
+
+    private MediaImageLoadedListener mMediaImageLoadedListener = new MediaImageLoadedListener() {
+        @Override
+        public void onMediaImageLoaded() {
+            if (mMediaSession != null) {
+                mMediaSession.setMetadata(buildMetadata());
             }
         }
     };
@@ -553,57 +555,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private PowerManager.WakeLock mWakeLock;
 
-    private Bitmap mCachedPlaceHolder;
-
-    private final LruCache<Image, Bitmap> mMediaImageCache =
-            new LruCache<Image, Bitmap>(MAX_ALBUM_ART_CACHE_SIZE) {
-                @Override
-                protected int sizeOf(Image key, Bitmap value) {
-                    return value.getByteCount();
-                }
-            };
-
-    private MediaImageTarget mMediaImageTarget;
-
-    private class MediaImageTarget implements Target {
-
-        private Image mImageToLoad;
-
-        public MediaImageTarget(Image imageToLoad) {
-            mImageToLoad = imageToLoad;
-        }
-
-        @Override
-        public void onBitmapLoaded(final Bitmap bitmap, Picasso.LoadedFrom loadedFrom) {
-            new Runnable() {
-                @Override
-                public void run() {
-                    if (mMediaSession == null) {
-                        Log.e(TAG, "updateAlbumArt failed - mMediaSession == null!");
-                        return;
-                    }
-                    Bitmap copy = bitmap.copy(bitmap.getConfig(), false);
-                    if (mImageToLoad == null) {
-                        // Has to the placeHolder bitmap then
-                        mCachedPlaceHolder = copy;
-                    } else {
-                        mMediaImageCache.put(mImageToLoad, copy);
-                    }
-                    mMediaSession.setMetadata(buildMetadata());
-                    Log.d(TAG, "Setting lockscreen bitmap");
-                }
-            }.run();
-        }
-
-        @Override
-        public void onBitmapFailed(Drawable drawable) {
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable drawable) {
-        }
-    }
-
     private RemoteControllerConnection mRemoteControllerConnection;
 
     private static class RemoteControllerConnection implements ServiceConnection {
@@ -889,6 +840,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         mMediaSession.setExtras(extras);
         updateMediaPlayState();
         setSessionToken(mMediaSession.getSessionToken());
+        MediaImageHelper.get().addListener(mMediaImageLoadedListener);
     }
 
     public Handler getCallbackHandler() {
@@ -965,6 +917,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             mMediaSession.release();
             mMediaSession = null;
         }
+        MediaImageHelper.get().removeListener(mMediaImageLoadedListener);
 
         if (mRemoteControllerConnection != null) {
             unbindService(mRemoteControllerConnection);
@@ -1144,24 +1097,13 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             }
             Bitmap bitmap;
             if (currentQuery.getImage() != null) {
-                bitmap = mMediaImageCache.get(currentQuery.getImage());
+                bitmap = MediaImageHelper.get().getMediaImageCache().get(currentQuery.getImage());
             } else {
-                bitmap = mCachedPlaceHolder;
+                bitmap = MediaImageHelper.get().getCachedPlaceHolder();
             }
             if (bitmap == null) {
                 // Image is not in cache yet. We have to fetch it...
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        if (mMediaImageTarget == null
-                                || mMediaImageTarget.mImageToLoad != currentQuery.getImage()) {
-                            mMediaImageTarget = new MediaImageTarget(currentQuery.getImage());
-                            ImageUtils.loadImageIntoBitmap(TomahawkApp.getContext(),
-                                    currentQuery.getImage(), mMediaImageTarget,
-                                    Image.getLargeImageSize(), false);
-                        }
-                    }
-                });
+                MediaImageHelper.get().loadMediaImage(currentQuery.getImage());
             }
             if (bitmap != null) {
                 builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);

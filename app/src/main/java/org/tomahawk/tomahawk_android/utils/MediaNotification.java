@@ -19,6 +19,7 @@
 package org.tomahawk.tomahawk_android.utils;
 
 import org.apache.lucene.util.ArrayUtil;
+import org.tomahawk.libtomahawk.collection.Image;
 import org.tomahawk.tomahawk_android.R;
 import org.tomahawk.tomahawk_android.activities.TomahawkMainActivity;
 import org.tomahawk.tomahawk_android.services.PlaybackService;
@@ -29,7 +30,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationManagerCompat;
@@ -296,11 +296,16 @@ public class MediaNotification {
 
         MediaDescriptionCompat description = mMetadata.getDescription();
 
-        Bitmap art = description.getIconBitmap();
+        String playbackManagerId =
+                mController.getExtras().getString(PlaybackService.EXTRAS_KEY_PLAYBACKMANAGER);
+        PlaybackManager playbackManager = PlaybackManager.getByKey(playbackManagerId);
+        Image image = playbackManager.getCurrentQuery().getImage();
+        Bitmap art = null;
+        if (image != null) {
+            art = MediaImageHelper.get().getMediaImageCache().get(image);
+        }
         if (art == null) {
-            // use a placeholder art while the remote art is being downloaded
-            art = BitmapFactory.decodeResource(mService.getResources(),
-                    R.drawable.album_placeholder);
+            art = MediaImageHelper.get().getCachedPlaceHolder();
         }
 
         mNotificationBuilder
