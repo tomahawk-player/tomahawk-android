@@ -62,8 +62,6 @@ public class MenuDrawer extends DrawerLayout {
 
     public static final String HUB_ID_SETTINGS = "settings";
 
-    public StickyListHeadersListView mDrawerList;
-
     public MenuDrawer(Context context) {
         super(context);
     }
@@ -76,22 +74,13 @@ public class MenuDrawer extends DrawerLayout {
         super(context, attrs, defStyle);
     }
 
-    public static void updateDrawer(MenuDrawer menuDrawer, TomahawkMainActivity activity) {
-        if (menuDrawer != null) {
-            Log.d(TAG, "updateDrawer - App is NOT running on a large landscape device");
-            menuDrawer.mDrawerList =
-                    (StickyListHeadersListView) menuDrawer.findViewById(R.id.left_drawer);
-            updateDrawer(menuDrawer.mDrawerList, menuDrawer, activity);
-        } else {
-            Log.d(TAG, "updateDrawer - App is running on a large landscape device");
-            StickyListHeadersListView drawerList =
-                    (StickyListHeadersListView) activity.findViewById(R.id.left_drawer);
-            updateDrawer(drawerList, null, activity);
+    public void updateDrawer(final TomahawkMainActivity activity) {
+        final StickyListHeadersListView drawerList =
+                (StickyListHeadersListView) findViewById(R.id.left_drawer);
+        if (drawerList == null) {
+            Log.e(TAG, "updateDrawer - Couldn't update drawer because drawerList is null");
+            return;
         }
-    }
-
-    private static void updateDrawer(final StickyListHeadersListView drawerList,
-            final MenuDrawer menuDrawer, final TomahawkMainActivity activity) {
         User.getSelf().done(new DoneCallback<User>() {
             @Override
             public void onDone(User user) {
@@ -169,12 +158,18 @@ public class MenuDrawer extends DrawerLayout {
                 });
 
                 drawerList.setOnItemClickListener(
-                        new MenuDrawerListener(activity, drawerList, menuDrawer));
+                        new MenuDrawerListener(activity, drawerList, MenuDrawer.this));
             }
         });
     }
 
     public void closeDrawer() {
-        closeDrawer(mDrawerList);
+        StickyListHeadersListView drawerList =
+                (StickyListHeadersListView) findViewById(R.id.left_drawer);
+        if (drawerList == null) {
+            Log.e(TAG, "closeDrawer - Couldn't close drawer because drawerList is null");
+            return;
+        }
+        closeDrawer(drawerList);
     }
 }

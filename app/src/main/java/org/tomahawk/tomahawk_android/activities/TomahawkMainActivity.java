@@ -368,7 +368,9 @@ public class TomahawkMainActivity extends AppCompatActivity {
 
     @SuppressWarnings("unused")
     public void onEventMainThread(DbCollection.InitializedEvent event) {
-        MenuDrawer.updateDrawer(mMenuDrawer, this);
+        if (mMenuDrawer != null) {
+            mMenuDrawer.updateDrawer(this);
+        }
     }
 
     @SuppressWarnings("unused")
@@ -376,20 +378,25 @@ public class TomahawkMainActivity extends AppCompatActivity {
         if (mCorrespondingRequestIds.contains(event.mInfoRequestData.getRequestId())) {
             if (event.mInfoRequestData != null
                     && event.mInfoRequestData.getType()
-                    == InfoRequestData.INFOREQUESTDATA_TYPE_USERS) {
-                MenuDrawer.updateDrawer(mMenuDrawer, this);
+                    == InfoRequestData.INFOREQUESTDATA_TYPE_USERS
+                    && mMenuDrawer != null) {
+                mMenuDrawer.updateDrawer(this);
             }
         }
     }
 
     @SuppressWarnings("unused")
     public void onEventMainThread(CollectionManager.AddedOrRemovedEvent event) {
-        MenuDrawer.updateDrawer(mMenuDrawer, this);
+        if (mMenuDrawer != null) {
+            mMenuDrawer.updateDrawer(this);
+        }
     }
 
     @SuppressWarnings("unused")
     public void onEventMainThread(HatchetAuthenticatorUtils.UserLoginEvent event) {
-        MenuDrawer.updateDrawer(mMenuDrawer, this);
+        if (mMenuDrawer != null) {
+            mMenuDrawer.updateDrawer(this);
+        }
     }
 
     @SuppressWarnings("unused")
@@ -713,7 +720,7 @@ public class TomahawkMainActivity extends AppCompatActivity {
     public void onResume() {
         super.onResume();
 
-        MenuDrawer.updateDrawer(mMenuDrawer, this);
+        mMenuDrawer.updateDrawer(this);
 
         if (mSlidingUpPanelLayout.getPanelState() == SlidingUpPanelLayout.PanelState.HIDDEN) {
             mPlaybackPanel.setVisibility(View.GONE);
@@ -921,7 +928,9 @@ public class TomahawkMainActivity extends AppCompatActivity {
                 }
             });
         }
-        MenuDrawer.updateDrawer(mMenuDrawer, this);
+        if (mMenuDrawer != null) {
+            mMenuDrawer.updateDrawer(this);
+        }
     }
 
     @Override
