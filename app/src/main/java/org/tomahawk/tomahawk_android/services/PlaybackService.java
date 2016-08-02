@@ -450,7 +450,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
 
     private PlaybackManager.Callback mPlaybackManagerCallback = new PlaybackManager.Callback() {
         @Override
-        public void onPlaylistChanged() {
+        public synchronized void onPlaylistChanged() {
             Playlist playlist = mPlaybackManager.getPlaylist();
             Log.d(TAG, "Playlist has changed to: " + playlist);
             if (playlist instanceof StationPlaylist) {
@@ -473,7 +473,7 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         }
 
         @Override
-        public void onCurrentEntryChanged() {
+        public synchronized void onCurrentEntryChanged() {
             Log.d(TAG, "Current entry has changed to: " + mPlaybackManager.getCurrentEntry());
             if (mPlaybackManager.getCurrentEntry() == null) {
                 mNotification.stopNotification();
@@ -493,12 +493,14 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         }
 
         @Override
-        public void onShuffleModeChanged() {
+        public synchronized void onShuffleModeChanged() {
+            updateMediaMetadata();
             updateMediaQueue();
         }
 
         @Override
-        public void onRepeatModeChanged() {
+        public synchronized void onRepeatModeChanged() {
+            updateMediaMetadata();
             updateMediaQueue();
         }
     };
@@ -1157,7 +1159,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             Log.e(TAG, "updateMediaQueue failed - mMediaSession == null!");
             return;
         }
-        updateMediaMetadata();
         mMediaSession.setQueue(buildQueue());
         mMediaSession.setQueueTitle(getString(R.string.mediabrowser_queue_title));
     }
