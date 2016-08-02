@@ -142,6 +142,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     // we have full audio focus
     private static final int AUDIO_FOCUSED = 2;
 
+    private boolean mIsDestroyed;
+
     private int mPlayState = PlaybackStateCompat.STATE_NONE;
 
     private boolean mIsPreparing = false;
@@ -187,6 +189,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onAudioFocusChange(int focusChange) {
             Log.d(TAG, "onAudioFocusChange. focusChange= " + focusChange);
+            if (mIsDestroyed) {
+                Log.d(TAG, "onAudioFocusChange. Ignoring because PlaybackService is destroyed");
+                return;
+            }
             if (focusChange == AudioManager.AUDIOFOCUS_GAIN) {
                 // We have gained focus
                 mAudioFocus = AUDIO_FOCUSED;
@@ -888,6 +894,8 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        mIsDestroyed = true;
 
         EventBus.getDefault().unregister(this);
 
