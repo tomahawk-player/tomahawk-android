@@ -218,7 +218,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         @Override
         public void onMediaImageLoaded() {
             if (mMediaSession != null) {
-                mMediaSession.setMetadata(buildMetadata());
+                MediaMetadataCompat metadata = buildMetadata();
+                synchronized (this) {
+                    mMediaSession.setMetadata(metadata);
+                }
             }
         }
     };
@@ -924,7 +927,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         mPluginServiceKillHandler = null;
         if (mMediaSession != null) {
             mMediaSession.setCallback(null);
-            mMediaSession.release();
+            synchronized (this) {
+                mMediaSession.release();
+            }
             mMediaSession = null;
         }
         MediaImageHelper.get().removeListener(mMediaImageLoadedListener);
@@ -1070,9 +1075,12 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         }
 
         updateMediaPlayState();
-        mMediaSession.setActive(true);
 
-        mMediaSession.setMetadata(buildMetadata());
+        MediaMetadataCompat metadata = buildMetadata();
+        synchronized (this) {
+            mMediaSession.setActive(true);
+            mMediaSession.setMetadata(metadata);
+        }
         if (mPlaybackManager.getCurrentQuery() != null) {
             Log.d(TAG, "Setting media metadata to: " + mPlaybackManager.getCurrentQuery());
         } else if (mPlaybackManager.getPlaylist() instanceof StationPlaylist) {
@@ -1159,7 +1167,9 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 .setState(playState, getPlaybackPosition(), 1f, SystemClock.elapsedRealtime())
                 .setExtras(extras)
                 .build();
-        mMediaSession.setPlaybackState(playbackStateCompat);
+        synchronized (this) {
+            mMediaSession.setPlaybackState(playbackStateCompat);
+        }
     }
 
     private void updateMediaQueue() {
@@ -1167,8 +1177,12 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             Log.e(TAG, "updateMediaQueue failed - mMediaSession == null!");
             return;
         }
-        mMediaSession.setQueue(buildQueue());
-        mMediaSession.setQueueTitle(getString(R.string.mediabrowser_queue_title));
+
+        List<MediaSessionCompat.QueueItem> queue = buildQueue();
+        synchronized (this) {
+            mMediaSession.setQueue(queue);
+            mMediaSession.setQueueTitle(getString(R.string.mediabrowser_queue_title));
+        }
     }
 
     private List<MediaSessionCompat.QueueItem> buildQueue() {
