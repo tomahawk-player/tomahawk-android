@@ -126,7 +126,7 @@ public class PlaybackManager extends Cacheable {
                     Playlist.get("playback_playlist" + IdGenerator.getSessionUniqueStringId()));
         }
         if (currentEntry == null) {
-            currentEntry = playlist.getEntryAtPos(0);
+            currentEntry = mPlaylist.getEntryAtPos(0);
         }
         setCurrentEntry(currentEntry, false);
         mCallback.onPlaylistChanged();
