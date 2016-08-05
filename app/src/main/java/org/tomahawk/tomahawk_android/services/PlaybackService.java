@@ -499,18 +499,21 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             resolveProximalQueries();
             updateMediaMetadata();
             updateMediaQueue();
+            updateMediaPlayState();
         }
 
         @Override
         public synchronized void onShuffleModeChanged() {
             updateMediaMetadata();
             updateMediaQueue();
+            updateMediaPlayState();
         }
 
         @Override
         public synchronized void onRepeatModeChanged() {
             updateMediaMetadata();
             updateMediaQueue();
+            updateMediaPlayState();
         }
     };
 
@@ -1074,8 +1077,6 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             return;
         }
 
-        updateMediaPlayState();
-
         MediaMetadataCompat metadata = buildMetadata();
         synchronized (this) {
             mMediaSession.setActive(true);
@@ -1162,11 +1163,14 @@ public class PlaybackService extends MediaBrowserServiceCompat {
         extras.putInt(EXTRAS_KEY_REPEAT_MODE, mPlaybackManager.getRepeatMode());
         extras.putInt(EXTRAS_KEY_SHUFFLE_MODE, mPlaybackManager.getShuffleMode());
         int playState = mIsPreparing ? PlaybackStateCompat.STATE_BUFFERING : mPlayState;
-        PlaybackStateCompat playbackStateCompat = new PlaybackStateCompat.Builder()
+        PlaybackStateCompat.Builder builder = new PlaybackStateCompat.Builder()
                 .setActions(actions)
                 .setState(playState, getPlaybackPosition(), 1f, SystemClock.elapsedRealtime())
-                .setExtras(extras)
-                .build();
+                .setExtras(extras);
+        if (mPlaybackManager.getPlaylist() != null) {
+            builder.setActiveQueueItemId(mPlaybackManager.getCurrentIndex());
+        }
+        PlaybackStateCompat playbackStateCompat = builder.build();
         synchronized (this) {
             mMediaSession.setPlaybackState(playbackStateCompat);
         }
