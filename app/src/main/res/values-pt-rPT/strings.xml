@@ -14,6 +14,8 @@
   <string name="users">Usuários</string>
   <string name="top_hits">Melhores faixas</string>
   <string name="top_albums">Melhores álbuns</string>
+  <string name="albums_and_eps">Álbuns e EP</string>
+  <string name="other_releases">Outros lançamentos</string>
   <string name="playlist_details">Detalhes da lista de reprodução</string>
   <string name="album_details">Detalhes do álbum</string>
   <string name="search">Busca</string>
@@ -28,6 +30,10 @@
   <string name="create_playlist">Criar lista de reprodução</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Título</string>
+  <string name="create_station">Criar estação</string>
+  <string name="create_station_search_hint">Procurar artistas/faixas/géneros</string>
+  <string name="genres">Géneros</string>
+  <string name="moods">Ambientes</string>
   <string name="login_name_label">E-Mail/Usuário</string>
   <string name="login_username">Nome de usuário</string>
   <string name="login_password">Palavra-passe</string>
@@ -62,6 +68,10 @@
   <string name="preferences_app_version">Versão</string>
   <string name="preferences_app_uservoice">Comentários</string>
   <string name="preferences_app_uservoice_text">Partilhe as suas ideias ou solicite ajuda</string>
+  <string name="preferences_app_playstore_link">Avaliar a Aplicação</string>
+  <string name="preferences_app_playstore_link_text">Avaliar o Tomahawk na Google Play Store.</string>
+  <string name="preferences_app_website_link">Visite o nosso Website</string>
+  <string name="preferences_app_website_link_text">Abrir tomahawk-player.org no seu navegador.</string>
   <string name="preferences_app_sendlog">Enviar registos</string>
   <string name="preferences_app_sendlog_text">Enviar ficheiro de registo para depuração</string>
   <string name="preferences_app_sendlog_dialog_text">Descreva o erro que está a ocorrer e disponibilize um e-mail para que o possamos contactar, se necessário. Obrigado!</string>
@@ -74,6 +84,7 @@
   <string name="context_menu_play">Reproduzir</string>
   <string name="context_menu_add_to_queue">Adicionar à fila</string>
   <string name="context_menu_add_to_playlist">Adicionar à lista de reprodução</string>
+  <string name="context_menu_create_station">Criar Estação</string>
   <string name="context_menu_delete">Eliminar</string>
   <string name="context_menu_removefromplaylist">Remover da lista de reprodução</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
@@ -85,9 +96,12 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Não gosto</string>
   <string name="context_menu_share">Partilhar</string>
+  <string name="contest_menu_share_error">Precisa de iniciar sessão no Hatchet para poder partilhar esta lista de reprodução.</string>
   <string name="drawer_title_feed">Fonte</string>
+  <string name="drawer_title_charts">Listas</string>
   <string name="drawer_title_collection">Coleção</string>
   <string name="drawer_title_playlists">Listas de reprodução</string>
+  <string name="drawer_title_stations">Estações</string>
   <string name="drawer_title_lovedtracks">Favoritas</string>
   <string name="drawer_title_settings">Definições</string>
   <string name="drawer_header_cloudcollections">Coleções na nuvem</string>
@@ -160,6 +174,9 @@
   <string name="users_playbacklog_suffix">%1$s reproduziu recentemente</string>
   <string name="users_favorites_suffix">Favoritas de %1$s</string>
   <string name="users_playlist_suffix">Lista de reprodução de %1$s</string>
+  <string name="my_playbacklog">As minhas reproduções recentes</string>
+  <string name="my_favorites">As minhas Favoritas</string>
+  <string name="my_playlist">A minha Lista de reprodução</string>
   <string name="music">Música</string>
   <string name="biography">Biografia</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -178,6 +195,8 @@
   <string name="following">Seguindo</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">Seguidores: %1$d, seguindo: %2$d</string>
+  <string name="resolver_config_enable_button_enable">Ativar</string>
+  <string name="resolver_config_enable_button_disable">Desativar</string>
   <string name="resolver_config_redirect_button_text_log_into">Iniciar sessão em</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Fechar sessão em</string>
   <string name="resolver_config_redirect_button_text_download_plugin">Transferir suplemento para</string>
@@ -187,6 +206,7 @@
   <string name="view_album">Ver álbum</string>
   <string name="connect">Serviços</string>
   <string name="connect_headertext">Selecione os serviços que quer utilizar. Quantos mais serviços, melhor o Tomahawk se torna.</string>
+  <string name="connect_header_manualresolvers">Instalados manualmente</string>
   <string name="advanced">Avançado</string>
   <string name="info">Informações</string>
   <string name="playbackpanel_seek_coachmark">Pode percorrer uma faixa através de um toque longo no botão Reproduzir</string>
@@ -210,7 +230,32 @@
     <item quantity="other">Escolha a lista de reprodução para adicionar %1$d faixas:</item>
   </plurals>
   <string name="seeking_not_supported">Desculpe mas este \"resolver\" não permite procura.</string>
+  <string name="install_plugin_title">Instalação de plugin</string>
+  <string name="install_plugin_warning">Está prestes a instalar um plugin do Tomahawk a partir de uma fonte desconhecida. Isto pode representar um risco de segurança.</string>
+  <string name="install_plugin_warning2">Deseja mesmo instalar este Plugin?</string>
+  <string name="uninstall_plugin_title">A desinstalar o plugin</string>
+  <string name="uninstall_plugin_warning">Deseja mesmo desinstalar este Plugin?</string>
+  <string name="gmusic_info_text">Escolha uma conta:</string>
+  <string name="invalid_file">Não é possível abrir o ficheiro.</string>
+  <string name="unknown_album">Álbum desconhecido</string>
+  <string name="unknown_artist">Artista desconhecido</string>
+  <string name="notification_settings_activity_not_found">Não foi possível encontrar a Aplicação de Definições do seu dispositivo. Por favor dê ao Tomahawk o acesso às suas notificações nas suas Definições do Sistema.</string>
+  <string name="warn_closed_source_text">Aviso: Está prestes a transferir um plugin que contém partes de código fechado.</string>
+  <string name="warn_old_plugin">A aplicação plugin necessária está desatualizada e já não é compatível. Deseja atualizá-la agora?</string>
+  <string name="warn_no_plugin">A aplicação plugin necessária já não está instalada. Deseja instalá-la agora?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">nova</string>
+  <string name="playback_pause">Pausa</string>
+  <string name="playback_play">Reprodução</string>
+  <string name="playback_previous">Faixa Anterior</string>
+  <string name="playback_next">Faixa Seguinte</string>
+  <string name="playback_favorite">Adicionar às Favoritas</string>
+  <string name="playback_unfavorite">Remover das Favoritas</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">A Reproduzir</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">Misturar &amp; Reproduzir</string>
+  <string name="loading_station">A carregar a estação:</string>
+  <string name="suggested_stations">Estações Sugeridas</string>
+  <string name="my_stations">As minhas Estações</string>
 </resources>
