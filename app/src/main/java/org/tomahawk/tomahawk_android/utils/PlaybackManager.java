@@ -280,7 +280,7 @@ public class PlaybackManager extends Cacheable {
      * @param query
      */
     public void addToQueue(Query query) {
-        addToQueue(query, mQueueStartPos + mQueue.size());
+        addToQueue(query, mQueue.size());
     }
 
     public void addToQueue(Query query, int position) {
@@ -289,28 +289,36 @@ public class PlaybackManager extends Cacheable {
             Log.e(TAG, "addToQueue failed: " + query);
             return;
         }
+        if (position > mQueue.size()){
+            position = mQueue.size();
+        }
         mQueue.addQuery(position, query);
-        if (getCurrentEntry() == null || position == mQueueStartPos) {
-            setCurrentEntry(mQueue.getEntryAtPos(mQueueStartPos), false);
+        if (getCurrentEntry() == null) {
+            setCurrentEntry(mQueue.getEntryAtPos(0), false);
         }
         mCallback.onPlaylistChanged();
     }
 
     public void addToQueue(List<Query> queries) {
-        addToQueue(queries, mQueueStartPos + mQueue.size());
+        addToQueue(queries, mQueue.size());
     }
-        public void addToQueue(List<Query> queries, int position) {
+
+    public void addToQueue(List<Query> queries, int position) {
         Log.d(TAG, "addToQueue: queries.size()= " + queries.size());
         if (mCallback == null) {
             Log.e(TAG, "addToQueue failed: queries.size()= " + queries.size());
             return;
+        }
+
+        if (position > mQueue.size()){
+            position = mQueue.size();
         }
         int counter = position;
         for (Query query : queries) {
             mQueue.addQuery(counter++, query);
         }
         if (getCurrentEntry() == null) {
-            setCurrentEntry(getPlaybackListEntry(mQueueStartPos), false);
+            setCurrentEntry(getPlaybackListEntry(0), false);
         }
         mCallback.onPlaylistChanged();
     }

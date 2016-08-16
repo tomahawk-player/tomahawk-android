@@ -552,7 +552,7 @@ public class ContextMenuFragment extends Fragment {
                                 }
                                 Bundle extras = new Bundle();
                                 extras.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
-                                extras.putInt(TomahawkFragment.QUEUE_POSITION,0);
+                                extras.putInt(TomahawkFragment.QUEUE_POSITION,1);
                                 getActivity().getSupportMediaController()
                                         .getTransportControls().sendCustomAction(
                                         PlaybackService.ACTION_INSERT_QUERIES_TO_QUEUE, extras);
@@ -561,7 +561,7 @@ public class ContextMenuFragment extends Fragment {
                     } else if (mQuery != null) {
                         Bundle extras = new Bundle();
                         extras.putString(TomahawkFragment.QUERY, mQuery.getCacheKey());
-                        extras.putInt(TomahawkFragment.QUEUE_POSITION,0);
+                        extras.putInt(TomahawkFragment.QUEUE_POSITION,1);
                         getActivity().getSupportMediaController()
                                 .getTransportControls().sendCustomAction(
                                 PlaybackService.ACTION_INSERT_QUERY_TO_QUEUE, extras);
@@ -569,7 +569,7 @@ public class ContextMenuFragment extends Fragment {
                         Bundle extras = new Bundle();
                         extras.putString(TomahawkFragment.QUERY,
                                 mPlaylistEntry.getQuery().getCacheKey());
-                        extras.putInt(TomahawkFragment.QUEUE_POSITION,0);
+                        extras.putInt(TomahawkFragment.QUEUE_POSITION,1);
                         getActivity().getSupportMediaController()
                                 .getTransportControls().sendCustomAction(
                                 PlaybackService.ACTION_INSERT_QUERY_TO_QUEUE, extras);
@@ -582,7 +582,7 @@ public class ContextMenuFragment extends Fragment {
                         }
                         Bundle extras = new Bundle();
                         extras.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
-                        extras.putInt(TomahawkFragment.QUEUE_POSITION,0);
+                        extras.putInt(TomahawkFragment.QUEUE_POSITION,1);
                         getActivity().getSupportMediaController()
                                 .getTransportControls().sendCustomAction(
                                 PlaybackService.ACTION_INSERT_QUERIES_TO_QUEUE, extras);
