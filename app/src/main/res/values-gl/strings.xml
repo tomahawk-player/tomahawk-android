@@ -1,8 +1,63 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="ok">Aceptar</string>
+  <string name="cancel">Cancelar</string>
+  <string name="login">Acceder</string>
+  <string name="logout">Saír</string>
+  <string name="register">Rexistrarse</string>
+  <string name="register_and_login">Rexistrarse &amp; Acceder</string>
+  <string name="rescan">Inspeccionar de novo</string>
+  <string name="internal_storage">Almacenamento interno</string>
+  <string name="tracks">Pistas</string>
+  <string name="albums">Álbums</string>
+  <string name="artists">Artistas</string>
+  <string name="users">Usuarios</string>
+  <string name="top_hits">Maiores éxitos</string>
+  <string name="top_albums">Mellores álbums</string>
+  <string name="albums_and_eps">Álbums e EPs</string>
+  <string name="other_releases">Outros lanzamentos</string>
+  <string name="playlist_details">Detalles da lista</string>
+  <string name="album_details">Detalles do álbum</string>
+  <string name="search">Buscar</string>
+  <string name="playlist">Lista de reprodución</string>
+  <string name="shuffle_on_label">Ir ao chou</string>
+  <string name="shuffle_off_label">Deixar de ir ao chou</string>
+  <string name="repeat_on_label">Ir repetindo</string>
+  <string name="repeat_off_label">Non ir repetindo</string>
+  <string name="unknown">descoñecido</string>
+  <string name="no_track">sen pistas</string>
+  <string name="save_playlist">Gardar esta lista</string>
+  <string name="create_playlist">Crear unha lista</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Título</string>
+  <string name="create_station">Crear emisora</string>
+  <string name="create_station_search_hint">Buscar artistas/cancións/xéneros</string>
+  <string name="genres">Xéneros</string>
+  <string name="moods">Estilo</string>
+  <string name="login_name_label">Correo/usuario</string>
+  <string name="login_username">Usuario</string>
+  <string name="login_password">Contrasinal</string>
+  <string name="login_password_confirmation">Confirme o contrasinal</string>
+  <string name="account_email_label">Correo (optativo)</string>
+  <string name="error_field_required">Precísase este campo</string>
+  <string name="error_passwords_dont_match">Non cadran os contrasinais</string>
+  <string name="error_invalid_credentials">Usuario ou contrasinal incorrectos.</string>
+  <string name="error_invalid_account">O servidor rexeitou a conta.</string>
+  <string name="error_communication">Non se deu accedido. Asegúrate de estar con conexión..</string>
+  <string name="error_simultaneous_streams">Non se permite: a conta este xa se está a usar en algures.</string>
+  <string name="error_account_expired">A súa sesión xa rematou.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Acceder a %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Saír de %1$s</string>
+  <string name="local_collection_pretty_name">Cargar a colección</string>
+  <string name="local">Local</string>
+  <string name="all">Todo</string>
+  <string name="preferences_local_collection_text">Elixe os cartafois onde buscar vídeos e son.</string>
+  <string name="preferences_hatchet_text">Sincronizar os teus datos con %1$s.</string>
+  <string name="preferences_playback">Reproducións</string>
+  <string name="preferences_equalizer">Ecualizador</string>
+  <string name="preferences_equalizer_text">Axustar a saída de son.</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
