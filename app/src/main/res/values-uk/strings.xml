@@ -30,6 +30,10 @@
   <string name="create_playlist">Створити список відтворення</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Назва</string>
+  <string name="create_station">Створити станцію</string>
+  <string name="create_station_search_hint">Пошук артистів/пісень/жанрів</string>
+  <string name="genres">Жанри</string>
+  <string name="moods">Настрій</string>
   <string name="login_name_label">Пошта/Ім’я користувача</string>
   <string name="login_username">Ім’я користувача</string>
   <string name="login_password">Пароль</string>
@@ -64,6 +68,10 @@
   <string name="preferences_app_version">Версія додатку</string>
   <string name="preferences_app_uservoice">Зворотний зв\'язок</string>
   <string name="preferences_app_uservoice_text">Поділіться ідеями або спитайте про підтримку</string>
+  <string name="preferences_app_playstore_link">Оцініть застосунок</string>
+  <string name="preferences_app_playstore_link_text">Оцініть Tomahawk в Google Play Крамниці</string>
+  <string name="preferences_app_website_link">Відвідайте наш сайт</string>
+  <string name="preferences_app_website_link_text">Відкрити tomahawk-player.org у Вашому тенет-оглядачі.</string>
   <string name="preferences_app_sendlog">Відправити логи</string>
   <string name="preferences_app_sendlog_text">Відправити Ваші логи для зневадження</string>
   <string name="preferences_app_sendlog_dialog_text">Будь ласка, дайте короткий опис проблеми, яка в Вас виникла й вкажіть Вашу електронну адресу, щоб ми могли законтактувати з Вами. Дякуємо!</string>
@@ -76,6 +84,7 @@
   <string name="context_menu_play">Відтворити</string>
   <string name="context_menu_add_to_queue">Додати до Черги</string>
   <string name="context_menu_add_to_playlist">Додати до Списку відтворення</string>
+  <string name="context_menu_create_station">Створити станцію</string>
   <string name="context_menu_delete">Вилучити</string>
   <string name="context_menu_removefromplaylist">Вилучити із списку відтворення</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
@@ -89,8 +98,10 @@
   <string name="context_menu_share">Поділитися</string>
   <string name="contest_menu_share_error">Ви повинні увійти в Hatchet, щоб поділитися цим списком відтворення.</string>
   <string name="drawer_title_feed">Фід</string>
+  <string name="drawer_title_charts">Чарти</string>
   <string name="drawer_title_collection">Колекція</string>
   <string name="drawer_title_playlists">Списки відтворення</string>
+  <string name="drawer_title_stations">Станції</string>
   <string name="drawer_title_lovedtracks">Улюблене</string>
   <string name="drawer_title_settings">Параметри</string>
   <string name="drawer_header_cloudcollections">Хмарна колекція</string>
@@ -172,7 +183,7 @@
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
   <string name="following">Читані</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
-  <string name="followers_count">Підписчики: %1$d, Підписки: %2$d</string>
+  <string name="followers_count">Підписувачі: %1$d, Підписки: %2$d</string>
   <string name="resolver_config_redirect_button_text_log_into">Увійти в</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Вийти з</string>
   <string name="resolver_config_redirect_button_text_download_plugin">Стягнути втулку для</string>
@@ -219,6 +230,15 @@
   <string name="warn_old_plugin">Потрібна втулка застаріла й більше не сумісна. Ви бажаєте оновити її зараз?</string>
   <string name="warn_no_plugin">Потрібна втулка не встановлена. Ви волієте встановити її зараз?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">Нове</string>
+  <string name="playback_pause">Призупинити</string>
+  <string name="playback_play">Грати</string>
+  <string name="playback_previous">Попередній трек</string>
+  <string name="playback_next">Наступний трек</string>
+  <string name="playback_favorite">Додати до улюблених</string>
+  <string name="playback_unfavorite">Вилучити з улюблених</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="loading_station">Завантажити станцію:</string>
+  <string name="my_stations">Мої станції</string>
 </resources>
