@@ -12,26 +12,26 @@
   <string name="albums">Альбоми</string>
   <string name="artists">Виконавці</string>
   <string name="users">Користувачі</string>
-  <string name="top_hits">Кращі Хіти</string>
+  <string name="top_hits">Кращі Вершні</string>
   <string name="top_albums">Кращі Альбоми</string>
   <string name="albums_and_eps">Альбоми і EP</string>
-  <string name="other_releases">Інші версії</string>
-  <string name="playlist_details">Подробиці про Список відтворення</string>
+  <string name="other_releases">Иньші версії</string>
+  <string name="playlist_details">Подробиці про Грайлист</string>
   <string name="album_details">Подробиці  про Альбом</string>
   <string name="search">Пошук</string>
-  <string name="playlist">Список відтворення</string>
+  <string name="playlist">Грайлист</string>
   <string name="shuffle_on_label">Довільний порядок увімкнено</string>
   <string name="shuffle_off_label">Довільний порядок вимкнено</string>
   <string name="repeat_on_label">Повторення увімкнено</string>
   <string name="repeat_off_label">Повторення вимкнено</string>
   <string name="unknown">Невідомо</string>
   <string name="no_track">Немає пісні</string>
-  <string name="save_playlist">Зберегти поточний список відтворення</string>
-  <string name="create_playlist">Створити список відтворення</string>
+  <string name="save_playlist">Зберегти поточний грайлист</string>
+  <string name="create_playlist">Створити грайлист</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Назва</string>
   <string name="create_station">Створити станцію</string>
-  <string name="create_station_search_hint">Пошук артистів/пісень/жанрів</string>
+  <string name="create_station_search_hint">Пошук виконавців/пісень/жанрів</string>
   <string name="genres">Жанри</string>
   <string name="moods">Настрій</string>
   <string name="login_name_label">Пошта/Ім’я користувача</string>
@@ -42,17 +42,17 @@
   <string name="error_field_required">Це поле є обов’язковим</string>
   <string name="error_passwords_dont_match">Паролі не збігаються</string>
   <string name="error_invalid_credentials">Ім’я користувача або пароль хибні</string>
-  <string name="error_invalid_account">Обліковий запис відхилено сервером.</string>
+  <string name="error_invalid_account">Обліковку відхилено сервером.</string>
   <string name="error_communication">Неможливо автентифікуватися. Будь ласка, перевірте Ваше з’єднання.</string>
   <string name="error_simultaneous_streams">Дія не дозволена, обліковий запис вже використовується.</string>
-  <string name="error_account_expired">Термін дії Вашого облікового запису минув.</string>
+  <string name="error_account_expired">Термін дії Вашої обліковки минув.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
   <string name="auth_logged_in">Увійшли в %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
   <string name="auth_logged_out">Вишли із %1$s</string>
   <string name="local_collection_pretty_name">Локальна колекція</string>
   <string name="local">Локальна</string>
-  <string name="all">Всі</string>
+  <string name="all">Усі</string>
   <string name="preferences_local_collection_text">Виберіть теку де знаходиться Ваша колекція.</string>
   <string name="preferences_hatchet_text">Синхронізуйте Ваші дані з %1$s.</string>
   <string name="preferences_playback">Відтворення</string>
@@ -66,27 +66,27 @@
   <string name="preferences_audio_quality_text">Бажана якість звуку якщо немає з’єднання з WiFi.</string>
   <string name="preferences_info">Інфо</string>
   <string name="preferences_app_version">Версія додатку</string>
-  <string name="preferences_app_uservoice">Зворотний зв\'язок</string>
+  <string name="preferences_app_uservoice">Зворотній зв\'язок</string>
   <string name="preferences_app_uservoice_text">Поділіться ідеями або спитайте про підтримку</string>
   <string name="preferences_app_playstore_link">Оцініть застосунок</string>
   <string name="preferences_app_playstore_link_text">Оцініть Tomahawk в Google Play Крамниці</string>
   <string name="preferences_app_website_link">Відвідайте наш сайт</string>
-  <string name="preferences_app_website_link_text">Відкрити tomahawk-player.org у Вашому тенет-оглядачі.</string>
+  <string name="preferences_app_website_link_text">Відкрити tomahawk-player.org у Вашому оглядачі-тенет.</string>
   <string name="preferences_app_sendlog">Відправити логи</string>
   <string name="preferences_app_sendlog_text">Відправити Ваші логи для зневадження</string>
   <string name="preferences_app_sendlog_dialog_text">Будь ласка, дайте короткий опис проблеми, яка в Вас виникла й вкажіть Вашу електронну адресу, щоб ми могли законтактувати з Вами. Дякуємо!</string>
   <string name="preferences_app_sendlog_email">Ваша електронна адреса</string>
   <string name="preferences_app_sendlog_issue">Помилка</string>
   <string name="crash_dialog_title">Tomahawk припинив роботу</string>
-  <string name="crash_dialog_text">Несподівана помилка припинила роботу програми Будь ласка, допоможіть нам виправити це, відіславши нам дані про помилку, Все, що від Вас потрібно - це натиснути Гаразд.</string>
+  <string name="crash_dialog_text">Несподівана помилка припинила роботу проґрами Будь ласка, допоможіть нам виправити це, відіславши нам дані про помилку, Все, що від Вас потрібно - це натиснути Гаразд.</string>
   <string name="crash_dialog_comment_prompt">Ви можете додати нижче Ваші коментарі про проблему:</string>
   <string name="crash_dialog_ok_toast">Дякуємо !</string>
   <string name="context_menu_play">Відтворити</string>
   <string name="context_menu_add_to_queue">Додати до Черги</string>
-  <string name="context_menu_add_to_playlist">Додати до Списку відтворення</string>
+  <string name="context_menu_add_to_playlist">Додати до Грайлиста</string>
   <string name="context_menu_create_station">Створити станцію</string>
   <string name="context_menu_delete">Вилучити</string>
-  <string name="context_menu_removefromplaylist">Вилучити із списку відтворення</string>
+  <string name="context_menu_removefromplaylist">Вилучити із Грайлиста</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
   <string name="context_menu_removefromcollection">Вилучити з колекції</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
@@ -96,11 +96,11 @@
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
   <string name="context_menu_unlove">Неулюблене</string>
   <string name="context_menu_share">Поділитися</string>
-  <string name="contest_menu_share_error">Ви повинні увійти в Hatchet, щоб поділитися цим списком відтворення.</string>
+  <string name="contest_menu_share_error">Ви повинні увійти в Hatchet, щоб поділитися цим грайлистом.</string>
   <string name="drawer_title_feed">Фід</string>
   <string name="drawer_title_charts">Чарти</string>
   <string name="drawer_title_collection">Колекція</string>
-  <string name="drawer_title_playlists">Списки відтворення</string>
+  <string name="drawer_title_playlists">Грайлисти</string>
   <string name="drawer_title_stations">Станції</string>
   <string name="drawer_title_lovedtracks">Улюблене</string>
   <string name="drawer_title_settings">Параметри</string>
@@ -110,7 +110,7 @@
   <string name="collection_dropdown_play_count">Кількість Відтворень</string>
   <string name="collection_dropdown_alpha_albums">Альбом від А до Я</string>
   <string name="collection_dropdown_alpha">Від А до Я</string>
-  <string name="history">Історія</string>
+  <string name="history">Минулопис</string>
   <string name="preferences_bitrate_low">Нормально</string>
   <string name="preferences_bitrate_medium">Добре</string>
   <string name="preferences_bitrate_high">Найкраще</string>
@@ -121,25 +121,26 @@
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
   <string name="content_header_follow">Підписатися</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
-  <string name="suggest_users">Рекомендовані люди</string>
+  <string name="suggest_users">Раджені люди</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <string name="socialaction_type_follow">%1$s підписався</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
   <plurals name="socialaction_type_love_track">
-    <item quantity="one">%1$s улюблений трек</item>
-    <item quantity="few">%1$s улюблені %2$d треки</item>
-    <item quantity="other">%1$s улюблених %2$d треків</item>
+    <item quantity="one">%1$s вподобав пісню</item>
+    <item quantity="few">%1$s вподобані %2$d пісні</item>
+    <item quantity="other">%1$s вподобаних %2$d пісень</item>
   </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">%1$s прокоментував</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <plurals name="socialaction_type_createplaylist">
-    <item quantity="one">%1$s створив список відтворення</item>
-    <item quantity="few">%1$s створив  %2$d списки відтворення</item>
-    <item quantity="other">%1$s створив %2$d списків відтворення</item>
+    <item quantity="one">%1$s створив грайлист</item>
+    <item quantity="few">%1$s створив  %2$d грайлисти</item>
+    <item quantity="other">%1$s створив %2$d грайлистів</item>
   </plurals>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
   <string name="album_by_artist">%1$s від %2$s</string>
@@ -161,12 +162,12 @@
   </plurals>
   <string name="users_playbacklog_suffix">%1$s\'s нещодавно слухав</string>
   <string name="users_favorites_suffix">%1$s\'s Улюблене</string>
-  <string name="users_playlist_suffix">%1$s\'s Список відтворення</string>
+  <string name="users_playlist_suffix">%1$s\'s Грайлист</string>
   <string name="my_playbacklog">Мої нещодавно прослухані</string>
   <string name="my_favorites">Моє улюблене</string>
-  <string name="my_playlist">Мій список відтворення</string>
+  <string name="my_playlist">Мій грайлист</string>
   <string name="music">Музика</string>
-  <string name="biography">Біографія</string>
+  <string name="biography">Життєпис</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <string name="similar">Схожі</string>
   <!--Shown as a title for a list of songs in the search results view.-->
@@ -184,44 +185,48 @@
   <string name="following">Читані</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">Підписувачі: %1$d, Підписки: %2$d</string>
+  <string name="resolver_config_enable_button_enable">Увімк.</string>
+  <string name="resolver_config_enable_button_disable">Вимк.</string>
   <string name="resolver_config_redirect_button_text_log_into">Увійти в</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Вийти з</string>
   <string name="resolver_config_redirect_button_text_download_plugin">Стягнути втулку для</string>
-  <string name="ask_access_activity_header">Бажаєте автоматично зберігати дані про всі доріжки, які відтворюються на Hatchet?</string>
+  <string name="ask_access_activity_header">Бажаєте автоматично зберігати дані про усі доріжки, які відтворюються на Hatchet?</string>
   <string name="ask_access_activity_text1">Ми зробимо це для Вас! Будь ласка, увімкніть наш сервіс в налаштуваннях Вашої системи.</string>
   <string name="button_close">Закрити</string>
   <string name="view_album">Переглянути альбом</string>
   <string name="connect">З’єднатися</string>
-  <string name="connect_headertext">Виберіть сервіси, які бажали б додати. Tomahawk працює тим краще, чим більше сервісів активировано.</string>
+  <string name="connect_headertext">Виберіть сервіси, які бажали б додати. Tomahawk працює тим краще, чим більше сервісів активовано.</string>
   <string name="connect_header_manualresolvers">Встановлено у звичайний спосіб</string>
   <string name="advanced">Розширені</string>
   <string name="info">Інфо</string>
   <string name="playbackpanel_seek_coachmark">Ви можете перемотувати пісню довгим натисканням на кнопку Відтворення.</string>
-  <string name="slidinglayout_enqueue_coachmark">Натисніть, щоб додати пісню у чергу.</string>
-  <string name="playbackfragment_navigation_coachmark_down">Потягніть вгору, щоб побачити поточний список відтворення.</string>
+  <string name="slidinglayout_enqueue_coachmark">Натисніть, щоб додати пісню до черги.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Потягніть вгору, щоб побачити поточний грайлист.</string>
   <string name="playbackfragment_navigation_coachmark_up">Потягніть донизу, щоб закрити вікно відтворення.</string>
   <string name="playbackfragment_navigation_coachmark_center">Змахніть наліво або направо, щоб увімкнути наступну або попередню пісню. Довге натискання, щоб відкрити меню. Подвійне натискання, щоб додати в улюблене.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
   <string name="next_page">Наступна</string>
   <string name="welcome_fragment_explanation_title">Починаючи роботу</string>
-  <string name="welcome_fragment_explanation_text">Досить вишукувати музику шастаючи безмежними тенетами всесвітнього павутиння - сервісами, які Ви не використовуєте або до яких не маєте доступу. Лише за ім’ям або посиланням на пісню, альбомом або списком відтворення, Tomahawk знайде пісню у ліпшій якости й відтворить її.</string>
+  <string name="welcome_fragment_explanation_heading">Музика всюди.\nЙ тепер Вам не доведеться за нею всюди бігати.</string>
+  <string name="welcome_fragment_explanation_text">Досить вишукувати музику шастаючи безмежними тенетами всесвітнього павутиння - сервісами, які Ви не використовуєте або до яких не маєте доступу. Лише за ім’ям або посиланням на пісню, альбомом чи грайлистом, Tomahawk знайде пісню у ліпшій якости й відтворить її.</string>
   <string name="welcome_fragment_hatchet_title">Волієте поспілкуватися?</string>
-  <string name="welcome_fragment_hatchet_text">З Hatchet Ви, нарешті, можете мати свою музичну колекцію зібрану у одному місці. Діліться списками й улюбленими піснями. Або просто синхронізуйте Застосунок з Tomahawk на Вашому комп’ютері.</string>
+  <string name="welcome_fragment_hatchet_text">З Hatchet Ви, нарешті, можете мати свою музичну колекцію зібрану у одному місці. Діліться грайлистами й улюбленими піснями. Або просто синхронізуйте Застосунок з Tomahawk на Вашому комп’ютері.</string>
   <string name="welcome_fragment_setup_title">З’єднатися</string>
   <string name="welcome_fragment_done_title">Виконано!</string>
   <string name="welcome_fragment_done_heading">Усі завдання виконано!</string>
   <string name="welcome_fragment_done_text">Веселого Вам використання нашого застосунку й не забудьте сказати, що Ви про нього думаєте!</string>
   <plurals name="add_to_playlist_headertext">
-    <item quantity="one">Виберіть список відтворення, у який потрібно додати %1$d пісню:</item>
-    <item quantity="few">Виберіть список відтворення, у який потрібно додати %1$d пісні:</item>
-    <item quantity="other">Виберіть список відтворення, у який потрібно додати %1$d пісень:</item>
+    <item quantity="one">Виберіть грайлист, у який потрібно додати %1$d пісню:</item>
+    <item quantity="few">Виберіть грайлист, у який потрібно додати %1$d пісні:</item>
+    <item quantity="other">Виберіть грайлист, у який потрібно додати %1$d пісень:</item>
   </plurals>
+  <string name="seeking_not_supported">На жаль, цей засіб не підтримує пошук.</string>
   <string name="install_plugin_title">Встановлення втулок</string>
-  <string name="install_plugin_warning">Ви хочете додати в Tomahawk втулку з невідомого джерела. Це небезпечно.</string>
+  <string name="install_plugin_warning">Ви бажаєте додати в Tomahawk втулку з невідомого джерела. Це небезпечно.</string>
   <string name="install_plugin_warning2">Ви справді волієте встановити цю Втулку?</string>
   <string name="uninstall_plugin_title">Вилучити втулку</string>
   <string name="uninstall_plugin_warning">Ви справді бажаєте вилучити цю Втулку?</string>
-  <string name="gmusic_info_text">Виберіть обліковий запис:</string>
+  <string name="gmusic_info_text">Виберіть обліковку:</string>
   <string name="invalid_file">Неможливо відкрити файл.</string>
   <string name="unknown_album">Невідомий альбом</string>
   <string name="unknown_artist">Невідомий виконавець</string>
@@ -239,6 +244,8 @@
   <string name="playback_unfavorite">Вилучити з улюблених</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">Перемішати &amp; Грати</string>
   <string name="loading_station">Завантажити станцію:</string>
+  <string name="suggested_stations">Пропоновані станції</string>
   <string name="my_stations">Мої станції</string>
 </resources>
