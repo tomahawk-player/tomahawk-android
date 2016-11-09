@@ -156,6 +156,28 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
         });
     },
 
+    _convertTrack2: function (entry) {
+        var track = {
+            artist:     entry.artist.name,
+            album:      entry.album.title,
+            track:      entry.title,
+            title:      entry.title,
+
+            albumpos:   entry.trackNum,
+            discnumber: entry.discNum,
+
+            duration:   entry.duration,
+
+            checked:    true,
+            type:       "track",
+            url : 'amzn://track/' + entry.duration + '/ASIN/' + entry.asin
+        };
+        // also has originalReleaseDate with values like 1476921600000
+
+        track.hint = track.url;
+        return track;
+    },
+
     _convertTrack: function (entry) {
         if (entry.hasOwnProperty('metadata'))
             entry = entry.metadata;
@@ -187,9 +209,6 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
         else
             track.url = 'amzn://track/' + entry.duration + '/ASIN/' + entry.asin;
 
-        if (entry.hasOwnProperty('bitrate'))
-            track.bitrate = entry.bitrate;
-
         track.hint = track.url;
         return track;
     },
@@ -205,7 +224,32 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
 
 
         //Just a guess, not sure how to check if haz prime music
-        if (that._appConfig['featureController']['primePlatformMS3'] == 1)
+        if (that._appConfig.featureController.hawkfireAccess == 1)
+        {
+            Tomahawk.log("Music Unlimited");
+            return that._post(that.api_location + "clientbuddy/compartments/eeb70a31c77c4ecd/handlers/search", {
+                data: {
+                    "keywords" : params.query,
+                    "offset" : 0,
+                    "count" : 100,
+                    "marketplaceId" : that._appConfig['cirrus']['marketplaceId'],
+                    "features" : ["musicSubscription"],
+                    "isMusicSubscription" : true,
+                    "primeOnly" : false,
+                    "requestUiContentDeliveredMetrics" : true,
+                    "sslMedia" : true,
+                    "types" : ["track" /* "album", "artist", "station", "playlist" */ ]
+                },
+                dataFormat: 'json',
+                headers : {
+                    "x-amzn-cb-deviceid" : that._appConfig.deviceId,
+                    "x-amzn-cb-devicetype" : that._appConfig.deviceType
+                }
+            }, false).then( function (response) {
+                return response.trackList.map(that._convertTrack2, that);
+            });
+        }
+        else if (that._appConfig.featureController.robin == 1)
         {
             //I have no idea where this URL comes from yet
             //This is to search 'Prime Music'
