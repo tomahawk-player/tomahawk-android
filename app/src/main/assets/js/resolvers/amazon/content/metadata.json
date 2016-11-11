@@ -3,7 +3,7 @@
     "pluginName": "amazon",
     "author": "Creepy Guy In The Corner",
     "email": "",
-    "version": "0.0.9",
+    "version": "0.0.10",
     "website": "http://gettomahawk.com",
     "description": "Streams music from Amazon Music",
     "type": "resolver/javascript",
