@@ -21,7 +21,7 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
 
     settings: {
         cacheTime: 300,
-        name: 'Amazon Prime Music',
+        name: 'Amazon Music',
         icon: '../images/icon.png',
         weight: 91,
         timeout: 8,
@@ -158,10 +158,10 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
 
     _convertTrack2: function (entry) {
         var track = {
-            artist:     entry.artist.name,
-            album:      entry.album.title,
-            track:      entry.title,
-            title:      entry.title,
+            artist:     Tomahawk.htmlDecode(entry.artist.name),
+            album:      Tomahawk.htmlDecode(entry.album.title),
+            track:      Tomahawk.htmlDecode(entry.title),
+            title:      Tomahawk.htmlDecode(entry.title),
 
             albumpos:   entry.trackNum,
             discnumber: entry.discNum,
@@ -182,10 +182,11 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
         if (entry.hasOwnProperty('metadata'))
             entry = entry.metadata;
         var track = {
-            artist:     entry.artistName,
-            album:      entry.albumName,
-            track:      entry.title,
-            title:      entry.title,
+            artist:     Tomahawk.htmlDecode(entry.artistName),
+            albumArtist:     Tomahawk.htmlDecode(entry.albumArtistName),
+            album:      Tomahawk.htmlDecode(entry.albumName),
+            track:      Tomahawk.htmlDecode(entry.title),
+            title:      Tomahawk.htmlDecode(entry.title),
 
             albumpos:   entry.trackNum,
             discnumber: entry.discNum,
@@ -226,7 +227,6 @@ var AmazonResolver = Tomahawk.extend( Tomahawk.Resolver, {
         //Just a guess, not sure how to check if haz prime music
         if (that._appConfig.featureController.hawkfireAccess == 1)
         {
-            Tomahawk.log("Music Unlimited");
             return that._post(that.api_location + "clientbuddy/compartments/eeb70a31c77c4ecd/handlers/search", {
                 data: {
                     "keywords" : params.query,
