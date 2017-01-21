@@ -3,16 +3,87 @@
   <string name="ok">OK</string>
   <string name="cancel">Anuluj</string>
   <string name="register">Zarejestruj</string>
+  <string name="rescan">Przeskanuj ponownie</string>
+  <string name="internal_storage">Pamięć wewnętrzna</string>
+  <string name="tracks">Utwory</string>
+  <string name="albums">Albumy</string>
   <string name="artists">Artysta</string>
+  <string name="users">Użytkownicy</string>
+  <string name="top_hits">Najlepsze Hity</string>
+  <string name="top_albums">Najlepsze Albumy</string>
+  <string name="other_releases">Inne wydania</string>
+  <string name="playlist_details">Szczegóły Playlisty</string>
+  <string name="album_details">Szczegóły Albumu</string>
+  <string name="search">Wyszukaj</string>
+  <string name="playlist">Playlista</string>
+  <string name="repeat_on_label">Powtarzanie jest włączone</string>
+  <string name="repeat_off_label">Powtarzanie jest wyłączone</string>
+  <string name="save_playlist">Zapisz obecną playlistę</string>
+  <string name="create_playlist">Utwórz playliste</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
+  <string name="name_playlist">Tytuł</string>
+  <string name="create_station">Utwórz stację</string>
+  <string name="genres">Gatunki</string>
+  <string name="moods">Nastroje</string>
+  <string name="login_name_label">E-Mail/Nazwa użytkownika</string>
+  <string name="login_username">Nazwa użytkownika</string>
+  <string name="login_password">Hasło</string>
+  <string name="login_password_confirmation">Potwierdź hasło</string>
+  <string name="account_email_label">E-Mail (opcjonalny)</string>
+  <string name="error_field_required">To pole jest wymagane</string>
+  <string name="error_passwords_dont_match">Hasła się różnią</string>
+  <string name="error_invalid_credentials">Nazwa użytkownika lub hasło jest niepoprawne</string>
+  <string name="error_account_expired">Twoje konto wygasło</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
+  <string name="auth_logged_in">Zalogowany do %1$s</string>
   <!--Shown as a toast message. Indicates that the user has logged out of a certain service. (e.g. Logged out of Spotify)-->
+  <string name="auth_logged_out">Wylogowany z %1$s</string>
+  <string name="local_collection_pretty_name">Lokalna kolekcja</string>
+  <string name="preferences_equalizer">Korektor graficzny</string>
+  <string name="preferences_playback_data">Scrobbluj wszystko</string>
+  <string name="preferences_playback_data_text">Scrobbluj każdy utwór z każdego odtwarzacza na telefonie do %1$s</string>
+  <string name="preferences_plug_and_play_text">Zacznij odtwarzać muzykę kiedy słuchawki zostaną podłączone</string>
+  <string name="preferences_audio_quality">Preferowana jakość audio</string>
+  <string name="preferences_audio_quality_text">Preferowana jakość audio jeśli telefon nie jest połączony do WiFi</string>
+  <string name="preferences_app_uservoice_text">Podziel się pomysłami lub zapytaj support</string>
+  <string name="preferences_app_playstore_link">Oceń aplikację</string>
+  <string name="preferences_app_playstore_link_text">Oceń Tomahawk w Google Play Store</string>
+  <string name="preferences_app_website_link">Odwiedź naszą stronę</string>
+  <string name="preferences_app_website_link_text">Otwórz tomahawk-player.org w przeglądarce</string>
+  <string name="preferences_app_sendlog">Wyślij dziennik</string>
+  <string name="preferences_app_sendlog_dialog_text">Proszę krótko opisać problem, który posiadasz oraz podaj email, żeby skontaktować się z Tobą w razie potrzeby. Dziękujemy!</string>
+  <string name="preferences_app_sendlog_email">Twój adres email</string>
+  <string name="crash_dialog_ok_toast">Dziękuję !</string>
+  <string name="context_menu_add_to_queue">Dodaj do kolejki</string>
+  <string name="context_menu_add_to_playlist">Dodaj do playlisty</string>
+  <string name="context_menu_create_station">Utwórz Stację</string>
+  <string name="context_menu_delete">Usuń</string>
+  <string name="context_menu_removefromplaylist">Usuń z playlisty</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
+  <string name="context_menu_removefromcollection">Usuń z kolekcji</string>
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
+  <string name="context_menu_addtocollection">Dodaj do kolekcji</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">Polub</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">Przestań lubić</string>
+  <string name="context_menu_share">Udostępnij</string>
+  <string name="drawer_title_collection">Kolekcje</string>
+  <string name="drawer_title_playlists">Playlisty</string>
+  <string name="drawer_title_stations">Stacje</string>
+  <string name="drawer_title_lovedtracks">Ulubione</string>
+  <string name="drawer_title_settings">Ustawienia</string>
+  <string name="drawer_header_cloudcollections">Kolekcje w chmurze</string>
+  <string name="collection_dropdown_recently_added">Ostatnio dodane</string>
+  <string name="collection_dropdown_alpha">A-Z</string>
+  <string name="history">Historia</string>
+  <string name="preferences_bitrate_low">Normalna</string>
+  <string name="preferences_bitrate_medium">Dobra</string>
+  <string name="preferences_bitrate_high">Najlepsza</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
+  <string name="content_header_following">Obserwowani</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Obserwuj</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
@@ -23,14 +94,61 @@
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="time_afewseconds">kilka sekund temu</string>
+  <plurals name="time_minute">
+    <item quantity="one">minutę temu</item>
+    <item quantity="few">%1$d minuty temu</item>
+    <item quantity="other">%1$d minut temu</item>
+  </plurals>
+  <plurals name="time_hour">
+    <item quantity="one">godzinę temu</item>
+    <item quantity="few">%1$d godziny temu</item>
+    <item quantity="other">%1$d godzin temu</item>
+  </plurals>
+  <plurals name="time_day">
+    <item quantity="one">dzień temu</item>
+    <item quantity="few">%1$d dni temu</item>
+    <item quantity="other">%1$d dni temu</item>
+  </plurals>
+  <string name="my_favorites">Moje Ulubione</string>
+  <string name="music">Muzyka</string>
+  <string name="biography">Biografia</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
   <!--Shown as a title for a list of songs in the search results view.-->
+  <string name="songs">Utwory</string>
   <!--Shown as part of a count string. E.g.: "3 Songs", "1 Song"-->
+  <string name="activity">Aktywnośc</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users by which the corresponding user is being followed".-->
+  <string name="followers">Obserwujący</string>
   <!--Shown on the user page as a column title. The text should say something in the sense of: "list of users which the corresponding user is following".-->
+  <string name="following">Obserwowani</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
+  <string name="resolver_config_enable_button_enable">Włącz</string>
+  <string name="resolver_config_enable_button_disable">Wyłącz</string>
+  <string name="resolver_config_redirect_button_text_log_into">Zaloguj do</string>
+  <string name="resolver_config_redirect_button_text_log_out_of">Wyloguj z</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Pobierz wtyczkę do</string>
+  <string name="ask_access_activity_text1">Zrobimy to za Ciebie! Proszę włącz naszą usługę w ustawieniach systemu</string>
+  <string name="button_close">Zamknij</string>
+  <string name="view_album">Wyświetl album</string>
+  <string name="connect">Połącz z</string>
+  <string name="slidinglayout_enqueue_coachmark">Stuknij, aby dodać utwór do kolejki</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="welcome_fragment_done_title">Gotowe!</string>
+  <string name="welcome_fragment_done_heading">Wszystko gotowe!</string>
+  <string name="install_plugin_warning2">Na pewno chcesz zainstalować tą wtyczkę?</string>
+  <string name="uninstall_plugin_title">Usuwanie wtyczki</string>
+  <string name="gmusic_info_text">Wybierz konto:</string>
+  <string name="unknown_album">Nieznany album</string>
+  <string name="unknown_artist">Nieznany artysta</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="playback_previous">Poprzedni utwór</string>
+  <string name="playback_next">Następny utwór</string>
+  <string name="playback_favorite">Dodaj do ulubionych</string>
+  <string name="playback_unfavorite">Usuń z ulubionych</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">Teraz odtwarzane</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="loading_station">Ładowanie stacji:</string>
+  <string name="my_stations">Moje Stacje</string>
 </resources>
