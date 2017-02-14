@@ -98,16 +98,19 @@
   <plurals name="time_minute">
     <item quantity="one">minutę temu</item>
     <item quantity="few">%1$d minuty temu</item>
+    <item quantity="many">%1$d minut temu</item>
     <item quantity="other">%1$d minut temu</item>
   </plurals>
   <plurals name="time_hour">
     <item quantity="one">godzinę temu</item>
     <item quantity="few">%1$d godziny temu</item>
+    <item quantity="many">%1$d godzin temu</item>
     <item quantity="other">%1$d godzin temu</item>
   </plurals>
   <plurals name="time_day">
     <item quantity="one">dzień temu</item>
     <item quantity="few">%1$d dni temu</item>
+    <item quantity="many">%1$d dni temu</item>
     <item quantity="other">%1$d dni temu</item>
   </plurals>
   <string name="my_favorites">Moje Ulubione</string>
