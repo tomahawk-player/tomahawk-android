@@ -243,6 +243,7 @@
   <string name="playback_favorite">Додати до улюблених</string>
   <string name="playback_unfavorite">Вилучити з улюблених</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">Зараз грає</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
   <string name="mediabrowser_shuffledplay">Перемішати &amp; Грати</string>
   <string name="loading_station">Завантажити станцію:</string>
