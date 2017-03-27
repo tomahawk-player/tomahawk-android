@@ -148,20 +148,23 @@ public class MediaWrapper implements Parcelable {
             return;
 
         String fileExt = null;
-        int dotIndex = mTitle != null ? mTitle.lastIndexOf(".") : -1;
+        final int index = mUri.toString().indexOf('?');
+        String location;
+        if (index == -1)
+            location = mUri.toString();
+        else
+            location = mUri.toString().substring(0, index);
 
+        int dotIndex = location.lastIndexOf(".");
         if (dotIndex != -1) {
-            fileExt = mTitle.substring(dotIndex).toLowerCase(Locale.ENGLISH);
+            fileExt = location.substring(dotIndex).toLowerCase(Locale.ENGLISH);
         } else {
-            final int index = mUri.toString().indexOf('?');
-            String location;
-            if (index == -1)
-                location = mUri.toString();
-            else
-                location = mUri.toString().substring(0, index);
-            dotIndex = location.lastIndexOf(".");
-            if (dotIndex != -1)
-                fileExt = location.substring(dotIndex).toLowerCase(Locale.ENGLISH);
+            // Try to get the extension from the title, as fallback.
+            dotIndex = mTitle != null ? mTitle.lastIndexOf(".") : -1;
+
+            if (dotIndex != -1) {
+                fileExt = mTitle.substring(dotIndex).toLowerCase(Locale.ENGLISH);
+            }
         }
 
         if (!TextUtils.isEmpty(fileExt)) {
