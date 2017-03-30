@@ -275,13 +275,24 @@ public class PlaybackManager extends Cacheable {
         mCallback.onPlaylistChanged();
     }
 
+    /**
+     * Defaults to adding query to the end of the queue.
+     * @param query
+     */
     public void addToQueue(Query query) {
-        Log.d(TAG, "addToQueue: " + query);
+        addToQueue(query, mQueue.size());
+    }
+
+    public void addToQueue(Query query, int position) {
+        Log.d(TAG, "addToQueue: " + query + " position: " + position);
         if (mCallback == null) {
             Log.e(TAG, "addToQueue failed: " + query);
             return;
         }
-        mQueue.addQuery(mQueue.size(), query);
+        if (position > mQueue.size()){
+            position = mQueue.size();
+        }
+        mQueue.addQuery(position, query);
         if (getCurrentEntry() == null) {
             setCurrentEntry(mQueue.getEntryAtPos(0), false);
         }
@@ -289,12 +300,20 @@ public class PlaybackManager extends Cacheable {
     }
 
     public void addToQueue(List<Query> queries) {
+        addToQueue(queries, mQueue.size());
+    }
+
+    public void addToQueue(List<Query> queries, int position) {
         Log.d(TAG, "addToQueue: queries.size()= " + queries.size());
         if (mCallback == null) {
             Log.e(TAG, "addToQueue failed: queries.size()= " + queries.size());
             return;
         }
-        int counter = 0;
+
+        if (position > mQueue.size()){
+            position = mQueue.size();
+        }
+        int counter = position;
         for (Query query : queries) {
             mQueue.addQuery(counter++, query);
         }

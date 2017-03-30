@@ -83,6 +83,7 @@
   <string name="crash_dialog_comment_prompt">You might add your comments about the problem below:</string>
   <string name="crash_dialog_ok_toast">Thank you !</string>
   <string name="context_menu_play">Play</string>
+  <string name="context_menu_play_next">Play Next</string>
   <string name="context_menu_add_to_queue">Add to Queue</string>
   <string name="context_menu_add_to_playlist">Add to Playlist</string>
   <string name="context_menu_create_station">Create Station</string>

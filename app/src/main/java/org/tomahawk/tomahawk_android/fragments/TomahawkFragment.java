@@ -101,6 +101,8 @@ public abstract class TomahawkFragment extends TomahawkListFragment
 
     public static final String PLAYLISTENTRY = "playlistentry";
 
+    public static final String QUEUE_POSITION = "queueposition";
+
     public static final String QUERY = "query";
 
     public static final String QUERYARRAY = "queryarray";

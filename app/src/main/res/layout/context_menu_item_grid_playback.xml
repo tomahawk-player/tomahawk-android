@@ -38,6 +38,13 @@
                   android:layout_height="match_parent"
                   android:layout_weight="1"/>
 
+        <ViewStub android:id="@+id/context_menu_playnext_stub"
+          	  android:layout="@layout/context_menu_item"
+          	  android:inflatedId="@+id/context_menu_playnext"
+          	  android:layout_width="0dp"
+          	  android:layout_height="match_parent"
+          	  android:layout_weight="1"/>
+
         <ViewStub android:id="@+id/context_menu_createstation_stub"
                   android:layout="@layout/context_menu_item"
                   android:inflatedId="@+id/context_menu_createstation"

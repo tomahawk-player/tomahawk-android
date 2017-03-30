@@ -118,6 +118,12 @@ public class PlaybackService extends MediaBrowserServiceCompat {
     public static final String ACTION_ADD_QUERIES_TO_QUEUE
             = "org.tomahawk.tomahawk_android.ADD_QUERIES_TO_QUEUE";
 
+    public static final String ACTION_INSERT_QUERY_TO_QUEUE
+            = "org.tomahawk.tomahawk_android.INSERT_QUERY_TO_QUEUE";
+
+    public static final String ACTION_INSERT_QUERIES_TO_QUEUE
+            = "org.tomahawk.tomahawk_android.INSERT_QUERIES_TO_QUEUE";
+
     public static final String ACTION_SET_SHUFFLE_MODE
             = "org.tomahawk.tomahawk_android.SET_SHUFFLE_MODE";
 
@@ -405,6 +411,18 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                     queries.add(Query.getByKey(queryKey));
                 }
                 mPlaybackManager.addToQueue(queries);
+            } else if (ACTION_INSERT_QUERY_TO_QUEUE.equals(action)) {
+                Query query = Query.getByKey(extras.getString(TomahawkFragment.QUERY));
+                int position = extras.getInt(TomahawkFragment.QUEUE_POSITION);
+                mPlaybackManager.addToQueue(query, position);
+            } else if (ACTION_INSERT_QUERIES_TO_QUEUE.equals(action)) {
+                List<String> queryKeys = extras.getStringArrayList(TomahawkFragment.QUERYARRAY);
+                List<Query> queries = new ArrayList<>();
+                for (String queryKey : queryKeys) {
+                    queries.add(Query.getByKey(queryKey));
+                }
+                int position = extras.getInt(TomahawkFragment.QUEUE_POSITION);
+                mPlaybackManager.addToQueue(queries, position);
             } else if (ACTION_SET_SHUFFLE_MODE.equals(action)) {
                 int shuffleMode = extras.getInt(EXTRAS_KEY_SHUFFLE_MODE);
                 Log.d(TAG, "setShuffleMode to " + shuffleMode);

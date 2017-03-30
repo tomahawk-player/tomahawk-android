@@ -315,6 +315,12 @@ public class ContextMenuFragment extends Fragment {
             setupAddToPlaylistButton(view, queries);
         }
 
+        // set up "Play Next" context menu item
+            if (mAlbum != null || mPlaylist != null || mPlaylistEntry != null
+                || mQuery != null) {
+            setupPlayNextButton(view, mAlbum, mPlaylist, mPlaylistEntry, mQuery);
+        }
+        
         // set up "Create station" context menu item
         if (mAlbum != null || mArtist != null || mPlaylist != null || mPlaylistEntry != null
                 || mQuery != null) {
@@ -519,6 +525,73 @@ public class ContextMenuFragment extends Fragment {
         }
     }
 
+    private void setupPlayNextButton(View view, final Album album, final Playlist playlist, 
+                                     final PlaylistEntry entry, final Query query) {
+
+            int drawableResId = R.drawable.ic_action_queue;
+            int stringResId = R.string.context_menu_play_next;
+            View v = ViewUtils.ensureInflation(view, R.id.context_menu_playnext_stub,
+                    R.id.context_menu_playnext);
+            TextView textView = (TextView) v.findViewById(R.id.textview);
+            ImageView imageView = (ImageView) v.findViewById(R.id.imageview);
+            imageView.setImageResource(drawableResId);
+            textView.setText(stringResId);
+            v.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    getActivity().getSupportFragmentManager().popBackStack();
+                    if (mAlbum != null) {
+                        mCollection.getAlbumTracks(mAlbum).done(new DoneCallback<Playlist>() {
+                            @Override
+                            public void onDone(Playlist playlist) {
+                                ArrayList<String> queryKeys = new ArrayList<>();
+                                if (playlist != null) {
+                                    for (PlaylistEntry entry : playlist.getEntries()) {
+                                        queryKeys.add(entry.getQuery().getCacheKey());
+                                    }
+                                }
+                                Bundle extras = new Bundle();
+                                extras.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
+                                extras.putInt(TomahawkFragment.QUEUE_POSITION,1);
+                                getActivity().getSupportMediaController()
+                                        .getTransportControls().sendCustomAction(
+                                        PlaybackService.ACTION_INSERT_QUERIES_TO_QUEUE, extras);
+                            }
+                        });
+                    } else if (mQuery != null) {
+                        Bundle extras = new Bundle();
+                        extras.putString(TomahawkFragment.QUERY, mQuery.getCacheKey());
+                        extras.putInt(TomahawkFragment.QUEUE_POSITION,1);
+                        getActivity().getSupportMediaController()
+                                .getTransportControls().sendCustomAction(
+                                PlaybackService.ACTION_INSERT_QUERY_TO_QUEUE, extras);
+                    } else if (mPlaylistEntry != null) {
+                        Bundle extras = new Bundle();
+                        extras.putString(TomahawkFragment.QUERY,
+                                mPlaylistEntry.getQuery().getCacheKey());
+                        extras.putInt(TomahawkFragment.QUEUE_POSITION,1);
+                        getActivity().getSupportMediaController()
+                                .getTransportControls().sendCustomAction(
+                                PlaybackService.ACTION_INSERT_QUERY_TO_QUEUE, extras);
+                    } else if (mPlaylist != null) {
+                        ArrayList<String> queryKeys = new ArrayList<>();
+                        if (mPlaylist != null) {
+                            for (PlaylistEntry entry : mPlaylist.getEntries()) {
+                                queryKeys.add(entry.getQuery().getCacheKey());
+                            }
+                        }
+                        Bundle extras = new Bundle();
+                        extras.putStringArrayList(TomahawkFragment.QUERYARRAY, queryKeys);
+                        extras.putInt(TomahawkFragment.QUEUE_POSITION,1);
+                        getActivity().getSupportMediaController()
+                                .getTransportControls().sendCustomAction(
+                                PlaybackService.ACTION_INSERT_QUERIES_TO_QUEUE, extras);
+                    }
+                }
+            });
+    
+    }
+    
     private void setupCreateStationButton(View view, final Album album, final Artist artist,
             final Playlist playlist, final PlaylistEntry entry, final Query query) {
         View v = ViewUtils.ensureInflation(view, R.id.context_menu_createstation_stub,
