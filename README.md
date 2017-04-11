@@ -67,3 +67,5 @@ For a larger overview you should read the official Android "Code Style Guideline
 
 [Spotify Plugin App](https://github.com/tomahawk-player/tomahawk-android-spotify)     
 [Deezer Plugin App](https://github.com/tomahawk-player/tomahawk-android-deezer)
+
+RIZA ISIK WAS HERE.
