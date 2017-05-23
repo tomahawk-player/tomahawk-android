@@ -33,6 +33,7 @@
   <string name="create_station">Crear estación</string>
   <string name="create_station_search_hint">Búsqueda de artistas/canciones/géneros</string>
   <string name="genres">Géneros</string>
+  <string name="moods">Estados de ánimo</string>
   <string name="login_name_label">Usuario o correo electrónico</string>
   <string name="login_username">Nombre de usuario</string>
   <string name="login_password">Contraseña</string>
@@ -253,6 +254,7 @@
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
   <string name="mediabrowser_queue_title">Reproduciendo ahora</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">Reproducción aleatoria</string>
   <string name="loading_station">Cargando estación:</string>
   <string name="suggested_stations">Estaciones sugeridas</string>
   <string name="my_stations">Mis estaciones</string>
