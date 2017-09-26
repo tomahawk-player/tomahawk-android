@@ -6,28 +6,45 @@
   <string name="logout">Logg av</string>
   <string name="register">Registrer</string>
   <string name="register_and_login">Registrer &amp; Logg på</string>
+  <string name="rescan">Skann på nytt nå</string>
   <string name="internal_storage">Intern lagring</string>
   <string name="tracks">Låter</string>
   <string name="albums">Albumer</string>
   <string name="artists">Artister</string>
   <string name="users">Brukere</string>
+  <string name="top_hits">Topphits</string>
+  <string name="top_albums">Toppalbum</string>
+  <string name="albums_and_eps">Album og EP-er</string>
   <string name="other_releases">Andre utgivelser</string>
+  <string name="playlist_details">Spillelistedetaljer</string>
+  <string name="album_details">Albumdetaljer</string>
   <string name="search">Søk</string>
   <string name="playlist">Spilleliste</string>
+  <string name="shuffle_on_label">Veksling er på</string>
+  <string name="shuffle_off_label">Veksling er av</string>
+  <string name="repeat_on_label">Gjentagelse er på</string>
+  <string name="repeat_off_label">Gjentagelse er av</string>
   <string name="unknown">ukjent</string>
   <string name="no_track">ingen låter</string>
   <string name="save_playlist">Lagre nåværende spilleliste</string>
   <string name="create_playlist">Opprett spilleliste</string>
   <!--Shown as a textfield hint in the "create playlist"-dialog. Indicates that the user should type the playlist's title into the textfield.-->
   <string name="name_playlist">Tittel</string>
+  <string name="create_station">Opprett stasjon</string>
+  <string name="create_station_search_hint">Søk etter artist/sanger/sjangere</string>
+  <string name="genres">Sjangere</string>
+  <string name="moods">Stemninger</string>
   <string name="login_name_label">E-post/Brukernavn</string>
   <string name="login_username">Brukernavn</string>
   <string name="login_password">Passord</string>
+  <string name="login_password_confirmation">Passordbekreftelse</string>
   <string name="account_email_label">E-post (valgfritt)</string>
   <string name="error_field_required">Dette feltet er påkrevet</string>
   <string name="error_passwords_dont_match">Passordene er ikke like</string>
   <string name="error_invalid_credentials">Brukernavn eller passord er feil.</string>
   <string name="error_invalid_account">Konto avvist av tjener.</string>
+  <string name="error_communication">Kunne ikke autentisere. Sjekk tilkoblingen din.</string>
+  <string name="error_simultaneous_streams">Handlingen tillates ikke, kontoen er i bruk annensteds hen.</string>
   <string name="error_account_expired">Kontoen din har utløpt.</string>
   <!--Shown as a toast message. Indicates that the user has logged into a certain service. (e.g. Logged into Spotify)-->
   <string name="auth_logged_in">Koblet til %1$s</string>
@@ -35,8 +52,39 @@
   <string name="auth_logged_out">Koblet fra %1$s</string>
   <string name="local_collection_pretty_name">Lokal samling</string>
   <string name="local">Lokal</string>
+  <string name="all">Alle</string>
+  <string name="preferences_local_collection_text">Velg mappene som skal skannes for lokale mediafiler.</string>
+  <string name="preferences_hatchet_text">Synk din data med %1$s.</string>
+  <string name="preferences_playback">Avspilling</string>
+  <string name="preferences_equalizer">Tonekontroll</string>
+  <string name="preferences_equalizer_text">Juster lydutgangen.</string>
+  <string name="preferences_playback_data">Forslagstilknytt alt</string>
+  <string name="preferences_playback_data_text">Forslagstilknytt hvert spor fra hver musikkspiller på enheten til %1$s.</string>
+  <string name="preferences_plug_and_play">Plugg i for å spille</string>
+  <string name="preferences_plug_and_play_text">Begynner å spille musikk så snart et hodesett kobles til.</string>
+  <string name="preferences_audio_quality">Foretrukket lydkvalitet</string>
+  <string name="preferences_audio_quality_text">Foretrukket lydkvalitet hvis ikke tilkoblet Wi-Fi.</string>
+  <string name="preferences_info">Info</string>
+  <string name="preferences_app_version">Programversjon</string>
+  <string name="preferences_app_uservoice">Tilbakemelding</string>
+  <string name="preferences_app_uservoice_text">Del dine idéer eller spør om støtte.</string>
+  <string name="preferences_app_playstore_link">Vurder programmet</string>
+  <string name="preferences_app_playstore_link_text">Vurder Tomahawk på Google Play-butikken.</string>
+  <string name="preferences_app_website_link">Besøk vår nettside</string>
+  <string name="preferences_app_website_link_text">Åpne tomahawk-player.org i din nettleser.</string>
+  <string name="preferences_app_sendlog">Send loggføring</string>
+  <string name="preferences_app_sendlog_text">Send dine loggfiler i feilrettingsøyemed.</string>
+  <string name="preferences_app_sendlog_dialog_text">Beskriv kort problemet du opplever og oppgi en e-postadresse slik at vi kan kontakte deg hvis det er nødvendig. Takk.</string>
+  <string name="preferences_app_sendlog_email">Din e-postadresse</string>
+  <string name="preferences_app_sendlog_issue">Problem</string>
+  <string name="crash_dialog_title">Tomahawk har kræsjet</string>
+  <string name="crash_dialog_text">En uventet feil inntraff som tvingte programmet til å stoppe. Hjelp oss med å fikse dette ved å sende feildataen, alt du trenger å gjøre er å trykke OK.</string>
+  <string name="crash_dialog_comment_prompt">Det kan hende du trenger å kommentere problemet nedenfor:</string>
+  <string name="crash_dialog_ok_toast">Takk.</string>
   <string name="context_menu_play">Spill</string>
+  <string name="context_menu_add_to_queue">Legg til i køa</string>
   <string name="context_menu_add_to_playlist">Legg til i spilleliste</string>
+  <string name="context_menu_create_station">Opprett stasjon</string>
   <string name="context_menu_delete">Slett</string>
   <string name="context_menu_removefromplaylist">Fjern fra spilleliste</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
@@ -44,30 +92,72 @@
   <!--Shown in the context menu as an "add to collection"-button (meant in the context of: Add the currently selected item to your collection)-->
   <string name="context_menu_addtocollection">Legg til i samling</string>
   <!--Shown in the context menu as a "love"-button (meant in the context of: Add the currently selected item to your loved tracks)-->
+  <string name="context_menu_love">Elsk</string>
   <!--Shown in the context menu as an "unlove"-button (meant in the context of: Remove the currently selected item from your loved tracks)-->
+  <string name="context_menu_unlove">Fjern elskov</string>
   <string name="context_menu_share">Del</string>
+  <string name="contest_menu_share_error">Du må logge inn i Hatchet for å kunne dele denne spillelisten.</string>
+  <string name="drawer_title_feed">Strøm</string>
+  <string name="drawer_title_charts">Lister</string>
   <string name="drawer_title_collection">Samling</string>
   <string name="drawer_title_playlists">Spillelister</string>
+  <string name="drawer_title_stations">Stasjoner</string>
   <string name="drawer_title_lovedtracks">Favoritter</string>
   <string name="drawer_title_settings">Innstillinger</string>
   <string name="drawer_header_cloudcollections">Skysamlinger</string>
   <string name="collection_dropdown_recently_added">Nylig lagt til</string>
   <string name="collection_dropdown_alpha_artists">Artist A-Å</string>
+  <string name="collection_dropdown_play_count">Avspillingsantall</string>
   <string name="collection_dropdown_alpha_albums">Album A-Å</string>
   <string name="collection_dropdown_alpha">A-Å</string>
+  <string name="history">Historikk</string>
+  <string name="preferences_bitrate_low">Normal</string>
+  <string name="preferences_bitrate_medium">God</string>
+  <string name="preferences_bitrate_high">Best</string>
+  <string name="drawer_open">Åpne navigasjonsskuff</string>
+  <string name="drawer_close">Lukk navigasjonsskuff</string>
   <!--Shown on the user page as a button. The text should indicate that you are already following the corresponding user.-->
   <string name="content_header_following">Følger</string>
   <!--Shown on the user page as a button. The text should indicate an action. A press of the button will make you follow the corresponding user.-->
+  <string name="content_header_follow">Følg</string>
   <!--Shown in the user's social feed, if he/she doesn't follow any users. The phrase is followed by a list of suggested users to follow.-->
+  <string name="suggest_users">Foreslåtte folk å følge</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen is now following" followed by a list of users)-->
+  <string name="socialaction_type_follow">%1$s følger nå</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen loved a track" followed by a link to the loved track(s))-->
+  <plurals name="socialaction_type_love_track">
+    <item quantity="one">%1$s elsket et spor</item>
+    <item quantity="other">%1$s elsket %2$d spor</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected a track" followed by a link to the collected track(s))-->
+  <plurals name="socialaction_type_collected_track">
+    <item quantity="one">%1$s samlet et spor</item>
+    <item quantity="other">%1$s samlet %2$d spor</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an album" followed by a link to the collected album(s))-->
+  <plurals name="socialaction_type_collected_album">
+    <item quantity="one">%1$s samlet et album</item>
+    <item quantity="other">%1$s samlet %2$d album</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen collected an artist" followed by a link to the collected artist(s))-->
+  <plurals name="socialaction_type_collected_artist">
+    <item quantity="one">%1$s samlet en artist</item>
+    <item quantity="other">%1$s samlet %2$d artister</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen commented on "Greatest Hits" by Queen")-->
+  <string name="socialaction_type_createcomment">%1$s kommenterte</string>
   <!--Shown in the user's social feed (e.g. "mrmaffen listened along to a friend" followed by a single user or a list of users)-->
+  <plurals name="socialaction_type_latchon">
+    <item quantity="one">%1$s lyttet sammen med en venn</item>
+    <item quantity="other">%1$s lyttet sammen med %2$d venner</item>
+  </plurals>
   <!--Shown in the user's social feed (e.g. "mrmaffen created a playlist" followed by a link to the created playlist(s))-->
+  <plurals name="socialaction_type_createplaylist">
+    <item quantity="one">%1$s opprettet en spilleliste</item>
+    <item quantity="other">%1$s opprettet %2$d spillelister</item>
+  </plurals>
   <!--$Album/$Track by $Artist (examples: "Greatest Hits" by Queen, "We will rock you" by Queen)-->
+  <string name="album_by_artist">%1$s av %2$s</string>
   <string name="time_afewseconds">noen få sekunder siden</string>
   <plurals name="time_minute">
     <item quantity="one">ett minutt siden</item>
@@ -81,6 +171,12 @@
     <item quantity="one">en dag siden</item>
     <item quantity="other">%1$d dager siden</item>
   </plurals>
+  <string name="users_playbacklog_suffix">%1$s sine nylig spilte</string>
+  <string name="users_favorites_suffix">%1$s sine favoritter</string>
+  <string name="users_playlist_suffix">%1$ss spilleliste</string>
+  <string name="my_playbacklog">Mine nylig spilte</string>
+  <string name="my_favorites">Mine favoritter</string>
+  <string name="my_playlist">Min spilleliste</string>
   <string name="music">Musikk</string>
   <string name="biography">Biografi</string>
   <!--"Similar" in the sense of "similar artists" or "similar songs" on an artist/track page.-->
@@ -99,12 +195,67 @@
   <string name="following">Følger</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">Følgere: %1$d, Følger: %2$d</string>
+  <string name="resolver_config_enable_button_enable">Skru på</string>
+  <string name="resolver_config_enable_button_disable">Skru av</string>
   <string name="resolver_config_redirect_button_text_log_into">Koble til</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Koble fra</string>
+  <string name="resolver_config_redirect_button_text_download_plugin">Last ned programtillegg for</string>
+  <string name="ask_access_activity_header">Ønsker du å automatisk lagre data om alle sporene du spiller på Hatchet?</string>
+  <string name="ask_access_activity_text1">Vi vil gjøre det for deg! Skru på tjenesten vår i systeminnstillingene.</string>
   <string name="button_close">Lukk</string>
   <string name="view_album">Vis album</string>
+  <string name="connect">Koble til</string>
+  <string name="connect_headertext">Velg tjenestene du ønsker å bruke. Tomahawk fungere bedre når flere tjenester er aktivert.</string>
+  <string name="connect_header_manualresolvers">Manuelt installert</string>
+  <string name="advanced">Avansert</string>
+  <string name="info">Info</string>
+  <string name="playbackpanel_seek_coachmark">Du kan søke gjennom et spor ved å trykke lenge på Spill-knappen.</string>
+  <string name="slidinglayout_enqueue_coachmark">Trykk for å legge sporet til i køa.</string>
+  <string name="playbackfragment_navigation_coachmark_down">Dra opp for å se gjeldende spilleliste.</string>
+  <string name="playbackfragment_navigation_coachmark_up">Dra ned for å lukke avspillingsskuffen.</string>
+  <string name="playbackfragment_navigation_coachmark_center">Dra til venstre/høyre for å hope til neste/forrige spor. Trykk lenge for å åpne bindeleddsinfomeny. Dobbeltklikk for å legge til som favoritt.</string>
   <!--Shown as a button in the welcome view. A press of the button gets you to the next page.-->
+  <string name="next_page">Neste</string>
+  <string name="welcome_fragment_explanation_title">Kom i gang</string>
+  <string name="welcome_fragment_explanation_heading">Musikk er overalt.\nNå trenger ikke du å være det.</string>
+  <string name="welcome_fragment_explanation_text">Slutt å jakte musikk rundt hele nettet - på tjenester du ikke bruker, eller kilder du ikke har tilgang til. Gitt navnet eller lenken til en sang, album eller spilleliste, vil Tomahawk finne den beste tilgjengelige kilden for deg og bare spille den.</string>
+  <string name="welcome_fragment_hatchet_title">Ønsker du å sosialisere?</string>
+  <string name="welcome_fragment_hatchet_text">Med Hatchet kan du endelig ha din musikksamling på ett sted. Del dine spillelister og favorittspor. Eller bare synkroniser programmet med Tomahawk på din skrivebordsmaskin.</string>
+  <string name="welcome_fragment_setup_title">Koble til</string>
+  <string name="welcome_fragment_done_title">Ferdig!</string>
+  <string name="welcome_fragment_done_heading">Alt er ferdig!</string>
+  <string name="welcome_fragment_done_text">Ha det gøy i utforskningen av programmet og fortell oss hva du synes!</string>
+  <plurals name="add_to_playlist_headertext">
+    <item quantity="one">Velg en spilleliste å legge til %1$d spor til:</item>
+    <item quantity="other">Velg en spilleliste å legge til %1$d spor til:</item>
+  </plurals>
+  <string name="seeking_not_supported">Beklager, denne løseren støtter ikke søking.</string>
+  <string name="install_plugin_title">Programtilleggsinstallsjon:</string>
+  <string name="install_plugin_warning">Du er i ferd med å installere Tomahawk-programtillegget fra en ukjent kilde. Dette kan være en sikkerhetsrisiko.</string>
+  <string name="install_plugin_warning2">Ønsker du virkelig å installere dette programtillegget?</string>
+  <string name="uninstall_plugin_title">Avinstaller programtilllegg</string>
+  <string name="uninstall_plugin_warning">Ønsker du virkelig å avinstallere dette programtillegget?</string>
+  <string name="gmusic_info_text">Velg en konto:</string>
+  <string name="invalid_file">Kan ikke åpne fila.</string>
+  <string name="unknown_album">Ukjent album</string>
+  <string name="unknown_artist">Ukjent artist</string>
+  <string name="notification_settings_activity_not_found">Fant ikke innstillingsprogrammet på din enhet. Gi Tomahawk tilgang til dine merknader i systeminnstillingene.</string>
+  <string name="warn_closed_source_text">Advarsel: Du er i ferd med å laste ned et programtillegg som inneholder ufrie deler. Altså lukket kildekode.</string>
+  <string name="warn_old_plugin">Det påkrevde programtillegget er utdatert og ikke lenger kompatibelt. Ønsker du å oppdatere det nå?</string>
+  <string name="warn_no_plugin">Det påkrevde programtillegget er ikke lenger installert. Ønsker du å installere det nå?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
+  <string name="create_new">ny</string>
+  <string name="playback_pause">Pause</string>
+  <string name="playback_play">Spill</string>
+  <string name="playback_previous">Forrige spor</string>
+  <string name="playback_next">Neste spor</string>
+  <string name="playback_favorite">Legg til i favoritter</string>
+  <string name="playback_unfavorite">Fjern fra favoritter</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">Spilles nå</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">Veksle og spill</string>
+  <string name="loading_station">Laster stasjon:</string>
+  <string name="suggested_stations">Foreslåtte stasjoner</string>
+  <string name="my_stations">Mine stasjoner</string>
 </resources>
