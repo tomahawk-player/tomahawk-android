@@ -84,6 +84,7 @@
   <string name="context_menu_play">Воспроизведение</string>
   <string name="context_menu_add_to_queue">Добавить в очередь</string>
   <string name="context_menu_add_to_playlist">Добавить в плейлист</string>
+  <string name="context_menu_create_station">Создать станцию</string>
   <string name="context_menu_delete">Удалить</string>
   <string name="context_menu_removefromplaylist">Удалить из Плейлиста</string>
   <!--Shown in the context menu as an "remove from collection"-button (meant in the context of: Remove the currently selected item from your collection)-->
@@ -208,6 +209,8 @@
   <string name="following">Читаемые</string>
   <!--Shown next to a user's name to indicate how many followers he/she has and how many users he/she is following.-->
   <string name="followers_count">Подписчики: %1$d, Подписки: %2$d</string>
+  <string name="resolver_config_enable_button_enable">Разрешить</string>
+  <string name="resolver_config_enable_button_disable">Запретить</string>
   <string name="resolver_config_redirect_button_text_log_into">Войти в</string>
   <string name="resolver_config_redirect_button_text_log_out_of">Выйти из</string>
   <string name="resolver_config_redirect_button_text_download_plugin">Скачать плагин для </string>
@@ -258,6 +261,17 @@
   <string name="warn_no_plugin">Требуемый плагин не установлен. Вы хотите установить его сейчас?</string>
   <!--Shown on the playlist page. This is the text on the button that lets the user create a new playlist/station.-->
   <string name="create_new">новое</string>
+  <string name="playback_pause">Пауза</string>
+  <string name="playback_play">Воспроизведение</string>
+  <string name="playback_previous">Предыдущий трек</string>
+  <string name="playback_next">Следующий трек</string>
+  <string name="playback_favorite">Добавить в избранное</string>
+  <string name="playback_unfavorite">Удалить из избранного</string>
   <!--Shown on external UIs as a title for the currently playing queue. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_queue_title">Сейчас играет</string>
   <!--Shown on external UIs as a title for a category that shows a selection of tracks that can be shuffled and played. Android Auto and Wear are using this.-->
+  <string name="mediabrowser_shuffledplay">Воспроизведение в случайном порядке</string>
+  <string name="loading_station">Загрузка станции:</string>
+  <string name="suggested_stations">Предлагаемые станции:</string>
+  <string name="my_stations">Мои станции</string>
 </resources>
